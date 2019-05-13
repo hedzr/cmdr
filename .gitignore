@@ -1,0 +1,38 @@
+.idea/
+*.iml
+.DS\_Store
+tmp/
+bin/
+output/
+ref/
+try*/
+bash.comp.1/
+test_try/
+
+### two executable files
+
+would_like
+would_like_n/would_like_n
+test/test
+
+### Go template
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
+.glide/
+
+.pid/
+
+
+devops
+main

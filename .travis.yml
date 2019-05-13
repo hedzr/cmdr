@@ -1,0 +1,19 @@
+language: go
+go:
+  - tip
+install:
+  - go get -d -v ./...
+script:
+  - ./test.sh --build-ci
+deploy:
+  provider: releases
+  api_key:
+    secure: K94JYYm0N/BzDYzMoWjo1MrqgsWOmIb8kTiQ1/GCuTm/wHc1eUF2I9I7mej6ZMcUpxVP0yJfNHwZmcwWYq9DNnRDlq4HNwYKjJjIZDMEcVqF/DN6Muo6XCMly0OjQvy8/gRrUUFCQ771BjDysmQzQFlv2V5BbcQ1gphuWP1lyOHQ2Z40l+Ss/g5fPq11M1L44cwrveUKlX9yypQUSzGgq12+JY2W3EOIr4NttTwIJ1dVFU8SmNICcXBXy/0Ed6p5NEewJKBshyVf0RlpZjHIJElzOPqctRYSgLlru2eJbnwaZPQ/0aT6wFLPXAk9MDhp1D87GTPyIgHg0mqRAJw3Ey6X2vpL4oyn0q/kc4YVgjdk18g3fsTGqHiD20rQR6yFPv+yEidVBaiqZ7lEDoUKaU2tbJ8Gc+t0zVesPMI6AX2AXTT/ZhNgyE88LpCW9HXXQlw2UYabQiCH5LljALGQJg92lAkEEiFjU5/k3I+jtdL7A0DjFc8CHgnyeFagJga8CqkjhIPytl+vrpuxb8GQKbqR5BPfEfPZyUCs7SwVGiOp4C7Mi3+XTG9id3z+GDi8PHVsoYGQEOIWM3dcuvT2Wv8FXt/k5ITj0vDexflgHZL75L+zEM7fukCkeKnULY1V81jS2vJxXgQe+JJT2QDZJuRyDdhkbUQNHqbleiMzZR4=
+  file:
+    - bin/demo_linux-amd64.gz
+    - bin/short_linux-amd64.gz
+    - bin/wget-demo_linux-amd64.gz
+  skip_cleanup: true
+  on:
+    tags: true
+    repo: hedzr/cmdr

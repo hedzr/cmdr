@@ -1,5 +1,7 @@
 # cmdr
 
+[![Build Status](https://travis-ci.com/hedzr/cmdr.svg?token=fpUigjpscfp3TbfqAu2D&branch=master)](https://travis-ci.com/hedzr/cmdr)
+
 getopt/getopt_long like command-line UI golang library.
 
 A getopt-like parser of command-line options, compatible with the [getopt_long](http://www.gnu.org/s/libc/manual/html_node/Argument-Syntax.html#Argument-Syntax) syntax, which is an extension of the syntax recommended by POSIX.
@@ -34,6 +36,12 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 - `cmdr.GetBool(key)`, `cmdr.GetInt(key)`, `cmdr.GetString(key)`, `cmdr.GetStringSlice(key)` for Option value extraction.
 
 
+## Examples
+
+1. demo
+2. short
+3. wget-demo
+   ![](./docs/wget-demo.png)
 
 
 

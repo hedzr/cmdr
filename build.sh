@@ -32,10 +32,10 @@ build_one () {
 	local suffix=${3:-dar}
 	local S=''
 	case $suffix in
-		dar) 	S="";;
-		bin) 	S="-$OS-$ARCH";;
-		win)	S="-$OS-$ARCH.exe";;
-		*) 		S="-$suffix";;
+		dar) 	S="" ;;
+		bin|linux-*|darwin-*) 	S="-$OS-$ARCH" ;;
+		win|windows-*)	S="-$OS-$ARCH.exe" ;;
+		*) 		S="-$suffix" ;;
 	esac
 	shift;shift;shift;
 	echo "PWD=$(pwd)"

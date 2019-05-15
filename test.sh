@@ -20,6 +20,8 @@ build-ci() {
 	PKG_SRC=./examples/demo/main.go APPNAME=demo ./build.sh all
 	PKG_SRC=./examples/wget-demo/main.go APPNAME=wget-demo ./build.sh all
 	ls -la ./bin/
+	for f in bin/*; do gzip $f; done 
+	ls -la ./bin/
 }
 
 run-demo() {

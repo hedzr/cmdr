@@ -102,15 +102,21 @@ func printHelpZshCommands(command *Command, justFlags bool) {
 func printHelpUsages(command *Command) {
 	if len(rootCommand.Header) == 0 {
 		fp("\nUsages: ")
-		ttl := "Commands"
+		
+		ttl := "[Commands]"
 		if command.owner != nil {
-			ttl = "Sub-Commands"
+			if len(command.SubCommands) == 0 {
+				ttl = ""
+			} else {
+				ttl = "[Sub-Commands]"
+			}
 		}
+		
 		cmds := strings.ReplaceAll(backtraceCmdNames(command), ".", " ")
 		if len(cmds) > 0 {
 			cmds += " "
 		}
-		fp("    %s %v[%s] [Options] [Parent/Global Options]", rootCommand.Name, cmds, ttl)
+		fp("    %s %v%s [Options] [Parent/Global Options]", rootCommand.Name, cmds, ttl)
 	}
 }
 
@@ -242,6 +248,14 @@ func normalize(s string) string {
 		s = s[strings.Index(s, ".")+1:]
 	}
 	return s
+}
+
+func SetCustomShowVersion(fn func()){
+	globalShowVersion = fn
+}
+
+func SetCustomShowBuildInfo(fn func()){
+	globalShowBuildInfo = fn
 }
 
 func showVersion() {

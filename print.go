@@ -44,6 +44,7 @@ func printHelp(command *Command, justFlags bool) {
 		printHeader()
 
 		printHelpUsages(command)
+		printHelpDescription(command)
 		printHelpExamples(command)
 
 		printHelpSection(command, justFlags)
@@ -102,21 +103,27 @@ func printHelpZshCommands(command *Command, justFlags bool) {
 func printHelpUsages(command *Command) {
 	if len(rootCommand.Header) == 0 {
 		fp("\nUsages: ")
-		
-		ttl := "[Commands]"
+
+		ttl := "[Commands] "
 		if command.owner != nil {
 			if len(command.SubCommands) == 0 {
 				ttl = ""
 			} else {
-				ttl = "[Sub-Commands]"
+				ttl = "[Sub-Commands] "
 			}
 		}
-		
+
 		cmds := strings.ReplaceAll(backtraceCmdNames(command), ".", " ")
 		if len(cmds) > 0 {
 			cmds += " "
 		}
-		fp("    %s %v%s [Options] [Parent/Global Options]", rootCommand.Name, cmds, ttl)
+		fp("    %s %v%s%s [Options] [Parent/Global Options]", rootCommand.Name, cmds, ttl, command.TailPlaceHolder)
+	}
+}
+
+func printHelpDescription(command *Command) {
+	if len(command.Description)>0 {
+		fp("\nDescription: \n    %v", command.Description)
 	}
 }
 
@@ -223,7 +230,23 @@ GO_PRINT_FLAGS:
 				for _, nm := range k3 {
 					flg := groups[nm]
 					if !flg.Hidden {
-						fp("  %-48s%v", flg.GetTitleFlagNames(), flg.Description)
+						defValStr := ""
+						if flg.DefaultValue != nil {
+							if ss, ok := flg.DefaultValue.(string); ok && len(ss) > 0 {
+								if len(flg.DefaultValuePlaceholder) > 0 {
+									defValStr = fmt.Sprintf(" (default %v='%s')", flg.DefaultValuePlaceholder, ss)
+								} else {
+									defValStr = fmt.Sprintf(" (default='%s')", ss)
+								}
+							} else {
+								if len(flg.DefaultValuePlaceholder) > 0 {
+									defValStr = fmt.Sprintf(" (default %v=%v)", flg.DefaultValuePlaceholder, flg.DefaultValue)
+								} else {
+									defValStr = fmt.Sprintf(" (default=%v)", flg.DefaultValue)
+								}
+							}
+						}
+						fp("  %-48s%v%s", flg.GetTitleFlagNames(), flg.Description, defValStr)
 					}
 				}
 			}
@@ -250,11 +273,11 @@ func normalize(s string) string {
 	return s
 }
 
-func SetCustomShowVersion(fn func()){
+func SetCustomShowVersion(fn func()) {
 	globalShowVersion = fn
 }
 
-func SetCustomShowBuildInfo(fn func()){
+func SetCustomShowBuildInfo(fn func()) {
 	globalShowBuildInfo = fn
 }
 

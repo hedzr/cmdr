@@ -55,6 +55,9 @@ type (
 		PreAction func(cmd *Command, args []string) (err error)
 		// PostAction will be run after Action() invoked.
 		PostAction func(cmd *Command, args []string)
+		// be shown at tail of command usages line. Such as for TailPlaceHolder="<host-fqdn> <ipv4/6>":
+		// austr dns add <host-fqdn> <ipv4/6> [Options] [Parent/Global Options]
+		TailPlaceHolder string
 
 		root       *RootCommand
 		allCmds    map[string]map[string]*Command // key1: Commnad.Group, key2: Command.Full

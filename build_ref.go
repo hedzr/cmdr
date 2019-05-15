@@ -119,7 +119,7 @@ func buildRootCrossRefs(root *RootCommand) {
 					},
 					DefaultValuePlaceholder: "[Location of config file]",
 				},
-				DefaultValue: false,
+				DefaultValue: nil,
 			}
 			root.plainFlags["help"] = root.allFlags[SYSMGMT]["help"]
 			root.plainFlags["helpme"] = root.allFlags[SYSMGMT]["help"]

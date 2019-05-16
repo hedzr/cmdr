@@ -37,6 +37,7 @@ func printHelp(command *Command, justFlags bool) {
 		printHelpZsh(command, justFlags)
 
 	} else if GetBool("app.help-bash") {
+		// TODO for bash
 		printHelpZsh(command, justFlags)
 
 	} else {

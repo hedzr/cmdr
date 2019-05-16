@@ -46,8 +46,20 @@ func GetBool(key string) bool {
 	return RxxtOptions.GetBool(key)
 }
 
-func GetInt(key string) int64 {
+func GetInt(key string) int {
+	return int(RxxtOptions.GetInt(key))
+}
+
+func GetInt64(key string) int64 {
 	return RxxtOptions.GetInt(key)
+}
+
+func GetUint(key string) uint {
+	return uint(RxxtOptions.GetUint(key))
+}
+
+func GetUint64(key string) uint64 {
+	return RxxtOptions.GetUint(key)
 }
 
 func GetString(key string) string {
@@ -68,6 +80,13 @@ func (s *Options) GetBool(key string) (ret bool) {
 
 func (s *Options) GetInt(key string) (ir int64) {
 	if ir64, err := strconv.ParseInt(s.GetString(key), 10, 64); err == nil {
+		ir = ir64
+	}
+	return
+}
+
+func (s *Options) GetUint(key string) (ir uint64) {
+	if ir64, err := strconv.ParseUint(s.GetString(key), 10, 64); err == nil {
 		ir = ir64
 	}
 	return

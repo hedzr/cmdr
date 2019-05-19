@@ -109,13 +109,14 @@ func (s *Options) mergeConfigFile(fr io.Reader) (err error) {
 	return
 }
 
-func (s *Options) visit(path string, f os.FileInfo, err error) error {
-	// fmt.Printf("Visited: %s, e: %v\n", path, err)
-	if f != nil && !f.IsDir() {
+func (s *Options) visit(path string, f os.FileInfo, e error) (err error) {
+	// fmt.Printf("Visited: %s, e: %v\n", path, e)
+	if f != nil && !f.IsDir() && e == nil {
 		// log.Infof("    path: %v, ext: %v", path, filepath.Ext(path))
 		switch filepath.Ext(path) {
 		case ".yml", ".yaml": // , "yml", "yaml":
-			file, err := os.Open(path)
+			var file *os.File
+			file, err = os.Open(path)
 			if err != nil {
 				// log.Warnf("ERROR: os.Open() returned %v", err)
 			} else {
@@ -127,6 +128,8 @@ func (s *Options) visit(path string, f os.FileInfo, err error) error {
 				// log.Infof("%s = %s", key, viper.Get(key))
 			}
 		}
+	} else {
+		err = e
 	}
 	return err
 }
@@ -172,9 +175,12 @@ func (s *Options) watchConfigDir(configDir string) {
 						(strings.HasSuffix(event.Name, ".yml") || strings.HasSuffix(event.Name, ".yaml")) {
 						file, err := os.Open(event.Name)
 						if err != nil {
-							// log.Warnf("ERROR: os.Open() returned %v", err)
+							log.Printf("ERROR: os.Open() returned %v\n", err)
 						} else {
 							err = viper.MergeConfig(bufio.NewReader(file))
+							if err != nil {
+								log.Printf("ERROR: os.Open() returned %v\n", err)
+							}
 							s.reloadConfig(event)
 							file.Close()
 						}
@@ -191,7 +197,7 @@ func (s *Options) watchConfigDir(configDir string) {
 			}
 		}()
 		_ = watcher.Add(configDir)
-		initWG.Done()   // done initalizing the watch in this go routine, so the parent routine can move on...
+		initWG.Done()   // done initializing the watch in this go routine, so the parent routine can move on...
 		eventsWG.Wait() // now, wait for event loop to end in this go-routine...
 	}()
 	initWG.Wait() // make sure that the go routine above fully ended before returning

@@ -1,6 +1,7 @@
 # cmdr
 
 [![Build Status](https://travis-ci.org/hedzr/cmdr.svg?branch=master)](https://travis-ci.org/hedzr/cmdr)
+[![Go Report Card](https://goreportcard.com/badge/github.com/hedzr/cmdr)](https://goreportcard.com/report/github.com/hedzr/cmdr)
 
 getopt/getopt_long like command-line UI golang library.
 

@@ -28,10 +28,8 @@ var (
 	rootCmd = &cmdr.RootCommand{
 		Command: cmdr.Command{
 			BaseOpt: cmdr.BaseOpt{
-				Name: "short",
-				Flags: []*cmdr.Flag{
-
-				},
+				Name:  "short",
+				Flags: []*cmdr.Flag{},
 			},
 			SubCommands: []*cmdr.Command{
 				serverCommands,
@@ -50,14 +48,14 @@ var (
 		BaseOpt: cmdr.BaseOpt{
 			Short:       "s",
 			Full:        "server",
-			Aliases:     []string{"serve", "svr",},
+			Aliases:     []string{"serve", "svr"},
 			Description: "server ops: for linux service/daemon.",
 			Flags: []*cmdr.Flag{
 				{
 					BaseOpt: cmdr.BaseOpt{
 						Short:       "f",
 						Full:        "foreground",
-						Aliases:     []string{"fg",},
+						Aliases:     []string{"fg"},
 						Description: "running at foreground",
 					},
 				},
@@ -68,7 +66,7 @@ var (
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "s",
 					Full:        "start",
-					Aliases:     []string{"run", "startup",},
+					Aliases:     []string{"run", "startup"},
 					Description: "startup this system service/daemon.",
 					Action: func(cmd *cmdr.Command, args []string) (err error) {
 						return
@@ -79,7 +77,7 @@ var (
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "t",
 					Full:        "stop",
-					Aliases:     []string{"stp", "halt", "pause",},
+					Aliases:     []string{"stp", "halt", "pause"},
 					Description: "stop this system service/daemon.",
 				},
 			},
@@ -87,14 +85,14 @@ var (
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "r",
 					Full:        "restart",
-					Aliases:     []string{"reload",},
+					Aliases:     []string{"reload"},
 					Description: "restart this system service/daemon.",
 				},
 			},
 			{
 				BaseOpt: cmdr.BaseOpt{
 					Full:        "status",
-					Aliases:     []string{"st",},
+					Aliases:     []string{"st"},
 					Description: "display its running status as a system service/daemon.",
 				},
 			},
@@ -102,7 +100,7 @@ var (
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "i",
 					Full:        "install",
-					Aliases:     []string{"setup",},
+					Aliases:     []string{"setup"},
 					Description: "install as a system service/daemon.",
 				},
 			},
@@ -110,7 +108,7 @@ var (
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "u",
 					Full:        "uninstall",
-					Aliases:     []string{"remove",},
+					Aliases:     []string{"remove"},
 					Description: "remove from a system service/daemon.",
 				},
 			},

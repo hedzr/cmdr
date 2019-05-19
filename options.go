@@ -236,7 +236,7 @@ func DumpAsString() (str string) {
 
 func (s *Options) DumpAsString() (str string) {
 	k3 := make([]string, 0)
-	for k, _ := range s.entries {
+	for k := range s.entries {
 		k3 = append(k3, k)
 	}
 	sort.Strings(k3)

@@ -12,7 +12,7 @@ import (
 func Entry() {
 
 	logrus.SetLevel(logrus.DebugLevel)
-	logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true,})
+	logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
 
 	cmdr.EnableVersionCommands = true
 	cmdr.EnableVerboseCommands = true

@@ -13,14 +13,14 @@ var (
 			Group:       SYSMGMT,
 			Short:       "g",
 			Full:        "generate",
-			Aliases:     []string{"gen",},
+			Aliases:     []string{"gen"},
 			Description: "generators for this app.",
 		},
 		SubCommands: []*Command{{
 			BaseOpt: BaseOpt{
 				Short:       "s",
 				Full:        "shell",
-				Aliases:     []string{"sh",},
+				Aliases:     []string{"sh"},
 				Description: "generate the bash/zsh auto-completion script or install it.",
 				Action:      genShell,
 				Flags: []*Flag{
@@ -57,7 +57,7 @@ var (
 			BaseOpt: BaseOpt{
 				Short:       "m",
 				Full:        "manual",
-				Aliases:     []string{"man",},
+				Aliases:     []string{"man"},
 				Description: "generate linux man page.",
 				Action:      genManual,
 			},
@@ -73,7 +73,7 @@ var (
 						BaseOpt: BaseOpt{
 							Short:       "md",
 							Full:        "markdown",
-							Aliases:     []string{"mkd", "m",},
+							Aliases:     []string{"mkd", "m"},
 							Group:       "doc",
 							Description: "generate mardown",
 						},
@@ -211,7 +211,7 @@ var (
 					},
 				},
 			},
-		},},
+		}},
 	}
 )
 

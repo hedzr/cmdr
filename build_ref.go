@@ -16,7 +16,7 @@ func buildRootCrossRefs(root *RootCommand) {
 			root.allCmds[SYSMGMT]["version"] = &Command{
 				BaseOpt: BaseOpt{
 					Full:        "version",
-					Aliases:     []string{"ver",},
+					Aliases:     []string{"ver"},
 					Description: "Show the version of this app.",
 					Action: func(cmd *Command, args []string) (err error) {
 						showVersion()
@@ -67,7 +67,7 @@ func buildRootCrossRefs(root *RootCommand) {
 				BaseOpt: BaseOpt{
 					Short:       "h",
 					Full:        "help",
-					Aliases:     []string{"?", "helpme", "info", "usage",},
+					Aliases:     []string{"?", "helpme", "info", "usage"},
 					Description: "Show this help screen",
 					Hidden:      true,
 					Action: func(cmd *Command, args []string) (err error) {

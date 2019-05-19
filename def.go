@@ -118,9 +118,9 @@ var (
 	RxxtOptions *Options = NewOptions()
 
 	// RxxtPrefix create a top-level namespace, which contains all normalized `Flag`s.
-	RxxtPrefix = []string{"app",}
+	RxxtPrefix = []string{"app"}
 
-	EnvPrefix = []string{"CMDR",}
+	EnvPrefix = []string{"CMDR"}
 
 	usedConfigFile            string
 	usedConfigSubDir          string

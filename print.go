@@ -123,7 +123,7 @@ func printHelpUsages(command *Command) {
 }
 
 func printHelpDescription(command *Command) {
-	if len(command.Description)>0 {
+	if len(command.Description) > 0 {
 		fp("\nDescription: \n    %v", command.Description)
 	}
 }
@@ -158,7 +158,7 @@ func printHelpCommandSection(command *Command, justFlags bool) {
 			fp("\nSub-Commands:")
 		}
 		k0 := make([]string, 0)
-		for k, _ := range command.allCmds {
+		for k := range command.allCmds {
 			if k != UNSORTED_GROUP {
 				k0 = append(k0, k)
 			}
@@ -176,7 +176,7 @@ func printHelpCommandSection(command *Command, justFlags bool) {
 				}
 
 				k1 := make([]string, 0)
-				for k, _ := range groups {
+				for k := range groups {
 					k1 = append(k1, k)
 				}
 				sort.Strings(k1)
@@ -204,7 +204,7 @@ GO_PRINT_FLAGS:
 	if count > 0 {
 		fp("\n%v:", sectionName)
 		k2 := make([]string, 0)
-		for k, _ := range command.allFlags {
+		for k := range command.allFlags {
 			if k != UNSORTED_GROUP {
 				k2 = append(k2, k)
 			}
@@ -223,7 +223,7 @@ GO_PRINT_FLAGS:
 				}
 
 				k3 := make([]string, 0)
-				for k, _ := range groups {
+				for k := range groups {
 					k3 = append(k3, k)
 				}
 				sort.Strings(k3)

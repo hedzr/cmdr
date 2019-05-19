@@ -11,7 +11,7 @@ import (
 
 func main() {
 	logrus.SetLevel(logrus.DebugLevel)
-	logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true,})
+	logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
 	cmdr.EnableVersionCommands = false
 	cmdr.EnableVerboseCommands = false
 	cmdr.EnableHelpCommands = false
@@ -45,11 +45,10 @@ var (
 				Flags: append(
 					startupFlags,
 					append(loggerFlags,
-						downloadFlags...)...
+						downloadFlags...)...,
 				),
 			},
-			SubCommands: []*cmdr.Command{
-			},
+			SubCommands: []*cmdr.Command{},
 		},
 
 		AppName:    "wget-demo",
@@ -94,7 +93,7 @@ Mandatory arguments to long options are mandatory for short options too.`,
 			BaseOpt: cmdr.BaseOpt{
 				Short:       "b",
 				Full:        "background",
-				Aliases:     []string{"bg",},
+				Aliases:     []string{"bg"},
 				Description: "go to background after startup",
 				Group:       STARTUP,
 			},

@@ -117,7 +117,7 @@ fi; fi
 		if FileExists(s) {
 			file := path.Join(s, cmd.root.AppName)
 			var f *os.File
-			if f, err = os.Create(file); e != nil {
+			if f, err = os.Create(file); err != nil {
 				return
 			}
 

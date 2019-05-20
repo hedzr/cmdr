@@ -58,10 +58,12 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
    	// logrus.SetLevel(logrus.DebugLevel)
    	// logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true,})
    
-   	cmdr.EnableVersionCommands = true
-   	cmdr.EnableVerboseCommands = true
-   	cmdr.EnableHelpCommands = true
-   	cmdr.EnableGenerateCommands = true
+       // To disable internal commands and flags, uncomment the following codes
+   	// cmdr.EnableVersionCommands = false
+   	// cmdr.EnableVerboseCommands = false
+   	// cmdr.EnableHelpCommands = false
+   	// cmdr.EnableGenerateCommands = false
+       
    	if err := cmdr.Exec(rootCmd); err != nil {
    		fmt.Printf("Error: %v", err)
    	}

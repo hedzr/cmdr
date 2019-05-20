@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Entry is app main entry
 func Entry() {
 
 	logrus.SetLevel(logrus.DebugLevel)

@@ -31,9 +31,6 @@ func printHeader() {
 
 func printHelp(command *Command, justFlags bool) {
 	if GetInt("app.help-zsh") > 0 {
-		// if !GetBool("app.quiet") {
-		// 	logrus.Debugf("zsh-dump")
-		// }
 		printHelpZsh(command, justFlags)
 
 	} else if GetBool("app.help-bash") {
@@ -54,9 +51,9 @@ func printHelp(command *Command, justFlags bool) {
 
 	}
 
-	if RxxtOptions.GetBool("debug") {
+	if rxxtOptions.GetBool("debug") {
 		// "  [\x1b[2m\x1b[%dm%s\x1b[0m]"
-		fp("\n\x1b[2m\x1b[%dmDUMP:\n\n%v\x1b[0m\n", darkColor, RxxtOptions.DumpAsString())
+		fp("\n\x1b[2m\x1b[%dmDUMP:\n\n%v\x1b[0m\n", darkColor, rxxtOptions.DumpAsString())
 	}
 }
 
@@ -159,18 +156,18 @@ func printHelpCommandSection(command *Command, justFlags bool) {
 		}
 		k0 := make([]string, 0)
 		for k := range command.allCmds {
-			if k != UNSORTED_GROUP {
+			if k != UnsortedGroup {
 				k0 = append(k0, k)
 			}
 		}
 		sort.Strings(k0)
-		// k0 = append(k0, UNSORTED_GROUP)
-		k0 = append([]string{UNSORTED_GROUP}, k0...)
+		// k0 = append(k0, UnsortedGroup)
+		k0 = append([]string{UnsortedGroup}, k0...)
 
 		for _, group := range k0 {
 			groups := command.allCmds[group]
 			if len(groups) > 0 {
-				if group != UNSORTED_GROUP {
+				if group != UnsortedGroup {
 					// fp("  [%s]:", normalize(group))
 					fp("  [\x1b[2m\x1b[%dm%s\x1b[0m]", darkColor, normalize(group))
 				}
@@ -205,17 +202,17 @@ GO_PRINT_FLAGS:
 		fp("\n%v:", sectionName)
 		k2 := make([]string, 0)
 		for k := range command.allFlags {
-			if k != UNSORTED_GROUP {
+			if k != UnsortedGroup {
 				k2 = append(k2, k)
 			}
 		}
 		sort.Strings(k2)
-		k2 = append([]string{UNSORTED_GROUP}, k2...)
+		k2 = append([]string{UnsortedGroup}, k2...)
 
 		for _, group := range k2 {
 			groups := command.allFlags[group]
 			if len(groups) > 0 {
-				if group != UNSORTED_GROUP {
+				if group != UnsortedGroup {
 					// // echo -e "Normal \e[2mDim"
 					// _, _ = fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m\x1b[2m\x1b[%dm[%04d]\x1b[0m%-44s \x1b[2m\x1b[%dm%s\x1b[0m ",
 					// 	levelColor, levelText, darkColor, int(entry.Time.Sub(baseTimestamp)/time.Second), entry.Message, darkColor, caller)
@@ -274,10 +271,12 @@ func normalize(s string) string {
 	return s
 }
 
+// SetCustomShowVersion supports your `ShowVersion()` instead of internal `showVersion()`
 func SetCustomShowVersion(fn func()) {
 	globalShowVersion = fn
 }
 
+// SetCustomShowBuildInfo supports your `ShowBuildInfo()` instead of internal `showBuildInfo()`
 func SetCustomShowBuildInfo(fn func()) {
 	globalShowBuildInfo = fn
 }

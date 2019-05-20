@@ -116,18 +116,19 @@ fi; fi
 	for _, s := range []string{"/etc/bash_completion.d", "/usr/local/etc/bash_completion.d"} {
 		if FileExists(s) {
 			file := path.Join(s, cmd.root.AppName)
-			if f, e := os.Create(file); e != nil {
-				err = e
-				return
-			} else {
-				err = tmpl.Execute(f, cmd.root)
-				if err == nil {
-					fmt.Printf(`''%v generated.
-Re-login to enable the new bash completion script.
-`, file)
-				}
+			var f *os.File
+			if f, err = os.Create(file); e != nil {
 				return
 			}
+			
+			err = tmpl.Execute(f, cmd.root)
+			if err == nil {
+				fmt.Printf(`''%v generated.
+Re-login to enable the new bash completion script.
+`, file)
+			}
+			return
+
 		}
 	}
 
@@ -229,7 +230,7 @@ func genShellLoopCommands(cmd *Command, level int, sbca []strings.Builder) (scrF
 		// 		if len(cc.Flags) > 0 {
 		// 			for _, flg := range cc.Flags {
 		// 				sbFlags.WriteString(fmt.Sprintf(`		'(%v)'{%v}'[%v]' \
-		// `, simp(flg.GetTitleFlagNamesBy(" ")), simp(flg.GetTitleFlagNames()), flg.Description))
+		// `, eraseMultiWSs(flg.GetTitleFlagNamesBy(" ")), eraseMultiWSs(flg.GetTitleFlagNames()), flg.Description))
 		// 			}
 		// 		}
 

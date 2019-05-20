@@ -17,6 +17,7 @@ import (
 
 //
 
+// Exec is main entry of `cmdr`.
 func Exec(rootCmd *RootCommand) (err error) {
 	rootCommand = rootCmd
 	rootCommand.ow = bufio.NewWriterSize(os.Stdout, 16384)
@@ -29,7 +30,7 @@ func Exec(rootCmd *RootCommand) (err error) {
 	buildRootCrossRefs(rootCommand)
 	for _, s := range []string{"./ci/etc/%s/%s.yml", "/etc/%s/%s.yml", "/usr/local/etc/%s/%s.yml", os.Getenv("HOME") + "/.%s/%s.yml"} {
 		if FileExists(s) {
-			err = RxxtOptions.LoadConfigFile(fmt.Sprintf(s, rootCmd.AppName, rootCmd.AppName))
+			err = rxxtOptions.LoadConfigFile(fmt.Sprintf(s, rootCmd.AppName, rootCmd.AppName))
 			if err != nil {
 				return
 			}
@@ -37,7 +38,7 @@ func Exec(rootCmd *RootCommand) (err error) {
 	}
 
 	goCommand := &rootCommand.Command
-	// helpFlag := rootCommand.allFlags[UNSORTED_GROUP]["help"]
+	// helpFlag := rootCommand.allFlags[UnsortedGroup]["help"]
 
 	// logrus.Debug("----------------------- args:")
 	// for _, a := range os.Args {
@@ -45,7 +46,7 @@ func Exec(rootCmd *RootCommand) (err error) {
 	// }
 
 	var (
-		pkg           *ptpkg = new(ptpkg)
+		pkg           = new(ptpkg)
 		ok            bool
 		needHelp      bool
 		needFlagsHelp bool
@@ -134,9 +135,9 @@ func Exec(rootCmd *RootCommand) (err error) {
 					}
 
 					if pkg.a[0] == '~' {
-						RxxtOptions.SetNx(backtraceFlagNames(pkg.flg), pkg.flg.DefaultValue)
+						rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), pkg.flg.DefaultValue)
 					} else {
-						RxxtOptions.Set(backtraceFlagNames(pkg.flg), pkg.flg.DefaultValue)
+						rxxtOptions.Set(backtraceFlagNames(pkg.flg), pkg.flg.DefaultValue)
 					}
 					pkg.found = true
 
@@ -176,7 +177,7 @@ func Exec(rootCmd *RootCommand) (err error) {
 					// 	logrus.Debugf("-- flag '%v' hit, go ahead...", pkg.flg.GetTitleName())
 					// }
 					if pkg.flg.Action != nil {
-						if err = pkg.flg.Action(goCommand, getArgs(pkg)); err == ShouldBeStopException {
+						if err = pkg.flg.Action(goCommand, getArgs(pkg)); err == ErrShouldBeStopException {
 							return nil
 						}
 					}
@@ -214,7 +215,7 @@ func Exec(rootCmd *RootCommand) (err error) {
 				goCommand = cmd
 				// logrus.Debugf("-- command '%v' hit, go ahead...", cmd.GetTitleName())
 				if cmd.PreAction != nil {
-					if err = cmd.PreAction(goCommand, getArgs(pkg)); err == ShouldBeStopException {
+					if err = cmd.PreAction(goCommand, getArgs(pkg)); err == ErrShouldBeStopException {
 						return nil
 					}
 				}
@@ -238,7 +239,7 @@ func Exec(rootCmd *RootCommand) (err error) {
 					defer rootCommand.PostAction(goCommand, args)
 				}
 				if rootCommand.PreAction != nil {
-					if err = rootCommand.PreAction(goCommand, getArgs(pkg)); err == ShouldBeStopException {
+					if err = rootCommand.PreAction(goCommand, getArgs(pkg)); err == ErrShouldBeStopException {
 						return nil
 					}
 				}
@@ -248,7 +249,7 @@ func Exec(rootCmd *RootCommand) (err error) {
 				defer goCommand.PostAction(goCommand, args)
 			}
 
-			if err = goCommand.Action(goCommand, args); err == ShouldBeStopException {
+			if err = goCommand.Action(goCommand, args); err == ErrShouldBeStopException {
 				return nil
 			}
 
@@ -356,9 +357,9 @@ func processTypeInt(pkg *ptpkg) {
 	}
 
 	if pkg.a[0] == '~' {
-		RxxtOptions.SetNx(backtraceFlagNames(pkg.flg), v)
+		rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), v)
 	} else {
-		RxxtOptions.Set(backtraceFlagNames(pkg.flg), v)
+		rxxtOptions.Set(backtraceFlagNames(pkg.flg), v)
 	}
 	pkg.found = true
 	return
@@ -373,9 +374,9 @@ func processTypeUint(pkg *ptpkg) {
 	}
 
 	if pkg.a[0] == '~' {
-		RxxtOptions.SetNx(backtraceFlagNames(pkg.flg), v)
+		rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), v)
 	} else {
-		RxxtOptions.Set(backtraceFlagNames(pkg.flg), v)
+		rxxtOptions.Set(backtraceFlagNames(pkg.flg), v)
 	}
 	pkg.found = true
 	return
@@ -384,9 +385,9 @@ func processTypeUint(pkg *ptpkg) {
 func processTypeString(pkg *ptpkg) {
 	preprocessPkg(pkg)
 	if pkg.a[0] == '~' {
-		RxxtOptions.SetNx(backtraceFlagNames(pkg.flg), pkg.val)
+		rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), pkg.val)
 	} else {
-		RxxtOptions.Set(backtraceFlagNames(pkg.flg), pkg.val)
+		rxxtOptions.Set(backtraceFlagNames(pkg.flg), pkg.val)
 	}
 	pkg.found = true
 }
@@ -394,9 +395,9 @@ func processTypeString(pkg *ptpkg) {
 func processTypeStringSlice(pkg *ptpkg) {
 	preprocessPkg(pkg)
 	if pkg.a[0] == '~' {
-		RxxtOptions.SetNx(backtraceFlagNames(pkg.flg), strings.Split(pkg.val, ","))
+		rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), strings.Split(pkg.val, ","))
 	} else {
-		RxxtOptions.Set(backtraceFlagNames(pkg.flg), strings.Split(pkg.val, ","))
+		rxxtOptions.Set(backtraceFlagNames(pkg.flg), strings.Split(pkg.val, ","))
 	}
 	pkg.found = true
 }
@@ -412,9 +413,9 @@ func processTypeIntSlice(pkg *ptpkg) {
 	}
 
 	if pkg.a[0] == '~' {
-		RxxtOptions.SetNx(backtraceFlagNames(pkg.flg), valary)
+		rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), valary)
 	} else {
-		RxxtOptions.Set(backtraceFlagNames(pkg.flg), valary)
+		rxxtOptions.Set(backtraceFlagNames(pkg.flg), valary)
 	}
 	pkg.found = true
 }
@@ -430,9 +431,9 @@ func processTypeUintSlice(pkg *ptpkg) {
 	}
 
 	if pkg.a[0] == '~' {
-		RxxtOptions.SetNx(backtraceFlagNames(pkg.flg), valary)
+		rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), valary)
 	} else {
-		RxxtOptions.Set(backtraceFlagNames(pkg.flg), valary)
+		rxxtOptions.Set(backtraceFlagNames(pkg.flg), valary)
 	}
 	pkg.found = true
 }

@@ -6,11 +6,11 @@ package cmdr
 
 import "regexp"
 
-func simp(s string) string {
+func eraseMultiWSs(s string) string {
 	return reSimp.ReplaceAllString(s, " ")
 }
 
-func simpsimp(s string) string {
+func eraseAnyWSs(s string) string {
 	return reSimpSimp.ReplaceAllString(s, "")
 }
 

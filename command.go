@@ -9,22 +9,27 @@ import (
 	"strings"
 )
 
+// PrintHelp prints help screen
 func (c *Command) PrintHelp(justFlags bool) {
 	printHelp(c, justFlags)
 }
 
+// PrintVersion prints versions information
 func (c *Command) PrintVersion() {
 	showVersion()
 }
 
+// GetRoot returns the `RootCommand`
 func (c *Command) GetRoot() *RootCommand {
 	return c.root
 }
 
+// HasParent detects whether owner is avaliable or not
 func (c *Command) HasParent() bool {
 	return c.owner != nil
 }
 
+// GetName returns the name of a `Command`.
 func (c *Command) GetName() string {
 	if len(c.Full) > 0 {
 		return c.Full
@@ -35,6 +40,7 @@ func (c *Command) GetName() string {
 	return c.Name
 }
 
+// GetQuotedGroupName returns the group name quoted string.
 func (c *Command) GetQuotedGroupName() string {
 	if len(c.Group) == 0 {
 		return ""
@@ -46,6 +52,7 @@ func (c *Command) GetQuotedGroupName() string {
 	return fmt.Sprintf("[%v]", c.Group)
 }
 
+// GetExpandableNamesArray returns the names array of command, includes short name and long name.
 func (c *Command) GetExpandableNamesArray() []string {
 	var a []string
 	if len(c.Full) > 0 {
@@ -56,6 +63,8 @@ func (c *Command) GetExpandableNamesArray() []string {
 	}
 	return a
 }
+
+// GetExpandableNames returns the names comma splitted string.
 func (c *Command) GetExpandableNames() string {
 	a := c.GetExpandableNamesArray()
 	if len(a) == 1 {
@@ -66,6 +75,7 @@ func (c *Command) GetExpandableNames() string {
 	return c.Name
 }
 
+// GetParentName returns the owner command name
 func (c *Command) GetParentName() string {
 	if c.owner != nil {
 		if len(c.owner.Full) > 0 {
@@ -81,6 +91,7 @@ func (c *Command) GetParentName() string {
 	return c.GetRoot().AppName
 }
 
+// GetSubCommandNamesBy returns the joint string of subcommands
 func (c *Command) GetSubCommandNamesBy(delimChar string) string {
 	var a []string
 	for _, sc := range c.SubCommands {

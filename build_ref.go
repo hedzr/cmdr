@@ -12,21 +12,21 @@ func buildRootCrossRefs(root *RootCommand) {
 	ensureCmdMembers(&root.Command)
 
 	if EnableVersionCommands {
-		if _, ok := root.allCmds[SYSMGMT]["version"]; !ok {
-			root.allCmds[SYSMGMT]["version"] = &Command{
+		if _, ok := root.allCmds[SysMgmtGroup]["version"]; !ok {
+			root.allCmds[SysMgmtGroup]["version"] = &Command{
 				BaseOpt: BaseOpt{
 					Full:        "version",
 					Aliases:     []string{"ver"},
 					Description: "Show the version of this app.",
 					Action: func(cmd *Command, args []string) (err error) {
 						showVersion()
-						return ShouldBeStopException
+						return ErrShouldBeStopException
 					},
 				},
 			}
 		}
-		if _, ok := root.allFlags[SYSMGMT]["version"]; !ok {
-			root.allFlags[SYSMGMT]["version"] = &Flag{
+		if _, ok := root.allFlags[SysMgmtGroup]["version"]; !ok {
+			root.allFlags[SysMgmtGroup]["version"] = &Flag{
 				BaseOpt: BaseOpt{
 					Short:       "V",
 					Full:        "version",
@@ -35,16 +35,16 @@ func buildRootCrossRefs(root *RootCommand) {
 					// Hidden:      true,
 					Action: func(cmd *Command, args []string) (err error) {
 						showVersion()
-						return ShouldBeStopException
+						return ErrShouldBeStopException
 					},
 				},
 				DefaultValue: false,
 			}
-			root.plainFlags["version"] = root.allFlags[SYSMGMT]["version"]
-			root.plainFlags["v"] = root.allFlags[SYSMGMT]["version"]
+			root.plainFlags["version"] = root.allFlags[SysMgmtGroup]["version"]
+			root.plainFlags["v"] = root.allFlags[SysMgmtGroup]["version"]
 		}
-		if _, ok := root.allFlags[SYSMGMT]["build-info"]; !ok {
-			root.allFlags[SYSMGMT]["build-info"] = &Flag{
+		if _, ok := root.allFlags[SysMgmtGroup]["build-info"]; !ok {
+			root.allFlags[SysMgmtGroup]["build-info"] = &Flag{
 				BaseOpt: BaseOpt{
 					Full:        "#",
 					Aliases:     []string{},
@@ -52,18 +52,18 @@ func buildRootCrossRefs(root *RootCommand) {
 					Hidden:      true,
 					Action: func(cmd *Command, args []string) (err error) {
 						showVersion()
-						return ShouldBeStopException
+						return ErrShouldBeStopException
 					},
 				},
 				DefaultValue: false,
 			}
-			root.plainFlags["#"] = root.allFlags[SYSMGMT]["build-info"]
-			root.plainFlags["build-info"] = root.allFlags[SYSMGMT]["build-info"]
+			root.plainFlags["#"] = root.allFlags[SysMgmtGroup]["build-info"]
+			root.plainFlags["build-info"] = root.allFlags[SysMgmtGroup]["build-info"]
 		}
 	}
 	if EnableHelpCommands {
-		if _, ok := root.allFlags[SYSMGMT]["help"]; !ok {
-			root.allFlags[SYSMGMT]["help"] = &Flag{
+		if _, ok := root.allFlags[SysMgmtGroup]["help"]; !ok {
+			root.allFlags[SysMgmtGroup]["help"] = &Flag{
 				BaseOpt: BaseOpt{
 					Short:       "h",
 					Full:        "help",
@@ -73,20 +73,20 @@ func buildRootCrossRefs(root *RootCommand) {
 					Action: func(cmd *Command, args []string) (err error) {
 						// logrus.Debugf("-- helpCommand hit. printHelp and stop.")
 						// printHelp(cmd)
-						// return ShouldBeStopException
+						// return ErrShouldBeStopException
 						return nil
 					},
 				},
 				DefaultValue: false,
 			}
-			root.plainFlags["help"] = root.allFlags[SYSMGMT]["help"]
-			root.plainFlags["helpme"] = root.allFlags[SYSMGMT]["help"]
-			root.plainFlags["h"] = root.allFlags[SYSMGMT]["help"]
-			root.plainFlags["?"] = root.allFlags[SYSMGMT]["help"]
-			root.plainFlags["info"] = root.allFlags[SYSMGMT]["help"]
-			root.plainFlags["usage"] = root.allFlags[SYSMGMT]["help"]
+			root.plainFlags["help"] = root.allFlags[SysMgmtGroup]["help"]
+			root.plainFlags["helpme"] = root.allFlags[SysMgmtGroup]["help"]
+			root.plainFlags["h"] = root.allFlags[SysMgmtGroup]["help"]
+			root.plainFlags["?"] = root.allFlags[SysMgmtGroup]["help"]
+			root.plainFlags["info"] = root.allFlags[SysMgmtGroup]["help"]
+			root.plainFlags["usage"] = root.allFlags[SysMgmtGroup]["help"]
 
-			root.allFlags[SYSMGMT]["help-zsh"] = &Flag{
+			root.allFlags[SysMgmtGroup]["help-zsh"] = &Flag{
 				BaseOpt: BaseOpt{
 					Full:                    "help-zsh",
 					Description:             "show help with zsh format, or others",
@@ -95,7 +95,7 @@ func buildRootCrossRefs(root *RootCommand) {
 				},
 				DefaultValue: 0,
 			}
-			root.allFlags[SYSMGMT]["help-bash"] = &Flag{
+			root.allFlags[SysMgmtGroup]["help-bash"] = &Flag{
 				BaseOpt: BaseOpt{
 					Full:        "help-bash",
 					Description: "show help with bash format, or others",
@@ -103,35 +103,35 @@ func buildRootCrossRefs(root *RootCommand) {
 				},
 				DefaultValue: false,
 			}
-			root.plainFlags["help-zsh"] = root.allFlags[SYSMGMT]["help-zsh"]
-			root.plainFlags["help-bash"] = root.allFlags[SYSMGMT]["help-bash"]
+			root.plainFlags["help-zsh"] = root.allFlags[SysMgmtGroup]["help-zsh"]
+			root.plainFlags["help-bash"] = root.allFlags[SysMgmtGroup]["help-bash"]
 		}
-		if _, ok := root.allFlags[SYSMGMT]["config"]; !ok {
-			root.allFlags[SYSMGMT]["config"] = &Flag{
+		if _, ok := root.allFlags[SysMgmtGroup]["config"]; !ok {
+			root.allFlags[SysMgmtGroup]["config"] = &Flag{
 				BaseOpt: BaseOpt{
 					Full:        "config",
 					Aliases:     []string{},
 					Description: "load config files from where you specified",
 					Action: func(cmd *Command, args []string) (err error) {
 						// logrus.Debugf("-- helpCommand hit. printHelp and stop.")
-						// return ShouldBeStopException
+						// return ErrShouldBeStopException
 						return nil
 					},
 					DefaultValuePlaceholder: "[Location of config file]",
 				},
 				DefaultValue: nil,
 			}
-			root.plainFlags["help"] = root.allFlags[SYSMGMT]["help"]
-			root.plainFlags["helpme"] = root.allFlags[SYSMGMT]["help"]
-			root.plainFlags["h"] = root.allFlags[SYSMGMT]["help"]
-			root.plainFlags["?"] = root.allFlags[SYSMGMT]["help"]
-			root.plainFlags["info"] = root.allFlags[SYSMGMT]["help"]
-			root.plainFlags["usage"] = root.allFlags[SYSMGMT]["help"]
+			root.plainFlags["help"] = root.allFlags[SysMgmtGroup]["help"]
+			root.plainFlags["helpme"] = root.allFlags[SysMgmtGroup]["help"]
+			root.plainFlags["h"] = root.allFlags[SysMgmtGroup]["help"]
+			root.plainFlags["?"] = root.allFlags[SysMgmtGroup]["help"]
+			root.plainFlags["info"] = root.allFlags[SysMgmtGroup]["help"]
+			root.plainFlags["usage"] = root.allFlags[SysMgmtGroup]["help"]
 		}
 	}
 	if EnableVerboseCommands {
-		if _, ok := root.allFlags[SYSMGMT]["verbose"]; !ok {
-			root.allFlags[SYSMGMT]["verbose"] = &Flag{
+		if _, ok := root.allFlags[SysMgmtGroup]["verbose"]; !ok {
+			root.allFlags[SysMgmtGroup]["verbose"] = &Flag{
 				BaseOpt: BaseOpt{
 					Short:       "v",
 					Full:        "verbose",
@@ -141,11 +141,11 @@ func buildRootCrossRefs(root *RootCommand) {
 				},
 				DefaultValue: false,
 			}
-			root.plainFlags["verbose"] = root.allFlags[SYSMGMT]["verbose"]
-			root.plainFlags["v"] = root.allFlags[SYSMGMT]["verbose"]
+			root.plainFlags["verbose"] = root.allFlags[SysMgmtGroup]["verbose"]
+			root.plainFlags["v"] = root.allFlags[SysMgmtGroup]["verbose"]
 		}
-		if _, ok := root.allFlags[SYSMGMT]["quiet"]; !ok {
-			root.allFlags[SYSMGMT]["quiet"] = &Flag{
+		if _, ok := root.allFlags[SysMgmtGroup]["quiet"]; !ok {
+			root.allFlags[SysMgmtGroup]["quiet"] = &Flag{
 				BaseOpt: BaseOpt{
 					Short:       "q",
 					Full:        "quiet",
@@ -155,11 +155,11 @@ func buildRootCrossRefs(root *RootCommand) {
 				},
 				DefaultValue: false,
 			}
-			root.plainFlags["quiet"] = root.allFlags[SYSMGMT]["quiet"]
-			root.plainFlags["q"] = root.allFlags[SYSMGMT]["quiet"]
+			root.plainFlags["quiet"] = root.allFlags[SysMgmtGroup]["quiet"]
+			root.plainFlags["q"] = root.allFlags[SysMgmtGroup]["quiet"]
 		}
-		if _, ok := root.allFlags[SYSMGMT]["debug"]; !ok {
-			root.allFlags[SYSMGMT]["debug"] = &Flag{
+		if _, ok := root.allFlags[SysMgmtGroup]["debug"]; !ok {
+			root.allFlags[SysMgmtGroup]["debug"] = &Flag{
 				BaseOpt: BaseOpt{
 					Short:       "D",
 					Full:        "debug",
@@ -169,8 +169,8 @@ func buildRootCrossRefs(root *RootCommand) {
 				},
 				DefaultValue: false,
 			}
-			root.plainFlags["debug"] = root.allFlags[SYSMGMT]["debug"]
-			root.plainFlags["D"] = root.allFlags[SYSMGMT]["debug"]
+			root.plainFlags["debug"] = root.allFlags[SysMgmtGroup]["debug"]
+			root.plainFlags["D"] = root.allFlags[SysMgmtGroup]["debug"]
 		}
 	}
 
@@ -196,14 +196,14 @@ func newCmd() *Command {
 func ensureCmdMembers(cmd *Command) *Command {
 	if cmd.allFlags == nil {
 		cmd.allFlags = make(map[string]map[string]*Flag)
-		cmd.allFlags[UNSORTED_GROUP] = make(map[string]*Flag)
-		cmd.allFlags[SYSMGMT] = make(map[string]*Flag)
+		cmd.allFlags[UnsortedGroup] = make(map[string]*Flag)
+		cmd.allFlags[SysMgmtGroup] = make(map[string]*Flag)
 	}
 
 	if cmd.allCmds == nil {
 		cmd.allCmds = make(map[string]map[string]*Command)
-		cmd.allCmds[UNSORTED_GROUP] = make(map[string]*Command)
-		cmd.allCmds[SYSMGMT] = make(map[string]*Command)
+		cmd.allCmds[UnsortedGroup] = make(map[string]*Command)
+		cmd.allCmds[SysMgmtGroup] = make(map[string]*Command)
 	}
 
 	if cmd.plainCmds == nil {
@@ -253,7 +253,7 @@ func buildCrossRefs(cmd *Command) {
 		}
 
 		if len(flg.Group) == 0 {
-			flg.Group = UNSORTED_GROUP
+			flg.Group = UnsortedGroup
 		}
 		if _, ok := cmd.allFlags[flg.Group]; !ok {
 			cmd.allFlags[flg.Group] = make(map[string]*Flag)
@@ -264,7 +264,7 @@ func buildCrossRefs(cmd *Command) {
 		cmd.allFlags[flg.Group][flg.GetTitleName()] = flg
 
 		// opt.Children[flg.Full] = &OptOne{Value: flg.DefaultValue,}
-		RxxtOptions.Set(backtraceFlagNames(flg), flg.DefaultValue)
+		rxxtOptions.Set(backtraceFlagNames(flg), flg.DefaultValue)
 	}
 
 	for _, cx := range cmd.SubCommands {
@@ -289,7 +289,7 @@ func buildCrossRefs(cmd *Command) {
 		}
 
 		if len(cx.Group) == 0 {
-			cx.Group = UNSORTED_GROUP
+			cx.Group = UnsortedGroup
 		}
 		if _, ok := cmd.allCmds[cx.Group]; !ok {
 			cmd.allCmds[cx.Group] = make(map[string]*Command)
@@ -301,7 +301,7 @@ func buildCrossRefs(cmd *Command) {
 
 		// opt.Children[cx.Full] = newOpt()
 
-		RxxtOptions.Set(backtraceCmdNames(cx), nil)
+		rxxtOptions.Set(backtraceCmdNames(cx), nil)
 		// buildCrossRefs(cx, opt.Children[cx.Full])
 		buildCrossRefs(cx)
 	}

@@ -10,7 +10,7 @@ var (
 	generatorCommands = &Command{
 		BaseOpt: BaseOpt{
 			Name:        "generators",
-			Group:       SYSMGMT,
+			Group:       SysMgmtGroup,
 			Short:       "g",
 			Full:        "generate",
 			Aliases:     []string{"gen"},

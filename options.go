@@ -15,13 +15,15 @@ import (
 	"time"
 )
 
+// NewOptions returns an `Options` structure pointer
 func NewOptions() *Options {
 	return &Options{
-		make(map[string]interface{}),
-		make(map[string]interface{}),
+		entries:   make(map[string]interface{}),
+		hierarchy: make(map[string]interface{}),
 	}
 }
 
+// NewOptionsWith returns an `Options` structure pointer
 func NewOptionsWith(entries map[string]interface{}) *Options {
 	return &Options{
 		entries:   entries,
@@ -29,8 +31,13 @@ func NewOptionsWith(entries map[string]interface{}) *Options {
 	}
 }
 
+// Get returns the generic value of an `Option` key. Such as:
+// ```golang
+// cmdr.Get("app.logger.level") => 'DEBUG',...
+// ```
+//
 func Get(key string) interface{} {
-	return RxxtOptions.Get(key)
+	return rxxtOptions.Get(key)
 }
 
 // Get an `Option` by key string, eg:
@@ -42,34 +49,42 @@ func (s *Options) Get(key string) interface{} {
 	return s.entries[key]
 }
 
+// GetBool returns the bool value of an `Option` key.
 func GetBool(key string) bool {
-	return RxxtOptions.GetBool(key)
+	return rxxtOptions.GetBool(key)
 }
 
+// GetInt returns the int value of an `Option` key.
 func GetInt(key string) int {
-	return int(RxxtOptions.GetInt(key))
+	return int(rxxtOptions.GetInt(key))
 }
 
+// GetInt64 returns the int64 value of an `Option` key.
 func GetInt64(key string) int64 {
-	return RxxtOptions.GetInt(key)
+	return rxxtOptions.GetInt(key)
 }
 
+// GetUint returns the uint value of an `Option` key.
 func GetUint(key string) uint {
-	return uint(RxxtOptions.GetUint(key))
+	return uint(rxxtOptions.GetUint(key))
 }
 
+// GetUint64 returns the uint64 value of an `Option` key.
 func GetUint64(key string) uint64 {
-	return RxxtOptions.GetUint(key)
+	return rxxtOptions.GetUint(key)
 }
 
+// GetString returns the string value of an `Option` key.
 func GetString(key string) string {
-	return RxxtOptions.GetString(key)
+	return rxxtOptions.GetString(key)
 }
 
+// GetStringSlice returns the string slice value of an `Option` key.
 func GetStringSlice(key string) []string {
-	return RxxtOptions.GetStringSlice(key)
+	return rxxtOptions.GetStringSlice(key)
 }
 
+// GetBool returns the bool value of an `Option` key.
 func (s *Options) GetBool(key string) (ret bool) {
 	switch strings.ToLower(s.GetString(key)) {
 	case "1", "y", "t", "yes", "true", "ok", "on":
@@ -78,6 +93,7 @@ func (s *Options) GetBool(key string) (ret bool) {
 	return
 }
 
+// GetInt returns the int64 value of an `Option` key.
 func (s *Options) GetInt(key string) (ir int64) {
 	if ir64, err := strconv.ParseInt(s.GetString(key), 10, 64); err == nil {
 		ir = ir64
@@ -85,6 +101,7 @@ func (s *Options) GetInt(key string) (ir int64) {
 	return
 }
 
+// GetUint returns the uint64 value of an `Option` key.
 func (s *Options) GetUint(key string) (ir uint64) {
 	if ir64, err := strconv.ParseUint(s.GetString(key), 10, 64); err == nil {
 		ir = ir64
@@ -92,12 +109,14 @@ func (s *Options) GetUint(key string) (ir uint64) {
 	return
 }
 
+// GetStringSlice returns the string slice value of an `Option` key.
 func (s *Options) GetStringSlice(key string) (ir []string) {
 	ss := s.GetString(key)
 	ir = strings.Split(ss, ",")
 	return
 }
 
+// GetString returns the string value of an `Option` key.
 func (s *Options) GetString(key string) (ret string) {
 	envkey := strings.Join(append(EnvPrefix, strings.ToUpper(strings.ReplaceAll(key, ".", "_"))), "_")
 	if s, ok := os.LookupEnv(envkey); ok {
@@ -126,6 +145,7 @@ func wrapRxxtPrefix(key string) string {
 	return p + "." + key
 }
 
+// Set set the value of an `Option` key.
 func (s *Options) Set(key string, val interface{}) {
 	k := wrapRxxtPrefix(key)
 	s.entries[k] = val
@@ -133,8 +153,8 @@ func (s *Options) Set(key string, val interface{}) {
 	mergeMap(s.hierarchy, a[0], et(a, 1, val))
 }
 
-// Set() but without prefix auto-wrapped.
-// `RxxtPrefix` is a string slice to define the prefix string array, default is ["app"].
+// SetNx but without prefix auto-wrapped.
+// `rxxtPrefix` is a string slice to define the prefix string array, default is ["app"].
 // So, cmdr.Set("debug", true) will put an real entry with (`app.debug`, true).
 func (s *Options) SetNx(key string, val interface{}) {
 	s.entries[key] = val
@@ -230,10 +250,12 @@ func (s *Options) loopIxMap(kdot string, m map[interface{}]interface{}) (err err
 	return
 }
 
+// DumpAsString for debugging.
 func DumpAsString() (str string) {
-	return RxxtOptions.DumpAsString()
+	return rxxtOptions.DumpAsString()
 }
 
+// DumpAsString for debugging.
 func (s *Options) DumpAsString() (str string) {
 	k3 := make([]string, 0)
 	for k := range s.entries {

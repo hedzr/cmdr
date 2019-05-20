@@ -20,6 +20,7 @@ import (
 	"sync"
 )
 
+// AddOnConfigLoadedListener add an functor on config loaded and merged
 func AddOnConfigLoadedListener(c ConfigReloaded) {
 	if _, ok := onConfigReloadedFunctions[c]; ok {
 		//
@@ -28,18 +29,24 @@ func AddOnConfigLoadedListener(c ConfigReloaded) {
 	}
 }
 
+// RemoveOnConfigLoadedListener remove an functor on config loaded and merged
 func RemoveOnConfigLoadedListener(c ConfigReloaded) {
 	delete(onConfigReloadedFunctions, c)
 }
 
+// SetOnConfigLoadedListener enable/disable an functor on config loaded and merged
 func SetOnConfigLoadedListener(c ConfigReloaded, enabled bool) {
 	onConfigReloadedFunctions[c] = enabled
 }
 
+// LoadConfigFile Load a yaml config file and merge the settings into `rxxtOptions`
+// and load files in the `conf.d` child directory too.
 func LoadConfigFile(file string) (err error) {
-	return RxxtOptions.LoadConfigFile(file)
+	return rxxtOptions.LoadConfigFile(file)
 }
 
+// LoadConfigFile Load a yaml config file and merge the settings into `rxxtOptions`
+// and load files in the `conf.d` child directory too.
 func (s *Options) LoadConfigFile(file string) (err error) {
 	if !FileExists(file) {
 		// log.Warnf("%v NOT EXISTS. PWD=%v", file, GetCurrentDir())

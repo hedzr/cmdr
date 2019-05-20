@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// GetTitleName temp
 func (s *BaseOpt) GetTitleName() string {
 	if len(s.Name) != 0 {
 		return s.Name
@@ -16,6 +17,7 @@ func (s *BaseOpt) GetTitleName() string {
 	return s.Full
 }
 
+// GetTitleNamesArray temp
 func (s *BaseOpt) GetTitleNamesArray() []string {
 	var a []string
 	if len(s.Short) != 0 {
@@ -28,29 +30,34 @@ func (s *BaseOpt) GetTitleNamesArray() []string {
 	return a
 }
 
+// GetTitleNames temp
 func (s *BaseOpt) GetTitleNames() string {
 	return s.GetTitleNamesBy(", ")
 }
 
+// GetTitleNamesBy temp
 func (s *BaseOpt) GetTitleNamesBy(delimChar string) string {
-	var a []string = s.GetTitleNamesArray()
+	var a = s.GetTitleNamesArray()
 	str := strings.Join(a, delimChar)
 	return str
 }
 
+// GetTitleFlagNames temp
 func (s *BaseOpt) GetTitleFlagNames() string {
 	return s.GetTitleFlagNamesBy(",")
 }
 
+// GetDescZsh temp
 func (s *BaseOpt) GetDescZsh() (desc string) {
 	desc = s.Description
 	if len(desc) == 0 {
-		desc = simpsimp(s.GetTitleZshFlagName())
+		desc = eraseAnyWSs(s.GetTitleZshFlagName())
 	}
 	// desc = strings.ReplaceAll(desc, " ", "\\ ")
 	return
 }
 
+// GetTitleZshFlagName temp
 func (s *BaseOpt) GetTitleZshFlagName() (str string) {
 	if len(s.Full) > 0 {
 		str += "--" + s.Full
@@ -60,6 +67,7 @@ func (s *BaseOpt) GetTitleZshFlagName() (str string) {
 	return
 }
 
+// GetTitleZshFlagNames temp
 func (s *BaseOpt) GetTitleZshFlagNames(delimChar string) (str string) {
 	if len(s.Short) == 1 {
 		str += "-" + s.Short + delimChar
@@ -70,6 +78,7 @@ func (s *BaseOpt) GetTitleZshFlagNames(delimChar string) (str string) {
 	return
 }
 
+// GetTitleZshFlagNamesArray temp
 func (s *BaseOpt) GetTitleZshFlagNamesArray() (ary []string) {
 	if len(s.Short) == 1 || len(s.Short) == 2 {
 		if len(s.DefaultValuePlaceholder) > 0 {
@@ -88,12 +97,14 @@ func (s *BaseOpt) GetTitleZshFlagNamesArray() (ary []string) {
 	return
 }
 
+// GetTitleFlagNamesBy temp
 func (s *BaseOpt) GetTitleFlagNamesBy(delimChar string) string {
 	return s.GetTitleFlagNamesByMax(delimChar, -1)
 }
 
+// GetTitleFlagNamesByMax temp
 func (s *BaseOpt) GetTitleFlagNamesByMax(delimChar string, maxCount int) string {
-	var a []string = s.GetTitleNamesArray()
+	var a = s.GetTitleNamesArray()
 	var str string
 
 	if len(s.Short) == 0 {

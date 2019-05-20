@@ -10,10 +10,12 @@ import (
 )
 
 const (
-	APP_NAME_DEFAULT = "cmdr"
+	appNameDefault = "cmdr"
 
-	UNSORTED_GROUP = "zzzz.unsorted"
-	SYSMGMT        = "zzz9.Misc"
+	// UnsortedGroup for commands and flags
+	UnsortedGroup = "zzzz.unsorted"
+	// SysMgmtGroup for commands and flags
+	SysMgmtGroup  = "zzz9.Misc"
 )
 
 type (
@@ -21,6 +23,7 @@ type (
 		Name string
 	}
 
+	// BaseOpt is base of `Command`, `Flag`
 	BaseOpt struct {
 		Name string
 		// single char. example for flag: "a" -> "-a"
@@ -44,14 +47,15 @@ type (
 		DefaultValuePlaceholder string
 
 		// cmd 是 flag 被识别时已经得到的子命令
-		// return: ShouldBeStopException will break the following flow and exit right now
+		// return: ErrShouldBeStopException will break the following flow and exit right now
 		Action func(cmd *Command, args []string) (err error)
 	}
 
+	// Command holds the structure of commands and subcommands
 	Command struct {
 		BaseOpt
 		SubCommands []*Command
-		// return: ShouldBeStopException will break the following flow and exit right now
+		// return: ErrShouldBeStopException will break the following flow and exit right now
 		PreAction func(cmd *Command, args []string) (err error)
 		// PostAction will be run after Action() invoked.
 		PostAction func(cmd *Command, args []string)
@@ -66,6 +70,7 @@ type (
 		plainFlags map[string]*Flag
 	}
 
+	// RootCommand holds some application information
 	RootCommand struct {
 		Command
 
@@ -81,6 +86,7 @@ type (
 		oerr *bufio.Writer
 	}
 
+	// Flag means a flag, a option, or a opt.
 	Flag struct {
 		BaseOpt
 
@@ -92,6 +98,7 @@ type (
 		// by default, a flag is always `optional`.
 	}
 
+	// Options is a holder of all options
 	Options struct {
 		entries   map[string]interface{}
 		hierarchy map[string]interface{}
@@ -102,24 +109,30 @@ type (
 	// 	Value    interface{}        `yaml:"v,omitempty"`
 	// }
 
+	// ConfigReloaded for config reloaded
 	ConfigReloaded interface {
 		OnConfigReloaded()
 	}
 )
 
 var (
-	EnableVersionCommands  bool = true
-	EnableHelpCommands     bool = true
-	EnableVerboseCommands  bool = true
-	EnableGenerateCommands bool = true
+	// EnableVersionCommands supports injecting the default `--version` flags and commands
+	EnableVersionCommands  = true
+	// EnableHelpCommands supports injecting the default `--help` flags and commands
+	EnableHelpCommands     = true
+	// EnableVerboseCommands supports injecting the default `--verbose` flags and commands
+	EnableVerboseCommands  = true
+	// EnableGenerateCommands supports injecting the default `generate` commands and subcommands
+	EnableGenerateCommands = true
 
 	rootCommand *RootCommand
 	// rootOptions *OptOne
-	RxxtOptions *Options = NewOptions()
+	rxxtOptions = NewOptions()
 
 	// RxxtPrefix create a top-level namespace, which contains all normalized `Flag`s.
 	RxxtPrefix = []string{"app"}
 
+	// EnvPrefix attaches a prefix to key to retrieve the option value.
 	EnvPrefix = []string{"CMDR"}
 
 	usedConfigFile            string
@@ -131,6 +144,6 @@ var (
 	globalShowVersion   func()
 	globalShowBuildInfo func()
 
-	//
-	ShouldBeStopException = errors.New("should be stop right now")
+	// ErrShouldBeStopException tips `Exec()` cancelled the following actions after `PreAction()`
+	ErrShouldBeStopException = errors.New("should be stop right now")
 )

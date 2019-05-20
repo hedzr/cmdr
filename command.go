@@ -24,7 +24,7 @@ func (c *Command) GetRoot() *RootCommand {
 	return c.root
 }
 
-// HasParent detects whether owner is avaliable or not
+// HasParent detects whether owner is availiable or not
 func (c *Command) HasParent() bool {
 	return c.owner != nil
 }

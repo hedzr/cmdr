@@ -14,7 +14,7 @@ var (
 
 	// Version app version
 	Version = "0.2.1"
-	// Buildstamp app built stamp 
+	// Buildstamp app built stamp
 	Buildstamp = ""
 	// Githash app git hash
 	Githash = ""

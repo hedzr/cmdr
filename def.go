@@ -15,7 +15,7 @@ const (
 	// UnsortedGroup for commands and flags
 	UnsortedGroup = "zzzz.unsorted"
 	// SysMgmtGroup for commands and flags
-	SysMgmtGroup  = "zzz9.Misc"
+	SysMgmtGroup = "zzz9.Misc"
 )
 
 type (
@@ -117,11 +117,11 @@ type (
 
 var (
 	// EnableVersionCommands supports injecting the default `--version` flags and commands
-	EnableVersionCommands  = true
+	EnableVersionCommands = true
 	// EnableHelpCommands supports injecting the default `--help` flags and commands
-	EnableHelpCommands     = true
+	EnableHelpCommands = true
 	// EnableVerboseCommands supports injecting the default `--verbose` flags and commands
-	EnableVerboseCommands  = true
+	EnableVerboseCommands = true
 	// EnableGenerateCommands supports injecting the default `generate` commands and subcommands
 	EnableGenerateCommands = true
 

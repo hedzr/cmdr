@@ -120,7 +120,7 @@ fi; fi
 			if f, err = os.Create(file); e != nil {
 				return
 			}
-			
+
 			err = tmpl.Execute(f, cmd.root)
 			if err == nil {
 				fmt.Printf(`''%v generated.

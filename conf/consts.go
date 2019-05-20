@@ -11,16 +11,16 @@ var (
 	AppName string
 
 	// these 3 variables will be rewrote when app had been building by ci-tool
-	
+
 	// Version app version
-	Version    = "0.2.1"
+	Version = "0.2.1"
 	// Buildstamp app built stamp 
 	Buildstamp = ""
 	// Githash app git hash
-	Githash    = ""
+	Githash = ""
 
 	// ServerTag app server tag names
 	ServerTag = ""
 	// ServerID app server id
-	ServerID  = ""
+	ServerID = ""
 )

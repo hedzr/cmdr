@@ -7,6 +7,7 @@ package cmdr
 import (
 	"bufio"
 	"errors"
+	"os"
 )
 
 const (
@@ -63,11 +64,12 @@ type (
 		// austr dns add <host-fqdn> <ipv4/6> [Options] [Parent/Global Options]
 		TailPlaceHolder string
 
-		root       *RootCommand
-		allCmds    map[string]map[string]*Command // key1: Commnad.Group, key2: Command.Full
-		allFlags   map[string]map[string]*Flag    // key1: Command.Flags[#].Group, key2: Command.Flags[#].Full
-		plainCmds  map[string]*Command
-		plainFlags map[string]*Flag
+		root            *RootCommand
+		allCmds         map[string]map[string]*Command // key1: Commnad.Group, key2: Command.Full
+		allFlags        map[string]map[string]*Flag    // key1: Command.Flags[#].Group, key2: Command.Flags[#].Full
+		plainCmds       map[string]*Command
+		plainShortFlags map[string]*Flag
+		plainLongFlags  map[string]*Flag
 	}
 
 	// RootCommand holds some application information
@@ -140,6 +142,15 @@ var (
 	configFiles               []string
 	onConfigReloadedFunctions map[ConfigReloaded]bool
 	//
+	predefinedLocations = []string{
+		"./ci/etc/%s/%s.yml",
+		"/etc/%s/%s.yml",
+		"/usr/local/etc/%s/%s.yml",
+		os.Getenv("HOME") + "/.%s/%s.yml",
+	}
+	//
+	defaultStdout = bufio.NewWriterSize(os.Stdout, 16384)
+	defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
 
 	globalShowVersion   func()
 	globalShowBuildInfo func()

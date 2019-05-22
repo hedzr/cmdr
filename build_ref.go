@@ -30,7 +30,6 @@ func buildRootCrossRefs(root *RootCommand) {
 				BaseOpt: BaseOpt{
 					Short:       "V",
 					Full:        "version",
-					Aliases:     []string{"vv"},
 					Description: "Show the version of this app.",
 					// Hidden:      true,
 					Action: func(cmd *Command, args []string) (err error) {
@@ -40,8 +39,8 @@ func buildRootCrossRefs(root *RootCommand) {
 				},
 				DefaultValue: false,
 			}
-			root.plainFlags["version"] = root.allFlags[SysMgmtGroup]["version"]
-			root.plainFlags["v"] = root.allFlags[SysMgmtGroup]["version"]
+			root.plainLongFlags["version"] = root.allFlags[SysMgmtGroup]["version"]
+			root.plainShortFlags["V"] = root.allFlags[SysMgmtGroup]["version"]
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["build-info"]; !ok {
 			root.allFlags[SysMgmtGroup]["build-info"] = &Flag{
@@ -57,8 +56,8 @@ func buildRootCrossRefs(root *RootCommand) {
 				},
 				DefaultValue: false,
 			}
-			root.plainFlags["#"] = root.allFlags[SysMgmtGroup]["build-info"]
-			root.plainFlags["build-info"] = root.allFlags[SysMgmtGroup]["build-info"]
+			root.plainShortFlags["#"] = root.allFlags[SysMgmtGroup]["build-info"]
+			root.plainLongFlags["build-info"] = root.allFlags[SysMgmtGroup]["build-info"]
 		}
 	}
 	if EnableHelpCommands {
@@ -79,12 +78,12 @@ func buildRootCrossRefs(root *RootCommand) {
 				},
 				DefaultValue: false,
 			}
-			root.plainFlags["help"] = root.allFlags[SysMgmtGroup]["help"]
-			root.plainFlags["helpme"] = root.allFlags[SysMgmtGroup]["help"]
-			root.plainFlags["h"] = root.allFlags[SysMgmtGroup]["help"]
-			root.plainFlags["?"] = root.allFlags[SysMgmtGroup]["help"]
-			root.plainFlags["info"] = root.allFlags[SysMgmtGroup]["help"]
-			root.plainFlags["usage"] = root.allFlags[SysMgmtGroup]["help"]
+			root.plainLongFlags["help"] = root.allFlags[SysMgmtGroup]["help"]
+			root.plainLongFlags["helpme"] = root.allFlags[SysMgmtGroup]["help"]
+			root.plainLongFlags["info"] = root.allFlags[SysMgmtGroup]["help"]
+			root.plainLongFlags["usage"] = root.allFlags[SysMgmtGroup]["help"]
+			root.plainShortFlags["h"] = root.allFlags[SysMgmtGroup]["help"]
+			root.plainShortFlags["?"] = root.allFlags[SysMgmtGroup]["help"]
 
 			root.allFlags[SysMgmtGroup]["help-zsh"] = &Flag{
 				BaseOpt: BaseOpt{
@@ -103,8 +102,8 @@ func buildRootCrossRefs(root *RootCommand) {
 				},
 				DefaultValue: false,
 			}
-			root.plainFlags["help-zsh"] = root.allFlags[SysMgmtGroup]["help-zsh"]
-			root.plainFlags["help-bash"] = root.allFlags[SysMgmtGroup]["help-bash"]
+			root.plainLongFlags["help-zsh"] = root.allFlags[SysMgmtGroup]["help-zsh"]
+			root.plainLongFlags["help-bash"] = root.allFlags[SysMgmtGroup]["help-bash"]
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["config"]; !ok {
 			root.allFlags[SysMgmtGroup]["config"] = &Flag{
@@ -121,12 +120,7 @@ func buildRootCrossRefs(root *RootCommand) {
 				},
 				DefaultValue: nil,
 			}
-			root.plainFlags["help"] = root.allFlags[SysMgmtGroup]["help"]
-			root.plainFlags["helpme"] = root.allFlags[SysMgmtGroup]["help"]
-			root.plainFlags["h"] = root.allFlags[SysMgmtGroup]["help"]
-			root.plainFlags["?"] = root.allFlags[SysMgmtGroup]["help"]
-			root.plainFlags["info"] = root.allFlags[SysMgmtGroup]["help"]
-			root.plainFlags["usage"] = root.allFlags[SysMgmtGroup]["help"]
+			root.plainLongFlags["config"] = root.allFlags[SysMgmtGroup]["config"]
 		}
 	}
 	if EnableVerboseCommands {
@@ -135,14 +129,16 @@ func buildRootCrossRefs(root *RootCommand) {
 				BaseOpt: BaseOpt{
 					Short:       "v",
 					Full:        "verbose",
-					Aliases:     []string{},
+					Aliases:     []string{"vv", "vvv",},
 					Description: "Show this help screen",
 					// Hidden:      true,
 				},
 				DefaultValue: false,
 			}
-			root.plainFlags["verbose"] = root.allFlags[SysMgmtGroup]["verbose"]
-			root.plainFlags["v"] = root.allFlags[SysMgmtGroup]["verbose"]
+			root.plainLongFlags["verbose"] = root.allFlags[SysMgmtGroup]["verbose"]
+			root.plainLongFlags["vvv"] = root.allFlags[SysMgmtGroup]["verbose"]
+			root.plainLongFlags["vv"] = root.allFlags[SysMgmtGroup]["verbose"]
+			root.plainShortFlags["v"] = root.allFlags[SysMgmtGroup]["verbose"]
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["quiet"]; !ok {
 			root.allFlags[SysMgmtGroup]["quiet"] = &Flag{
@@ -155,8 +151,8 @@ func buildRootCrossRefs(root *RootCommand) {
 				},
 				DefaultValue: false,
 			}
-			root.plainFlags["quiet"] = root.allFlags[SysMgmtGroup]["quiet"]
-			root.plainFlags["q"] = root.allFlags[SysMgmtGroup]["quiet"]
+			root.plainLongFlags["quiet"] = root.allFlags[SysMgmtGroup]["quiet"]
+			root.plainShortFlags["q"] = root.allFlags[SysMgmtGroup]["quiet"]
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["debug"]; !ok {
 			root.allFlags[SysMgmtGroup]["debug"] = &Flag{
@@ -169,13 +165,22 @@ func buildRootCrossRefs(root *RootCommand) {
 				},
 				DefaultValue: false,
 			}
-			root.plainFlags["debug"] = root.allFlags[SysMgmtGroup]["debug"]
-			root.plainFlags["D"] = root.allFlags[SysMgmtGroup]["debug"]
+			root.plainLongFlags["debug"] = root.allFlags[SysMgmtGroup]["debug"]
+			root.plainShortFlags["D"] = root.allFlags[SysMgmtGroup]["debug"]
 		}
 	}
 
 	if EnableGenerateCommands {
-		root.SubCommands = append(root.SubCommands, generatorCommands)
+		found := false
+		for _, sc := range root.SubCommands {
+			if sc.Full == generatorCommands.Full {
+				found = true
+				return
+			}
+		}
+		if !found {
+			root.SubCommands = append(root.SubCommands, generatorCommands)
+		}
 	}
 
 	// rootOptions = newOpt()
@@ -210,8 +215,12 @@ func ensureCmdMembers(cmd *Command) *Command {
 		cmd.plainCmds = make(map[string]*Command)
 	}
 
-	if cmd.plainFlags == nil {
-		cmd.plainFlags = make(map[string]*Flag)
+	if cmd.plainLongFlags == nil {
+		cmd.plainLongFlags = make(map[string]*Flag)
+	}
+
+	if cmd.plainShortFlags == nil {
+		cmd.plainShortFlags = make(map[string]*Flag)
 	}
 
 	if cmd.root == nil {
@@ -232,21 +241,21 @@ func buildCrossRefs(cmd *Command) {
 		flg.owner = cmd
 		if len(flg.Short) != 0 {
 			if _, ok := singleFlagNames[flg.Short]; ok {
-				ferr("flag char '%c' was been used.", flg.Short)
+				ferr("flag char '%v' was been used.", flg.Short)
 			} else {
 				singleFlagNames[flg.Short] = true
 			}
 		}
 		if len(flg.Full) != 0 {
 			if _, ok := stringFlagNames[flg.Full]; ok {
-				ferr("flag '%s' was been used.", flg.Full)
+				ferr("flag '%v' was been used.", flg.Full)
 			} else {
 				stringFlagNames[flg.Full] = true
 			}
 		}
 		for _, sz := range flg.Aliases {
 			if _, ok := stringFlagNames[sz]; ok {
-				ferr("flag alias name '%s' was been used.", sz)
+				ferr("flag alias name '%v' was been used.", sz)
 			} else {
 				stringFlagNames[sz] = true
 			}
@@ -258,8 +267,11 @@ func buildCrossRefs(cmd *Command) {
 		if _, ok := cmd.allFlags[flg.Group]; !ok {
 			cmd.allFlags[flg.Group] = make(map[string]*Flag)
 		}
-		for _, sz := range flg.GetTitleNamesArray() {
-			cmd.plainFlags[sz] = flg
+		for _, sz := range flg.GetShortTitleNamesArray() {
+			cmd.plainShortFlags[sz] = flg
+		}
+		for _, sz := range flg.GetLongTitleNamesArray() {
+			cmd.plainLongFlags[sz] = flg
 		}
 		cmd.allFlags[flg.Group][flg.GetTitleName()] = flg
 
@@ -270,21 +282,27 @@ func buildCrossRefs(cmd *Command) {
 	for _, cx := range cmd.SubCommands {
 		cx.owner = cmd
 
-		if _, ok := singleCmdNames[cx.Short]; ok {
-			ferr("command char '%c' was been used.", cx.Short)
-		} else {
-			singleCmdNames[cx.Short] = true
+		if len(cx.Short) != 0 {
+			if _, ok := singleCmdNames[cx.Short]; ok {
+				ferr("command char '%v' was been used.", cx.Short)
+			} else {
+				singleCmdNames[cx.Short] = true
+			}
 		}
-		if _, ok := stringCmdNames[cx.Full]; ok {
-			ferr("command '%s' was been used.", cx.Full)
-		} else {
-			stringCmdNames[cx.Full] = true
+		if len(cx.Full) != 0 {
+			if _, ok := stringCmdNames[cx.Full]; ok {
+				ferr("command '%v' was been used.", cx.Full)
+			} else {
+				stringCmdNames[cx.Full] = true
+			}
 		}
 		for _, sz := range cx.Aliases {
-			if _, ok := stringCmdNames[sz]; ok {
-				ferr("command alias name '%s' was been used.", sz)
-			} else {
-				stringCmdNames[sz] = true
+			if len(sz) != 0 {
+				if _, ok := stringCmdNames[sz]; ok {
+					ferr("command alias name '%v' was been used.", sz)
+				} else {
+					stringCmdNames[sz] = true
+				}
 			}
 		}
 

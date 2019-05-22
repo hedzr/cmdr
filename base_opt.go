@@ -21,8 +21,27 @@ func (s *BaseOpt) GetTitleName() string {
 func (s *BaseOpt) GetTitleNamesArray() []string {
 	var a []string
 	if len(s.Short) != 0 {
-		a = append(a, fmt.Sprintf("%s", s.Short))
+		a = append(a, s.Short)
 	}
+	if len(s.Full) > 0 {
+		a = append(a, s.Full)
+	}
+	a = append(a, s.Aliases...)
+	return a
+}
+
+// GetShortTitleNamesArray temp
+func (s *BaseOpt) GetShortTitleNamesArray() []string {
+	var a []string
+	if len(s.Short) != 0 {
+		a = append(a, s.Short)
+	}
+	return a
+}
+
+// GetLongTitleNamesArray temp
+func (s *BaseOpt) GetLongTitleNamesArray() []string {
+	var a []string
 	if len(s.Full) > 0 {
 		a = append(a, s.Full)
 	}

@@ -7,6 +7,7 @@ package cmdr_test
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/hedzr/cmdr"
 	"reflect"
@@ -127,6 +128,15 @@ func TestReflectOfSlice(t *testing.T) {
 }
 
 func TestExec(t *testing.T) {
+	if rootCmd.SubCommands[1].SubCommands[0].Flags[0] == rootCmd.SubCommands[2].Flags[0] {
+		t.Log(rootCmd.SubCommands[1].SubCommands[0].Flags)
+		t.Log(rootCmd.SubCommands[2].Flags)
+		t.Fatal("should not equal.")
+	}
+	
+	flags := *cmdr.Clone(&consulConnectFlags, &[]*cmdr.Flag{}).(*[]*cmdr.Flag)
+	t.Log(flags)
+
 	var err error
 	var outX = bytes.NewBufferString("")
 	var errX = bytes.NewBufferString("")
@@ -134,14 +144,23 @@ func TestExec(t *testing.T) {
 	var errBuf = bufio.NewWriterSize(errX, 16384)
 	cmdr.SetInternalOutputStreams(outBuf, errBuf)
 
-	for _, sss := range execTestings {
+	defer func() {
+		t.Log("--------- stdout")
+		t.Log(outX.String())
+	}()
+
+	for sss, verifier := range execTestings {
+		cmdr.Set("app.kv.port", 8500)
+		cmdr.Set("app.ms.tags.port", 8500)
+		
 		if err = cmdr.InternalExecFor(rootCmd, strings.Split(sss, " ")); err != nil {
 			t.Fatal(err)
+		} else {
+			if err = verifier(t); err != nil {
+				t.Fatal(err)
+			}
 		}
 	}
-
-	t.Log("--------- stdout")
-	t.Log(outX.String())
 
 	if errX.Len() > 0 {
 		t.Log("--------- stderr")
@@ -151,11 +170,46 @@ func TestExec(t *testing.T) {
 
 var (
 	// testing args
-	execTestings = []string{
-		"consul-tags ms tags modify -h ~~debug --port8509 --prefix/",
-		"consul-tags -? -vD --vv kv backup --prefix'' -h ~~debug",
-		"consul-tags -vD --vv ms tags modify --prefix'' --help ~~debug --prefix\"\" --prefix'cmdr' --prefix\"app\" --prefix=/ --prefix/ --prefix /",
-		"consul-tags -vD ms tags modify --prefix'' -? ~~debug --port8509 -p8507 -p=8506 -p 8500",
+	execTestings = map[string]func(t *testing.T) error{
+		"consul-tags ms tags modify -h ~~debug --port8509 --prefix/": func(t *testing.T) error {
+			if cmdr.GetInt("app.ms.tags.port") != 8509 || cmdr.GetString("app.ms.tags.prefix") != "/" ||
+				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") {
+				return fmt.Errorf("something wrong 1. |%v|%v|%v|%v",
+					cmdr.GetInt("app.ms.tags.port"), cmdr.GetString("app.ms.tags.prefix"),
+					cmdr.GetBool("app.help"), cmdr.GetBool("debug"))
+			}
+			return nil
+		},
+		"consul-tags -? -vD --vv kv backup --prefix'' -h ~~debug": func(t *testing.T) error {
+			if cmdr.GetInt("app.kv.port") != 8500 || cmdr.GetString("app.kv.prefix") != "" ||
+				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") ||
+				!cmdr.GetBool("app.verbose") || !cmdr.GetBool("app.debug") {
+				return errors.New("something wrong 2.")
+			}
+			return nil
+		},
+		"consul-tags -vD --vv ms tags modify --prefix'' --help ~~debug --prefix\"\" --prefix'cmdr' --prefix\"app\" --prefix=/ --prefix/ --prefix /": func(t *testing.T) error {
+			if cmdr.GetInt("app.ms.tags.port") != 8500 || cmdr.GetString("app.ms.tags.prefix") != "/" ||
+				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") ||
+				!cmdr.GetBool("app.verbose") || !cmdr.GetBool("app.debug") {
+				return fmt.Errorf("something wrong 3. |%v|%v|%v|%v|%v|%v",
+					cmdr.GetInt("app.ms.tags.port"), cmdr.GetString("app.ms.tags.prefix"),
+					cmdr.GetBool("app.help"), cmdr.GetBool("debug"),
+					cmdr.GetBool("app.verbose"), !cmdr.GetBool("app.debug"))
+			}
+			return nil
+		},
+		"consul-tags -vD ms tags modify --prefix'' -? ~~debug --port8509 -p8507 -p=8506 -p 8503": func(t *testing.T) error {
+			if cmdr.GetInt("app.ms.tags.port") != 8503 || cmdr.GetString("app.ms.tags.prefix") != "" ||
+				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") ||
+				!cmdr.GetBool("app.verbose") || !cmdr.GetBool("app.debug") {
+				return fmt.Errorf("something wrong 4. |%v|%v|%v|%v|%v|%v",
+					cmdr.GetInt("app.ms.tags.port"), cmdr.GetString("app.ms.tags.prefix"),
+					cmdr.GetBool("app.help"), cmdr.GetBool("debug"),
+					cmdr.GetBool("app.verbose"), !cmdr.GetBool("app.debug"))
+			}
+			return nil
+		},
 	}
 
 	// testing rootCmd
@@ -258,7 +312,7 @@ var (
 			Full:        "kv",
 			Aliases:     []string{"kvstore",},
 			Description: "consul kv store operations...",
-			Flags:       consulConnectFlags,
+			Flags:       *cmdr.Clone(&consulConnectFlags, &[]*cmdr.Flag{}).(*[]*cmdr.Flag),
 		},
 		SubCommands: []*cmdr.Command{
 			{
@@ -358,7 +412,7 @@ var (
 			Full:        "tags",
 			Aliases:     []string{},
 			Description: "tags op.",
-			Flags:       consulConnectFlags,
+			Flags:       *cmdr.Clone(&consulConnectFlags, &[]*cmdr.Flag{}).(*[]*cmdr.Flag),
 		},
 		SubCommands: []*cmdr.Command{
 			{

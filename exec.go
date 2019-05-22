@@ -333,6 +333,7 @@ func findValueAttached(pkg *ptpkg, fn *string) {
 		splitQuotedValueIfNecessary(pkg, fn)
 	}
 }
+
 func splitQuotedValueIfNecessary(pkg *ptpkg, fn *string) {
 	if pos := strings.Index(*fn, "'"); pos >= 0 {
 		pkg.val = trimQuotes((*fn)[pos:])

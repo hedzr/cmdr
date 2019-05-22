@@ -17,7 +17,10 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 - Support for unlimited multiple sub-commands.
 - Support for command short and long name, and aliases names.
 - Support for both short and long options (`-o` and `—opt`). Support for multiple aliases
-- Automatically allows both `-I file` and `-Ifile`, and `-I=files` formats.
+- Automatically allows those formats:
+  - `-I file`, `-Ifile`, and `-I=files`
+  - `-I 'file'`, `-I'file'`, and `-I='files'`
+  - `-I "file"`, `-I"file"`, and `-I="files"`
 - Support for `-D+`, `-D-` to enable/disable a bool flag.
 - Support for circuit-break by `--`.
 - Support for options being specified multiple times, with different values

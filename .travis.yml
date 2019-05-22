@@ -17,4 +17,6 @@ deploy:
     - bin/short-windows-amd64.gz
     - bin/wget-demo-windows-amd64.gz
   on:
+    tags: true
     repo: hedzr/cmdr
+  skip_cleanup: true

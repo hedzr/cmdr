@@ -40,15 +40,6 @@ func Get(key string) interface{} {
 	return rxxtOptions.Get(key)
 }
 
-// Get an `Option` by key string, eg:
-// ```golang
-// cmdr.Get("app.logger.level") => 'DEBUG',...
-// ```
-//
-func (s *Options) Get(key string) interface{} {
-	return s.entries[key]
-}
-
 // GetBool returns the bool value of an `Option` key.
 func GetBool(key string) bool {
 	return rxxtOptions.GetBool(key)
@@ -119,6 +110,15 @@ func GetStringSliceP(prefix, key string) []string {
 	return rxxtOptions.GetStringSlice(fmt.Sprintf("%s.%s", prefix, key))
 }
 
+// Get an `Option` by key string, eg:
+// ```golang
+// cmdr.Get("app.logger.level") => 'DEBUG',...
+// ```
+//
+func (s *Options) Get(key string) interface{} {
+	return s.entries[key]
+}
+
 // GetBool returns the bool value of an `Option` key.
 func (s *Options) GetBool(key string) (ret bool) {
 	switch strings.ToLower(s.GetString(key)) {
@@ -178,6 +178,24 @@ func wrapRxxtPrefix(key string) string {
 		return p
 	}
 	return p + "." + key
+}
+
+// Set set the value of an `Option` key.
+// ```golang
+// cmdr.Set("app.logger.level", "DEBUG")
+// cmdr.Set("app.ms.tags.port", 8500)
+// ...
+// ```
+//
+func Set(key string, val interface{}) {
+	rxxtOptions.Set(key, val)
+}
+
+// SetNx but without prefix auto-wrapped.
+// `rxxtPrefix` is a string slice to define the prefix string array, default is ["app"].
+// So, cmdr.Set("debug", true) will put an real entry with (`app.debug`, true).
+func SetNx(key string, val interface{}) {
+	rxxtOptions.SetNx(key, val)
 }
 
 // Set set the value of an `Option` key.

@@ -70,11 +70,11 @@ func (s *Options) LoadConfigFile(file string) (err error) {
 	}
 
 	usedConfigFile = file
-	
+
 	usedConfigSubDir = path.Join(path.Dir(usedConfigFile), "conf.d")
 	if !FileExists(usedConfigSubDir) {
 		usedConfigSubDir = ""
-		return 
+		return
 	}
 
 	if err = filepath.Walk(usedConfigSubDir, s.visit); err != nil {

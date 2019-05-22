@@ -129,7 +129,7 @@ func buildRootCrossRefs(root *RootCommand) {
 				BaseOpt: BaseOpt{
 					Short:       "v",
 					Full:        "verbose",
-					Aliases:     []string{"vv", "vvv",},
+					Aliases:     []string{"vv", "vvv"},
 					Description: "Show this help screen",
 					// Hidden:      true,
 				},

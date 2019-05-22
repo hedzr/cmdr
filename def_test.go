@@ -95,7 +95,7 @@ func TestDemoOptsWriting(t *testing.T) {
 	// if err != nil {
 	// 	t.Fatal(err)
 	// }
-	// 
+	//
 	// err = ioutil.WriteFile("demo-opts.yaml", b, 0644)
 	// if err != nil {
 	// 	t.Fatal(err)
@@ -133,7 +133,7 @@ func TestExec(t *testing.T) {
 		t.Log(rootCmd.SubCommands[2].Flags)
 		t.Fatal("should not equal.")
 	}
-	
+
 	flags := *cmdr.Clone(&consulConnectFlags, &[]*cmdr.Flag{}).(*[]*cmdr.Flag)
 	t.Log(flags)
 
@@ -152,7 +152,7 @@ func TestExec(t *testing.T) {
 	for sss, verifier := range execTestings {
 		cmdr.Set("app.kv.port", 8500)
 		cmdr.Set("app.ms.tags.port", 8500)
-		
+
 		if err = cmdr.InternalExecFor(rootCmd, strings.Split(sss, " ")); err != nil {
 			t.Fatal(err)
 		} else {
@@ -217,7 +217,7 @@ var (
 	rootCmd = &cmdr.RootCommand{
 		Command: cmdr.Command{
 			BaseOpt: cmdr.BaseOpt{
-				Name: "consul-tags",
+				Name:  "consul-tags",
 				Flags: []*cmdr.Flag{
 					// global options here.
 				},
@@ -247,7 +247,7 @@ var (
 			// Name:        "server",
 			Short:       "s",
 			Full:        "server",
-			Aliases:     []string{"serve", "svr",},
+			Aliases:     []string{"serve", "svr"},
 			Description: "server ops: for linux service/daemon.",
 		},
 		SubCommands: []*cmdr.Command{
@@ -255,7 +255,7 @@ var (
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "s",
 					Full:        "start",
-					Aliases:     []string{"run", "startup",},
+					Aliases:     []string{"run", "startup"},
 					Description: "startup this system service/daemon.",
 					// Action:impl.ServerStart,
 				},
@@ -266,7 +266,7 @@ var (
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "t",
 					Full:        "stop",
-					Aliases:     []string{"stp", "halt", "pause",},
+					Aliases:     []string{"stp", "halt", "pause"},
 					Description: "stop this system service/daemon.",
 					// Action:impl.ServerStop,
 				},
@@ -275,7 +275,7 @@ var (
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "r",
 					Full:        "restart",
-					Aliases:     []string{"reload",},
+					Aliases:     []string{"reload"},
 					Description: "restart this system service/daemon.",
 					// Action:impl.ServerRestart,
 				},
@@ -283,7 +283,7 @@ var (
 			{
 				BaseOpt: cmdr.BaseOpt{
 					Full:        "status",
-					Aliases:     []string{"st",},
+					Aliases:     []string{"st"},
 					Description: "display its running status as a system service/daemon.",
 				},
 			},
@@ -291,7 +291,7 @@ var (
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "i",
 					Full:        "install",
-					Aliases:     []string{"setup",},
+					Aliases:     []string{"setup"},
 					Description: "install as a system service/daemon.",
 				},
 			},
@@ -299,7 +299,7 @@ var (
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "u",
 					Full:        "uninstall",
-					Aliases:     []string{"remove",},
+					Aliases:     []string{"remove"},
 					Description: "remove from a system service/daemon.",
 				},
 			},
@@ -310,7 +310,7 @@ var (
 		BaseOpt: cmdr.BaseOpt{
 			Name:        "kvstore",
 			Full:        "kv",
-			Aliases:     []string{"kvstore",},
+			Aliases:     []string{"kvstore"},
 			Description: "consul kv store operations...",
 			Flags:       *cmdr.Clone(&consulConnectFlags, &[]*cmdr.Flag{}).(*[]*cmdr.Flag),
 		},
@@ -319,7 +319,7 @@ var (
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "b",
 					Full:        "backup",
-					Aliases:     []string{"bk", "bf", "bkp",},
+					Aliases:     []string{"bk", "bf", "bkp"},
 					Description: "Dump Consul's KV database to a JSON/YAML file",
 					// Action:      kvBackup,
 					Flags: []*cmdr.Flag{
@@ -361,7 +361,7 @@ var (
 		BaseOpt: cmdr.BaseOpt{
 			Name:        "microservices",
 			Full:        "ms",
-			Aliases:     []string{"microservice", "micro-service",},
+			Aliases:     []string{"microservice", "micro-service"},
 			Description: "micro-service operations...",
 			Flags: []*cmdr.Flag{
 				{
@@ -398,7 +398,7 @@ var (
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "l",
 					Full:        "list",
-					Aliases:     []string{"ls", "lst", "dir",},
+					Aliases:     []string{"ls", "lst", "dir"},
 					Description: "list services.",
 					// Action:      msList,
 				},
@@ -419,7 +419,7 @@ var (
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "ls",
 					Full:        "list",
-					Aliases:     []string{"l", "lst", "dir",},
+					Aliases:     []string{"l", "lst", "dir"},
 					Description: "list tags.",
 					// Action:      msTagsList,
 				},
@@ -428,7 +428,7 @@ var (
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "a",
 					Full:        "add",
-					Aliases:     []string{"create", "new",},
+					Aliases:     []string{"create", "new"},
 					Description: "add tags.",
 					// Action:      msTagsAdd,
 					Flags: []*cmdr.Flag{
@@ -436,7 +436,7 @@ var (
 							BaseOpt: cmdr.BaseOpt{
 								Short:                   "ls",
 								Full:                    "list",
-								Aliases:                 []string{"l", "lst", "dir",},
+								Aliases:                 []string{"l", "lst", "dir"},
 								Description:             "a comma list to be added",
 								DefaultValuePlaceholder: "LIST",
 							},
@@ -449,7 +449,7 @@ var (
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "r",
 					Full:        "rm",
-					Aliases:     []string{"remove", "erase", "delete", "del",},
+					Aliases:     []string{"remove", "erase", "delete", "del"},
 					Description: "remove tags.",
 					// Action:      msTagsRemove,
 					Flags: []*cmdr.Flag{
@@ -457,7 +457,7 @@ var (
 							BaseOpt: cmdr.BaseOpt{
 								Short:                   "ls",
 								Full:                    "list",
-								Aliases:                 []string{"l", "lst", "dir",},
+								Aliases:                 []string{"l", "lst", "dir"},
 								Description:             "a comma list to be added.",
 								DefaultValuePlaceholder: "LIST",
 							},
@@ -470,7 +470,7 @@ var (
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "m",
 					Full:        "modify",
-					Aliases:     []string{"mod", "update", "change",},
+					Aliases:     []string{"mod", "update", "change"},
 					Description: "modify tags.",
 					// Action:      msTagsModify,
 					Flags: []*cmdr.Flag{
@@ -487,7 +487,7 @@ var (
 							BaseOpt: cmdr.BaseOpt{
 								Short:                   "r",
 								Full:                    "rm",
-								Aliases:                 []string{"remove", "erase", "del",},
+								Aliases:                 []string{"remove", "erase", "del"},
 								Description:             "a comma list to be removed.",
 								DefaultValuePlaceholder: "LIST",
 							},
@@ -500,7 +500,7 @@ var (
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "t",
 					Full:        "toggle",
-					Aliases:     []string{"tog", "switch",},
+					Aliases:     []string{"tog", "switch"},
 					Description: "toggle tags for ms.",
 					// Action:      msTagsToggle,
 					Flags: []*cmdr.Flag{
@@ -526,7 +526,7 @@ var (
 							BaseOpt: cmdr.BaseOpt{
 								Short:                   "u",
 								Full:                    "unset",
-								Aliases:                 []string{"reset",},
+								Aliases:                 []string{"reset"},
 								Description:             "and reset the others service nodes to `tag`",
 								DefaultValuePlaceholder: "LIST",
 							},
@@ -615,7 +615,7 @@ var (
 			BaseOpt: cmdr.BaseOpt{
 				Short:                   "pw",
 				Full:                    "password",
-				Aliases:                 []string{"passwd", "pwd",},
+				Aliases:                 []string{"passwd", "pwd"},
 				Description:             "HTTP Basic auth password",
 				DefaultValuePlaceholder: "PASSWORD",
 			},

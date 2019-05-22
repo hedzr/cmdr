@@ -17,13 +17,13 @@ import (
 func genShell(cmd *Command, args []string) (err error) {
 	// logrus.Infof("OK gen shell. %v", *cmd)
 
-	if GetBool("app.generate.shell.zsh") {
-		// if !GetBool("app.quiet") {
+	if GetBoolP(getPrefix(), "generate.shell.zsh") {
+		// if !GetBoolP(getPrefix(), "quiet") {
 		// 	logrus.Debugf("zsh-dump")
 		// }
 		// printHelpZsh(command, justFlags)
 
-	} else if GetBool("app.generate.shell.bash") {
+	} else if GetBoolP(getPrefix(), "generate.shell.bash") {
 		err = genShellBash(cmd, args)
 	} else {
 		// auto

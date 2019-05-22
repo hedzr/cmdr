@@ -54,9 +54,19 @@ func GetBool(key string) bool {
 	return rxxtOptions.GetBool(key)
 }
 
+// GetBoolP returns the bool value of an `Option` key.
+func GetBoolP(prefix, key string) bool {
+	return rxxtOptions.GetBool(fmt.Sprintf("%s.%s", prefix, key))
+}
+
 // GetInt returns the int value of an `Option` key.
 func GetInt(key string) int {
 	return int(rxxtOptions.GetInt(key))
+}
+
+// GetIntP returns the int value of an `Option` key.
+func GetIntP(prefix, key string) int {
+	return int(rxxtOptions.GetInt(fmt.Sprintf("%s.%s", prefix, key)))
 }
 
 // GetInt64 returns the int64 value of an `Option` key.
@@ -64,9 +74,19 @@ func GetInt64(key string) int64 {
 	return rxxtOptions.GetInt(key)
 }
 
+// GetInt64P returns the int64 value of an `Option` key.
+func GetInt64P(prefix, key string) int64 {
+	return rxxtOptions.GetInt(fmt.Sprintf("%s.%s", prefix, key))
+}
+
 // GetUint returns the uint value of an `Option` key.
 func GetUint(key string) uint {
 	return uint(rxxtOptions.GetUint(key))
+}
+
+// GetUintP returns the uint value of an `Option` key.
+func GetUintP(prefix, key string) uint {
+	return uint(rxxtOptions.GetUint(fmt.Sprintf("%s.%s", prefix, key)))
 }
 
 // GetUint64 returns the uint64 value of an `Option` key.
@@ -74,14 +94,29 @@ func GetUint64(key string) uint64 {
 	return rxxtOptions.GetUint(key)
 }
 
+// GetUint64P returns the uint64 value of an `Option` key.
+func GetUint64P(prefix, key string) uint64 {
+	return rxxtOptions.GetUint(fmt.Sprintf("%s.%s", prefix, key))
+}
+
 // GetString returns the string value of an `Option` key.
 func GetString(key string) string {
 	return rxxtOptions.GetString(key)
 }
 
+// GetStringP returns the string value of an `Option` key.
+func GetStringP(prefix, key string) string {
+	return rxxtOptions.GetString(fmt.Sprintf("%s.%s", prefix, key))
+}
+
 // GetStringSlice returns the string slice value of an `Option` key.
 func GetStringSlice(key string) []string {
 	return rxxtOptions.GetStringSlice(key)
+}
+
+// GetStringSliceP returns the string slice value of an `Option` key.
+func GetStringSliceP(prefix, key string) []string {
+	return rxxtOptions.GetStringSlice(fmt.Sprintf("%s.%s", prefix, key))
 }
 
 // GetBool returns the bool value of an `Option` key.

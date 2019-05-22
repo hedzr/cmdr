@@ -9,6 +9,8 @@ import (
 	"bytes"
 	"github.com/fsnotify/fsnotify"
 	"log"
+	"path"
+
 	// log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
@@ -19,6 +21,16 @@ import (
 	"strings"
 	"sync"
 )
+
+// GetUsedConfigFile returns the main config filename (generally it's `<appname>.yml`)
+func GetUsedConfigFile() string {
+	return usedConfigFile
+}
+
+// GetUsedConfigSubDir returns the sub-directory `conf.d` of config files
+func GetUsedConfigSubDir() string {
+	return usedConfigSubDir
+}
 
 // AddOnConfigLoadedListener add an functor on config loaded and merged
 func AddOnConfigLoadedListener(c ConfigReloaded) {
@@ -57,6 +69,14 @@ func (s *Options) LoadConfigFile(file string) (err error) {
 		return
 	}
 
+	usedConfigFile = file
+	
+	usedConfigSubDir = path.Join(path.Dir(usedConfigFile), "conf.d")
+	if !FileExists(usedConfigSubDir) {
+		usedConfigSubDir = ""
+		return 
+	}
+
 	if err = filepath.Walk(usedConfigSubDir, s.visit); err != nil {
 		log.Fatalf("ERROR: filepath.Walk() returned %v\n", err)
 	}
@@ -73,7 +93,6 @@ func (s *Options) loadConfigFile(file string) (err error) {
 		m map[string]interface{}
 	)
 
-	usedConfigFile = file
 	b, err = ioutil.ReadFile(file)
 	if err != nil {
 		return

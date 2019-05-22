@@ -272,7 +272,7 @@ func normalize(s string) string {
 	return s
 }
 
-// SetDefaultOutput sets the internal output streams for debugging
+// SetInternalOutputStreams sets the internal output streams for debugging
 func SetInternalOutputStreams(out, err *bufio.Writer) {
 	defaultStdout = out
 	defaultStderr = err

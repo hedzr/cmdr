@@ -5,7 +5,6 @@
 package cmdr
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"reflect"
@@ -420,7 +419,7 @@ func preprocessPkg(pkg *ptpkg, args []string) (err error) {
 				pkg.i++
 				pkg.val = args[pkg.i]
 			} else {
-				err = errors.New(fmt.Sprintf("unexpect end of command line, need more args for %v", pkg))
+				err = fmt.Errorf("unexpect end of command line, need more args for %v", pkg)
 				return
 			}
 		}

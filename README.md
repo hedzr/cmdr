@@ -40,7 +40,7 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
 - Sortable commands and options/flags. Or sorted by alphabetic order.
 
-- Bash and Zsh (not yet) completion.
+- Bash and Zsh (*not yet, todo*) completion.
 
   ```bash
   bin/wget-demo generate shell --bash
@@ -58,17 +58,19 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
 - Overrides by environment variables.
 
-  not yet: prior:
+  *todo: prior:*
 
-- `cmdr.Getkey)`, `cmdr.GetBool(key)`, `cmdr.GetInt(key)`, `cmdr.GetString(key)`, `cmdr.GetStringSlice(key)` for Option value extraction.
+- `cmdr.Get(key)`, `cmdr.GetBool(key)`, `cmdr.GetInt(key)`, `cmdr.GetString(key)`, `cmdr.GetStringSlice(key)` for Option value extractions.
 
   - bool
   - int, int64, uint, uint64
   - string
   - string slice
+  - *todo: time, duration, int slice, ...*
+
+- *Todo: manual generator.*
 
 - More...
-
 
 
 

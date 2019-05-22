@@ -5,6 +5,7 @@
 package cmdr
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
 	"regexp"
@@ -30,10 +31,10 @@ func printHeader() {
 }
 
 func printHelp(command *Command, justFlags bool) {
-	if GetInt("app.help-zsh") > 0 {
+	if GetIntP(getPrefix(), "help-zsh") > 0 {
 		printHelpZsh(command, justFlags)
 
-	} else if GetBool("app.help-bash") {
+	} else if GetBoolP(getPrefix(), "help-bash") {
 		// TODO for bash
 		printHelpZsh(command, justFlags)
 
@@ -68,7 +69,7 @@ func printHelpZsh(command *Command, justFlags bool) {
 func printHelpZshCommands(command *Command, justFlags bool) {
 	if !justFlags {
 		var x strings.Builder
-		x.WriteString(fmt.Sprintf("%d: :((", GetInt("app.help-zsh")))
+		x.WriteString(fmt.Sprintf("%d: :((", GetIntP(getPrefix(), "help-zsh")))
 		for _, cx := range command.SubCommands {
 			for _, n := range cx.GetExpandableNamesArray() {
 				x.WriteString(fmt.Sprintf(`%v:'%v' `, n, cx.Description))
@@ -269,6 +270,12 @@ func normalize(s string) string {
 		s = s[strings.Index(s, ".")+1:]
 	}
 	return s
+}
+
+// SetDefaultOutput sets the internal output streams for debugging
+func SetInternalOutputStreams(out, err *bufio.Writer) {
+	defaultStdout = out
+	defaultStderr = err
 }
 
 // SetCustomShowVersion supports your `ShowVersion()` instead of internal `showVersion()`

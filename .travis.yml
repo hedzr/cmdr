@@ -1,14 +1,14 @@
 language: go
 go:
-  - tip
+- tip
 install:
-  - go get -d -v ./...
+- go get -d -v ./...
 script:
-  - ./test.sh build-ci
+- "./test.sh build-ci"
 deploy:
   provider: releases
   api_key:
-    secure: K94JYYm0N/BzDYzMoWjo1MrqgsWOmIb8kTiQ1/GCuTm/wHc1eUF2I9I7mej6ZMcUpxVP0yJfNHwZmcwWYq9DNnRDlq4HNwYKjJjIZDMEcVqF/DN6Muo6XCMly0OjQvy8/gRrUUFCQ771BjDysmQzQFlv2V5BbcQ1gphuWP1lyOHQ2Z40l+Ss/g5fPq11M1L44cwrveUKlX9yypQUSzGgq12+JY2W3EOIr4NttTwIJ1dVFU8SmNICcXBXy/0Ed6p5NEewJKBshyVf0RlpZjHIJElzOPqctRYSgLlru2eJbnwaZPQ/0aT6wFLPXAk9MDhp1D87GTPyIgHg0mqRAJw3Ey6X2vpL4oyn0q/kc4YVgjdk18g3fsTGqHiD20rQR6yFPv+yEidVBaiqZ7lEDoUKaU2tbJ8Gc+t0zVesPMI6AX2AXTT/ZhNgyE88LpCW9HXXQlw2UYabQiCH5LljALGQJg92lAkEEiFjU5/k3I+jtdL7A0DjFc8CHgnyeFagJga8CqkjhIPytl+vrpuxb8GQKbqR5BPfEfPZyUCs7SwVGiOp4C7Mi3+XTG9id3z+GDi8PHVsoYGQEOIWM3dcuvT2Wv8FXt/k5ITj0vDexflgHZL75L+zEM7fukCkeKnULY1V81jS2vJxXgQe+JJT2QDZJuRyDdhkbUQNHqbleiMzZR4=
+    secure: F95IMFaeiF3c0XpAWI0MfzkLZgOO5Sfkmv+hMfWCDTx4FqjFmWWB9Czk5nsQAuvsF0lhyWUY2CcdBWEZlOcHcwvUhwmBtUy7d7261hZGSNFOphkRLp7a/Zn28Uwat9uowbF7x6BijAmBap6VW0Aqmf5Hhcx1RTVyERhnO0VLy4Nd5eFtfXaRMmmaaDdGp5YY9Sv9B7IpUQOvszbTzgJSFfA/Beylbb+P9BGrktSxf1hPLGtJm1BYUK47Y1yvyQclPTIBE7mQC3a9TCa5RKVZaO3JKGDWKoLK4I0htRebc7JD4p42h8SSVnbpfZ70wN0UphX8aG5v1lHgekJ2v+9EXLbhFagSQ1g3/g4ITP5be6newCGMLRKOGjd1P4Nyq2G/2KPu34GRMUqCvp2Xv7EioQrsZlLDH3zobe3CpTZl09TZZ9G1+gVYPyCBtVcE0EE9GDtVCJVqLzuMUf9DAjYoaZszbVSGebTtpY3hYRsMz2nXJyoeXzmfEs0dCAjo0vPkZWefkkMXA1Ji5i0tl+RiT6CagFYS3ssRp71NV3HXhD3JSI5J1rJBCNl3AbZ1n3GPzstLWsZH2TBDRht3UPZbAnM1r7on6+JTzz3vc4U6RQ/8ndxlQzoK9kcihVFfZ67hnDRBqI1iW89F3qLdeR67wll8+Cl8u2+U5jD19r3eJVw=
   file:
     - bin/demo-linux-amd64.gz
     - bin/short-linux-amd64.gz
@@ -16,7 +16,5 @@ deploy:
     - bin/demo-windows-amd64.gz
     - bin/short-windows-amd64.gz
     - bin/wget-demo-windows-amd64.gz
-  skip_cleanup: true
   on:
-    tags: true
     repo: hedzr/cmdr

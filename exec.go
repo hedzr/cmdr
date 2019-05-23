@@ -202,6 +202,12 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 					}
 				}
 			} else {
+				if goCommand.Action != nil && len(goCommand.SubCommands) == 0 {
+					// the args remained are files, not sub-commands.
+					pkg.i--
+					break
+				}
+				
 				ferr("Unknown command: %v", pkg.a)
 				pkg.unknownCmds = append(pkg.unknownCmds, pkg.a)
 			}

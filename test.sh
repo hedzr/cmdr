@@ -8,6 +8,14 @@ wget() {
 	APP_CONFIG=wget.conf go run ../wget-demo/main.go ~~debug $*
 }
 
+build-short() {
+	PKG_SRC=./examples/short/main.go APPNAME=short ./build.sh
+}
+
+build-demo() {
+	PKG_SRC=./examples/demo/main.go APPNAME=demo ./build.sh
+}
+
 build-all() {
 	PKG_SRC=./examples/short/main.go APPNAME=short ./build.sh
 	PKG_SRC=./examples/demo/main.go APPNAME=demo ./build.sh

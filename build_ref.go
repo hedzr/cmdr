@@ -50,7 +50,7 @@ func buildRootCrossRefs(root *RootCommand) {
 					Description: "Show the building information of this app.",
 					Hidden:      true,
 					Action: func(cmd *Command, args []string) (err error) {
-						showVersion()
+						showBuildInfo()
 						return ErrShouldBeStopException
 					},
 				},

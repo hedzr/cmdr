@@ -18,6 +18,8 @@ var (
 	Buildstamp = ""
 	// Githash app git hash
 	Githash = ""
+	// GoVersion `go version` string
+	GoVersion = ""
 
 	// ServerTag app server tag names
 	ServerTag = ""

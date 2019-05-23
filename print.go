@@ -265,13 +265,6 @@ GO_PRINT_FLAGS:
 
 }
 
-func normalize(s string) string {
-	if xre.MatchString(s) {
-		s = s[strings.Index(s, ".")+1:]
-	}
-	return s
-}
-
 // SetInternalOutputStreams sets the internal output streams for debugging
 func SetInternalOutputStreams(out, err *bufio.Writer) {
 	defaultStdout = out
@@ -294,10 +287,11 @@ func showVersion() {
 		return
 	}
 
-	fp("v%v", conf.Version)
-	fp("%v", conf.AppName)
-	fp("%v", conf.Buildstamp)
-	fp("%v", conf.Githash)
+	fp(`v%v
+%v
+%v
+%v
+%v`, conf.Version, conf.AppName, conf.Buildstamp, conf.Githash, conf.GoVersion)
 }
 
 func showBuildInfo() {
@@ -308,7 +302,17 @@ func showBuildInfo() {
 
 	printHeader()
 	// buildTime
-	fp("Build Timestamp: %v. Githash: %v", conf.Buildstamp, conf.Githash)
+	fp(`
+       Built by: %v
+Build Timestamp: %v
+        Githash: %v`, conf.GoVersion, conf.Buildstamp, conf.Githash)
+}
+
+func normalize(s string) string {
+	if xre.MatchString(s) {
+		s = s[strings.Index(s, ".")+1:]
+	}
+	return s
 }
 
 const (

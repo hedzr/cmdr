@@ -100,7 +100,7 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
   
 
-- *Todo: manual generator.*
+- *Todo: manual generator, and markdown/docx/pdf generators.*
 
 - More...
 

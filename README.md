@@ -118,6 +118,22 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
 
 
+## Documentation
+
+- [*TODO: wiki*](https://github.com/hedzr/cmdr/wiki)
+
+
+
+## Uses
+
+- https://github.com/hedzr/consul-tags
+- https://github.com/hedzr/ini-op
+- Issue me
+
+
+
+
+
 ## LICENSE
 
 MIT.

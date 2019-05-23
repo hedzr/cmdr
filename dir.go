@@ -6,7 +6,9 @@ package cmdr
 
 import (
 	"os"
+	"path"
 	"path/filepath"
+	"strings"
 )
 
 // GetExcutableDir returns the executable file directory
@@ -45,4 +47,41 @@ func EnsureDir(dir string) (err error) {
 		err = os.MkdirAll(dir, 0755)
 	}
 	return
+}
+
+func normalizeDir(s string) string {
+	s = os.Expand(s, os.Getenv)
+	if s[0] == '/' {
+		return s
+	} else if strings.HasPrefix(s, "./") {
+		return path.Join(GetCurrentDir(), s)
+	} else if strings.HasPrefix(s, "../") {
+		return path.Join(GetCurrentDir(), s)
+	} else if strings.HasPrefix(s, "~/") {
+		return path.Join(os.Getenv("HOME"), s[2:])
+	} else {
+		return s
+	}
+}
+
+// getExpandedPredefinedLocations for internal using
+func getExpandedPredefinedLocations() (locations []string) {
+	for _, d := range predefinedLocations {
+		locations = append(locations, normalizeDir(d))
+	}
+	return
+}
+
+// GetPredefinedLocations return the searching locations for loading config files.
+func GetPredefinedLocations() []string {
+	return predefinedLocations
+}
+
+// SetPredefinedLocations to customize the searching locations for loading config files.
+// It MUST be invoked before `cmdr.Exec`. Such as:
+// ```go
+//     SetPredefinedLocations([]string{"./config", "~/.config/cmdr/", "$GOPATH/running-configs/cmdr"})
+// ```
+func SetPredefinedLocations(locations []string) {
+	predefinedLocations = locations
 }

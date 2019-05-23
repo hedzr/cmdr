@@ -38,7 +38,21 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
 - Groupable commands and options/flags.
 
+  Sortable group name with `\d+\..+` format, eg:
+
+  `1001.c++`, `1100.golang`, `1200.java`, ….
+
 - Sortable commands and options/flags. Or sorted by alphabetic order.
+
+- Predefined commands and flags:
+
+  - Help: `-h`, `-?`, `--help`, ...
+  - Version & Build Info: `--version`/`-V`, `--build-info`/`-#`
+  - Verbose & Debug: `—verbose`/`-v`, `—debug`/`-D`, `—quiet`/`-q`
+  - Generate Commands:
+    - `generate shell`: `—bash`/`—zsh`(*todo*)
+    - `generate manual`: *todo*
+    - `generate doc`: *todo*
 
 - Bash and Zsh (*not yet, todo*) completion.
 
@@ -48,13 +62,25 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
 - Predefined yaml config file locations:
   - `/etc/<appname>/<appname>.yml` and `conf.d` sub-directory.
+
   - `/usr/local/etc/<appname>/<appname>.yml` and `conf.d` sub-directory.
+
   - `$HOME/<appname>/<appname>,yml` and `conf.d` sub-directory.
+
   - Watch `conf.d` directory:
     - `AddOnConfigLoadedListener(c)`
     - `RemoveOnConfigLoadedListener(c)`
     - `SetOnConfigLoadedListener(c, enabled)`
+
   - As a feature, do NOT watch the changes on `<appname>.yml`.
+
+  - To customize the searching locations yourself:
+
+    - `SetPredefinedLocations(locations)`
+
+      ```go
+      SetPredefinedLocations([]string{"./config", "~/.config/cmdr/", "$GOPATH/running-configs/cmdr"})
+      ```
 
 - Overrides by environment variables.
 
@@ -67,6 +93,10 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
   - string
   - string slice
   - *todo: time, duration, int slice, ...*
+
+- `cmdr.Set(key, value)`, `cmdr.SerNx(key, value)`
+
+  
 
 - *Todo: manual generator.*
 

@@ -31,7 +31,7 @@ func setRootCommand(rootCmd *RootCommand) {
 
 func buildRefs(rootCmd *RootCommand) (err error) {
 	buildRootCrossRefs(rootCmd)
-	for _, s := range predefinedLocations {
+	for _, s := range getExpandedPredefinedLocations() {
 		if FileExists(s) {
 			fn := fmt.Sprintf(s, rootCmd.AppName, rootCmd.AppName)
 			err = rxxtOptions.LoadConfigFile(fn)

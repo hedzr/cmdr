@@ -136,6 +136,7 @@ Re-login to enable the new bash completion script.
 	return
 }
 
+// not complete
 func genShellB(cmd *Command, args []string) (err error) {
 	// var sb strings.Builder
 	// var sbca []strings.Builder
@@ -261,5 +262,27 @@ func genShellLoopCommands(cmd *Command, level int, sbca []strings.Builder) (scrF
 		scrFlg = sbFlags.String()
 		scrCmd = sbCmds.String()
 	}
+	return
+}
+
+//
+//
+// /////////////////////////////////////////
+//
+//
+
+func genManual(cmd *Command, args []string) (err error) {
+	logrus.Infof("OK gen manual: hit=%v", cmd.strHit)
+	return
+}
+
+//
+//
+// /////////////////////////////////////////
+//
+//
+
+func genDoc(cmd *Command, args []string) (err error) {
+	logrus.Infof("OK gen doc: hit=%v", cmd.strHit)
 	return
 }

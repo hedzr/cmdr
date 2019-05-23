@@ -146,14 +146,27 @@ func (s *Options) GetUint(key string) (ir uint64) {
 
 // GetStringSlice returns the string slice value of an `Option` key.
 func (s *Options) GetStringSlice(key string) (ir []string) {
-	ss := s.GetString(key)
-	ir = strings.Split(ss, ",")
+	envkey := s.envKey(key)
+	if s, ok := os.LookupEnv(envkey); ok {
+		ir = strings.Split(s, ",")
+	}
+
+	if v, ok := s.entries[key]; ok {
+		switch reflect.ValueOf(v).Kind() {
+		case reflect.String:
+			ir = strings.Split(v.(string), ",")
+		case reflect.Slice:
+			ir = v.([]string)
+		default:
+			ir = strings.Split(fmt.Sprintf("%v", v), ",")
+		}
+	}
 	return
 }
 
 // GetString returns the string value of an `Option` key.
 func (s *Options) GetString(key string) (ret string) {
-	envkey := strings.Join(append(EnvPrefix, strings.ToUpper(strings.ReplaceAll(key, ".", "_"))), "_")
+	envkey := s.envKey(key)
 	if s, ok := os.LookupEnv(envkey); ok {
 		ret = s
 	}
@@ -166,6 +179,13 @@ func (s *Options) GetString(key string) (ret string) {
 			ret = fmt.Sprintf("%v", v)
 		}
 	}
+	return
+}
+
+func (s *Options) envKey(key string) (envkey string) {
+	key = strings.ReplaceAll(key, ".", "_")
+	key = strings.ReplaceAll(key, "-", "_")
+	envkey = strings.Join(append(EnvPrefix, strings.ToUpper(key)), "_")
 	return
 }
 

@@ -36,8 +36,11 @@ type (
 		Aliases []string
 		// group name
 		Group string
+		// to-do: Toggle Group
+		ToggleGroup string
 
-		owner *Command
+		owner  *Command
+		strHit string
 
 		Flags []*Flag
 
@@ -158,3 +161,28 @@ var (
 	// ErrShouldBeStopException tips `Exec()` cancelled the following actions after `PreAction()`
 	ErrShouldBeStopException = errors.New("should be stop right now")
 )
+
+// GetStrictMode enables error when opt value missed. such as:
+// xxx a b --prefix''   => error: prefix opt has no value specified.
+// xxx a b --prefix'/'  => ok.
+//
+// ENV: use `CMDR_APP_STRICT_MODE=true` to enable strict-mode.
+// NOTE: `CMDR_APP_` prefix could be set by user (via: `EnvPrefix` && `RxxtPrefix`).
+func GetStrictMode() bool {
+	return GetBool("app.strict-mode")
+}
+
+// GetDebugMode returns the flag value of `--debug`/`-D`
+func GetDebugMode() bool {
+	return GetBool("app.debug")
+}
+
+// GetDebugMode returns the flag value of `--verbose`/`-v`
+func GetVerboseMode() bool {
+	return GetBool("app.verbose")
+}
+
+// GetDebugMode returns the flag value of `--quiet`/`-q`
+func GetQuietMode() bool {
+	return GetBool("app.quiet")
+}

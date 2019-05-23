@@ -183,30 +183,30 @@ var (
 		"consul-tags -? -vD --vv kv backup --prefix'' -h ~~debug": func(t *testing.T) error {
 			if cmdr.GetInt("app.kv.port") != 8500 || cmdr.GetString("app.kv.prefix") != "" ||
 				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") ||
-				!cmdr.GetBool("app.verbose") || !cmdr.GetBool("app.debug") {
-				return errors.New("something wrong 2.")
+				!cmdr.GetVerboseMode() || !cmdr.GetDebugMode() {
+				return errors.New("something wrong 2")
 			}
 			return nil
 		},
 		"consul-tags -vD --vv ms tags modify --prefix'' --help ~~debug --prefix\"\" --prefix'cmdr' --prefix\"app\" --prefix=/ --prefix/ --prefix /": func(t *testing.T) error {
 			if cmdr.GetInt("app.ms.tags.port") != 8500 || cmdr.GetString("app.ms.tags.prefix") != "/" ||
 				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") ||
-				!cmdr.GetBool("app.verbose") || !cmdr.GetBool("app.debug") {
+				!cmdr.GetVerboseMode() || !cmdr.GetDebugMode() {
 				return fmt.Errorf("something wrong 3. |%v|%v|%v|%v|%v|%v",
 					cmdr.GetInt("app.ms.tags.port"), cmdr.GetString("app.ms.tags.prefix"),
 					cmdr.GetBool("app.help"), cmdr.GetBool("debug"),
-					cmdr.GetBool("app.verbose"), !cmdr.GetBool("app.debug"))
+					cmdr.GetVerboseMode(), cmdr.GetDebugMode())
 			}
 			return nil
 		},
 		"consul-tags -vD ms tags modify --prefix'' -? ~~debug --port8509 -p8507 -p=8506 -p 8503": func(t *testing.T) error {
 			if cmdr.GetInt("app.ms.tags.port") != 8503 || cmdr.GetString("app.ms.tags.prefix") != "" ||
 				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") ||
-				!cmdr.GetBool("app.verbose") || !cmdr.GetBool("app.debug") {
+				!cmdr.GetVerboseMode() || !cmdr.GetDebugMode() {
 				return fmt.Errorf("something wrong 4. |%v|%v|%v|%v|%v|%v",
 					cmdr.GetInt("app.ms.tags.port"), cmdr.GetString("app.ms.tags.prefix"),
 					cmdr.GetBool("app.help"), cmdr.GetBool("debug"),
-					cmdr.GetBool("app.verbose"), !cmdr.GetBool("app.debug"))
+					cmdr.GetVerboseMode(), cmdr.GetDebugMode())
 			}
 			return nil
 		},

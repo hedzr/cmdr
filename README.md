@@ -38,9 +38,11 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
 - Groupable commands and options/flags.
 
-  Sortable group name with `\d+\..+` format, eg:
+  Sortable group name with `[0-9A-Za-z]+\..+` format, eg:
 
-  `1001.c++`, `1100.golang`, `1200.java`, ….
+  `1001.c++`, `1100.golang`, `1200.java`, …;
+
+  `abcd.c++`, `b999.golang`, `zzzz.java`, …;
 
 - Sortable commands and options/flags. Or sorted by alphabetic order.
 

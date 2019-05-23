@@ -168,6 +168,17 @@ func buildRootCrossRefs(root *RootCommand) {
 			root.plainLongFlags["debug"] = root.allFlags[SysMgmtGroup]["debug"]
 			root.plainShortFlags["D"] = root.allFlags[SysMgmtGroup]["debug"]
 		}
+		if _, ok := root.allFlags[SysMgmtGroup]["strict-mode"]; !ok {
+			root.allFlags[SysMgmtGroup]["strict-mode"] = &Flag{
+				BaseOpt: BaseOpt{
+					Full:        "strict-mode",
+					Description: "strict mode for `cmdr`.",
+					Hidden:      true,
+				},
+				DefaultValue: false,
+			}
+			root.plainLongFlags["strict-mode"] = root.allFlags[SysMgmtGroup]["strict-mode"]
+		}
 	}
 
 	if EnableGenerateCommands {

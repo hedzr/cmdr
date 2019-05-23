@@ -193,6 +193,7 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 		} else {
 			// command, files
 			if cmd, ok := goCommand.plainCmds[pkg.a]; ok {
+				cmd.strHit = pkg.a
 				goCommand = cmd
 				// logrus.Debugf("-- command '%v' hit, go ahead...", cmd.GetTitleName())
 				if cmd.PreAction != nil {
@@ -415,11 +416,11 @@ func preprocessPkg(pkg *ptpkg, args []string) (err error) {
 			pkg.val = pkg.savedFn
 			pkg.savedFn = ""
 		} else {
-			if pkg.i < len(args) {
+			if pkg.i < len(args)-1 {
 				pkg.i++
 				pkg.val = args[pkg.i]
-			} else {
-				err = fmt.Errorf("unexpect end of command line, need more args for %v", pkg)
+			} else if GetStrictMode() {
+				err = fmt.Errorf("unexpect end of command line [i=%v,args=(%v)], need more args for %v", pkg.i, args, pkg)
 				return
 			}
 		}

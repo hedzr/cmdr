@@ -32,6 +32,14 @@ build-ci() {
 	ls -la ./bin/
 }
 
+run-wget() {
+	go run ./examples/wget-demo/main.go $*
+}
+
+run-wget-demo() {
+	go run ./examples/wget-demo/main.go $*
+}
+
 run-demo() {
 	go run ./examples/demo/main.go $*
 }

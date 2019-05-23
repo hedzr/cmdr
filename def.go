@@ -154,6 +154,11 @@ var (
 	//
 	defaultStdout = bufio.NewWriterSize(os.Stdout, 16384)
 	defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
+	//
+	currentHelpPainter       = new(helpPainter)
+	currentDescColor         = darkGray
+	currentDefaultValueColor = darkGray
+	currentGroupTitleColor   = darkColor
 
 	globalShowVersion   func()
 	globalShowBuildInfo func()

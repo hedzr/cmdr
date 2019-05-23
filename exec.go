@@ -207,7 +207,7 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 					pkg.i--
 					break
 				}
-				
+
 				ferr("Unknown command: %v", pkg.a)
 				pkg.unknownCmds = append(pkg.unknownCmds, pkg.a)
 			}

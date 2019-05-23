@@ -42,11 +42,10 @@ func printHelp(command *Command, justFlags bool) {
 
 		printHeader()
 
-		printHelpUsages(command)
-		printHelpDescription(command)
-		printHelpExamples(command)
-
-		printHelpSection(command, justFlags)
+		printHelpUsages(currentHelpPainter, command)
+		printHelpDescription(currentHelpPainter, command)
+		printHelpExamples(currentHelpPainter, command)
+		printHelpSection(currentHelpPainter, command, justFlags)
 
 		printHelpTailLine(command)
 
@@ -99,9 +98,9 @@ func printHelpZshCommands(command *Command, justFlags bool) {
 	}
 }
 
-func printHelpUsages(command *Command) {
+func printHelpUsages(l Painter, command *Command) {
 	if len(rootCommand.Header) == 0 {
-		fp("\nUsages: ")
+		l.fpUsagesTitle("Usages")
 
 		ttl := "[Commands] "
 		if command.owner != nil {
@@ -116,19 +115,24 @@ func printHelpUsages(command *Command) {
 		if len(cmds) > 0 {
 			cmds += " "
 		}
-		fp("    %s %v%s%s [Options] [Parent/Global Options]", rootCommand.Name, cmds, ttl, command.TailPlaceHolder)
+
+		l.fpUsagesLine("", rootCommand.Name, cmds, ttl, command.TailPlaceHolder)
 	}
 }
 
-func printHelpDescription(command *Command) {
+func printHelpDescription(l Painter, command *Command) {
 	if len(command.Description) > 0 {
-		fp("\nDescription: \n    %v", command.Description)
+		l.fpDescTitle("Description")
+		l.fpDescLine(command.Description)
+		// fp("\nDescription: \n    %v", command.Description)
 	}
 }
 
-func printHelpExamples(command *Command) {
+func printHelpExamples(l Painter, command *Command) {
 	if len(command.Examples) > 0 {
-		fp("%v", command.Examples)
+		l.fpExamplesTitle("Examples")
+		l.fpExamplesLine(command.Examples)
+		// fp("%v", command.Examples)
 	}
 }
 
@@ -136,61 +140,79 @@ func printHelpTailLine(command *Command) {
 	fp("\nType '-h' or '--help' to get command help screen.")
 }
 
-func printHelpSection(command *Command, justFlags bool) {
+func printHelpSection(l Painter, command *Command, justFlags bool) {
 	if !justFlags {
-		printHelpCommandSection(command, justFlags)
+		printHelpCommandSection(l, command, justFlags)
 	}
-	printHelpFlagSections(command, justFlags)
+	printHelpFlagSections(l, command, justFlags)
 }
 
-func printHelpCommandSection(command *Command, justFlags bool) {
+func getSortedKeysFromCmdGroupedMap(m map[string]map[string]*Command) (k0 []string) {
+	k0 = make([]string, 0)
+	for k := range m {
+		if k != UnsortedGroup {
+			k0 = append(k0, k)
+		}
+	}
+	sort.Strings(k0)
+	// k0 = append(k0, UnsortedGroup)
+	k0 = append([]string{UnsortedGroup}, k0...)
+	return
+}
+
+func getSortedKeysFromCmdMap(groups map[string]*Command) (k1 []string) {
+	k1 = make([]string, 0)
+	for k := range groups {
+		k1 = append(k1, k)
+	}
+	sort.Strings(k1)
+	return
+}
+
+func printHelpCommandSection(l Painter, command *Command, justFlags bool) {
 	count := 0
 	for _, items := range command.allCmds {
 		count += len(items)
 	}
 
 	if count > 0 {
-		if command.owner == nil {
-			fp("\nCommands:")
-		} else {
-			fp("\nSub-Commands:")
-		}
-		k0 := make([]string, 0)
-		for k := range command.allCmds {
-			if k != UnsortedGroup {
-				k0 = append(k0, k)
-			}
-		}
-		sort.Strings(k0)
-		// k0 = append(k0, UnsortedGroup)
-		k0 = append([]string{UnsortedGroup}, k0...)
+		l.fpCommandsTitle(command)
 
+		k0 := getSortedKeysFromCmdGroupedMap(command.allCmds)
 		for _, group := range k0 {
 			groups := command.allCmds[group]
 			if len(groups) > 0 {
-				if group != UnsortedGroup {
-					// fp("  [%s]:", normalize(group))
-					fp("  [\x1b[2m\x1b[%dm%s\x1b[0m]", darkColor, normalize(group))
-				}
-
-				k1 := make([]string, 0)
-				for k := range groups {
-					k1 = append(k1, k)
-				}
-				sort.Strings(k1)
-
-				for _, nm := range k1 {
-					cmd := groups[nm]
-					if !cmd.Hidden {
-						fp("  %-48s%v", cmd.GetTitleNames(), cmd.Description)
-					}
+				l.fpCommandsGroupTitle(group)
+				for _, nm := range getSortedKeysFromCmdMap(groups) {
+					l.fpCommandsLine(groups[nm])
 				}
 			}
 		}
 	}
 }
 
-func printHelpFlagSections(command *Command, justFlags bool) {
+func getSortedKeysFromFlgGroupedMap(m map[string]map[string]*Flag) (k2 []string) {
+	k2 = make([]string, 0)
+	for k := range m {
+		if k != UnsortedGroup {
+			k2 = append(k2, k)
+		}
+	}
+	sort.Strings(k2)
+	k2 = append([]string{UnsortedGroup}, k2...)
+	return
+}
+
+func getSortedKeysFromFlgMap(groups map[string]*Flag) (k3 []string) {
+	k3 = make([]string, 0)
+	for k := range groups {
+		k3 = append(k3, k)
+	}
+	sort.Strings(k3)
+	return
+}
+
+func printHelpFlagSections(l Painter, command *Command, justFlags bool) {
 	sectionName := "Options"
 
 GO_PRINT_FLAGS:
@@ -200,33 +222,13 @@ GO_PRINT_FLAGS:
 	}
 
 	if count > 0 {
-		fp("\n%v:", sectionName)
-		k2 := make([]string, 0)
-		for k := range command.allFlags {
-			if k != UnsortedGroup {
-				k2 = append(k2, k)
-			}
-		}
-		sort.Strings(k2)
-		k2 = append([]string{UnsortedGroup}, k2...)
-
+		l.fpFlagsTitle(sectionName)
+		k2 := getSortedKeysFromFlgGroupedMap(command.allFlags)
 		for _, group := range k2 {
 			groups := command.allFlags[group]
 			if len(groups) > 0 {
-				if group != UnsortedGroup {
-					// // echo -e "Normal \e[2mDim"
-					// _, _ = fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m\x1b[2m\x1b[%dm[%04d]\x1b[0m%-44s \x1b[2m\x1b[%dm%s\x1b[0m ",
-					// 	levelColor, levelText, darkColor, int(entry.Time.Sub(baseTimestamp)/time.Second), entry.Message, darkColor, caller)
-					fp("  [\x1b[2m\x1b[%dm%s\x1b[0m]", darkColor, normalize(group))
-				}
-
-				k3 := make([]string, 0)
-				for k := range groups {
-					k3 = append(k3, k)
-				}
-				sort.Strings(k3)
-
-				for _, nm := range k3 {
+				l.fpFlagsGroupTitle(group)
+				for _, nm := range getSortedKeysFromFlgMap(groups) {
 					flg := groups[nm]
 					if !flg.Hidden {
 						defValStr := ""
@@ -245,7 +247,8 @@ GO_PRINT_FLAGS:
 								}
 							}
 						}
-						fp("  %-48s%v%s", flg.GetTitleFlagNames(), flg.Description, defValStr)
+						l.fpFlagsLine(flg, defValStr)
+						// fp("  %-48s%v%s", flg.GetTitleFlagNames(), flg.Description, defValStr)
 					}
 				}
 			}
@@ -335,11 +338,13 @@ const (
 	lightCyan    = 96
 	white        = 97
 
-	boldOrBright = 1
-	dim          = 2
-	underline    = 4
-	blink        = 5
-	hidden       = 8
+	bgNormal       = 0
+	bgBoldOrBright = 1
+	bgDim          = 2
+	bgItalic       = 3
+	bgUnderline    = 4
+	bgUlink        = 5
+	bgHidden       = 8
 
 	darkColor = lightGray
 )

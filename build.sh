@@ -65,6 +65,9 @@ app_version_int () {
 }
 
 
+build_fmt () {
+	gofmt -l -w -s .
+}
 
 
 

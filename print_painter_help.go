@@ -83,7 +83,7 @@ func (s *helpPainter) FpCommandsLine(command *Command) {
 		// s.Printf("  %-48s%v", command.GetTitleNames(), command.Description)
 		// s.Printf("\n\x1b[%dm\x1b[%dm%s\x1b[0m", BgNormal, DarkColor, title)
 		// s.Printf("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", BgDim, DarkColor, StripOrderPrefix(group))
-		s.Printf("  %-48s\x1b[%dm\x1b[%dm%s\x1b[0m", command.GetTitleNames(), BgDim, CurrentDescColor, command.Description)
+		s.Printf("  %-48s\x1b[%dm\x1b[%dm%s\x1b[0m", command.GetTitleNames(), BgNormal, CurrentDescColor, command.Description)
 	}
 }
 

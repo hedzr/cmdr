@@ -86,7 +86,7 @@ Mandatory arguments to long options are mandatory for short options too.`,
 				Full:        "help",
 				Description: "print this help",
 				Action: func(cmd *cmdr.Command, args []string) (err error) {
-					cmd.PrintHelp(false)
+					// cmd.PrintHelp(false)
 					return
 				},
 				Group: cStartup,

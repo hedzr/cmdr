@@ -7,10 +7,8 @@ package cmdr
 import (
 	"bytes"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"io"
 	"strings"
-	"text/template"
 	"time"
 )
 
@@ -186,7 +184,7 @@ func (s *manPainter) FpCommandsLine(command *Command) {
 		// s.Printf("  %-48s%v", command.GetTitleNames(), command.Description)
 		// s.Printf("\n\x1b[%dm\x1b[%dm%s\x1b[0m", bgNormal, darkColor, title)
 		// s.Printf("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", bgDim, darkColor, normalize(group))
-		s.Printf(".TP\n.BI %s\n%s\n", ws(command.GetTitleNames()), command.Description)
+		s.Printf(".TP\n.BI %s\n%s\n", manWs(command.GetTitleNames()), command.Description)
 	}
 }
 
@@ -203,58 +201,9 @@ func (s *manPainter) FpFlagsGroupTitle(group string) {
 }
 
 func (s *manPainter) FpFlagsLine(command *Command, flag *Flag, defValStr string) {
-	s.Printf(".TP\n.BI %s\n%s\n%s\n", ws(flag.GetTitleFlagNames()), flag.Description, defValStr)
+	s.Printf(".TP\n.BI %s\n%s\n%s\n", manWs(flag.GetTitleFlagNames()), flag.Description, defValStr)
 }
 
 //
 //
 //
-
-func manBr(s string) string {
-	var lines []string
-	for _, l := range strings.Split(s, "\n") {
-		lines = append(lines, l+"\n.br")
-	}
-	return strings.Join(lines, "\n")
-}
-
-func manExamples(s string, data interface{}) string {
-	var (
-		sources  = strings.Split(s, "\n")
-		lines    []string
-		lastLine string
-	)
-	for _, l := range sources {
-		if strings.HasPrefix(l, "$ {{.AppName}}") {
-			lines = append(lines, `.TP \w'{{.AppName}}\ 'u
-.BI {{.AppName}} \ `+ws(l[14:]))
-		} else {
-			if len(lastLine) == 0 {
-				lastLine = strings.TrimSpace(l)
-				// ignore multiple empty lines, compat them as one line.
-				if len(lastLine) != 0 {
-					lines = append(lines, lastLine+"\n.br")
-				}
-			} else {
-				lastLine = strings.TrimSpace(l)
-				lines = append(lines, lastLine+"\n.br")
-			}
-		}
-	}
-	return tplApply(strings.Join(lines, "\n"), data)
-}
-
-func tplApply(tmpl string, data interface{}) string {
-	var w = new(bytes.Buffer)
-	var tpl = template.Must(template.New("x").Parse(tmpl))
-	if err := tpl.Execute(w, data); err != nil {
-		logrus.Errorf("tpl execute error: %v", err)
-	}
-	return w.String()
-}
-
-func ws(fmtStr string, args ...interface{}) string {
-	str := fmt.Sprintf(fmtStr, args...)
-	str = strings.ReplaceAll(strings.TrimSpace(str), " ", `\ `)
-	return str
-}

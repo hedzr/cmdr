@@ -56,7 +56,8 @@ func (s *helpPainter) FpExamplesTitle(command *Command, title string) {
 }
 
 func (s *helpPainter) FpExamplesLine(command *Command) {
-	for _, line := range strings.Split(command.Examples, "\n") {
+	str := tplApply(command.Examples, command.root)
+	for _, line := range strings.Split(str, "\n") {
 		s.Printf("    %v", line)
 	}
 }
@@ -87,15 +88,15 @@ func (s *helpPainter) FpCommandsLine(command *Command) {
 	}
 }
 
-func (s *helpPainter) FpFlagsSssTitle(flag *Flag) {
-	var title string
-	if flag.owner == nil {
-		title = "Commands"
-	} else {
-		title = "Sub-Commands"
-	}
-	s.Printf("\n%s:", title)
-}
+// func (s *helpPainter) FpFlagsSssTitle(flag *Flag) {
+// 	var title string
+// 	if flag.owner == nil {
+// 		title = "Commands"
+// 	} else {
+// 		title = "Sub-Commands"
+// 	}
+// 	s.Printf("\n%s:", title)
+// }
 
 func (s *helpPainter) FpFlagsTitle(command *Command, flag *Flag, title string) {
 	s.Printf("\n%s:", title)

@@ -156,11 +156,57 @@ func (s *Options) GetStringSlice(key string) (ir []string) {
 		case reflect.String:
 			ir = strings.Split(v.(string), ",")
 		case reflect.Slice:
-			ir = v.([]string)
+			if r, ok := v.([]string); ok {
+				ir = r
+			} else if ri, ok := v.([]int); ok {
+				for _, rii := range ri {
+					ir = append(ir, strconv.Itoa(rii))
+				}
+			}
 		default:
 			ir = strings.Split(fmt.Sprintf("%v", v), ",")
 		}
 	}
+	return
+}
+
+func stringSliceToIntSlice(in []string) (out []int) {
+	for _, ii := range in {
+		if i, err := strconv.Atoi(ii); err == nil {
+			out = append(out, i)
+		}
+	}
+	return
+}
+
+// GetIntSlice returns the string slice value of an `Option` key.
+func (s *Options) GetIntSlice(key string) (ir []int) {
+	envkey := s.envKey(key)
+	if s, ok := os.LookupEnv(envkey); ok {
+		ir = stringSliceToIntSlice(strings.Split(s, ","))
+	}
+
+	if v, ok := s.entries[key]; ok {
+		switch reflect.ValueOf(v).Kind() {
+		case reflect.String:
+			ir = stringSliceToIntSlice(strings.Split(v.(string), ","))
+		case reflect.Slice:
+			if r, ok := v.([]string); ok {
+				ir = stringSliceToIntSlice(r)
+			} else if ri, ok := v.([]int); ok {
+				ir = ri
+			}
+		default:
+			ir = stringSliceToIntSlice(strings.Split(fmt.Sprintf("%v", v), ","))
+		}
+	}
+	return
+}
+
+// GetDuration returns the time duration value of an `Option` key.
+func (s *Options) GetDuration(key string) (ir time.Duration) {
+	str := s.GetString(key)
+	ir, _ = time.ParseDuration(str)
 	return
 }
 

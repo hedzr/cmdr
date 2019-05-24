@@ -30,7 +30,7 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
 - Support for `-D+`, `-D-` to enable/disable a bool flag.
 
-- Support for circuit-break by `--`.
+- Support for **PassThrough** by `--`.
 
 - Support for options being specified multiple times, with different values
 
@@ -57,6 +57,8 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
     - `generate doc`: *todo*
 
 - Generators
+
+  - *Todo: ~~manual generator~~, and markdown/docx/pdf generators.*
 
   - Man Page generator: `bin/demo generate manrefactor`
 
@@ -98,13 +100,15 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
   - int, int64, uint, uint64
   - string
   - string slice
-  - *todo: time, duration, int slice, ...*
+  - int slice
+  - time duration
+  - *todo: time, ~~duration~~, ~~int slice~~, ...*
 
 - `cmdr.Set(key, value)`, `cmdr.SerNx(key, value)`
 
-- Write `Painter` implementation to loop each commands and flags
+- Customizable `Painter` interface to loop each commands and flags.
 
-- *Todo: manual generator, and markdown/docx/pdf generators.*
+- Uses `WalkAllCommands(walker)` to loop commands.
 
 - More...
 

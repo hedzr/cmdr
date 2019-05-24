@@ -10,5 +10,5 @@ const (
 	// Version const
 	Version = "0.2.9" // version name
 	// VersionInt const
-	VersionInt = 0x000207 // using as
+	VersionInt = 0x000209 // using as
 )

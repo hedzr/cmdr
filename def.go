@@ -130,8 +130,9 @@ var (
 	// EnableGenerateCommands supports injecting the default `generate` commands and subcommands
 	EnableGenerateCommands = true
 
+	// rootCommand the root of all commands
 	rootCommand *RootCommand
-	// rootOptions *OptOne
+	// rootOptions *Opt
 	rxxtOptions = NewOptions()
 
 	// RxxtPrefix create a top-level namespace, which contains all normalized `Flag`s.
@@ -140,6 +141,7 @@ var (
 	// EnvPrefix attaches a prefix to key to retrieve the option value.
 	EnvPrefix = []string{"CMDR"}
 
+	// usedConfigFile
 	usedConfigFile            string
 	usedConfigSubDir          string
 	configFiles               []string
@@ -151,14 +153,16 @@ var (
 		"/usr/local/etc/%s/%s.yml",
 		os.Getenv("HOME") + "/.%s/%s.yml",
 	}
+
 	//
 	defaultStdout = bufio.NewWriterSize(os.Stdout, 16384)
 	defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
+
 	//
 	currentHelpPainter       = new(helpPainter)
-	currentDescColor         = darkGray
-	currentDefaultValueColor = darkGray
-	currentGroupTitleColor   = darkColor
+	CurrentDescColor         = FgDarkGray
+	CurrentDefaultValueColor = FgDarkGray
+	CurrentGroupTitleColor   = DarkColor
 
 	globalShowVersion   func()
 	globalShowBuildInfo func()
@@ -173,6 +177,8 @@ var (
 //
 // ENV: use `CMDR_APP_STRICT_MODE=true` to enable strict-mode.
 // NOTE: `CMDR_APP_` prefix could be set by user (via: `EnvPrefix` && `RxxtPrefix`).
+//
+// the flag value of `--strict-mode`.
 func GetStrictMode() bool {
 	return GetBool("app.strict-mode")
 }

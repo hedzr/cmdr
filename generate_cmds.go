@@ -7,12 +7,41 @@ package cmdr
 var (
 	generatorCommands = &Command{
 		BaseOpt: BaseOpt{
-			Name:        "generators",
+			// Name:        "generators",
 			Group:       SysMgmtGroup,
 			Short:       "g",
 			Full:        "generate",
 			Aliases:     []string{"gen"},
 			Description: "generators for this app.",
+			LongDescription: `
+[cmdr] includes multiple generators like:
+
+- linux man page generator
+- shell completion script generator
+- markdown generator
+- more...
+
+			`,
+			Examples: `
+$ {{.AppName}} gen sh --bash
+			generate bash completion script
+$ {{.AppName}} gen shell --auto
+			generate shell completion script with detecting on current shell environment.
+$ {{.AppName}} gen sh
+			generate shell completion script with detecting on current shell environment.
+$ {{.AppName}} gen man
+			generate linux manual (man page)
+$ {{.AppName}} gen doc
+			generate document, default markdown.
+$ {{.AppName}} gen doc --markdown
+			generate markdown.
+$ {{.AppName}} gen doc --pdf
+			generate pdf.
+$ {{.AppName}} gen markdown
+			generate markdown.
+$ {{.AppName}} gen pdf
+			generate pdf.
+			`,
 		},
 		SubCommands: []*Command{{
 			BaseOpt: BaseOpt{

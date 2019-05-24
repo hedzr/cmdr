@@ -24,10 +24,15 @@ func (c *Command) GetRoot() *RootCommand {
 	return c.root
 }
 
-// HasParent detects whether owner is available or not
-func (c *Command) HasParent() bool {
-	return c.owner != nil
+// IsRoot returns true if this command is a RootCommand
+func (c *Command) IsRoot() bool {
+	return c == &c.root.Command
 }
+
+// // HasParent detects whether owner is available or not
+// func (c *BaseOpt) HasParent() bool {
+// 	return c.owner != nil
+// }
 
 // GetName returns the name of a `Command`.
 func (c *Command) GetName() string {

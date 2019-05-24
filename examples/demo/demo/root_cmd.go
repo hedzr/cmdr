@@ -8,12 +8,31 @@ import (
 	"github.com/hedzr/cmdr"
 )
 
+const (
+	appName   = "demo"
+	copyright = "demo.austr is an effective devops tool"
+	desc      = "demo.austr is an effective devops tool. It make an demo application for `cmdr`."
+	longDesc  = "demo.austr is an effective devops tool. It make an demo application for `cmdr`."
+	examples  = `
+$ {{.AppName}} gen shell [--bash|--zsh|--auto]
+  generate bash/shell completion scripts
+$ {{.AppName}} gen man
+  generate linux man page 1
+$ {{.AppName}} --help
+  show help screen.
+`
+	overview = ``
+)
+
 var (
 	rootCmd = &cmdr.RootCommand{
 		Command: cmdr.Command{
 			BaseOpt: cmdr.BaseOpt{
-				Name:  "demo",
-				Flags: []*cmdr.Flag{},
+				Name:            appName,
+				Description:     desc,
+				LongDescription: longDesc,
+				Examples:        examples,
+				Flags:           []*cmdr.Flag{},
 			},
 			SubCommands: []*cmdr.Command{
 				// generatorCommands,
@@ -22,10 +41,10 @@ var (
 			},
 		},
 
-		AppName:    "demo",
+		AppName:    appName,
 		Version:    cmdr.Version,
 		VersionInt: cmdr.VersionInt,
-		Copyright:  "austr is an effective devops tool",
+		Copyright:  copyright,
 		Author:     "Hedzr Yeh <hedzrz@gmail.com>",
 	}
 

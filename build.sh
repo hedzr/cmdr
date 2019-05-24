@@ -71,6 +71,50 @@ build_fmt () {
 
 
 
+build_vagrant() { commander 'build_vagrant' "$@"; }
+build_vagrant_usage () {
+	cat <<-EOF
+	'vagrant' Usages:
+	
+	SUB-COMMANDS:
+	  ubuntu		run default ubuntu vagrant VM
+	  run		run 
+	  test,dump	dump the information
+	  
+	Help:
+	EOF
+}
+build_vagrant_ubuntu () {
+	pushd ci/default-ubuntu >/dev/null
+	vagrant up && vagrant ssh
+	popd >/dev/null
+}
+build_vagrant_run () {
+:
+}
+
+
+
+build_docker() { commander 'build_docker' "$@"; }
+build_docker_usage () {
+	cat <<-EOF
+	'docker' Usages:
+	
+	SUB-COMMANDS:
+	  run		run 
+	  test,dump	dump the information
+	  
+	Help:
+	EOF
+}
+build_docker_run () {
+:
+}
+
+
+
+
+
 build_mod() { commander 'build_mod' "$@"; }
 build_mod_usage () {
 	cat <<-EOF

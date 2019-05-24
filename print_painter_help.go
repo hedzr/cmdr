@@ -14,90 +14,105 @@ type (
 	}
 )
 
-func (s *helpPainter) fp(fmtStr string, args ...interface{}) {
+func (s *helpPainter) Flush() {
+}
+
+func (s *helpPainter) Printf(fmtStr string, args ...interface{}) {
 	_, _ = fmt.Fprintf(rootCommand.ow, fmtStr+"\n", args...)
 }
 
-func (s *helpPainter) fpUsagesTitle(title string) {
-	s.fp("\n%s:", title)
-	// s.fp("\n\x1b[%dm\x1b[%dm%s\x1b[0m", bgNormal, darkColor, title)
-	// fp("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", bgDim, darkColor, normalize(group))
-}
-
-func (s *helpPainter) fpUsagesLine(fmt, appName, cmdList, cmdsTitle, tailPlaceHolder string) {
-	s.fp("    %s %v%s%s [Options] [Parent/Global Options]"+fmt, appName, cmdList, cmdsTitle, tailPlaceHolder)
-}
-
-func (s *helpPainter) fpDescTitle(title string) {
-	s.fp("\n%s:", title)
-}
-
-func (s *helpPainter) fpDescLine(desc string) {
-	s.fp("    %v", desc)
-}
-
-func (s *helpPainter) fpExamplesTitle(title string) {
-	s.fp("\n%s:", title)
-}
-
-func (s *helpPainter) fpExamplesLine(examples string) {
-	for _, line := range strings.Split(examples, "\n") {
-		s.fp("    %v", line)
+func (s *helpPainter) FpPrintHeader(command *Command) {
+	if len(command.root.Header) == 0 {
+		s.Printf("%v by %v - v%v", command.root.Copyright, command.root.Author, command.root.Version)
+	} else {
+		s.Printf("%v", command.root.Header)
 	}
 }
 
-func (s *helpPainter) fpCommandsTitle(command *Command) {
+func (s *helpPainter) FpPrintHelpTailLine(command *Command) {
+	s.Printf("\nType '-h' or '--help' to get command help screen.")
+}
+
+func (s *helpPainter) FpUsagesTitle(command *Command, title string) {
+	s.Printf("\n%s:", title)
+	// s.Printf("\n\x1b[%dm\x1b[%dm%s\x1b[0m", BgNormal, DarkColor, title)
+	// fp("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", BgDim, DarkColor, StripOrderPrefix(group))
+}
+
+func (s *helpPainter) FpUsagesLine(command *Command, fmt, appName, cmdList, cmdsTitle, tailPlaceHolder string) {
+	s.Printf("    %s %v%s%s [Options] [Parent/Global Options]"+fmt, appName, cmdList, cmdsTitle, tailPlaceHolder)
+}
+
+func (s *helpPainter) FpDescTitle(command *Command, title string) {
+	s.Printf("\n%s:", title)
+}
+
+func (s *helpPainter) FpDescLine(command *Command) {
+	s.Printf("    %v", command.Description)
+}
+
+func (s *helpPainter) FpExamplesTitle(command *Command, title string) {
+	s.Printf("\n%s:", title)
+}
+
+func (s *helpPainter) FpExamplesLine(command *Command) {
+	for _, line := range strings.Split(command.Examples, "\n") {
+		s.Printf("    %v", line)
+	}
+}
+
+func (s *helpPainter) FpCommandsTitle(command *Command) {
 	var title string
 	if command.owner == nil {
 		title = "Commands"
 	} else {
 		title = "Sub-Commands"
 	}
-	s.fp("\n%s:", title)
+	s.Printf("\n%s:", title)
 }
 
-func (s *helpPainter) fpCommandsGroupTitle(group string) {
+func (s *helpPainter) FpCommandsGroupTitle(group string) {
 	if group != UnsortedGroup {
-		// fp("  [%s]:", normalize(group))
-		s.fp("  [\x1b[2m\x1b[%dm%s\x1b[0m]", currentGroupTitleColor, normalize(group))
+		// fp("  [%s]:", StripOrderPrefix(group))
+		s.Printf("  [\x1b[2m\x1b[%dm%s\x1b[0m]", CurrentGroupTitleColor, StripOrderPrefix(group))
 	}
 }
 
-func (s *helpPainter) fpCommandsLine(command *Command) {
+func (s *helpPainter) FpCommandsLine(command *Command) {
 	if !command.Hidden {
-		// s.fp("  %-48s%v", command.GetTitleNames(), command.Description)
-		// s.fp("\n\x1b[%dm\x1b[%dm%s\x1b[0m", bgNormal, darkColor, title)
-		// s.fp("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", bgDim, darkColor, normalize(group))
-		s.fp("  %-48s\x1b[%dm\x1b[%dm%s\x1b[0m", command.GetTitleNames(), bgDim, currentDescColor, command.Description)
+		// s.Printf("  %-48s%v", command.GetTitleNames(), command.Description)
+		// s.Printf("\n\x1b[%dm\x1b[%dm%s\x1b[0m", BgNormal, DarkColor, title)
+		// s.Printf("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", BgDim, DarkColor, StripOrderPrefix(group))
+		s.Printf("  %-48s\x1b[%dm\x1b[%dm%s\x1b[0m", command.GetTitleNames(), BgDim, CurrentDescColor, command.Description)
 	}
 }
 
-func (s *helpPainter) fpFlagsSssTitle(flag *Flag) {
+func (s *helpPainter) FpFlagsSssTitle(flag *Flag) {
 	var title string
 	if flag.owner == nil {
 		title = "Commands"
 	} else {
 		title = "Sub-Commands"
 	}
-	s.fp("\n%s:", title)
+	s.Printf("\n%s:", title)
 }
 
-func (s *helpPainter) fpFlagsTitle(title string) {
-	s.fp("\n%s:", title)
+func (s *helpPainter) FpFlagsTitle(command *Command, flag *Flag, title string) {
+	s.Printf("\n%s:", title)
 }
 
-func (s *helpPainter) fpFlagsGroupTitle(group string) {
+func (s *helpPainter) FpFlagsGroupTitle(group string) {
 	if group != UnsortedGroup {
-		// fp("  [%s]:", normalize(group))
+		// fp("  [%s]:", StripOrderPrefix(group))
 		// // echo -e "Normal \e[2mDim"
 		// _, _ = fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m\x1b[2m\x1b[%dm[%04d]\x1b[0m%-44s \x1b[2m\x1b[%dm%s\x1b[0m ",
-		// 	levelColor, levelText, darkColor, int(entry.Time.Sub(baseTimestamp)/time.Second), entry.Message, darkColor, caller)
-		s.fp("  [\x1b[2m\x1b[%dm%s\x1b[0m]", currentGroupTitleColor, normalize(group))
+		// 	levelColor, levelText, DarkColor, int(entry.Time.Sub(baseTimestamp)/time.Second), entry.Message, DarkColor, caller)
+		s.Printf("  [\x1b[2m\x1b[%dm%s\x1b[0m]", CurrentGroupTitleColor, StripOrderPrefix(group))
 	}
 }
 
-func (s *helpPainter) fpFlagsLine(flg *Flag, defValStr string) {
-	s.fp("  %-48s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%s\x1b[0m",
-		flg.GetTitleFlagNames(), bgNormal, currentDescColor, flg.Description,
-		bgItalic, currentDefaultValueColor, defValStr)
+func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, defValStr string) {
+	s.Printf("  %-48s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%s\x1b[0m",
+		flg.GetTitleFlagNames(), BgNormal, CurrentDescColor, flg.Description,
+		BgItalic, CurrentDefaultValueColor, defValStr)
 }

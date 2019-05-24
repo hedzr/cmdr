@@ -56,11 +56,15 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
     - `generate manual`: *todo*
     - `generate doc`: *todo*
 
-- Bash and Zsh (*not yet, todo*) completion.
+- Generators
 
-  ```bash
-  bin/wget-demo generate shell --bash
-  ```
+  - Man Page generator: `bin/demo generate manrefactor`
+
+  - Bash and Zsh (*not yet, todo*) completion.
+
+     ```bash
+     bin/wget-demo generate shell --bash
+     ```
 
 - Predefined yaml config file locations:
   - `/etc/<appname>/<appname>.yml` and `conf.d` sub-directory.
@@ -98,7 +102,7 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
 - `cmdr.Set(key, value)`, `cmdr.SerNx(key, value)`
 
-  
+- Write `Painter` implementation to loop each commands and flags
 
 - *Todo: manual generator, and markdown/docx/pdf generators.*
 

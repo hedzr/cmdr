@@ -272,7 +272,25 @@ func genShellLoopCommands(cmd *Command, level int, sbca []strings.Builder) (scrF
 //
 
 func genManual(cmd *Command, args []string) (err error) {
-	logrus.Infof("OK gen manual: hit=%v", cmd.strHit)
+	// logrus.Debugf("OK gen manual: hit=%v", cmd.strHit)
+	// paintFromCommand(newManPainter(), &rootCommand.Command, false)
+	err = WalkAllCommands(func(cmd *Command, index int) (err error) {
+		painter := newManPainter()
+
+		fn := cmd.root.AppName
+		cmds := strings.ReplaceAll(backtraceCmdNames(cmd), ".", "-")
+		if cmds == "generate" {
+			cmds += ""
+		}
+		if len(cmds) > 0 {
+			fn += "-" + cmds
+		}
+
+		fn = fmt.Sprintf("./man1/%v.1", fn)
+		paintFromCommand(painter, cmd, false)
+		err = ioutil.WriteFile(fn, painter.Results(), 0644)
+		return
+	})
 	return
 }
 

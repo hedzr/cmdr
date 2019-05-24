@@ -22,39 +22,60 @@ func ferr(fmtStr string, args ...interface{}) {
 	_, _ = fmt.Fprintf(rootCommand.oerr, fmtStr+"\n", args...)
 }
 
-func printHeader() {
-	if len(rootCommand.Header) == 0 {
-		fp("%v by %v - v%v", rootCommand.Copyright, rootCommand.Author, rootCommand.Version)
-	} else {
-		fp("%v", rootCommand.Header)
-	}
-}
-
 func printHelp(command *Command, justFlags bool) {
 	if GetIntP(getPrefix(), "help-zsh") > 0 {
 		printHelpZsh(command, justFlags)
-
 	} else if GetBoolP(getPrefix(), "help-bash") {
 		// TODO for bash
 		printHelpZsh(command, justFlags)
-
 	} else {
-
-		printHeader()
-
-		printHelpUsages(currentHelpPainter, command)
-		printHelpDescription(currentHelpPainter, command)
-		printHelpExamples(currentHelpPainter, command)
-		printHelpSection(currentHelpPainter, command, justFlags)
-
-		printHelpTailLine(command)
-
+		paintFromCommand(currentHelpPainter, command, justFlags)
 	}
 
 	if rxxtOptions.GetBool("debug") {
 		// "  [\x1b[2m\x1b[%dm%s\x1b[0m]"
-		fp("\n\x1b[2m\x1b[%dmDUMP:\n\n%v\x1b[0m\n", darkColor, rxxtOptions.DumpAsString())
+		fp("\n\x1b[2m\x1b[%dmDUMP:\n\n%v\x1b[0m\n", DarkColor, rxxtOptions.DumpAsString())
 	}
+}
+
+// WalkAllCommands loop on all commands, started from root.
+func WalkAllCommands(walk func(cmd *Command, index int) (err error)) (err error) {
+	command := &rootCommand.Command
+	err = walkFromCommand(command, 0, walk)
+	return
+}
+
+func walkFromCommand(cmd *Command, index int, walk func(cmd *Command, index int) (err error)) (err error) {
+	if err = walk(cmd, index); err != nil {
+		return
+	}
+	for ix, cc := range cmd.SubCommands {
+		if err = walkFromCommand(cc, ix, walk); err != nil {
+			return
+		}
+	}
+	return
+}
+
+func paintFromCommand(p Painter, command *Command, justFlags bool) {
+	printHeader(p, command)
+
+	printHelpUsages(p, command)
+	printHelpDescription(p, command)
+	printHelpExamples(p, command)
+	printHelpSection(p, command, justFlags)
+
+	printHelpTailLine(p, command)
+
+	p.Flush()
+}
+
+func printHeader(p Painter, command *Command) {
+	p.FpPrintHeader(command)
+}
+
+func printHelpTailLine(p Painter, command *Command) {
+	p.FpPrintHelpTailLine(command)
 }
 
 func printHelpZsh(command *Command, justFlags bool) {
@@ -98,9 +119,9 @@ func printHelpZshCommands(command *Command, justFlags bool) {
 	}
 }
 
-func printHelpUsages(l Painter, command *Command) {
+func printHelpUsages(p Painter, command *Command) {
 	if len(rootCommand.Header) == 0 {
-		l.fpUsagesTitle("Usages")
+		p.FpUsagesTitle(command, "Usages")
 
 		ttl := "[Commands] "
 		if command.owner != nil {
@@ -116,35 +137,31 @@ func printHelpUsages(l Painter, command *Command) {
 			cmds += " "
 		}
 
-		l.fpUsagesLine("", rootCommand.Name, cmds, ttl, command.TailPlaceHolder)
+		p.FpUsagesLine(command, "", rootCommand.Name, cmds, ttl, command.TailPlaceHolder)
 	}
 }
 
-func printHelpDescription(l Painter, command *Command) {
+func printHelpDescription(p Painter, command *Command) {
 	if len(command.Description) > 0 {
-		l.fpDescTitle("Description")
-		l.fpDescLine(command.Description)
+		p.FpDescTitle(command, "Description")
+		p.FpDescLine(command)
 		// fp("\nDescription: \n    %v", command.Description)
 	}
 }
 
-func printHelpExamples(l Painter, command *Command) {
+func printHelpExamples(p Painter, command *Command) {
 	if len(command.Examples) > 0 {
-		l.fpExamplesTitle("Examples")
-		l.fpExamplesLine(command.Examples)
+		p.FpExamplesTitle(command, "Examples")
+		p.FpExamplesLine(command)
 		// fp("%v", command.Examples)
 	}
 }
 
-func printHelpTailLine(command *Command) {
-	fp("\nType '-h' or '--help' to get command help screen.")
-}
-
-func printHelpSection(l Painter, command *Command, justFlags bool) {
+func printHelpSection(p Painter, command *Command, justFlags bool) {
 	if !justFlags {
-		printHelpCommandSection(l, command, justFlags)
+		printHelpCommandSection(p, command, justFlags)
 	}
-	printHelpFlagSections(l, command, justFlags)
+	printHelpFlagSections(p, command, justFlags)
 }
 
 func getSortedKeysFromCmdGroupedMap(m map[string]map[string]*Command) (k0 []string) {
@@ -169,22 +186,22 @@ func getSortedKeysFromCmdMap(groups map[string]*Command) (k1 []string) {
 	return
 }
 
-func printHelpCommandSection(l Painter, command *Command, justFlags bool) {
+func printHelpCommandSection(p Painter, command *Command, justFlags bool) {
 	count := 0
 	for _, items := range command.allCmds {
 		count += len(items)
 	}
 
 	if count > 0 {
-		l.fpCommandsTitle(command)
+		p.FpCommandsTitle(command)
 
 		k0 := getSortedKeysFromCmdGroupedMap(command.allCmds)
 		for _, group := range k0 {
 			groups := command.allCmds[group]
 			if len(groups) > 0 {
-				l.fpCommandsGroupTitle(group)
+				p.FpCommandsGroupTitle(group)
 				for _, nm := range getSortedKeysFromCmdMap(groups) {
-					l.fpCommandsLine(groups[nm])
+					p.FpCommandsLine(groups[nm])
 				}
 			}
 		}
@@ -212,7 +229,7 @@ func getSortedKeysFromFlgMap(groups map[string]*Flag) (k3 []string) {
 	return
 }
 
-func printHelpFlagSections(l Painter, command *Command, justFlags bool) {
+func printHelpFlagSections(p Painter, command *Command, justFlags bool) {
 	sectionName := "Options"
 
 GO_PRINT_FLAGS:
@@ -222,12 +239,12 @@ GO_PRINT_FLAGS:
 	}
 
 	if count > 0 {
-		l.fpFlagsTitle(sectionName)
+		p.FpFlagsTitle(command, nil, sectionName)
 		k2 := getSortedKeysFromFlgGroupedMap(command.allFlags)
 		for _, group := range k2 {
 			groups := command.allFlags[group]
 			if len(groups) > 0 {
-				l.fpFlagsGroupTitle(group)
+				p.FpFlagsGroupTitle(group)
 				for _, nm := range getSortedKeysFromFlgMap(groups) {
 					flg := groups[nm]
 					if !flg.Hidden {
@@ -247,7 +264,7 @@ GO_PRINT_FLAGS:
 								}
 							}
 						}
-						l.fpFlagsLine(flg, defValStr)
+						p.FpFlagsLine(command, flg, defValStr)
 						// fp("  %-48s%v%s", flg.GetTitleFlagNames(), flg.Description, defValStr)
 					}
 				}
@@ -303,7 +320,7 @@ func showBuildInfo() {
 		return
 	}
 
-	printHeader()
+	printHeader(currentHelpPainter, &rootCommand.Command)
 	// buildTime
 	fp(`
        Built by: %v
@@ -311,7 +328,7 @@ Build Timestamp: %v
         Githash: %v`, conf.GoVersion, conf.Buildstamp, conf.Githash)
 }
 
-func normalize(s string) string {
+func StripOrderPrefix(s string) string {
 	if xre.MatchString(s) {
 		s = s[strings.Index(s, ".")+1:]
 	}
@@ -321,32 +338,32 @@ func normalize(s string) string {
 const (
 	defaultTimestampFormat = time.RFC3339
 
-	black        = 30
-	red          = 31
-	green        = 32
-	yellow       = 33
-	blue         = 34
-	magenta      = 35
-	cyan         = 36
-	lightGray    = 37
-	darkGray     = 90
-	lightRed     = 91
-	lightGreen   = 92
-	lightYellow  = 93
-	lightBlue    = 94
-	lightMagenta = 95
-	lightCyan    = 96
-	white        = 97
+	FgBlack        = 30
+	FgRed          = 31
+	FgGreen        = 32
+	FgYellow       = 33
+	FgBlue         = 34
+	FgMagenta      = 35
+	FgCyan         = 36
+	FgLightGray    = 37
+	FgDarkGray     = 90
+	FgLightRed     = 91
+	FgLightGreen   = 92
+	FgLightYellow  = 93
+	FgLightBlue    = 94
+	FgLightMagenta = 95
+	FgLightCyan    = 96
+	FgWhite        = 97
 
-	bgNormal       = 0
-	bgBoldOrBright = 1
-	bgDim          = 2
-	bgItalic       = 3
-	bgUnderline    = 4
-	bgUlink        = 5
-	bgHidden       = 8
+	BgNormal       = 0
+	BgBoldOrBright = 1
+	BgDim          = 2
+	BgItalic       = 3
+	BgUnderline    = 4
+	BgUlink        = 5
+	BgHidden       = 8
 
-	darkColor = lightGray
+	DarkColor = FgLightGray
 )
 
 var (

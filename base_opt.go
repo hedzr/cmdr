@@ -9,6 +9,11 @@ import (
 	"strings"
 )
 
+// HasParent detects whether owner is available or not
+func (c *BaseOpt) HasParent() bool {
+	return c.owner != nil
+}
+
 // GetTitleName temp
 func (s *BaseOpt) GetTitleName() string {
 	if len(s.Name) != 0 {
@@ -152,7 +157,7 @@ func (s *BaseOpt) GetTitleFlagNamesByMax(delimChar string, maxCount int) string 
 			}
 			str += " --" + sz
 			if len(s.DefaultValuePlaceholder) > 0 {
-				// str += fmt.Sprintf("=\x1b[2m\x1b[%dm%s\x1b[0m", darkColor, s.DefaultValuePlaceholder)
+				// str += fmt.Sprintf("=\x1b[2m\x1b[%dm%s\x1b[0m", DarkColor, s.DefaultValuePlaceholder)
 				str += fmt.Sprintf("=%s", s.DefaultValuePlaceholder)
 			}
 		} else {

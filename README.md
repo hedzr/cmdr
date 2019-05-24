@@ -118,7 +118,7 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
    normal demo with external config files.
 3. [wget-demo](./examples/wget-demo/README.md)  
    partial-impl wget demo.
-   ![](./docs/wget-demo.png)
+   ![image](https://user-images.githubusercontent.com/12786150/58327052-29386500-7e61-11e9-8cd6-372aa1f14bfa.png)
 
 
 

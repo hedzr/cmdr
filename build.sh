@@ -42,9 +42,9 @@ build_one () {
 	headline "---- Building the binary, for $PROJ_DIR | S='$S', OS='$OS' | suffix=$suffix"
 
 	cat <<-EOF
-	GOARCH=$ARCH GOOS=$OS CGO_ENABLED=1 go build -tags="gocql_debug" -ldflags "$LDFLAGS" -o "$PROJ_DIR/bin/${APPNAME}$S" $* $PKG_SRC
+	GOARCH=$ARCH GOOS=$OS CGO_ENABLED=0 go build -tags="gocql_debug" -ldflags "$LDFLAGS" -o "$PROJ_DIR/bin/${APPNAME}$S" $* $PKG_SRC
 	EOF
-	GOARCH=$ARCH GOOS=$OS CGO_ENABLED=1 go build -tags="gocql_debug" -ldflags "$LDFLAGS" -o "$PROJ_DIR/bin/${APPNAME}$S" $* $PKG_SRC && \
+	GOARCH=$ARCH GOOS=$OS CGO_ENABLED=0 go build -tags="gocql_debug" -ldflags "$LDFLAGS" -o "$PROJ_DIR/bin/${APPNAME}$S" $* $PKG_SRC && \
 	chmod +x "$PROJ_DIR/bin/${APPNAME}$S" && \
 	echo && ls -l "$PROJ_DIR/bin/${APPNAME}$S" # && echo $?
 }

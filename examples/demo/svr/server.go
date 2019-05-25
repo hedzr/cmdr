@@ -56,10 +56,12 @@ func (*DaemonImpl) OnStatus(cxt *daemon.Context, cmd *cmdr.Command, p *os.Proces
 
 func (*DaemonImpl) OnInstall(cxt *daemon.Context, cmd *cmdr.Command, args []string) (err error) {
 	logrus.Debugf("demo daemon OnInstall")
-	panic("implement me")
+	return
+	// panic("implement me")
 }
 
 func (*DaemonImpl) OnUninstall(cxt *daemon.Context, cmd *cmdr.Command, args []string) (err error) {
 	logrus.Debugf("demo daemon OnUninstall")
-	panic("implement me")
+	return
+	// panic("implement me")
 }

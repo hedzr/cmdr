@@ -22,6 +22,12 @@ func GetExcutableDir() string {
 	return dir
 }
 
+// GetExcutablePath returns the executable file path
+func GetExcutablePath() string {
+	p, _ := filepath.Abs(os.Args[0])
+	return p
+}
+
 // GetCurrentDir returns the current working directory
 func GetCurrentDir() string {
 	dir, _ := os.Getwd()

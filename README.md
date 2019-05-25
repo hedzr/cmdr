@@ -112,7 +112,7 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
 - Uses `WalkAllCommands(walker)` to loop commands.
 
-- Daemon
+- Daemon (*Linux Only*)
 
   > Uses daemon feature with `go-daemon`
 
@@ -136,6 +136,8 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
   ```
 
   `install`/`uninstall` sub-commands could install `demo` app as a systemd service.
+
+  > Just For Linux
 
 - `ExecWith(rootCmd *RootCommand, beforeXrefBuilding_, afterXrefBuilt_ HookXrefFunc) (err error)`
 

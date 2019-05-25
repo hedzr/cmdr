@@ -22,6 +22,12 @@ build-all() {
 	PKG_SRC=./examples/wget-demo/main.go APPNAME=wget-demo ./build.sh
 }
 
+build-all-linux() {
+	PKG_SRC=./examples/short/main.go APPNAME=short ./build.sh linux
+	PKG_SRC=./examples/demo/main.go APPNAME=demo ./build.sh linux
+	PKG_SRC=./examples/wget-demo/main.go APPNAME=wget-demo ./build.sh linux
+}
+
 build-ci() {
   go mod download
 	PKG_SRC=./examples/short/main.go APPNAME=short ./build.sh all

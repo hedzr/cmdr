@@ -29,6 +29,11 @@ func (c *Command) IsRoot() bool {
 	return c == &c.root.Command
 }
 
+// GetHitStr returns the matched command string
+func (c *Command) GetHitStr() string {
+	return c.strHit
+}
+
 // // HasParent detects whether owner is available or not
 // func (c *BaseOpt) HasParent() bool {
 // 	return c.owner != nil

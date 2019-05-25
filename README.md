@@ -112,6 +112,37 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
 - Uses `WalkAllCommands(walker)` to loop commands.
 
+- Daemon
+
+  > Uses daemon feature with `go-daemon`
+
+  ```golang
+  import "github.com/hedzr/cmdr/plugin/daemon"
+  func main() {
+  	daemon.Enable(NewDaemon())
+  	if err := cmdr.Exec(rootCmd); err != nil {
+  		log.Fatal("Error:", err)
+  	}
+  }
+  func NewDaemon() daemon.Daemon {
+  	return &DaemonImpl{}
+  }
+  ```
+
+  See full codes in [demo](./examples/demo/) app.
+
+  ```bash
+  bin/demo server [start|stop|status|restart|install|uninstall]
+  ```
+
+  `install`/`uninstall` sub-commands could install `demo` app as a systemd service.
+
+- `ExecWith(rootCmd *RootCommand, beforeXrefBuilding_, afterXrefBuilt_ HookXrefFunc) (err error)`
+
+  `AddOnBeforeXrefBuilding(cb)`
+
+  `AddOnAfterXrefBuilt(cb)`
+
 - More...
 
 
@@ -142,9 +173,13 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
 
 
+## Contrib
+
+*Feel free to issue me bug reports and fixes. Many thanks to all contributors.*
 
 
-## LICENSE
+
+## License
 
 MIT.
 

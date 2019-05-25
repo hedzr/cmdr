@@ -169,8 +169,8 @@ var (
 	globalShowVersion   func()
 	globalShowBuildInfo func()
 
-	beforeXrefBuilding HookXrefFunc
-	afterXrefBuilt     HookXrefFunc
+	beforeXrefBuilding []HookXrefFunc
+	afterXrefBuilt     []HookXrefFunc
 
 	// ErrShouldBeStopException tips `Exec()` cancelled the following actions after `PreAction()`
 	ErrShouldBeStopException = errors.New("should be stop right now")

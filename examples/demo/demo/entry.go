@@ -6,6 +6,8 @@ package demo
 
 import (
 	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/examples/demo/svr"
+	"github.com/hedzr/cmdr/plugin/daemon"
 	"github.com/sirupsen/logrus"
 )
 
@@ -20,6 +22,8 @@ func Entry() {
 	// cmdr.EnableVerboseCommands = false
 	// cmdr.EnableHelpCommands = false
 	// cmdr.EnableGenerateCommands = false
+
+	daemon.Enable(svr.NewDaemon())
 
 	if err := cmdr.Exec(rootCmd); err != nil {
 		logrus.Errorf("Error: %v", err)

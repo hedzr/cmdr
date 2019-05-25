@@ -36,7 +36,7 @@ var (
 			},
 			SubCommands: []*cmdr.Command{
 				// generatorCommands,
-				serverCommands,
+				// serverCommands,
 				msCommands,
 			},
 		},
@@ -46,65 +46,6 @@ var (
 		VersionInt: cmdr.VersionInt,
 		Copyright:  copyright,
 		Author:     "Hedzr Yeh <hedzrz@gmail.com>",
-	}
-
-	serverCommands = &cmdr.Command{
-		BaseOpt: cmdr.BaseOpt{
-			// Name:        "server",
-			Short:       "s",
-			Full:        "server",
-			Aliases:     []string{"serve", "svr"},
-			Description: "server ops: for linux service/daemon.",
-		},
-		SubCommands: []*cmdr.Command{
-			{
-				BaseOpt: cmdr.BaseOpt{
-					Short:       "s",
-					Full:        "start",
-					Aliases:     []string{"run", "startup"},
-					Description: "startup this system service/daemon.",
-				},
-			},
-			{
-				BaseOpt: cmdr.BaseOpt{
-					Short:       "t",
-					Full:        "stop",
-					Aliases:     []string{"stp", "halt", "pause"},
-					Description: "stop this system service/daemon.",
-				},
-			},
-			{
-				BaseOpt: cmdr.BaseOpt{
-					Short:       "r",
-					Full:        "restart",
-					Aliases:     []string{"reload"},
-					Description: "restart this system service/daemon.",
-				},
-			},
-			{
-				BaseOpt: cmdr.BaseOpt{
-					Full:        "status",
-					Aliases:     []string{"st"},
-					Description: "display its running status as a system service/daemon.",
-				},
-			},
-			{
-				BaseOpt: cmdr.BaseOpt{
-					Short:       "i",
-					Full:        "install",
-					Aliases:     []string{"setup"},
-					Description: "install as a system service/daemon.",
-				},
-			},
-			{
-				BaseOpt: cmdr.BaseOpt{
-					Short:       "u",
-					Full:        "uninstall",
-					Aliases:     []string{"remove"},
-					Description: "remove from a system service/daemon.",
-				},
-			},
-		},
 	}
 
 	msCommands = &cmdr.Command{

@@ -11,8 +11,6 @@ import (
 	"log"
 	"path"
 
-	// log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
@@ -203,7 +201,7 @@ func (s *Options) watchConfigDir(configDir string) {
 						if err != nil {
 							log.Printf("ERROR: os.Open() returned %v\n", err)
 						} else {
-							err = viper.MergeConfig(bufio.NewReader(file))
+							err = s.mergeConfigFile(bufio.NewReader(file))
 							if err != nil {
 								log.Printf("ERROR: os.Open() returned %v\n", err)
 							}

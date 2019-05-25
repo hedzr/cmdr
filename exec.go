@@ -24,8 +24,8 @@ func Exec(rootCmd *RootCommand) (err error) {
 
 // ExecWith is main entry of `cmdr`.
 func ExecWith(rootCmd *RootCommand, beforeXrefBuilding_, afterXrefBuilt_ HookXrefFunc) (err error) {
-	beforeXrefBuilding = beforeXrefBuilding_
-	afterXrefBuilt = afterXrefBuilt_
+	beforeXrefBuilding = append(beforeXrefBuilding, beforeXrefBuilding_)
+	afterXrefBuilt = append(afterXrefBuilt, afterXrefBuilt_)
 	err = InternalExecFor(rootCmd, os.Args)
 	return
 }
@@ -52,6 +52,16 @@ func buildRefs(rootCmd *RootCommand) (err error) {
 	return
 }
 
+// AddOnBeforeXrefBuilding add hook func
+func AddOnBeforeXrefBuilding(cb HookXrefFunc) {
+	beforeXrefBuilding = append(beforeXrefBuilding, cb)
+}
+
+// AddOnAfterXrefBuilt add hook func
+func AddOnAfterXrefBuilt(cb HookXrefFunc) {
+	afterXrefBuilt = append(afterXrefBuilt, cb)
+}
+
 // InternalExecFor is an internal helper, esp for debugging
 func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 	var (
@@ -70,8 +80,8 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 		_ = rootCmd.oerr.Flush()
 	}()
 
-	if beforeXrefBuilding != nil {
-		beforeXrefBuilding(rootCmd, args)
+	for _, x := range beforeXrefBuilding {
+		x(rootCmd, args)
 	}
 
 	err = buildRefs(rootCmd)
@@ -79,8 +89,8 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 		return
 	}
 
-	if afterXrefBuilt != nil {
-		afterXrefBuilt(rootCmd, args)
+	for _, x := range afterXrefBuilt {
+		x(rootCmd, args)
 	}
 
 	for pkg.i = 1; pkg.i < len(args); pkg.i++ {

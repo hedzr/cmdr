@@ -22,6 +22,14 @@ func Exec(rootCmd *RootCommand) (err error) {
 	return
 }
 
+// ExecWith is main entry of `cmdr`.
+func ExecWith(rootCmd *RootCommand, beforeXrefBuilding_, afterXrefBuilt_ HookXrefFunc) (err error) {
+	beforeXrefBuilding = beforeXrefBuilding_
+	afterXrefBuilt = afterXrefBuilt_
+	err = InternalExecFor(rootCmd, os.Args)
+	return
+}
+
 func setRootCommand(rootCmd *RootCommand) {
 	rootCommand = rootCmd
 
@@ -62,9 +70,17 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 		_ = rootCmd.oerr.Flush()
 	}()
 
+	if beforeXrefBuilding != nil {
+		beforeXrefBuilding(rootCmd, args)
+	}
+
 	err = buildRefs(rootCmd)
 	if err != nil {
 		return
+	}
+
+	if afterXrefBuilt != nil {
+		afterXrefBuilt(rootCmd, args)
 	}
 
 	for pkg.i = 1; pkg.i < len(args); pkg.i++ {

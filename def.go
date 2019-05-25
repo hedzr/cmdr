@@ -118,6 +118,8 @@ type (
 	ConfigReloaded interface {
 		OnConfigReloaded()
 	}
+
+	HookXrefFunc func(root *RootCommand, args []string)
 )
 
 var (
@@ -166,6 +168,9 @@ var (
 
 	globalShowVersion   func()
 	globalShowBuildInfo func()
+
+	beforeXrefBuilding HookXrefFunc
+	afterXrefBuilt     HookXrefFunc
 
 	// ErrShouldBeStopException tips `Exec()` cancelled the following actions after `PreAction()`
 	ErrShouldBeStopException = errors.New("should be stop right now")

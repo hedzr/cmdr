@@ -272,23 +272,32 @@ func genShellLoopCommands(cmd *Command, level int, sbca []strings.Builder) (scrF
 //
 
 func genManual(cmd *Command, args []string) (err error) {
+	painter := newManPainter()
+	prefix := strings.Join(append(RxxtPrefix, "generate.manual"), ".")
 	// logrus.Debugf("OK gen manual: hit=%v", cmd.strHit)
 	// paintFromCommand(newManPainter(), &rootCommand.Command, false)
 	err = WalkAllCommands(func(cmd *Command, index int) (err error) {
-		painter := newManPainter()
+		painter.Reset()
 
 		fn := cmd.root.AppName
 		cmds := strings.ReplaceAll(backtraceCmdNames(cmd), ".", "-")
-		if cmds == "generate" {
-			cmds += ""
-		}
+		// if cmds == "generate" {
+		// 	cmds += ""
+		// }
 		if len(cmds) > 0 {
 			fn += "-" + cmds
 		}
 
-		fn = fmt.Sprintf("./man1/%v.1", fn)
+		dir := GetStringP(prefix, "dir")
+		if err = EnsureDir(dir); err != nil {
+			return
+		}
+
+		fn = fmt.Sprintf("%s/%v.1", dir, fn)
 		paintFromCommand(painter, cmd, false)
-		err = ioutil.WriteFile(fn, painter.Results(), 0644)
+		if err = ioutil.WriteFile(fn, painter.Results(), 0644); err == nil {
+			logrus.Debugf("'%v' generated...", fn)
+		}
 		return
 	})
 	return
@@ -301,6 +310,56 @@ func genManual(cmd *Command, args []string) (err error) {
 //
 
 func genDoc(cmd *Command, args []string) (err error) {
-	logrus.Infof("OK gen doc: hit=%v", cmd.strHit)
+	prefix := strings.Join(append(RxxtPrefix, "generate.doc"), ".")
+	// logrus.Infof("OK gen doc: hit=%v", cmd.strHit)
+	var painter Painter
+	switch cmd.strHit {
+	case "mkd", "m", "markdown":
+		painter = newMarkdownPainter()
+	case "man", "manual", "manpage", "man-page":
+		painter = newManPainter()
+	case "docx":
+		painter = newMarkdownPainter()
+	case "pdf":
+		painter = newMarkdownPainter()
+	case "tex":
+		painter = newMarkdownPainter()
+	default: // , "doc", "d"
+		if GetBoolP(prefix, "markdown") {
+			painter = newMarkdownPainter()
+		} else if GetBoolP(prefix, "pdf") {
+			painter = newMarkdownPainter()
+		} else if GetBoolP(prefix, "tex") {
+			painter = newMarkdownPainter()
+		} else {
+			painter = newMarkdownPainter()
+		}
+	}
+
+	err = WalkAllCommands(func(cmd *Command, index int) (err error) {
+		painter.Reset()
+
+		fn := cmd.root.AppName
+		cmds := strings.ReplaceAll(backtraceCmdNames(cmd), ".", "-")
+		// if cmds == "generate" {
+		// 	cmds += ""
+		// }
+		if len(cmds) > 0 {
+			fn += "-" + cmds
+		}
+
+		dir := GetStringP(prefix, "dir")
+		if err = EnsureDir(dir); err != nil {
+			return
+		}
+
+		fn = fmt.Sprintf("%s/%v.md", dir, fn)
+		paintFromCommand(painter, cmd, false)
+		if err = ioutil.WriteFile(fn, painter.Results(), 0644); err == nil {
+			logrus.Debugf("'%v' generated...", fn)
+		}
+		return
+	})
+
 	return
 }

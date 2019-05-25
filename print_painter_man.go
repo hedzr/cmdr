@@ -33,6 +33,11 @@ func (s *manPainter) Results() (res []byte) {
 	return
 }
 
+func (s *manPainter) Reset() {
+	s.writer = nil
+	s.writer = new(bytes.Buffer)
+}
+
 func (s *manPainter) Flush() {
 	// if bb, ok := s.writer.(*bytes.Buffer); ok {
 	// 	_, _ = fmt.Fprintf(os.Stdout, "%v\n", bb.String())

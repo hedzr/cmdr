@@ -26,5 +26,10 @@ type (
 		FpFlagsLine(command *Command, flag *Flag, defValStr string)
 
 		Flush()
+
+		Results() []byte
+
+		// clear any internal states and reset itself
+		Reset()
 	}
 )

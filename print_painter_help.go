@@ -14,7 +14,14 @@ type (
 	}
 )
 
+func (s *helpPainter) Reset() {
+}
+
 func (s *helpPainter) Flush() {
+}
+
+func (s *helpPainter) Results() (res []byte) {
+	return
 }
 
 func (s *helpPainter) Printf(fmtStr string, args ...interface{}) {

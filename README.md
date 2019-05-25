@@ -58,9 +58,11 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
 - Generators
 
-  - *Todo: ~~manual generator~~, and markdown/docx/pdf generators.*
+  - *Todo: ~~manual generator~~, and ~~markdown~~/docx/pdf generators.*
 
-  - Man Page generator: `bin/demo generate manrefactor`
+  - Man Page generator: `bin/demo generate man`
+
+  - Markdown generator: `bin/demo generate [doc|mdk|markdown]`
 
   - Bash and Zsh (*not yet, todo*) completion.
 

@@ -5,6 +5,7 @@
 package cmdr
 
 import (
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -43,6 +44,9 @@ func FileExists(name string) bool {
 
 // EnsureDir checks and creates the directory.
 func EnsureDir(dir string) (err error) {
+	if len(dir) == 0 {
+		return fmt.Errorf("empty directory")
+	}
 	if !FileExists(dir) {
 		err = os.MkdirAll(dir, 0755)
 	}

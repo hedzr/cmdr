@@ -87,6 +87,19 @@ $ {{.AppName}} gen pdf
 				Aliases:     []string{"man"},
 				Description: "generate linux man page.",
 				Action:      genManual,
+				Flags: []*Flag{
+					{
+						BaseOpt: BaseOpt{
+							Short:                   "d",
+							Full:                    "dir",
+							Description:             "the output directory",
+							DefaultValuePlaceholder: "DIR",
+							// Aliases:     []string{"mkd", "m"},
+							// Group:       "output",
+						},
+						DefaultValue: "./man1",
+					},
+				},
 			},
 		}, {
 			BaseOpt: BaseOpt{
@@ -96,6 +109,16 @@ $ {{.AppName}} gen pdf
 				Description: "generate a markdown document, or: pdf/TaX/...",
 				Action:      genDoc,
 				Flags: []*Flag{
+					{
+						BaseOpt: BaseOpt{
+							Short:                   "d",
+							Full:                    "dir",
+							Description:             "the output directory",
+							DefaultValuePlaceholder: "DIR",
+							Group:                   "output",
+						},
+						DefaultValue: "./docs",
+					},
 					{
 						BaseOpt: BaseOpt{
 							Short:       "md",

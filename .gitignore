@@ -18,6 +18,7 @@ man*/
 *.7
 *.8
 .vagrant/
+docs/
 
 ### two executable files
 

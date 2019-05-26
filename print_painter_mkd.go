@@ -130,7 +130,7 @@ func (s *markdownPainter) FpUsagesTitle(command *Command, title string) {
 
 func (s *markdownPainter) FpUsagesLine(command *Command, fmt, appName, cmdList, cmdsTitle, tailPlaceHolder string) {
 	if !command.IsRoot() {
-		s.Printf("```bash\n%s %v%s%s [Options] [Parent/Global Options]"+fmt+"\n```\n", appName, cmdList, cmdsTitle, tailPlaceHolder)
+		s.Printf("```bash\n%s %v%s%s [Options] [Parent/Global Options] [tail args...]"+fmt+"\n```\n", appName, cmdList, cmdsTitle, tailPlaceHolder)
 	}
 }
 

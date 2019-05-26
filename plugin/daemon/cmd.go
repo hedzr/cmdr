@@ -56,6 +56,7 @@ var (
 			},
 			{
 				BaseOpt: cmdr.BaseOpt{
+					Short:       "ss",
 					Full:        "status",
 					Aliases:     []string{"st"},
 					Description: "display its running status as a system service/daemon.",
@@ -68,6 +69,7 @@ var (
 					Full:        "install",
 					Aliases:     []string{"setup"},
 					Description: "install as a system service/daemon.",
+					Group:       "Config",
 					Action:      daemonInstall,
 					Flags: []*cmdr.Flag{
 						{
@@ -88,6 +90,7 @@ var (
 					Full:        "uninstall",
 					Aliases:     []string{"remove"},
 					Description: "remove from a system service/daemon.",
+					Group:       "Config",
 					Action:      daemonUninstall,
 				},
 			},

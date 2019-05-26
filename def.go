@@ -54,8 +54,12 @@ type (
 		Hidden                  bool
 		DefaultValuePlaceholder string
 
-		// cmd 是 flag 被识别时已经得到的子命令
+		// Deprecated is a version string just like '0.5.9', that means this command/flag was/will be deprecated since `v0.5.9`.
+		Deprecated string
+
+		// Action is callback for the last recognized command/sub-command.
 		// return: ErrShouldBeStopException will break the following flow and exit right now
+		// cmd 是 flag 被识别时已经得到的子命令
 		Action func(cmd *Command, args []string) (err error)
 	}
 

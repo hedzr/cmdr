@@ -197,6 +197,16 @@ var (
 					DefaultValue: "",
 					ExternalTool: cmdr.ExternalToolEditor,
 				},
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Short:       "g",
+						Full:        "good",
+						Description: "good is a placeholder flag",
+						Deprecated:  "0.0.1",
+					},
+					DefaultValue: "",
+					ExternalTool: cmdr.ExternalToolEditor,
+				},
 			},
 		},
 	}

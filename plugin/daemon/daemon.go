@@ -74,7 +74,9 @@ func run(cmd *cmdr.Command, args []string) (err error) {
 	daemon.SetSigHandler(reloadHandler, syscall.SIGHUP)
 
 	if daemonImpl != nil {
-		err = daemonImpl.OnRun(cmd, args, stop, done)
+		if err = daemonImpl.OnRun(cmd, args, stop, done); err != nil {
+			return
+		}
 	}
 
 	log.Printf("daemon ServeSignals, pid = %v", os.Getpid())

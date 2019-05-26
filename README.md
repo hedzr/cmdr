@@ -15,26 +15,51 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
 - Unix [*getopt*(3)](http://man7.org/linux/man-pages/man3/getopt.3.html) representation but without its programmatic interface.
 
-- Automatic help screen generation
+  - Options with short names (`-h`)
+  - Options with long names (`--help`)
+  - Options with aliases (`—helpme`, `—usage`, `--info`)
+  - Options with and without arguments (bool v.s. other type)
+  - Options with optional arguments and default values
+  - Multiple option groups each containing a set of options
+  - Supports multiple short options -aux
+  - Supports namespaces for (nested) option groups
+
+- Automatic help screen generation (*Generate and print well-formatted help message*)
+
+- Strict Mode
+
+  - Ignoring unknown command line options (default)
+
+  - Report error on unknown commands and options if strict mode enabled (optional)
+
+    enable strict mode:
+
+    - env var `APP_STRICT_MODE=true`
+
+    - hidden option: `--strict-mode` (if `cmdr.EnableVerboseCommands == true`)
+
+    - entry in config file:
+
+      ```yaml
+      app:
+        strict-mode: true
+      ```
 
 - Support for unlimited multiple sub-commands.
 
-- Support for command short and long name, and aliases names.
+- Supports `-I/usr/include`` -I=/usr/include` `-I /usr/include` option argument specification
 
-- Support for both short and long options (`-o` and `--opt`). Support for multiple aliases
+  Automatically allows those formats (applied to long option too):
 
-- Automatically allows those formats (applied to long flags too):
   - `-I file`, `-Ifile`, and `-I=files`
   - `-I 'file'`, `-I'file'`, and `-I='files'`
   - `-I "file"`, `-I"file"`, and `-I="files"`
 
-- Support for `-D+`, `-D-` to enable/disable a bool flag.
+- Support for `-D+`, `-D-` to enable/disable a bool option.
 
-- Support for **PassThrough** by `--`.
+- Support for **PassThrough** by `—`. (*Passing remaining command line arguments after -- (optional)*)
 
 - Support for options being specified multiple times, with different values
-
-- Support for optional arguments.
 
 - Groupable commands and options/flags.
 
@@ -50,11 +75,11 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
   - Help: `-h`, `-?`, `--help`, ...
   - Version & Build Info: `--version`/`-V`, `--build-info`/`-#`
-  - Verbose & Debug: `—verbose`/`-v`, `—debug`/`-D`, `—quiet`/`-q`
+  - Verbose & Debug: `—verbose`/`-v`, `—debug`/`-D`, `—quiet`/`-q`, and `--strict-mode`
   - Generate Commands:
-    - `generate shell`: `—bash`/`—zsh`(*todo*)
-    - `generate manual`: *todo*
-    - `generate doc`: *todo*
+    - `generate shell`: `—bash`/`—zsh`(*todo*)/`--auto`
+    - `generate manual`:  man 1 ready.
+    - `generate doc`: markdown ready.
 
 - Generators
 
@@ -104,7 +129,9 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
   - string slice
   - int slice
   - time duration
-  - *todo: time, ~~duration~~, ~~int slice~~, ...*
+  - *todo: float, time, ~~duration~~, ~~int slice~~, ...*
+  - *todo: all primitive go types*
+  - *todo: maps*
 
 - `cmdr.Set(key, value)`, `cmdr.SerNx(key, value)`
 
@@ -181,7 +208,9 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
 - https://github.com/hedzr/consul-tags
 - https://github.com/hedzr/ini-op
-- Issue me
+- voxr
+- austr
+- Issue me to adding yours
 
 
 

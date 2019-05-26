@@ -11,4 +11,5 @@ require (
 	gopkg.in/yaml.v2 v2.2.2
 )
 
-exclude github.com/sirupsen/logrus v1.4.1
+// exclude github.com/sirupsen/logrus v1.4.1
+// exclude github.com/sirupsen/logrus v1.4.2

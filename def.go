@@ -17,6 +17,10 @@ const (
 	UnsortedGroup = "zzzz.unsorted"
 	// SysMgmtGroup for commands and flags
 	SysMgmtGroup = "zzz9.Misc"
+
+	DefaultEditor = "vim"
+
+	ExternalToolEditor = "EDITOR"
 )
 
 type (
@@ -95,10 +99,14 @@ type (
 	Flag struct {
 		BaseOpt
 
-		// default value for flag
+		// DefaultValue default value for flag
 		DefaultValue interface{}
 		ValidArgs    []string
 		Required     bool
+
+		// ExternalTool to get the value text by invoking external tool
+		// It's an environment variable name, such as: "EDITOR" (or cmdr.ExternalToolEditor)
+		ExternalTool string
 
 		// by default, a flag is always `optional`.
 	}
@@ -171,6 +179,9 @@ var (
 
 	beforeXrefBuilding []HookXrefFunc
 	afterXrefBuilt     []HookXrefFunc
+
+	// GetEditor sets callback to get editor program
+	GetEditor func() (string, error)
 
 	// ErrShouldBeStopException tips `Exec()` cancelled the following actions after `PreAction()`
 	ErrShouldBeStopException = errors.New("should be stop right now")

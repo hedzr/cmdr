@@ -6,8 +6,12 @@ package cmdr
 
 import (
 	"bytes"
+	"crypto/rand"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"io/ioutil"
+	"os"
+	"os/exec"
 	"strings"
 	"text/template"
 )
@@ -18,6 +22,12 @@ func manBr(s string) string {
 		lines = append(lines, l+"\n.br")
 	}
 	return strings.Join(lines, "\n")
+}
+
+func manWs(fmtStr string, args ...interface{}) string {
+	str := fmt.Sprintf(fmtStr, args...)
+	str = strings.ReplaceAll(strings.TrimSpace(str), " ", `\ `)
+	return str
 }
 
 func manExamples(s string, data interface{}) string {
@@ -55,8 +65,73 @@ func tplApply(tmpl string, data interface{}) string {
 	return w.String()
 }
 
-func manWs(fmtStr string, args ...interface{}) string {
-	str := fmt.Sprintf(fmtStr, args...)
-	str = strings.ReplaceAll(strings.TrimSpace(str), " ", `\ `)
-	return str
+//
+// external
+//
+
+// Launch executes a command setting both standard input, output and error.
+func Launch(cmd string, args ...string) (err error) {
+	c := exec.Command(cmd, args...)
+	c.Stdin = os.Stdin
+	c.Stdout = os.Stdout
+	c.Stderr = os.Stderr
+
+	err = c.Run()
+
+	if err != nil {
+		if _, isExitError := err.(*exec.ExitError); !isExitError {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// LaunchSudo executes a command under "sudo".
+func LaunchSudo(cmd string, args ...string) error {
+	return Launch("sudo", append([]string{cmd}, args...)...)
+}
+
+//
+// editor
+//
+
+func getEditor() (string, error) {
+	if GetEditor != nil {
+		return GetEditor()
+	}
+	return exec.LookPath(DefaultEditor)
+}
+
+func randomFilename() string {
+	buf := make([]byte, 16)
+	if _, err := rand.Read(buf); err != nil {
+		return os.Getenv("HOME") + ".CMDR_EDIT_FILE"
+	}
+	return fmt.Sprintf("%v/.CMDR_%x", os.Getenv("HOME"), buf)
+}
+
+// LaunchEditor launchs the specified editor
+func LaunchEditor(editor string) (content []byte, err error) {
+	return launchEditorWith(editor, randomFilename())
+}
+
+func launchEditorWith(editor, filename string) (content []byte, err error) {
+	cmd := exec.Command(editor, filename)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err = cmd.Run()
+
+	if err != nil {
+		if _, isExitError := err.(*exec.ExitError); !isExitError {
+			return
+		}
+	}
+
+	content, err = ioutil.ReadFile(filename)
+	if err != nil {
+		return []byte{}, nil
+	}
+	return
 }

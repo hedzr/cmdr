@@ -5,16 +5,12 @@
 package daemon
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"github.com/hedzr/cmdr"
-	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
-	"text/template"
 )
 
 func runInstaller(cmd *cmdr.Command, args []string) (err error) {
@@ -83,53 +79,6 @@ func runUninstaller(cmd *cmdr.Command, args []string) (err error) {
 		}
 		_ = shellRunAuto("systemctl", "daemon-reload")
 	}
-	return
-}
-
-func tplApply(tmpl string, data interface{}) string {
-	var w = new(bytes.Buffer)
-	var tpl = template.Must(template.New("y").Parse(tmpl))
-	if err := tpl.Execute(w, data); err != nil {
-		logrus.Errorf("tpl execute error: %v", err)
-	}
-	return w.String()
-}
-
-func isRoot() bool {
-	return os.Getuid() == 0
-}
-
-// Exec executes a command setting both standard input, output and error.
-func Exec(cmd string, args ...string) error {
-	c := exec.Command(cmd, args...)
-	c.Stdin = os.Stdin
-	c.Stdout = os.Stdout
-	c.Stderr = os.Stderr
-
-	if err := c.Run(); err != nil {
-		return err
-	}
-	return nil
-}
-
-// ExecSudo executes a command under "sudo".
-func ExecSudo(cmd string, args ...string) error {
-	return Exec("sudo", append([]string{cmd}, args...)...)
-}
-
-func shellRunAuto(name string, arg ...string) error {
-	err, output := shellRun(name, arg...)
-	if err != nil {
-		logrus.Fatalf("shellRunAuto err: %v\n\noutput:\n%v", err, output.String())
-	}
-	return err
-}
-
-func shellRun(name string, arg ...string) (err error, output bytes.Buffer) {
-	cmd := exec.Command(name, arg...)
-	// cmd.Stdin = strings.NewReader("some input")
-	cmd.Stdout = &output
-	err = cmd.Run()
 	return
 }
 

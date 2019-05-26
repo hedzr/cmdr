@@ -38,6 +38,7 @@ var (
 				// generatorCommands,
 				// serverCommands,
 				msCommands,
+				testCommands,
 			},
 		},
 
@@ -176,6 +177,25 @@ var (
 					Full:        "list",
 					Aliases:     []string{"ls", "lst", "dir"},
 					Description: "list services.",
+				},
+			},
+		},
+	}
+
+	testCommands = &cmdr.Command{
+		BaseOpt: cmdr.BaseOpt{
+			Short:       "t",
+			Full:        "test",
+			Description: "test operations...",
+			Flags: []*cmdr.Flag{
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Short:       "m",
+						Full:        "message",
+						Description: "a placeholder flag",
+					},
+					DefaultValue: "",
+					ExternalTool: cmdr.ExternalToolEditor,
 				},
 			},
 		},

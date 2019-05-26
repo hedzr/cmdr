@@ -37,7 +37,7 @@ func setRootCommand(rootCmd *RootCommand) {
 	rootCommand.oerr = defaultStderr
 }
 
-func buildRefs(rootCmd *RootCommand) (err error) {
+func buildXref(rootCmd *RootCommand) (err error) {
 	buildRootCrossRefs(rootCmd)
 	for _, s := range getExpandedPredefinedLocations() {
 		if FileExists(s) {
@@ -84,7 +84,7 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 		x(rootCmd, args)
 	}
 
-	err = buildRefs(rootCmd)
+	err = buildXref(rootCmd)
 	if err != nil {
 		return
 	}
@@ -174,7 +174,7 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 			}
 
 			if ok {
-				if err = recogValue(pkg, args); err != nil {
+				if err = tryExtractingValue(pkg, args); err != nil {
 					return
 				}
 
@@ -380,8 +380,10 @@ func splitQuotedValueIfNecessary(pkg *ptpkg, fn *string) {
 	}
 }
 
-func recogValue(pkg *ptpkg, args []string) (err error) {
+func tryExtractingValue(pkg *ptpkg, args []string) (err error) {
 	if _, ok := pkg.flg.DefaultValue.(bool); ok {
+		// bool flag, -D+, -D-
+
 		if pkg.suffix == '+' {
 			pkg.flg.DefaultValue = true
 		} else if pkg.suffix == '-' {
@@ -396,46 +398,47 @@ func recogValue(pkg *ptpkg, args []string) (err error) {
 			rxxtOptions.Set(backtraceFlagNames(pkg.flg), pkg.flg.DefaultValue)
 		}
 		pkg.found = true
+		return
+	}
 
-	} else {
-		vv := reflect.ValueOf(pkg.flg.DefaultValue)
-		kind := vv.Kind()
-		switch kind {
-		case reflect.String:
-			if err = processTypeString(pkg, args); err != nil {
+	vv := reflect.ValueOf(pkg.flg.DefaultValue)
+	kind := vv.Kind()
+	switch kind {
+	case reflect.String:
+		if err = processTypeString(pkg, args); err != nil {
+			return
+		}
+
+	case reflect.Slice:
+		typ := reflect.TypeOf(pkg.flg.DefaultValue).Elem()
+		if typ.Kind() == reflect.String {
+			if err = processTypeStringSlice(pkg, args); err != nil {
 				return
 			}
-
-		case reflect.Slice:
-			typ := reflect.TypeOf(pkg.flg.DefaultValue).Elem()
-			if typ.Kind() == reflect.String {
-				if err = processTypeStringSlice(pkg, args); err != nil {
-					return
-				}
-			} else if isTypeSInt(typ.Kind()) {
-				if err = processTypeIntSlice(pkg, args); err != nil {
-					return
-				}
-			} else if isTypeSInt(typ.Kind()) {
-				if err = processTypeUintSlice(pkg, args); err != nil {
-					return
-				}
+		} else if isTypeSInt(typ.Kind()) {
+			if err = processTypeIntSlice(pkg, args); err != nil {
+				return
 			}
-
-		default:
-			if isTypeSInt(kind) {
-				if err = processTypeInt(pkg, args); err != nil {
-					return
-				}
-			} else if isTypeUInt(kind) {
-				if err = processTypeUint(pkg, args); err != nil {
-					return
-				}
-			} else {
-				ferr("Unacceptable default value kind=%v", kind)
+		} else if isTypeSInt(typ.Kind()) {
+			if err = processTypeUintSlice(pkg, args); err != nil {
+				return
 			}
 		}
+
+	default:
+		if isTypeSInt(kind) {
+			if err = processTypeInt(pkg, args); err != nil {
+				return
+			}
+		} else if isTypeUInt(kind) {
+			if err = processTypeUint(pkg, args); err != nil {
+				return
+			}
+		} else {
+			ferr("Unacceptable default value kind=%v", kind)
+		}
 	}
+
 	return
 }
 
@@ -448,12 +451,24 @@ func preprocessPkg(pkg *ptpkg, args []string) (err error) {
 			pkg.val = pkg.savedFn
 			pkg.savedFn = ""
 		} else {
-			if pkg.i < len(args)-1 {
+			if pkg.i < len(args)-1 && args[pkg.i+1][0] != '-' && args[pkg.i+1][0] != '~' {
 				pkg.i++
 				pkg.val = args[pkg.i]
-			} else if GetStrictMode() {
-				err = fmt.Errorf("unexpect end of command line [i=%v,args=(%v)], need more args for %v", pkg.i, args, pkg)
-				return
+			} else {
+				if len(pkg.flg.ExternalTool) > 0 {
+					editor := os.Getenv(pkg.flg.ExternalTool)
+					if len(editor) == 0 {
+						editor = DefaultEditor
+					}
+					var content []byte
+					if content, err = LaunchEditor(editor); err != nil {
+						return
+					}
+					pkg.val = string(content)
+				} else if GetStrictMode() {
+					err = fmt.Errorf("unexpect end of command line [i=%v,args=(%v)], need more args for %v", pkg.i, args, pkg)
+					return
+				}
 			}
 		}
 		pkg.assigned = true

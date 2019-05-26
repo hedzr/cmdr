@@ -145,6 +145,16 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
   `AddOnAfterXrefBuilt(cb)`
 
+- Launch external editor by `&Flag{BaseOpt:BaseOpt{},ExternalTool:cmdr.ExternalToolEditor}`:
+
+  just like `git -m`, try this command:
+
+  ```bash
+  EDITOR=nano bin/demo -m ~~debug
+  ```
+
+  Default is `vim`. And `-m "something"` can skip the launching.
+
 - More...
 
 

@@ -20,6 +20,7 @@ func Entry() {
 	// To disable internal commands and flags, uncomment the following codes
 	// cmdr.EnableVersionCommands = false
 	// cmdr.EnableVerboseCommands = false
+	// cmdr.EnableCmdrCommands = false
 	// cmdr.EnableHelpCommands = false
 	// cmdr.EnableGenerateCommands = false
 

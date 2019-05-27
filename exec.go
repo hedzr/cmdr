@@ -84,8 +84,11 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 		x(rootCmd, args)
 	}
 
-	err = buildXref(rootCmd)
-	if err != nil {
+	if err = buildXref(rootCmd); err != nil {
+		return
+	}
+
+	if err = rxxtOptions.buildAutomaticEnv(rootCmd); err != nil {
 		return
 	}
 

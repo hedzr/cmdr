@@ -18,6 +18,7 @@ func main() {
 	// cmdr.EnableVersionCommands = false
 	// cmdr.EnableVerboseCommands = false
 	// cmdr.EnableHelpCommands = false
+	// cmdr.EnableCmdrCommands = false
 	// cmdr.EnableGenerateCommands = false
 
 	if err := cmdr.Exec(rootCmd); err != nil {

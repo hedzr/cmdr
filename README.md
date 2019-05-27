@@ -1,5 +1,6 @@
 # cmdr
 
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/hedzr/cmdr) 
 [![Build Status](https://travis-ci.org/hedzr/cmdr.svg?branch=master)](https://travis-ci.org/hedzr/cmdr)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hedzr/cmdr)](https://goreportcard.com/report/github.com/hedzr/cmdr)
 ![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/hedzr/cmdr.svg?label=release)
@@ -36,7 +37,7 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
     - env var `APP_STRICT_MODE=true`
 
-    - hidden option: `--strict-mode` (if `cmdr.EnableVerboseCommands == true`)
+    - hidden option: `--strict-mode` (if `cmdr.EnableCmdrCommands == true`)
 
     - entry in config file:
 
@@ -57,7 +58,7 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
 - Support for `-D+`, `-D-` to enable/disable a bool option.
 
-- Support for **PassThrough** by `—`. (*Passing remaining command line arguments after -- (optional)*)
+- Support for **PassThrough** by `--`. (*Passing remaining command line arguments after -- (optional)*)
 
 - Support for options being specified multiple times, with different values
 
@@ -75,7 +76,8 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
   - Help: `-h`, `-?`, `--help`, ...
   - Version & Build Info: `--version`/`-V`, `--build-info`/`-#`
-  - Verbose & Debug: `—verbose`/`-v`, `—debug`/`-D`, `—quiet`/`-q`, and `--strict-mode`
+  - Verbose & Debug: `—verbose`/`-v`, `—debug`/`-D`, `—quiet`/`-q`
+  - `--no-env-overrides`, and `--strict-mode`
   - Generate Commands:
     - `generate shell`: `—bash`/`—zsh`(*todo*)/`--auto`
     - `generate manual`:  man 1 ready.
@@ -119,9 +121,9 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
 - Overrides by environment variables.
 
-  *todo: prior:*
+  *prior:* `defaultValue -> config-file -> env-var -> command-line opts`
 
-- `cmdr.Get(key)`, `cmdr.GetBool(key)`, `cmdr.GetInt(key)`, `cmdr.GetString(key)`, `cmdr.GetStringSlice(key)` for Option value extractions.
+- `cmdr.Get(key)`, `cmdr.GetBool(key)`, `cmdr.GetInt(key)`, `cmdr.GetString(key)`, `cmdr.GetStringSlice(key)` and `cmdr.GetIntSlice(key)` for Option value extractions.
 
   - bool
   - int, int64, uint, uint64
@@ -133,7 +135,13 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
   - *todo: all primitive go types*
   - *todo: maps*
 
+- `cmdr.GetP(prefix, key)`, `cmdr.GetBoolP(prefix, key)`, ….
+
 - `cmdr.Set(key, value)`, `cmdr.SerNx(key, value)`
+
+  `Set()` set value by key without RxxtPrefix, eg: `cmdr.Set("debug", true)` for `--debug`.
+
+  `SetNx()` set value by exact key. so: `cmdr.SetNx("app.debug", true)` for `--debug`.
 
 - Customizable `Painter` interface to loop each commands and flags.
 

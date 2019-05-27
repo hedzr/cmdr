@@ -150,8 +150,8 @@ func TestExec(t *testing.T) {
 	}()
 
 	for sss, verifier := range execTestings {
-		cmdr.Set("app.kv.port", 8500)
-		cmdr.Set("app.ms.tags.port", 8500)
+		cmdr.Set("kv.port", 8500)
+		cmdr.Set("ms.tags.port", 8500)
 
 		if err = cmdr.InternalExecFor(rootCmd, strings.Split(sss, " ")); err != nil {
 			t.Fatal(err)

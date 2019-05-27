@@ -146,10 +146,10 @@ func (s *Options) GetUint(key string) (ir uint64) {
 
 // GetStringSlice returns the string slice value of an `Option` key.
 func (s *Options) GetStringSlice(key string) (ir []string) {
-	envkey := s.envKey(key)
-	if s, ok := os.LookupEnv(envkey); ok {
-		ir = strings.Split(s, ",")
-	}
+	// envkey := s.envKey(key)
+	// if s, ok := os.LookupEnv(envkey); ok {
+	// 	ir = strings.Split(s, ",")
+	// }
 
 	if v, ok := s.entries[key]; ok {
 		switch reflect.ValueOf(v).Kind() {
@@ -181,10 +181,10 @@ func stringSliceToIntSlice(in []string) (out []int) {
 
 // GetIntSlice returns the string slice value of an `Option` key.
 func (s *Options) GetIntSlice(key string) (ir []int) {
-	envkey := s.envKey(key)
-	if s, ok := os.LookupEnv(envkey); ok {
-		ir = stringSliceToIntSlice(strings.Split(s, ","))
-	}
+	// envkey := s.envKey(key)
+	// if s, ok := os.LookupEnv(envkey); ok {
+	// 	ir = stringSliceToIntSlice(strings.Split(s, ","))
+	// }
 
 	if v, ok := s.entries[key]; ok {
 		switch reflect.ValueOf(v).Kind() {
@@ -212,10 +212,10 @@ func (s *Options) GetDuration(key string) (ir time.Duration) {
 
 // GetString returns the string value of an `Option` key.
 func (s *Options) GetString(key string) (ret string) {
-	envkey := s.envKey(key)
-	if s, ok := os.LookupEnv(envkey); ok {
-		ret = s
-	}
+	// envkey := s.envKey(key)
+	// if s, ok := os.LookupEnv(envkey); ok {
+	// 	ret = s
+	// }
 
 	if v, ok := s.entries[key]; ok {
 		switch reflect.ValueOf(v).Kind() {
@@ -223,6 +223,22 @@ func (s *Options) GetString(key string) (ret string) {
 			ret = v.(string)
 		default:
 			ret = fmt.Sprintf("%v", v)
+		}
+	}
+	return
+}
+
+func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
+	// p := strings.Join(EnvPrefix,"_")
+	p := strings.Join(RxxtPrefix, ".")
+	for key := range s.entries {
+		ek := s.envKey(key)
+		if v, ok := os.LookupEnv(ek); ok {
+			if strings.HasPrefix(key, p) {
+				s.Set(key[len(p)+1:], v)
+			} else {
+				s.Set(key, v)
+			}
 		}
 	}
 	return
@@ -246,10 +262,10 @@ func wrapRxxtPrefix(key string) string {
 	return p + "." + key
 }
 
-// Set set the value of an `Option` key.
+// Set set the value of an `Option` key (with prefix auto-wrap).
 // ```golang
-// cmdr.Set("app.logger.level", "DEBUG")
-// cmdr.Set("app.ms.tags.port", 8500)
+// cmdr.Set("logger.level", "DEBUG")
+// cmdr.Set("ms.tags.port", 8500)
 // ...
 // ```
 //

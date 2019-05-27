@@ -18,6 +18,7 @@ func main() {
 	cmdr.EnableVerboseCommands = false
 	cmdr.EnableHelpCommands = false
 	cmdr.EnableGenerateCommands = false
+	cmdr.EnableCmdrCommands = false
 
 	if err := cmdr.Exec(rootCmd); err != nil {
 		logrus.Errorf("Error: %v", err)

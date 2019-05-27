@@ -30,6 +30,7 @@ func buildRootCrossRefs(root *RootCommand) {
 				BaseOpt: BaseOpt{
 					Short:       "V",
 					Full:        "version",
+					Aliases:     []string{"ver"},
 					Description: "Show the version of this app.",
 					// Hidden:      true,
 					Action: func(cmd *Command, args []string) (err error) {
@@ -168,6 +169,8 @@ func buildRootCrossRefs(root *RootCommand) {
 			root.plainLongFlags["debug"] = root.allFlags[SysMgmtGroup]["debug"]
 			root.plainShortFlags["D"] = root.allFlags[SysMgmtGroup]["debug"]
 		}
+	}
+	if EnableCmdrCommands {
 		if _, ok := root.allFlags[SysMgmtGroup]["strict-mode"]; !ok {
 			root.allFlags[SysMgmtGroup]["strict-mode"] = &Flag{
 				BaseOpt: BaseOpt{
@@ -178,6 +181,17 @@ func buildRootCrossRefs(root *RootCommand) {
 				DefaultValue: false,
 			}
 			root.plainLongFlags["strict-mode"] = root.allFlags[SysMgmtGroup]["strict-mode"]
+		}
+		if _, ok := root.allFlags[SysMgmtGroup]["no-env-overrides"]; !ok {
+			root.allFlags[SysMgmtGroup]["no-env-overrides"] = &Flag{
+				BaseOpt: BaseOpt{
+					Full:        "no-env-overrides",
+					Description: "No env var overrrides for `cmdr`.",
+					Hidden:      true,
+				},
+				DefaultValue: false,
+			}
+			root.plainLongFlags["no-env-overrides"] = root.allFlags[SysMgmtGroup]["no-env-overrides"]
 		}
 	}
 

@@ -141,6 +141,8 @@ var (
 	EnableHelpCommands = true
 	// EnableVerboseCommands supports injecting the default `--verbose` flags and commands
 	EnableVerboseCommands = true
+	// EnableCmdrCommands support these flags: `--strict-mode`, `--no-env-overrides`
+	EnableCmdrCommands = true
 	// EnableGenerateCommands supports injecting the default `generate` commands and subcommands
 	EnableGenerateCommands = true
 

@@ -7,9 +7,17 @@
 
 getopt/getopt_long like command-line UI golang library.
 
-A getopt-like parser of command-line options, compatible with the [getopt_long](http://www.gnu.org/s/libc/manual/html_node/Argument-Syntax.html#Argument-Syntax) syntax, which is an extension of the syntax recommended by POSIX.
+A getopt-like parser of command-line options, compatible with the [getopt_long](http://www.gnu.org/s/libc/manual/html_node/Argument-Syntax.html#Argument-Syntax) command line UI, which is an extension of the syntax recommended by POSIX.
 
-`cmdr` is a UNIX command-line UI library written by golang.
+`cmdr` is a UNIX/Linux/POSIX command-line UI library written by golang.
+
+
+
+> Before our introduce for CMDR, I decided to post A memory of mine, in each new OSS project. Here it is:
+>
+> [Youtube - 李宗盛2013最新單曲 山丘 官方完整版音檔](https://www.youtube.com/watch?v=_qNpR1Ew5jA) / [*CHT + ENU*](https://www.youtube.com/watch?v=FNlFe8ftBh0)
+>
+> Thanks.
 
 
 
@@ -35,9 +43,9 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
 - Strict Mode
 
-  - Ignoring unknown command line options (default)
+  - *false*: Ignoring unknown command line options (default)
 
-  - Report error on unknown commands and options if strict mode enabled (optional)
+  - *true*: Report error on unknown commands and options if strict mode enabled (optional)
 
     enable strict mode:
 

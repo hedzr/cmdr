@@ -23,21 +23,10 @@ var (
 					Aliases:     []string{"run", "startup"},
 					Description: "startup this system service/daemon.",
 					Action:      daemonStart,
-					Flags: []*cmdr.Flag{
-						{
-							BaseOpt: cmdr.BaseOpt{
-								Short:       "f",
-								Full:        "foreground",
-								Aliases:     []string{"fg"},
-								Description: "run on foreground, NOT daemonized.",
-							},
-							DefaultValue: false,
-						},
-					},
 					LongDescription: `**start** command make program running as a daemon background.
 **run** command make program running in current tty foreground.
 `,
-					Examples:`
+					Examples: `
 $ {{.AppName}} start
 					make program running as a daemon background.
 $ {{.AppName}} start --foreground
@@ -55,6 +44,17 @@ $ {{.AppName}} install [--systemd]
 $ {{.AppName}} uninstall
 					remove the installed systemd service.
 `,
+				},
+				Flags: []*cmdr.Flag{
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:       "f",
+							Full:        "foreground",
+							Aliases:     []string{"fg"},
+							Description: "run on foreground, NOT daemonized.",
+						},
+						DefaultValue: false,
+					},
 				},
 			},
 			{
@@ -92,16 +92,16 @@ $ {{.AppName}} uninstall
 					Description: "install as a system service/daemon.",
 					Group:       "Config",
 					Action:      daemonInstall,
-					Flags: []*cmdr.Flag{
-						{
-							BaseOpt: cmdr.BaseOpt{
-								Short:       "s",
-								Full:        "systemd",
-								Aliases:     []string{"sys"},
-								Description: "install as a systemd service.",
-							},
-							DefaultValue: true,
+				},
+				Flags: []*cmdr.Flag{
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:       "s",
+							Full:        "systemd",
+							Aliases:     []string{"sys"},
+							Description: "install as a systemd service.",
 						},
+						DefaultValue: true,
 					},
 				},
 			},

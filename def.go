@@ -40,19 +40,14 @@ type (
 		Aliases []string
 		// group name
 		Group string
-		// to-do: Toggle Group
-		ToggleGroup string
 
 		owner  *Command
 		strHit string
 
-		Flags []*Flag
-
-		Description             string
-		LongDescription         string
-		Examples                string
-		Hidden                  bool
-		DefaultValuePlaceholder string
+		Description     string
+		LongDescription string
+		Examples        string
+		Hidden          bool
 
 		// Deprecated is a version string just like '0.5.9', that means this command/flag was/will be deprecated since `v0.5.9`.
 		Deprecated string
@@ -66,6 +61,9 @@ type (
 	// Command holds the structure of commands and subcommands
 	Command struct {
 		BaseOpt
+
+		Flags []*Flag
+
 		SubCommands []*Command
 		// return: ErrShouldBeStopException will break the following flow and exit right now
 		PreAction func(cmd *Command, args []string) (err error)
@@ -77,7 +75,7 @@ type (
 
 		root            *RootCommand
 		allCmds         map[string]map[string]*Command // key1: Commnad.Group, key2: Command.Full
-		allFlags        map[string]map[string]*Flag    // key1: Command.Flags[#].Group, key2: Command.Flags[#].Full
+		allFlags        map[string]map[string]*Flag    // key1: Command.Flags[#].Group, key2: Command.Flags[#].Fullui
 		plainCmds       map[string]*Command
 		plainShortFlags map[string]*Flag
 		plainLongFlags  map[string]*Flag
@@ -103,10 +101,16 @@ type (
 	Flag struct {
 		BaseOpt
 
+		// ToggleGroup: to-do: Toggle Group
+		ToggleGroup string
+		// DefaultValuePlaceholder for flag
+		DefaultValuePlaceholder string
 		// DefaultValue default value for flag
 		DefaultValue interface{}
-		ValidArgs    []string
-		Required     bool
+		// ValidArgs to-do
+		ValidArgs []string
+		// Required to-do
+		Required bool
 
 		// ExternalTool to get the value text by invoking external tool
 		// It's an environment variable name, such as: "EDITOR" (or cmdr.ExternalToolEditor)

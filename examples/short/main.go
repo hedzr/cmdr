@@ -31,9 +31,9 @@ var (
 	rootCmd = &cmdr.RootCommand{
 		Command: cmdr.Command{
 			BaseOpt: cmdr.BaseOpt{
-				Name:  "short",
-				Flags: []*cmdr.Flag{},
+				Name: "short",
 			},
+			Flags: []*cmdr.Flag{},
 			SubCommands: []*cmdr.Command{
 				serverCommands,
 				// msCommands,
@@ -53,14 +53,14 @@ var (
 			Full:        "server",
 			Aliases:     []string{"serve", "svr"},
 			Description: "server ops: for linux service/daemon.",
-			Flags: []*cmdr.Flag{
-				{
-					BaseOpt: cmdr.BaseOpt{
-						Short:       "f",
-						Full:        "foreground",
-						Aliases:     []string{"fg"},
-						Description: "running at foreground",
-					},
+		},
+		Flags: []*cmdr.Flag{
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:       "f",
+					Full:        "foreground",
+					Aliases:     []string{"fg"},
+					Description: "running at foreground",
 				},
 			},
 		},

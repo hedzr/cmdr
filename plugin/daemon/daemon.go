@@ -18,7 +18,7 @@ import (
 // - add daemon commands and sub-commands: start/run, stop, restart/reload, status, install/uninstall
 // - pidfile
 // - go-daemon supports
-// - 
+// -
 func Enable(daemonImpl_ Daemon) {
 	daemonImpl = daemonImpl_
 

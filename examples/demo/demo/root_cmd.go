@@ -32,8 +32,8 @@ var (
 				Description:     desc,
 				LongDescription: longDesc,
 				Examples:        examples,
-				Flags:           []*cmdr.Flag{},
 			},
+			Flags: []*cmdr.Flag{},
 			SubCommands: []*cmdr.Command{
 				// generatorCommands,
 				// serverCommands,
@@ -55,15 +55,15 @@ var (
 			Full:        "ms",
 			Aliases:     []string{"microservice", "micro-service"},
 			Description: "micro-service operations...",
-			Flags: []*cmdr.Flag{
-				{
-					BaseOpt: cmdr.BaseOpt{
-						Short:       "m",
-						Full:        "money",
-						Description: "a placeholder flag",
-					},
-					DefaultValue: false,
+		},
+		Flags: []*cmdr.Flag{
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:       "m",
+					Full:        "money",
+					Description: "a placeholder flag",
 				},
+				DefaultValue: false,
 			},
 		},
 		SubCommands: []*cmdr.Command{
@@ -73,25 +73,25 @@ var (
 					Full:        "tags",
 					Aliases:     []string{},
 					Description: "tags op.",
-					Flags: []*cmdr.Flag{
-						{
-							BaseOpt: cmdr.BaseOpt{
-								Short:                   "n",
-								Full:                    "name",
-								Description:             "name of the service",
-								DefaultValuePlaceholder: "NAME",
-							},
-							DefaultValue: "",
+				},
+				Flags: []*cmdr.Flag{
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:       "n",
+							Full:        "name",
+							Description: "name of the service",
 						},
-						{
-							BaseOpt: cmdr.BaseOpt{
-								Short:                   "i",
-								Full:                    "id",
-								Description:             "unique id of the service",
-								DefaultValuePlaceholder: "ID",
-							},
-							DefaultValue: "",
+						DefaultValue:            "",
+						DefaultValuePlaceholder: "NAME",
+					},
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:       "i",
+							Full:        "id",
+							Description: "unique id of the service",
 						},
+						DefaultValue:            "",
+						DefaultValuePlaceholder: "ID",
 					},
 				},
 				SubCommands: []*cmdr.Command{
@@ -109,17 +109,17 @@ var (
 							Full:        "add",
 							Aliases:     []string{"create", "new"},
 							Description: "add tags.",
-							Flags: []*cmdr.Flag{
-								{
-									BaseOpt: cmdr.BaseOpt{
-										Short:                   "ls",
-										Full:                    "list",
-										Aliases:                 []string{"l", "lst", "dir"},
-										Description:             "a comma list to be added",
-										DefaultValuePlaceholder: "LIST",
-									},
-									DefaultValue: []string{},
+						},
+						Flags: []*cmdr.Flag{
+							{
+								BaseOpt: cmdr.BaseOpt{
+									Short:       "ls",
+									Full:        "list",
+									Aliases:     []string{"l", "lst", "dir"},
+									Description: "a comma list to be added",
 								},
+								DefaultValue:            []string{},
+								DefaultValuePlaceholder: "LIST",
 							},
 						},
 					},
@@ -129,17 +129,17 @@ var (
 							Full:        "rm",
 							Aliases:     []string{"remove", "erase", "delete", "del"},
 							Description: "remove tags.",
-							Flags: []*cmdr.Flag{
-								{
-									BaseOpt: cmdr.BaseOpt{
-										Short:                   "ls",
-										Full:                    "list",
-										Aliases:                 []string{"l", "lst", "dir"},
-										Description:             "a comma list to be added.",
-										DefaultValuePlaceholder: "LIST",
-									},
-									DefaultValue: []string{},
+						},
+						Flags: []*cmdr.Flag{
+							{
+								BaseOpt: cmdr.BaseOpt{
+									Short:       "ls",
+									Full:        "list",
+									Aliases:     []string{"l", "lst", "dir"},
+									Description: "a comma list to be added.",
 								},
+								DefaultValue:            []string{},
+								DefaultValuePlaceholder: "LIST",
 							},
 						},
 					},
@@ -149,23 +149,23 @@ var (
 							Full:        "toggle",
 							Aliases:     []string{"tog", "switch"},
 							Description: "toggle tags for ms.",
-							Flags: []*cmdr.Flag{
-								{
-									BaseOpt: cmdr.BaseOpt{
-										Short:                   "s",
-										Full:                    "set",
-										DefaultValuePlaceholder: "LIST",
-									},
-									DefaultValue: []string{},
+						},
+						Flags: []*cmdr.Flag{
+							{
+								BaseOpt: cmdr.BaseOpt{
+									Short: "s",
+									Full:  "set",
 								},
-								{
-									BaseOpt: cmdr.BaseOpt{
-										Short:                   "u",
-										Full:                    "unset",
-										DefaultValuePlaceholder: "LIST",
-									},
-									DefaultValue: []string{},
+								DefaultValue:            []string{},
+								DefaultValuePlaceholder: "LIST",
+							},
+							{
+								BaseOpt: cmdr.BaseOpt{
+									Short: "u",
+									Full:  "unset",
 								},
+								DefaultValue:            []string{},
+								DefaultValuePlaceholder: "LIST",
 							},
 						},
 					},
@@ -187,26 +187,25 @@ var (
 			Short:       "t",
 			Full:        "test",
 			Description: "test operations...",
-			Flags: []*cmdr.Flag{
-				{
-					BaseOpt: cmdr.BaseOpt{
-						Short:       "m",
-						Full:        "message",
-						Description: "a placeholder flag",
-					},
-					DefaultValue: "",
-					ExternalTool: cmdr.ExternalToolEditor,
+		}, Flags: []*cmdr.Flag{
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:       "m",
+					Full:        "message",
+					Description: "a placeholder flag",
 				},
-				{
-					BaseOpt: cmdr.BaseOpt{
-						Short:       "g",
-						Full:        "good",
-						Description: "good is a placeholder flag",
-						Deprecated:  "0.0.1",
-					},
-					DefaultValue: "",
-					ExternalTool: cmdr.ExternalToolEditor,
+				DefaultValue: "",
+				ExternalTool: cmdr.ExternalToolEditor,
+			},
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:       "g",
+					Full:        "good",
+					Description: "good is a placeholder flag",
+					Deprecated:  "0.0.1",
 				},
+				DefaultValue: "",
+				ExternalTool: cmdr.ExternalToolEditor,
 			},
 		},
 	}

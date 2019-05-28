@@ -50,34 +50,34 @@ $ {{.AppName}} gen pdf
 				Aliases:     []string{"sh"},
 				Description: "generate the bash/zsh auto-completion script or install it.",
 				Action:      genShell,
-				Flags: []*Flag{
-					{
-						BaseOpt: BaseOpt{
-							Short:       "b",
-							Full:        "bash",
-							Group:       "shell",
-							Description: "generate auto completion script for Bash",
-						},
-						DefaultValue: false,
+			},
+			Flags: []*Flag{
+				{
+					BaseOpt: BaseOpt{
+						Short:       "b",
+						Full:        "bash",
+						Group:       "shell",
+						Description: "generate auto completion script for Bash",
 					},
-					{
-						BaseOpt: BaseOpt{
-							Short:       "z",
-							Full:        "zsh",
-							Group:       "shell",
-							Description: "generate auto completion script for Zsh",
-						},
-						DefaultValue: false,
+					DefaultValue: false,
+				},
+				{
+					BaseOpt: BaseOpt{
+						Short:       "z",
+						Full:        "zsh",
+						Group:       "shell",
+						Description: "generate auto completion script for Zsh",
 					},
-					{
-						BaseOpt: BaseOpt{
-							Short:       "a",
-							Full:        "auto",
-							Group:       "shell",
-							Description: "generate auto completion script to fit for your current env.",
-						},
-						DefaultValue: true,
+					DefaultValue: false,
+				},
+				{
+					BaseOpt: BaseOpt{
+						Short:       "a",
+						Full:        "auto",
+						Group:       "shell",
+						Description: "generate auto completion script to fit for your current env.",
 					},
+					DefaultValue: true,
 				},
 			},
 		}, {
@@ -87,18 +87,18 @@ $ {{.AppName}} gen pdf
 				Aliases:     []string{"man"},
 				Description: "generate linux man page.",
 				Action:      genManual,
-				Flags: []*Flag{
-					{
-						BaseOpt: BaseOpt{
-							Short:                   "d",
-							Full:                    "dir",
-							Description:             "the output directory",
-							DefaultValuePlaceholder: "DIR",
-							// Aliases:     []string{"mkd", "m"},
-							// Group:       "output",
-						},
-						DefaultValue: "./man1",
+			},
+			Flags: []*Flag{
+				{
+					BaseOpt: BaseOpt{
+						Short:       "d",
+						Full:        "dir",
+						Description: "the output directory",
+						// Aliases:     []string{"mkd", "m"},
+						// Group:       "output",
 					},
+					DefaultValue:            "./man1",
+					DefaultValuePlaceholder: "DIR",
 				},
 			},
 		}, {
@@ -108,45 +108,45 @@ $ {{.AppName}} gen pdf
 				Aliases:     []string{"markdown", "pdf"},
 				Description: "generate a markdown document, or: pdf/TaX/...",
 				Action:      genDoc,
-				Flags: []*Flag{
-					{
-						BaseOpt: BaseOpt{
-							Short:                   "d",
-							Full:                    "dir",
-							Description:             "the output directory",
-							DefaultValuePlaceholder: "DIR",
-							Group:                   "output",
-						},
-						DefaultValue: "./docs",
+			},
+			Flags: []*Flag{
+				{
+					BaseOpt: BaseOpt{
+						Short:       "d",
+						Full:        "dir",
+						Description: "the output directory",
+						Group:       "output",
 					},
-					{
-						BaseOpt: BaseOpt{
-							Short:       "md",
-							Full:        "markdown",
-							Aliases:     []string{"mkd", "m"},
-							Group:       "doc",
-							Description: "generate mardown",
-						},
-						DefaultValue: false,
+					DefaultValue:            "./docs",
+					DefaultValuePlaceholder: "DIR",
+				},
+				{
+					BaseOpt: BaseOpt{
+						Short:       "md",
+						Full:        "markdown",
+						Aliases:     []string{"mkd", "m"},
+						Group:       "doc",
+						Description: "generate mardown",
 					},
-					{
-						BaseOpt: BaseOpt{
-							Short:       "p",
-							Full:        "pdf",
-							Group:       "doc",
-							Description: "generate pdf",
-						},
-						DefaultValue: false,
+					DefaultValue: false,
+				},
+				{
+					BaseOpt: BaseOpt{
+						Short:       "p",
+						Full:        "pdf",
+						Group:       "doc",
+						Description: "generate pdf",
 					},
-					{
-						BaseOpt: BaseOpt{
-							Short:       "t",
-							Full:        "tex",
-							Group:       "doc",
-							Description: "generate tex",
-						},
-						DefaultValue: true,
+					DefaultValue: false,
+				},
+				{
+					BaseOpt: BaseOpt{
+						Short:       "t",
+						Full:        "tex",
+						Group:       "doc",
+						Description: "generate tex",
 					},
+					DefaultValue: true,
 				},
 			},
 			// SubCommands: []*Command{

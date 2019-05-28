@@ -34,6 +34,27 @@ var (
 							DefaultValue: false,
 						},
 					},
+					LongDescription: `**start** command make program running as a daemon background.
+**run** command make program running in current tty foreground.
+`,
+					Examples:`
+$ {{.AppName}} start
+					make program running as a daemon background.
+$ {{.AppName}} start --foreground
+					make program running in current tty foreground.
+$ {{.AppName}} run
+					make program running in current tty foreground.
+$ {{.AppName}} stop
+					stop daemonized program.
+$ {{.AppName}} reload
+					send signal to trigger program reload its configurations.
+$ {{.AppName}} status
+					display the daemonized program running status.
+$ {{.AppName}} install [--systemd]
+					install program as a systemd service.
+$ {{.AppName}} uninstall
+					remove the installed systemd service.
+`,
 				},
 			},
 			{

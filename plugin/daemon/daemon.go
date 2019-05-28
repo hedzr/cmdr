@@ -14,11 +14,20 @@ import (
 	"syscall"
 )
 
+// Enable daemon plugin:
+// - add daemon commands and sub-commands: start/run, stop, restart/reload, status, install/uninstall
+// - pidfile
+// - go-daemon supports
+// - 
 func Enable(daemonImpl_ Daemon) {
 	daemonImpl = daemonImpl_
 
 	cmdr.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
+
 		root.SubCommands = append(root.SubCommands, DaemonServerCommands)
+
+		prefix = strings.Join(append(cmdr.RxxtPrefix, "server"), ".")
+
 		if root.PreAction != nil {
 			savedPreAction := root.PreAction
 			root.PreAction = func(cmd *cmdr.Command, args []string) (err error) {
@@ -36,13 +45,11 @@ func Enable(daemonImpl_ Daemon) {
 				return
 			}
 		}
+
 	})
 }
 
-var prefix = strings.Join(append(cmdr.RxxtPrefix, "server"), ".")
-
 func daemonStart(cmd *cmdr.Command, args []string) (err error) {
-	// logrus.Debugf("daemon start")
 	if cmdr.GetBoolP(prefix, "foreground") {
 		err = run(cmd, args)
 	} else if cmd.GetHitStr() == "run" {
@@ -94,7 +101,6 @@ func run(cmd *cmdr.Command, args []string) (err error) {
 }
 
 func daemonStop(cmd *cmdr.Command, args []string) (err error) {
-	// logrus.Debugf("daemon stop")
 	getContext(cmd, args)
 
 	p, err := daemonCtx.Search()
@@ -110,12 +116,10 @@ func daemonStop(cmd *cmdr.Command, args []string) (err error) {
 }
 
 func daemonRestart(cmd *cmdr.Command, args []string) (err error) {
-	// logrus.Debugf("daemon reload")
 	getContext(cmd, args)
 
 	p, err := daemonCtx.Search()
 	if err != nil {
-		// logrus.Fatalln("Unable send signal to the daemon:", err)
 		fmt.Printf("%v is stopped.\n", cmd.GetRoot().AppName)
 	}
 
@@ -126,7 +130,6 @@ func daemonRestart(cmd *cmdr.Command, args []string) (err error) {
 }
 
 func daemonStatus(cmd *cmdr.Command, args []string) (err error) {
-	// logrus.Debugf("daemon status")
 	getContext(cmd, args)
 
 	p, err := daemonCtx.Search()
@@ -143,7 +146,6 @@ func daemonStatus(cmd *cmdr.Command, args []string) (err error) {
 }
 
 func daemonInstall(cmd *cmdr.Command, args []string) (err error) {
-	// logrus.Debugf("daemon install")
 	getContext(cmd, args)
 
 	err = runInstaller(cmd, args)
@@ -157,7 +159,6 @@ func daemonInstall(cmd *cmdr.Command, args []string) (err error) {
 }
 
 func daemonUninstall(cmd *cmdr.Command, args []string) (err error) {
-	// logrus.Debugf("daemon uninstall")
 	getContext(cmd, args)
 
 	err = runUninstaller(cmd, args)
@@ -169,3 +170,5 @@ func daemonUninstall(cmd *cmdr.Command, args []string) (err error) {
 	}
 	return
 }
+
+var prefix string

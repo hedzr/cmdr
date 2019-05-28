@@ -61,6 +61,7 @@ func buildRootCrossRefs(root *RootCommand) {
 			root.plainLongFlags["build-info"] = root.allFlags[SysMgmtGroup]["build-info"]
 		}
 	}
+	
 	if EnableHelpCommands {
 		if _, ok := root.allFlags[SysMgmtGroup]["help"]; !ok {
 			root.allFlags[SysMgmtGroup]["help"] = &Flag{
@@ -124,6 +125,7 @@ func buildRootCrossRefs(root *RootCommand) {
 			root.plainLongFlags["config"] = root.allFlags[SysMgmtGroup]["config"]
 		}
 	}
+	
 	if EnableVerboseCommands {
 		if _, ok := root.allFlags[SysMgmtGroup]["verbose"]; !ok {
 			root.allFlags[SysMgmtGroup]["verbose"] = &Flag{
@@ -170,6 +172,7 @@ func buildRootCrossRefs(root *RootCommand) {
 			root.plainShortFlags["D"] = root.allFlags[SysMgmtGroup]["debug"]
 		}
 	}
+	
 	if EnableCmdrCommands {
 		if _, ok := root.allFlags[SysMgmtGroup]["strict-mode"]; !ok {
 			root.allFlags[SysMgmtGroup]["strict-mode"] = &Flag{

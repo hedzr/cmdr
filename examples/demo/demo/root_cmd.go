@@ -109,6 +109,7 @@ var (
 							Full:        "add",
 							Aliases:     []string{"create", "new"},
 							Description: "add tags.",
+							Deprecated:  "0.2.1",
 						},
 						Flags: []*cmdr.Flag{
 							{

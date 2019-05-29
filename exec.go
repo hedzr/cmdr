@@ -190,6 +190,9 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 							return nil
 						}
 					}
+					if isBool(pkg.flg.DefaultValue) || isNil1(pkg.flg.DefaultValue) {
+						toggleGroup(pkg)
+					}
 
 					if !pkg.assigned {
 						if len(pkg.savedFn) > 0 && len(pkg.savedVal) == 0 {
@@ -341,6 +344,15 @@ func isTypeSInt(kind reflect.Kind) bool {
 	return true
 }
 
+func isBool(v interface{}) bool {
+	_, ok := v.(bool)
+	return ok
+}
+
+func isNil1(v interface{}) bool {
+	return v == nil
+}
+
 type ptpkg struct {
 	assigned          bool
 	found             bool
@@ -356,6 +368,15 @@ type ptpkg struct {
 	suffix            uint8
 	unknownCmds       []string
 	unknownFlags      []string
+}
+
+func toggleGroup(pkg *ptpkg) {
+	tg := pkg.flg.ToggleGroup
+	for _, f := range pkg.flg.owner.Flags {
+		if f.ToggleGroup == tg && (isBool(f.DefaultValue) || isNil1(f.DefaultValue)) {
+			rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), false)
+		}
+	}
 }
 
 func findValueAttached(pkg *ptpkg, fn *string) {

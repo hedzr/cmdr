@@ -62,7 +62,8 @@ func (s *markdownPainter) FpPrintHeader(command *Command) {
 	a := &mkdHdrData{
 		*root,
 		time.Now().Format("Jan 2006"),
-		manExamples(root.Examples, root),
+		// manExamples(root.Examples, root),
+		fmt.Sprintf("\n```bash\n%v\n```\n", tplApply(root.Examples, root)),
 	}
 
 	s.Printf("%v", tplApply(`
@@ -115,7 +116,12 @@ func mkdSubCommands(command *Command) (ret []string) {
 		} else {
 			title = command.root.AppName + "-" + title
 		}
-		ret = append(ret, fmt.Sprintf("* [**%v**](%v.md) - *%v*", title, title, sc.Description))
+		var wrapChars, tail string
+		if len(sc.Deprecated) > 0 {
+			wrapChars = "~~"
+			tail = fmt.Sprintf(" (deprecated since %v)", sc.Deprecated)
+		}
+		ret = append(ret, fmt.Sprintf("* [%s**%v**%s](%v.md) - *%v*%v", wrapChars, title, wrapChars, title, sc.Description, tail))
 	}
 	return
 }
@@ -200,14 +206,21 @@ func (s *markdownPainter) FpCommandsLine(command *Command) {
 		if len(title) == 0 {
 			title = command.Short
 		}
-		s.Printf("##### %s", title)
+
+		var wrapChars, tail string
+		if len(command.Deprecated) > 0 {
+			wrapChars = "~~"
+			tail = fmt.Sprintf("> deprecated since %v", command.Deprecated)
+		}
+
+		s.Printf("##### %s%s%s", wrapChars, title, wrapChars)
 		if len(command.Short) > 0 && len(command.Full) > 0 {
 			s.Printf(" (**Short**: %v) ", command.Short)
 		}
 		if len(command.Aliases) > 0 {
 			s.Printf(" (**Aliases**: %v) ", command.Aliases)
 		}
-		s.Printf("\n\n")
+		s.Printf("\n\n%v\n\n", tail)
 
 		if len(command.Description) > 0 {
 			s.Printf("%v\n\n", command.Description)
@@ -240,7 +253,14 @@ func (s *markdownPainter) FpFlagsLine(command *Command, flag *Flag, defValStr st
 	if len(title) == 0 {
 		title = "-" + flag.Short
 	}
-	s.Printf("##### %s %s ", title, flag.DefaultValuePlaceholder)
+
+	var wrapChars, tail string
+	if len(flag.Deprecated) > 0 {
+		wrapChars = "~~"
+		tail = fmt.Sprintf("> deprecated since %v", flag.Deprecated)
+	}
+
+	s.Printf("##### %s%s%s %s ", wrapChars, title, wrapChars, flag.DefaultValuePlaceholder)
 	if len(flag.Short) > 0 && len(flag.Full) > 0 {
 		s.Printf(" (**Short**: -%v) ", flag.Short)
 	}
@@ -251,7 +271,7 @@ func (s *markdownPainter) FpFlagsLine(command *Command, flag *Flag, defValStr st
 		}
 		s.Printf(" (**Aliases**: %v) ", tt)
 	}
-	s.Printf("\n\n%v\n\n", defValStr)
+	s.Printf("\n\n%v\n\n%v\n\n", defValStr, tail)
 
 	if len(flag.Description) > 0 {
 		s.Printf("%v\n\n", flag.Description)

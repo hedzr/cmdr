@@ -15,7 +15,7 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
 > Before our introduce for CMDR, I decided to post A memory of mine, in each new OSS project. Here it is:
 >
-> [Youtube - 李宗盛2013最新單曲 山丘 官方完整版音檔](https://www.youtube.com/watch?v=_qNpR1Ew5jA) / [*CHT + ENU*](https://www.youtube.com/watch?v=FNlFe8ftBh0)
+> [Youtube - 李宗盛2013最新單曲 山丘 官方完整版音檔](https://www.youtube.com/watch?v=_qNpR1Ew5jA) / [Jonathan Lee - Hill *CHT + ENU*](https://www.youtube.com/watch?v=FNlFe8ftBh0)
 >
 > Thanks.
 

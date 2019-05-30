@@ -204,6 +204,13 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
 
   Default is `vim`. And `-m "something"` can skip the launching.
 
+- `ToggleGroup`: make a group of flags as a radio-button group.
+
+- Muiltiple API styles:
+
+  - Data Definitions style (Classical style): see also [root_cmd.go in demo](https://github.com/hedzr/cmdr/blob/master/examples/demo/demo/root_cmd.go)
+  - Fluent API style: see also [main.go in fluent](https://github.com/hedzr/cmdr/blob/master/examples/fluent/main.go)
+
 - More...
 
 
@@ -216,13 +223,63 @@ A getopt-like parser of command-line options, compatible with the [getopt_long](
    normal demo with external config files.
 3. [wget-demo](./examples/wget-demo/README.md)  
    partial-impl wget demo.
-   
+4. [fluent](./examples/fluent)  
+   fluent api demo.
 
 
 
 ## Documentation
 
 - [*TODO: wiki*](https://github.com/hedzr/cmdr/wiki)
+
+
+
+### Uses Fluent API
+
+```go
+	root := cmdr.Root("aa", "1.0.1").Header("aa - test for cmdr - hedzr")
+	rootCmd = root.RootCommand()
+
+	co := root.NewSubCommand().
+		Titles("ms", "micro-service").
+		Description("", "").
+		Group("")
+
+	co.NewFlag(cmdr.OptFlagTypeUint).
+		Titles("t", "retry").
+		Description("", "").
+		Group("").
+		DefaultValue(3, "RETRY")
+
+	cTags := co.NewSubCommand().
+		Titles("t", "tags").
+		Description("", "").
+		Group("")
+
+	cTags.NewFlag(cmdr.OptFlagTypeString).
+		Titles("a", "addr").
+		Description("", "").
+		Group("").
+		DefaultValue("consul.ops.local", "ADDR")
+
+	cTags.NewSubCommand().
+		Titles("ls", "list").
+		Description("", "").
+		Group("").
+		Action(func(cmd *cmdr.Command, args []string) (err error) {
+			return
+		})
+
+	cTags.NewSubCommand().
+		Titles("a", "add").
+		Description("", "").
+		Group("").
+		Action(func(cmd *cmdr.Command, args []string) (err error) {
+			return
+		})
+```
+
+
 
 
 

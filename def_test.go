@@ -10,9 +10,12 @@ import (
 	"errors"
 	"fmt"
 	"github.com/hedzr/cmdr"
+	"io/ioutil"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 )
 
 var (
@@ -127,7 +130,153 @@ func TestReflectOfSlice(t *testing.T) {
 	fmt.Println("data =", ys, "len =", len(ys), "cap =", cap(ys))
 }
 
+type cfgLoaded struct {
+}
+
+func (s *cfgLoaded) OnConfigReloaded() {
+	//
+}
+
+func TestFluentAPIDefault(t *testing.T) {
+	root := cmdr.Root("aa", "1.0.1").
+		Header("aa - test for cmdr - no version - hedzr").
+		Copyright("s", "x")
+	rootCmd1 := root.RootCommand()
+	t.Log(rootCmd1)
+
+	cmdr.NewCmdFrom(&rootCmd1.Command)
+	cmdr.NewCmd()
+	cmdr.NewSubCmd()
+	cmdr.NewBool()
+	cmdr.NewDuration()
+	cmdr.NewInt()
+	cmdr.NewInt64()
+	cmdr.NewIntSlice()
+	cmdr.NewString()
+	cmdr.NewStringSlice()
+	cmdr.NewUint()
+	cmdr.NewUint64()
+
+	cmdr.NewOptions()
+	cmdr.NewOptionsWith(nil)
+}
+
+func TestLaunch(t *testing.T) {
+	_ = cmdr.Launch("ls")
+	_ = os.Setenv("EDITOR", "ls")
+	_, _ = cmdr.LaunchEditor("EDITOR")
+}
+
+func TestFluentAPI(t *testing.T) {
+
+	root := cmdr.Root("aa", "1.0.1").
+		Header("aa - test for cmdr - no version - hedzr").
+		Copyright("s", "x")
+	rootCmd1 := root.RootCommand()
+	t.Log(rootCmd1)
+
+	// ms
+
+	co := root.NewSubCommand().
+		Titles("ms", "micro-service").
+		Short("ms").Long("micro-service").Aliases("goms").
+		Examples(``).Hidden(false).Deprecated("").
+		PreAction(nil).PostAction(nil).Action(nil).
+		TailPlaceholder("").
+		Description("", "").
+		Group("")
+
+	co.OwnerCommand()
+	co.SetOwner(root)
+
+	co.NewFlag(cmdr.OptFlagTypeUint).
+		Titles("t", "retry").
+		Short("tt").Long("retry-tt").Aliases("go-tt").
+		Examples(``).Hidden(false).Deprecated("").
+		Action(nil).
+		ExternalTool(cmdr.ExternalToolEditor).ExternalTool(cmdr.ExternalToolPasswordInput).
+		Description("", "").
+		Group("").
+		DefaultValue(3, "RETRY").SetOwner(root)
+
+	co.NewFlag(cmdr.OptFlagTypeBool).
+		Titles("t1", "retry1").
+		Description("", "").
+		Group("").
+		DefaultValue(3, "RETRY").OwnerCommand()
+
+	co.NewFlag(cmdr.OptFlagTypeInt).
+		Titles("t2", "retry2").
+		Description("", "").
+		Group("").ToggleGroup("").
+		DefaultValue(3, "RETRY").RootCommand()
+
+	co.NewFlag(cmdr.OptFlagTypeUint64).
+		Titles("t3", "retry3").
+		Description("", "").
+		Group("").
+		DefaultValue(3, "RETRY")
+
+	co.NewFlag(cmdr.OptFlagTypeInt64).
+		Titles("t4", "retry4").
+		Description("", "").
+		Group("").
+		DefaultValue(3, "RETRY")
+
+	co.NewFlag(cmdr.OptFlagTypeStringSlice).
+		Titles("t5", "retry5").
+		Description("", "").
+		Group("").
+		DefaultValue(3, "RETRY")
+
+	co.NewFlag(cmdr.OptFlagTypeIntSlice).
+		Titles("t6", "retry6").
+		Description("", "").
+		Group("").
+		DefaultValue(3, "RETRY")
+
+	co.NewFlag(cmdr.OptFlagTypeDuration).
+		Titles("t7", "retry7").
+		Description("", "").
+		Group("").
+		DefaultValue(3, "RETRY")
+
+	// ms tags
+
+	cTags := co.NewSubCommand().
+		Titles("t", "tags").
+		Description("", "").
+		Group("")
+
+	cTags.NewFlag(cmdr.OptFlagTypeString).
+		Titles("a", "addr").
+		Description("", "").
+		Group("").
+		DefaultValue("consul.ops.local", "ADDR")
+
+	// ms tags ls
+
+	cTags.NewSubCommand().
+		Titles("ls", "list").
+		Description("", "").
+		Group("").
+		Action(func(cmd *cmdr.Command, args []string) (err error) {
+			return
+		})
+
+	cTags.NewSubCommand().
+		Titles("a", "add").
+		Description("", "").
+		Group("").
+		Action(func(cmd *cmdr.Command, args []string) (err error) {
+			return
+		})
+
+}
+
 func TestExec(t *testing.T) {
+	cmdr.ResetOptions()
+
 	if rootCmd.SubCommands[1].SubCommands[0].Flags[0] == rootCmd.SubCommands[2].Flags[0] {
 		t.Log(rootCmd.SubCommands[1].SubCommands[0].Flags)
 		t.Log(rootCmd.SubCommands[2].Flags)
@@ -143,24 +292,176 @@ func TestExec(t *testing.T) {
 	var outBuf = bufio.NewWriterSize(outX, 16384)
 	var errBuf = bufio.NewWriterSize(errX, 16384)
 	cmdr.SetInternalOutputStreams(outBuf, errBuf)
+	cmdr.SetCustomShowVersion(nil)
+	cmdr.SetCustomShowBuildInfo(nil)
 
 	defer func() {
-		t.Log("--------- stdout")
+		t.Logf("--------- stdout // %v // %v", cmdr.GetExcutableDir(), cmdr.GetExcutablePath())
 		t.Log(outX.String())
+
+		_ = cmdr.EnsureDir("ci")
+		if err = cmdr.EnsureDir(""); err == nil {
+			t.Failed()
+		}
+		if err = cmdr.EnsureDir(".tmp"); err == nil {
+			_ = os.Remove(".tmp")
+		}
+
+		cmdr.SetPredefinedLocations([]string{})
+		if len(cmdr.GetPredefinedLocations()) != 0 {
+			t.Failed()
+		}
 	}()
 
+	copyRootCmd = rootCmd
+
+	var clcl = &cfgLoaded{}
+	cmdr.AddOnConfigLoadedListener(clcl)
+
+	// 	_ = ioutil.WriteFile(".tmp.toml", []byte(`
+	// `), 0644)
+	// 	_ = ioutil.WriteFile(".tmp.json", []byte(`{
+	// "app": {
+	//   "debug": false
+	// 	}}
+	// `), 0644)
+	_ = ioutil.WriteFile(".tmp.yaml", []byte(`
+app:
+  debug: false
+  ms:
+    tags:
+      modify:
+        wed: [3, 4]
+`), 0644)
+	_ = cmdr.EnsureDir("conf.d")
+	_ = ioutil.WriteFile("conf.d/tmp.yaml", []byte(`
+app:
+  debug: false
+  ms:
+    tags:
+      modify:
+        wed: [3, 4]
+`), 0644)
+	// _ = cmdr.LoadConfigFile(".tmp.json")
+	// _ = cmdr.LoadConfigFile(".tmp.toml")
+	if err = cmdr.LoadConfigFile(".tmp.yaml"); err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%v, %v", cmdr.GetUsedConfigFile(), cmdr.GetUsedConfigSubDir())
+	_ = ioutil.WriteFile("conf.d/tmp.yaml", []byte(`
+app:
+  debug: true
+  ms:
+    tags:
+      modify:
+        wed: [3, 4]
+`), 0644)
+	_ = ioutil.WriteFile("conf.d/tmp.json", []byte(`{"app":{"debug":false}}`), 0644)
+	_ = ioutil.WriteFile("conf.d/tmp.toml", []byte(``), 0644)
+
+	time.Sleep(2 * time.Second)
+	_ = os.Remove("conf.d/tmp.yaml")
+	_ = os.Remove("conf.d/tmp.json")
+	_ = os.Remove("conf.d/tmp.toml")
+	_ = os.Remove("conf.d")
+	_ = os.Remove(".tmp.yaml")
+	_ = os.Remove(".tmp.json")
+	_ = os.Remove(".tmp.toml")
+	cmdr.SetOnConfigLoadedListener(clcl, false)
+	cmdr.RemoveOnConfigLoadedListener(clcl)
+
+	t.Log("xxx: -------- loops for execTestings")
 	for sss, verifier := range execTestings {
 		cmdr.Set("kv.port", 8500)
 		cmdr.Set("ms.tags.port", 8500)
+		cmdr.SetNx("app.help", false)
+		cmdr.SetNx("app.help-zsh", false)
+		cmdr.SetNx("app.help-bash", false)
+		cmdr.SetNx("app.debug", false)
+		cmdr.SetNx("app.verbose", false)
+		cmdr.SetNx("help", false)
+		cmdr.SetNx("debug", false)
+		cmdr.Set("generate.shell.zsh", false)
+		cmdr.Set("generate.shell.bash", false)
+
+		// cmdr.Set("app.generate.shell.auto", false)
+
+		t.Log(cmdr.Get("app.debug"))
+		t.Log(cmdr.GetInt64("app.retry"))
+		t.Log(cmdr.GetUint("app.retry"))
+		t.Log(cmdr.GetUint64("app.retry"))
+
+		t.Log(cmdr.GetStringSlice("app.ms.tags.modify.set"))
+		t.Log(cmdr.GetStringSliceP("app", "ms.tags.modify.set"))
+		t.Log(cmdr.GetIntSlice("app.ms.tags.modify.xed"))
+		t.Log(cmdr.GetIntSliceP("app", "ms.tags.modify.xed"))
+		t.Log(cmdr.GetDuration("app.ms.tags.modify.v"))
+		t.Log(cmdr.GetDurationP("app", "ms.tags.modify.v"))
+
+		// comma separator string -> int slice
+		t.Log(cmdr.GetIntSlice("app.ms.tags.modify.ued"))
+		// string slice -> int slice
+		t.Log(cmdr.GetIntSlice("app.ms.tags.modify.wed"))
+
+		t.Log(cmdr.GetInt64P("app", "retry"))
+		t.Log(cmdr.GetUintP("app", "retry"))
+		t.Log(cmdr.GetUint64P("app", "retry"))
+
+		if cmdr.GetStrictMode() == false {
+			if cmdr.GetQuietMode() == false {
+				t.Log("xxx: ", sss)
+			}
+		}
 
 		if err = cmdr.InternalExecFor(rootCmd, strings.Split(sss, " ")); err != nil {
 			t.Fatal(err)
-		} else {
-			if err = verifier(t); err != nil {
-				t.Fatal(err)
-			}
 		}
+		if sss == "consul-tags kv unknown" {
+			errX = bytes.NewBufferString("")
+		}
+		if err = verifier(t); err != nil {
+			t.Fatal(err)
+		}
+
 	}
+
+	if cmdr.FindSubCommand("ms", &rootCmd.Command) == nil {
+		t.Fatal("cannot find `ms`")
+	}
+	if cmdr.FindSubCommandRecursive("modify", &rootCmd.Command) == nil {
+		t.Fatal("cannot find `tags`")
+	}
+	if cmdr.FindFlag("spasswd", &rootCmd.Command) == nil {
+		t.Fatal("cannot find `spasswd`")
+	}
+	if cmdr.FindFlagRecursive("add", &rootCmd.Command) == nil {
+		t.Fatal("cannot find `add`")
+	}
+
+	os.Args = []string{"consul-tags", "kv", "b"}
+	cmdr.SetInternalOutputStreams(nil, nil)
+	_ = cmdr.Exec(rootCmd)
+	_ = cmdr.ExecWith(rootCmd, nil, nil)
+
+	_ = cmdr.SaveAsYaml(".tmp.json")
+	if err = cmdr.SaveAsToml(".tmp.json"); err != nil {
+		// t.Fatal(err)
+	}
+	_ = cmdr.SaveAsJSON(".tmp.json")
+	// _ = os.Remove(".tmp.json")
+
+	cmdr.AddOnAfterXrefBuilt(func(root *cmdr.RootCommand, args []string) {
+		return
+	})
+	cmdr.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
+		return
+	})
+	cmdr.AddOnConfigLoadedListener(&cfgLoaded{})
+	_ = cmdr.ExecWith(rootCmd, func(root *cmdr.RootCommand, args []string) {
+		return
+	}, func(root *cmdr.RootCommand, args []string) {
+		return
+	})
 
 	if errX.Len() > 0 {
 		t.Log("--------- stderr")
@@ -171,6 +472,75 @@ func TestExec(t *testing.T) {
 var (
 	// testing args
 	execTestings = map[string]func(t *testing.T) error{
+		"consul-tags --version": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags -#": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags --help --help-zsh 1": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags --help --help-bash": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags gen man": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags gen shell": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags gen shell --zsh": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags gen shell --bash": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags --tree": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags gen doc": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags gen markdown": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags gen pdf": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags gen docx": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags gen tex": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags gen doc --pdf": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags gen doc --markdown": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags gen doc --tex": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags kv b -K- -K+ --": func(t *testing.T) error {
+			// gocov Command.PrintXXX
+			fmt.Println("consul-tags kv b -------- no errors")
+			return nil
+		},
+		"consul-tags -t3 -s5 -pp kv b ~~": func(t *testing.T) error {
+			// gocov Command.PrintXXX
+			fmt.Println("consul-tags kv b -------- no errors")
+			return nil
+		},
+		"consul-tags kv b ~": func(t *testing.T) error {
+			// gocov Command.PrintXXX
+			fmt.Println("consul-tags kv b -------- no errors")
+			return nil
+		},
+		"consul-tags kv unknown": func(t *testing.T) error {
+			return nil
+		},
 		"consul-tags ms tags modify -h ~~debug --port8509 --prefix/": func(t *testing.T) error {
 			if cmdr.GetInt("app.ms.tags.port") != 8509 || cmdr.GetString("app.ms.tags.prefix") != "/" ||
 				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") {
@@ -199,7 +569,7 @@ var (
 			}
 			return nil
 		},
-		"consul-tags -vD ms tags modify --prefix'' -? ~~debug --port8509 -p8507 -p=8506 -p 8503": func(t *testing.T) error {
+		"consul-tags -vD ms tags -K- modify --prefix'' -a a,b,v -z 1,2,3 -x '-1,-2' -? ~~debug --port8509 -p8507 -p=8506 -p 8503": func(t *testing.T) error {
 			if cmdr.GetInt("app.ms.tags.port") != 8503 || cmdr.GetString("app.ms.tags.prefix") != "" ||
 				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") ||
 				!cmdr.GetVerboseMode() || !cmdr.GetDebugMode() {
@@ -214,6 +584,8 @@ var (
 
 	// testing rootCmd
 
+	copyRootCmd *cmdr.RootCommand
+
 	rootCmd = &cmdr.RootCommand{
 		Command: cmdr.Command{
 			BaseOpt: cmdr.BaseOpt{
@@ -221,9 +593,74 @@ var (
 			},
 			Flags: []*cmdr.Flag{
 				// global options here.
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Short:       "t",
+						Full:        "retry",
+						Description: "ss",
+					},
+					DefaultValue:            1,
+					DefaultValuePlaceholder: "RETRY",
+				},
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Short:       "s",
+						Full:        "",
+						Description: "",
+						Action: func(cmd *cmdr.Command, args []string) (err error) {
+							flg := cmd.Flags[0]
+							if flg.GetDescZsh() != "ss" {
+								err = errors.New("err `t`.GetDescZsh()")
+							}
+							if flg.GetTitleZshFlagNames(",") == "" {
+								err = errors.New("err ss.GetTitleZshFlagNames()")
+							}
+							if len(flg.GetTitleZshFlagNamesArray()) != 2 {
+								err = errors.New("err ss.GetTitleZshFlagNamesArray()")
+							}
+							flg = cmd.Flags[1]
+							if len(flg.GetDescZsh()) == 0 {
+								err = errors.New("err sss.GetDescZsh()")
+							}
+							if flg.GetTitleZshFlagNames(",") == "" {
+								err = errors.New("err ss.GetTitleZshFlagNames()")
+							}
+							if len(flg.GetTitleZshFlagNamesArray()) != 2 {
+								err = errors.New("err ss.GetTitleZshFlagNamesArray()")
+							}
+							flg = cmd.Flags[2]
+							if len(flg.GetDescZsh()) == 0 {
+								err = errors.New("err ssss.GetDescZsh()")
+							}
+							if flg.GetTitleZshFlagNames(",") == "" {
+								err = errors.New("err ss.GetTitleZshFlagNames()")
+							}
+							if len(flg.GetTitleZshFlagNamesArray()) != 2 {
+								err = errors.New("err ss.GetTitleZshFlagNamesArray()")
+							}
+							return
+						},
+					},
+					DefaultValue: uint(1),
+					// DefaultValuePlaceholder: "RETRY",
+				},
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Short:       "pp",
+						Full:        "spasswd",
+						Description: "",
+					},
+					DefaultValue: "",
+					// DefaultValuePlaceholder: "RETRY",
+					ExternalTool: cmdr.ExternalToolPasswordInput,
+				},
 			},
-			// PreAction:  Pre,
-			// PostAction: Post,
+			PreAction: func(cmd *cmdr.Command, args []string) (err error) {
+				return
+			},
+			PostAction: func(cmd *cmdr.Command, args []string) {
+				return
+			},
 			SubCommands: []*cmdr.Command{
 				// dnsCommands,
 				// playCommand,
@@ -249,6 +686,7 @@ var (
 			Full:        "server",
 			Aliases:     []string{"serve", "svr"},
 			Description: "server ops: for linux service/daemon.",
+			Deprecated:  "1.0",
 		},
 		SubCommands: []*cmdr.Command{
 			{
@@ -321,7 +759,39 @@ var (
 					Full:        "backup",
 					Aliases:     []string{"bk", "bf", "bkp"},
 					Description: "Dump Consul's KV database to a JSON/YAML file",
-					// Action:      kvBackup,
+					Group:       "bbb",
+					Action: func(cmd *cmdr.Command, args []string) (err error) {
+						// for gocov
+						cmd.PrintHelp(false)
+						cmd.PrintVersion()
+
+						if cmd.GetRoot() != copyRootCmd {
+							return errors.New("failed: root is wrong")
+						}
+						if copyRootCmd.IsRoot() != true {
+							return errors.New("failed: root test is wrong")
+						}
+						if cmd.GetHitStr() != "b" {
+							return errors.New("failed: GetHitStr() is wrong")
+						}
+						if cmd.GetName() != "backup" {
+							return errors.New("failed: GetName() is wrong")
+						}
+						if cmd.GetExpandableNames() != "{backup,b}" {
+							return errors.New("failed: GetExpandableNames() is wrong")
+						}
+						if cmd.GetQuotedGroupName() != "[bbb]" {
+							return errors.New("failed: GetQuotedGroupName() is wrong")
+						}
+
+						if cmd.GetParentName() != "kv" {
+							return errors.New("failed: GetParentName() is wrong")
+						}
+						if cmd.GetOwner().GetSubCommandNamesBy(",") != "b,backup,bk,bf,bkp,r,restore" {
+							return errors.New(fmt.Sprintf("failed: GetSubCommandNamesBy() is wrong: '%s'", cmd.GetOwner().GetSubCommandNamesBy(",")))
+						}
+						return
+					},
 				},
 				Flags: []*cmdr.Flag{
 					{
@@ -329,10 +799,17 @@ var (
 							Short:       "o",
 							Full:        "output",
 							Description: "Write output to a file (*.json / *.yml)",
+							Deprecated:  "2.0",
 						},
 						DefaultValue:            "consul-backup.json",
 						DefaultValuePlaceholder: "FILE",
 					},
+				},
+				PreAction: func(cmd *cmdr.Command, args []string) (err error) {
+					return
+				},
+				PostAction: func(cmd *cmdr.Command, args []string) {
+					return
 				},
 			},
 			{
@@ -493,6 +970,50 @@ var (
 						},
 						DefaultValue:            []string{},
 						DefaultValuePlaceholder: "LIST",
+					},
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:       "u",
+							Full:        "ued",
+							Description: "a comma list to be removed.",
+						},
+						DefaultValue:            "7,99",
+						DefaultValuePlaceholder: "LIST",
+					},
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:       "w",
+							Full:        "wed",
+							Description: "a comma list to be removed.",
+						},
+						DefaultValue:            []string{"2", "3"},
+						DefaultValuePlaceholder: "LIST",
+					},
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:       "z",
+							Full:        "zed",
+							Description: "a comma list to be removed.",
+						},
+						DefaultValue:            []uint{2, 3},
+						DefaultValuePlaceholder: "LIST",
+					},
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:       "x",
+							Full:        "xed",
+							Description: "a comma list to be removed.",
+						},
+						DefaultValue:            []int{4, 5},
+						DefaultValuePlaceholder: "LIST",
+					},
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:       "v",
+							Full:        "ved",
+							Description: "a comma list to be removed.",
+						},
+						DefaultValue: 2 * time.Second,
 					},
 				},
 			},

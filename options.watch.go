@@ -100,16 +100,16 @@ func (s *Options) loadConfigFile(file string) (err error) {
 
 	m = make(map[string]interface{})
 	switch path.Ext(file) {
-	case "toml", "ini", "conf":
-		if err = toml.Unmarshal(b, m); err != nil {
+	case ".toml", ".ini", ".conf", "toml":
+		if err = toml.Unmarshal(b, &m); err != nil {
 			return
 		}
-	case "json":
-		if err = json.Unmarshal(b, m); err != nil {
+	case ".json", "json":
+		if err = json.Unmarshal(b, &m); err != nil {
 			return
 		}
 	default:
-		if err = yaml.Unmarshal(b, m); err != nil {
+		if err = yaml.Unmarshal(b, &m); err != nil {
 			return
 		}
 	}
@@ -133,16 +133,16 @@ func (s *Options) mergeConfigFile(fr io.Reader, ext string) (err error) {
 
 	m = make(map[string]interface{})
 	switch ext {
-	case "toml", "ini", "conf":
-		if err = toml.Unmarshal(buf.Bytes(), m); err != nil {
+	case ".toml", ".ini", ".conf", "toml":
+		if err = toml.Unmarshal(buf.Bytes(), &m); err != nil {
 			return
 		}
-	case "json":
-		if err = json.Unmarshal(buf.Bytes(), m); err != nil {
+	case ".json", "json":
+		if err = json.Unmarshal(buf.Bytes(), &m); err != nil {
 			return
 		}
 	default:
-		if err = yaml.Unmarshal(buf.Bytes(), m); err != nil {
+		if err = yaml.Unmarshal(buf.Bytes(), &m); err != nil {
 			return
 		}
 	}
@@ -168,7 +168,7 @@ func (s *Options) visit(path string, f os.FileInfo, e error) (err error) {
 				// log.Warnf("ERROR: os.Open() returned %v", err)
 			} else {
 				defer file.Close()
-				err = s.mergeConfigFile(bufio.NewReader(file), ext[1:])
+				err = s.mergeConfigFile(bufio.NewReader(file), ext)
 				configFiles = append(configFiles, path)
 				// env := viper.Get("app.registrar.env")
 				// key := fmt.Sprintf("app.registrar.consul.%s.addr", env)

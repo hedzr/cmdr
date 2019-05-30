@@ -26,8 +26,12 @@ func Exec(rootCmd *RootCommand) (err error) {
 
 // ExecWith is main entry of `cmdr`.
 func ExecWith(rootCmd *RootCommand, beforeXrefBuildingX, afterXrefBuiltX HookXrefFunc) (err error) {
-	beforeXrefBuilding = append(beforeXrefBuilding, beforeXrefBuildingX)
-	afterXrefBuilt = append(afterXrefBuilt, afterXrefBuiltX)
+	if beforeXrefBuildingX != nil {
+		beforeXrefBuilding = append(beforeXrefBuilding, beforeXrefBuildingX)
+	}
+	if afterXrefBuiltX != nil {
+		afterXrefBuilt = append(afterXrefBuilt, afterXrefBuiltX)
+	}
 	err = InternalExecFor(rootCmd, os.Args)
 	return
 }
@@ -139,17 +143,17 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 				pkg.fn = pkg.a[2:]
 				findValueAttached(pkg, &pkg.fn)
 			} else {
+				pkg.suffix = pkg.a[len(pkg.a)-1]
+				if pkg.suffix == '+' || pkg.suffix == '-' {
+					pkg.a = pkg.a[0 : len(pkg.a)-1]
+				} else {
+					pkg.suffix = 0
+				}
+
 				pkg.fn = pkg.a[1:2]
 				pkg.savedFn = pkg.a[2:]
 				pkg.short = true
 				findValueAttached(pkg, &pkg.savedFn)
-			}
-
-			pkg.suffix = pkg.fn[len(pkg.fn)-1]
-			if pkg.suffix == '+' || pkg.suffix == '-' {
-				pkg.fn = pkg.fn[0 : len(pkg.fn)-1]
-			} else {
-				pkg.suffix = 0
 			}
 
 			// fn + val
@@ -283,11 +287,11 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 		}
 	}
 
-	if GetIntP(getPrefix(), "help-zsh") > 0 || GetBoolP(getPrefix(), "help-bash") {
-		if len(goCommand.SubCommands) == 0 && !pkg.needFlagsHelp {
-			// pkg.needFlagsHelp = true
-		}
-	}
+	// if GetIntP(getPrefix(), "help-zsh") > 0 || GetBoolP(getPrefix(), "help-bash") {
+	// 	if len(goCommand.SubCommands) == 0 && !pkg.needFlagsHelp {
+	// 		// pkg.needFlagsHelp = true
+	// 	}
+	// }
 
 	printHelp(goCommand, pkg.needFlagsHelp)
 
@@ -306,25 +310,25 @@ func getArgs(pkg *ptpkg, args []string) []string {
 	return a
 }
 
-func isTypeInt(kind reflect.Kind) bool {
-	switch kind {
-	case reflect.Int:
-	case reflect.Int8:
-	case reflect.Int16:
-	case reflect.Int32:
-	case reflect.Int64:
-	case reflect.Uint:
-	case reflect.Uint8:
-	case reflect.Uint16:
-	case reflect.Uint32:
-	case reflect.Uint64:
-	default:
-		return false
-	}
-	return true
-}
+// func isTypeInt(kind reflect.Kind) bool {
+// 	switch kind {
+// 	case reflect.Int:
+// 	case reflect.Int8:
+// 	case reflect.Int16:
+// 	case reflect.Int32:
+// 	case reflect.Int64:
+// 	case reflect.Uint:
+// 	case reflect.Uint8:
+// 	case reflect.Uint16:
+// 	case reflect.Uint32:
+// 	case reflect.Uint64:
+// 	default:
+// 		return false
+// 	}
+// 	return true
+// }
 
-func isTypeUInt(kind reflect.Kind) bool {
+func isTypeUint(kind reflect.Kind) bool {
 	switch kind {
 	case reflect.Uint:
 	case reflect.Uint8:
@@ -449,7 +453,7 @@ func tryExtractingValue(pkg *ptpkg, args []string) (err error) {
 			if err = processTypeIntSlice(pkg, args); err != nil {
 				return
 			}
-		} else if isTypeSInt(typ.Kind()) {
+		} else if isTypeUint(typ.Kind()) {
 			if err = processTypeUintSlice(pkg, args); err != nil {
 				return
 			}
@@ -460,7 +464,7 @@ func tryExtractingValue(pkg *ptpkg, args []string) (err error) {
 			if err = processTypeInt(pkg, args); err != nil {
 				return
 			}
-		} else if isTypeUInt(kind) {
+		} else if isTypeUint(kind) {
 			if err = processTypeUint(pkg, args); err != nil {
 				return
 			}

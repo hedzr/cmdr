@@ -182,6 +182,16 @@ func stringSliceToIntSlice(in []string) (out []int) {
 	return
 }
 
+// GetIntSlice returns the int slice value of an `Option` key.
+func GetIntSlice(key string) []int {
+	return rxxtOptions.GetIntSlice(key)
+}
+
+// GetIntSliceP returns the int slice value of an `Option` key.
+func GetIntSliceP(prefix, key string) []int {
+	return rxxtOptions.GetIntSlice(fmt.Sprintf("%s.%s", prefix, key))
+}
+
 // GetIntSlice returns the string slice value of an `Option` key.
 func (s *Options) GetIntSlice(key string) (ir []int) {
 	// envkey := s.envKey(key)
@@ -204,6 +214,16 @@ func (s *Options) GetIntSlice(key string) (ir []int) {
 		}
 	}
 	return
+}
+
+// GetDuration returns the int slice value of an `Option` key.
+func GetDuration(key string) time.Duration {
+	return rxxtOptions.GetDuration(key)
+}
+
+// GetDurationP returns the int slice value of an `Option` key.
+func GetDurationP(prefix, key string) time.Duration {
+	return rxxtOptions.GetDuration(fmt.Sprintf("%s.%s", prefix, key))
 }
 
 // GetDuration returns the time duration value of an `Option` key.
@@ -327,6 +347,11 @@ func et(keys []string, ix int, val interface{}) interface{} {
 		return p
 	}
 	return val
+}
+
+// Reset the exists `Options`, so that you could follow a `LoadConfigFile()` with it.
+func ResetOptions() {
+	rxxtOptions.Reset()
 }
 
 // Reset the exists `Options`, so that you could follow a `LoadConfigFile()` with it.

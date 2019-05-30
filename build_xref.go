@@ -247,9 +247,9 @@ func buildRootCrossRefs(root *RootCommand) {
 // 	}
 // }
 
-func newCmd() *Command {
-	return ensureCmdMembers(&Command{})
-}
+// func newCmd() *Command {
+// 	return ensureCmdMembers(&Command{})
+// }
 
 func ensureCmdMembers(cmd *Command) *Command {
 	if cmd.allFlags == nil {

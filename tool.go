@@ -65,11 +65,11 @@ func FindFlagRecursive(longName string, cmd *Command) (res *Flag) {
 		}
 	}
 	for _, cx := range cmd.SubCommands {
-		if len(cx.SubCommands) > 0 {
-			if res = FindFlagRecursive(longName, cx); res != nil {
-				return
-			}
+		// if len(cx.SubCommands) > 0 {
+		if res = FindFlagRecursive(longName, cx); res != nil {
+			return
 		}
+		// }
 	}
 	return
 }

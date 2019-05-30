@@ -29,6 +29,8 @@ docs/
 *.deb
 *.rpm
 coverage.txt
+cover.out
+cover.html
 
 ### two executable files
 

@@ -24,6 +24,11 @@ func (c *Command) GetRoot() *RootCommand {
 	return c.root
 }
 
+// GetOwner returns the parent command object
+func (c *Command) GetOwner() *Command {
+	return c.owner
+}
+
 // IsRoot returns true if this command is a RootCommand
 func (c *Command) IsRoot() bool {
 	return c == &c.root.Command

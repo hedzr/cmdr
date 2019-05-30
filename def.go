@@ -235,3 +235,7 @@ func GetVerboseMode() bool {
 func GetQuietMode() bool {
 	return GetBool("app.quiet")
 }
+
+func init() {
+	onConfigReloadedFunctions = make(map[ConfigReloaded]bool)
+}

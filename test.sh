@@ -78,11 +78,18 @@ test() {
 }
 
 gocov() {
+  go test -covermode=atomic -coverprofile cover.out && \
+  go tool cover -html=cover.out -o cover.html && \
+  open cover.html
+}
+
+gocov-codecov() {
+  # https://codecov.io/gh/hedzr/cmdr
   go test -race -coverprofile=coverage.txt -covermode=atomic
   bash <(curl -s https://codecov.io/bash) -t $CODECOV_TOKEN
 }
 
-gocov-open() {
+gocov-codecov-open() {
   open https://codecov.io/gh/hedzr/cmdr
 }
 

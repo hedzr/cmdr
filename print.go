@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
+	"os"
 	"regexp"
 	"sort"
 	"strings"
@@ -319,6 +320,13 @@ GO_PRINT_FLAGS:
 func SetInternalOutputStreams(out, err *bufio.Writer) {
 	defaultStdout = out
 	defaultStderr = err
+
+	if defaultStdout == nil {
+		defaultStdout = bufio.NewWriterSize(os.Stdout, 16384)
+	}
+	if defaultStderr == nil {
+		defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
+	}
 }
 
 // SetCustomShowVersion supports your `ShowVersion()` instead of internal `showVersion()`

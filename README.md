@@ -5,11 +5,9 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/hedzr/cmdr)](https://goreportcard.com/report/github.com/hedzr/cmdr)
 ![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/hedzr/cmdr.svg?label=release)
 
-getopt/getopt_long like command-line UI golang library.
+getopt/getopt_long like command-line UI (CLI) golang library. A replacer for go flags.
 
-A getopt-like parser of command-line options, compatible with the [getopt_long](http://www.gnu.org/s/libc/manual/html_node/Argument-Syntax.html#Argument-Syntax) command line UI, which is an extension of the syntax recommended by POSIX.
-
-`cmdr` is a UNIX/Linux/POSIX command-line UI library written by golang.
+`cmdr` is a UNIX/Linux/POSIX command-line UI library written by golang. It is a getopt-like parser of command-line options, compatible with the [getopt_long](http://www.gnu.org/s/libc/manual/html_node/Argument-Syntax.html#Argument-Syntax) command line UI, which is an extension of the syntax recommended by POSIX.
 
 
 

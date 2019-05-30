@@ -40,6 +40,15 @@ func genShell(cmd *Command, args []string) (err error) {
 	return
 }
 
+// findDeep returns the depth of a command. rootCommand's deep = 1.
+func findDeep(cmd *Command) (deep int) {
+	deep = 1
+	if cmd.owner != nil {
+		deep += findDeep(cmd.owner)
+	}
+	return
+}
+
 func findLvl(cmd *Command, lvl int) (lvlMax int) {
 	lvlMax = lvl + 1
 	for _, cc := range cmd.SubCommands {

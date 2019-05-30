@@ -24,7 +24,11 @@ func Enable(daemonImplX Daemon, modifier func(daemonServerCommands *cmdr.Command
 
 	cmdr.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
 
-		root.SubCommands = append(root.SubCommands, modifier(DaemonServerCommands))
+		if modifier != nil {
+			root.SubCommands = append(root.SubCommands, modifier(DaemonServerCommands))
+		} else {
+			root.SubCommands = append(root.SubCommands, DaemonServerCommands)
+		}
 
 		prefix = strings.Join(append(cmdr.RxxtPrefix, "server"), ".")
 

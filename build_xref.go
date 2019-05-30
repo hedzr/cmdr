@@ -113,6 +113,18 @@ func buildRootCrossRefs(root *RootCommand) {
 			}
 			root.plainLongFlags["help-zsh"] = root.allFlags[SysMgmtGroup]["help-zsh"]
 			root.plainLongFlags["help-bash"] = root.allFlags[SysMgmtGroup]["help-bash"]
+
+			root.allFlags[SysMgmtGroup]["tree"] = &Flag{
+				BaseOpt: BaseOpt{
+					Full:        "tree",
+					Description: "show a tree for all commands",
+					Hidden:      true,
+					owner:       &root.Command,
+					Action:      dumpTreeForAllCommands,
+				},
+				DefaultValue: false,
+			}
+			root.plainLongFlags["tree"] = root.allFlags[SysMgmtGroup]["tree"]
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["config"]; !ok {
 			root.allFlags[SysMgmtGroup]["config"] = &Flag{

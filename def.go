@@ -118,6 +118,9 @@ type (
 		// It's an environment variable name, such as: "EDITOR" (or cmdr.ExternalToolEditor)
 		ExternalTool string
 
+		// PostAction treat this flag as a command!
+		PostAction func(cmd *Command, args []string) (err error)
+
 		// by default, a flag is always `optional`.
 	}
 

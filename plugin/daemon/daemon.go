@@ -24,7 +24,7 @@ func Enable(daemonImplX Daemon, modifier func(daemonServerCommands *cmdr.Command
 
 	cmdr.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
 
-		root.SubCommands = append(root.SubCommands, DaemonServerCommands)
+		root.SubCommands = append(root.SubCommands, modifier(DaemonServerCommands))
 
 		prefix = strings.Join(append(cmdr.RxxtPrefix, "server"), ".")
 
@@ -146,10 +146,10 @@ func daemonRestart(cmd *cmdr.Command, args []string) (err error) {
 	p, err := daemonCtx.Search()
 	if err != nil {
 		fmt.Printf("%v is stopped.\n", cmd.GetRoot().AppName)
-	}
-
-	if err = p.Signal(syscall.SIGHUP); err != nil {
-		return
+	} else {
+		if err = p.Signal(syscall.SIGHUP); err != nil {
+			return
+		}
 	}
 	return
 }

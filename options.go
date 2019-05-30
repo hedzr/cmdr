@@ -5,8 +5,11 @@
 package cmdr
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/pelletier/go-toml"
 	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"os"
 	"reflect"
 	"sort"
@@ -390,6 +393,46 @@ func DumpAsString() (str string) {
 	return rxxtOptions.DumpAsString()
 }
 
+// Save all config entries as a yaml file
+func SaveAsYaml(filename string) (err error) {
+	obj := rxxtOptions.GetHierarchyList()
+
+	b, err := yaml.Marshal(obj)
+	if err != nil {
+		return
+	}
+	
+	err = ioutil.WriteFile(filename, b, 0644)
+	return
+}
+
+// Save all config entries as a json file
+func SaveAsJson(filename string) (err error) {
+	obj := rxxtOptions.GetHierarchyList()
+
+	b, err := json.Marshal(obj)
+	if err != nil {
+		return
+	}
+
+	err = ioutil.WriteFile(filename, b, 0644)
+	return
+}
+
+// Save all config entries as a toml file
+func SaveAsToml(filename string) (err error) {
+	obj := rxxtOptions.GetHierarchyList()
+
+	b, err := toml.Marshal(obj)
+	if err != nil {
+		return
+	}
+
+	err = ioutil.WriteFile(filename, b, 0644)
+	return
+}
+
+
 // DumpAsString for debugging.
 func (s *Options) DumpAsString() (str string) {
 	k3 := make([]string, 0)
@@ -408,4 +451,9 @@ func (s *Options) DumpAsString() (str string) {
 		str += string(b)
 	}
 	return
+}
+
+// GetHierarchyList returns the hierarchy data for dumping
+func (s *Options) GetHierarchyList()  map[string]interface{} {
+	return s.hierarchy
 }

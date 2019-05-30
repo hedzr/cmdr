@@ -28,6 +28,7 @@ docs/
 *.dmg
 *.deb
 *.rpm
+coverage.txt
 
 ### two executable files
 

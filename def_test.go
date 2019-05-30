@@ -217,10 +217,10 @@ var (
 	rootCmd = &cmdr.RootCommand{
 		Command: cmdr.Command{
 			BaseOpt: cmdr.BaseOpt{
-				Name:  "consul-tags",
-				Flags: []*cmdr.Flag{
-					// global options here.
-				},
+				Name: "consul-tags",
+			},
+			Flags: []*cmdr.Flag{
+				// global options here.
 			},
 			// PreAction:  Pre,
 			// PostAction: Post,
@@ -312,8 +312,8 @@ var (
 			Full:        "kv",
 			Aliases:     []string{"kvstore"},
 			Description: "consul kv store operations...",
-			Flags:       *cmdr.Clone(&consulConnectFlags, &[]*cmdr.Flag{}).(*[]*cmdr.Flag),
 		},
+		Flags:       *cmdr.Clone(&consulConnectFlags, &[]*cmdr.Flag{}).(*[]*cmdr.Flag),
 		SubCommands: []*cmdr.Command{
 			{
 				BaseOpt: cmdr.BaseOpt{
@@ -322,16 +322,16 @@ var (
 					Aliases:     []string{"bk", "bf", "bkp"},
 					Description: "Dump Consul's KV database to a JSON/YAML file",
 					// Action:      kvBackup,
-					Flags: []*cmdr.Flag{
-						{
-							BaseOpt: cmdr.BaseOpt{
-								Short:                   "o",
-								Full:                    "output",
-								Description:             "Write output to a file (*.json / *.yml)",
-								DefaultValuePlaceholder: "FILE",
-							},
-							DefaultValue: "consul-backup.json",
+				},
+				Flags: []*cmdr.Flag{
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:       "o",
+							Full:        "output",
+							Description: "Write output to a file (*.json / *.yml)",
 						},
+						DefaultValue:            "consul-backup.json",
+						DefaultValuePlaceholder: "FILE",
 					},
 				},
 			},
@@ -341,16 +341,16 @@ var (
 					Full:        "restore",
 					Description: "restore to Consul's KV store, from a a JSON/YAML backup file",
 					// Action:      kvRestore,
-					Flags: []*cmdr.Flag{
-						{
-							BaseOpt: cmdr.BaseOpt{
-								Short:                   "i",
-								Full:                    "input",
-								Description:             "read the input file (*.json / *.yml)",
-								DefaultValuePlaceholder: "FILE",
-							},
-							DefaultValue: "consul-backup.json",
+				},
+				Flags: []*cmdr.Flag{
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:       "i",
+							Full:        "input",
+							Description: "read the input file (*.json / *.yml)",
 						},
+						DefaultValue:            "consul-backup.json",
+						DefaultValuePlaceholder: "FILE",
 					},
 				},
 			},
@@ -363,33 +363,33 @@ var (
 			Full:        "ms",
 			Aliases:     []string{"microservice", "micro-service"},
 			Description: "micro-service operations...",
-			Flags: []*cmdr.Flag{
-				{
-					BaseOpt: cmdr.BaseOpt{
-						Short:                   "n",
-						Full:                    "name",
-						Description:             "name of the service",
-						DefaultValuePlaceholder: "NAME",
-					},
-					DefaultValue: "",
+		},
+		Flags: []*cmdr.Flag{
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:                   "n",
+					Full:                    "name",
+					Description:             "name of the service",
 				},
-				{
-					BaseOpt: cmdr.BaseOpt{
-						Short:                   "i",
-						Full:                    "id",
-						Description:             "unique id of the service",
-						DefaultValuePlaceholder: "ID",
-					},
-					DefaultValue: "",
+				DefaultValue: "",
+				DefaultValuePlaceholder: "NAME",
+			},
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:                   "i",
+					Full:                    "id",
+					Description:             "unique id of the service",
 				},
-				{
-					BaseOpt: cmdr.BaseOpt{
-						Short:       "a",
-						Full:        "all",
-						Description: "all services",
-					},
-					DefaultValue: false,
+				DefaultValue: "",
+				DefaultValuePlaceholder: "ID",
+			},
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:       "a",
+					Full:        "all",
+					Description: "all services",
 				},
+				DefaultValue: false,
 			},
 		},
 		SubCommands: []*cmdr.Command{
@@ -412,8 +412,8 @@ var (
 			Full:        "tags",
 			Aliases:     []string{},
 			Description: "tags op.",
-			Flags:       *cmdr.Clone(&consulConnectFlags, &[]*cmdr.Flag{}).(*[]*cmdr.Flag),
 		},
+		Flags:       *cmdr.Clone(&consulConnectFlags, &[]*cmdr.Flag{}).(*[]*cmdr.Flag),
 		SubCommands: []*cmdr.Command{
 			{
 				BaseOpt: cmdr.BaseOpt{
@@ -431,17 +431,17 @@ var (
 					Aliases:     []string{"create", "new"},
 					Description: "add tags.",
 					// Action:      msTagsAdd,
-					Flags: []*cmdr.Flag{
-						{
-							BaseOpt: cmdr.BaseOpt{
-								Short:                   "ls",
-								Full:                    "list",
-								Aliases:                 []string{"l", "lst", "dir"},
-								Description:             "a comma list to be added",
-								DefaultValuePlaceholder: "LIST",
-							},
-							DefaultValue: []string{},
+				},
+				Flags: []*cmdr.Flag{
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:                   "ls",
+							Full:                    "list",
+							Aliases:                 []string{"l", "lst", "dir"},
+							Description:             "a comma list to be added",
 						},
+						DefaultValue: []string{},
+						DefaultValuePlaceholder: "LIST",
 					},
 				},
 			},
@@ -452,17 +452,17 @@ var (
 					Aliases:     []string{"remove", "erase", "delete", "del"},
 					Description: "remove tags.",
 					// Action:      msTagsRemove,
-					Flags: []*cmdr.Flag{
-						{
-							BaseOpt: cmdr.BaseOpt{
-								Short:                   "ls",
-								Full:                    "list",
-								Aliases:                 []string{"l", "lst", "dir"},
-								Description:             "a comma list to be added.",
-								DefaultValuePlaceholder: "LIST",
-							},
-							DefaultValue: []string{},
+				},
+				Flags: []*cmdr.Flag{
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:                   "ls",
+							Full:                    "list",
+							Aliases:                 []string{"l", "lst", "dir"},
+							Description:             "a comma list to be added.",
 						},
+						DefaultValue: []string{},
+						DefaultValuePlaceholder: "LIST",
 					},
 				},
 			},
@@ -473,26 +473,26 @@ var (
 					Aliases:     []string{"mod", "update", "change"},
 					Description: "modify tags.",
 					// Action:      msTagsModify,
-					Flags: []*cmdr.Flag{
-						{
-							BaseOpt: cmdr.BaseOpt{
-								Short:                   "a",
-								Full:                    "add",
-								Description:             "a comma list to be added.",
-								DefaultValuePlaceholder: "LIST",
-							},
-							DefaultValue: []string{},
+				},
+				Flags: []*cmdr.Flag{
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:                   "a",
+							Full:                    "add",
+							Description:             "a comma list to be added.",
 						},
-						{
-							BaseOpt: cmdr.BaseOpt{
-								Short:                   "r",
-								Full:                    "rm",
-								Aliases:                 []string{"remove", "erase", "del"},
-								Description:             "a comma list to be removed.",
-								DefaultValuePlaceholder: "LIST",
-							},
-							DefaultValue: []string{},
+						DefaultValue: []string{},
+						DefaultValuePlaceholder: "LIST",
+					},
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:                   "r",
+							Full:                    "rm",
+							Aliases:                 []string{"remove", "erase", "del"},
+							Description:             "a comma list to be removed.",
 						},
+						DefaultValue: []string{},
+						DefaultValuePlaceholder: "LIST",
 					},
 				},
 			},
@@ -503,35 +503,35 @@ var (
 					Aliases:     []string{"tog", "switch"},
 					Description: "toggle tags for ms.",
 					// Action:      msTagsToggle,
-					Flags: []*cmdr.Flag{
-						{
-							BaseOpt: cmdr.BaseOpt{
-								Short:                   "x",
-								Full:                    "address",
-								Description:             "the address of the service (by id or name)",
-								DefaultValuePlaceholder: "HOST:PORT",
-							},
-							DefaultValue: "",
+				},
+				Flags: []*cmdr.Flag{
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:                   "x",
+							Full:                    "address",
+							Description:             "the address of the service (by id or name)",
 						},
-						{
-							BaseOpt: cmdr.BaseOpt{
-								Short:                   "s",
-								Full:                    "set",
-								Description:             "set to `tag` which service specified by --address",
-								DefaultValuePlaceholder: "LIST",
-							},
-							DefaultValue: []string{},
+						DefaultValue: "",
+						DefaultValuePlaceholder: "HOST:PORT",
+					},
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:                   "s",
+							Full:                    "set",
+							Description:             "set to `tag` which service specified by --address",
 						},
-						{
-							BaseOpt: cmdr.BaseOpt{
-								Short:                   "u",
-								Full:                    "unset",
-								Aliases:                 []string{"reset"},
-								Description:             "and reset the others service nodes to `tag`",
-								DefaultValuePlaceholder: "LIST",
-							},
-							DefaultValue: []string{},
+						DefaultValue: []string{},
+						DefaultValuePlaceholder: "LIST",
+					},
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:                   "u",
+							Full:                    "unset",
+							Aliases:                 []string{"reset"},
+							Description:             "and reset the others service nodes to `tag`",
 						},
+						DefaultValue: []string{},
+						DefaultValuePlaceholder: "LIST",
 					},
 				},
 			},
@@ -544,72 +544,72 @@ var (
 				Short:                   "a",
 				Full:                    "addr",
 				Description:             "Consul ip/host and port: HOST[:PORT] (No leading 'http(s)://')",
-				DefaultValuePlaceholder: "HOST[:PORT]",
 			},
 			DefaultValue: "consul.ops.local",
+			DefaultValuePlaceholder: "HOST[:PORT]",
 		},
 		{
 			BaseOpt: cmdr.BaseOpt{
 				Short:                   "p",
 				Full:                    "port",
 				Description:             "Consul port",
-				DefaultValuePlaceholder: "PORT",
 			},
 			DefaultValue: 8500,
+			DefaultValuePlaceholder: "PORT",
 		},
 		{
 			BaseOpt: cmdr.BaseOpt{
 				Short:                   "K",
 				Full:                    "insecure",
 				Description:             "Skip TLS host verification",
-				DefaultValuePlaceholder: "PORT",
 			},
 			DefaultValue: true,
+			DefaultValuePlaceholder: "PORT",
 		},
 		{
 			BaseOpt: cmdr.BaseOpt{
 				Short:                   "",
 				Full:                    "prefix",
 				Description:             "Root key prefix",
-				DefaultValuePlaceholder: "ROOT",
 			},
 			DefaultValue: "/",
+			DefaultValuePlaceholder: "ROOT",
 		},
 		{
 			BaseOpt: cmdr.BaseOpt{
 				Short:                   "",
 				Full:                    "cacert",
 				Description:             "Client CA cert",
-				DefaultValuePlaceholder: "FILE",
 			},
 			DefaultValue: "",
+			DefaultValuePlaceholder: "FILE",
 		},
 		{
 			BaseOpt: cmdr.BaseOpt{
 				Short:                   "",
 				Full:                    "cert",
 				Description:             "Client cert",
-				DefaultValuePlaceholder: "FILE",
 			},
 			DefaultValue: "",
+			DefaultValuePlaceholder: "FILE",
 		},
 		{
 			BaseOpt: cmdr.BaseOpt{
 				Short:                   "",
 				Full:                    "scheme",
 				Description:             "Consul connection scheme (HTTP or HTTPS)",
-				DefaultValuePlaceholder: "SCHEME",
 			},
 			DefaultValue: "",
+			DefaultValuePlaceholder: "SCHEME",
 		},
 		{
 			BaseOpt: cmdr.BaseOpt{
 				Short:                   "u",
 				Full:                    "username",
 				Description:             "HTTP Basic auth user",
-				DefaultValuePlaceholder: "USERNAME",
 			},
 			DefaultValue: "",
+			DefaultValuePlaceholder: "USERNAME",
 		},
 		{
 			BaseOpt: cmdr.BaseOpt{
@@ -617,9 +617,9 @@ var (
 				Full:                    "password",
 				Aliases:                 []string{"passwd", "pwd"},
 				Description:             "HTTP Basic auth password",
-				DefaultValuePlaceholder: "PASSWORD",
 			},
 			DefaultValue: "",
+			DefaultValuePlaceholder: "PASSWORD",
 		},
 	}
 )

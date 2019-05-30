@@ -19,7 +19,7 @@ import (
 // - pidfile
 // - go-daemon supports
 // -
-func Enable(daemonImplX Daemon, pre func(cmd *cmdr.Command, args []string) (err error), post func(cmd *cmdr.Command, args []string)) {
+func Enable(daemonImplX Daemon, modifier func(daemonServerCommands *cmdr.Command) *cmdr.Command, preAction func(cmd *cmdr.Command, args []string) (err error), postAction func(cmd *cmdr.Command, args []string)) {
 	daemonImpl = daemonImplX
 
 	cmdr.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
@@ -36,8 +36,8 @@ func Enable(daemonImplX Daemon, pre func(cmd *cmdr.Command, args []string) (err 
 				if err = savedPreAction(cmd, args); err != nil {
 					return
 				}
-				if pre != nil {
-					err = pre(cmd, args)
+				if preAction != nil {
+					err = preAction(cmd, args)
 				}
 				return
 			}
@@ -45,8 +45,8 @@ func Enable(daemonImplX Daemon, pre func(cmd *cmdr.Command, args []string) (err 
 			root.PreAction = func(cmd *cmdr.Command, args []string) (err error) {
 				pidfile.Create(cmd)
 				logger.Setup(cmd)
-				if pre != nil {
-					err = pre(cmd, args)
+				if preAction != nil {
+					err = preAction(cmd, args)
 				}
 				return
 			}
@@ -54,8 +54,8 @@ func Enable(daemonImplX Daemon, pre func(cmd *cmdr.Command, args []string) (err 
 		if root.PostAction != nil {
 			savedPostAction := root.PostAction
 			root.PostAction = func(cmd *cmdr.Command, args []string) {
-				if post != nil {
-					post(cmd, args)
+				if postAction != nil {
+					postAction(cmd, args)
 				}
 				pidfile.Destroy()
 				savedPostAction(cmd, args)
@@ -63,8 +63,8 @@ func Enable(daemonImplX Daemon, pre func(cmd *cmdr.Command, args []string) (err 
 			}
 		} else {
 			root.PostAction = func(cmd *cmdr.Command, args []string) {
-				if post != nil {
-					post(cmd, args)
+				if postAction != nil {
+					postAction(cmd, args)
 				}
 				pidfile.Destroy()
 				return

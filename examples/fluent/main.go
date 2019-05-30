@@ -29,8 +29,8 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 	// cmdr.EnableHelpCommands = false
 	// cmdr.EnableGenerateCommands = false
 
-	daemon.Enable(svr.NewDaemon(), nil, nil)
-	
+	daemon.Enable(svr.NewDaemon(), nil, nil, nil)
+
 	// var cmd *Command
 
 	// cmdr.Root("aa", "1.0.1").
@@ -44,12 +44,12 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 	// 	})
 
 	// root
-	
+
 	root := cmdr.Root("aa", "1.0.1").Header("aa - test for cmdr - no version - hedzr")
 	rootCmd = root.RootCommand()
 
 	// ms
-	
+
 	co := root.NewSubCommand().
 		Titles("ms", "micro-service").
 		Description("", "").
@@ -62,7 +62,7 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 		DefaultValue(3, "RETRY")
 
 	// ms tags
-	
+
 	cTags := co.NewSubCommand().
 		Titles("t", "tags").
 		Description("", "").
@@ -75,7 +75,7 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 		DefaultValue("consul.ops.local", "ADDR")
 
 	// ms tags ls
-	
+
 	cTags.NewSubCommand().
 		Titles("ls", "list").
 		Description("", "").

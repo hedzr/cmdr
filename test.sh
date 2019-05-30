@@ -61,6 +61,32 @@ run-fluent() {
 	go run ./examples/fluent/main.go $*
 }
 
+fmt() {
+	gofmt -l -w -s .
+}
+
+lint() {
+  golint ./...
+}
+
+gotest() {
+  go test ./...
+}
+
+test() {
+  go test ./...
+}
+
+gocov() {
+  go test -race -coverprofile=coverage.txt -covermode=atomic
+  bash <(curl -s https://codecov.io/bash) -t $CODECOV_TOKEN
+}
+
+gocov-open() {
+  open https://codecov.io/gh/hedzr/cmdr
+}
+
+
 [[ $# -eq 0 ]] && {
 	run-demo
 } || {

@@ -6,10 +6,12 @@ package cmdr
 
 import (
 	"fmt"
+	"golang.org/x/crypto/ssh/terminal"
 	"os"
 	"reflect"
 	"strconv"
 	"strings"
+	"syscall"
 )
 
 //
@@ -484,15 +486,30 @@ func preprocessPkg(pkg *ptpkg, args []string) (err error) {
 				pkg.val = args[pkg.i]
 			} else {
 				if len(pkg.flg.ExternalTool) > 0 {
-					editor := os.Getenv(pkg.flg.ExternalTool)
-					if len(editor) == 0 {
-						editor = DefaultEditor
+					switch pkg.flg.ExternalTool {
+					case ExternalToolPasswordInput:
+						fmt.Print("Password: ")
+						var (
+							bytePassword []byte
+						)
+						if bytePassword, err = terminal.ReadPassword(int(syscall.Stdin)); err != nil {
+							fmt.Println() // it's necessary to add a new line after user's input
+							return
+						}
+						fmt.Println() // it's necessary to add a new line after user's input
+						pkg.val = string(bytePassword)
+
+					default:
+						editor := os.Getenv(pkg.flg.ExternalTool)
+						if len(editor) == 0 {
+							editor = DefaultEditor
+						}
+						var content []byte
+						if content, err = LaunchEditor(editor); err != nil {
+							return
+						}
+						pkg.val = string(content)
 					}
-					var content []byte
-					if content, err = LaunchEditor(editor); err != nil {
-						return
-					}
-					pkg.val = string(content)
 				} else if GetStrictMode() {
 					err = fmt.Errorf("unexpect end of command line [i=%v,args=(%v)], need more args for %v", pkg.i, args, pkg)
 					return

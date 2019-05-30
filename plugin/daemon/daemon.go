@@ -118,7 +118,7 @@ func run(cmd *cmdr.Command, args []string) (err error) {
 	log.Printf("daemon ServeSignals, pid = %v", os.Getpid())
 	err = daemon.ServeSignals()
 	if err != nil {
-		log.Printf("Error:", err)
+		log.Println("Error:", err)
 	}
 
 	if daemonImpl != nil {

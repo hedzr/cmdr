@@ -23,6 +23,9 @@ const (
 
 	// ExternalToolEditor environment variable name, EDITOR is fit for most of shells.
 	ExternalToolEditor = "EDITOR"
+
+	// ExternalToolPasswordInput enables secure password input without echo.
+	ExternalToolPasswordInput = "PASSWD"
 )
 
 type (

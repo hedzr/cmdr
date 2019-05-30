@@ -69,6 +69,22 @@ build_fmt () {
 	gofmt -l -w -s .
 }
 
+build_lint() {
+  golint ./...
+}
+
+build_gotest() {
+  go test ./...
+}
+
+build_test() {
+  go test ./...
+}
+
+build_gocov() {
+  go test -race -coverprofile=coverage.txt -covermode=atomic
+}
+
 
 
 build_vagrant() { commander 'build_vagrant' "$@"; }

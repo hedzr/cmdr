@@ -12,6 +12,7 @@ import (
 	"github.com/hedzr/cmdr"
 	"io/ioutil"
 	"os"
+	"path"
 	"reflect"
 	"strings"
 	"testing"
@@ -163,6 +164,23 @@ func TestFluentAPIDefault(t *testing.T) {
 
 func TestLaunch(t *testing.T) {
 	_ = cmdr.Launch("ls")
+	_ = os.Setenv("EDITOR", "ls")
+	_, _ = cmdr.LaunchEditor("EDITOR")
+}
+
+func TestNormalizeDir(t *testing.T) {
+	if cmdr.NormalizeDir("./a") != path.Join(cmdr.GetCurrentDir(), "./a") {
+		t.Failed()
+	}
+	if cmdr.NormalizeDir("../a") != path.Join(cmdr.GetCurrentDir(), "../a") {
+		t.Failed()
+	}
+	if cmdr.NormalizeDir("~/a") != path.Join(os.Getenv("HOME"), "a") {
+		t.Failed()
+	}
+	if cmdr.NormalizeDir("v/a") != "v/a" {
+		t.Failed()
+	}
 	_ = os.Setenv("EDITOR", "ls")
 	_, _ = cmdr.LaunchEditor("EDITOR")
 }
@@ -448,7 +466,7 @@ app:
 		// t.Fatal(err)
 	}
 	_ = cmdr.SaveAsJSON(".tmp.json")
-	// _ = os.Remove(".tmp.json")
+	_ = os.Remove(".tmp.json")
 
 	cmdr.AddOnAfterXrefBuilt(func(root *cmdr.RootCommand, args []string) {
 		return

@@ -59,6 +59,11 @@ func EnsureDir(dir string) (err error) {
 	return
 }
 
+// NormalizeDir make dir name normalized
+func NormalizeDir(s string) string {
+	return normalizeDir(s)
+}
+
 func normalizeDir(s string) string {
 	s = os.Expand(s, os.Getenv)
 	if s[0] == '/' {

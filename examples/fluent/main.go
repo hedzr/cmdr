@@ -15,6 +15,13 @@ func main() {
 	logrus.SetLevel(logrus.DebugLevel)
 	logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
 
+	if err := cmdr.Exec(buildRootCmd()); err != nil {
+		logrus.Fatal(err)
+	}
+}
+
+func buildRootCmd() (rootCmd *cmdr.RootCommand) {
+
 	// To disable internal commands and flags, uncomment the following codes
 	// cmdr.EnableVersionCommands = false
 	// cmdr.EnableVerboseCommands = false
@@ -22,14 +29,8 @@ func main() {
 	// cmdr.EnableHelpCommands = false
 	// cmdr.EnableGenerateCommands = false
 
-	daemon.Enable(svr.NewDaemon())
-
-	if err := cmdr.Exec(sampEntry()); err != nil {
-		logrus.Fatal(err)
-	}
-}
-
-func sampEntry() (rootCmd *cmdr.RootCommand) {
+	daemon.Enable(svr.NewDaemon(), nil, nil)
+	
 	// var cmd *Command
 
 	// cmdr.Root("aa", "1.0.1").
@@ -42,9 +43,13 @@ func sampEntry() (rootCmd *cmdr.RootCommand) {
 	// 		return
 	// 	})
 
+	// root
+	
 	root := cmdr.Root("aa", "1.0.1").Header("aa - test for cmdr - no version - hedzr")
 	rootCmd = root.RootCommand()
 
+	// ms
+	
 	co := root.NewSubCommand().
 		Titles("ms", "micro-service").
 		Description("", "").
@@ -56,6 +61,8 @@ func sampEntry() (rootCmd *cmdr.RootCommand) {
 		Group("").
 		DefaultValue(3, "RETRY")
 
+	// ms tags
+	
 	cTags := co.NewSubCommand().
 		Titles("t", "tags").
 		Description("", "").
@@ -67,6 +74,8 @@ func sampEntry() (rootCmd *cmdr.RootCommand) {
 		Group("").
 		DefaultValue("consul.ops.local", "ADDR")
 
+	// ms tags ls
+	
 	cTags.NewSubCommand().
 		Titles("ls", "list").
 		Description("", "").

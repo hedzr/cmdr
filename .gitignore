@@ -19,6 +19,15 @@ man*/
 *.8
 .vagrant/
 docs/
+*.gz
+*.zip
+*.rar
+*.tgz
+*.tar
+*.bz2
+*.dmg
+*.deb
+*.rpm
 
 ### two executable files
 

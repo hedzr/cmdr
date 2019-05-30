@@ -15,6 +15,7 @@ var (
 			Full:        "server",
 			Aliases:     []string{"serve", "svr", "daemon"},
 			Description: "server ops: for linux daemon.",
+			Group:       "Daemonization",
 		},
 		SubCommands: []*cmdr.Command{
 			{

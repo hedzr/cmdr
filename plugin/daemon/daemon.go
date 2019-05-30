@@ -19,7 +19,7 @@ import (
 // - pidfile
 // - go-daemon supports
 // -
-func Enable(daemonImplX Daemon) {
+func Enable(daemonImplX Daemon, pre func(cmd *cmdr.Command, args []string) (err error), post func(cmd *cmdr.Command, args []string)) {
 	daemonImpl = daemonImplX
 
 	cmdr.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
@@ -33,15 +33,40 @@ func Enable(daemonImplX Daemon) {
 			root.PreAction = func(cmd *cmdr.Command, args []string) (err error) {
 				pidfile.Create(cmd)
 				logger.Setup(cmd)
-				err = savedPreAction(cmd, args)
+				if err = savedPreAction(cmd, args); err != nil {
+					return
+				}
+				if pre != nil {
+					err = pre(cmd, args)
+				}
+				return
+			}
+		} else {
+			root.PreAction = func(cmd *cmdr.Command, args []string) (err error) {
+				pidfile.Create(cmd)
+				logger.Setup(cmd)
+				if pre != nil {
+					err = pre(cmd, args)
+				}
 				return
 			}
 		}
 		if root.PostAction != nil {
 			savedPostAction := root.PostAction
 			root.PostAction = func(cmd *cmdr.Command, args []string) {
+				if post != nil {
+					post(cmd, args)
+				}
 				pidfile.Destroy()
 				savedPostAction(cmd, args)
+				return
+			}
+		} else {
+			root.PostAction = func(cmd *cmdr.Command, args []string) {
+				if post != nil {
+					post(cmd, args)
+				}
+				pidfile.Destroy()
 				return
 			}
 		}

@@ -24,7 +24,7 @@ func Entry() {
 	// cmdr.EnableHelpCommands = false
 	// cmdr.EnableGenerateCommands = false
 
-	daemon.Enable(svr.NewDaemon())
+	daemon.Enable(svr.NewDaemon(), nil, nil)
 
 	if err := cmdr.Exec(rootCmd); err != nil {
 		logrus.Errorf("Error: %v", err)

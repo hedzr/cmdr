@@ -16,6 +16,64 @@ import (
 	"text/template"
 )
 
+// FindSubCommand find sub-command with `longName` from `cmd`
+func FindSubCommand(longName string, cmd *Command) (res *Command) {
+	for _, cx := range cmd.SubCommands {
+		if longName == cx.Full {
+			res = cx
+			return
+		}
+	}
+	return
+}
+
+// FindFlag find flag with `longName` from `cmd`
+func FindFlag(longName string, cmd *Command) (res *Flag) {
+	for _, cx := range cmd.Flags {
+		if longName == cx.Full {
+			res = cx
+			return
+		}
+	}
+	return
+}
+
+// FindSubCommandRecursive find sub-command with `longName` from `cmd` recursively
+func FindSubCommandRecursive(longName string, cmd *Command) (res *Command) {
+	for _, cx := range cmd.SubCommands {
+		if longName == cx.Full {
+			res = cx
+			return
+		}
+	}
+	for _, cx := range cmd.SubCommands {
+		if len(cx.SubCommands) > 0 {
+			if res = FindSubCommandRecursive(longName, cx); res != nil {
+				return
+			}
+		}
+	}
+	return
+}
+
+// FindFlagRecursive find flag with `longName` from `cmd` recursively
+func FindFlagRecursive(longName string, cmd *Command) (res *Flag) {
+	for _, cx := range cmd.Flags {
+		if longName == cx.Full {
+			res = cx
+			return
+		}
+	}
+	for _, cx := range cmd.SubCommands {
+		if len(cx.SubCommands) > 0 {
+			if res = FindFlagRecursive(longName, cx); res != nil {
+				return
+			}
+		}
+	}
+	return
+}
+
 func manBr(s string) string {
 	var lines []string
 	for _, l := range strings.Split(s, "\n") {

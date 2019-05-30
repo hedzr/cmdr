@@ -38,7 +38,11 @@ func setRootCommand(rootCmd *RootCommand) {
 }
 
 func buildXref(rootCmd *RootCommand) (err error) {
+	// build xref for root command and its all sub-commands and flags
+	// and build the default values
 	buildRootCrossRefs(rootCmd)
+
+	// and now, loading the external configuration files
 	for _, s := range getExpandedPredefinedLocations() {
 		if FileExists(s) {
 			fn := fmt.Sprintf(s, rootCmd.AppName, rootCmd.AppName)

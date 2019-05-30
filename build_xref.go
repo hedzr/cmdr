@@ -9,6 +9,7 @@ import (
 )
 
 func buildRootCrossRefs(root *RootCommand) {
+	// initializes the internal variables/members
 	ensureCmdMembers(&root.Command)
 
 	if EnableVersionCommands {

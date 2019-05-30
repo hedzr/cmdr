@@ -114,7 +114,7 @@ getopt/getopt_long like command-line UI (CLI) golang library. A replacer for go 
 
   - `/usr/local/etc/<appname>/<appname>.yml` and `conf.d` sub-directory.
 
-  - `$HOME/<appname>/<appname>,yml` and `conf.d` sub-directory.
+  - `$HOME/<appname>/<appname>.yml` and `conf.d` sub-directory.
 
   - Watch `conf.d` directory:
     - `AddOnConfigLoadedListener(c)`
@@ -130,6 +130,12 @@ getopt/getopt_long like command-line UI (CLI) golang library. A replacer for go 
       ```go
       SetPredefinedLocations([]string{"./config", "~/.config/cmdr/", "$GOPATH/running-configs/cmdr"})
       ```
+
+  - supports configuration file formats:
+
+    - Yaml
+    - JSON
+    - TOML
 
 - Overrides by environment variables.
 

@@ -393,7 +393,7 @@ func DumpAsString() (str string) {
 	return rxxtOptions.DumpAsString()
 }
 
-// Save all config entries as a yaml file
+// SaveAsYaml to Save all config entries as a yaml file
 func SaveAsYaml(filename string) (err error) {
 	obj := rxxtOptions.GetHierarchyList()
 
@@ -401,13 +401,13 @@ func SaveAsYaml(filename string) (err error) {
 	if err != nil {
 		return
 	}
-	
+
 	err = ioutil.WriteFile(filename, b, 0644)
 	return
 }
 
-// Save all config entries as a json file
-func SaveAsJson(filename string) (err error) {
+// SaveAsJSON to Save all config entries as a json file
+func SaveAsJSON(filename string) (err error) {
 	obj := rxxtOptions.GetHierarchyList()
 
 	b, err := json.Marshal(obj)
@@ -419,7 +419,7 @@ func SaveAsJson(filename string) (err error) {
 	return
 }
 
-// Save all config entries as a toml file
+// SaveAsToml to Save all config entries as a toml file
 func SaveAsToml(filename string) (err error) {
 	obj := rxxtOptions.GetHierarchyList()
 
@@ -431,7 +431,6 @@ func SaveAsToml(filename string) (err error) {
 	err = ioutil.WriteFile(filename, b, 0644)
 	return
 }
-
 
 // DumpAsString for debugging.
 func (s *Options) DumpAsString() (str string) {
@@ -454,6 +453,6 @@ func (s *Options) DumpAsString() (str string) {
 }
 
 // GetHierarchyList returns the hierarchy data for dumping
-func (s *Options) GetHierarchyList()  map[string]interface{} {
+func (s *Options) GetHierarchyList() map[string]interface{} {
 	return s.hierarchy
 }

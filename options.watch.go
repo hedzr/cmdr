@@ -7,7 +7,9 @@ package cmdr
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"github.com/fsnotify/fsnotify"
+	"github.com/pelletier/go-toml"
 	"log"
 	"path"
 
@@ -97,9 +99,19 @@ func (s *Options) loadConfigFile(file string) (err error) {
 	}
 
 	m = make(map[string]interface{})
-	err = yaml.Unmarshal(b, m)
-	if err != nil {
-		return
+	switch path.Ext(file) {
+	case "toml", "ini", "conf":
+		if err = toml.Unmarshal(b, m); err != nil {
+			return
+		}
+	case "json":
+		if err = json.Unmarshal(b, m); err != nil {
+			return
+		}
+	default:
+		if err = yaml.Unmarshal(b, m); err != nil {
+			return
+		}
 	}
 
 	err = s.loopMap("", m)
@@ -110,7 +122,7 @@ func (s *Options) loadConfigFile(file string) (err error) {
 	return
 }
 
-func (s *Options) mergeConfigFile(fr io.Reader) (err error) {
+func (s *Options) mergeConfigFile(fr io.Reader, ext string) (err error) {
 	var (
 		m   map[string]interface{}
 		buf *bytes.Buffer
@@ -120,9 +132,19 @@ func (s *Options) mergeConfigFile(fr io.Reader) (err error) {
 	_, err = buf.ReadFrom(fr)
 
 	m = make(map[string]interface{})
-	err = yaml.Unmarshal(buf.Bytes(), m)
-	if err != nil {
-		return
+	switch ext {
+	case "toml", "ini", "conf":
+		if err = toml.Unmarshal(buf.Bytes(), m); err != nil {
+			return
+		}
+	case "json":
+		if err = json.Unmarshal(buf.Bytes(), m); err != nil {
+			return
+		}
+	default:
+		if err = yaml.Unmarshal(buf.Bytes(), m); err != nil {
+			return
+		}
 	}
 
 	err = s.loopMap("", m)
@@ -137,15 +159,16 @@ func (s *Options) visit(path string, f os.FileInfo, e error) (err error) {
 	// fmt.Printf("Visited: %s, e: %v\n", path, e)
 	if f != nil && !f.IsDir() && e == nil {
 		// log.Infof("    path: %v, ext: %v", path, filepath.Ext(path))
-		switch filepath.Ext(path) {
-		case ".yml", ".yaml": // , "yml", "yaml":
+		ext := filepath.Ext(path)
+		switch ext {
+		case ".yml", ".yaml", ".json", ".toml", ".ini", ".conf": // , "yml", "yaml":
 			var file *os.File
 			file, err = os.Open(path)
 			if err != nil {
 				// log.Warnf("ERROR: os.Open() returned %v", err)
 			} else {
 				defer file.Close()
-				err = s.mergeConfigFile(bufio.NewReader(file))
+				err = s.mergeConfigFile(bufio.NewReader(file), ext[1:])
 				configFiles = append(configFiles, path)
 				// env := viper.Get("app.registrar.env")
 				// key := fmt.Sprintf("app.registrar.consul.%s.addr", env)
@@ -196,12 +219,17 @@ func (s *Options) watchConfigDir(configDir string) {
 					const writeOrCreateMask = fsnotify.Write | fsnotify.Create
 					if strings.HasPrefix(filepath.Clean(event.Name), configDir) &&
 						event.Op&writeOrCreateMask != 0 &&
-						(strings.HasSuffix(event.Name, ".yml") || strings.HasSuffix(event.Name, ".yaml")) {
+						(strings.HasSuffix(event.Name, ".yml") ||
+							strings.HasSuffix(event.Name, ".yaml") ||
+							strings.HasSuffix(event.Name, ".json") ||
+							strings.HasSuffix(event.Name, ".toml") ||
+							strings.HasSuffix(event.Name, ".ini") ||
+							strings.HasSuffix(event.Name, ".conf")) {
 						file, err := os.Open(event.Name)
 						if err != nil {
 							log.Printf("ERROR: os.Open() returned %v\n", err)
 						} else {
-							err = s.mergeConfigFile(bufio.NewReader(file))
+							err = s.mergeConfigFile(bufio.NewReader(file), path.Ext(event.Name))
 							if err != nil {
 								log.Printf("ERROR: os.Open() returned %v\n", err)
 							}

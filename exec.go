@@ -23,9 +23,9 @@ func Exec(rootCmd *RootCommand) (err error) {
 }
 
 // ExecWith is main entry of `cmdr`.
-func ExecWith(rootCmd *RootCommand, beforeXrefBuilding_, afterXrefBuilt_ HookXrefFunc) (err error) {
-	beforeXrefBuilding = append(beforeXrefBuilding, beforeXrefBuilding_)
-	afterXrefBuilt = append(afterXrefBuilt, afterXrefBuilt_)
+func ExecWith(rootCmd *RootCommand, beforeXrefBuildingX, afterXrefBuiltX HookXrefFunc) (err error) {
+	beforeXrefBuilding = append(beforeXrefBuilding, beforeXrefBuildingX)
+	afterXrefBuilt = append(afterXrefBuilt, afterXrefBuiltX)
 	err = InternalExecFor(rootCmd, os.Args)
 	return
 }

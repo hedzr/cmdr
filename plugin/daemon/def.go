@@ -9,6 +9,7 @@ import (
 	"os"
 )
 
+// Daemon interface should be implemented when you are using `daemon.Enable()`.
 type Daemon interface {
 	OnRun(cmd *cmdr.Command, args []string, stopCh, doneCh chan struct{}) (err error)
 	OnStop(cmd *cmdr.Command, args []string) (err error)

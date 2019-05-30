@@ -11,6 +11,7 @@ import (
 	"path"
 )
 
+// Context of daemon operations
 type Context struct {
 	daemon.Context
 }

@@ -26,14 +26,14 @@ func isRoot() bool {
 }
 
 func shellRunAuto(name string, arg ...string) error {
-	err, output := shellRun(name, arg...)
+	output, err := shellRun(name, arg...)
 	if err != nil {
 		logrus.Fatalf("shellRunAuto err: %v\n\noutput:\n%v", err, output.String())
 	}
 	return err
 }
 
-func shellRun(name string, arg ...string) (err error, output bytes.Buffer) {
+func shellRun(name string, arg ...string) (output bytes.Buffer, err error) {
 	cmd := exec.Command(name, arg...)
 	// cmd.Stdin = strings.NewReader("some input")
 	cmd.Stdout = &output

@@ -9,8 +9,8 @@ import (
 )
 
 // HasParent detects whether owner is available or not
-func (c *BaseOpt) HasParent() bool {
-	return c.owner != nil
+func (s *BaseOpt) HasParent() bool {
+	return s.owner != nil
 }
 
 // GetTitleName temp

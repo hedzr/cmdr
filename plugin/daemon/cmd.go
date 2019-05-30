@@ -7,6 +7,7 @@ package daemon
 import "github.com/hedzr/cmdr"
 
 var (
+	// DaemonServerCommands defines a group of sub-commands for daemon operations.
 	DaemonServerCommands = &cmdr.Command{
 		BaseOpt: cmdr.BaseOpt{
 			// Name:        "server",

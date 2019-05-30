@@ -16,16 +16,22 @@ build-demo() {
 	PKG_SRC=./examples/demo/main.go APPNAME=demo ./build.sh
 }
 
+build-fluent() {
+	PKG_SRC=./examples/fluent/main.go APPNAME=fluent ./build.sh
+}
+
 build-all() {
 	PKG_SRC=./examples/short/main.go APPNAME=short ./build.sh
 	PKG_SRC=./examples/demo/main.go APPNAME=demo ./build.sh
 	PKG_SRC=./examples/wget-demo/main.go APPNAME=wget-demo ./build.sh
+	PKG_SRC=./examples/fluent/main.go APPNAME=fluent ./build.sh
 }
 
 build-all-linux() {
 	PKG_SRC=./examples/short/main.go APPNAME=short ./build.sh linux
 	PKG_SRC=./examples/demo/main.go APPNAME=demo ./build.sh linux
 	PKG_SRC=./examples/wget-demo/main.go APPNAME=wget-demo ./build.sh linux
+	PKG_SRC=./examples/fluent/main.go APPNAME=fluent ./build.sh linux
 }
 
 build-ci() {
@@ -33,6 +39,7 @@ build-ci() {
 	PKG_SRC=./examples/short/main.go APPNAME=short ./build.sh all
 	PKG_SRC=./examples/demo/main.go APPNAME=demo ./build.sh all
 	PKG_SRC=./examples/wget-demo/main.go APPNAME=wget-demo ./build.sh all
+	PKG_SRC=./examples/fluent/main.go APPNAME=fluent ./build.sh all
 	ls -la ./bin/
 	for f in bin/*; do gzip $f; done 
 	ls -la ./bin/
@@ -48,6 +55,10 @@ run-wget-demo() {
 
 run-demo() {
 	go run ./examples/demo/main.go $*
+}
+
+run-fluent() {
+	go run ./examples/fluent/main.go $*
 }
 
 [[ $# -eq 0 ]] && {

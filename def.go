@@ -18,8 +18,10 @@ const (
 	// SysMgmtGroup for commands and flags
 	SysMgmtGroup = "zzz9.Misc"
 
+	// DefaultEditor is 'vim'
 	DefaultEditor = "vim"
 
+	// ExternalToolEditor environment variable name, EDITOR is fit for most of shells.
 	ExternalToolEditor = "EDITOR"
 )
 
@@ -135,6 +137,7 @@ type (
 		OnConfigReloaded()
 	}
 
+	// HookXrefFunc the hook function prototype for SetBeforeXrefBuilding and SetAfterXrefBuilt
 	HookXrefFunc func(root *RootCommand, args []string)
 )
 
@@ -179,10 +182,13 @@ var (
 	defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
 
 	//
-	currentHelpPainter       = new(helpPainter)
-	CurrentDescColor         = FgDarkGray
+	currentHelpPainter = new(helpPainter)
+	// CurrentDescColor the print color for description line
+	CurrentDescColor = FgDarkGray
+	// CurrentDefaultValueColor the print color for default value line
 	CurrentDefaultValueColor = FgDarkGray
-	CurrentGroupTitleColor   = DarkColor
+	// CurrentGroupTitleColor the print color for titles
+	CurrentGroupTitleColor = DarkColor
 
 	globalShowVersion   func()
 	globalShowBuildInfo func()
@@ -214,12 +220,12 @@ func GetDebugMode() bool {
 	return GetBool("app.debug")
 }
 
-// GetDebugMode returns the flag value of `--verbose`/`-v`
+// GetVerboseMode returns the flag value of `--verbose`/`-v`
 func GetVerboseMode() bool {
 	return GetBool("app.verbose")
 }
 
-// GetDebugMode returns the flag value of `--quiet`/`-q`
+// GetQuietMode returns the flag value of `--quiet`/`-q`
 func GetQuietMode() bool {
 	return GetBool("app.quiet")
 }

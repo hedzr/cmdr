@@ -22,6 +22,7 @@ func buildRootCrossRefs(root *RootCommand) {
 						showVersion()
 						return ErrShouldBeStopException
 					},
+					owner: &root.Command,
 				},
 			}
 		}
@@ -37,6 +38,7 @@ func buildRootCrossRefs(root *RootCommand) {
 						showVersion()
 						return ErrShouldBeStopException
 					},
+					owner: &root.Command,
 				},
 				DefaultValue: false,
 			}
@@ -54,6 +56,7 @@ func buildRootCrossRefs(root *RootCommand) {
 						showBuildInfo()
 						return ErrShouldBeStopException
 					},
+					owner: &root.Command,
 				},
 				DefaultValue: false,
 			}
@@ -77,6 +80,7 @@ func buildRootCrossRefs(root *RootCommand) {
 						// return ErrShouldBeStopException
 						return nil
 					},
+					owner: &root.Command,
 				},
 				DefaultValue: false,
 			}
@@ -92,6 +96,7 @@ func buildRootCrossRefs(root *RootCommand) {
 					Full:        "help-zsh",
 					Description: "show help with zsh format, or others",
 					Hidden:      true,
+					owner:       &root.Command,
 				},
 				DefaultValue:            0,
 				DefaultValuePlaceholder: "LEVEL",
@@ -101,6 +106,7 @@ func buildRootCrossRefs(root *RootCommand) {
 					Full:        "help-bash",
 					Description: "show help with bash format, or others",
 					Hidden:      true,
+					owner:       &root.Command,
 				},
 				DefaultValue: false,
 			}
@@ -118,6 +124,7 @@ func buildRootCrossRefs(root *RootCommand) {
 						// return ErrShouldBeStopException
 						return nil
 					},
+					owner: &root.Command,
 				},
 				DefaultValue:            nil,
 				DefaultValuePlaceholder: "[Location of config file]",
@@ -135,6 +142,7 @@ func buildRootCrossRefs(root *RootCommand) {
 					Aliases:     []string{"vv", "vvv"},
 					Description: "Show this help screen",
 					// Hidden:      true,
+					owner: &root.Command,
 				},
 				DefaultValue: false,
 			}
@@ -151,6 +159,7 @@ func buildRootCrossRefs(root *RootCommand) {
 					Aliases:     []string{},
 					Description: "No more screen output.",
 					// Hidden:      true,
+					owner: &root.Command,
 				},
 				DefaultValue: false,
 			}
@@ -165,6 +174,7 @@ func buildRootCrossRefs(root *RootCommand) {
 					Aliases:     []string{},
 					Description: "Get into debug mode.",
 					Hidden:      true,
+					owner:       &root.Command,
 				},
 				DefaultValue: false,
 			}
@@ -180,6 +190,7 @@ func buildRootCrossRefs(root *RootCommand) {
 					Full:        "strict-mode",
 					Description: "strict mode for `cmdr`.",
 					Hidden:      true,
+					owner:       &root.Command,
 				},
 				DefaultValue: false,
 			}
@@ -191,6 +202,7 @@ func buildRootCrossRefs(root *RootCommand) {
 					Full:        "no-env-overrides",
 					Description: "No env var overrrides for `cmdr`.",
 					Hidden:      true,
+					owner:       &root.Command,
 				},
 				DefaultValue: false,
 			}

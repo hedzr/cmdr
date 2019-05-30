@@ -5,6 +5,7 @@
 package cmdr
 
 type (
+	// Painter to support the genManual, genMarkdown, printHelpScreen.
 	Painter interface {
 		Printf(fmtStr string, args ...interface{})
 

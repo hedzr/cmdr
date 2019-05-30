@@ -28,7 +28,7 @@ func GetExcutablePath() string {
 	return p
 }
 
-// GetCurrentDir returns the current working directory
+// GetCurrentDir returns the current workingFlag directory
 func GetCurrentDir() string {
 	dir, _ := os.Getwd()
 	// if err != nil {

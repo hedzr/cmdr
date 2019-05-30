@@ -19,8 +19,8 @@ import (
 // - pidfile
 // - go-daemon supports
 // -
-func Enable(daemonImpl_ Daemon) {
-	daemonImpl = daemonImpl_
+func Enable(daemonImplX Daemon) {
+	daemonImpl = daemonImplX
 
 	cmdr.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
 

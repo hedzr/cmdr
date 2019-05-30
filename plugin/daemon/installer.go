@@ -82,6 +82,7 @@ func runUninstaller(cmd *cmdr.Command, args []string) (err error) {
 	return
 }
 
+// ErrNoRoot error object: `MUST have administrator privileges`
 var ErrNoRoot = errors.New("MUST have administrator privileges")
 
 type tplData struct {

@@ -15,13 +15,13 @@ func trimQuotes(s string) string {
 	return s
 }
 
-func eraseMultiWSs(s string) string {
-	return reSimp.ReplaceAllString(s, " ")
-}
+// func eraseMultiWSs(s string) string {
+// 	return reSimp.ReplaceAllString(s, " ")
+// }
 
 func eraseAnyWSs(s string) string {
 	return reSimpSimp.ReplaceAllString(s, "")
 }
 
-var reSimp = regexp.MustCompile(`[ \t][ \t]+`)
+// var reSimp = regexp.MustCompile(`[ \t][ \t]+`)
 var reSimpSimp = regexp.MustCompile(`[ \t]+`)

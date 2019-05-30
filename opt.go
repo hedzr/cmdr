@@ -116,6 +116,8 @@ const (
 	OptFlagTypeStringSlice OptFlagType = iota + 6
 	// OptFlagTypeIntSlice to create a new int slice flag
 	OptFlagTypeIntSlice OptFlagType = iota + 7
+	// OptFlagTypeDuration to create a new duration flag
+	OptFlagTypeDuration OptFlagType = iota + 8
 )
 
 var optCtx *optContext

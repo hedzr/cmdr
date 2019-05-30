@@ -139,7 +139,7 @@ getopt/getopt_long like command-line UI (CLI) golang library. A replacer for go 
 
 - Overrides by environment variables.
 
-  *prior:* `defaultValue -> config-file -> env-var -> command-line opts`
+  *priority level:* `defaultValue -> config-file -> env-var -> command-line opts`
 
 - `cmdr.Get(key)`, `cmdr.GetBool(key)`, `cmdr.GetInt(key)`, `cmdr.GetString(key)`, `cmdr.GetStringSlice(key)` and `cmdr.GetIntSlice(key)` for Option value extractions.
 

@@ -133,6 +133,12 @@ func (s *optCommandImpl) Uint64() (opt OptFlag) {
 	return &Uint64Opt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
+func (s *optCommandImpl) Duration() (opt OptFlag) {
+	flg := &Flag{}
+	s.working.Flags = append(s.working.Flags, flg)
+	return &DurationOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
+}
+
 func (s *optCommandImpl) NewFlag(typ OptFlagType) (opt OptFlag) {
 	var flg OptFlag
 
@@ -151,6 +157,8 @@ func (s *optCommandImpl) NewFlag(typ OptFlagType) (opt OptFlag) {
 		flg = s.StringSlice()
 	case OptFlagTypeIntSlice:
 		flg = s.IntSlice()
+	case OptFlagTypeDuration:
+		flg = s.Duration()
 	default:
 		flg = s.Bool()
 	}

@@ -39,32 +39,41 @@ getopt/getopt_long like command-line UI (CLI) golang library. A replacer for go 
   - Supports namespaces for (nested) option groups
 
 - Automatic help screen generation (*Generate and print well-formatted help message*)
+- Fluent API style
+  ```go
+	root := cmdr.Root("aa", "1.0.1").Header("aa - test for cmdr - hedzr")
+	rootCmd = root.RootCommand()
 
+	co := root.NewSubCommand().
+		Titles("ms", "micro-service").
+		Description("", "").
+		Group("")
+
+	co.NewFlag(cmdr.OptFlagTypeUint).
+		Titles("t", "retry").
+		Description("", "").
+		Group("").
+		DefaultValue(3, "RETRY")
+
+	cTags := co.NewSubCommand().
+		Titles("t", "tags").
+		Description("", "").
+		Group("")
+  ```
 - Strict Mode
-
   - *false*: Ignoring unknown command line options (default)
-
   - *true*: Report error on unknown commands and options if strict mode enabled (optional)
-
     enable strict mode:
-
     - env var `APP_STRICT_MODE=true`
-
     - hidden option: `--strict-mode` (if `cmdr.EnableCmdrCommands == true`)
-
     - entry in config file:
-
       ```yaml
       app:
         strict-mode: true
       ```
-
 - Support for unlimited multiple sub-commands.
-
 - Supports `-I/usr/include`` -I=/usr/include` `-I /usr/include` option argument specification
-
   Automatically allows those formats (applied to long option too):
-
   - `-I file`, `-Ifile`, and `-I=files`
   - `-I 'file'`, `-I'file'`, and `-I='files'`
   - `-I "file"`, `-I"file"`, and `-I="files"`

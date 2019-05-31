@@ -12,6 +12,7 @@ import (
 
 type (
 	// Copier interface
+	// Copier is based on from github.com/jinzhu/copier
 	Copier interface {
 		Copy(toValue interface{}, fromValue interface{}, ignoreNames ...string) (err error)
 	}

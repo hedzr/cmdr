@@ -37,6 +37,11 @@ func printHelp(command *Command, justFlags bool) {
 		// "  [\x1b[2m\x1b[%dm%s\x1b[0m]"
 		fp("\n\x1b[2m\x1b[%dmDUMP:\n\n%v\x1b[0m\n", DarkColor, rxxtOptions.DumpAsString())
 	}
+	if currentHelpPainter != nil {
+		currentHelpPainter.Results()
+		currentHelpPainter.Reset()
+		paintFromCommand(nil, command, false) // for tesing
+	}
 }
 
 func dumpTreeForAllCommands(cmd *Command, args []string) (err error) {
@@ -89,6 +94,10 @@ func walkFromCommand(cmd *Command, index int, walk func(cmd *Command, index int)
 }
 
 func paintFromCommand(p Painter, command *Command, justFlags bool) {
+	if p == nil {
+		return
+	}
+
 	printHeader(p, command)
 
 	printHelpUsages(p, command)
@@ -350,6 +359,11 @@ func showVersion() {
 %v
 %v
 %v`, conf.Version, conf.AppName, conf.Buildstamp, conf.Githash, conf.GoVersion)
+}
+
+// PrintBuildInfo print building information
+func PrintBuildInfo() {
+	showBuildInfo()
 }
 
 func showBuildInfo() {

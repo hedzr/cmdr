@@ -306,6 +306,13 @@ func buildCrossRefs(cmd *Command) {
 				stringFlagNames[flg.Full] = true
 			}
 		}
+		if len(flg.Short) == 0 && len(flg.Full) == 0 && len(flg.Name) != 0 {
+			if _, ok := stringFlagNames[flg.Name]; ok {
+				ferr("flag '%v' was been used.", flg.Name)
+			} else {
+				stringFlagNames[flg.Name] = true
+			}
+		}
 		for _, sz := range flg.Aliases {
 			if _, ok := stringFlagNames[sz]; ok {
 				ferr("flag alias name '%v' was been used.", sz)
@@ -348,6 +355,14 @@ func buildCrossRefs(cmd *Command) {
 			} else {
 				stringCmdNames[cx.Full] = true
 			}
+		}
+		if len(cx.Short) == 0 && len(cx.Full) == 0 && len(cx.Name) != 0 {
+			if _, ok := stringCmdNames[cx.Name]; ok {
+				ferr("command '%v' was been used.", cx.Name)
+			} else {
+				stringCmdNames[cx.Name] = true
+			}
+			cmd.plainCmds[cx.Name] = cx
 		}
 		for _, sz := range cx.Aliases {
 			if len(sz) != 0 {

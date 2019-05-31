@@ -145,21 +145,21 @@ func Launch(cmd string, args ...string) (err error) {
 	return nil
 }
 
-// LaunchSudo executes a command under "sudo".
-func LaunchSudo(cmd string, args ...string) error {
-	return Launch("sudo", append([]string{cmd}, args...)...)
-}
+// // LaunchSudo executes a command under "sudo".
+// func LaunchSudo(cmd string, args ...string) error {
+// 	return Launch("sudo", append([]string{cmd}, args...)...)
+// }
 
 //
 // editor
 //
 
-func getEditor() (string, error) {
-	if GetEditor != nil {
-		return GetEditor()
-	}
-	return exec.LookPath(DefaultEditor)
-}
+// func getEditor() (string, error) {
+// 	if GetEditor != nil {
+// 		return GetEditor()
+// 	}
+// 	return exec.LookPath(DefaultEditor)
+// }
 
 func randomFilename() string {
 	buf := make([]byte, 16)

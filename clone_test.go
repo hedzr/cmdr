@@ -1,0 +1,312 @@
+/*
+ * Copyright © 2019 Hedzr Yeh.
+ */
+
+package cmdr_test
+
+import (
+	"errors"
+	"github.com/hedzr/cmdr"
+	"reflect"
+	"testing"
+	"time"
+)
+
+type User struct {
+	Name     string
+	Birthday *time.Time
+	Nickname string
+	Role     string
+	Age      int32
+	Retry    int8
+	Times    int16
+	RetryU   uint8
+	TimesU   uint16
+	FxReal   uint32
+	FxTime   int64
+	FxTimeU  uint64
+	UxA      uint
+	UxB      int
+	FakeAge  *int32
+	Notes    []string
+	flags    []byte
+	Born     *int
+	BornU    *uint
+	Ro       []int
+	F11      float32
+	F12      float64
+	C11      complex64
+	C12      complex128
+	Sptr     *string
+	// Feat     []byte
+}
+
+func (user User) DoubleAge() int32 {
+	return 2 * user.Age
+}
+
+type Employee struct {
+	Name      string
+	Birthday  *time.Time
+	F11       float32
+	F12       float64
+	C11       complex64
+	C12       complex128
+	Feat      []byte
+	Sptr      *string
+	Nickname  *string
+	Age       int64
+	FakeAge   int
+	EmployeID int64
+	DoubleAge int32
+	SuperRule string
+	Notes     []string
+	RetryU    uint8
+	TimesU    uint16
+	FxReal    uint32
+	FxTime    int64
+	FxTimeU   uint64
+	UxA       uint
+	UxB       int
+	Retry     int8
+	Times     int16
+	Born      *int
+	BornU     *uint
+	flags     []byte
+	Ro        []int
+}
+
+func (employee *Employee) Role(role string) {
+	employee.SuperRule = "Super " + role
+}
+
+func checkEmployee(employee Employee, user User, t *testing.T, testCase string) {
+	if employee.Name != user.Name {
+		t.Errorf("%v: Name haven't been copied correctly.", testCase)
+	}
+	if employee.Nickname == nil || *employee.Nickname != user.Nickname {
+		t.Errorf("%v: NickName haven't been copied correctly.", testCase)
+	}
+	if employee.Birthday == nil && user.Birthday != nil {
+		t.Errorf("%v: Birthday haven't been copied correctly.", testCase)
+	}
+	if employee.Birthday != nil && user.Birthday == nil {
+		t.Errorf("%v: Birthday haven't been copied correctly.", testCase)
+	}
+	if employee.Age != int64(user.Age) {
+		t.Errorf("%v: Age haven't been copied correctly.", testCase)
+	}
+	if user.FakeAge != nil && employee.FakeAge != int(*user.FakeAge) {
+		t.Errorf("%v: FakeAge haven't been copied correctly.", testCase)
+	}
+	if employee.DoubleAge != user.DoubleAge() {
+		t.Errorf("%v: Copy from method doesn't work", testCase)
+	}
+	if employee.SuperRule != "Super "+user.Role {
+		t.Errorf("%v: Copy to method doesn't work", testCase)
+	}
+	if !reflect.DeepEqual(employee.Notes, user.Notes) {
+		t.Errorf("%v: Copy from slice doen't work", testCase)
+	}
+}
+
+func TestCopyStruct(t *testing.T) {
+	var fakeAge int32 = 12
+	var born int = 7
+	var bornU uint = 7
+	var sz = "dablo"
+	user := User{Name: "Faked", Nickname: "user", Age: 18, FakeAge: &fakeAge,
+		Role: "User", Notes: []string{"hello world", "welcome"}, flags: []byte{'x'},
+		Retry: 3, Times: 17, RetryU: 23, TimesU: 21, FxReal: 31, FxTime: 37,
+		FxTimeU: 13, UxA: 11, UxB: 7, Born: &born, BornU: &bornU,
+		Ro: []int{1, 2, 3}, Sptr: &sz, // Feat: []byte(sz),
+	}
+	employee := Employee{}
+
+	if err := cmdr.StandardCopier.Copy(employee, &user); err == nil {
+		t.Errorf("Copy to unaddressable value should get error")
+	}
+
+	cmdr.StandardCopier.Copy(&employee, &user)
+	checkEmployee(employee, user, t, "Copy From Ptr To Ptr")
+
+	employee2 := Employee{}
+	cmdr.StandardCopier.Copy(&employee2, user)
+	checkEmployee(employee2, user, t, "Copy From Struct To Ptr")
+
+	employee3 := Employee{}
+	ptrToUser := &user
+	cmdr.StandardCopier.Copy(&employee3, &ptrToUser)
+	checkEmployee(employee3, user, t, "Copy From Double Ptr To Ptr")
+
+	employee4 := &Employee{}
+	cmdr.StandardCopier.Copy(&employee4, user)
+	checkEmployee(*employee4, user, t, "Copy From Ptr To Double Ptr")
+}
+
+func TestCopyFromStructToSlice(t *testing.T) {
+	user := User{Name: "Faked", Age: 18, Role: "User", Notes: []string{"hello world"}}
+	employees := []Employee{}
+
+	if err := cmdr.StandardCopier.Copy(employees, &user); err != nil && len(employees) != 0 {
+		t.Errorf("Copy to unaddressable value should get error")
+	}
+
+	if cmdr.StandardCopier.Copy(&employees, &user); len(employees) != 1 {
+		t.Errorf("Should only have one elem when copy struct to slice")
+	} else {
+		checkEmployee(employees[0], user, t, "Copy From Struct To Slice Ptr")
+	}
+
+	employees2 := &[]Employee{}
+	if cmdr.StandardCopier.Copy(&employees2, user); len(*employees2) != 1 {
+		t.Errorf("Should only have one elem when copy struct to slice")
+	} else {
+		checkEmployee((*employees2)[0], user, t, "Copy From Struct To Double Slice Ptr")
+	}
+
+	employees3 := []*Employee{}
+	if cmdr.StandardCopier.Copy(&employees3, user); len(employees3) != 1 {
+		t.Errorf("Should only have one elem when copy struct to slice")
+	} else {
+		checkEmployee(*(employees3[0]), user, t, "Copy From Struct To Ptr Slice Ptr")
+	}
+
+	employees4 := &[]*Employee{}
+	if cmdr.StandardCopier.Copy(&employees4, user); len(*employees4) != 1 {
+		t.Errorf("Should only have one elem when copy struct to slice")
+	} else {
+		checkEmployee(*((*employees4)[0]), user, t, "Copy From Struct To Double Ptr Slice Ptr")
+	}
+}
+
+func TestCopyFromSliceToSlice(t *testing.T) {
+	users := []User{{Name: "Faked", Age: 18, Role: "User", Notes: []string{"hello world", "chaos"}}, {Name: "Real", Age: 22, Role: "World", Notes: []string{"hello world", "hello", "winner"}}}
+	employees := []Employee{}
+
+	if cmdr.StandardCopier.Copy(&employees, users); len(employees) != 2 {
+		t.Errorf("Should have two elems when copy slice to slice")
+	} else {
+		checkEmployee(employees[0], users[0], t, "Copy From Slice To Slice Ptr @ 1")
+		checkEmployee(employees[1], users[1], t, "Copy From Slice To Slice Ptr @ 2")
+	}
+
+	employees2 := &[]Employee{}
+	if cmdr.StandardCopier.Copy(&employees2, &users); len(*employees2) != 2 {
+		t.Errorf("Should have two elems when copy slice to slice")
+	} else {
+		checkEmployee((*employees2)[0], users[0], t, "Copy From Slice Ptr To Double Slice Ptr @ 1")
+		checkEmployee((*employees2)[1], users[1], t, "Copy From Slice Ptr To Double Slice Ptr @ 2")
+	}
+
+	employees3 := []*Employee{}
+	if cmdr.StandardCopier.Copy(&employees3, users); len(employees3) != 2 {
+		t.Errorf("Should have two elems when copy slice to slice")
+	} else {
+		checkEmployee(*(employees3[0]), users[0], t, "Copy From Slice To Ptr Slice Ptr @ 1")
+		checkEmployee(*(employees3[1]), users[1], t, "Copy From Slice To Ptr Slice Ptr @ 2")
+	}
+
+	employees4 := &[]*Employee{}
+	if cmdr.StandardCopier.Copy(&employees4, users); len(*employees4) != 2 {
+		t.Errorf("Should have two elems when copy slice to slice")
+	} else {
+		checkEmployee(*((*employees4)[0]), users[0], t, "Copy From Slice Ptr To Double Ptr Slice Ptr @ 1")
+		checkEmployee(*((*employees4)[1]), users[1], t, "Copy From Slice Ptr To Double Ptr Slice Ptr @ 2")
+	}
+}
+
+func TestEmbedded(t *testing.T) {
+	type Base struct {
+		BaseField1 int
+		BaseField2 int
+	}
+
+	type Embed struct {
+		EmbedField1 int
+		EmbedField2 int
+		Base
+	}
+
+	base := Base{}
+	embeded := Embed{}
+	embeded.BaseField1 = 1
+	embeded.BaseField2 = 2
+	embeded.EmbedField1 = 3
+	embeded.EmbedField2 = 4
+
+	cmdr.StandardCopier.Copy(&base, &embeded)
+
+	if base.BaseField1 != 1 {
+		t.Error("Embedded fields not copied")
+	}
+
+	if err := cmdr.GormDefaultCopier.Copy(&base, &embeded); err != nil {
+		t.Error(err)
+	}
+}
+
+type structSameName1 struct {
+	A string
+	B int64
+	C time.Time
+}
+
+type structSameName2 struct {
+	A string
+	B time.Time
+	C int64
+}
+
+func TestCopyFieldsWithSameNameButDifferentTypes(t *testing.T) {
+	obj1 := structSameName1{A: "123", B: 2, C: time.Now()}
+	obj2 := &structSameName2{}
+	err := cmdr.StandardCopier.Copy(obj2, &obj1)
+	if err != nil {
+		t.Error("Should not raise error")
+	}
+
+	if obj2.A != obj1.A {
+		t.Errorf("Field A should be copied")
+	}
+
+	err = cmdr.GormDefaultCopier.Copy(obj2, &obj1)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+type ScannerValue struct {
+	V int
+}
+
+func (s *ScannerValue) Scan(src interface{}) error {
+	return errors.New("I failed")
+}
+
+type ScannerStruct struct {
+	V *ScannerValue
+}
+
+type ScannerStructTo struct {
+	V *ScannerValue
+}
+
+func TestScanner(t *testing.T) {
+	s := &ScannerStruct{
+		V: &ScannerValue{
+			V: 12,
+		},
+	}
+
+	s2 := &ScannerStructTo{}
+
+	err := cmdr.StandardCopier.Copy(s2, s)
+	if err != nil {
+		t.Error("Should not raise error")
+	}
+
+	if s.V.V != s2.V.V {
+		t.Errorf("Field V should be copied")
+	}
+}

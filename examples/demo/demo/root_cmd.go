@@ -101,6 +101,7 @@ var (
 							Full:        "list",
 							Aliases:     []string{"l", "lst", "dir"},
 							Description: "list tags.",
+							Group:       "2333.List",
 						},
 					},
 					{

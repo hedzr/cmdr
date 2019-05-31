@@ -57,7 +57,7 @@ func (c *Command) GetName() string {
 
 // GetQuotedGroupName returns the group name quoted string.
 func (c *Command) GetQuotedGroupName() string {
-	if len(c.Group) == 0 {
+	if len(strings.TrimSpace(c.Group)) == 0 {
 		return ""
 	}
 	i := strings.Index(c.Group, ".")
@@ -110,7 +110,9 @@ func (c *Command) GetParentName() string {
 func (c *Command) GetSubCommandNamesBy(delimChar string) string {
 	var a []string
 	for _, sc := range c.SubCommands {
-		a = append(a, sc.GetTitleNamesBy(delimChar))
+		if !sc.Hidden {
+			a = append(a, sc.GetTitleNamesBy(delimChar))
+		}
 	}
 	return strings.Join(a, delimChar)
 }

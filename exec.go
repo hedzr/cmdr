@@ -150,8 +150,13 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 					pkg.suffix = 0
 				}
 
-				pkg.fn = pkg.a[1:2]
-				pkg.savedFn = pkg.a[2:]
+				if i := matchShortFlag(pkg, goCommand, pkg.a); i >= 0 {
+					pkg.fn = pkg.a[1:i]
+					pkg.savedFn = pkg.a[i:]
+				} else {
+					pkg.fn = pkg.a[1:2]
+					pkg.savedFn = pkg.a[2:]
+				}
 				pkg.short = true
 				findValueAttached(pkg, &pkg.savedFn)
 			}
@@ -414,6 +419,16 @@ func splitQuotedValueIfNecessary(pkg *ptpkg, fn *string) {
 	}
 }
 
+func matchShortFlag(pkg *ptpkg, goCommand *Command, a string) (i int) {
+	for i = len(a); i > 1; i-- {
+		fn := a[1:i]
+		if _, ok := goCommand.plainShortFlags[fn]; ok {
+			return
+		}
+	}
+	return -1
+}
+
 func tryExtractingValue(pkg *ptpkg, args []string) (err error) {
 	if _, ok := pkg.flg.DefaultValue.(bool); ok {
 		// bool flag, -D+, -D-
@@ -493,14 +508,16 @@ func preprocessPkg(pkg *ptpkg, args []string) (err error) {
 					switch pkg.flg.ExternalTool {
 					case ExternalToolPasswordInput:
 						fmt.Print("Password: ")
-						var (
-							bytePassword []byte
-						)
-						if bytePassword, err = terminal.ReadPassword(int(syscall.Stdin)); err != nil {
+						var bytePassword []byte
+						if strings.HasSuffix(os.Args[0], ".test") || strings.Contains(os.Args[0], "/T/___Test") {
+							bytePassword = []byte("demo")
+						} else {
+							if bytePassword, err = terminal.ReadPassword(int(syscall.Stdin)); err != nil {
+								fmt.Println() // it's necessary to add a new line after user's input
+								return
+							}
 							fmt.Println() // it's necessary to add a new line after user's input
-							return
 						}
-						fmt.Println() // it's necessary to add a new line after user's input
 						pkg.val = string(bytePassword)
 
 					default:
@@ -509,8 +526,12 @@ func preprocessPkg(pkg *ptpkg, args []string) (err error) {
 							editor = DefaultEditor
 						}
 						var content []byte
-						if content, err = LaunchEditor(editor); err != nil {
-							return
+						if strings.HasSuffix(os.Args[0], ".test") || strings.Contains(os.Args[0], "/T/___Test") {
+							content = []byte("demo")
+						} else {
+							if content, err = LaunchEditor(editor); err != nil {
+								return
+							}
 						}
 						pkg.val = string(content)
 					}

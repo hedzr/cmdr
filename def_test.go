@@ -183,6 +183,10 @@ func TestNormalizeDir(t *testing.T) {
 	}
 	_ = os.Setenv("EDITOR", "ls")
 	_, _ = cmdr.LaunchEditor("EDITOR")
+
+	_ = cmdr.Launch("ls", "/not-exists")
+
+	// _ = cmdr.LaunchSudo("ls", "/not-exists")
 }
 
 func TestFluentAPI(t *testing.T) {
@@ -377,16 +381,54 @@ app:
 	_ = ioutil.WriteFile("conf.d/tmp.json", []byte(`{"app":{"debug":false}}`), 0644)
 	_ = ioutil.WriteFile("conf.d/tmp.toml", []byte(``), 0644)
 
-	time.Sleep(2 * time.Second)
-	_ = os.Remove("conf.d/tmp.yaml")
-	_ = os.Remove("conf.d/tmp.json")
-	_ = os.Remove("conf.d/tmp.toml")
-	_ = os.Remove("conf.d")
-	_ = os.Remove(".tmp.yaml")
-	_ = os.Remove(".tmp.json")
-	_ = os.Remove(".tmp.toml")
-	cmdr.SetOnConfigLoadedListener(clcl, false)
-	cmdr.RemoveOnConfigLoadedListener(clcl)
+	defer func() {
+		_ = os.Remove("conf.d/tmp.yaml")
+		_ = os.Remove("conf.d/tmp.json")
+		_ = os.Remove("conf.d/tmp.toml")
+		_ = os.Remove("conf.d")
+		_ = os.Remove(".tmp.json")
+		_ = os.Remove(".tmp.toml")
+		cmdr.SetOnConfigLoadedListener(clcl, false)
+		cmdr.RemoveOnConfigLoadedListener(clcl)
+
+		// try loading cfg again for gocov
+		if err = cmdr.LoadConfigFile(".tmp.yaml"); err != nil {
+			t.Fatal(err)
+		}
+		_ = os.Remove(".tmp.yaml")
+		// try loading cfg again for gocov
+		if err = cmdr.LoadConfigFile(".tmp.yaml"); err != nil {
+			t.Fatal(err)
+		}
+		_ = ioutil.WriteFile(".tmp.yaml", []byte(`
+app'x':"
+`), 0644)
+		// try loading cfg again for gocov
+		if err = cmdr.LoadConfigFile(".tmp.yaml"); err == nil {
+			t.Fatal("loading cfg file should be failed (err != nil), but it returns nil as err.")
+		}
+		_ = os.Remove(".tmp.yaml")
+
+		_ = ioutil.WriteFile(".tmp.json", []byte(`{"app":{"debug":false}}`), 0644)
+		// try loading cfg again for gocov
+		if err = cmdr.LoadConfigFile(".tmp.json"); err != nil {
+			t.Fatal(err)
+		}
+		_ = os.Remove(".tmp.json")
+
+		_ = ioutil.WriteFile(".tmp.toml", []byte(`;
+runmode=devel
+[app]
+debug=false
+`), 0644)
+		// // try loading cfg again for gocov
+		// if err = cmdr.LoadConfigFile(".tmp.toml"); err != nil {
+		// 	t.Fatal(err)
+		// }
+		// _ = os.Remove(".tmp.toml")
+
+	}()
+	cmdr.SetPredefinedLocations([]string{"./conf.d"})
 
 	t.Log("xxx: -------- loops for execTestings")
 	for sss, verifier := range execTestings {
@@ -425,10 +467,15 @@ app:
 		t.Log(cmdr.GetUintP("app", "retry"))
 		t.Log(cmdr.GetUint64P("app", "retry"))
 
-		if cmdr.GetStrictMode() == false {
-			if cmdr.GetQuietMode() == false {
-				t.Log("xxx: ", sss)
-			}
+		fmt.Println("xxx: ***: ", sss)
+
+		if sss == "consul-tags -pp" {
+			fmt.Println("xxx: ***: ", sss)
+			rootCmd.Header = "fhsdjkfhdsfhskfhsdjhfksdjfkhsjhfds"
+			cmdr.SetCustomShowVersion(func() {
+			})
+			cmdr.SetCustomShowBuildInfo(func() {
+			})
 		}
 
 		if err = cmdr.InternalExecFor(rootCmd, strings.Split(sss, " ")); err != nil {
@@ -441,13 +488,26 @@ app:
 			t.Fatal(err)
 		}
 
+		if cmdr.GetStrictMode() == false {
+			if cmdr.GetQuietMode() == false {
+				rootCmd.Header = ""
+			}
+		}
 	}
 
-	if cmdr.FindSubCommand("ms", &rootCmd.Command) == nil {
+	if cx := cmdr.FindSubCommand("ms", &rootCmd.Command); cx == nil {
 		t.Fatal("cannot find `ms`")
+	} else if cy := cmdr.FindSubCommand("list", cx); cy == nil {
+		t.Fatal("cannot find `list`")
+	} else if cz := cmdr.FindSubCommand("yy", cy); cz != nil {
+		t.Fatal("should not find `yy` for 'ms list'")
 	}
-	if cmdr.FindSubCommandRecursive("modify", &rootCmd.Command) == nil {
+	if cx := cmdr.FindSubCommandRecursive("modify", &rootCmd.Command); cx == nil {
 		t.Fatal("cannot find `tags`")
+	} else {
+		if cmdr.FindFlag("spasswd", cx) != nil {
+			t.Fatal("should not find `spasswd` for 'ms tags modify'")
+		}
 	}
 	if cmdr.FindFlag("spasswd", &rootCmd.Command) == nil {
 		t.Fatal("cannot find `spasswd`")
@@ -461,12 +521,12 @@ app:
 	_ = cmdr.Exec(rootCmd)
 	_ = cmdr.ExecWith(rootCmd, nil, nil)
 
-	_ = cmdr.SaveAsYaml(".tmp.json")
-	if err = cmdr.SaveAsToml(".tmp.json"); err != nil {
-		// t.Fatal(err)
+	_ = cmdr.SaveAsYaml(".tmp.1.yaml")
+	_ = cmdr.SaveAsJSON(".tmp.1.json")
+	if err = cmdr.SaveAsToml(".tmp.1.toml"); err != nil {
+		// t.Fatal("dump toml failed", err)
 	}
-	_ = cmdr.SaveAsJSON(".tmp.json")
-	_ = os.Remove(".tmp.json")
+	// _ = os.Remove(".tmp.json")
 
 	cmdr.AddOnAfterXrefBuilt(func(root *cmdr.RootCommand, args []string) {
 		return
@@ -496,10 +556,33 @@ var (
 		"consul-tags -#": func(t *testing.T) error {
 			return nil
 		},
+		"consul-tags -pp": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags -qq": func(t *testing.T) error {
+			return nil
+		},
 		"consul-tags --help --help-zsh 1": func(t *testing.T) error {
 			return nil
 		},
 		"consul-tags --help --help-bash": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags ms dr --help": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags ms dz --help": func(t *testing.T) error {
+			fmt.Println("~ consul-tags ms dz --help")
+			return nil
+		},
+		"consul-tags ms dz dz --help": func(t *testing.T) error {
+			fmt.Println("~ consul-tags ms dz dz --help")
+			return nil
+		},
+		"consul-tags ms ls --help": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags ms tags --help": func(t *testing.T) error {
 			return nil
 		},
 		"consul-tags gen man": func(t *testing.T) error {
@@ -546,14 +629,14 @@ var (
 			fmt.Println("consul-tags kv b -------- no errors")
 			return nil
 		},
-		"consul-tags -t3 -s5 -pp kv b ~~": func(t *testing.T) error {
+		"consul-tags -t3 -s 5 kv b --help-zsh ~~": func(t *testing.T) error {
 			// gocov Command.PrintXXX
-			fmt.Println("consul-tags kv b -------- no errors")
+			fmt.Println("consul-tags -t3 -s5 -pp kv b ~~ -------- no errors")
 			return nil
 		},
 		"consul-tags kv b ~": func(t *testing.T) error {
 			// gocov Command.PrintXXX
-			fmt.Println("consul-tags kv b -------- no errors")
+			fmt.Println("consul-tags kv b ~ -------- no errors")
 			return nil
 		},
 		"consul-tags kv unknown": func(t *testing.T) error {
@@ -588,6 +671,10 @@ var (
 			return nil
 		},
 		"consul-tags -vD ms tags -K- modify --prefix'' -a a,b,v -z 1,2,3 -x '-1,-2' -? ~~debug --port8509 -p8507 -p=8506 -p 8503": func(t *testing.T) error {
+			fmt.Println(cmdr.GetStringSlice("app.ms.tags.modify.add"))
+			fmt.Println(cmdr.GetIntSlice("app.ms.tags.modify.zed"))
+			fmt.Println(cmdr.GetStringSlice("app.ms.tags.modify.xed"))
+			fmt.Println(cmdr.GetIntSlice("app.ms.tags.modify.xed"))
 			if cmdr.GetInt("app.ms.tags.port") != 8503 || cmdr.GetString("app.ms.tags.prefix") != "" ||
 				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") ||
 				!cmdr.GetVerboseMode() || !cmdr.GetDebugMode() {
@@ -660,17 +747,32 @@ var (
 						},
 					},
 					DefaultValue: uint(1),
-					// DefaultValuePlaceholder: "RETRY",
 				},
 				{
 					BaseOpt: cmdr.BaseOpt{
 						Short:       "pp",
 						Full:        "spasswd",
 						Description: "",
+						Action: func(cmd *cmdr.Command, args []string) (err error) {
+							cmd.PrintVersion()
+							cmdr.PrintBuildInfo()
+
+							cmdr.SetCustomShowVersion(nil)
+							cmdr.SetCustomShowBuildInfo(nil)
+							return
+						},
 					},
 					DefaultValue: "",
-					// DefaultValuePlaceholder: "RETRY",
 					ExternalTool: cmdr.ExternalToolPasswordInput,
+				},
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Short:       "qq",
+						Full:        "qqpasswd",
+						Description: "",
+					},
+					DefaultValue: "567",
+					ExternalTool: cmdr.ExternalToolEditor,
 				},
 			},
 			PreAction: func(cmd *cmdr.Command, args []string) (err error) {
@@ -691,6 +793,7 @@ var (
 
 		AppName: "consul-tags",
 		Version: "0.0.1",
+		Header:  `dsjlfsdjflsdfjlsdjflksjdfdsfsd`,
 		// Version:    consul_tags.Version,
 		// VersionInt: consul_tags.VersionInt,
 		Copyright: "consul-tags is an effective devops tool",
@@ -808,6 +911,8 @@ var (
 						if cmd.GetOwner().GetSubCommandNamesBy(",") != "b,backup,bk,bf,bkp,r,restore" {
 							return errors.New(fmt.Sprintf("failed: GetSubCommandNamesBy() is wrong: '%s'", cmd.GetOwner().GetSubCommandNamesBy(",")))
 						}
+
+						cmd.PrintHelp(true)
 						return
 					},
 				},
@@ -849,6 +954,14 @@ var (
 					},
 				},
 			},
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:       "hh",
+					Full:        "hidden-cmd",
+					Description: "restore to Consul's KV store, from a a JSON/YAML backup file",
+					Hidden:      true,
+				},
+			},
 		},
 	}
 
@@ -862,9 +975,11 @@ var (
 		Flags: []*cmdr.Flag{
 			{
 				BaseOpt: cmdr.BaseOpt{
-					Short:       "n",
-					Full:        "name",
-					Description: "name of the service",
+					Short:           "n",
+					Full:            "name",
+					Description:     "name of the service",
+					LongDescription: `fdhsjsfhdsjk`,
+					Examples:        `fsdhjkfsdhk`,
 				},
 				DefaultValue:            "",
 				DefaultValuePlaceholder: "NAME",
@@ -886,6 +1001,15 @@ var (
 				},
 				DefaultValue: false,
 			},
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:       "cc",
+					Full:        "",
+					Description: "unique id of the service",
+				},
+				DefaultValue:            "",
+				DefaultValuePlaceholder: "ID",
+			},
 		},
 		SubCommands: []*cmdr.Command{
 			tagsCommands,
@@ -893,9 +1017,57 @@ var (
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "l",
 					Full:        "list",
-					Aliases:     []string{"ls", "lst", "dir"},
+					Aliases:     []string{"ls", "lst"},
 					Description: "list services.",
 					// Action:      msList,
+					Group: " ",
+				},
+				PreAction: func(cmd *cmdr.Command, args []string) (err error) {
+					fmt.Println(cmd.GetParentName(), cmd.GetName(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
+					return
+				},
+			},
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short: "dr",
+					// Full:        "list",
+					// Aliases:     []string{"ls", "lst", "dir"},
+					Description: "list services.",
+					Group:       "56.vvvvvv",
+				},
+				PreAction: func(cmd *cmdr.Command, args []string) (err error) {
+					fmt.Println(cmd.GetParentName(), cmd.GetName(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
+					return
+				},
+			},
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Name: "dz",
+					// Full:        "list",
+					// Aliases:     []string{"ls", "lst", "dir"},
+					Description: "list services.",
+					Group:       "56.vvvvvv",
+				},
+				PreAction: func(cmd *cmdr.Command, args []string) (err error) {
+					fmt.Println(cmd, "'s owner is", cmd.GetOwner())
+					fmt.Println(cmd.GetParentName(), cmd.GetName(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
+					return
+				},
+				SubCommands: []*cmdr.Command{
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Name: "dz",
+							// Full:        "list",
+							// Aliases:     []string{"ls", "lst", "dir"},
+							Description: "list services.",
+							Group:       "56.vvvvvv",
+						},
+						PreAction: func(cmd *cmdr.Command, args []string) (err error) {
+							fmt.Println(cmd, "'s owner is", cmd.GetOwner())
+							fmt.Println(cmd.GetParentName(), cmd.GetName(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
+							return
+						},
+					},
 				},
 			},
 		},
@@ -917,6 +1089,7 @@ var (
 					Aliases:     []string{"l", "lst", "dir"},
 					Description: "list tags.",
 					// Action:      msTagsList,
+					Group: "2323.List",
 				},
 			},
 			{
@@ -926,6 +1099,7 @@ var (
 					Aliases:     []string{"create", "new"},
 					Description: "add tags.",
 					// Action:      msTagsAdd,
+					Group: "311Z.Add",
 				},
 				Flags: []*cmdr.Flag{
 					{

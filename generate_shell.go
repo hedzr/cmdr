@@ -122,11 +122,16 @@ else if type compdef >/dev/null 2>&1; then
 fi; fi
 `)
 
-	for _, s := range []string{"/etc/bash_completion.d", "/usr/local/etc/bash_completion.d"} {
+	linuxRoot := os.Getuid() == 0
+
+	for _, s := range []string{"/etc/bash_completion.d", "/usr/local/etc/bash_completion.d", "/tmp"} {
 		if FileExists(s) {
 			file := path.Join(s, cmd.root.AppName)
 			var f *os.File
 			if f, err = os.Create(file); err != nil {
+				if !linuxRoot {
+					continue
+				}
 				return
 			}
 
@@ -135,6 +140,9 @@ fi; fi
 				fmt.Printf(`''%v generated.
 Re-login to enable the new bash completion script.
 `, file)
+			}
+			if !linuxRoot {
+				break // for non-root user, we break file-writing loop and dump scripts to console too.
 			}
 			return
 

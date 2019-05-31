@@ -241,6 +241,9 @@ getopt/getopt_long like command-line UI (CLI) golang library. A replacer for go 
 
 ### Uses Fluent API
 
+<details>
+	<summary> Expand to source codes </summary>
+	
 ```go
 	root := cmdr.Root("aa", "1.0.1").Header("aa - test for cmdr - hedzr")
 	rootCmd = root.RootCommand()
@@ -284,6 +287,7 @@ getopt/getopt_long like command-line UI (CLI) golang library. A replacer for go 
 		})
 ```
 
+</details>
 
 
 

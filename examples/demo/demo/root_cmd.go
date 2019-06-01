@@ -5,6 +5,7 @@
 package demo
 
 import (
+	"fmt"
 	"github.com/hedzr/cmdr"
 )
 
@@ -39,6 +40,27 @@ var (
 				// serverCommands,
 				msCommands,
 				testCommands,
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Short: "xy",
+						Full:  "xy-print",
+						Action: func(cmd *cmdr.Command, args []string) (err error) {
+							//
+							// https://en.wikipedia.org/wiki/ANSI_escape_code
+							// https://zh.wikipedia.org/wiki/ANSI%E8%BD%AC%E4%B9%89%E5%BA%8F%E5%88%97
+							// https://en.wikipedia.org/wiki/POSIX_terminal_interface
+							//
+
+							fmt.Println("\x1b[2J") // clear screen
+
+							for i, s := range args {
+								fmt.Printf("\x1b[s\x1b[%d;%dH%s\x1b[u", 15+i, 30, s)
+							}
+
+							return
+						},
+					},
+				},
 			},
 		},
 

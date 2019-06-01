@@ -10,6 +10,7 @@ import (
 	"github.com/hedzr/cmdr"
 	"io/ioutil"
 	"os"
+	"path"
 	"testing"
 	"time"
 )
@@ -210,47 +211,35 @@ func TestLaunchEditor2(t *testing.T) {
 		t.Log(string(b))
 	}
 
-	_, _ = cmdr.LaunchEditorWith("cat", "/etc/not-exists")
+	if _, err := cmdr.LaunchEditorWith("cat", "/etc/not-exists"); err != nil {
+		// t.Fatal("should have an error return for non-exist file")
+		t.Fatalf(`cmdr.LaunchEditorWith("cat", "/etc/not-exists") failed: %v`, err)
+	}
 }
 
-func TestClone1(t *testing.T) {
-	var aa = "dsajkld"
-	var b int
-
-	// cmdr.Clone(b, aa)
-
-	cmdr.Clone(b, &aa)
-
-	cmdr.Clone(&b, &aa)
-
-	cmdr.Clone(&b, nil)
-
-	var c, d bool
-	cmdr.Clone(&c, &d)
-
-	var e, f int
-	cmdr.Clone(&e, &f)
-	var e1, f1 int8
-	f1 = 1
-	cmdr.Clone(&e1, &f1)
-	if e1 != 1 {
-		t.Failed()
-	}
-	var e2, f2 int16
-	cmdr.Clone(&e2, &f2)
-	var e3, f3 int32
-	cmdr.Clone(&e3, &f3)
-	var e4, f4 int64
-	f4 = 9
-	cmdr.Clone(&e4, &f4)
-	if e1 != 9 {
-		t.Failed()
-	}
-
-	var g, h string
-	cmdr.Clone(&g, &h)
+func TestLaunch(t *testing.T) {
+	_ = cmdr.Launch("ls")
+	_ = os.Setenv("EDITOR", "ls")
+	_, _ = cmdr.LaunchEditor("EDITOR")
 }
 
-func TestClone2(t *testing.T) {
+func TestNormalizeDir(t *testing.T) {
+	if cmdr.NormalizeDir("./a") != path.Join(cmdr.GetCurrentDir(), "./a") {
+		t.Failed()
+	}
+	if cmdr.NormalizeDir("../a") != path.Join(cmdr.GetCurrentDir(), "../a") {
+		t.Failed()
+	}
+	if cmdr.NormalizeDir("~/a") != path.Join(os.Getenv("HOME"), "a") {
+		t.Failed()
+	}
+	if cmdr.NormalizeDir("v/a") != "v/a" {
+		t.Failed()
+	}
+	_ = os.Setenv("EDITOR", "ls")
+	_, _ = cmdr.LaunchEditor("EDITOR")
 
+	_ = cmdr.Launch("ls", "/not-exists")
+
+	// _ = cmdr.LaunchSudo("ls", "/not-exists")
 }

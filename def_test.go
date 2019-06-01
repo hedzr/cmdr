@@ -12,74 +12,10 @@ import (
 	"github.com/hedzr/cmdr"
 	"io/ioutil"
 	"os"
-	"path"
 	"reflect"
 	"strings"
 	"testing"
 	"time"
-)
-
-var (
-// demoOptx = cmdr.NewOptionsWith(map[string]interface{}{
-// 	"runmode":         "devel",
-// 	"env-prefix":      "DOT",
-// 	"app.version-sim": "",
-// 	"app.version":     "",
-// 	"app.logger.file": "",
-// })
-//
-// demoOpts = &cmdr.OptOne{
-// 	Children: map[string]*cmdr.OptOne{
-// 		"runmode":    {Value: "devel"},
-// 		"env-prefix": {Value: "DOT"},
-// 		"app": {
-// 			Children: map[string]*cmdr.OptOne{
-// 				"generate": {
-// 					Children: map[string]*cmdr.OptOne{
-// 						"shell": {
-// 							Children: map[string]*cmdr.OptOne{
-// 								"bash": {Value: false},
-// 								"zsh":  {Value: false},
-// 								"auto": {Value: false},
-// 							},
-// 						},
-// 						"manual": {
-// 							Children: map[string]*cmdr.OptOne{
-// 								"pdf": {Value: false},
-// 								"tex": {Value: false},
-// 							},
-// 						},
-// 					},
-// 				},
-// 				"ms": {
-// 					Children: map[string]*cmdr.OptOne{
-// 						"name": {Value: ""},
-// 						"id":   {Value: ""},
-// 						"tags": {
-// 							// Value: nil,
-// 							Children: map[string]*cmdr.OptOne{
-// 								"ls":  {Value: true,},
-// 								"add": {Value: true,},
-// 								"rm": {
-// 									Value: true,
-// 									Children: map[string]*cmdr.OptOne{
-// 										"list": {Value: []string{},},
-// 									},
-// 								},
-// 								"toggle": {
-// 									Children: map[string]*cmdr.OptOne{
-// 										"set":   {Value: []string{},},
-// 										"reset": {Value: []string{},},
-// 									},
-// 								},
-// 							},
-// 						},
-// 					},
-// 				},
-// 			},
-// 		},
-// 	},
-// }
 )
 
 func TestSingleCommandLine1(t *testing.T) {
@@ -198,10 +134,6 @@ func TestVersionCommand(t *testing.T) {
 	resetOsArgs()
 }
 
-// func init() {
-// 	_ = cmdr.StandardCopier.Copy(&cmdr.SavedOsArgs, &os.Args)
-// }
-
 func TestPP(t *testing.T) {
 	os.Args = []string{"consul-tags", "-pp"}
 	cmdr.SetInternalOutputStreams(nil, nil)
@@ -288,20 +220,6 @@ func TestForGenerateMan(t *testing.T) {
 	resetOsArgs()
 }
 
-func TestDemoOptsWriting(t *testing.T) {
-
-	// b, err := yaml.Marshal(demoOpts)
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
-	//
-	// err = ioutil.WriteFile("demo-opts.yaml", b, 0644)
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
-
-}
-
 func doubleSlice(s interface{}) interface{} {
 	if reflect.TypeOf(s).Kind() != reflect.Slice {
 		fmt.Println("The interface is not a slice.")
@@ -355,33 +273,6 @@ func TestFluentAPIDefault(t *testing.T) {
 
 	cmdr.NewOptions()
 	cmdr.NewOptionsWith(nil)
-}
-
-func TestLaunch(t *testing.T) {
-	_ = cmdr.Launch("ls")
-	_ = os.Setenv("EDITOR", "ls")
-	_, _ = cmdr.LaunchEditor("EDITOR")
-}
-
-func TestNormalizeDir(t *testing.T) {
-	if cmdr.NormalizeDir("./a") != path.Join(cmdr.GetCurrentDir(), "./a") {
-		t.Failed()
-	}
-	if cmdr.NormalizeDir("../a") != path.Join(cmdr.GetCurrentDir(), "../a") {
-		t.Failed()
-	}
-	if cmdr.NormalizeDir("~/a") != path.Join(os.Getenv("HOME"), "a") {
-		t.Failed()
-	}
-	if cmdr.NormalizeDir("v/a") != "v/a" {
-		t.Failed()
-	}
-	_ = os.Setenv("EDITOR", "ls")
-	_, _ = cmdr.LaunchEditor("EDITOR")
-
-	_ = cmdr.Launch("ls", "/not-exists")
-
-	// _ = cmdr.LaunchSudo("ls", "/not-exists")
 }
 
 func TestFluentAPI(t *testing.T) {
@@ -583,6 +474,7 @@ app:
 
 	t.Log("xxx: -------- loops for execTestings")
 	for sss, verifier := range execTestings {
+		// reset all option values
 		cmdr.Set("kv.port", 8500)
 		cmdr.Set("ms.tags.port", 8500)
 		cmdr.SetNx("app.help", false)

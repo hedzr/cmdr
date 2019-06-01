@@ -392,6 +392,9 @@ func StripOrderPrefix(s string) string {
 const (
 	defaultTimestampFormat = time.RFC3339
 
+	// https://en.wikipedia.org/wiki/ANSI_escape_code
+	// https://zh.wikipedia.org/wiki/ANSI%E8%BD%AC%E4%B9%89%E5%BA%8F%E5%88%97
+
 	// FgBlack terminal color code
 	FgBlack = 30
 	// FgRed terminal color code

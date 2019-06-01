@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"errors"
 	"os"
+	"sync"
 )
 
 const (
@@ -131,6 +132,7 @@ type (
 	Options struct {
 		entries   map[string]interface{}
 		hierarchy map[string]interface{}
+		rw        *sync.RWMutex
 	}
 
 	// OptOne struct {

@@ -78,7 +78,7 @@ test() {
 }
 
 gocov() {
-  go test -covermode=atomic -coverprofile cover.out && \
+  go test -race -covermode=atomic -coverprofile cover.out && \
   go tool cover -html=cover.out -o cover.html && \
   open cover.html
 }

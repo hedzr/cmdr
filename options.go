@@ -16,6 +16,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -24,6 +25,7 @@ func NewOptions() *Options {
 	return &Options{
 		entries:   make(map[string]interface{}),
 		hierarchy: make(map[string]interface{}),
+		rw:        new(sync.RWMutex),
 	}
 }
 
@@ -32,6 +34,7 @@ func NewOptionsWith(entries map[string]interface{}) *Options {
 	return &Options{
 		entries:   entries,
 		hierarchy: make(map[string]interface{}),
+		rw:        new(sync.RWMutex),
 	}
 }
 
@@ -120,6 +123,8 @@ func GetStringSliceP(prefix, key string) []string {
 // ```
 //
 func (s *Options) Get(key string) interface{} {
+	defer s.rw.RUnlock()
+	s.rw.RLock()
 	return s.entries[key]
 }
 
@@ -154,6 +159,9 @@ func (s *Options) GetStringSlice(key string) (ir []string) {
 	// if s, ok := os.LookupEnv(envkey); ok {
 	// 	ir = strings.Split(s, ",")
 	// }
+
+	defer s.rw.RUnlock()
+	s.rw.RLock()
 
 	if v, ok := s.entries[key]; ok {
 		switch reflect.ValueOf(v).Kind() {
@@ -200,6 +208,9 @@ func (s *Options) GetIntSlice(key string) (ir []int) {
 	// 	ir = stringSliceToIntSlice(strings.Split(s, ","))
 	// }
 
+	defer s.rw.RUnlock()
+	s.rw.RLock()
+
 	if v, ok := s.entries[key]; ok {
 		switch reflect.ValueOf(v).Kind() {
 		case reflect.String:
@@ -240,6 +251,9 @@ func (s *Options) GetString(key string) (ret string) {
 	// if s, ok := os.LookupEnv(envkey); ok {
 	// 	ret = s
 	// }
+
+	defer s.rw.RUnlock()
+	s.rw.RLock()
 
 	if v, ok := s.entries[key]; ok {
 		switch reflect.ValueOf(v).Kind() {
@@ -306,6 +320,9 @@ func SetNx(key string, val interface{}) {
 
 // Set set the value of an `Option` key.
 func (s *Options) Set(key string, val interface{}) {
+	defer s.rw.Unlock()
+	s.rw.Lock()
+
 	k := wrapRxxtPrefix(key)
 	s.entries[k] = val
 	a := strings.Split(k, ".")
@@ -316,6 +333,9 @@ func (s *Options) Set(key string, val interface{}) {
 // `rxxtPrefix` is a string slice to define the prefix string array, default is ["app"].
 // So, cmdr.Set("debug", true) will put an real entry with (`app.debug`, true).
 func (s *Options) SetNx(key string, val interface{}) {
+	defer s.rw.Unlock()
+	s.rw.Lock()
+
 	s.entries[key] = val
 	a := strings.Split(key, ".")
 	mergeMap(s.hierarchy, a[0], et(a, 1, val))
@@ -357,6 +377,9 @@ func ResetOptions() {
 
 // Reset the exists `Options`, so that you could follow a `LoadConfigFile()` with it.
 func (s *Options) Reset() {
+	defer s.rw.Unlock()
+	s.rw.Lock()
+
 	s.entries = nil
 	time.Sleep(100 * time.Millisecond)
 	s.entries = make(map[string]interface{})
@@ -495,5 +518,7 @@ func (s *Options) DumpAsString() (str string) {
 
 // GetHierarchyList returns the hierarchy data for dumping
 func (s *Options) GetHierarchyList() map[string]interface{} {
+	defer s.rw.RUnlock()
+	s.rw.RLock()
 	return s.hierarchy
 }

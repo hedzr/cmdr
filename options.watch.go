@@ -31,22 +31,38 @@ func GetUsedConfigSubDir() string {
 	return usedConfigSubDir
 }
 
+var rwlCfgReload = new(sync.RWMutex)
+
 // AddOnConfigLoadedListener add an functor on config loaded and merged
 func AddOnConfigLoadedListener(c ConfigReloaded) {
+	defer rwlCfgReload.Unlock()
+	rwlCfgReload.Lock()
+
+	// rwlCfgReload.RLock()
 	if _, ok := onConfigReloadedFunctions[c]; ok {
-		//
-	} else {
-		onConfigReloadedFunctions[c] = true
+		// rwlCfgReload.RUnlock()
+		return
 	}
+
+	// rwlCfgReload.RUnlock()
+	// rwlCfgReload.Lock()
+
+	// defer rwlCfgReload.Unlock()
+
+	onConfigReloadedFunctions[c] = true
 }
 
 // RemoveOnConfigLoadedListener remove an functor on config loaded and merged
 func RemoveOnConfigLoadedListener(c ConfigReloaded) {
+	defer rwlCfgReload.Unlock()
+	rwlCfgReload.Lock()
 	delete(onConfigReloadedFunctions, c)
 }
 
 // SetOnConfigLoadedListener enable/disable an functor on config loaded and merged
 func SetOnConfigLoadedListener(c ConfigReloaded, enabled bool) {
+	defer rwlCfgReload.Unlock()
+	rwlCfgReload.Lock()
 	onConfigReloadedFunctions[c] = enabled
 }
 
@@ -190,6 +206,9 @@ func (s *Options) visit(path string, f os.FileInfo, e error) (err error) {
 
 func (s *Options) reloadConfig(e fsnotify.Event) {
 	// log.Debugf("\n\nConfig file changed: %s\n", e.String())
+
+	defer rwlCfgReload.RUnlock()
+	rwlCfgReload.RLock()
 
 	for x, ok := range onConfigReloadedFunctions {
 		if ok {

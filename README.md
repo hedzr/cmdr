@@ -39,28 +39,36 @@ getopt/getopt_long like command-line UI (CLI) golang library. A replacer for go 
   - Supports namespaces for (nested) option groups
 
 - Automatic help screen generation (*Generate and print well-formatted help message*)
-- Fluent API style
+
+- Support the Fluent API style
   ```go
-	root := cmdr.Root("aa", "1.0.1").Header("aa - test for cmdr - hedzr")
-	rootCmd = root.RootCommand()
-
-	co := root.NewSubCommand().
-		Titles("ms", "micro-service").
-		Description("", "").
-		Group("")
-
-	co.NewFlag(cmdr.OptFlagTypeUint).
-		Titles("t", "retry").
-		Description("", "").
-		Group("").
-		DefaultValue(3, "RETRY")
-
-	cTags := co.NewSubCommand().
-		Titles("t", "tags").
-		Description("", "").
-		Group("")
+  root := cmdr.Root("aa", "1.0.1").Header("aa - test for cmdr - hedzr")
+  rootCmd = root.RootCommand()
+  
+  co := root.NewSubCommand().
+  	Titles("ms", "micro-service").
+  	Description("", "").
+  	Group("")
+  
+  co.NewFlag(cmdr.OptFlagTypeUint).
+  	Titles("t", "retry").
+  	Description("", "").
+  	Group("").
+  	DefaultValue(3, "RETRY")
+  
+  cTags := co.NewSubCommand().
+  	Titles("t", "tags").
+  	Description("", "").
+  	Group("")
   ```
+
+- Muiltiple API styles:
+
+  - Data Definitions style (Classical style): see also [root_cmd.go in demo](https://github.com/hedzr/cmdr/blob/master/examples/demo/demo/root_cmd.go)
+  - Fluent API style: see also [main.go in fluent](https://github.com/hedzr/cmdr/blob/master/examples/fluent/main.go)
+
 - Strict Mode
+
   - *false*: Ignoring unknown command line options (default)
   - *true*: Report error on unknown commands and options if strict mode enabled (optional)
     enable strict mode:
@@ -71,7 +79,9 @@ getopt/getopt_long like command-line UI (CLI) golang library. A replacer for go 
       app:
         strict-mode: true
       ```
+
 - Support for unlimited multiple sub-commands.
+
 - Supports `-I/usr/include`` -I=/usr/include` `-I /usr/include` option argument specification
   Automatically allows those formats (applied to long option too):
   - `-I file`, `-Ifile`, and `-I=files`
@@ -141,7 +151,7 @@ getopt/getopt_long like command-line UI (CLI) golang library. A replacer for go 
       SetPredefinedLocations([]string{"./config", "~/.config/cmdr/", "$GOPATH/running-configs/cmdr"})
       ```
 
-  - supports configuration file formats:
+  - supports muiltiple file formats:
 
     - Yaml
     - JSON
@@ -151,29 +161,32 @@ getopt/getopt_long like command-line UI (CLI) golang library. A replacer for go 
 
   *priority level:* `defaultValue -> config-file -> env-var -> command-line opts`
 
-- `cmdr.Get(key)`, `cmdr.GetBool(key)`, `cmdr.GetInt(key)`, `cmdr.GetString(key)`, `cmdr.GetStringSlice(key)` and `cmdr.GetIntSlice(key)` for Option value extractions.
+- Unify option value extraction:
 
-  - bool
-  - int, int64, uint, uint64
-  - string
-  - string slice
-  - int slice
-  - time duration
-  - *todo: float, time, ~~duration~~, ~~int slice~~, ...*
-  - *todo: all primitive go types*
-  - *todo: maps*
+  - `cmdr.Get(key)`, `cmdr.GetBool(key)`, `cmdr.GetInt(key)`, `cmdr.GetString(key)`, `cmdr.GetStringSlice(key)` and `cmdr.GetIntSlice(key)`, `cmdr.GetDuration(key)` for Option value extractions.
 
-- `cmdr.GetP(prefix, key)`, `cmdr.GetBoolP(prefix, key)`, ….
+    - bool
+    - int, int64, uint, uint64
+    - string
+    - string slice
+    - int slice
+    - time duration
+    - *todo: float, time, ~~duration~~, ~~int slice~~, ...*
+    - *todo: all primitive go types*
+    - *todo: maps*
 
-- `cmdr.Set(key, value)`, `cmdr.SerNx(key, value)`
+  - `cmdr.GetP(prefix, key)`, `cmdr.GetBoolP(prefix, key)`, ….
 
-  `Set()` set value by key without RxxtPrefix, eg: `cmdr.Set("debug", true)` for `--debug`.
+  - `cmdr.Set(key, value)`, `cmdr.SerNx(key, value)`
 
-  `SetNx()` set value by exact key. so: `cmdr.SetNx("app.debug", true)` for `--debug`.
+    `Set()` set value by key without RxxtPrefix, eg: `cmdr.Set("debug", true)` for `--debug`.
 
-- Customizable `Painter` interface to loop each commands and flags.
+    `SetNx()` set value by exact key. so: `cmdr.SetNx("app.debug", true)` for `--debug`.
 
-- Uses `WalkAllCommands(walker)` to loop commands.
+- Walkable
+
+  - Customizable `Painter` interface to loop each commands and flags.
+  - Uses `WalkAllCommands(walker)` to loop commands.
 
 - Daemon (*Linux Only*)
 
@@ -208,24 +221,24 @@ getopt/getopt_long like command-line UI (CLI) golang library. A replacer for go 
 
   `AddOnAfterXrefBuilt(cb)`
 
-- Launch external editor by `&Flag{BaseOpt:BaseOpt{},ExternalTool:cmdr.ExternalToolEditor}`:
+- Advanced festures
 
-  just like `git -m`, try this command:
+  - Launch external editor by `&Flag{BaseOpt:BaseOpt{},ExternalTool:cmdr.ExternalToolEditor}`:
 
-  ```bash
-  EDITOR=nano bin/demo -m ~~debug
-  ```
+    just like `git -m`, try this command:
 
-  Default is `vim`. And `-m "something"` can skip the launching.
+     ```bash
+     EDITOR=nano bin/demo -m ~~debug
+     ```
 
-- `ToggleGroup`: make a group of flags as a radio-button group.
+     Default is `vim`. And `-m "something"` can skip the launching.
 
-- Muiltiple API styles:
+  - `ToggleGroup`: make a group of flags as a radio-button group.
 
-  - Data Definitions style (Classical style): see also [root_cmd.go in demo](https://github.com/hedzr/cmdr/blob/master/examples/demo/demo/root_cmd.go)
-  - Fluent API style: see also [main.go in fluent](https://github.com/hedzr/cmdr/blob/master/examples/fluent/main.go)
+  - Safe password input for end-user: `cmdr.ExternalToolPasswordInput`
 
 - More...
+
 
 
 
@@ -236,9 +249,9 @@ getopt/getopt_long like command-line UI (CLI) golang library. A replacer for go 
 2. [demo](./examples/demo/README.md)  
    normal demo with external config files.
 3. [wget-demo](./examples/wget-demo/README.md)  
-   partial-impl wget demo.
+   partial-covered for GNU `wget`.
 4. [fluent](./examples/fluent)  
-   fluent api demo.
+   demostrates how to use the fluent api style.
 
 
 
@@ -252,7 +265,7 @@ getopt/getopt_long like command-line UI (CLI) golang library. A replacer for go 
 
 <details>
 	<summary> Expand to source codes </summary>
-	
+
 ```go
 	root := cmdr.Root("aa", "1.0.1").Header("aa - test for cmdr - hedzr")
 	rootCmd = root.RootCommand()

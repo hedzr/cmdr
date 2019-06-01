@@ -251,7 +251,7 @@ func (s *markdownPainter) FpFlagsLine(command *Command, flag *Flag, defValStr st
 	// s.Printf(".TP\n.BI %s\n%s\n%s\n", manWs(flag.GetTitleFlagNames()), flag.Description, defValStr)
 
 	title := "--" + flag.Full
-	if len(title) == 0 {
+	if len(title) == 2 {
 		title = "-" + flag.Short
 	}
 

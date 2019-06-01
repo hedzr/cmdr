@@ -233,22 +233,22 @@ func equal(to, from reflect.Value) bool {
 		return from.Complex() == to.Complex()
 	case reflect.Complex128:
 		return from.Complex() == to.Complex()
-	// case reflect.Array:
-	// 	if from.Len() != to.Len() {
-	// 		return false
-	// 	}
-	// 	if from.Len() == 0 {
-	// 		return true
-	// 	}
-	// 	for i := 0; i < from.Len(); i++ {
-	// 		if !equal(from.Slice(i, i+1), to.Slice(i, i+1)) {
-	// 			return false
-	// 		}
-	// 	}
-	// 	return true
-	// 
-	// case reflect.Chan:
-	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+	case reflect.Array:
+		if from.Len() != to.Len() {
+			return false
+		}
+		if from.Len() == 0 {
+			return true
+		}
+		for i := 0; i < from.Len(); i++ {
+			if !equal(from.Slice(i, i+1), to.Slice(i, i+1)) {
+				return false
+			}
+		}
+		return true
+
+	case reflect.Chan:
+		// logrus.Warnf("unrecognized type: %v", to.Kind())
 	case reflect.Func:
 		// logrus.Warnf("unrecognized type: %v", to.Kind())
 	case reflect.Interface:
@@ -328,8 +328,10 @@ func setDefault(to reflect.Value) {
 		to.SetComplex(0)
 	case reflect.Complex128:
 		to.SetComplex(0)
-	// case reflect.Array:
-	// 	to.SetLen(0)
+	case reflect.Array:
+		for i := 0; i < to.Len(); i++ {
+			setDefault(to.Index(i))
+		}
 	case reflect.Chan:
 		// logrus.Warnf("unrecognized type: %v", to.Kind())
 	case reflect.Func:
@@ -364,8 +366,8 @@ func isNil(to reflect.Value) bool {
 		return to.IsNil()
 	case reflect.Map:
 		return to.IsNil()
-	case reflect.Ptr:
-		return to.IsNil()
+	// case reflect.Ptr:
+	// 	return to.IsNil()
 	case reflect.Slice:
 	case reflect.String:
 	case reflect.Struct:

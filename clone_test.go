@@ -99,6 +99,9 @@ type X1 struct {
 	L unsafe.Pointer
 	M unsafe.Pointer
 	N []int
+	O [2]string
+	P [2]string
+	Q [2]string
 }
 
 type X2 struct {
@@ -116,16 +119,24 @@ type X2 struct {
 	L unsafe.Pointer
 	M unsafe.Pointer
 	N []int
+	O [2]string
+	P [2]string
+	Q [3]string
 }
 
 func TestCopyCov(t *testing.T) {
 	nn := []int{2, 9, 77, 111, 23, 29}
+	var a [2]string
+	a[0] = "Hello"
+	a[1] = "World"
 	x0 := X0{}
 	x1 := X1{
 		A: uintptr(unsafe.Pointer(&x0)),
 		H: make(chan int, 5),
 		M: unsafe.Pointer(&x0),
 		N: nn[1:3],
+		O: a,
+		Q: a,
 	}
 	x2 := &X2{N: nn[1:3]}
 	cmdr.GormDefaultCopier.Copy(&x2, &x1, "Shit", "Memo", "Name")

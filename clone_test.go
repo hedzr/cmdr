@@ -5,11 +5,13 @@
 package cmdr_test
 
 import (
+	"bytes"
 	"errors"
 	"github.com/hedzr/cmdr"
 	"reflect"
 	"testing"
 	"time"
+	"unsafe"
 )
 
 type User struct {
@@ -38,6 +40,8 @@ type User struct {
 	C11      complex64
 	C12      complex128
 	Sptr     *string
+	Bool1    bool
+	Bool2    bool
 	// Feat     []byte
 }
 
@@ -73,7 +77,58 @@ type Employee struct {
 	Born      *int
 	BornU     *uint
 	flags     []byte
+	Bool1     bool
+	Bool2     bool
 	Ro        []int
+}
+
+type X0 struct{}
+
+type X1 struct {
+	A uintptr
+	B map[string]interface{}
+	C bytes.Buffer
+	D []string
+	E []*X0
+	F chan struct{}
+	G chan bool
+	H chan int
+	I func()
+	J interface{}
+	K *X0
+	L unsafe.Pointer
+	M unsafe.Pointer
+	N []int
+}
+
+type X2 struct {
+	A uintptr
+	B map[string]interface{}
+	C bytes.Buffer
+	D []string
+	E []*X0
+	F chan struct{}
+	G chan bool
+	H chan int
+	I func()
+	J interface{}
+	K *X0
+	L unsafe.Pointer
+	M unsafe.Pointer
+	N []int
+}
+
+func TestCopyCov(t *testing.T) {
+	nn := []int{2, 9, 77, 111, 23, 29}
+	x0 := X0{}
+	x1 := X1{
+		A: uintptr(unsafe.Pointer(&x0)),
+		H: make(chan int, 5),
+		M: unsafe.Pointer(&x0),
+		N: nn[1:3],
+	}
+	x2 := &X2{N: nn[1:3]}
+	cmdr.GormDefaultCopier.Copy(&x2, &x1, "Shit", "Memo", "Name")
 }
 
 func (employee *Employee) Role(role string) {
@@ -115,18 +170,23 @@ func TestCopyStruct(t *testing.T) {
 	var born int = 7
 	var bornU uint = 7
 	var sz = "dablo"
-	user := User{Name: "Faked", Nickname: "user", Age: 18, FakeAge: &fakeAge,
-		Role: "User", Notes: []string{"hello world", "welcome"}, flags: []byte{'x'},
-		Retry: 3, Times: 17, RetryU: 23, TimesU: 21, FxReal: 31, FxTime: 37,
-		FxTimeU: 13, UxA: 11, UxB: 7, Born: &born, BornU: &bornU,
-		Ro: []int{1, 2, 3}, Sptr: &sz, // Feat: []byte(sz),
-	}
+	user := User{Name: "Faked"}
 	employee := Employee{}
 
 	if err := cmdr.StandardCopier.Copy(employee, &user); err == nil {
 		t.Errorf("Copy to unaddressable value should get error")
 	}
 
+	cmdr.GormDefaultCopier.Copy(&employee, &user, "Shit", "Memo", "Name")
+	// cmdr.StandardCopier.Copy(&employee, &user, "Shit", "Memo", "Name")
+	
+	user = User{Name: "Faked", Nickname: "user", Age: 18, FakeAge: &fakeAge,
+		Role: "User", Notes: []string{"hello world", "welcome"}, flags: []byte{'x'},
+		Retry: 3, Times: 17, RetryU: 23, TimesU: 21, FxReal: 31, FxTime: 37,
+		FxTimeU: 13, UxA: 11, UxB: 0, Born: &born, BornU: &bornU,
+		Ro: []int{1, 2, 3}, Sptr: &sz, Bool1: true, // Feat: []byte(sz),
+	}
+	employee = Employee{}
 	cmdr.StandardCopier.Copy(&employee, &user)
 	checkEmployee(employee, user, t, "Copy From Ptr To Ptr")
 

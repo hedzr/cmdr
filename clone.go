@@ -223,8 +223,8 @@ func equal(to, from reflect.Value) bool {
 		return from.Uint() == to.Uint()
 	case reflect.Uint64:
 		return from.Uint() == to.Uint()
-	case reflect.Uintptr:
-		return from.Pointer() == to.Pointer()
+	// case reflect.Uintptr:
+	// 	return from.Pointer() == to.Pointer()
 	case reflect.Float32:
 		return from.Float() == to.Float()
 	case reflect.Float64:
@@ -233,30 +233,30 @@ func equal(to, from reflect.Value) bool {
 		return from.Complex() == to.Complex()
 	case reflect.Complex128:
 		return from.Complex() == to.Complex()
-	case reflect.Array:
-		if from.Len() != to.Len() {
-			return false
-		}
-		if from.Len() == 0 {
-			return true
-		}
-		for i := 0; i < from.Len(); i++ {
-			if !equal(from.Slice(i, i+1), to.Slice(i, i+1)) {
-				return false
-			}
-		}
-		return true
-
-	case reflect.Chan:
-		// logrus.Warnf("unrecognized type: %v", to.Kind())
+	// case reflect.Array:
+	// 	if from.Len() != to.Len() {
+	// 		return false
+	// 	}
+	// 	if from.Len() == 0 {
+	// 		return true
+	// 	}
+	// 	for i := 0; i < from.Len(); i++ {
+	// 		if !equal(from.Slice(i, i+1), to.Slice(i, i+1)) {
+	// 			return false
+	// 		}
+	// 	}
+	// 	return true
+	// 
+	// case reflect.Chan:
+	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
 	case reflect.Func:
 		// logrus.Warnf("unrecognized type: %v", to.Kind())
 	case reflect.Interface:
 		// logrus.Warnf("unrecognized type: %v", to.Kind())
 	case reflect.Map:
 		// logrus.Warnf("unrecognized type: %v", to.Kind())
-	case reflect.Ptr:
-		return from.Pointer() == to.Pointer()
+	// case reflect.Ptr:
+	// 	return from.Pointer() == to.Pointer()
 	case reflect.Slice:
 		if from.Len() != to.Len() {
 			return false
@@ -265,7 +265,7 @@ func equal(to, from reflect.Value) bool {
 			return true
 		}
 		for i := 0; i < from.Len(); i++ {
-			if !equal(from.Slice(i, i+1), to.Slice(i, i+1)) {
+			if !equal(from.Index(i), to.Index(i)) {
 				return false
 			}
 		}
@@ -318,8 +318,8 @@ func setDefault(to reflect.Value) {
 		to.SetUint(0)
 	case reflect.Uint64:
 		to.SetUint(0)
-	case reflect.Uintptr:
-		to.SetPointer(nil)
+	// case reflect.Uintptr:
+	// 	to.SetPointer(nil)
 	case reflect.Float32:
 		to.SetFloat(0)
 	case reflect.Float64:
@@ -328,8 +328,8 @@ func setDefault(to reflect.Value) {
 		to.SetComplex(0)
 	case reflect.Complex128:
 		to.SetComplex(0)
-	case reflect.Array:
-		to.SetLen(0)
+	// case reflect.Array:
+	// 	to.SetLen(0)
 	case reflect.Chan:
 		// logrus.Warnf("unrecognized type: %v", to.Kind())
 	case reflect.Func:
@@ -338,8 +338,8 @@ func setDefault(to reflect.Value) {
 		// logrus.Warnf("unrecognized type: %v", to.Kind())
 	case reflect.Map:
 		// logrus.Warnf("unrecognized type: %v", to.Kind())
-	case reflect.Ptr:
-		to.SetPointer(nil)
+	// case reflect.Ptr:
+	// 	to.SetPointer(nil)
 	case reflect.Slice:
 		to.SetLen(0)
 	case reflect.String:
@@ -354,7 +354,7 @@ func setDefault(to reflect.Value) {
 func isNil(to reflect.Value) bool {
 	switch to.Kind() {
 	case reflect.Uintptr:
-		return to.IsNil()
+		return to.UnsafeAddr() == 0
 	case reflect.Array:
 	case reflect.Chan:
 		return to.IsNil()
@@ -369,7 +369,7 @@ func isNil(to reflect.Value) bool {
 	case reflect.Slice:
 	case reflect.String:
 	case reflect.Struct:
-		return to.IsNil()
+		return false
 	case reflect.UnsafePointer:
 		return to.IsNil()
 	}

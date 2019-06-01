@@ -190,7 +190,7 @@ func TestCopyStruct(t *testing.T) {
 
 	cmdr.GormDefaultCopier.Copy(&employee, &user, "Shit", "Memo", "Name")
 	// cmdr.StandardCopier.Copy(&employee, &user, "Shit", "Memo", "Name")
-	
+
 	user = User{Name: "Faked", Nickname: "user", Age: 18, FakeAge: &fakeAge,
 		Role: "User", Notes: []string{"hello world", "welcome"}, flags: []byte{'x'},
 		Retry: 3, Times: 17, RetryU: 23, TimesU: 21, FxReal: 31, FxTime: 37,

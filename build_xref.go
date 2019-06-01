@@ -29,6 +29,7 @@ func buildRootCrossRefs(root *RootCommand) {
 			}
 			root.SubCommands = append(root.SubCommands, cx)
 			root.allCmds[SysMgmtGroup]["version"] = cx
+			root.allCmds[SysMgmtGroup]["ver"] = cx
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["version"]; !ok {
 			root.allFlags[SysMgmtGroup]["version"] = &Flag{
@@ -47,6 +48,7 @@ func buildRootCrossRefs(root *RootCommand) {
 				DefaultValue: false,
 			}
 			root.plainLongFlags["version"] = root.allFlags[SysMgmtGroup]["version"]
+			root.plainLongFlags["ver"] = root.allFlags[SysMgmtGroup]["version"]
 			root.plainShortFlags["V"] = root.allFlags[SysMgmtGroup]["version"]
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["build-info"]; !ok {

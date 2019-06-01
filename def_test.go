@@ -150,7 +150,7 @@ func TestStrictMode(t *testing.T) {
 	if err := cmdr.Exec(rootCmd); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	resetOsArgs()
 }
 
@@ -922,7 +922,7 @@ var (
 			},
 			{
 				BaseOpt: cmdr.BaseOpt{
-					Short:       "nf", // parent no Full 
+					Short:       "nf", // parent no Full
 					Aliases:     []string{"run", "startup"},
 					Description: "dup test: startup this system service/daemon.",
 				},
@@ -934,7 +934,7 @@ var (
 				SubCommands: []*cmdr.Command{
 					{
 						BaseOpt: cmdr.BaseOpt{
-							Short:       "nf", // parent no Full 
+							Short:       "nf", // parent no Full
 							Aliases:     []string{"run", "startup"},
 							Description: "dup test: startup this system service/daemon.",
 						},

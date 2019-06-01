@@ -5,9 +5,10 @@
 package cmdr
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/pelletier/go-toml"
+	"github.com/BurntSushi/toml"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
@@ -375,16 +376,23 @@ func mxIx(pre string, k interface{}) string {
 	return fmt.Sprintf("%v.%v", pre, k)
 }
 
+func (s *Options) loopMapMap(kdot string, m map[string]map[string]interface{}) (err error) {
+	for k, v := range m {
+		if err = s.loopMap(mx(kdot, k), v); err != nil {
+			return
+		}
+	}
+	return
+}
+
 func (s *Options) loopMap(kdot string, m map[string]interface{}) (err error) {
 	for k, v := range m {
 		if vm, ok := v.(map[interface{}]interface{}); ok {
-			err = s.loopIxMap(mx(kdot, k), vm)
-			if err != nil {
+			if err = s.loopIxMap(mx(kdot, k), vm); err != nil {
 				return
 			}
 		} else if vm, ok := v.(map[string]interface{}); ok {
-			err = s.loopMap(mx(kdot, k), vm)
-			if err != nil {
+			if err = s.loopMap(mx(kdot, k), vm); err != nil {
 				return
 			}
 		} else {
@@ -397,15 +405,13 @@ func (s *Options) loopMap(kdot string, m map[string]interface{}) (err error) {
 func (s *Options) loopIxMap(kdot string, m map[interface{}]interface{}) (err error) {
 	for k, v := range m {
 		if vm, ok := v.(map[interface{}]interface{}); ok {
-			err = s.loopIxMap(mxIx(kdot, k), vm)
-			if err != nil {
+			if err = s.loopIxMap(mxIx(kdot, k), vm); err != nil {
 				return
 			}
-		} else if vm, ok := v.(map[string]interface{}); ok {
-			err = s.loopMap(mxIx(kdot, k), vm)
-			if err != nil {
-				return
-			}
+			// } else if vm, ok := v.(map[string]interface{}); ok {
+			// 	if err = s.loopMap(mxIx(kdot, k), vm); err != nil {
+			// 		return
+			// 	}
 		} else {
 			s.SetNx(mxIx(kdot, k), v)
 		}
@@ -447,13 +453,23 @@ func SaveAsJSON(filename string) (err error) {
 // SaveAsToml to Save all config entries as a toml file
 func SaveAsToml(filename string) (err error) {
 	obj := rxxtOptions.GetHierarchyList()
+	err = SaveObjAsToml(obj, filename)
+	return
+}
 
-	b, err := toml.Marshal(obj)
+// SaveObjAsToml to Save an object as a toml file
+func SaveObjAsToml(obj interface{}, filename string) (err error) {
+	f, err := os.Create(filename)
 	if err != nil {
 		return
 	}
 
-	err = ioutil.WriteFile(filename, b, 0644)
+	e := toml.NewEncoder(bufio.NewWriter(f))
+	if err = e.Encode(obj); err != nil {
+		return
+	}
+
+	// err = ioutil.WriteFile(filename, b, 0644)
 	return
 }
 

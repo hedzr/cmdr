@@ -161,6 +161,22 @@ func Launch(cmd string, args ...string) (err error) {
 // 	return exec.LookPath(DefaultEditor)
 // }
 
+// SavedOsArgs is a copy of os.Args, just for testing
+var SavedOsArgs []string
+
+func init() {
+	// bug: can't copt slice to slice: _ = StandardCopier.Copy(&SavedOsArgs, &os.Args)
+	for _, s := range os.Args {
+		SavedOsArgs = append(SavedOsArgs, s)
+	}
+}
+
+// InTesting detects whether is running under go test mode
+func InTesting() bool {
+	return strings.HasSuffix(SavedOsArgs[0], ".test") ||
+		strings.Contains(SavedOsArgs[0], "/T/___Test")
+}
+
 func randomFilename() string {
 	buf := make([]byte, 16)
 	if _, err := rand.Read(buf); err != nil {
@@ -169,9 +185,14 @@ func randomFilename() string {
 	return fmt.Sprintf("%v/.CMDR_%x", os.Getenv("HOME"), buf)
 }
 
-// LaunchEditor launchs the specified editor
+// LaunchEditor launches the specified editor
 func LaunchEditor(editor string) (content []byte, err error) {
 	return launchEditorWith(editor, randomFilename())
+}
+
+// LaunchEditor launches the specified editor with a filename
+func LaunchEditorWith(editor string, filename string) (content []byte, err error) {
+	return launchEditorWith(editor, filename)
 }
 
 func launchEditorWith(editor, filename string) (content []byte, err error) {

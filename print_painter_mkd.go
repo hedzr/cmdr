@@ -111,11 +111,11 @@ func (s *markdownPainter) FpPrintHelpTailLine(command *Command) {
 func mkdSubCommands(command *Command) (ret []string) {
 	for _, sc := range command.SubCommands {
 		title := strings.ReplaceAll(backtraceCmdNames(sc), ".", "-")
-		if len(title) == 0 {
-			title = command.root.AppName
-		} else {
-			title = command.root.AppName + "-" + title
-		}
+		// if len(title) == 0 {
+		// 	title = command.root.AppName
+		// } else {
+		title = command.root.AppName + "-" + title
+		// }
 		var wrapChars, tail string
 		if len(sc.Deprecated) > 0 {
 			wrapChars = "~~"
@@ -136,7 +136,8 @@ func (s *markdownPainter) FpUsagesTitle(command *Command, title string) {
 
 func (s *markdownPainter) FpUsagesLine(command *Command, fmt, appName, cmdList, cmdsTitle, tailPlaceHolder string) {
 	if !command.IsRoot() {
-		s.Printf("```bash\n%s %v%s%s [Options] [Parent/Global Options] [tail args...]"+fmt+"\n```\n", appName, cmdList, cmdsTitle, tailPlaceHolder)
+		s.Printf("```bash\n%s %v%s%s [Options] [Parent/Global Options] [tail args...]"+fmt+"\n```\n",
+			appName, cmdList, cmdsTitle, tailPlaceHolder)
 	}
 }
 

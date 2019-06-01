@@ -8,15 +8,14 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"github.com/BurntSushi/toml"
 	"github.com/fsnotify/fsnotify"
-	"github.com/pelletier/go-toml"
-	"log"
-	"path"
-
 	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -89,8 +88,9 @@ func (s *Options) LoadConfigFile(file string) (err error) {
 // Load a yaml config file and merge the settings into `Options`
 func (s *Options) loadConfigFile(file string) (err error) {
 	var (
-		b []byte
-		m map[string]interface{}
+		b  []byte
+		m  map[string]interface{}
+		mm map[string]map[string]interface{}
 	)
 
 	b, err = ioutil.ReadFile(file)
@@ -101,9 +101,16 @@ func (s *Options) loadConfigFile(file string) (err error) {
 	m = make(map[string]interface{})
 	switch path.Ext(file) {
 	case ".toml", ".ini", ".conf", "toml":
-		if err = toml.Unmarshal(b, &m); err != nil {
+		mm = make(map[string]map[string]interface{})
+		if err = toml.Unmarshal(b, &mm); err != nil {
 			return
 		}
+		err = s.loopMapMap("", mm)
+		if err != nil {
+			return
+		}
+		return
+
 	case ".json", "json":
 		if err = json.Unmarshal(b, &m); err != nil {
 			return

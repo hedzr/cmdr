@@ -13,15 +13,24 @@ func (s *BaseOpt) HasParent() bool {
 	return s.owner != nil
 }
 
-// GetTitleName temp
+// GetTitleName returns name/full/short string
 func (s *BaseOpt) GetTitleName() string {
 	if len(s.Name) != 0 {
 		return s.Name
 	}
-	return s.Full
+	if len(s.Full) > 0 {
+		return s.Full
+	}
+	if len(s.Short) > 0 {
+		return s.Short
+	}
+	// for _, ss := range s.Aliases {
+	// 	return ss
+	// }
+	return ""
 }
 
-// GetTitleNamesArray temp
+// GetTitleNamesArray returns short,full,aliases names
 func (s *BaseOpt) GetTitleNamesArray() []string {
 	var a []string
 	if len(s.Short) != 0 {
@@ -34,7 +43,7 @@ func (s *BaseOpt) GetTitleNamesArray() []string {
 	return a
 }
 
-// GetShortTitleNamesArray temp
+// GetShortTitleNamesArray returns short name as an array
 func (s *BaseOpt) GetShortTitleNamesArray() []string {
 	var a []string
 	if len(s.Short) != 0 {
@@ -43,7 +52,7 @@ func (s *BaseOpt) GetShortTitleNamesArray() []string {
 	return a
 }
 
-// GetLongTitleNamesArray temp
+// GetLongTitleNamesArray returns long name and aliases as an array
 func (s *BaseOpt) GetLongTitleNamesArray() []string {
 	var a []string
 	if len(s.Full) > 0 {
@@ -53,12 +62,12 @@ func (s *BaseOpt) GetLongTitleNamesArray() []string {
 	return a
 }
 
-// GetTitleNames temp
+// GetTitleNames return the joint string of short,full,aliases names
 func (s *BaseOpt) GetTitleNames() string {
 	return s.GetTitleNamesBy(", ")
 }
 
-// GetTitleNamesBy temp
+// GetTitleNamesBy returns the joint string of short,full,aliases names
 func (s *BaseOpt) GetTitleNamesBy(delimChar string) string {
 	var a = s.GetTitleNamesArray()
 	str := strings.Join(a, delimChar)

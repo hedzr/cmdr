@@ -82,15 +82,181 @@ var (
 // }
 )
 
-func TestLoadConfigFile(t *testing.T) {
+func TestSingleCommandLine1(t *testing.T) {
+	var err error
+	defer func() {
+		_ = os.Remove(".tmp.1.json")
+		_ = os.Remove(".tmp.1.yaml")
+		_ = os.Remove(".tmp.1.toml")
+	}()
 
-	err := cmdr.LoadConfigFile("../../ci/etc/devops/devops.yml")
-	if err != nil {
+	os.Args = []string{"consul-tags", "kv", "b"}
+	cmdr.SetInternalOutputStreams(nil, nil)
+	_ = cmdr.Exec(rootCmd)
+	_ = cmdr.ExecWith(rootCmd, nil, nil)
+
+	_ = cmdr.SaveAsYaml(".tmp.1.yaml")
+	_ = cmdr.SaveAsJSON(".tmp.1.json")
+	if err = cmdr.SaveAsToml(".tmp.1.toml"); err != nil {
+		// t.Fatal("dump toml failed", err)
+	}
+	// _ = os.Remove(".tmp.json")
+
+	cmdr.AddOnAfterXrefBuilt(func(root *cmdr.RootCommand, args []string) {
+		return
+	})
+	cmdr.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
+		return
+	})
+	cmdr.AddOnConfigLoadedListener(&cfgLoaded{})
+	_ = cmdr.ExecWith(rootCmd, func(root *cmdr.RootCommand, args []string) {
+		return
+	}, func(root *cmdr.RootCommand, args []string) {
+		return
+	})
+
+	resetOsArgs()
+}
+
+func resetOsArgs() {
+	os.Args = []string{}
+	for _, s := range cmdr.SavedOsArgs {
+		os.Args = append(os.Args, s)
+	}
+}
+
+func TestConfigOption(t *testing.T) {
+	os.Args = []string{"consul-tags", "--config", "./conf.d"}
+	cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
+	resetOsArgs()
+}
+
+func TestStrictMode(t *testing.T) {
+	os.Args = []string{"consul-tags", "ms", "tags", "add", "--strict-mode"}
+	cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
+	os.Args = []string{"consul-tags", "server", "start", "~f", "--strict-mode"}
+	cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
+	os.Args = []string{"consul-tags", "server", "nf", "nf", "--strict-mode"}
+	cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
+	
+	resetOsArgs()
+}
+
+func TestTreeDump(t *testing.T) {
+	os.Args = []string{"consul-tags", "--tree"}
+	cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
+	resetOsArgs()
+}
+
+func TestVersionCommand(t *testing.T) {
+
+	defer func() {
+		_ = os.Remove(".tmp.1.json")
+		_ = os.Remove(".tmp.1.yaml")
+		_ = os.Remove(".tmp.1.toml")
+	}()
+
+	os.Args = []string{"consul-tags", "version"}
+	cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd); err != nil {
 		t.Fatal(err)
 	}
 
-	t.Log("\n" + cmdr.DumpAsString())
+	os.Args = []string{"consul-tags", "ver"}
+	cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
 
+	os.Args = []string{"consul-tags", "--version"}
+	cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
+
+	os.Args = []string{"consul-tags", "-#"}
+	cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
+
+	resetOsArgs()
+}
+
+// func init() {
+// 	_ = cmdr.StandardCopier.Copy(&cmdr.SavedOsArgs, &os.Args)
+// }
+
+func TestPP(t *testing.T) {
+	os.Args = []string{"consul-tags", "-pp"}
+	cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
+	resetOsArgs()
+}
+
+func TestForGenerateCommands(t *testing.T) {
+
+	defer func() {
+		_ = os.Remove(".tmp.1.json")
+		_ = os.Remove(".tmp.1.yaml")
+		_ = os.Remove(".tmp.1.toml")
+	}()
+
+	var commands = []string{
+		"consul-tags gen shell --auto",
+		"consul-tags gen shell --auto --force-bash",
+		"consul-tags gen doc",
+		"consul-tags gen pdf",
+		"consul-tags gen docx",
+		"consul-tags gen tex",
+		"consul-tags gen markdown",
+		"consul-tags gen d",
+		"consul-tags gen doc --pdf",
+		"consul-tags gen doc --markdown",
+		"consul-tags gen doc --tex",
+		"consul-tags gen doc --doc",
+		"consul-tags gen doc --docx",
+		"consul-tags gen shell --bash",
+		"consul-tags gen shell --zsh",
+		"consul-tags gen shell",
+		"consul-tags gen man",
+	}
+	for _, cc := range commands {
+		cmdr.Set("generate.shell.zsh", false)
+		cmdr.Set("generate.shell.bash", false)
+		cmdr.Set("generate.shell.auto", false)
+		cmdr.Set("generate.shell.force-bash", false)
+		cmdr.Set("generate.doc.pdf", false)
+		cmdr.Set("generate.doc.markdown", false)
+		cmdr.Set("generate.doc.tex", false)
+		cmdr.Set("generate.doc.doc", false)
+		cmdr.Set("generate.doc.docx", false)
+
+		os.Args = strings.Split(cc, " ")
+		cmdr.SetInternalOutputStreams(nil, nil)
+		if err := cmdr.Exec(rootCmd); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	resetOsArgs()
 }
 
 func TestDemoOptsWriting(t *testing.T) {
@@ -340,13 +506,6 @@ func TestExec(t *testing.T) {
 	var clcl = &cfgLoaded{}
 	cmdr.AddOnConfigLoadedListener(clcl)
 
-	// 	_ = ioutil.WriteFile(".tmp.toml", []byte(`
-	// `), 0644)
-	// 	_ = ioutil.WriteFile(".tmp.json", []byte(`{
-	// "app": {
-	//   "debug": false
-	// 	}}
-	// `), 0644)
 	_ = ioutil.WriteFile(".tmp.yaml", []byte(`
 app:
   debug: false
@@ -390,43 +549,6 @@ app:
 		_ = os.Remove(".tmp.toml")
 		cmdr.SetOnConfigLoadedListener(clcl, false)
 		cmdr.RemoveOnConfigLoadedListener(clcl)
-
-		// try loading cfg again for gocov
-		if err = cmdr.LoadConfigFile(".tmp.yaml"); err != nil {
-			t.Fatal(err)
-		}
-		_ = os.Remove(".tmp.yaml")
-		// try loading cfg again for gocov
-		if err = cmdr.LoadConfigFile(".tmp.yaml"); err != nil {
-			t.Fatal(err)
-		}
-		_ = ioutil.WriteFile(".tmp.yaml", []byte(`
-app'x':"
-`), 0644)
-		// try loading cfg again for gocov
-		if err = cmdr.LoadConfigFile(".tmp.yaml"); err == nil {
-			t.Fatal("loading cfg file should be failed (err != nil), but it returns nil as err.")
-		}
-		_ = os.Remove(".tmp.yaml")
-
-		_ = ioutil.WriteFile(".tmp.json", []byte(`{"app":{"debug":false}}`), 0644)
-		// try loading cfg again for gocov
-		if err = cmdr.LoadConfigFile(".tmp.json"); err != nil {
-			t.Fatal(err)
-		}
-		_ = os.Remove(".tmp.json")
-
-		_ = ioutil.WriteFile(".tmp.toml", []byte(`;
-runmode=devel
-[app]
-debug=false
-`), 0644)
-		// // try loading cfg again for gocov
-		// if err = cmdr.LoadConfigFile(".tmp.toml"); err != nil {
-		// 	t.Fatal(err)
-		// }
-		// _ = os.Remove(".tmp.toml")
-
 	}()
 	cmdr.SetPredefinedLocations([]string{"./conf.d"})
 
@@ -467,15 +589,18 @@ debug=false
 		t.Log(cmdr.GetUintP("app", "retry"))
 		t.Log(cmdr.GetUint64P("app", "retry"))
 
-		fmt.Println("xxx: ***: ", sss)
+		t.Log("xxx: ***: ", sss)
 
-		if sss == "consul-tags -pp" {
+		if sss == "consul-tags -qq" {
 			fmt.Println("xxx: ***: ", sss)
 			rootCmd.Header = "fhsdjkfhdsfhskfhsdjhfksdjfkhsjhfds"
 			cmdr.SetCustomShowVersion(func() {
 			})
 			cmdr.SetCustomShowBuildInfo(func() {
 			})
+		}
+		if sss == "consul-tags ms dr --help" {
+			fmt.Println("xxx: ***: ", sss)
 		}
 
 		if err = cmdr.InternalExecFor(rootCmd, strings.Split(sss, " ")); err != nil {
@@ -516,49 +641,17 @@ debug=false
 		t.Fatal("cannot find `add`")
 	}
 
-	os.Args = []string{"consul-tags", "kv", "b"}
-	cmdr.SetInternalOutputStreams(nil, nil)
-	_ = cmdr.Exec(rootCmd)
-	_ = cmdr.ExecWith(rootCmd, nil, nil)
-
-	_ = cmdr.SaveAsYaml(".tmp.1.yaml")
-	_ = cmdr.SaveAsJSON(".tmp.1.json")
-	if err = cmdr.SaveAsToml(".tmp.1.toml"); err != nil {
-		// t.Fatal("dump toml failed", err)
-	}
-	// _ = os.Remove(".tmp.json")
-
-	cmdr.AddOnAfterXrefBuilt(func(root *cmdr.RootCommand, args []string) {
-		return
-	})
-	cmdr.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
-		return
-	})
-	cmdr.AddOnConfigLoadedListener(&cfgLoaded{})
-	_ = cmdr.ExecWith(rootCmd, func(root *cmdr.RootCommand, args []string) {
-		return
-	}, func(root *cmdr.RootCommand, args []string) {
-		return
-	})
-
 	if errX.Len() > 0 {
 		t.Log("--------- stderr")
 		t.Fatalf("Error!! %v", errX.String())
 	}
+
+	resetOsArgs()
 }
 
 var (
 	// testing args
 	execTestings = map[string]func(t *testing.T) error{
-		"consul-tags --version": func(t *testing.T) error {
-			return nil
-		},
-		"consul-tags -#": func(t *testing.T) error {
-			return nil
-		},
-		"consul-tags -pp": func(t *testing.T) error {
-			return nil
-		},
 		"consul-tags -qq": func(t *testing.T) error {
 			return nil
 		},
@@ -585,45 +678,6 @@ var (
 		"consul-tags ms tags --help": func(t *testing.T) error {
 			return nil
 		},
-		"consul-tags gen man": func(t *testing.T) error {
-			return nil
-		},
-		"consul-tags gen shell": func(t *testing.T) error {
-			return nil
-		},
-		"consul-tags gen shell --zsh": func(t *testing.T) error {
-			return nil
-		},
-		"consul-tags gen shell --bash": func(t *testing.T) error {
-			return nil
-		},
-		"consul-tags --tree": func(t *testing.T) error {
-			return nil
-		},
-		"consul-tags gen doc": func(t *testing.T) error {
-			return nil
-		},
-		"consul-tags gen markdown": func(t *testing.T) error {
-			return nil
-		},
-		"consul-tags gen pdf": func(t *testing.T) error {
-			return nil
-		},
-		"consul-tags gen docx": func(t *testing.T) error {
-			return nil
-		},
-		"consul-tags gen tex": func(t *testing.T) error {
-			return nil
-		},
-		"consul-tags gen doc --pdf": func(t *testing.T) error {
-			return nil
-		},
-		"consul-tags gen doc --markdown": func(t *testing.T) error {
-			return nil
-		},
-		"consul-tags gen doc --tex": func(t *testing.T) error {
-			return nil
-		},
 		"consul-tags kv b -K- -K+ --": func(t *testing.T) error {
 			// gocov Command.PrintXXX
 			fmt.Println("consul-tags kv b -------- no errors")
@@ -632,6 +686,10 @@ var (
 		"consul-tags -t3 -s 5 kv b --help-zsh ~~": func(t *testing.T) error {
 			// gocov Command.PrintXXX
 			fmt.Println("consul-tags -t3 -s5 -pp kv b ~~ -------- no errors")
+			return nil
+		},
+		"consul-tags server --help": func(t *testing.T) error {
+			fmt.Println("consul-tags server --help -------- no errors")
 			return nil
 		},
 		"consul-tags kv b ~": func(t *testing.T) error {
@@ -703,6 +761,7 @@ var (
 						Short:       "t",
 						Full:        "retry",
 						Description: "ss",
+						Examples:    `random examples`,
 					},
 					DefaultValue:            1,
 					DefaultValuePlaceholder: "RETRY",
@@ -808,6 +867,35 @@ var (
 			Aliases:     []string{"serve", "svr"},
 			Description: "server ops: for linux service/daemon.",
 			Deprecated:  "1.0",
+			Examples:    `random examples`,
+		},
+		Flags: []*cmdr.Flag{
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:       "t",
+					Full:        "retry",
+					Description: "ss",
+				},
+				DefaultValue:            1,
+				DefaultValuePlaceholder: "RETRY",
+			},
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:       "t",
+					Full:        "retry",
+					Description: "ss: dup test",
+				},
+				DefaultValue:            1,
+				DefaultValuePlaceholder: "RETRY",
+			},
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Name:        "retry",
+					Description: "ss: dup test",
+				},
+				DefaultValue:            1,
+				DefaultValuePlaceholder: "RETRY",
+			},
 		},
 		SubCommands: []*cmdr.Command{
 			{
@@ -820,6 +908,42 @@ var (
 				},
 				// PreAction: impl.ServerStartPre,
 				// PostAction: impl.ServerStartPost,
+			},
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:       "s",
+					Full:        "start",
+					Aliases:     []string{"run", "startup"},
+					Description: "dup test: startup this system service/daemon.",
+					// Action:impl.ServerStart,
+				},
+				// PreAction: impl.ServerStartPre,
+				// PostAction: impl.ServerStartPost,
+			},
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:       "nf", // parent no Full 
+					Aliases:     []string{"run", "startup"},
+					Description: "dup test: startup this system service/daemon.",
+				},
+				PreAction: func(cmd *cmdr.Command, args []string) (err error) {
+					fmt.Println(cmd.GetParentName(), cmd.GetName(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
+					fmt.Println(cmd.GetRoot().GetParentName())
+					return
+				},
+				SubCommands: []*cmdr.Command{
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:       "nf", // parent no Full 
+							Aliases:     []string{"run", "startup"},
+							Description: "dup test: startup this system service/daemon.",
+						},
+						PreAction: func(cmd *cmdr.Command, args []string) (err error) {
+							fmt.Println(cmd.GetParentName(), cmd.GetName(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
+							return
+						},
+					},
+				},
 			},
 			{
 				BaseOpt: cmdr.BaseOpt{
@@ -1021,6 +1145,19 @@ var (
 					Description: "list services.",
 					// Action:      msList,
 					Group: " ",
+				},
+				PreAction: func(cmd *cmdr.Command, args []string) (err error) {
+					fmt.Println(cmd.GetParentName(), cmd.GetName(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
+					return
+				},
+			},
+			{
+				BaseOpt: cmdr.BaseOpt{
+					// Short: "",
+					// Full:        "",
+					// Aliases:     []string{"ls", "lst", "dir"},
+					Description: "3 empty - list services.",
+					Group:       "56.vvvvvv",
 				},
 				PreAction: func(cmd *cmdr.Command, args []string) (err error) {
 					fmt.Println(cmd.GetParentName(), cmd.GetName(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())

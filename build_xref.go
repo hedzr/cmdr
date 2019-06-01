@@ -14,7 +14,7 @@ func buildRootCrossRefs(root *RootCommand) {
 
 	if EnableVersionCommands {
 		if _, ok := root.allCmds[SysMgmtGroup]["version"]; !ok {
-			root.allCmds[SysMgmtGroup]["version"] = &Command{
+			cx := &Command{
 				BaseOpt: BaseOpt{
 					Full:        "version",
 					Aliases:     []string{"ver"},
@@ -23,9 +23,12 @@ func buildRootCrossRefs(root *RootCommand) {
 						showVersion()
 						return ErrShouldBeStopException
 					},
-					owner: &root.Command,
+					Hidden: true,
+					owner:  &root.Command,
 				},
 			}
+			root.SubCommands = append(root.SubCommands, cx)
+			root.allCmds[SysMgmtGroup]["version"] = cx
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["version"]; !ok {
 			root.allFlags[SysMgmtGroup]["version"] = &Flag{
@@ -133,14 +136,14 @@ func buildRootCrossRefs(root *RootCommand) {
 					Aliases:     []string{},
 					Description: "load config files from where you specified",
 					Action: func(cmd *Command, args []string) (err error) {
-						// logrus.Debugf("-- helpCommand hit. printHelp and stop.")
+						// logrus.Debugf("-- --config hit. printHelp and stop.")
 						// return ErrShouldBeStopException
 						return nil
 					},
 					owner: &root.Command,
 				},
-				DefaultValue:            nil,
-				DefaultValuePlaceholder: "[Location of config file]",
+				DefaultValue:            "",
+				DefaultValuePlaceholder: "[Locations of config files]",
 			}
 			root.plainLongFlags["config"] = root.allFlags[SysMgmtGroup]["config"]
 		}
@@ -417,9 +420,9 @@ func backtraceFlagNames(flg *Flag) (str string) {
 
 func backtraceCmdNames(cmd *Command) (str string) {
 	var a []string
-	a = append(a, cmd.Full)
+	a = append(a, cmd.GetTitleName())
 	for p := cmd.owner; p != nil && p.owner != nil; {
-		a = append(a, p.Full)
+		a = append(a, p.GetTitleName())
 		p = p.owner
 	}
 

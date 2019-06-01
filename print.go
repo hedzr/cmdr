@@ -51,7 +51,7 @@ func dumpTreeForAllCommands(cmd *Command, args []string) (err error) {
 			return
 		}
 
-		deep := findDeep(cmd) - 1
+		deep := findDepth(cmd) - 1
 		if deep == 0 {
 			fmt.Println("ROOT")
 		} else {

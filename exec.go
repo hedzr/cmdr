@@ -414,7 +414,7 @@ func splitQuotedValueIfNecessary(pkg *ptpkg, fn *string) {
 		pkg.val = trimQuotes((*fn)[pos:])
 		*fn = (*fn)[0:pos]
 		pkg.assigned = true
-	} else {
+		// } else {
 		// --xVALUE need to be parsed.
 	}
 }
@@ -509,7 +509,7 @@ func preprocessPkg(pkg *ptpkg, args []string) (err error) {
 					case ExternalToolPasswordInput:
 						fmt.Print("Password: ")
 						var bytePassword []byte
-						if strings.HasSuffix(os.Args[0], ".test") || strings.Contains(os.Args[0], "/T/___Test") {
+						if InTesting() {
 							bytePassword = []byte("demo")
 						} else {
 							if bytePassword, err = terminal.ReadPassword(int(syscall.Stdin)); err != nil {
@@ -526,7 +526,7 @@ func preprocessPkg(pkg *ptpkg, args []string) (err error) {
 							editor = DefaultEditor
 						}
 						var content []byte
-						if strings.HasSuffix(os.Args[0], ".test") || strings.Contains(os.Args[0], "/T/___Test") {
+						if InTesting() {
 							content = []byte("demo")
 						} else {
 							if content, err = LaunchEditor(editor); err != nil {

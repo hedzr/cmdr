@@ -3,9 +3,9 @@ module github.com/hedzr/cmdr
 go 1.12
 
 require (
+	github.com/BurntSushi/toml v0.3.1
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
-	github.com/pelletier/go-toml v1.4.0
 	github.com/sevlyar/go-daemon v0.1.5
 	github.com/sirupsen/logrus v1.4.2
 	golang.org/x/crypto v0.0.0-20190513172903-22d7a77e9e5f

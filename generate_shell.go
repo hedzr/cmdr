@@ -23,28 +23,29 @@ func genShell(cmd *Command, args []string) (err error) {
 		// }
 		// printHelpZsh(command, justFlags)
 
+		// not yet
 	} else if GetBoolP(getPrefix(), "generate.shell.bash") {
 		err = genShellBash(cmd, args)
 	} else {
 		// auto
 		shell := os.Getenv("SHELL")
-		if strings.HasSuffix(shell, "/zsh") {
-			//
-		} else if strings.HasSuffix(shell, "/bash") {
+		if strings.HasSuffix(shell, "/bash") || GetBoolP(getPrefix(), "generate.shell.force-bash") {
 			err = genShellBash(cmd, args)
-		} else {
-			_, _ = fmt.Fprint(os.Stderr, "Unknown shell. ignored.")
+		} else if strings.HasSuffix(shell, "/zsh") {
+			// not yet
 		}
+		// } else {
+		// 	_, _ = fmt.Fprint(os.Stderr, "Unknown shell. ignored.")
 		// err = genShellB(cmd, args)
 	}
 	return
 }
 
-// findDeep returns the depth of a command. rootCommand's deep = 1.
-func findDeep(cmd *Command) (deep int) {
+// findDepth returns the depth of a command. rootCommand's deep = 1.
+func findDepth(cmd *Command) (deep int) {
 	deep = 1
 	if cmd.owner != nil {
-		deep += findDeep(cmd.owner)
+		deep += findDepth(cmd.owner)
 	}
 	return
 }

@@ -79,6 +79,15 @@ $ {{.AppName}} gen pdf
 					},
 					DefaultValue: true,
 				},
+				{
+					BaseOpt: BaseOpt{
+						Full:        "force-bash",
+						Group:       "shell",
+						Description: "just for --auto",
+						Hidden:      true,
+					},
+					DefaultValue: true,
+				},
 			},
 		}, {
 			BaseOpt: BaseOpt{
@@ -105,7 +114,7 @@ $ {{.AppName}} gen pdf
 			BaseOpt: BaseOpt{
 				Short:       "d",
 				Full:        "doc",
-				Aliases:     []string{"markdown", "pdf"},
+				Aliases:     []string{"markdown", "pdf", "docx", "tex"},
 				Description: "generate a markdown document, or: pdf/TaX/...",
 				Action:      genDoc,
 			},
@@ -136,6 +145,22 @@ $ {{.AppName}} gen pdf
 						Full:        "pdf",
 						Group:       "doc",
 						Description: "generate pdf",
+					},
+					DefaultValue: false,
+				},
+				{
+					BaseOpt: BaseOpt{
+						Full:        "doc",
+						Group:       "doc",
+						Description: "generate word doc",
+					},
+					DefaultValue: false,
+				},
+				{
+					BaseOpt: BaseOpt{
+						Full:        "docx",
+						Group:       "doc",
+						Description: "generate word docx",
 					},
 					DefaultValue: false,
 				},

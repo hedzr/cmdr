@@ -160,7 +160,7 @@ func printHelpZshCommands(command *Command, justFlags bool) {
 }
 
 func printHelpUsages(p Painter, command *Command) {
-	if len(rootCommand.Header) == 0 {
+	if len(rootCommand.Header) == 0 || !command.IsRoot() {
 		p.FpUsagesTitle(command, "Usages")
 
 		ttl := "[Commands] "

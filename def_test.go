@@ -236,7 +236,6 @@ func TestForGenerateCommands(t *testing.T) {
 		"consul-tags gen shell --bash",
 		"consul-tags gen shell --zsh",
 		"consul-tags gen shell",
-		"consul-tags gen man",
 	}
 	for _, cc := range commands {
 		cmdr.Set("generate.shell.zsh", false)
@@ -249,6 +248,36 @@ func TestForGenerateCommands(t *testing.T) {
 		cmdr.Set("generate.doc.doc", false)
 		cmdr.Set("generate.doc.docx", false)
 
+		os.Args = strings.Split(cc, " ")
+		cmdr.SetInternalOutputStreams(nil, nil)
+		if err := cmdr.Exec(rootCmd); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	resetOsArgs()
+}
+
+func TestForGenerateDoc(t *testing.T) {
+	var commands = []string{
+		"consul-tags gen doc",
+	}
+	for _, cc := range commands {
+		os.Args = strings.Split(cc, " ")
+		cmdr.SetInternalOutputStreams(nil, nil)
+		if err := cmdr.Exec(rootCmd); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	resetOsArgs()
+}
+
+func TestForGenerateMan(t *testing.T) {
+	var commands = []string{
+		"consul-tags gen man",
+	}
+	for _, cc := range commands {
 		os.Args = strings.Split(cc, " ")
 		cmdr.SetInternalOutputStreams(nil, nil)
 		if err := cmdr.Exec(rootCmd); err != nil {

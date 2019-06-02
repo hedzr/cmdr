@@ -80,8 +80,9 @@
 
 - Support for unlimited multiple sub-commands.
 
-- Supports `-I/usr/include`` -I=/usr/include` `-I /usr/include` option argument specification
+- Support `-I/usr/include -I=/usr/include` `-I /usr/include` option argument specifications
   Automatically allows those formats (applied to long option too):
+
   - `-I file`, `-Ifile`, and `-I=files`
   - `-I 'file'`, `-I'file'`, and `-I='files'`
   - `-I "file"`, `-I"file"`, and `-I="files"`
@@ -127,7 +128,7 @@
      bin/wget-demo generate shell --bash
      ```
 
-- Predefined yaml config file locations:
+- Predefined external config file locations:
   - `/etc/<appname>/<appname>.yml` and `conf.d` sub-directory.
 
   - `/usr/local/etc/<appname>/<appname>.yml` and `conf.d` sub-directory.
@@ -221,7 +222,7 @@
 
   `install`/`uninstall` sub-commands could install `demo` app as a systemd service.
 
-  > Just For Linux
+  > Just for Linux
 
 - `ExecWith(rootCmd *RootCommand, beforeXrefBuilding_, afterXrefBuilt_ HookXrefFunc) (err error)`
 

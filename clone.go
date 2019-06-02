@@ -192,11 +192,20 @@ func (s *CopierImpl) indirectType(reflectType reflect.Type) reflect.Type {
 
 func contains(names []string, name string) bool {
 	for _, n := range names {
-		if strings.EqualFold(name, n) {
+		if strings.EqualFold(n, name) {
 			return true
 		}
 	}
 	return false
+}
+
+func partialContains(names []string, partialNeedle string) (index int, matched string, containes bool) {
+	for ix, n := range names {
+		if strings.Contains(n, partialNeedle) {
+			return ix, n, true
+		}
+	}
+	return -1, "", false
 }
 
 func equal(to, from reflect.Value) bool {

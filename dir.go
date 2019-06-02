@@ -38,6 +38,24 @@ func GetCurrentDir() string {
 	return dir
 }
 
+// IsDirectory tests whether `path` is a directory or not
+func IsDirectory(path string) (bool, error) {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return false, err
+	}
+	return fileInfo.IsDir(), err
+}
+
+// IsRegularFile tests whether `path` is a normal regular file or not
+func IsRegularFile(path string) (bool, error) {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return false, err
+	}
+	return fileInfo.Mode().IsRegular(), err
+}
+
 // FileExists returns the existence of an directory or file
 func FileExists(name string) bool {
 	if _, err := os.Stat(name); err != nil {

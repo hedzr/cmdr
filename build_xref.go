@@ -241,50 +241,7 @@ func buildRootCrossRefs(root *RootCommand) {
 		}
 	}
 
-	// rootOptions = newOpt()
-	// buildCrossRefs(&root.Command, rootOptions)
 	buildCrossRefs(&root.Command)
-}
-
-// func newOpt() *OptOne {
-// 	return &OptOne{
-// 		Children: make(map[string]*OptOne),
-// 	}
-// }
-
-// func newCmd() *Command {
-// 	return ensureCmdMembers(&Command{})
-// }
-
-func ensureCmdMembers(cmd *Command) *Command {
-	if cmd.allFlags == nil {
-		cmd.allFlags = make(map[string]map[string]*Flag)
-		cmd.allFlags[UnsortedGroup] = make(map[string]*Flag)
-		cmd.allFlags[SysMgmtGroup] = make(map[string]*Flag)
-	}
-
-	if cmd.allCmds == nil {
-		cmd.allCmds = make(map[string]map[string]*Command)
-		cmd.allCmds[UnsortedGroup] = make(map[string]*Command)
-		cmd.allCmds[SysMgmtGroup] = make(map[string]*Command)
-	}
-
-	if cmd.plainCmds == nil {
-		cmd.plainCmds = make(map[string]*Command)
-	}
-
-	if cmd.plainLongFlags == nil {
-		cmd.plainLongFlags = make(map[string]*Flag)
-	}
-
-	if cmd.plainShortFlags == nil {
-		cmd.plainShortFlags = make(map[string]*Flag)
-	}
-
-	if cmd.root == nil {
-		cmd.root = rootCommand
-	}
-	return cmd
 }
 
 func buildCrossRefs(cmd *Command) {
@@ -439,4 +396,35 @@ func backtraceCmdNames(cmd *Command) (str string) {
 
 	str = strings.Join(a, ".")
 	return
+}
+
+func ensureCmdMembers(cmd *Command) *Command {
+	if cmd.allFlags == nil {
+		cmd.allFlags = make(map[string]map[string]*Flag)
+		cmd.allFlags[UnsortedGroup] = make(map[string]*Flag)
+		cmd.allFlags[SysMgmtGroup] = make(map[string]*Flag)
+	}
+
+	if cmd.allCmds == nil {
+		cmd.allCmds = make(map[string]map[string]*Command)
+		cmd.allCmds[UnsortedGroup] = make(map[string]*Command)
+		cmd.allCmds[SysMgmtGroup] = make(map[string]*Command)
+	}
+
+	if cmd.plainCmds == nil {
+		cmd.plainCmds = make(map[string]*Command)
+	}
+
+	if cmd.plainLongFlags == nil {
+		cmd.plainLongFlags = make(map[string]*Flag)
+	}
+
+	if cmd.plainShortFlags == nil {
+		cmd.plainShortFlags = make(map[string]*Flag)
+	}
+
+	if cmd.root == nil {
+		cmd.root = rootCommand
+	}
+	return cmd
 }

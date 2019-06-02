@@ -160,6 +160,9 @@ var (
 	EnableCmdrCommands = true
 	// EnableGenerateCommands supports injecting the default `generate` commands and subcommands
 	EnableGenerateCommands = true
+	
+	//
+	doNotLoadingConfigFiles = false
 
 	// rootCommand the root of all commands
 	rootCommand *RootCommand
@@ -236,6 +239,11 @@ func GetVerboseMode() bool {
 // GetQuietMode returns the flag value of `--quiet`/`-q`
 func GetQuietMode() bool {
 	return GetBool("app.quiet")
+}
+
+// SetNoLoadConfigFiles true means no loading config files
+func SetNoLoadConfigFiles(b bool) {
+	doNotLoadingConfigFiles = b
 }
 
 func init() {

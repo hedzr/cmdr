@@ -11,6 +11,10 @@ func trimQuotes(s string) string {
 		if s[len(s)-1] == '\'' {
 			return s[1 : len(s)-1]
 		}
+	} else if s[0] == '"' {
+		if s[len(s)-1] == '"' {
+			return s[1 : len(s)-1]
+		}
 	}
 	return s
 }

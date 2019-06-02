@@ -36,42 +36,6 @@ func ExecWith(rootCmd *RootCommand, beforeXrefBuildingX, afterXrefBuiltX HookXre
 	return
 }
 
-func setRootCommand(rootCmd *RootCommand) {
-	rootCommand = rootCmd
-
-	rootCommand.ow = defaultStdout
-	rootCommand.oerr = defaultStderr
-}
-
-func buildXref(rootCmd *RootCommand) (err error) {
-	// build xref for root command and its all sub-commands and flags
-	// and build the default values
-	buildRootCrossRefs(rootCmd)
-
-	// and now, loading the external configuration files
-	for _, s := range getExpandedPredefinedLocations() {
-		if FileExists(s) {
-			fn := fmt.Sprintf(s, rootCmd.AppName, rootCmd.AppName)
-			err = rxxtOptions.LoadConfigFile(fn)
-			if err != nil {
-				return
-			}
-			break
-		}
-	}
-	return
-}
-
-// AddOnBeforeXrefBuilding add hook func
-func AddOnBeforeXrefBuilding(cb HookXrefFunc) {
-	beforeXrefBuilding = append(beforeXrefBuilding, cb)
-}
-
-// AddOnAfterXrefBuilt add hook func
-func AddOnAfterXrefBuilt(cb HookXrefFunc) {
-	afterXrefBuilt = append(afterXrefBuilt, cb)
-}
-
 // InternalExecFor is an internal helper, esp for debugging
 func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 	var (
@@ -303,8 +267,68 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 	return
 }
 
+func buildXref(rootCmd *RootCommand) (err error) {
+	// build xref for root command and its all sub-commands and flags
+	// and build the default values
+	buildRootCrossRefs(rootCmd)
+
+	if !doNotLoadingConfigFiles {
+		// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
+		if ix, str, yes := partialContains(os.Args, "--config"); yes {
+			var location string
+			if i := strings.Index(str, "="); i > 0 {
+				location = str[i+1:]
+			} else if len(str) > 8 {
+				location = str[8:]
+			} else if ix+1 < len(os.Args) {
+				location = os.Args[ix+1]
+			}
+
+			location = trimQuotes(location)
+
+			if len(location) > 0 && FileExists(location) {
+				if yes, err = IsDirectory(location); yes {
+					SetPredefinedLocations([]string{location})
+				} else if yes, err = IsRegularFile(location); yes {
+					SetPredefinedLocations([]string{location})
+				}
+			}
+		}
+
+		// and now, loading the external configuration files
+		for _, s := range getExpandedPredefinedLocations() {
+			if FileExists(s) {
+				fn := fmt.Sprintf(s, rootCmd.AppName, rootCmd.AppName)
+				err = rxxtOptions.LoadConfigFile(fn)
+				if err != nil {
+					return
+				}
+				break
+			}
+		}
+	}
+	return
+}
+
+// AddOnBeforeXrefBuilding add hook func
+func AddOnBeforeXrefBuilding(cb HookXrefFunc) {
+	beforeXrefBuilding = append(beforeXrefBuilding, cb)
+}
+
+// AddOnAfterXrefBuilt add hook func
+func AddOnAfterXrefBuilt(cb HookXrefFunc) {
+	afterXrefBuilt = append(afterXrefBuilt, cb)
+}
+
 func getPrefix() string {
 	return strings.Join(RxxtPrefix, ".")
+}
+
+func setRootCommand(rootCmd *RootCommand) {
+	rootCommand = rootCmd
+
+	rootCommand.ow = defaultStdout
+	rootCommand.oerr = defaultStderr
 }
 
 func getArgs(pkg *ptpkg, args []string) []string {

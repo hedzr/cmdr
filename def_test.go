@@ -470,7 +470,7 @@ app:
 		cmdr.SetOnConfigLoadedListener(clcl, false)
 		cmdr.RemoveOnConfigLoadedListener(clcl)
 	}()
-	cmdr.SetPredefinedLocations([]string{"./conf.d"})
+	cmdr.SetPredefinedLocations([]string{"./.tmp.yaml"})
 
 	t.Log("xxx: -------- loops for execTestings")
 	for sss, verifier := range execTestings {
@@ -521,7 +521,7 @@ app:
 			})
 		}
 		if sss == "consul-tags ms dr --help" {
-			fmt.Println("xxx: ***: ", sss)
+			fmt.Println("xx*: ***: ", sss)
 		}
 
 		if err = cmdr.InternalExecFor(rootCmd, strings.Split(sss, " ")); err != nil {

@@ -160,7 +160,7 @@ var (
 	EnableCmdrCommands = true
 	// EnableGenerateCommands supports injecting the default `generate` commands and subcommands
 	EnableGenerateCommands = true
-	
+
 	//
 	doNotLoadingConfigFiles = false
 

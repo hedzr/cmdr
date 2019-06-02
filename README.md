@@ -149,6 +149,16 @@
       SetPredefinedLocations([]string{"./config", "~/.config/cmdr/", "$GOPATH/running-configs/cmdr"})
       ```
 
+  - on command-line:
+
+    ```bash
+    # version = 1: bin/demo ~~debug
+    bin/demo --configci/etc/demo-yy ~~debug
+    # version = 1.1
+    bin/demo --config=ci/etc/demo-yy/any.yml ~~debug
+    # version = 1.2
+    ```
+
   - supports muiltiple file formats:
 
     - Yaml

@@ -143,6 +143,13 @@ func buildRootCrossRefs(root *RootCommand) {
 						return nil
 					},
 					owner: &root.Command,
+					// TODO how to display examples section for a flag?
+					Examples: `
+$ {{.AppName}} --configci/etc/demo-yy ~~debug
+	try loading config from 'ci/etc/demo-yy', noted that assumes a child folder 'conf.d' should be exists
+$ {{.AppName}} --config=ci/etc/demo-yy/any.yml ~~debug
+	try loading config from 'ci/etc/demo-yy/any.yml', noted that assumes a child folder 'conf.d' should be exists
+`,
 				},
 				DefaultValue:            "",
 				DefaultValuePlaceholder: "[Locations of config files]",

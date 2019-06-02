@@ -288,7 +288,11 @@ func buildXref(rootCmd *RootCommand) (err error) {
 
 			if len(location) > 0 && FileExists(location) {
 				if yes, err = IsDirectory(location); yes {
-					SetPredefinedLocations([]string{location})
+					if FileExists(location + "/conf.d") {
+						SetPredefinedLocations([]string{location + "/%s.yml"})
+					} else {
+						SetPredefinedLocations([]string{location + "/%s/%s.yml"})
+					}
 				} else if yes, err = IsRegularFile(location); yes {
 					SetPredefinedLocations([]string{location})
 				}
@@ -297,8 +301,15 @@ func buildXref(rootCmd *RootCommand) (err error) {
 
 		// and now, loading the external configuration files
 		for _, s := range getExpandedPredefinedLocations() {
-			if FileExists(s) {
-				fn := fmt.Sprintf(s, rootCmd.AppName, rootCmd.AppName)
+			fn := s
+			switch strings.Count(fn, "%s") {
+			case 2:
+				fn = fmt.Sprintf(s, rootCmd.AppName, rootCmd.AppName)
+			case 1:
+				fn = fmt.Sprintf(s, rootCmd.AppName)
+			}
+
+			if FileExists(fn) {
 				err = rxxtOptions.LoadConfigFile(fn)
 				if err != nil {
 					return

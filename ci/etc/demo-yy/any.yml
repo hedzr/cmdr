@@ -1,0 +1,32 @@
+---
+# zag configuration file format version 1
+config: config
+version: 1.2
+env-prefix: DO
+runmode: devel    # devel, prod, staging, docker
+
+app:
+  version-sim:
+  version:
+
+  verbose: true   # never used
+  debug: true     # never used
+
+  logger:
+    level: INFO
+
+  foreground: false
+
+  webui:
+    mustLogin: false         # 如果为true，则任何页面都需要事先登录才能访问，除了 /, /login.html, /signup.html 之外
+
+
+  deps:
+
+  deploy: # the declarations for deployment
+
+
+
+
+
+

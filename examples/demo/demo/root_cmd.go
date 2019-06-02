@@ -42,8 +42,9 @@ var (
 				testCommands,
 				{
 					BaseOpt: cmdr.BaseOpt{
-						Short: "xy",
-						Full:  "xy-print",
+						Short:       "xy",
+						Full:        "xy-print",
+						Description: `test terminal control sequences`,
 						Action: func(cmd *cmdr.Command, args []string) (err error) {
 							//
 							// https://en.wikipedia.org/wiki/ANSI_escape_code
@@ -58,6 +59,38 @@ var (
 							}
 
 							return
+						},
+					},
+				},
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Short:       "mx",
+						Full:        "mx-test",
+						Description: `test new features`,
+						Action: func(cmd *cmdr.Command, args []string) (err error) {
+							fmt.Printf("*** Got pp: %s\n", cmdr.GetString("app.mx-test.password"))
+							fmt.Printf("*** Got msg: %s\n", cmdr.GetString("app.mx-test.message"))
+							return
+						},
+					},
+					Flags: []*cmdr.Flag{
+						{
+							BaseOpt: cmdr.BaseOpt{
+								Short:       "pp",
+								Full:        "password",
+								Description: "the password requesting.",
+							},
+							DefaultValue: "",
+							ExternalTool: cmdr.ExternalToolPasswordInput,
+						},
+						{
+							BaseOpt: cmdr.BaseOpt{
+								Short:       "m",
+								Full:        "message",
+								Description: "the message requesting.",
+							},
+							DefaultValue: "",
+							ExternalTool: cmdr.ExternalToolEditor,
 						},
 					},
 				},

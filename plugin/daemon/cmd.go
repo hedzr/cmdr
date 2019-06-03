@@ -67,6 +67,40 @@ $ {{.AppName}} uninstall
 					Description: "stop this system service/daemon.",
 					Action:      daemonStop,
 				},
+				Flags: []*cmdr.Flag{
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:       "1",
+							Full:        "hup",
+							Description: "send SIGHUP - to reload service",
+						},
+						DefaultValue: false,
+					},
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:       "3",
+							Full:        "quit",
+							Description: "send SIGQUIT - to quit service gracefully",
+						},
+						DefaultValue: false,
+					},
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:       "9",
+							Full:        "kill",
+							Description: "send SIGKILL - to quit service unconditionally",
+						},
+						DefaultValue: false,
+					},
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:       "15",
+							Full:        "term",
+							Description: "send SIGTERM - to quit service gracefully",
+						},
+						DefaultValue: false,
+					},
+				},
 			},
 			{
 				BaseOpt: cmdr.BaseOpt{

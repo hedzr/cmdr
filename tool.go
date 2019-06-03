@@ -191,7 +191,7 @@ func LaunchEditor(editor string) (content []byte, err error) {
 	return launchEditorWith(editor, randomFilename())
 }
 
-// LaunchEditor launches the specified editor with a filename
+// LaunchEditorWith launches the specified editor with a filename
 func LaunchEditorWith(editor string, filename string) (content []byte, err error) {
 	return launchEditorWith(editor, filename)
 }

@@ -370,7 +370,7 @@ func et(keys []string, ix int, val interface{}) interface{} {
 	return val
 }
 
-// Reset the exists `Options`, so that you could follow a `LoadConfigFile()` with it.
+// ResetOptions to reset the exists `Options`, so that you could follow a `LoadConfigFile()` with it.
 func ResetOptions() {
 	rxxtOptions.Reset()
 }

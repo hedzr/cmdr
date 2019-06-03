@@ -253,12 +253,7 @@ func (s *Options) watchRunner(configDir string, watcher *fsnotify.Watcher, event
 			const writeOrCreateMask = fsnotify.Write | fsnotify.Create
 			if strings.HasPrefix(filepath.Clean(event.Name), configDir) &&
 				event.Op&writeOrCreateMask != 0 &&
-				(strings.HasSuffix(event.Name, ".yml") ||
-					strings.HasSuffix(event.Name, ".yaml") ||
-					strings.HasSuffix(event.Name, ".json") ||
-					strings.HasSuffix(event.Name, ".toml") ||
-					strings.HasSuffix(event.Name, ".ini") ||
-					strings.HasSuffix(event.Name, ".conf")) {
+				(testCfgSuffix(event.Name)) {
 				file, err := os.Open(event.Name)
 				if err != nil {
 					log.Printf("ERROR: os.Open() returned %v\n", err)
@@ -281,4 +276,13 @@ func (s *Options) watchRunner(configDir string, watcher *fsnotify.Watcher, event
 			return
 		}
 	}
+}
+
+func testCfgSuffix(name string) bool {
+	for _, suf := range []string{".yaml", ".yml", ".json", ".toml", ".ini", ".conf"} {
+		if strings.HasSuffix(name, suf) {
+			return true
+		}
+	}
+	return false
 }

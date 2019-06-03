@@ -95,36 +95,12 @@ func (s *CopierImpl) Copy(toValue interface{}, fromValue interface{}, ignoreName
 		}
 
 		// Copy from field to field or method
-		for _, field := range s.deepFields(fromType) {
-			name := field.Name
-			if contains(ignoreNames, name) {
-				continue
-			}
+		if err = s.copyFieldToField(dest, source, fromType, ignoreNames); err != nil {
+			return err
+		}
 
-			if fromField := source.FieldByName(name); fromField.IsValid() {
-				// has field
-				if toField := dest.FieldByName(name); toField.IsValid() {
-					if toField.CanSet() {
-						if !s.set(toField, fromField) {
-							if err := s.Copy(toField.Addr().Interface(), fromField.Interface()); err != nil {
-								return err
-							}
-						}
-					}
-				} else {
-					// try to set to method
-					var toMethod reflect.Value
-					if dest.CanAddr() {
-						toMethod = dest.Addr().MethodByName(name)
-					} else {
-						toMethod = dest.MethodByName(name)
-					}
-
-					if toMethod.IsValid() && toMethod.Type().NumIn() == 1 && fromField.Type().AssignableTo(toMethod.Type().In(0)) {
-						toMethod.Call([]reflect.Value{fromField})
-					}
-				}
-			}
+		if err = s.copyMethodToField(dest, source, toType); err != nil {
+			return err
 		}
 
 		// Copy from method to field
@@ -157,6 +133,66 @@ func (s *CopierImpl) Copy(toValue interface{}, fromValue interface{}, ignoreName
 		}
 	}
 	return
+}
+
+func (s *CopierImpl) copyFieldToField(dest, source reflect.Value, fromType reflect.Type, ignoreNames []string) error {
+	// Copy from field to field or method
+	for _, field := range s.deepFields(fromType) {
+		name := field.Name
+		if contains(ignoreNames, name) {
+			continue
+		}
+
+		if fromField := source.FieldByName(name); fromField.IsValid() {
+			// has field
+			if toField := dest.FieldByName(name); toField.IsValid() {
+				if toField.CanSet() {
+					if !s.set(toField, fromField) {
+						if err := s.Copy(toField.Addr().Interface(), fromField.Interface()); err != nil {
+							return err
+						}
+					}
+				}
+			} else {
+				// try to set to method
+				var toMethod reflect.Value
+				if dest.CanAddr() {
+					toMethod = dest.Addr().MethodByName(name)
+				} else {
+					toMethod = dest.MethodByName(name)
+				}
+
+				if toMethod.IsValid() && toMethod.Type().NumIn() == 1 && fromField.Type().AssignableTo(toMethod.Type().In(0)) {
+					toMethod.Call([]reflect.Value{fromField})
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (s *CopierImpl) copyMethodToField(dest, source reflect.Value, toType reflect.Type) error {
+	// Copy from method to field
+	for _, field := range s.deepFields(toType) {
+		name := field.Name
+
+		var fromMethod reflect.Value
+		if source.CanAddr() {
+			fromMethod = source.Addr().MethodByName(name)
+		} else {
+			fromMethod = source.MethodByName(name)
+		}
+
+		if fromMethod.IsValid() && fromMethod.Type().NumIn() == 0 && fromMethod.Type().NumOut() == 1 {
+			if toField := dest.FieldByName(name); toField.IsValid() && toField.CanSet() {
+				values := fromMethod.Call([]reflect.Value{})
+				if len(values) >= 1 {
+					s.set(toField, values[0])
+				}
+			}
+		}
+	}
+	return nil
 }
 
 func (s *CopierImpl) deepFields(reflectType reflect.Type) []reflect.StructField {
@@ -212,35 +248,15 @@ func equal(to, from reflect.Value) bool {
 	switch to.Kind() {
 	case reflect.Bool:
 		return from.Bool() == to.Bool()
-	case reflect.Int:
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return from.Int() == to.Int()
-	case reflect.Int8:
-		return from.Int() == to.Int()
-	case reflect.Int16:
-		return from.Int() == to.Int()
-	case reflect.Int32:
-		return from.Int() == to.Int()
-	case reflect.Int64:
-		return from.Int() == to.Int()
-	case reflect.Uint:
-		return from.Uint() == to.Uint()
-	case reflect.Uint8:
-		return from.Uint() == to.Uint()
-	case reflect.Uint16:
-		return from.Uint() == to.Uint()
-	case reflect.Uint32:
-		return from.Uint() == to.Uint()
-	case reflect.Uint64:
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return from.Uint() == to.Uint()
 	// case reflect.Uintptr:
 	// 	return from.Pointer() == to.Pointer()
-	case reflect.Float32:
+	case reflect.Float32, reflect.Float64:
 		return from.Float() == to.Float()
-	case reflect.Float64:
-		return from.Float() == to.Float()
-	case reflect.Complex64:
-		return from.Complex() == to.Complex()
-	case reflect.Complex128:
+	case reflect.Complex64, reflect.Complex128:
 		return from.Complex() == to.Complex()
 	case reflect.Array:
 		if from.Len() != to.Len() {
@@ -256,14 +272,14 @@ func equal(to, from reflect.Value) bool {
 		}
 		return true
 
-	case reflect.Chan:
-		// logrus.Warnf("unrecognized type: %v", to.Kind())
-	case reflect.Func:
-		// logrus.Warnf("unrecognized type: %v", to.Kind())
-	case reflect.Interface:
-		// logrus.Warnf("unrecognized type: %v", to.Kind())
-	case reflect.Map:
-		// logrus.Warnf("unrecognized type: %v", to.Kind())
+	// case reflect.Chan:
+	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+	// case reflect.Func:
+	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+	// case reflect.Interface:
+	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+	// case reflect.Map:
+	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
 	// case reflect.Ptr:
 	// 	return from.Pointer() == to.Pointer()
 	case reflect.Slice:
@@ -283,10 +299,10 @@ func equal(to, from reflect.Value) bool {
 	case reflect.String:
 		return strings.EqualFold(from.String(), to.String())
 
-	case reflect.Struct:
-		// logrus.Warnf("unrecognized type: %v", to.Kind())
-	case reflect.UnsafePointer:
-		// logrus.Warnf("unrecognized type: %v", to.Kind())
+		// case reflect.Struct:
+		// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+		// case reflect.UnsafePointer:
+		// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
 	}
 
 	// if to.IsNil() && from.IsNil() {
@@ -307,58 +323,38 @@ func setDefault(to reflect.Value) {
 	switch to.Kind() {
 	case reflect.Bool:
 		to.SetBool(false)
-	case reflect.Int:
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		to.SetInt(0)
-	case reflect.Int8:
-		to.SetInt(0)
-	case reflect.Int16:
-		to.SetInt(0)
-	case reflect.Int32:
-		to.SetInt(0)
-	case reflect.Int64:
-		to.SetInt(0)
-	case reflect.Uint:
-		to.SetUint(0)
-	case reflect.Uint8:
-		to.SetUint(0)
-	case reflect.Uint16:
-		to.SetUint(0)
-	case reflect.Uint32:
-		to.SetUint(0)
-	case reflect.Uint64:
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		to.SetUint(0)
 	// case reflect.Uintptr:
 	// 	to.SetPointer(nil)
-	case reflect.Float32:
+	case reflect.Float32, reflect.Float64:
 		to.SetFloat(0)
-	case reflect.Float64:
-		to.SetFloat(0)
-	case reflect.Complex64:
-		to.SetComplex(0)
-	case reflect.Complex128:
+	case reflect.Complex64, reflect.Complex128:
 		to.SetComplex(0)
 	case reflect.Array:
 		for i := 0; i < to.Len(); i++ {
 			setDefault(to.Index(i))
 		}
-	case reflect.Chan:
-		// logrus.Warnf("unrecognized type: %v", to.Kind())
-	case reflect.Func:
-		// logrus.Warnf("unrecognized type: %v", to.Kind())
-	case reflect.Interface:
-		// logrus.Warnf("unrecognized type: %v", to.Kind())
-	case reflect.Map:
-		// logrus.Warnf("unrecognized type: %v", to.Kind())
+	// case reflect.Chan:
+	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+	// case reflect.Func:
+	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+	// case reflect.Interface:
+	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+	// case reflect.Map:
+	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
 	// case reflect.Ptr:
 	// 	to.SetPointer(nil)
 	case reflect.Slice:
 		to.SetLen(0)
 	case reflect.String:
 		to.SetString("")
-	case reflect.Struct:
-		// logrus.Warnf("unrecognized type: %v", to.Kind())
-	case reflect.UnsafePointer:
-		// logrus.Warnf("unrecognized type: %v", to.Kind())
+		// case reflect.Struct:
+		// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+		// case reflect.UnsafePointer:
+		// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
 	}
 }
 

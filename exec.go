@@ -97,34 +97,37 @@ func xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []str
 		}
 
 		// flag
-		if len(pkg.a) > 1 && (pkg.a[1] == '-' || pkg.a[1] == '~') {
-			if len(pkg.a) == 2 {
-				// disableParser = true // '--': ignore the following args
-				stop = true
-				return
-			}
-
-			// long flag
-			pkg.fn = pkg.a[2:]
-			findValueAttached(pkg, &pkg.fn)
-		} else {
-			pkg.suffix = pkg.a[len(pkg.a)-1]
-			if pkg.suffix == '+' || pkg.suffix == '-' {
-				pkg.a = pkg.a[0 : len(pkg.a)-1]
-			} else {
-				pkg.suffix = 0
-			}
-
-			if i := matchShortFlag(pkg, *goCommand, pkg.a); i >= 0 {
-				pkg.fn = pkg.a[1:i]
-				pkg.savedFn = pkg.a[i:]
-			} else {
-				pkg.fn = pkg.a[1:2]
-				pkg.savedFn = pkg.a[2:]
-			}
-			pkg.short = true
-			findValueAttached(pkg, &pkg.savedFn)
+		if stop, err = flagsPrepare(pkg, goCommand, args); stop || err != nil {
+			return
 		}
+		// if len(pkg.a) > 1 && (pkg.a[1] == '-' || pkg.a[1] == '~') {
+		// 	if len(pkg.a) == 2 {
+		// 		// disableParser = true // '--': ignore the following args
+		// 		stop = true
+		// 		return
+		// 	}
+		//
+		// 	// long flag
+		// 	pkg.fn = pkg.a[2:]
+		// 	findValueAttached(pkg, &pkg.fn)
+		// } else {
+		// 	pkg.suffix = pkg.a[len(pkg.a)-1]
+		// 	if pkg.suffix == '+' || pkg.suffix == '-' {
+		// 		pkg.a = pkg.a[0 : len(pkg.a)-1]
+		// 	} else {
+		// 		pkg.suffix = 0
+		// 	}
+		//
+		// 	if i := matchShortFlag(pkg, *goCommand, pkg.a); i >= 0 {
+		// 		pkg.fn = pkg.a[1:i]
+		// 		pkg.savedFn = pkg.a[i:]
+		// 	} else {
+		// 		pkg.fn = pkg.a[1:2]
+		// 		pkg.savedFn = pkg.a[2:]
+		// 	}
+		// 	pkg.short = true
+		// 	findValueAttached(pkg, &pkg.savedFn)
+		// }
 
 		// fn + val
 		// fn: short,
@@ -194,6 +197,38 @@ func cmdMatched(pkg *ptpkg, goCommand *Command, args []string) (stop bool, err e
 		if err = goCommand.PreAction(goCommand, getArgs(pkg, args)); err == ErrShouldBeStopException {
 			return false, nil
 		}
+	}
+	return
+}
+
+func flagsPrepare(pkg *ptpkg, goCommand **Command, args []string) (stop bool, err error) {
+	if len(pkg.a) > 1 && (pkg.a[1] == '-' || pkg.a[1] == '~') {
+		if len(pkg.a) == 2 {
+			// disableParser = true // '--': ignore the following args
+			stop = true
+			return
+		}
+
+		// long flag
+		pkg.fn = pkg.a[2:]
+		findValueAttached(pkg, &pkg.fn)
+	} else {
+		pkg.suffix = pkg.a[len(pkg.a)-1]
+		if pkg.suffix == '+' || pkg.suffix == '-' {
+			pkg.a = pkg.a[0 : len(pkg.a)-1]
+		} else {
+			pkg.suffix = 0
+		}
+
+		if i := matchShortFlag(pkg, *goCommand, pkg.a); i >= 0 {
+			pkg.fn = pkg.a[1:i]
+			pkg.savedFn = pkg.a[i:]
+		} else {
+			pkg.fn = pkg.a[1:2]
+			pkg.savedFn = pkg.a[2:]
+		}
+		pkg.short = true
+		findValueAttached(pkg, &pkg.savedFn)
 	}
 	return
 }
@@ -381,48 +416,103 @@ func buildXref(rootCmd *RootCommand) (err error) {
 
 	if !doNotLoadingConfigFiles {
 		// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
-		if ix, str, yes := partialContains(os.Args, "--config"); yes {
-			var location string
-			if i := strings.Index(str, "="); i > 0 {
-				location = str[i+1:]
-			} else if len(str) > 8 {
-				location = str[8:]
-			} else if ix+1 < len(os.Args) {
-				location = os.Args[ix+1]
-			}
-
-			location = trimQuotes(location)
-
-			if len(location) > 0 && FileExists(location) {
-				if yes, err = IsDirectory(location); yes {
-					if FileExists(location + "/conf.d") {
-						SetPredefinedLocations([]string{location + "/%s.yml"})
-					} else {
-						SetPredefinedLocations([]string{location + "/%s/%s.yml"})
-					}
-				} else if yes, err = IsRegularFile(location); yes {
-					SetPredefinedLocations([]string{location})
-				}
-			}
+		if err = parsePredefinedLocation(); err != nil {
+			return
 		}
+		// if ix, str, yes := partialContains(os.Args, "--config"); yes {
+		// 	var location string
+		// 	if i := strings.Index(str, "="); i > 0 {
+		// 		location = str[i+1:]
+		// 	} else if len(str) > 8 {
+		// 		location = str[8:]
+		// 	} else if ix+1 < len(os.Args) {
+		// 		location = os.Args[ix+1]
+		// 	}
+		//
+		// 	location = trimQuotes(location)
+		//
+		// 	if len(location) > 0 && FileExists(location) {
+		// 		if yes, err = IsDirectory(location); yes {
+		// 			if FileExists(location + "/conf.d") {
+		// 				SetPredefinedLocations([]string{location + "/%s.yml"})
+		// 			} else {
+		// 				SetPredefinedLocations([]string{location + "/%s/%s.yml"})
+		// 			}
+		// 		} else if yes, err = IsRegularFile(location); yes {
+		// 			SetPredefinedLocations([]string{location})
+		// 		}
+		// 	}
+		// }
 
 		// and now, loading the external configuration files
-		for _, s := range getExpandedPredefinedLocations() {
-			fn := s
-			switch strings.Count(fn, "%s") {
-			case 2:
-				fn = fmt.Sprintf(s, rootCmd.AppName, rootCmd.AppName)
-			case 1:
-				fn = fmt.Sprintf(s, rootCmd.AppName)
-			}
+		err = loadFromPredefinedLocation(rootCmd)
+		// for _, s := range getExpandedPredefinedLocations() {
+		// 	fn := s
+		// 	switch strings.Count(fn, "%s") {
+		// 	case 2:
+		// 		fn = fmt.Sprintf(s, rootCmd.AppName, rootCmd.AppName)
+		// 	case 1:
+		// 		fn = fmt.Sprintf(s, rootCmd.AppName)
+		// 	}
+		//
+		// 	if FileExists(fn) {
+		// 		err = rxxtOptions.LoadConfigFile(fn)
+		// 		if err != nil {
+		// 			return
+		// 		}
+		// 		break
+		// 	}
+		// }
+	}
+	return
+}
 
-			if FileExists(fn) {
-				err = rxxtOptions.LoadConfigFile(fn)
-				if err != nil {
-					return
+func parsePredefinedLocation() (err error) {
+	// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
+	if ix, str, yes := partialContains(os.Args, "--config"); yes {
+		var location string
+		if i := strings.Index(str, "="); i > 0 {
+			location = str[i+1:]
+		} else if len(str) > 8 {
+			location = str[8:]
+		} else if ix+1 < len(os.Args) {
+			location = os.Args[ix+1]
+		}
+
+		location = trimQuotes(location)
+
+		if len(location) > 0 && FileExists(location) {
+			if yes, err = IsDirectory(location); yes {
+				if FileExists(location + "/conf.d") {
+					SetPredefinedLocations([]string{location + "/%s.yml"})
+				} else {
+					SetPredefinedLocations([]string{location + "/%s/%s.yml"})
 				}
-				break
+			} else if yes, err = IsRegularFile(location); yes {
+				SetPredefinedLocations([]string{location})
 			}
+		}
+	}
+	return
+}
+
+func loadFromPredefinedLocation(rootCmd *RootCommand) (err error) {
+	// and now, loading the external configuration files
+	for _, s := range getExpandedPredefinedLocations() {
+		fn := s
+		switch strings.Count(fn, "%s") {
+		case 2:
+			fn = fmt.Sprintf(s, rootCmd.AppName, rootCmd.AppName)
+		case 1:
+			fn = fmt.Sprintf(s, rootCmd.AppName)
+		}
+
+		if FileExists(fn) {
+			err = rxxtOptions.LoadConfigFile(fn)
+			if err != nil {
+				return
+			}
+			break
 		}
 	}
 	return
@@ -661,36 +751,7 @@ func preprocessPkg(pkg *ptpkg, args []string) (err error) {
 				pkg.val = args[pkg.i]
 			} else {
 				if len(pkg.flg.ExternalTool) > 0 {
-					switch pkg.flg.ExternalTool {
-					case ExternalToolPasswordInput:
-						fmt.Print("Password: ")
-						var bytePassword []byte
-						if InTesting() {
-							bytePassword = []byte("demo")
-						} else {
-							if bytePassword, err = terminal.ReadPassword(int(syscall.Stdin)); err != nil {
-								fmt.Println() // it's necessary to add a new line after user's input
-								return
-							}
-							fmt.Println() // it's necessary to add a new line after user's input
-						}
-						pkg.val = string(bytePassword)
-
-					default:
-						editor := os.Getenv(pkg.flg.ExternalTool)
-						if len(editor) == 0 {
-							editor = DefaultEditor
-						}
-						var content []byte
-						if InTesting() {
-							content = []byte("demo")
-						} else {
-							if content, err = LaunchEditor(editor); err != nil {
-								return
-							}
-						}
-						pkg.val = string(content)
-					}
+					err = processExternalTool(pkg)
 				} else if GetStrictMode() {
 					err = fmt.Errorf("unexpect end of command line [i=%v,args=(%v)], need more args for %v", pkg.i, args, pkg)
 					return
@@ -698,6 +759,40 @@ func preprocessPkg(pkg *ptpkg, args []string) (err error) {
 			}
 		}
 		pkg.assigned = true
+	}
+	return
+}
+
+func processExternalTool(pkg *ptpkg) (err error) {
+	switch pkg.flg.ExternalTool {
+	case ExternalToolPasswordInput:
+		fmt.Print("Password: ")
+		var bytePassword []byte
+		if InTesting() {
+			bytePassword = []byte("demo")
+		} else {
+			if bytePassword, err = terminal.ReadPassword(int(syscall.Stdin)); err != nil {
+				fmt.Println() // it's necessary to add a new line after user's input
+				return
+			}
+			fmt.Println() // it's necessary to add a new line after user's input
+		}
+		pkg.val = string(bytePassword)
+
+	default:
+		editor := os.Getenv(pkg.flg.ExternalTool)
+		if len(editor) == 0 {
+			editor = DefaultEditor
+		}
+		var content []byte
+		if InTesting() {
+			content = []byte("demo")
+		} else {
+			if content, err = LaunchEditor(editor); err != nil {
+				return
+			}
+		}
+		pkg.val = string(content)
 	}
 	return
 }

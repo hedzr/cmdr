@@ -45,7 +45,7 @@ func printHelp(command *Command, justFlags bool) {
 
 func dumpTreeForAllCommands(cmd *Command, args []string) (err error) {
 	command := &rootCommand.Command
-	err = walkFromCommand(command, 0, func(cmd *Command, index int) (err error) {
+	_ = walkFromCommand(command, 0, func(cmd *Command, index int) (e error) {
 		if cmd.Hidden {
 			return
 		}

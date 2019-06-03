@@ -199,7 +199,7 @@ func contains(names []string, name string) bool {
 	return false
 }
 
-func partialContains(names []string, partialNeedle string) (index int, matched string, containes bool) {
+func partialContains(names []string, partialNeedle string) (index int, matched string, contains bool) {
 	for ix, n := range names {
 		if strings.Contains(n, partialNeedle) {
 			return ix, n, true

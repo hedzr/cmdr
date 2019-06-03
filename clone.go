@@ -103,27 +103,6 @@ func (s *CopierImpl) Copy(toValue interface{}, fromValue interface{}, ignoreName
 			return err
 		}
 
-		// Copy from method to field
-		for _, field := range s.deepFields(toType) {
-			name := field.Name
-
-			var fromMethod reflect.Value
-			if source.CanAddr() {
-				fromMethod = source.Addr().MethodByName(name)
-			} else {
-				fromMethod = source.MethodByName(name)
-			}
-
-			if fromMethod.IsValid() && fromMethod.Type().NumIn() == 0 && fromMethod.Type().NumOut() == 1 {
-				if toField := dest.FieldByName(name); toField.IsValid() && toField.CanSet() {
-					values := fromMethod.Call([]reflect.Value{})
-					if len(values) >= 1 {
-						s.set(toField, values[0])
-					}
-				}
-			}
-		}
-
 		if isSlice {
 			if dest.Addr().Type().AssignableTo(to.Type().Elem()) {
 				to.Set(reflect.Append(to, dest.Addr()))

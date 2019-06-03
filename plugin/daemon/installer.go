@@ -120,7 +120,7 @@ WantedBy=multi-user.target
 
 [Service]
 #Type=idle
-Type=simple
+Type=forking
 User=%i
 #Group=%i
 LimitNOFILE=65535
@@ -144,11 +144,12 @@ ExecReload={{.BinPath}} $GLOBAL_OPTIONS server restart
 
 # # make sure log directory exists and owned by syslog
 PermissionsStartOnly=true
-ExecStartPre=-mkdir /var/run/{{.AppName}}
-ExecStartPre=-mkdir /var/lib/{{.AppName}}
-ExecStartPre=-mkdir /var/log/{{.AppName}}
+ExecStartPre=-/bin/mkdir /var/run/{{.AppName}}
+ExecStartPre=-/bin/mkdir /var/lib/{{.AppName}}
+ExecStartPre=-/bin/mkdir /var/log/{{.AppName}}
 ExecStartPre=-/bin/chown -R %i: /var/run/{{.AppName}} /var/lib/{{.AppName}}
-ExecStartPre=-/bin/chown -R syslog:adm /var/log/{{.AppName}}
+# ExecStartPre=-/bin/chown -R syslog:adm /var/log/{{.AppName}}
+ExecStartPre=-/bin/chown -R %i: /var/log/{{.AppName}}
 
 # # enable coredump
 # ExecStartPre=ulimit -c unlimited

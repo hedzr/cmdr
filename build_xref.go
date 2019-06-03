@@ -12,6 +12,15 @@ func buildRootCrossRefs(root *RootCommand) {
 	// initializes the internal variables/members
 	ensureCmdMembers(&root.Command)
 
+	attachVersionCommands(root)
+	attachHelpCommands(root)
+	attachVerboseCommands(root)
+	attachGeneratorsCommands(root)
+
+	buildCrossRefs(&root.Command)
+}
+
+func attachVersionCommands(root *RootCommand) {
 	if EnableVersionCommands {
 		if _, ok := root.allCmds[SysMgmtGroup]["version"]; !ok {
 			cx := &Command{
@@ -70,7 +79,9 @@ func buildRootCrossRefs(root *RootCommand) {
 			root.plainLongFlags["build-info"] = root.allFlags[SysMgmtGroup]["build-info"]
 		}
 	}
+}
 
+func attachHelpCommands(root *RootCommand) {
 	if EnableHelpCommands {
 		if _, ok := root.allFlags[SysMgmtGroup]["help"]; !ok {
 			root.allFlags[SysMgmtGroup]["help"] = &Flag{
@@ -157,7 +168,9 @@ $ {{.AppName}} --config=ci/etc/demo-yy/any.yml ~~debug
 			root.plainLongFlags["config"] = root.allFlags[SysMgmtGroup]["config"]
 		}
 	}
+}
 
+func attachVerboseCommands(root *RootCommand) {
 	if EnableVerboseCommands {
 		if _, ok := root.allFlags[SysMgmtGroup]["verbose"]; !ok {
 			root.allFlags[SysMgmtGroup]["verbose"] = &Flag{
@@ -207,7 +220,9 @@ $ {{.AppName}} --config=ci/etc/demo-yy/any.yml ~~debug
 			root.plainShortFlags["D"] = root.allFlags[SysMgmtGroup]["debug"]
 		}
 	}
+}
 
+func attachCmdrCommands(root *RootCommand) {
 	if EnableCmdrCommands {
 		if _, ok := root.allFlags[SysMgmtGroup]["strict-mode"]; !ok {
 			root.allFlags[SysMgmtGroup]["strict-mode"] = &Flag{
@@ -234,7 +249,9 @@ $ {{.AppName}} --config=ci/etc/demo-yy/any.yml ~~debug
 			root.plainLongFlags["no-env-overrides"] = root.allFlags[SysMgmtGroup]["no-env-overrides"]
 		}
 	}
+}
 
+func attachGeneratorsCommands(root *RootCommand) {
 	if EnableGenerateCommands {
 		found := false
 		for _, sc := range root.SubCommands {
@@ -247,8 +264,95 @@ $ {{.AppName}} --config=ci/etc/demo-yy/any.yml ~~debug
 			root.SubCommands = append(root.SubCommands, generatorCommands)
 		}
 	}
+}
 
-	buildCrossRefs(&root.Command)
+func buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagNames, stringFlagNames map[string]bool) {
+	if len(flg.Short) != 0 {
+		if _, ok := singleFlagNames[flg.Short]; ok {
+			ferr("flag char '%v' was been used.", flg.Short)
+		} else {
+			singleFlagNames[flg.Short] = true
+		}
+	}
+	if len(flg.Full) != 0 {
+		if _, ok := stringFlagNames[flg.Full]; ok {
+			ferr("flag '%v' was been used.", flg.Full)
+		} else {
+			stringFlagNames[flg.Full] = true
+		}
+	}
+	if len(flg.Short) == 0 && len(flg.Full) == 0 && len(flg.Name) != 0 {
+		if _, ok := stringFlagNames[flg.Name]; ok {
+			ferr("flag '%v' was been used.", flg.Name)
+		} else {
+			stringFlagNames[flg.Name] = true
+		}
+	}
+	for _, sz := range flg.Aliases {
+		if _, ok := stringFlagNames[sz]; ok {
+			ferr("flag alias name '%v' was been used.", sz)
+		} else {
+			stringFlagNames[sz] = true
+		}
+	}
+	if len(flg.Group) == 0 {
+		flg.Group = UnsortedGroup
+	}
+	if _, ok := cmd.allFlags[flg.Group]; !ok {
+		cmd.allFlags[flg.Group] = make(map[string]*Flag)
+	}
+	for _, sz := range flg.GetShortTitleNamesArray() {
+		cmd.plainShortFlags[sz] = flg
+	}
+	for _, sz := range flg.GetLongTitleNamesArray() {
+		cmd.plainLongFlags[sz] = flg
+	}
+	cmd.allFlags[flg.Group][flg.GetTitleName()] = flg
+}
+
+func buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames, stringCmdNames map[string]bool) {
+	if len(cx.Short) != 0 {
+		if _, ok := singleCmdNames[cx.Short]; ok {
+			ferr("command char '%v' was been used.", cx.Short)
+		} else {
+			singleCmdNames[cx.Short] = true
+		}
+	}
+	if len(cx.Full) != 0 {
+		if _, ok := stringCmdNames[cx.Full]; ok {
+			ferr("command '%v' was been used.", cx.Full)
+		} else {
+			stringCmdNames[cx.Full] = true
+		}
+	}
+	if len(cx.Short) == 0 && len(cx.Full) == 0 && len(cx.Name) != 0 {
+		if _, ok := stringCmdNames[cx.Name]; ok {
+			ferr("command '%v' was been used.", cx.Name)
+		} else {
+			stringCmdNames[cx.Name] = true
+		}
+		cmd.plainCmds[cx.Name] = cx
+	}
+	for _, sz := range cx.Aliases {
+		if len(sz) != 0 {
+			if _, ok := stringCmdNames[sz]; ok {
+				ferr("command alias name '%v' was been used.", sz)
+			} else {
+				stringCmdNames[sz] = true
+			}
+		}
+	}
+
+	if len(cx.Group) == 0 {
+		cx.Group = UnsortedGroup
+	}
+	if _, ok := cmd.allCmds[cx.Group]; !ok {
+		cmd.allCmds[cx.Group] = make(map[string]*Command)
+	}
+	for _, sz := range cx.GetTitleNamesArray() {
+		cmd.plainCmds[sz] = cx
+	}
+	cmd.allCmds[cx.Group][cx.GetTitleName()] = cx
 }
 
 func buildCrossRefs(cmd *Command) {
@@ -261,48 +365,8 @@ func buildCrossRefs(cmd *Command) {
 
 	for _, flg := range cmd.Flags {
 		flg.owner = cmd
-		if len(flg.Short) != 0 {
-			if _, ok := singleFlagNames[flg.Short]; ok {
-				ferr("flag char '%v' was been used.", flg.Short)
-			} else {
-				singleFlagNames[flg.Short] = true
-			}
-		}
-		if len(flg.Full) != 0 {
-			if _, ok := stringFlagNames[flg.Full]; ok {
-				ferr("flag '%v' was been used.", flg.Full)
-			} else {
-				stringFlagNames[flg.Full] = true
-			}
-		}
-		if len(flg.Short) == 0 && len(flg.Full) == 0 && len(flg.Name) != 0 {
-			if _, ok := stringFlagNames[flg.Name]; ok {
-				ferr("flag '%v' was been used.", flg.Name)
-			} else {
-				stringFlagNames[flg.Name] = true
-			}
-		}
-		for _, sz := range flg.Aliases {
-			if _, ok := stringFlagNames[sz]; ok {
-				ferr("flag alias name '%v' was been used.", sz)
-			} else {
-				stringFlagNames[sz] = true
-			}
-		}
 
-		if len(flg.Group) == 0 {
-			flg.Group = UnsortedGroup
-		}
-		if _, ok := cmd.allFlags[flg.Group]; !ok {
-			cmd.allFlags[flg.Group] = make(map[string]*Flag)
-		}
-		for _, sz := range flg.GetShortTitleNamesArray() {
-			cmd.plainShortFlags[sz] = flg
-		}
-		for _, sz := range flg.GetLongTitleNamesArray() {
-			cmd.plainLongFlags[sz] = flg
-		}
-		cmd.allFlags[flg.Group][flg.GetTitleName()] = flg
+		buildCrossRefsForFlag(flg, cmd, singleFlagNames, stringFlagNames)
 
 		// opt.Children[flg.Full] = &OptOne{Value: flg.DefaultValue,}
 		rxxtOptions.Set(backtraceFlagNames(flg), flg.DefaultValue)
@@ -311,49 +375,7 @@ func buildCrossRefs(cmd *Command) {
 	for _, cx := range cmd.SubCommands {
 		cx.owner = cmd
 
-		if len(cx.Short) != 0 {
-			if _, ok := singleCmdNames[cx.Short]; ok {
-				ferr("command char '%v' was been used.", cx.Short)
-			} else {
-				singleCmdNames[cx.Short] = true
-			}
-		}
-		if len(cx.Full) != 0 {
-			if _, ok := stringCmdNames[cx.Full]; ok {
-				ferr("command '%v' was been used.", cx.Full)
-			} else {
-				stringCmdNames[cx.Full] = true
-			}
-		}
-		if len(cx.Short) == 0 && len(cx.Full) == 0 && len(cx.Name) != 0 {
-			if _, ok := stringCmdNames[cx.Name]; ok {
-				ferr("command '%v' was been used.", cx.Name)
-			} else {
-				stringCmdNames[cx.Name] = true
-			}
-			cmd.plainCmds[cx.Name] = cx
-		}
-		for _, sz := range cx.Aliases {
-			if len(sz) != 0 {
-				if _, ok := stringCmdNames[sz]; ok {
-					ferr("command alias name '%v' was been used.", sz)
-				} else {
-					stringCmdNames[sz] = true
-				}
-			}
-		}
-
-		if len(cx.Group) == 0 {
-			cx.Group = UnsortedGroup
-		}
-		if _, ok := cmd.allCmds[cx.Group]; !ok {
-			cmd.allCmds[cx.Group] = make(map[string]*Command)
-		}
-		for _, sz := range cx.GetTitleNamesArray() {
-			cmd.plainCmds[sz] = cx
-		}
-		cmd.allCmds[cx.Group][cx.GetTitleName()] = cx
-
+		buildCrossRefsForCommand(cx, cmd, singleCmdNames, stringCmdNames)
 		// opt.Children[cx.Full] = newOpt()
 
 		rxxtOptions.Set(backtraceCmdNames(cx), nil)

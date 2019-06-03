@@ -20,9 +20,15 @@ deploy:
     - bin/demo-linux-amd64.gz
     - bin/short-linux-amd64.gz
     - bin/wget-demo-linux-amd64.gz
-    - bin/demo-windows-amd64.gz
-    - bin/short-windows-amd64.gz
-    - bin/wget-demo-windows-amd64.gz
+    - bin/fluent-linux-amd64.gz
+    - bin/demo-darwin-amd64.gz
+    - bin/short-darwin-amd64.gz
+    - bin/wget-demo-darwin-amd64.gz
+    - bin/fluent-darwin-amd64.gz
+    - bin/demo-windows-amd64.exe.gz
+    - bin/short-windows-amd64.exe.gz
+    - bin/wget-demo-windows-amd64.exe.gz
+    - bin/fluent-windows-amd64.exe.gz
   on:
     tags: true
     repo: hedzr/cmdr

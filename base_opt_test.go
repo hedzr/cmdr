@@ -69,6 +69,84 @@ func TestHasParent(t *testing.T) {
 	}
 }
 
+func TestSetGetStringSlice(t *testing.T) {
+	cmdr.Set("A", []int{3, 7})
+	oo := cmdr.GetStringSlice("app.A")
+	if "3" != oo[0] || "7" != oo[1] {
+		t.Fatal("wrong GetStringSlice on int slice")
+	}
+
+	cmdr.Set("A", "3,7")
+	oo = cmdr.GetStringSlice("app.A")
+	if "3" != oo[0] || "7" != oo[1] {
+		t.Fatal("wrong GetStringSlice on int slice")
+	}
+
+	cmdr.Set("A", []float32{3, 7})
+	oo = cmdr.GetStringSlice("app.A")
+	if "3" != oo[0] || "7" != oo[1] {
+		t.Fatal("wrong GetStringSlice on int slice")
+	}
+
+	cmdr.Set("A", []byte("3,7"))
+	oo = cmdr.GetStringSlice("app.A")
+	if "3" != oo[0] || "7" != oo[1] {
+		t.Fatal("wrong GetStringSlice on int slice")
+	}
+
+	cmdr.Set("A", 99)
+	oo = cmdr.GetStringSlice("app.A")
+	if "99" != oo[0] {
+		t.Fatal("wrong GetStringSlice on int slice")
+	}
+}
+
+func TestSetGetIntSlice(t *testing.T) {
+	// int slice
+
+	cmdr.Set("A", []string{"3", "7"})
+	oi := cmdr.GetIntSlice("app.A")
+	if 3 != oi[0] || 7 != oi[1] {
+		t.Fatal("wrong GetIntSlice on int slice 1 ")
+	}
+
+	cmdr.Set("A", []int{3, 7})
+	oi = cmdr.GetIntSlice("app.A")
+	if 3 != oi[0] || 7 != oi[1] {
+		t.Fatal("wrong GetIntSlice on int slice 1 ")
+	}
+
+	cmdr.Set("A", "3,7")
+	oi = cmdr.GetIntSlice("app.A")
+	if 3 != oi[0] || 7 != oi[1] {
+		t.Fatal("wrong GetIntSlice on int slice 2")
+	}
+
+	cmdr.Set("A", []float32{3, 7})
+	oi = cmdr.GetIntSlice("app.A")
+	if 3 != oi[0] || 7 != oi[1] {
+		t.Fatal("wrong GetIntSlice on int slice 3")
+	}
+
+	cmdr.Set("A", []byte("3,7"))
+	oi = cmdr.GetIntSlice("app.A")
+	if 3 != oi[0] || 7 != oi[1] {
+		t.Fatal("wrong GetIntSlice on int slice 4")
+	}
+
+	cmdr.Set("A", "99")
+	oi = cmdr.GetIntSlice("app.A")
+	if 99 != oi[0] {
+		t.Fatal("wrong GetIntSlice on int slice 5")
+	}
+
+	cmdr.Set("A", 99)
+	oi = cmdr.GetIntSlice("app.A")
+	if 99 != oi[0] {
+		t.Fatal("wrong GetIntSlice on int slice 5")
+	}
+}
+
 func TestTomlLoad(t *testing.T) {
 	var (
 		err    error
@@ -179,11 +257,17 @@ func TestConfigFiles(t *testing.T) {
 	_ = ioutil.WriteFile(".tmp.yaml", []byte(`
 app'x':"
 `), 0644)
+
 	// try loading cfg again for gocov
 	if err = cmdr.LoadConfigFile(".tmp.yaml"); err == nil {
 		t.Fatal("loading cfg file should be failed (err != nil), but it returns nil as err.")
 	}
 	_ = os.Remove(".tmp.yaml")
+
+	_ = ioutil.WriteFile(".tmp.json", []byte(`{"app":{"debug":errrrr}}`), 0644)
+	if err = cmdr.LoadConfigFile(".tmp.json"); err == nil {
+		t.Fatal(err)
+	}
 
 	_ = ioutil.WriteFile(".tmp.json", []byte(`{"app":{"debug":false}}`), 0644)
 	// try loading cfg again for gocov
@@ -191,6 +275,15 @@ app'x':"
 		t.Fatal(err)
 	}
 	_ = os.Remove(".tmp.json")
+
+	_ = ioutil.WriteFile(".tmp.toml", []byte(`
+runmode=devel
+`), 0644)
+	if err = cmdr.LoadConfigFile(".tmp.toml"); err == nil {
+		t.Fatal(err)
+	}
+
+	_ = cmdr.LoadConfigFile(".tmp.x.toml")
 
 	_ = ioutil.WriteFile(".tmp.toml", []byte(`
 runmode="devel"

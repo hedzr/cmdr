@@ -32,6 +32,7 @@ coverage.txt
 cover.out
 cover.html
 .tmp.*
+conf.d/
 
 ### two executable files
 

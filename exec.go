@@ -40,8 +40,8 @@ func ExecWith(rootCmd *RootCommand, beforeXrefBuildingX, afterXrefBuiltX HookXre
 func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 	var (
 		pkg       = new(ptpkg)
-		ok        = false
 		goCommand = &rootCmd.Command
+		stop      bool
 		// helpFlag = rootCmd.allFlags[UnsortedGroup]["help"]
 	)
 
@@ -54,20 +54,8 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 		_ = rootCmd.oerr.Flush()
 	}()
 
-	for _, x := range beforeXrefBuilding {
-		x(rootCmd, args)
-	}
-
-	if err = buildXref(rootCmd); err != nil {
+	if err = preprocess(rootCmd, args); err != nil {
 		return
-	}
-
-	if err = rxxtOptions.buildAutomaticEnv(rootCmd); err != nil {
-		return
-	}
-
-	for _, x := range afterXrefBuilt {
-		x(rootCmd, args)
 	}
 
 	for pkg.i = 1; pkg.i < len(args); pkg.i++ {
@@ -89,142 +77,262 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 		//  - -nconsul is not good format, but it could get somewhat works.
 		//  - -n'consul', -n"consul" could works too.
 		// -t3: opt with an argument.
-		if pkg.a[0] == '-' || pkg.a[0] == '/' || pkg.a[0] == '~' {
-			if len(pkg.a) == 1 {
-				pkg.needHelp = true
-				pkg.needFlagsHelp = true
-				continue
-			}
-
-			// flag
-			if len(pkg.a) > 1 && (pkg.a[1] == '-' || pkg.a[1] == '~') {
-				if len(pkg.a) == 2 {
-					// disableParser = true // '--': ignore the following args
-					break
-				}
-
-				// long flag
-				pkg.fn = pkg.a[2:]
-				findValueAttached(pkg, &pkg.fn)
-			} else {
-				pkg.suffix = pkg.a[len(pkg.a)-1]
-				if pkg.suffix == '+' || pkg.suffix == '-' {
-					pkg.a = pkg.a[0 : len(pkg.a)-1]
-				} else {
-					pkg.suffix = 0
-				}
-
-				if i := matchShortFlag(pkg, goCommand, pkg.a); i >= 0 {
-					pkg.fn = pkg.a[1:i]
-					pkg.savedFn = pkg.a[i:]
-				} else {
-					pkg.fn = pkg.a[1:2]
-					pkg.savedFn = pkg.a[2:]
-				}
-				pkg.short = true
-				findValueAttached(pkg, &pkg.savedFn)
-			}
-
-			// fn + val
-			// fn: short,
-			// fn: long
-			// fn: short||val: such as '-t3'
-			// fn: long=val, long='val', long="val", long val, long 'val', long "val"
-			// fn: longval, long'val', long"val"
-
-			pkg.savedGoCommand = goCommand
-			cc := goCommand
-		GO_UP:
-			pkg.found = false
-			if pkg.short {
-				pkg.flg, ok = cc.plainShortFlags[pkg.fn]
-			} else {
-				var fn = pkg.fn
-				var ln = len(fn)
-				for ; ln > 1; ln-- {
-					fn = pkg.fn[0:ln]
-					pkg.flg, ok = cc.plainLongFlags[fn]
-					if ok {
-						if ln < len(pkg.fn) {
-							pkg.val = pkg.fn[ln:]
-							pkg.fn = fn
-							pkg.assigned = true
-						}
-						break
-					}
-				}
-			}
-
-			if ok {
-				if err = tryExtractingValue(pkg, args); err != nil {
-					return
-				}
-
-				if pkg.found {
-					// if !GetBoolP(getPrefix(), "quiet") {
-					// 	logrus.Debugf("-- flag '%v' hit, go ahead...", pkg.flg.GetTitleName())
-					// }
-					if pkg.flg.Action != nil {
-						if err = pkg.flg.Action(goCommand, getArgs(pkg, args)); err == ErrShouldBeStopException {
-							return nil
-						}
-					}
-					if isBool(pkg.flg.DefaultValue) || isNil1(pkg.flg.DefaultValue) {
-						toggleGroup(pkg)
-					}
-
-					if !pkg.assigned {
-						if len(pkg.savedFn) > 0 && len(pkg.savedVal) == 0 {
-							pkg.fn = pkg.savedFn[0:1]
-							pkg.savedFn = pkg.savedFn[1:]
-							goto GO_UP
-						}
-					}
-				}
-			} else {
-				if cc.owner != nil {
-					// match the flag within parent's flags set.
-					cc = cc.owner
-					goto GO_UP
-				}
-				if !pkg.assigned && pkg.short {
-					// try matching 2-chars short opt
-					if len(pkg.savedFn) > 0 {
-						fnf := pkg.fn + pkg.savedFn
-						pkg.fn = fnf[0:2]
-						pkg.savedFn = fnf[2:]
-						goCommand = pkg.savedGoCommand
-						goto GO_UP
-					}
-				}
-				ferr("Unknown flag: %v", pkg.a)
-				pkg.unknownFlags = append(pkg.unknownFlags, pkg.a)
-			}
-
-		} else {
-			// command, files
-			if cmd, ok := goCommand.plainCmds[pkg.a]; ok {
-				cmd.strHit = pkg.a
-				goCommand = cmd
-				// logrus.Debugf("-- command '%v' hit, go ahead...", cmd.GetTitleName())
-				if cmd.PreAction != nil {
-					if err = cmd.PreAction(goCommand, getArgs(pkg, args)); err == ErrShouldBeStopException {
-						return nil
-					}
-				}
-			} else {
-				if goCommand.Action != nil && len(goCommand.SubCommands) == 0 {
-					// the args remained are files, not sub-commands.
-					pkg.i--
-					break
-				}
-
-				ferr("Unknown command: %v", pkg.a)
-				pkg.unknownCmds = append(pkg.unknownCmds, pkg.a)
-			}
+		stop, err = xxTestCmd(pkg, &goCommand, rootCmd, args)
+		if stop {
+			break
 		}
 	}
 
+	err = afterInternalExec(pkg, rootCmd, goCommand, args)
+
+	return
+}
+
+func xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []string) (stop bool, err error) {
+	if pkg.a[0] == '-' || pkg.a[0] == '/' || pkg.a[0] == '~' {
+		if len(pkg.a) == 1 {
+			pkg.needHelp = true
+			pkg.needFlagsHelp = true
+			return
+		}
+
+		// flag
+		if len(pkg.a) > 1 && (pkg.a[1] == '-' || pkg.a[1] == '~') {
+			if len(pkg.a) == 2 {
+				// disableParser = true // '--': ignore the following args
+				stop = true
+				return
+			}
+
+			// long flag
+			pkg.fn = pkg.a[2:]
+			findValueAttached(pkg, &pkg.fn)
+		} else {
+			pkg.suffix = pkg.a[len(pkg.a)-1]
+			if pkg.suffix == '+' || pkg.suffix == '-' {
+				pkg.a = pkg.a[0 : len(pkg.a)-1]
+			} else {
+				pkg.suffix = 0
+			}
+
+			if i := matchShortFlag(pkg, *goCommand, pkg.a); i >= 0 {
+				pkg.fn = pkg.a[1:i]
+				pkg.savedFn = pkg.a[i:]
+			} else {
+				pkg.fn = pkg.a[1:2]
+				pkg.savedFn = pkg.a[2:]
+			}
+			pkg.short = true
+			findValueAttached(pkg, &pkg.savedFn)
+		}
+
+		// fn + val
+		// fn: short,
+		// fn: long
+		// fn: short||val: such as '-t3'
+		// fn: long=val, long='val', long="val", long val, long 'val', long "val"
+		// fn: longval, long'val', long"val"
+
+		pkg.savedGoCommand = *goCommand
+		cc := *goCommand
+		if stop, err = flagsMatching(pkg, cc, goCommand, args); stop || err != nil {
+			return
+		}
+
+	} else {
+		if stop, err = cmdMatching(pkg, goCommand, args); stop || err != nil {
+			return
+		}
+		// // command, files
+		// if cmd, ok := (*goCommand).plainCmds[pkg.a]; ok {
+		// 	cmd.strHit = pkg.a
+		// 	*goCommand = cmd
+		// 	// logrus.Debugf("-- command '%v' hit, go ahead...", cmd.GetTitleName())
+		// 	if cmd.PreAction != nil {
+		// 		if err = cmd.PreAction(*goCommand, getArgs(pkg, args)); err == ErrShouldBeStopException {
+		// 			return false, nil
+		// 		}
+		// 	}
+		// } else {
+		// 	if (*goCommand).Action != nil && len((*goCommand).SubCommands) == 0 {
+		// 		// the args remained are files, not sub-commands.
+		// 		pkg.i--
+		// 		stop = true
+		// 		return
+		// 	}
+		//
+		// 	ferr("Unknown command: %v", pkg.a)
+		// 	pkg.unknownCmds = append(pkg.unknownCmds, pkg.a)
+		// }
+	}
+	return
+}
+
+func cmdMatching(pkg *ptpkg, goCommand **Command, args []string) (stop bool, err error) {
+	// command, files
+	if cmd, ok := (*goCommand).plainCmds[pkg.a]; ok {
+		cmd.strHit = pkg.a
+		*goCommand = cmd
+		// logrus.Debugf("-- command '%v' hit, go ahead...", cmd.GetTitleName())
+		stop, err = cmdMatched(pkg, *goCommand, args)
+	} else {
+		if (*goCommand).Action != nil && len((*goCommand).SubCommands) == 0 {
+			// the args remained are files, not sub-commands.
+			pkg.i--
+			stop = true
+			return
+		}
+
+		ferr("Unknown command: %v", pkg.a)
+		pkg.unknownCmds = append(pkg.unknownCmds, pkg.a)
+	}
+	return
+}
+
+func cmdMatched(pkg *ptpkg, goCommand *Command, args []string) (stop bool, err error) {
+	if goCommand.PreAction != nil {
+		if err = goCommand.PreAction(goCommand, getArgs(pkg, args)); err == ErrShouldBeStopException {
+			return false, nil
+		}
+	}
+	return
+}
+
+func flagsMatching(pkg *ptpkg, cc *Command, goCommand **Command, args []string) (stop bool, err error) {
+	var ok, upLevel bool
+GO_UP:
+	pkg.found = false
+	if pkg.short {
+		pkg.flg, ok = cc.plainShortFlags[pkg.fn]
+	} else {
+		ok = matchForLongFlags(pkg.fn, cc, pkg)
+	}
+
+	if ok {
+		if upLevel, stop, err = flagsMatched(pkg, *goCommand, args); stop || err != nil {
+			return
+		}
+		if upLevel {
+			goto GO_UP
+		}
+		// if err = tryExtractingValue(pkg, args); err != nil {
+		// 	return
+		// }
+		//
+		// if pkg.found {
+		// 	// if !GetBoolP(getPrefix(), "quiet") {
+		// 	// 	logrus.Debugf("-- flag '%v' hit, go ahead...", pkg.flg.GetTitleName())
+		// 	// }
+		// 	if pkg.flg.Action != nil {
+		// 		if err = pkg.flg.Action(*goCommand, getArgs(pkg, args)); err == ErrShouldBeStopException {
+		// 			return false, nil
+		// 		}
+		// 	}
+		// 	if isBool(pkg.flg.DefaultValue) || isNil1(pkg.flg.DefaultValue) {
+		// 		toggleGroup(pkg)
+		// 	}
+		//
+		// 	if !pkg.assigned {
+		// 		if len(pkg.savedFn) > 0 && len(pkg.savedVal) == 0 {
+		// 			pkg.fn = pkg.savedFn[0:1]
+		// 			pkg.savedFn = pkg.savedFn[1:]
+		// 			goto GO_UP
+		// 		}
+		// 	}
+		// }
+	} else {
+		if cc.owner != nil {
+			// match the flag within parent's flags set.
+			cc = cc.owner
+			goto GO_UP
+		}
+		if !pkg.assigned && pkg.short {
+			// try matching 2-chars short opt
+			if len(pkg.savedFn) > 0 {
+				fnf := pkg.fn + pkg.savedFn
+				pkg.fn = fnf[0:2]
+				pkg.savedFn = fnf[2:]
+				*goCommand = pkg.savedGoCommand
+				goto GO_UP
+			}
+		}
+		ferr("Unknown flag: %v", pkg.a)
+		pkg.unknownFlags = append(pkg.unknownFlags, pkg.a)
+	}
+	return
+}
+
+func flagsMatched(pkg *ptpkg, goCommand *Command, args []string) (upLevel, stop bool, err error) {
+	if err = tryExtractingValue(pkg, args); err != nil {
+		stop = true
+		return
+	}
+
+	if pkg.found {
+		// if !GetBoolP(getPrefix(), "quiet") {
+		// 	logrus.Debugf("-- flag '%v' hit, go ahead...", pkg.flg.GetTitleName())
+		// }
+		if pkg.flg.Action != nil {
+			if err = pkg.flg.Action(goCommand, getArgs(pkg, args)); err == ErrShouldBeStopException {
+				stop = true
+				err = nil
+				return
+			}
+		}
+		if isBool(pkg.flg.DefaultValue) || isNil1(pkg.flg.DefaultValue) {
+			toggleGroup(pkg)
+		}
+
+		if !pkg.assigned {
+			if len(pkg.savedFn) > 0 && len(pkg.savedVal) == 0 {
+				pkg.fn = pkg.savedFn[0:1]
+				pkg.savedFn = pkg.savedFn[1:]
+				// goto GO_UP
+				upLevel = true
+			}
+		}
+	}
+	return
+}
+
+func matchForLongFlags(fn string, cc *Command, pkg *ptpkg) (ok bool) {
+	var ln = len(fn)
+	for ; ln > 1; ln-- {
+		fn = pkg.fn[0:ln]
+		pkg.flg, ok = cc.plainLongFlags[fn]
+		if ok {
+			if ln < len(pkg.fn) {
+				pkg.val = pkg.fn[ln:]
+				pkg.fn = fn
+				pkg.assigned = true
+			}
+			break
+		}
+	}
+	return
+}
+
+func preprocess(rootCmd *RootCommand, args []string) (err error) {
+	for _, x := range beforeXrefBuilding {
+		x(rootCmd, args)
+	}
+
+	if err = buildXref(rootCmd); err != nil {
+		return
+	}
+
+	if err = rxxtOptions.buildAutomaticEnv(rootCmd); err != nil {
+		return
+	}
+
+	for _, x := range afterXrefBuilt {
+		x(rootCmd, args)
+	}
+
+	return
+}
+
+func afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string) (err error) {
 	if !pkg.needHelp {
 		pkg.needHelp = GetBoolP(getPrefix(), "help")
 	}
@@ -263,7 +371,6 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 	// }
 
 	printHelp(goCommand, pkg.needFlagsHelp)
-
 	return
 }
 
@@ -466,23 +573,7 @@ func matchShortFlag(pkg *ptpkg, goCommand *Command, a string) (i int) {
 
 func tryExtractingValue(pkg *ptpkg, args []string) (err error) {
 	if _, ok := pkg.flg.DefaultValue.(bool); ok {
-		// bool flag, -D+, -D-
-
-		if pkg.suffix == '+' {
-			pkg.flg.DefaultValue = true
-		} else if pkg.suffix == '-' {
-			pkg.flg.DefaultValue = false
-		} else {
-			pkg.flg.DefaultValue = true
-		}
-
-		if pkg.a[0] == '~' {
-			rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), pkg.flg.DefaultValue)
-		} else {
-			rxxtOptions.Set(backtraceFlagNames(pkg.flg), pkg.flg.DefaultValue)
-		}
-		pkg.found = true
-		return
+		return tryExtractingBoolValue(pkg)
 	}
 
 	vv := reflect.ValueOf(pkg.flg.DefaultValue)
@@ -494,35 +585,65 @@ func tryExtractingValue(pkg *ptpkg, args []string) (err error) {
 		}
 
 	case reflect.Slice:
-		typ := reflect.TypeOf(pkg.flg.DefaultValue).Elem()
-		if typ.Kind() == reflect.String {
-			if err = processTypeStringSlice(pkg, args); err != nil {
-				return
-			}
-		} else if isTypeSInt(typ.Kind()) {
-			if err = processTypeIntSlice(pkg, args); err != nil {
-				return
-			}
-		} else if isTypeUint(typ.Kind()) {
-			if err = processTypeUintSlice(pkg, args); err != nil {
-				return
-			}
-		}
+		err = tryExtractingSliceValue(pkg, args)
 
 	default:
-		if isTypeSInt(kind) {
-			if err = processTypeInt(pkg, args); err != nil {
-				return
-			}
-		} else if isTypeUint(kind) {
-			if err = processTypeUint(pkg, args); err != nil {
-				return
-			}
-		} else {
-			ferr("Unacceptable default value kind=%v", kind)
-		}
+		err = tryExtractingOthers(pkg, args, kind)
 	}
 
+	return
+}
+
+func tryExtractingOthers(pkg *ptpkg, args []string, kind reflect.Kind) (err error) {
+	if isTypeSInt(kind) {
+		if err = processTypeInt(pkg, args); err != nil {
+			return
+		}
+	} else if isTypeUint(kind) {
+		if err = processTypeUint(pkg, args); err != nil {
+			return
+		}
+	} else {
+		ferr("Unacceptable default value kind=%v", kind)
+	}
+	return
+}
+
+func tryExtractingSliceValue(pkg *ptpkg, args []string) (err error) {
+	typ := reflect.TypeOf(pkg.flg.DefaultValue).Elem()
+	if typ.Kind() == reflect.String {
+		if err = processTypeStringSlice(pkg, args); err != nil {
+			return
+		}
+	} else if isTypeSInt(typ.Kind()) {
+		if err = processTypeIntSlice(pkg, args); err != nil {
+			return
+		}
+	} else if isTypeUint(typ.Kind()) {
+		if err = processTypeUintSlice(pkg, args); err != nil {
+			return
+		}
+	}
+	return
+}
+
+func tryExtractingBoolValue(pkg *ptpkg) (err error) {
+	// bool flag, -D+, -D-
+
+	if pkg.suffix == '+' {
+		pkg.flg.DefaultValue = true
+	} else if pkg.suffix == '-' {
+		pkg.flg.DefaultValue = false
+	} else {
+		pkg.flg.DefaultValue = true
+	}
+
+	if pkg.a[0] == '~' {
+		rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), pkg.flg.DefaultValue)
+	} else {
+		rxxtOptions.Set(backtraceFlagNames(pkg.flg), pkg.flg.DefaultValue)
+	}
+	pkg.found = true
 	return
 }
 

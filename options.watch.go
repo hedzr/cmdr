@@ -109,35 +109,30 @@ func (s *Options) loadConfigFile(file string) (err error) {
 		mm map[string]map[string]interface{}
 	)
 
-	b, err = ioutil.ReadFile(file)
-	if err != nil {
-		return
-	}
+	b, _ = ioutil.ReadFile(file)
 
 	m = make(map[string]interface{})
 	switch path.Ext(file) {
 	case ".toml", ".ini", ".conf", "toml":
 		mm = make(map[string]map[string]interface{})
-		if err = toml.Unmarshal(b, &mm); err != nil {
-			return
+		err = toml.Unmarshal(b, &mm)
+		if err == nil {
+			err = s.loopMapMap("", mm)
 		}
-		err = s.loopMapMap("", mm)
 		if err != nil {
 			return
 		}
 		return
 
 	case ".json", "json":
-		if err = json.Unmarshal(b, &m); err != nil {
-			return
-		}
+		err = json.Unmarshal(b, &m)
 	default:
-		if err = yaml.Unmarshal(b, &m); err != nil {
-			return
-		}
+		err = yaml.Unmarshal(b, &m)
 	}
 
-	err = s.loopMap("", m)
+	if err == nil {
+		err = s.loopMap("", m)
+	}
 	if err != nil {
 		return
 	}
@@ -157,20 +152,16 @@ func (s *Options) mergeConfigFile(fr io.Reader, ext string) (err error) {
 	m = make(map[string]interface{})
 	switch ext {
 	case ".toml", ".ini", ".conf", "toml":
-		if err = toml.Unmarshal(buf.Bytes(), &m); err != nil {
-			return
-		}
+		err = toml.Unmarshal(buf.Bytes(), &m)
 	case ".json", "json":
-		if err = json.Unmarshal(buf.Bytes(), &m); err != nil {
-			return
-		}
+		err = json.Unmarshal(buf.Bytes(), &m)
 	default:
-		if err = yaml.Unmarshal(buf.Bytes(), &m); err != nil {
-			return
-		}
+		err = yaml.Unmarshal(buf.Bytes(), &m)
 	}
 
-	err = s.loopMap("", m)
+	if err == nil {
+		err = s.loopMap("", m)
+	}
 	if err != nil {
 		return
 	}
@@ -187,9 +178,10 @@ func (s *Options) visit(path string, f os.FileInfo, e error) (err error) {
 		case ".yml", ".yaml", ".json", ".toml", ".ini", ".conf": // , "yml", "yaml":
 			var file *os.File
 			file, err = os.Open(path)
-			if err != nil {
-				// log.Warnf("ERROR: os.Open() returned %v", err)
-			} else {
+			// if err != nil {
+			// log.Warnf("ERROR: os.Open() returned %v", err)
+			// } else {
+			if err == nil {
 				defer file.Close()
 				err = s.mergeConfigFile(bufio.NewReader(file), ext)
 				configFiles = append(configFiles, path)
@@ -238,11 +230,13 @@ func (s *Options) watchConfigDir(configDir string) {
 }
 
 func (s *Options) watchRunner(configDir string, watcher *fsnotify.Watcher, eventsWG *sync.WaitGroup) {
+	defer func() {
+		eventsWG.Done()
+	}()
 	for {
 		select {
 		case event, ok := <-watcher.Events:
 			if !ok { // 'Events' channel is closed
-				eventsWG.Done()
 				return
 			}
 			// log.Debugf("ooo | fsnotify.watcher |%v", event.String())
@@ -272,7 +266,6 @@ func (s *Options) watchRunner(configDir string, watcher *fsnotify.Watcher, event
 				// log.Printf("watcher error: %v\n", err)
 				log.Printf("Watcher error: %v\n", err)
 			}
-			eventsWG.Done()
 			return
 		}
 	}

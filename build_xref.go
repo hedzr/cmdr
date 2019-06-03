@@ -269,28 +269,28 @@ func attachGeneratorsCommands(root *RootCommand) {
 func buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagNames, stringFlagNames map[string]bool) {
 	if len(flg.Short) != 0 {
 		if _, ok := singleFlagNames[flg.Short]; ok {
-			ferr("flag char '%v' was been used.", flg.Short)
+			ferr("flag char '%v' was been used. (command: %v)", flg.Short, backtraceCmdNames(cmd))
 		} else {
 			singleFlagNames[flg.Short] = true
 		}
 	}
 	if len(flg.Full) != 0 {
 		if _, ok := stringFlagNames[flg.Full]; ok {
-			ferr("flag '%v' was been used.", flg.Full)
+			ferr("flag '%v' was been used. (command: %v)", flg.Full, backtraceCmdNames(cmd))
 		} else {
 			stringFlagNames[flg.Full] = true
 		}
 	}
 	if len(flg.Short) == 0 && len(flg.Full) == 0 && len(flg.Name) != 0 {
 		if _, ok := stringFlagNames[flg.Name]; ok {
-			ferr("flag '%v' was been used.", flg.Name)
+			ferr("flag '%v' was been used. (command: %v)", flg.Name, backtraceCmdNames(cmd))
 		} else {
 			stringFlagNames[flg.Name] = true
 		}
 	}
 	for _, sz := range flg.Aliases {
 		if _, ok := stringFlagNames[sz]; ok {
-			ferr("flag alias name '%v' was been used.", sz)
+			ferr("flag alias name '%v' was been used. (command: %v)", sz, backtraceCmdNames(cmd))
 		} else {
 			stringFlagNames[sz] = true
 		}
@@ -313,21 +313,21 @@ func buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagNames, stringFlagN
 func buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames, stringCmdNames map[string]bool) {
 	if len(cx.Short) != 0 {
 		if _, ok := singleCmdNames[cx.Short]; ok {
-			ferr("command char '%v' was been used.", cx.Short)
+			ferr("command char '%v' was been used. (command: %v)", cx.Short, backtraceCmdNames(cmd))
 		} else {
 			singleCmdNames[cx.Short] = true
 		}
 	}
 	if len(cx.Full) != 0 {
 		if _, ok := stringCmdNames[cx.Full]; ok {
-			ferr("command '%v' was been used.", cx.Full)
+			ferr("command '%v' was been used. (command: %v)", cx.Full, backtraceCmdNames(cmd))
 		} else {
 			stringCmdNames[cx.Full] = true
 		}
 	}
 	if len(cx.Short) == 0 && len(cx.Full) == 0 && len(cx.Name) != 0 {
 		if _, ok := stringCmdNames[cx.Name]; ok {
-			ferr("command '%v' was been used.", cx.Name)
+			ferr("command '%v' was been used. (command: %v)", cx.Name, backtraceCmdNames(cmd))
 		} else {
 			stringCmdNames[cx.Name] = true
 		}
@@ -336,7 +336,7 @@ func buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames, stringCmdNames m
 	for _, sz := range cx.Aliases {
 		if len(sz) != 0 {
 			if _, ok := stringCmdNames[sz]; ok {
-				ferr("command alias name '%v' was been used.", sz)
+				ferr("command alias name '%v' was been used. (command: %v)", sz, backtraceCmdNames(cmd))
 			} else {
 				stringCmdNames[sz] = true
 			}

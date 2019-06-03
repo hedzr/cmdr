@@ -164,7 +164,8 @@ func (s *Options) GetStringSlice(key string) (ir []string) {
 	s.rw.RLock()
 
 	if v, ok := s.entries[key]; ok {
-		switch reflect.ValueOf(v).Kind() {
+		vvv := reflect.ValueOf(v)
+		switch vvv.Kind() {
 		case reflect.String:
 			ir = strings.Split(v.(string), ",")
 		case reflect.Slice:
@@ -173,6 +174,12 @@ func (s *Options) GetStringSlice(key string) (ir []string) {
 			} else if ri, ok := v.([]int); ok {
 				for _, rii := range ri {
 					ir = append(ir, strconv.Itoa(rii))
+				}
+			} else if ri, ok := v.([]byte); ok {
+				ir = strings.Split(string(ri), ",")
+			} else {
+				for i := 0; i < vvv.Len(); i++ {
+					ir = append(ir, fmt.Sprintf("%v", vvv.Index(i).Interface()))
 				}
 			}
 		default:
@@ -212,7 +219,8 @@ func (s *Options) GetIntSlice(key string) (ir []int) {
 	s.rw.RLock()
 
 	if v, ok := s.entries[key]; ok {
-		switch reflect.ValueOf(v).Kind() {
+		vvv := reflect.ValueOf(v)
+		switch vvv.Kind() {
 		case reflect.String:
 			ir = stringSliceToIntSlice(strings.Split(v.(string), ","))
 		case reflect.Slice:
@@ -220,6 +228,15 @@ func (s *Options) GetIntSlice(key string) (ir []int) {
 				ir = stringSliceToIntSlice(r)
 			} else if ri, ok := v.([]int); ok {
 				ir = ri
+			} else if ri, ok := v.([]byte); ok {
+				xx := strings.Split(string(ri), ",")
+				ir = stringSliceToIntSlice(xx)
+			} else {
+				var xx []string
+				for i := 0; i < vvv.Len(); i++ {
+					xx = append(xx, fmt.Sprintf("%v", vvv.Index(i).Interface()))
+				}
+				ir = stringSliceToIntSlice(xx)
 			}
 		default:
 			ir = stringSliceToIntSlice(strings.Split(fmt.Sprintf("%v", v), ","))

@@ -76,6 +76,11 @@ func (s *CopierImpl) Copy(toValue interface{}, fromValue interface{}, ignoreName
 		}
 	}
 
+	err = s.copyAll(amount, isSlice, from, to, fromType, toType, ignoreNames)
+	return
+}
+
+func (s *CopierImpl) copyAll(amount int, isSlice bool, from, to reflect.Value, fromType, toType reflect.Type, ignoreNames []string) error {
 	for i := 0; i < amount; i++ {
 		var dest, source reflect.Value
 
@@ -95,11 +100,12 @@ func (s *CopierImpl) Copy(toValue interface{}, fromValue interface{}, ignoreName
 		}
 
 		// Copy from field to field or method
-		if err = s.copyFieldToField(dest, source, fromType, ignoreNames); err != nil {
+		if err := s.copyFieldToField(dest, source, fromType, ignoreNames); err != nil {
 			return err
 		}
 
-		if err = s.copyMethodToField(dest, source, toType); err != nil {
+		// Copy from method to field
+		if err := s.copyMethodToField(dest, source, toType); err != nil {
 			return err
 		}
 
@@ -111,7 +117,7 @@ func (s *CopierImpl) Copy(toValue interface{}, fromValue interface{}, ignoreName
 			}
 		}
 	}
-	return
+	return nil
 }
 
 func (s *CopierImpl) copyFieldToField(dest, source reflect.Value, fromType reflect.Type, ignoreNames []string) error {
@@ -238,18 +244,7 @@ func equal(to, from reflect.Value) bool {
 	case reflect.Complex64, reflect.Complex128:
 		return from.Complex() == to.Complex()
 	case reflect.Array:
-		if from.Len() != to.Len() {
-			return false
-		}
-		if from.Len() == 0 {
-			return true
-		}
-		for i := 0; i < from.Len(); i++ {
-			if !equal(from.Slice(i, i+1), to.Slice(i, i+1)) {
-				return false
-			}
-		}
-		return true
+		return equalArray(to, from)
 
 	// case reflect.Chan:
 	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
@@ -262,18 +257,7 @@ func equal(to, from reflect.Value) bool {
 	// case reflect.Ptr:
 	// 	return from.Pointer() == to.Pointer()
 	case reflect.Slice:
-		if from.Len() != to.Len() {
-			return false
-		}
-		if from.Len() == 0 {
-			return true
-		}
-		for i := 0; i < from.Len(); i++ {
-			if !equal(from.Index(i), to.Index(i)) {
-				return false
-			}
-		}
-		return true
+		return equalSlice(to, from)
 
 	case reflect.String:
 		return strings.EqualFold(from.String(), to.String())
@@ -296,6 +280,36 @@ func equal(to, from reflect.Value) bool {
 
 	// deep test
 	return false
+}
+
+func equalArray(to, from reflect.Value) bool {
+	if from.Len() != to.Len() {
+		return false
+	}
+	if from.Len() == 0 {
+		return true
+	}
+	for i := 0; i < from.Len(); i++ {
+		if !equal(from.Slice(i, i+1), to.Slice(i, i+1)) {
+			return false
+		}
+	}
+	return true
+}
+
+func equalSlice(to, from reflect.Value) bool {
+	if from.Len() != to.Len() {
+		return false
+	}
+	if from.Len() == 0 {
+		return true
+	}
+	for i := 0; i < from.Len(); i++ {
+		if !equal(from.Index(i), to.Index(i)) {
+			return false
+		}
+	}
+	return true
 }
 
 func setDefault(to reflect.Value) {

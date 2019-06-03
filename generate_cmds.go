@@ -115,7 +115,7 @@ $ {{.AppName}} gen pdf
 				Short:       "d",
 				Full:        "doc",
 				Aliases:     []string{"markdown", "pdf", "docx", "tex"},
-				Description: "generate a markdown document, or: pdf/TaX/...",
+				Description: "generate a markdown document, or: pdf/TeX/...",
 				Action:      genDoc,
 			},
 			Flags: []*Flag{

@@ -30,11 +30,12 @@ func (*daemonImpl) OnRun(cmd *cmdr.Command, args []string, stopCh, doneCh chan s
 func worker(stopCh, doneCh chan struct{}) {
 LOOP:
 	for {
-		time.Sleep(time.Second) // this is work to be done by worker.
+		time.Sleep(3 * time.Second) // this is work to be done by worker.
 		select {
 		case <-stopCh:
 			break LOOP
 		default:
+			logrus.Debugf("demo running at %d", os.Getpid())
 		}
 	}
 	doneCh <- struct{}{}

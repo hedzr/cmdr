@@ -21,7 +21,7 @@ var daemonCtx *daemon.Context
 func getContext(cmd *cmdr.Command, args []string) *daemon.Context {
 	var pidpath, logpath, workdir string
 
-	for _, x := range []string{"/var/log/%s/%s.log", "/tmp/%s.log"} {
+	for _, x := range []string{fmt.Sprintf("/var/log/%s/%%s.log", cmd.GetRoot().AppName), "/tmp/%s.log"} {
 		xx := fmt.Sprintf(x, cmd.GetRoot().AppName)
 		if cmdr.FileExists(path.Dir(xx)) {
 			logpath = xx
@@ -38,7 +38,7 @@ func getContext(cmd *cmdr.Command, args []string) *daemon.Context {
 	}
 
 	xx := fmt.Sprintf("/var/lib/%s", cmd.GetRoot().AppName)
-	if cmdr.FileExists(path.Dir(xx)) {
+	if cmdr.FileExists(xx) {
 		workdir = xx + "/"
 	} else {
 		workdir = "./"

@@ -79,7 +79,7 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 		// -t3: opt with an argument.
 		stop, err = xxTestCmd(pkg, &goCommand, rootCmd, args)
 		if stop {
-			break
+			return
 		}
 	}
 
@@ -194,50 +194,9 @@ func buildXref(rootCmd *RootCommand) (err error) {
 		if err = parsePredefinedLocation(); err != nil {
 			return
 		}
-		// if ix, str, yes := partialContains(os.Args, "--config"); yes {
-		// 	var location string
-		// 	if i := strings.Index(str, "="); i > 0 {
-		// 		location = str[i+1:]
-		// 	} else if len(str) > 8 {
-		// 		location = str[8:]
-		// 	} else if ix+1 < len(os.Args) {
-		// 		location = os.Args[ix+1]
-		// 	}
-		//
-		// 	location = trimQuotes(location)
-		//
-		// 	if len(location) > 0 && FileExists(location) {
-		// 		if yes, err = IsDirectory(location); yes {
-		// 			if FileExists(location + "/conf.d") {
-		// 				SetPredefinedLocations([]string{location + "/%s.yml"})
-		// 			} else {
-		// 				SetPredefinedLocations([]string{location + "/%s/%s.yml"})
-		// 			}
-		// 		} else if yes, err = IsRegularFile(location); yes {
-		// 			SetPredefinedLocations([]string{location})
-		// 		}
-		// 	}
-		// }
 
 		// and now, loading the external configuration files
 		err = loadFromPredefinedLocation(rootCmd)
-		// for _, s := range getExpandedPredefinedLocations() {
-		// 	fn := s
-		// 	switch strings.Count(fn, "%s") {
-		// 	case 2:
-		// 		fn = fmt.Sprintf(s, rootCmd.AppName, rootCmd.AppName)
-		// 	case 1:
-		// 		fn = fmt.Sprintf(s, rootCmd.AppName)
-		// 	}
-		//
-		// 	if FileExists(fn) {
-		// 		err = rxxtOptions.LoadConfigFile(fn)
-		// 		if err != nil {
-		// 			return
-		// 		}
-		// 		break
-		// 	}
-		// }
 	}
 	return
 }

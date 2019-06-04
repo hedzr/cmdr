@@ -215,3 +215,43 @@ func launchEditorWith(editor, filename string) (content []byte, err error) {
 	}
 	return
 }
+
+func soundex(s string) (snd4 string) {
+	if len(s) == 0 {
+		return
+	}
+
+	var src, tgt []rune
+	src = []rune(s)
+
+	i := 0
+	for ; i < len(src); i++ {
+		if !(src[i] == '-' || src[i] == '~' || src[i] == '+') {
+			// first char
+			tgt = append(tgt, src[i])
+			break
+		}
+	}
+
+	for ; i < len(src); i++ {
+		ch := src[i]
+		switch ch {
+		case 'a', 'e', 'i', 'o', 'u', 'y', 'h', 'w': // do nothing to remove it
+		case 'b', 'f', 'p', 'v':
+			tgt = append(tgt, '1')
+		case 'c', 'g', 'j', 'k', 'q', 's', 'x', 'z':
+			tgt = append(tgt, '2')
+		case 'd', 't':
+			tgt = append(tgt, '3')
+		case 'l':
+			tgt = append(tgt, '4')
+		case 'm', 'n':
+			tgt = append(tgt, '5')
+		case 'r':
+			tgt = append(tgt, '6')
+		}
+	}
+
+	snd4 = string(tgt)
+	return
+}

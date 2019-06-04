@@ -69,15 +69,23 @@ build_fmt () {
 	gofmt -l -w -s .
 }
 
+build_gofmt () {
+	gofmt -l -w -s .
+}
+
 build_lint() {
   golint ./...
 }
 
-build_gotest() {
+build_golint() {
+  golint ./...
+}
+
+gotest() {
   go test ./...
 }
 
-build_test() {
+build_gotest() {
   go test ./...
 }
 
@@ -85,6 +93,29 @@ build_gocov() {
   go test -race -coverprofile=coverage.txt -covermode=atomic
 }
 
+gocov() {
+  go test -race -covermode=atomic -coverprofile cover.out && \
+  go tool cover -html=cover.out -o cover.html && \
+  open cover.html
+}
+
+gocov-codecov() {
+  # https://codecov.io/gh/hedzr/cmdr
+  go test -race -coverprofile=coverage.txt -covermode=atomic
+  bash <(curl -s https://codecov.io/bash) -t $CODECOV_TOKEN
+}
+
+gocov-codecov-open() {
+  open https://codecov.io/gh/hedzr/cmdr
+}
+
+build_gocyclo(){
+  gocyclo $* .
+}
+
+build_gocyclo_top(){
+  gocyclo $* . -top 10
+}
 
 
 build_vagrant() { commander 'build_vagrant' "$@"; }

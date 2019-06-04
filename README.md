@@ -93,6 +93,8 @@
 
 - Support for options being specified multiple times, with different values
 
+- Smart suggestions for wrong command and flags
+
 - Groupable commands and options/flags.
 
   Sortable group name with `[0-9A-Za-z]+\..+` format, eg:
@@ -165,6 +167,8 @@
     - Yaml
     - JSON
     - TOML
+
+  - `SetNoLoadConfigFiles(bool)` to disable external config file loading.
 
 - Overrides by environment variables.
 

@@ -186,8 +186,8 @@ func cmdMatching(pkg *ptpkg, goCommand **Command, args []string) (stop bool, err
 			return
 		}
 
-		ferr("Unknown command: %v", pkg.a)
 		pkg.unknownCmds = append(pkg.unknownCmds, pkg.a)
+		unknownCommand(pkg, *goCommand, args)
 	}
 	return
 }
@@ -250,31 +250,6 @@ GO_UP:
 		if upLevel {
 			goto GO_UP
 		}
-		// if err = tryExtractingValue(pkg, args); err != nil {
-		// 	return
-		// }
-		//
-		// if pkg.found {
-		// 	// if !GetBoolP(getPrefix(), "quiet") {
-		// 	// 	logrus.Debugf("-- flag '%v' hit, go ahead...", pkg.flg.GetTitleName())
-		// 	// }
-		// 	if pkg.flg.Action != nil {
-		// 		if err = pkg.flg.Action(*goCommand, getArgs(pkg, args)); err == ErrShouldBeStopException {
-		// 			return false, nil
-		// 		}
-		// 	}
-		// 	if isBool(pkg.flg.DefaultValue) || isNil1(pkg.flg.DefaultValue) {
-		// 		toggleGroup(pkg)
-		// 	}
-		//
-		// 	if !pkg.assigned {
-		// 		if len(pkg.savedFn) > 0 && len(pkg.savedVal) == 0 {
-		// 			pkg.fn = pkg.savedFn[0:1]
-		// 			pkg.savedFn = pkg.savedFn[1:]
-		// 			goto GO_UP
-		// 		}
-		// 	}
-		// }
 	} else {
 		if cc.owner != nil {
 			// match the flag within parent's flags set.
@@ -291,8 +266,9 @@ GO_UP:
 				goto GO_UP
 			}
 		}
-		ferr("Unknown flag: %v", pkg.a)
+
 		pkg.unknownFlags = append(pkg.unknownFlags, pkg.a)
+		unknownFlag(pkg, *goCommand, args)
 	}
 	return
 }
@@ -328,6 +304,52 @@ func flagsMatched(pkg *ptpkg, goCommand *Command, args []string) (upLevel, stop 
 		}
 	}
 	return
+}
+
+func unknownCommand(pkg *ptpkg, cmd *Command, args []string) {
+	ferr("\n\x1b[%dmUnknown command:\x1b[0m %v", BgBoldOrBright, pkg.a)
+	unknownCommandDetector(pkg, cmd, args)
+}
+
+func unknownFlag(pkg *ptpkg, cmd *Command, args []string) {
+	ferr("\n\x1b[%dmUnknown flag:\x1b[0m %v", BgBoldOrBright, pkg.a)
+	unknownFlagDetector(pkg, cmd, args)
+}
+
+func unknownCommandDetector(pkg *ptpkg, cmd *Command, args []string) {
+	sndSrc := soundex(pkg.a)
+	ever := false
+	for k := range cmd.plainCmds {
+		snd := soundex(k)
+		if sndSrc == snd {
+			ferr("  - do you mean: %v", k)
+			ever = true
+			// } else {
+			// 	ferr("  . %v -> %v: --%v -> %v", pkg.a, sndSrc, k, snd)
+		}
+	}
+	if !ever && cmd.HasParent() {
+		unknownCommandDetector(pkg, cmd.GetOwner(), args)
+	}
+}
+
+func unknownFlagDetector(pkg *ptpkg, cmd *Command, args []string) {
+	sndSrc := soundex(pkg.a)
+	if !pkg.short {
+		ever := false
+		for k := range cmd.plainLongFlags {
+			snd := soundex(k)
+			if sndSrc == snd {
+				ferr("  - do you mean: --%v", k)
+				ever = true
+				// } else {
+				// 	ferr("  . %v -> %v: --%v -> %v", pkg.a, sndSrc, k, snd)
+			}
+		}
+		if !ever && cmd.HasParent() {
+			unknownFlagDetector(pkg, cmd.GetOwner(), args)
+		}
+	}
 }
 
 func matchForLongFlags(fn string, cc *Command, pkg *ptpkg) (ok bool) {

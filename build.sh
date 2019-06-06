@@ -26,6 +26,14 @@ build_all () {
 	done
 }
 
+build_full () {
+	for ARCH in amd64 386 arm; do
+		for OS in darwin linux windows freebsd; do
+			build_one $ARCH $OS $OS-$ARCH $*
+		done
+	done
+}
+
 build_one () {
 	local ARCH=${1:-amd64}
 	local OS=${2:-darwin}

@@ -9,37 +9,40 @@ wget() {
 }
 
 build-short() {
-	PKG_SRC=./examples/short/main.go APPNAME=short ./build.sh
+	PKG_SRC=./examples/short/main.go APPNAME=short ./build.sh $*
 }
 
 build-demo() {
-	PKG_SRC=./examples/demo/main.go APPNAME=demo ./build.sh
+	PKG_SRC=./examples/demo/main.go APPNAME=demo ./build.sh $*
 }
 
 build-fluent() {
-	PKG_SRC=./examples/fluent/main.go APPNAME=fluent ./build.sh
+	PKG_SRC=./examples/fluent/main.go APPNAME=fluent ./build.sh $*
 }
 
 build-all() {
-	PKG_SRC=./examples/short/main.go APPNAME=short ./build.sh
-	PKG_SRC=./examples/demo/main.go APPNAME=demo ./build.sh
-	PKG_SRC=./examples/wget-demo/main.go APPNAME=wget-demo ./build.sh
-	PKG_SRC=./examples/fluent/main.go APPNAME=fluent ./build.sh
+	for APPNAME in short demo wget-demo fluent; do
+		PKG_SRC=./examples/$APPNAME/main.go ./build.sh all $*
+	done
+}
+
+build-full() {
+	for APPNAME in short demo wget-demo fluent; do
+		PKG_SRC=./examples/$APPNAME/main.go ./build.sh full $*
+	done
 }
 
 build-all-linux() {
-	PKG_SRC=./examples/short/main.go APPNAME=short ./build.sh linux
-	PKG_SRC=./examples/demo/main.go APPNAME=demo ./build.sh linux
-	PKG_SRC=./examples/wget-demo/main.go APPNAME=wget-demo ./build.sh linux
-	PKG_SRC=./examples/fluent/main.go APPNAME=fluent ./build.sh linux
+	for APPNAME in short demo wget-demo fluent; do
+		PKG_SRC=./examples/$APPNAME/main.go ./build.sh linux $*
+	done
 }
 
 build-ci() {
   go mod download
-	PKG_SRC=./examples/short/main.go APPNAME=short ./build.sh all
-	PKG_SRC=./examples/demo/main.go APPNAME=demo ./build.sh all
-	PKG_SRC=./examples/wget-demo/main.go APPNAME=wget-demo ./build.sh all
-	PKG_SRC=./examples/fluent/main.go APPNAME=fluent ./build.sh all
+	for APPNAME in short demo wget-demo fluent; do
+		PKG_SRC=./examples/$APPNAME/main.go ./build.sh all $*
+	done
 	ls -la ./bin/
 	for f in bin/*; do gzip $f; done 
 	ls -la ./bin/

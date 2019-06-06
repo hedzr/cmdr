@@ -250,15 +250,27 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 	c3 := c1.NewSubCommand().
 		Titles("in", "check-in", "chk-in").
 		Description("[sub][sub] check-in", "").
-		Group("").
-		Action(func(cmd *cmdr.Command, args []string) (err error) {
-			return
-		})
+		Group("")
 
 	c3.NewFlag(cmdr.OptFlagTypeString).
 		Titles("n", "name").
 		Description("a string to be added.", ``).
 		DefaultValue("", "")
+
+	c3.NewSubCommand().
+		Titles("d1", "demo-1").
+		Description("[sub][sub] check-in sub", "").
+		Group("")
+
+	c3.NewSubCommand().
+		Titles("d2", "demo-2").
+		Description("[sub][sub] check-in sub", "").
+		Group("")
+
+	c3.NewSubCommand().
+		Titles("d3", "demo-3").
+		Description("[sub][sub] check-in sub", "").
+		Group("")
 
 	c1.NewSubCommand().
 		Titles("out", "check-out", "chk-out").

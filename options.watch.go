@@ -92,11 +92,12 @@ func (s *Options) LoadConfigFile(file string) (err error) {
 		return
 	}
 
-	if err = filepath.Walk(usedConfigSubDir, s.visit); err != nil {
-		log.Fatalf("ERROR: filepath.Walk() returned %v\n", err)
-	}
+	err = filepath.Walk(usedConfigSubDir, s.visit)
 
-	s.watchConfigDir(usedConfigSubDir)
+	if err == nil {
+		s.watchConfigDir(usedConfigSubDir)
+	}
+	// log.Fatalf("ERROR: filepath.Walk() returned %v\n", err)
 
 	return
 }
@@ -214,17 +215,16 @@ func (s *Options) watchConfigDir(configDir string) {
 	initWG.Add(1)
 	go func() {
 		watcher, err := fsnotify.NewWatcher()
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer watcher.Close()
+		if err == nil {
+			defer watcher.Close()
 
-		eventsWG := &sync.WaitGroup{}
-		eventsWG.Add(1)
-		go s.watchRunner(configDir, watcher, eventsWG)
-		_ = watcher.Add(configDir)
-		initWG.Done()   // done initializing the watch in this go routine, so the parent routine can move on...
-		eventsWG.Wait() // now, wait for event loop to end in this go-routine...
+			eventsWG := &sync.WaitGroup{}
+			eventsWG.Add(1)
+			go s.watchRunner(configDir, watcher, eventsWG)
+			_ = watcher.Add(configDir)
+			initWG.Done()   // done initializing the watch in this go routine, so the parent routine can move on...
+			eventsWG.Wait() // now, wait for event loop to end in this go-routine...
+		}
 	}()
 	initWG.Wait() // make sure that the go routine above fully ended before returning
 }
@@ -236,28 +236,28 @@ func (s *Options) watchRunner(configDir string, watcher *fsnotify.Watcher, event
 	for {
 		select {
 		case event, ok := <-watcher.Events:
-			if !ok { // 'Events' channel is closed
-				return
-			}
-			// log.Debugf("ooo | fsnotify.watcher |%v", event.String())
-			// currentConfigFile, _ := filepath.EvalSymlinks(filename)
-			// we only care about the config file with the following cases:
-			// 1 - if the config file was modified or created
-			// 2 - if the real path to the config file changed (eg: k8s ConfigMap replacement)
-			const writeOrCreateMask = fsnotify.Write | fsnotify.Create
-			if strings.HasPrefix(filepath.Clean(event.Name), configDir) &&
-				event.Op&writeOrCreateMask != 0 &&
-				(testCfgSuffix(event.Name)) {
-				file, err := os.Open(event.Name)
-				if err != nil {
-					log.Printf("ERROR: os.Open() returned %v\n", err)
-				} else {
-					err = s.mergeConfigFile(bufio.NewReader(file), path.Ext(event.Name))
+			// ok == false: 'Events' channel is closed
+			if ok {
+				// log.Debugf("ooo | fsnotify.watcher |%v", event.String())
+				// currentConfigFile, _ := filepath.EvalSymlinks(filename)
+				// we only care about the config file with the following cases:
+				// 1 - if the config file was modified or created
+				// 2 - if the real path to the config file changed (eg: k8s ConfigMap replacement)
+				const writeOrCreateMask = fsnotify.Write | fsnotify.Create
+				if strings.HasPrefix(filepath.Clean(event.Name), configDir) &&
+					event.Op&writeOrCreateMask != 0 &&
+					(testCfgSuffix(event.Name)) {
+					file, err := os.Open(event.Name)
 					if err != nil {
 						log.Printf("ERROR: os.Open() returned %v\n", err)
+					} else {
+						err = s.mergeConfigFile(bufio.NewReader(file), path.Ext(event.Name))
+						if err != nil {
+							log.Printf("ERROR: os.Open() returned %v\n", err)
+						}
+						s.reloadConfig(event)
+						file.Close()
 					}
-					s.reloadConfig(event)
-					file.Close()
 				}
 			}
 

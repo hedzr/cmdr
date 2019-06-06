@@ -40,7 +40,7 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 	// 	Titles("ms", "microservice").
 	// 	Description("", "").
 	// 	Group("").
-	// 	Action(func(cmd *Command, args []string) (err error) {
+	// 	Action(func(cmd *cmdr.Command, args []string) (err error) {
 	// 		return
 	// 	})
 

@@ -134,6 +134,36 @@ func TestVersionCommand(t *testing.T) {
 	resetOsArgs()
 }
 
+func TestGlobalShow(t *testing.T) {
+	cmdr.SetInternalOutputStreams(nil, nil)
+
+	os.Args = []string{"consul-tags", "--version"}
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
+
+	cmdr.SetCustomShowVersion(func() {
+		//
+	})
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
+
+	os.Args = []string{"consul-tags", "--build-info"}
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
+
+	cmdr.SetCustomShowBuildInfo(func() {
+		//
+	})
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
+
+	resetOsArgs()
+}
+
 func TestPP(t *testing.T) {
 	os.Args = []string{"consul-tags", "-pp"}
 	cmdr.SetInternalOutputStreams(nil, nil)

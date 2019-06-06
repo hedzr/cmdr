@@ -137,12 +137,11 @@ func Launch(cmd string, args ...string) (err error) {
 	err = c.Run()
 
 	if err != nil {
-		if _, isExitError := err.(*exec.ExitError); !isExitError {
-			return err
+		if _, isExitError := err.(*exec.ExitError); isExitError {
+			err = nil
 		}
 	}
-
-	return nil
+	return
 }
 
 // // LaunchSudo executes a command under "sudo".
@@ -178,12 +177,13 @@ func InTesting() bool {
 		strings.Contains(SavedOsArgs[0], "/T/go-build")
 }
 
-func randomFilename() string {
+func randomFilename() (fn string) {
 	buf := make([]byte, 16)
-	if _, err := rand.Read(buf); err != nil {
-		return os.Getenv("HOME") + ".CMDR_EDIT_FILE"
+	fn = os.Getenv("HOME") + ".CMDR_EDIT_FILE"
+	if _, err := rand.Read(buf); err == nil {
+		fn = fmt.Sprintf("%v/.CMDR_%x", os.Getenv("HOME"), buf)
 	}
-	return fmt.Sprintf("%v/.CMDR_%x", os.Getenv("HOME"), buf)
+	return
 }
 
 // LaunchEditor launches the specified editor
@@ -217,9 +217,9 @@ func launchEditorWith(editor, filename string) (content []byte, err error) {
 }
 
 func soundex(s string) (snd4 string) {
-	if len(s) == 0 {
-		return
-	}
+	// if len(s) == 0 {
+	// 	return
+	// }
 
 	var src, tgt []rune
 	src = []rune(s)

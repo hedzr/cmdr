@@ -54,37 +54,36 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 		_ = rootCmd.oerr.Flush()
 	}()
 
-	if err = preprocess(rootCmd, args); err != nil {
-		return
-	}
+	err = preprocess(rootCmd, args)
 
-	for pkg.i = 1; pkg.i < len(args); pkg.i++ {
-		pkg.a = args[pkg.i]
-		pkg.assigned = false
-		pkg.short = false
-		pkg.savedFn = ""
-		pkg.savedVal = ""
+	if err == nil {
+		for pkg.i = 1; pkg.i < len(args); pkg.i++ {
+			pkg.a = args[pkg.i]
+			pkg.assigned = false
+			pkg.short = false
+			pkg.savedFn = ""
+			pkg.savedVal = ""
 
-		// --debug: long opt
-		// -D:      short opt
-		// -nv:     double chars short opt
-		// ~~debug: long opt without opt-entry prefix.
-		// ~D:      short opt without opt-entry prefix.
-		// -abc:    the combined short opts
-		// -nvabc, -abnvc: a,b,c,nv the four short opts, if no -n & -v defined.
-		// --name=consul, --name consul, --name=consul: opt with a string, int, string slice argument
-		// -nconsul, -n consul, -n=consul: opt with an argument.
-		//  - -nconsul is not good format, but it could get somewhat works.
-		//  - -n'consul', -n"consul" could works too.
-		// -t3: opt with an argument.
-		stop, err = xxTestCmd(pkg, &goCommand, rootCmd, args)
-		if stop {
-			return
+			// --debug: long opt
+			// -D:      short opt
+			// -nv:     double chars short opt
+			// ~~debug: long opt without opt-entry prefix.
+			// ~D:      short opt without opt-entry prefix.
+			// -abc:    the combined short opts
+			// -nvabc, -abnvc: a,b,c,nv the four short opts, if no -n & -v defined.
+			// --name=consul, --name consul, --name=consul: opt with a string, int, string slice argument
+			// -nconsul, -n consul, -n=consul: opt with an argument.
+			//  - -nconsul is not good format, but it could get somewhat works.
+			//  - -n'consul', -n"consul" could works too.
+			// -t3: opt with an argument.
+			stop, err = xxTestCmd(pkg, &goCommand, rootCmd, args)
+			if stop {
+				return
+			}
 		}
+
+		err = afterInternalExec(pkg, rootCmd, goCommand, args)
 	}
-
-	err = afterInternalExec(pkg, rootCmd, goCommand, args)
-
 	return
 }
 
@@ -127,18 +126,17 @@ func preprocess(rootCmd *RootCommand, args []string) (err error) {
 		x(rootCmd, args)
 	}
 
-	if err = buildXref(rootCmd); err != nil {
-		return
+	err = buildXref(rootCmd)
+
+	if err == nil {
+		err = rxxtOptions.buildAutomaticEnv(rootCmd)
 	}
 
-	if err = rxxtOptions.buildAutomaticEnv(rootCmd); err != nil {
-		return
+	if err == nil {
+		for _, x := range afterXrefBuilt {
+			x(rootCmd, args)
+		}
 	}
-
-	for _, x := range afterXrefBuilt {
-		x(rootCmd, args)
-	}
-
 	return
 }
 

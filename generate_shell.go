@@ -28,12 +28,13 @@ func genShell(cmd *Command, args []string) (err error) {
 		err = genShellBash(cmd, args)
 	} else {
 		// auto
-		shell := os.Getenv("SHELL")
-		if strings.HasSuffix(shell, "/bash") || GetBoolP(getPrefix(), "generate.shell.force-bash") {
-			err = genShellBash(cmd, args)
-		} else if strings.HasSuffix(shell, "/zsh") {
-			// not yet
-		}
+		// shell := os.Getenv("SHELL")
+		// if strings.HasSuffix(shell, "/bash") || GetBoolP(getPrefix(), "generate.shell.force-bash") {
+		// 	err = genShellBash(cmd, args)
+		// } else if strings.HasSuffix(shell, "/zsh") {
+		// 	// not yet
+		// }
+		err = genShellAuto(cmd, args)
 		// } else {
 		// 	_, _ = fmt.Fprint(os.Stderr, "Unknown shell. ignored.")
 		// err = genShellB(cmd, args)
@@ -60,6 +61,10 @@ func findDepth(cmd *Command) (deep int) {
 // 	}
 // 	return
 // }
+
+func genShellAuto(cmd *Command, args []string) (err error) {
+	return
+}
 
 func genShellBash(cmd *Command, args []string) (err error) {
 	tmpl := template.New("bash.completion")

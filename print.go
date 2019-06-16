@@ -43,55 +43,6 @@ func printHelp(command *Command, justFlags bool) {
 	}
 }
 
-func dumpTreeForAllCommands(cmd *Command, args []string) (err error) {
-	command := &rootCommand.Command
-	_ = walkFromCommand(command, 0, func(cmd *Command, index int) (e error) {
-		if cmd.Hidden {
-			return
-		}
-
-		deep := findDepth(cmd) - 1
-		if deep == 0 {
-			fmt.Println("ROOT")
-		} else {
-			sp := strings.Repeat("  ", deep)
-			// fmt.Printf("%s%v - \x1b[%dm\x1b[%dm%s\x1b[0m\n",
-			// 	sp, cmd.GetTitleNames(),
-			// 	BgNormal, CurrentDescColor, cmd.Description)
-
-			if len(cmd.Deprecated) > 0 {
-				fmt.Printf("%s\x1b[%dm\x1b[%dm%s - %s\x1b[0m [deprecated since %v]\n",
-					sp, BgNormal, CurrentDescColor, cmd.GetTitleNames(), cmd.Description,
-					cmd.Deprecated)
-			} else {
-				fmt.Printf("%s%s - \x1b[%dm\x1b[%dm%s\x1b[0m\n",
-					sp, cmd.GetTitleNames(), BgNormal, CurrentDescColor, cmd.Description)
-			}
-		}
-		return
-	})
-	return ErrShouldBeStopException
-}
-
-// WalkAllCommands loop on all commands, started from root.
-func WalkAllCommands(walk func(cmd *Command, index int) (err error)) (err error) {
-	command := &rootCommand.Command
-	err = walkFromCommand(command, 0, walk)
-	return
-}
-
-func walkFromCommand(cmd *Command, index int, walk func(cmd *Command, index int) (err error)) (err error) {
-	if err = walk(cmd, index); err != nil {
-		return
-	}
-	for ix, cc := range cmd.SubCommands {
-		if err = walkFromCommand(cc, ix, walk); err != nil {
-			return
-		}
-	}
-	return
-}
-
 func paintFromCommand(p Painter, command *Command, justFlags bool) {
 	if p == nil {
 		return

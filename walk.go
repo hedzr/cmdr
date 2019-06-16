@@ -6,12 +6,14 @@ package cmdr
 
 // WalkAllCommands loops for all commands, starting from root.
 func WalkAllCommands(walk func(cmd *Command, index int) (err error)) (err error) {
-	command := &rootCommand.Command
-	err = walkFromCommand(command, 0, walk)
+	err = walkFromCommand(nil, 0, walk)
 	return
 }
 
 func walkFromCommand(cmd *Command, index int, walk func(cmd *Command, index int) (err error)) (err error) {
+	if cmd == nil {
+		cmd = &rootCommand.Command
+	}
 	if err = walk(cmd, index); err != nil {
 		return
 	}

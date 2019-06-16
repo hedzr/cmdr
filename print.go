@@ -39,7 +39,8 @@ func printHelp(command *Command, justFlags bool) {
 	if currentHelpPainter != nil {
 		currentHelpPainter.Results()
 		currentHelpPainter.Reset()
-		paintFromCommand(nil, command, false) // for tesing
+
+		paintFromCommand(nil, command, false) // for gocov testing
 	}
 }
 

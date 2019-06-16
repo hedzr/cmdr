@@ -193,7 +193,7 @@ var (
 	defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
 
 	//
-	currentHelpPainter = new(helpPainter)
+	currentHelpPainter Painter = new(helpPainter)
 	// CurrentDescColor the print color for description line
 	CurrentDescColor = FgDarkGray
 	// CurrentDefaultValueColor the print color for default value line
@@ -244,6 +244,11 @@ func GetQuietMode() bool {
 // SetNoLoadConfigFiles true means no loading config files
 func SetNoLoadConfigFiles(b bool) {
 	doNotLoadingConfigFiles = b
+}
+
+// SetCurrentHelpPainter allows to change the behavior and facade of help screen.
+func SetCurrentHelpPainter(painter Painter) {
+	currentHelpPainter = painter
 }
 
 func init() {

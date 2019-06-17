@@ -9,6 +9,7 @@
 
 `cmdr` is a POSIX/GNU style,  command-line UI (CLI) Go library. It is a getopt-like parser of command-line options, be compatible with the [getopt_long](http://www.gnu.org/s/libc/manual/html_node/Argument-Syntax.html#Argument-Syntax) command line UI, which is an extension of the syntax recommended by POSIX.
 
+see also [Examples](#examples), and [cmdr-http2](https://github.com/hedzr/cmdr-http2) (a http2 server with daemon supports, graceful shutdown).
 
 
 > Before our introduce for CMDR, I decided to post A memory of mine, in each new project. Here it is:
@@ -266,7 +267,8 @@
    partial-covered for GNU `wget`.
 4. [fluent](./examples/fluent)  
    demostrates how to use the fluent api style.
-
+5. [cmdr-http2](https://github.com/hedzr/cmdr-http2)  
+   http2 server with daemon supports, graceful shutdown
 
 
 ## Documentation

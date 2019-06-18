@@ -249,7 +249,7 @@ _my_main_do_sth(){
 	local PROJ_DIR=$PWD
 	local VERSION=$(app_version)
 	local versionInt=$(app_version_int)
-	echo "appName=$APPNAME | pkg=$PKG, $PROJ | version = $VERSION, $versionInt"
+	echo "SHELL=$SHELL | appName=$APPNAME | pkg=$PKG, $PROJ | version = $VERSION, $versionInt"
 
 	local W_PKG="github.com/hedzr/cmdr/conf"
 	local LDFLAGS="-s -w -X '${W_PKG}.Buildstamp=`date -u '+%Y-%m-%d_%I:%M:%S%p'`' -X '${W_PKG}.Githash=`git rev-parse HEAD`' -X '${W_PKG}.GoVersion=$(go version)' -X ${W_PKG}.Version=$VERSION -X ${W_PKG}.AppName=$APPNAME"

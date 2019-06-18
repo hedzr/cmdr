@@ -94,7 +94,7 @@ func TestSetGetStringSlice(t *testing.T) {
 
 func TestSetGetStringSlice2(t *testing.T) {
 	cmdr.Set("A", []float32{3, 7})
-	oo = cmdr.GetStringSlice("app.A")
+	oo := cmdr.GetStringSlice("app.A")
 	if "3" != oo[0] || "7" != oo[1] {
 		t.Fatal("wrong GetStringSlice on int slice")
 	}
@@ -162,7 +162,7 @@ func TestSetGetIntSlice2(t *testing.T) {
 	// int slice
 
 	cmdr.Set("A", []float32{3, 7})
-	oi = cmdr.GetIntSlice("app.A")
+	oi := cmdr.GetIntSlice("app.A")
 	if 3 != oi[0] || 7 != oi[1] {
 		t.Fatal("wrong GetIntSlice on int slice 3")
 	}

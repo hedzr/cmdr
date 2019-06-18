@@ -4,18 +4,19 @@
 
 package cmdr
 
-func cmdMatching(pkg *ptpkg, goCommand **Command, args []string) (stop bool, err error) {
+func cmdMatching(pkg *ptpkg, goCommand **Command, args []string) (matched, stop bool, err error) {
 	// command, files
 	if cmd, ok := (*goCommand).plainCmds[pkg.a]; ok {
 		cmd.strHit = pkg.a
 		*goCommand = cmd
+		matched = true
 		// logrus.Debugf("-- command '%v' hit, go ahead...", cmd.GetTitleName())
 		stop, err = cmdMatched(pkg, *goCommand, args)
 	} else {
 		if (*goCommand).Action != nil && len((*goCommand).SubCommands) == 0 {
 			// the args remained are files, not sub-commands.
 			pkg.i--
-			stop = true
+			pkg.lastCommandHeld = true
 			return
 		}
 
@@ -30,6 +31,11 @@ func cmdMatched(pkg *ptpkg, goCommand *Command, args []string) (stop bool, err e
 		if err = goCommand.PreAction(goCommand, getArgs(pkg, args)); err == ErrShouldBeStopException {
 			return false, nil
 		}
+	}
+
+	if (*goCommand).Action != nil && len((*goCommand).SubCommands) == 0 {
+		// the args remained are files, not sub-commands.
+		pkg.lastCommandHeld = true
 	}
 	return
 }
@@ -66,17 +72,17 @@ func flagsPrepare(pkg *ptpkg, goCommand **Command, args []string) (stop bool, er
 	return
 }
 
-func flagsMatching(pkg *ptpkg, cc *Command, goCommand **Command, args []string) (stop bool, err error) {
-	var ok, upLevel bool
+func flagsMatching(pkg *ptpkg, cc *Command, goCommand **Command, args []string) (matched, stop bool, err error) {
+	var upLevel bool
 GO_UP:
 	pkg.found = false
 	if pkg.short {
-		pkg.flg, ok = cc.plainShortFlags[pkg.fn]
+		pkg.flg, matched = cc.plainShortFlags[pkg.fn]
 	} else {
-		ok = matchForLongFlags(pkg.fn, cc, pkg)
+		matched = matchForLongFlags(pkg.fn, cc, pkg)
 	}
 
-	if ok {
+	if matched {
 		if upLevel, stop, err = flagsMatched(pkg, *goCommand, args); stop || err != nil {
 			return
 		}

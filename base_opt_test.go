@@ -71,9 +71,14 @@ func TestHasParent(t *testing.T) {
 
 func TestSetGetStringSlice(t *testing.T) {
 	cmdr.Set("A", []int{3, 7})
+
 	oo := cmdr.GetStringSlice("app.A")
 	if "3" != oo[0] || "7" != oo[1] {
 		t.Fatal("wrong GetStringSlice on int slice")
+	}
+	oo = cmdr.GetStringSliceR("A")
+	if "3" != oo[0] || "7" != oo[1] {
+		t.Fatal("wrong GetStringSliceR on int slice")
 	}
 
 	cmdr.Set("A", "3,7")
@@ -81,11 +86,19 @@ func TestSetGetStringSlice(t *testing.T) {
 	if "3" != oo[0] || "7" != oo[1] {
 		t.Fatal("wrong GetStringSlice on int slice")
 	}
+	oo = cmdr.GetStringSliceR("A")
+	if "3" != oo[0] || "7" != oo[1] {
+		t.Fatal("wrong GetStringSliceR on int slice")
+	}
 
 	cmdr.Set("A", []float32{3, 7})
 	oo = cmdr.GetStringSlice("app.A")
 	if "3" != oo[0] || "7" != oo[1] {
 		t.Fatal("wrong GetStringSlice on int slice")
+	}
+	oo = cmdr.GetStringSliceR("A")
+	if "3" != oo[0] || "7" != oo[1] {
+		t.Fatal("wrong GetStringSliceR on int slice")
 	}
 
 	cmdr.Set("A", []byte("3,7"))
@@ -93,11 +106,19 @@ func TestSetGetStringSlice(t *testing.T) {
 	if "3" != oo[0] || "7" != oo[1] {
 		t.Fatal("wrong GetStringSlice on int slice")
 	}
+	oo = cmdr.GetStringSliceR("A")
+	if "3" != oo[0] || "7" != oo[1] {
+		t.Fatal("wrong GetStringSliceR on int slice")
+	}
 
 	cmdr.Set("A", 99)
 	oo = cmdr.GetStringSlice("app.A")
 	if "99" != oo[0] {
 		t.Fatal("wrong GetStringSlice on int slice")
+	}
+	oo = cmdr.GetStringSliceR("A")
+	if "99" != oo[0] {
+		t.Fatal("wrong GetStringSliceR on int slice")
 	}
 }
 
@@ -109,11 +130,19 @@ func TestSetGetIntSlice(t *testing.T) {
 	if 3 != oi[0] || 7 != oi[1] {
 		t.Fatal("wrong GetIntSlice on int slice 1 ")
 	}
+	oi = cmdr.GetIntSliceR("A")
+	if 3 != oi[0] || 7 != oi[1] {
+		t.Fatal("wrong GetIntSliceR on int slice 1 ")
+	}
 
 	cmdr.Set("A", []int{3, 7})
 	oi = cmdr.GetIntSlice("app.A")
 	if 3 != oi[0] || 7 != oi[1] {
 		t.Fatal("wrong GetIntSlice on int slice 1 ")
+	}
+	oi = cmdr.GetIntSliceR("A")
+	if 3 != oi[0] || 7 != oi[1] {
+		t.Fatal("wrong GetIntSliceR on int slice 1 ")
 	}
 
 	cmdr.Set("A", "3,7")
@@ -121,11 +150,19 @@ func TestSetGetIntSlice(t *testing.T) {
 	if 3 != oi[0] || 7 != oi[1] {
 		t.Fatal("wrong GetIntSlice on int slice 2")
 	}
+	oi = cmdr.GetIntSliceR("A")
+	if 3 != oi[0] || 7 != oi[1] {
+		t.Fatal("wrong GetIntSliceR on int slice 2")
+	}
 
 	cmdr.Set("A", []float32{3, 7})
 	oi = cmdr.GetIntSlice("app.A")
 	if 3 != oi[0] || 7 != oi[1] {
 		t.Fatal("wrong GetIntSlice on int slice 3")
+	}
+	oi = cmdr.GetIntSliceR("A")
+	if 3 != oi[0] || 7 != oi[1] {
+		t.Fatal("wrong GetIntSliceR on int slice 3")
 	}
 
 	cmdr.Set("A", []byte("3,7"))
@@ -133,17 +170,29 @@ func TestSetGetIntSlice(t *testing.T) {
 	if 3 != oi[0] || 7 != oi[1] {
 		t.Fatal("wrong GetIntSlice on int slice 4")
 	}
+	oi = cmdr.GetIntSliceR("A")
+	if 3 != oi[0] || 7 != oi[1] {
+		t.Fatal("wrong GetIntSliceR on int slice 4")
+	}
 
 	cmdr.Set("A", "99")
 	oi = cmdr.GetIntSlice("app.A")
 	if 99 != oi[0] {
 		t.Fatal("wrong GetIntSlice on int slice 5")
 	}
+	oi = cmdr.GetIntSliceR("A")
+	if 99 != oi[0] {
+		t.Fatal("wrong GetIntSliceR on int slice 5")
+	}
 
 	cmdr.Set("A", 99)
 	oi = cmdr.GetIntSlice("app.A")
 	if 99 != oi[0] {
 		t.Fatal("wrong GetIntSlice on int slice 5")
+	}
+	oi = cmdr.GetIntSliceR("A")
+	if 99 != oi[0] {
+		t.Fatal("wrong GetIntSliceR on int slice 5")
 	}
 }
 

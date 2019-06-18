@@ -193,7 +193,7 @@ var (
 	defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
 
 	//
-	currentHelpPainter Painter = new(helpPainter)
+	currentHelpPainter Painter
 	// CurrentDescColor the print color for description line
 	CurrentDescColor = FgDarkGray
 	// CurrentDefaultValueColor the print color for default value line
@@ -253,4 +253,5 @@ func SetCurrentHelpPainter(painter Painter) {
 
 func init() {
 	onConfigReloadedFunctions = make(map[ConfigReloaded]bool)
+	SetCurrentHelpPainter(new(helpPainter))
 }

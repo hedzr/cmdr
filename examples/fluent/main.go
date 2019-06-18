@@ -52,6 +52,19 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 		Examples(examples)
 	rootCmd = root.RootCommand()
 
+	// soundex
+
+	root.NewSubCommand().
+		Titles("snd", "soundex", "sndx", "sound").
+		Description("", "soundex test").
+		Group("Test").
+		Action(func(cmd *cmdr.Command, args []string) (err error) {
+			for ix, s := range args {
+				fmt.Printf("%5d. %s => %s\n", ix, s, cmdr.Soundex(s))
+			}
+			return
+		})
+
 	// xy-print
 
 	root.NewSubCommand().

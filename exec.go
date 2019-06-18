@@ -42,6 +42,7 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 		pkg       = new(ptpkg)
 		goCommand = &rootCmd.Command
 		stop      bool
+		matched   bool
 		// helpFlag = rootCmd.allFlags[UnsortedGroup]["help"]
 	)
 
@@ -58,11 +59,8 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 
 	if err == nil {
 		for pkg.i = 1; pkg.i < len(args); pkg.i++ {
+			pkg.Reset()
 			pkg.a = args[pkg.i]
-			pkg.assigned = false
-			pkg.short = false
-			pkg.savedFn = ""
-			pkg.savedVal = ""
 
 			// --debug: long opt
 			// -D:      short opt
@@ -76,8 +74,11 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 			//  - -nconsul is not good format, but it could get somewhat works.
 			//  - -n'consul', -n"consul" could works too.
 			// -t3: opt with an argument.
-			stop, err = xxTestCmd(pkg, &goCommand, rootCmd, args)
+			matched, stop, err = xxTestCmd(pkg, &goCommand, rootCmd, args)
 			if stop {
+				if pkg.lastCommandHeld || (matched && pkg.flg == nil) {
+					err = afterInternalExec(pkg, rootCmd, goCommand, args)
+				}
 				return
 			}
 		}
@@ -87,7 +88,7 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 	return
 }
 
-func xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []string) (stop bool, err error) {
+func xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []string) (matched, stop bool, err error) {
 	if pkg.a[0] == '-' || pkg.a[0] == '/' || pkg.a[0] == '~' {
 		if len(pkg.a) == 1 {
 			pkg.needHelp = true
@@ -109,12 +110,20 @@ func xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []str
 
 		pkg.savedGoCommand = *goCommand
 		cc := *goCommand
-		if stop, err = flagsMatching(pkg, cc, goCommand, args); stop || err != nil {
+		if matched, stop, err = flagsMatching(pkg, cc, goCommand, args); stop || err != nil {
 			return
 		}
 
 	} else {
-		if stop, err = cmdMatching(pkg, goCommand, args); stop || err != nil {
+		// testing the next command, but the last one has already been the end of command series.
+		if pkg.lastCommandHeld {
+			pkg.i--
+			stop = true
+			return
+		}
+
+		// or, keep going on...
+		if matched, stop, err = cmdMatching(pkg, goCommand, args); stop || err != nil {
 			return
 		}
 	}
@@ -336,6 +345,7 @@ type ptpkg struct {
 	assigned          bool
 	found             bool
 	short             bool
+	lastCommandHeld   bool
 	fn, val           string
 	savedFn, savedVal string
 	i                 int
@@ -347,6 +357,17 @@ type ptpkg struct {
 	suffix            uint8
 	unknownCmds       []string
 	unknownFlags      []string
+}
+
+func (pkg *ptpkg) Reset() {
+	pkg.assigned = false
+	pkg.found = false
+	pkg.short = false
+
+	pkg.savedFn = ""
+	pkg.savedVal = ""
+	pkg.fn = ""
+	pkg.val = ""
 }
 
 func toggleGroup(pkg *ptpkg) {
@@ -537,6 +558,7 @@ func processTypeInt(pkg *ptpkg, args []string) (err error) {
 	v, err := strconv.ParseInt(pkg.val, 10, 64)
 	if err != nil {
 		ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
+		err = fmt.Errorf("wrong number: flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
 	}
 
 	if pkg.a[0] == '~' {

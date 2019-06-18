@@ -216,6 +216,11 @@ func launchEditorWith(editor, filename string) (content []byte, err error) {
 	return
 }
 
+// Soundex returns the english word's soundex value, such as: 'tags' => 't322'
+func Soundex(s string) (snd4 string) {
+	return soundex(s)
+}
+
 func soundex(s string) (snd4 string) {
 	// if len(s) == 0 {
 	// 	return

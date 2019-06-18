@@ -16,6 +16,7 @@ func buildRootCrossRefs(root *RootCommand) {
 	attachHelpCommands(root)
 	attachVerboseCommands(root)
 	attachGeneratorsCommands(root)
+	attachCmdrCommands(root)
 
 	buildCrossRefs(&root.Command)
 }

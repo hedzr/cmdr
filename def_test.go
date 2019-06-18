@@ -61,26 +61,120 @@ func resetOsArgs() {
 	}
 }
 
+func TestUnknownHandler(t *testing.T) {
+	cmdr.ResetOptions()
+
+	var clcl = &cfgLoaded{}
+	cfg(t, clcl)
+	defer func() {
+		_ = os.Remove("conf.d/tmp.yaml")
+		_ = os.Remove("conf.d/tmp.json")
+		_ = os.Remove("conf.d/tmp.toml")
+		_ = os.Remove("conf.d")
+		_ = os.Remove(".tmp.json")
+		_ = os.Remove(".tmp.toml")
+		cmdr.SetOnConfigLoadedListener(clcl, false)
+		cmdr.RemoveOnConfigLoadedListener(clcl)
+	}()
+	cmdr.SetPredefinedLocations([]string{"./.tmp.yaml"})
+	cmdr.SetUnknownOptionHandler(func(isFlag bool, title string, cmd *cmdr.Command, args []string) {
+		t.Logf("isFlag: %v, title: %v, cmd: %v, args: %v", isFlag, title, cmd, args)
+	})
+
+	os.Args = []string{"consul-tags", "--confug", "./conf.d"}
+	cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
+	resetOsArgs()
+	cmdr.ResetOptions()
+
+	os.Args = []string{"consul-tags", "tigs"}
+	cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
+	resetOsArgs()
+	cmdr.ResetOptions()
+
+	cmdr.SetUnknownOptionHandler(nil)
+
+	os.Args = []string{"consul-tags", "--confug", "./conf.d"}
+	cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
+	resetOsArgs()
+	cmdr.ResetOptions()
+
+	os.Args = []string{"consul-tags", "tegs"}
+	cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
+	resetOsArgs()
+	cmdr.ResetOptions()
+
+}
+
 func TestConfigOption(t *testing.T) {
+	cmdr.ResetOptions()
+
+	var clcl = &cfgLoaded{}
+	cfg(t, clcl)
+	defer func() {
+		_ = os.Remove("conf.d/tmp.yaml")
+		_ = os.Remove("conf.d/tmp.json")
+		_ = os.Remove("conf.d/tmp.toml")
+		_ = os.Remove("conf.d")
+		_ = os.Remove(".tmp.json")
+		_ = os.Remove(".tmp.toml")
+		cmdr.SetOnConfigLoadedListener(clcl, false)
+		cmdr.RemoveOnConfigLoadedListener(clcl)
+	}()
+	cmdr.SetPredefinedLocations([]string{"./.tmp.yaml"})
+
 	os.Args = []string{"consul-tags", "--config", "./conf.d"}
 	cmdr.SetInternalOutputStreams(nil, nil)
 	if err := cmdr.Exec(rootCmd); err != nil {
 		t.Fatal(err)
 	}
 	resetOsArgs()
+	cmdr.ResetOptions()
+
+	os.Args = []string{"consul-tags", "--config=./conf.d"}
+	cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
+	resetOsArgs()
+	cmdr.ResetOptions()
+
+	os.Args = []string{"consul-tags", "--config./conf.d/tmp.yaml"}
+	cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd); err != nil {
+		t.Fatal(err)
+	}
+	resetOsArgs()
+	cmdr.ResetOptions()
 }
 
 func TestStrictMode(t *testing.T) {
+	cmdr.ResetOptions()
 	os.Args = []string{"consul-tags", "ms", "tags", "add", "--strict-mode"}
 	cmdr.SetInternalOutputStreams(nil, nil)
 	if err := cmdr.Exec(rootCmd); err != nil {
 		t.Fatal(err)
 	}
+	cmdr.ResetOptions()
+
 	os.Args = []string{"consul-tags", "server", "start", "~f", "--strict-mode"}
 	cmdr.SetInternalOutputStreams(nil, nil)
 	if err := cmdr.Exec(rootCmd); err != nil {
 		t.Fatal(err)
 	}
+	cmdr.ResetOptions()
+
 	os.Args = []string{"consul-tags", "server", "nf", "nf", "--strict-mode"}
 	cmdr.SetInternalOutputStreams(nil, nil)
 	if err := cmdr.Exec(rootCmd); err != nil {
@@ -88,18 +182,22 @@ func TestStrictMode(t *testing.T) {
 	}
 
 	resetOsArgs()
+	cmdr.ResetOptions()
 }
 
 func TestTreeDump(t *testing.T) {
+	cmdr.ResetOptions()
 	os.Args = []string{"consul-tags", "--tree"}
 	cmdr.SetInternalOutputStreams(nil, nil)
 	if err := cmdr.Exec(rootCmd); err != nil {
 		t.Fatal(err)
 	}
 	resetOsArgs()
+	cmdr.ResetOptions()
 }
 
 func TestVersionCommand(t *testing.T) {
+	cmdr.ResetOptions()
 
 	defer func() {
 		_ = os.Remove(".tmp.1.json")
@@ -112,24 +210,28 @@ func TestVersionCommand(t *testing.T) {
 	if err := cmdr.Exec(rootCmd); err != nil {
 		t.Fatal(err)
 	}
+	cmdr.ResetOptions()
 
 	os.Args = []string{"consul-tags", "ver"}
 	cmdr.SetInternalOutputStreams(nil, nil)
 	if err := cmdr.Exec(rootCmd); err != nil {
 		t.Fatal(err)
 	}
+	cmdr.ResetOptions()
 
 	os.Args = []string{"consul-tags", "--version"}
 	cmdr.SetInternalOutputStreams(nil, nil)
 	if err := cmdr.Exec(rootCmd); err != nil {
 		t.Fatal(err)
 	}
+	cmdr.ResetOptions()
 
 	os.Args = []string{"consul-tags", "-#"}
 	cmdr.SetInternalOutputStreams(nil, nil)
 	if err := cmdr.Exec(rootCmd); err != nil {
 		t.Fatal(err)
 	}
+	cmdr.ResetOptions()
 
 	resetOsArgs()
 }
@@ -165,12 +267,14 @@ func TestGlobalShow(t *testing.T) {
 }
 
 func TestPP(t *testing.T) {
+	cmdr.ResetOptions()
 	os.Args = []string{"consul-tags", "-pp"}
 	cmdr.SetInternalOutputStreams(nil, nil)
 	if err := cmdr.Exec(rootCmd); err != nil {
 		t.Fatal(err)
 	}
 	resetOsArgs()
+	cmdr.ResetOptions()
 }
 
 func TestForGenerateCommands(t *testing.T) {
@@ -514,6 +618,22 @@ func postWorks(t *testing.T) {
 	}
 }
 
+func TestTightFlag(t *testing.T) {
+	var commands = []string{
+		"consul-tags -t3 -s 5 kv b --help-zsh 2 ~~",
+		"consul-tags -? -vD --vv kv backup --prefix'' -h ~~debug",
+	}
+	for _, cc := range commands {
+		os.Args = strings.Split(cc, " ")
+		cmdr.SetInternalOutputStreams(nil, nil)
+		if err := cmdr.Exec(rootCmd); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	resetOsArgs()
+}
+
 func TestExec(t *testing.T) {
 	cmdr.ResetOptions()
 
@@ -647,7 +767,7 @@ var (
 			fmt.Println("consul-tags kv b -------- no errors")
 			return nil
 		},
-		"consul-tags -t3 -s 5 kv b --help-zsh ~~": func(t *testing.T) error {
+		"consul-tags -t3 -s 5 kv b --help-zsh 2 ~~": func(t *testing.T) error {
 			// gocov Command.PrintXXX
 			fmt.Println("consul-tags -t3 -s5 -pp kv b ~~ -------- no errors")
 			return nil
@@ -677,7 +797,10 @@ var (
 			if cmdr.GetInt("app.kv.port") != 8500 || cmdr.GetString("app.kv.prefix") != "" ||
 				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") ||
 				!cmdr.GetVerboseMode() || !cmdr.GetDebugMode() {
-				return errors.New("something wrong 2")
+				return fmt.Errorf("something wrong 2. |%v|%v|%v|%v|%v|%v",
+					cmdr.GetInt("app.kv.port"), cmdr.GetString("app.kv.prefix"),
+					cmdr.GetBool("app.help"), cmdr.GetBool("debug"),
+					cmdr.GetVerboseMode(), cmdr.GetDebugMode())
 			}
 			return nil
 		},

@@ -151,7 +151,7 @@ func GetUint64R(key string) uint64 {
 	return rxxtOptions.GetUint(wrapWithRxxtPrefix(key))
 }
 
-// GetUint64R returns the uint64 value of an `Option` key with [WrapWithRxxtPrefix].
+// GetUint64RP returns the uint64 value of an `Option` key with [WrapWithRxxtPrefix].
 func GetUint64RP(prefix, key string) uint64 {
 	return rxxtOptions.GetUint(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)))
 }

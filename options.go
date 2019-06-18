@@ -38,23 +38,42 @@ func NewOptionsWith(entries map[string]interface{}) *Options {
 	}
 }
 
-// Get returns the generic value of an `Option` key. Such as:
+//
+//
+//
+
+// GetBool returns the bool value of an `Option` key. Such as:
 // ```golang
-// cmdr.Get("app.logger.level") => 'DEBUG',...
+// cmdr.Get("app.logger.enable") => true,...
 // ```
 //
-func Get(key string) interface{} {
-	return rxxtOptions.Get(key)
-}
-
-// GetBool returns the bool value of an `Option` key.
 func GetBool(key string) bool {
 	return rxxtOptions.GetBool(key)
 }
 
-// GetBoolP returns the bool value of an `Option` key.
+// GetBoolP returns the bool value of an `Option` key. Such as:
+// ```golang
+// cmdr.GetP("app.logger", "enable") => true,...
+// ```
 func GetBoolP(prefix, key string) bool {
 	return rxxtOptions.GetBool(fmt.Sprintf("%s.%s", prefix, key))
+}
+
+// GetBoolR returns the bool value of an `Option` key with [WrapWithRxxtPrefix]. Such as:
+// ```golang
+// cmdr.GetBoolR("logger.enable") => true,...
+// ```
+//
+func GetBoolR(key string) bool {
+	return rxxtOptions.GetBool(wrapWithRxxtPrefix(key))
+}
+
+// GetBoolRP returns the bool value of an `Option` key with [WrapWithRxxtPrefix]. Such as:
+// ```golang
+// cmdr.GetBoolRP("logger", "enable") => true,...
+// ```
+func GetBoolRP(prefix, key string) bool {
+	return rxxtOptions.GetBool(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)))
 }
 
 // GetInt returns the int value of an `Option` key.
@@ -67,6 +86,16 @@ func GetIntP(prefix, key string) int {
 	return int(rxxtOptions.GetInt(fmt.Sprintf("%s.%s", prefix, key)))
 }
 
+// GetIntR returns the int value of an `Option` key with [WrapWithRxxtPrefix].
+func GetIntR(key string) int {
+	return int(rxxtOptions.GetInt(wrapWithRxxtPrefix(key)))
+}
+
+// GetIntRP returns the int value of an `Option` key with [WrapWithRxxtPrefix].
+func GetIntRP(prefix, key string) int {
+	return int(rxxtOptions.GetInt(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key))))
+}
+
 // GetInt64 returns the int64 value of an `Option` key.
 func GetInt64(key string) int64 {
 	return rxxtOptions.GetInt(key)
@@ -75,6 +104,16 @@ func GetInt64(key string) int64 {
 // GetInt64P returns the int64 value of an `Option` key.
 func GetInt64P(prefix, key string) int64 {
 	return rxxtOptions.GetInt(fmt.Sprintf("%s.%s", prefix, key))
+}
+
+// GetInt64R returns the int64 value of an `Option` key with [WrapWithRxxtPrefix].
+func GetInt64R(key string) int64 {
+	return rxxtOptions.GetInt(wrapWithRxxtPrefix(key))
+}
+
+// GetInt64RP returns the int64 value of an `Option` key with [WrapWithRxxtPrefix].
+func GetInt64RP(prefix, key string) int64 {
+	return rxxtOptions.GetInt(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)))
 }
 
 // GetUint returns the uint value of an `Option` key.
@@ -87,6 +126,16 @@ func GetUintP(prefix, key string) uint {
 	return uint(rxxtOptions.GetUint(fmt.Sprintf("%s.%s", prefix, key)))
 }
 
+// GetUintR returns the uint value of an `Option` key with [WrapWithRxxtPrefix].
+func GetUintR(key string) uint {
+	return uint(rxxtOptions.GetUint(wrapWithRxxtPrefix(key)))
+}
+
+// GetUintRP returns the uint value of an `Option` key with [WrapWithRxxtPrefix].
+func GetUintRP(prefix, key string) uint {
+	return uint(rxxtOptions.GetUint(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key))))
+}
+
 // GetUint64 returns the uint64 value of an `Option` key.
 func GetUint64(key string) uint64 {
 	return rxxtOptions.GetUint(key)
@@ -95,6 +144,16 @@ func GetUint64(key string) uint64 {
 // GetUint64P returns the uint64 value of an `Option` key.
 func GetUint64P(prefix, key string) uint64 {
 	return rxxtOptions.GetUint(fmt.Sprintf("%s.%s", prefix, key))
+}
+
+// GetUint64R returns the uint64 value of an `Option` key with [WrapWithRxxtPrefix].
+func GetUint64R(key string) uint64 {
+	return rxxtOptions.GetUint(wrapWithRxxtPrefix(key))
+}
+
+// GetUint64R returns the uint64 value of an `Option` key with [WrapWithRxxtPrefix].
+func GetUint64RP(prefix, key string) uint64 {
+	return rxxtOptions.GetUint(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)))
 }
 
 // GetString returns the string value of an `Option` key.
@@ -107,6 +166,16 @@ func GetStringP(prefix, key string) string {
 	return rxxtOptions.GetString(fmt.Sprintf("%s.%s", prefix, key))
 }
 
+// GetStringR returns the string value of an `Option` key with [WrapWithRxxtPrefix].
+func GetStringR(key string) string {
+	return rxxtOptions.GetString(wrapWithRxxtPrefix(key))
+}
+
+// GetStringRP returns the string value of an `Option` key with [WrapWithRxxtPrefix].
+func GetStringRP(prefix, key string) string {
+	return rxxtOptions.GetString(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)))
+}
+
 // GetStringSlice returns the string slice value of an `Option` key.
 func GetStringSlice(key string) []string {
 	return rxxtOptions.GetStringSlice(key)
@@ -115,6 +184,34 @@ func GetStringSlice(key string) []string {
 // GetStringSliceP returns the string slice value of an `Option` key.
 func GetStringSliceP(prefix, key string) []string {
 	return rxxtOptions.GetStringSlice(fmt.Sprintf("%s.%s", prefix, key))
+}
+
+// GetStringSliceR returns the string slice value of an `Option` key with [WrapWithRxxtPrefix].
+func GetStringSliceR(key string) []string {
+	return rxxtOptions.GetStringSlice(wrapWithRxxtPrefix(key))
+}
+
+// GetStringSliceRP returns the string slice value of an `Option` key with [WrapWithRxxtPrefix].
+func GetStringSliceRP(prefix, key string) []string {
+	return rxxtOptions.GetStringSlice(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)))
+}
+
+// Get returns the generic value of an `Option` key with [WrapWithRxxtPrefix]. Such as:
+// ```golang
+// cmdr.Get("app.logger.level") => 'DEBUG',...
+// ```
+//
+func Get(key string) interface{} {
+	return rxxtOptions.Get(key)
+}
+
+// GetR returns the generic value of an `Option` key with [WrapWithRxxtPrefix]. Such as:
+// ```golang
+// cmdr.GetR("logger.level") => 'DEBUG',...
+// ```
+//
+func GetR(key string) interface{} {
+	return rxxtOptions.Get(wrapWithRxxtPrefix(key))
 }
 
 // Get an `Option` by key string, eg:
@@ -206,6 +303,16 @@ func GetIntSlice(key string) []int {
 // GetIntSliceP returns the int slice value of an `Option` key.
 func GetIntSliceP(prefix, key string) []int {
 	return rxxtOptions.GetIntSlice(fmt.Sprintf("%s.%s", prefix, key))
+}
+
+// GetIntSliceR returns the int slice value of an `Option` key with [WrapWithRxxtPrefix].
+func GetIntSliceR(key string) []int {
+	return rxxtOptions.GetIntSlice(wrapWithRxxtPrefix(key))
+}
+
+// GetIntSliceRP returns the int slice value of an `Option` key with [WrapWithRxxtPrefix].
+func GetIntSliceRP(prefix, key string) []int {
+	return rxxtOptions.GetIntSlice(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)))
 }
 
 // GetIntSlice returns the string slice value of an `Option` key.
@@ -306,22 +413,29 @@ func (s *Options) envKey(key string) (envkey string) {
 	return
 }
 
-func wrapRxxtPrefix(key string) string {
-	p := strings.Join(RxxtPrefix, ".")
-	if len(p) == 0 {
+// WrapWithRxxtPrefix wrap an key with [RxxtPrefix], for [GetXxx(key)] and [GetXxxP(prefix,key)]
+func WrapWithRxxtPrefix(key string) string {
+	return wrapWithRxxtPrefix(key)
+}
+
+func wrapWithRxxtPrefix(key string) string {
+	if len(RxxtPrefix) == 0 {
 		return key
 	}
+	p := strings.Join(RxxtPrefix, ".")
 	if len(key) == 0 {
 		return p
 	}
 	return p + "." + key
 }
 
-// Set set the value of an `Option` key (with prefix auto-wrap).
+// Set set the value of an `Option` key (with prefix auto-wrap). The key MUST not have an `app` prefix. eg:
 // ```golang
 // cmdr.Set("logger.level", "DEBUG")
 // cmdr.Set("ms.tags.port", 8500)
 // ...
+// cmdr.Set("debug", true)
+// cmdr.GetBool("app.debug") => true
 // ```
 //
 func Set(key string, val interface{}) {
@@ -335,12 +449,16 @@ func SetNx(key string, val interface{}) {
 	rxxtOptions.SetNx(key, val)
 }
 
-// Set set the value of an `Option` key.
+// Set set the value of an `Option` key. The key MUST not have an `app` prefix. eg:
+// ```golang
+// cmdr.Set("debug", true)
+// cmdr.GetBool("app.debug") => true
+// ```
 func (s *Options) Set(key string, val interface{}) {
 	defer s.rw.Unlock()
 	s.rw.Lock()
 
-	k := wrapRxxtPrefix(key)
+	k := wrapWithRxxtPrefix(key)
 	s.entries[k] = val
 	a := strings.Split(k, ".")
 	mergeMap(s.hierarchy, a[0], et(a, 1, val))

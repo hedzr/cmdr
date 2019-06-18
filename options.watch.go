@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/fsnotify/fsnotify"
 	"gopkg.in/yaml.v2"
@@ -184,17 +185,22 @@ func (s *Options) visit(path string, f os.FileInfo, e error) (err error) {
 			// } else {
 			if err == nil {
 				defer file.Close()
-				err = s.mergeConfigFile(bufio.NewReader(file), ext)
+				if err = s.mergeConfigFile(bufio.NewReader(file), ext); err != nil {
+					err = fmt.Errorf("Error in merging config file '%s': %v", path, err)
+					return
+				}
 				configFiles = append(configFiles, path)
 				// env := viper.Get("app.registrar.env")
 				// key := fmt.Sprintf("app.registrar.consul.%s.addr", env)
 				// log.Infof("%s = %s", key, viper.Get(key))
+			} else {
+				err = fmt.Errorf("Error in merging config file '%s': %v", path, err)
 			}
 		}
 	} else {
 		err = e
 	}
-	return err
+	return
 }
 
 func (s *Options) reloadConfig(e fsnotify.Event) {

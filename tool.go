@@ -172,9 +172,17 @@ func init() {
 
 // InTesting detects whether is running under go test mode
 func InTesting() bool {
-	return strings.HasSuffix(SavedOsArgs[0], ".test") ||
+	if strings.HasSuffix(SavedOsArgs[0], ".test") ||
 		strings.Contains(SavedOsArgs[0], "/T/___Test") ||
-		strings.Contains(SavedOsArgs[0], "/T/go-build")
+		strings.Contains(SavedOsArgs[0], "/T/go-build") {
+		return true
+	}
+	for _, s := range SavedOsArgs {
+		if s == "-test.v" || s == "-test.run" {
+			return true
+		}
+	}
+	return false
 }
 
 func randomFilename() (fn string) {

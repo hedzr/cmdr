@@ -163,7 +163,7 @@ func afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, arg
 					defer rootCmd.PostAction(goCommand, args)
 				}
 				if rootCmd.PreAction != nil {
-					if err = rootCmd.PreAction(goCommand, getArgs(pkg, args)); err == ErrShouldBeStopException {
+					if err = rootCmd.PreAction(goCommand, args); err == ErrShouldBeStopException {
 						return nil
 					}
 				}
@@ -539,7 +539,7 @@ func processExternalTool(pkg *ptpkg) (err error) {
 		}
 		var content []byte
 		if InTesting() {
-			content = []byte("demo")
+			content = []byte("demo for testing")
 		} else {
 			if content, err = LaunchEditor(editor); err != nil {
 				return

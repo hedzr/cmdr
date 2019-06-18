@@ -19,6 +19,7 @@ import (
 )
 
 func TestSingleCommandLine1(t *testing.T) {
+	copyRootCmd = rootCmd
 	var err error
 	defer func() {
 		_ = os.Remove(".tmp.1.json")
@@ -62,6 +63,7 @@ func resetOsArgs() {
 }
 
 func TestUnknownHandler(t *testing.T) {
+	copyRootCmd = rootCmd
 	cmdr.ResetOptions()
 
 	var clcl = &cfgLoaded{}
@@ -118,6 +120,7 @@ func TestUnknownHandler(t *testing.T) {
 }
 
 func TestConfigOption(t *testing.T) {
+	copyRootCmd = rootCmd
 	cmdr.ResetOptions()
 
 	var clcl = &cfgLoaded{}
@@ -160,6 +163,7 @@ func TestConfigOption(t *testing.T) {
 }
 
 func TestStrictMode(t *testing.T) {
+	copyRootCmd = rootCmd
 	cmdr.ResetOptions()
 	os.Args = []string{"consul-tags", "ms", "tags", "add", "--strict-mode"}
 	cmdr.SetInternalOutputStreams(nil, nil)
@@ -186,6 +190,7 @@ func TestStrictMode(t *testing.T) {
 }
 
 func TestTreeDump(t *testing.T) {
+	copyRootCmd = rootCmd
 	cmdr.ResetOptions()
 	os.Args = []string{"consul-tags", "--tree"}
 	cmdr.SetInternalOutputStreams(nil, nil)
@@ -197,6 +202,7 @@ func TestTreeDump(t *testing.T) {
 }
 
 func TestVersionCommand(t *testing.T) {
+	copyRootCmd = rootCmd
 	cmdr.ResetOptions()
 
 	defer func() {
@@ -237,6 +243,7 @@ func TestVersionCommand(t *testing.T) {
 }
 
 func TestGlobalShow(t *testing.T) {
+	copyRootCmd = rootCmd
 	cmdr.SetInternalOutputStreams(nil, nil)
 
 	os.Args = []string{"consul-tags", "--version"}
@@ -267,6 +274,7 @@ func TestGlobalShow(t *testing.T) {
 }
 
 func TestPP(t *testing.T) {
+	copyRootCmd = rootCmd
 	cmdr.ResetOptions()
 	os.Args = []string{"consul-tags", "-pp"}
 	cmdr.SetInternalOutputStreams(nil, nil)
@@ -274,10 +282,19 @@ func TestPP(t *testing.T) {
 		t.Fatal(err)
 	}
 	resetOsArgs()
+
+	// os.Args = []string{"consul-tags", "-qq"}
+	// cmdr.SetInternalOutputStreams(nil, nil)
+	// if err := cmdr.Exec(rootCmd); err != nil {
+	// 	t.Fatal(err)
+	// }
+	// resetOsArgs()
+
 	cmdr.ResetOptions()
 }
 
 func TestForGenerateCommands(t *testing.T) {
+	copyRootCmd = rootCmd
 
 	defer func() {
 		_ = os.Remove(".tmp.1.json")
@@ -322,9 +339,11 @@ func TestForGenerateCommands(t *testing.T) {
 	}
 
 	resetOsArgs()
+	cmdr.ResetOptions()
 }
 
 func TestForGenerateDoc(t *testing.T) {
+	copyRootCmd = rootCmd
 	var commands = []string{
 		"consul-tags gen doc",
 	}
@@ -337,9 +356,11 @@ func TestForGenerateDoc(t *testing.T) {
 	}
 
 	resetOsArgs()
+	cmdr.ResetOptions()
 }
 
 func TestForGenerateMan(t *testing.T) {
+	copyRootCmd = rootCmd
 	var commands = []string{
 		"consul-tags gen man",
 	}
@@ -352,6 +373,7 @@ func TestForGenerateMan(t *testing.T) {
 	}
 
 	resetOsArgs()
+	cmdr.ResetOptions()
 }
 
 func doubleSlice(s interface{}) interface{} {
@@ -436,7 +458,8 @@ func TestFluentAPI(t *testing.T) {
 		Short("tt").Long("retry-tt").Aliases("go-tt").
 		Examples(``).Hidden(false).Deprecated("").
 		Action(nil).
-		ExternalTool(cmdr.ExternalToolEditor).ExternalTool(cmdr.ExternalToolPasswordInput).
+		ExternalTool(cmdr.ExternalToolEditor).
+		ExternalTool(cmdr.ExternalToolPasswordInput).
 		Description("", "").
 		Group("").
 		DefaultValue(3, "RETRY").SetOwner(root)
@@ -619,11 +642,13 @@ func postWorks(t *testing.T) {
 }
 
 func TestTightFlag(t *testing.T) {
+	copyRootCmd = rootCmd
 	var commands = []string{
 		"consul-tags -t3 -s 5 kv b --help-zsh 2 ~~",
 		"consul-tags -? -vD --vv kv backup --prefix'' -h ~~debug",
 	}
 	for _, cc := range commands {
+		t.Logf("--- command-line: %v", cc)
 		os.Args = strings.Split(cc, " ")
 		cmdr.SetInternalOutputStreams(nil, nil)
 		if err := cmdr.Exec(rootCmd); err != nil {
@@ -632,6 +657,7 @@ func TestTightFlag(t *testing.T) {
 	}
 
 	resetOsArgs()
+	cmdr.ResetOptions()
 }
 
 func TestExec(t *testing.T) {
@@ -736,9 +762,9 @@ func TestExec(t *testing.T) {
 var (
 	// testing args
 	execTestings = map[string]func(t *testing.T) error{
-		"consul-tags -qq": func(t *testing.T) error {
-			return nil
-		},
+		// "consul-tags -qq": func(t *testing.T) error {
+		//	return nil
+		// },
 		"consul-tags --help --help-zsh 1": func(t *testing.T) error {
 			return nil
 		},

@@ -42,8 +42,8 @@ build_one () {
 	case $suffix in
 		dar) 	S="" ;;
 		bin|linux-*|darwin-*) 	S="-$OS-$ARCH" ;;
-		win|windows-*)	S="-$OS-$ARCH.exe" ;;
-		*) 		S="-$suffix" ;;
+		win|windows-*)	        S="-$OS-$ARCH.exe" ;;
+		*) 		                  S="-$suffix" ;;
 	esac
 	shift;shift;shift;
 	echo "PWD=$(pwd)"
@@ -58,7 +58,7 @@ build_one () {
 }
 
 app_name () {
-	local temp=$(grep -E "APP_NAME[ \t]+=[ \t]+" doc.go|grep -Eo "\\\".+\\\"")
+	local temp=$(grep -E "AppName[ \t]+=[ \t]+" doc.go|grep -Eo "\\\".+\\\"")
 	temp="${temp%\"}"
 	temp="${temp#\"}"
 	echo $temp

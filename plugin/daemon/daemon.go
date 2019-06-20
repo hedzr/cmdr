@@ -19,7 +19,9 @@ import (
 // - pidfile
 // - go-daemon supports
 // -
-func Enable(daemonImplX Daemon, modifier func(daemonServerCommands *cmdr.Command) *cmdr.Command, preAction func(cmd *cmdr.Command, args []string) (err error), postAction func(cmd *cmdr.Command, args []string)) {
+func Enable(daemonImplX Daemon, modifier func(daemonServerCommands *cmdr.Command) *cmdr.Command,
+	preAction func(cmd *cmdr.Command, args []string) (err error),
+	postAction func(cmd *cmdr.Command, args []string)) {
 	daemonImpl = daemonImplX
 
 	cmdr.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
@@ -116,8 +118,7 @@ func run(cmd *cmdr.Command, args []string) (err error) {
 	}
 
 	log.Printf("daemon ServeSignals, pid = %v", os.Getpid())
-	err = daemon.ServeSignals()
-	if err != nil {
+	if err = daemon.ServeSignals(); err != nil {
 		log.Println("Error:", err)
 	}
 
@@ -125,7 +126,7 @@ func run(cmd *cmdr.Command, args []string) (err error) {
 		err = daemonImpl.OnStop(cmd, args)
 	}
 
-	log.Println("daemon terminated")
+	log.Println("daemon terminated.", err)
 	return
 }
 

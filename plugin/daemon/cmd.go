@@ -17,6 +17,16 @@ var (
 			Description: "server ops: for linux daemon.",
 			Group:       "Daemonization",
 		},
+		Flags: []*cmdr.Flag{
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:       "p",
+					Full:        "port",
+					Description: "main port (RESTful).",
+				},
+				DefaultValue: 3000,
+			},
+		},
 		SubCommands: []*cmdr.Command{
 			{
 				BaseOpt: cmdr.BaseOpt{

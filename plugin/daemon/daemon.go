@@ -93,9 +93,9 @@ func daemonStart(cmd *cmdr.Command, args []string) (err error) {
 
 func runAsDaemon(cmd *cmdr.Command, args []string) (err error) {
 	cxt := getContext(cmd, args)
-	child, e := cxt.Reborn()
-	if e != nil {
-		log.Fatalln(e)
+	child, err = cxt.Reborn()
+	if err != nil {
+		log.Fatalln(err)
 	}
 	if child != nil {
 		fmt.Println("Daemon started. parent stopped.")
@@ -106,6 +106,8 @@ func runAsDaemon(cmd *cmdr.Command, args []string) (err error) {
 	err = run(cmd, args)
 	return
 }
+
+var child *os.Process
 
 func run(cmd *cmdr.Command, args []string) (err error) {
 	daemon.SetSigHandler(termHandler, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGABRT, syscall.SIGINT)

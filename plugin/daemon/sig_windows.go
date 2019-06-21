@@ -15,3 +15,8 @@ func QuitSignals() chan os.Signal {
 	quit := make(chan os.Signal)
 	return quit
 }
+
+// StopSelf will terminate the app gracefully
+func StopSelf() {
+	//
+}

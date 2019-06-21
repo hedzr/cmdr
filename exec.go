@@ -6,6 +6,7 @@ package cmdr
 
 import (
 	"fmt"
+	"github.com/hedzr/cmdr/conf"
 	"golang.org/x/crypto/ssh/terminal"
 	"os"
 	"reflect"
@@ -253,6 +254,7 @@ func loadFromPredefinedLocation(rootCmd *RootCommand) (err error) {
 			if err != nil {
 				return
 			}
+			conf.CfgFile = fn
 			break
 		}
 	}

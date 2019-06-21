@@ -23,3 +23,11 @@ func TestIsDirectory(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestDumpers(t *testing.T) {
+
+	if cmdr.DumpAsString() == "" {
+		t.Fatal("fatal DumpAsString")
+	}
+
+}

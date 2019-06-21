@@ -214,14 +214,14 @@ func GetR(key string) interface{} {
 	return rxxtOptions.Get(wrapWithRxxtPrefix(key))
 }
 
-// GetH an `Option` by key string, it returns a hierarchy map or nil
-func GetH(key string) map[string]interface{} {
-	return rxxtOptions.GetH(key)
+// GetMap an `Option` by key string, it returns a hierarchy map or nil
+func GetMap(key string) map[string]interface{} {
+	return rxxtOptions.GetMap(key)
 }
 
-// GetH an `Option` by key string with [WrapWithRxxtPrefix], it returns a hierarchy map or nil
-func GetHR(key string) map[string]interface{} {
-	return rxxtOptions.GetH(wrapWithRxxtPrefix(key))
+// GetMapR an `Option` by key string with [WrapWithRxxtPrefix], it returns a hierarchy map or nil
+func GetMapR(key string) map[string]interface{} {
+	return rxxtOptions.GetMap(wrapWithRxxtPrefix(key))
 }
 
 // Get an `Option` by key string, eg:
@@ -235,27 +235,27 @@ func (s *Options) Get(key string) interface{} {
 	return s.entries[key]
 }
 
-// GetH an `Option` by key string, it returns a hierarchy map or nil
-func (s *Options) GetH(key string) map[string]interface{} {
+// GetMap an `Option` by key string, it returns a hierarchy map or nil
+func (s *Options) GetMap(key string) map[string]interface{} {
 	defer s.rw.RUnlock()
 	s.rw.RLock()
 
-	return s.getHNoLock(key)
+	return s.getMapNoLock(key)
 }
 
-func (s *Options) getHNoLock(key string) map[string]interface{} {
+func (s *Options) getMapNoLock(key string) (m map[string]interface{}) {
 	a := strings.Split(key, ".")
 	if len(a) > 0 {
-		return s.getH(s.hierarchy, a[0], a[1:]...)
+		m = s.getMap(s.hierarchy, a[0], a[1:]...)
 	}
-	return nil
+	return
 }
 
-func (s *Options) getH(vp map[string]interface{}, key string, remains ...string) map[string]interface{} {
+func (s *Options) getMap(vp map[string]interface{}, key string, remains ...string) map[string]interface{} {
 	if len(remains) > 0 {
 		if v, ok := vp[key]; ok {
 			if vm, ok := v.(map[string]interface{}); ok {
-				return s.getH(vm, remains[0], remains[1:]...)
+				return s.getMap(vm, remains[0], remains[1:]...)
 			}
 		}
 		return nil
@@ -502,13 +502,8 @@ func SetNx(key string, val interface{}) {
 // cmdr.GetBool("app.debug") => true
 // ```
 func (s *Options) Set(key string, val interface{}) {
-	defer s.rw.Unlock()
-	s.rw.Lock()
-
 	k := wrapWithRxxtPrefix(key)
-	s.entries[k] = val
-	a := strings.Split(k, ".")
-	mergeMap(s.hierarchy, a[0], et(a, 1, val))
+	s.SetNx(k, val)
 }
 
 // SetNx but without prefix auto-wrapped.
@@ -519,7 +514,7 @@ func (s *Options) SetNx(key string, val interface{}) {
 	s.rw.Lock()
 
 	if val == nil {
-		if s.getHNoLock(key) != nil {
+		if s.getMapNoLock(key) != nil {
 			// don't set a branch node to nil if it have children.
 			return
 		}

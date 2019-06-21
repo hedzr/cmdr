@@ -8,8 +8,8 @@ import (
 	"bytes"
 	"crypto/rand"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -118,7 +118,7 @@ func tplApply(tmpl string, data interface{}) string {
 	var w = new(bytes.Buffer)
 	var tpl = template.Must(template.New("x").Parse(tmpl))
 	if err := tpl.Execute(w, data); err != nil {
-		logrus.Errorf("tpl execute error: %v", err)
+		log.Fatalf("tpl execute error: %v", err)
 	}
 	return w.String()
 }

@@ -14,12 +14,12 @@ func walkFromCommand(cmd *Command, index int, walk func(cmd *Command, index int)
 	if cmd == nil {
 		cmd = &rootCommand.Command
 	}
-	if err = walk(cmd, index); err != nil {
-		return
-	}
-	for ix, cc := range cmd.SubCommands {
-		if err = walkFromCommand(cc, ix, walk); err != nil {
-			return
+	err = walk(cmd, index)
+	if err == nil {
+		for ix, cc := range cmd.SubCommands {
+			if err = walkFromCommand(cc, ix, walk); err != nil {
+				return
+			}
 		}
 	}
 	return

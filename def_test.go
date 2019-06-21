@@ -594,19 +594,55 @@ func resetFlagsAndLog(t *testing.T) {
 	cmdr.Set("generate.shell.zsh", false)
 	cmdr.Set("generate.shell.bash", false)
 
+	// SetNx(key, nil) shouldn't clear an node owned children
+	cmdr.Set("generate.shell", nil)
+	if cmdr.GetMapR("generate.shell") == nil {
+		t.Fatal("SetNx(key, nil) shouldn't clear an node owned children!!")
+	}
+
 	// cmdr.Set("app.generate.shell.auto", false)
 
-	t.Log(cmdr.Get("app.debug"))
-	t.Log(cmdr.GetInt64("app.retry"))
-	t.Log(cmdr.GetUint("app.retry"))
-	t.Log(cmdr.GetUint64("app.retry"))
+	_ = os.Setenv("APP_DEBUG", "1")
 
+	t.Log(cmdr.Get("app.debug"))
+	t.Log(cmdr.GetR("debug"))
+	t.Log(cmdr.GetBool("app.debug"))
+	t.Log(cmdr.GetBoolR("debug"))
+	t.Log(cmdr.GetBoolRP("", "debug"))
+	t.Log(cmdr.GetInt("app.retry"))
+	t.Log(cmdr.GetIntR("retry"))
+	t.Log(cmdr.GetIntRP("", "retry"))
+	t.Log(cmdr.GetInt64("app.retry"))
+	t.Log(cmdr.GetInt64R("retry"))
+	t.Log(cmdr.GetInt64RP("", "retry"))
+	t.Log(cmdr.GetUint("app.retry"))
+	t.Log(cmdr.GetUintR("retry"))
+	t.Log(cmdr.GetUintRP("", "retry"))
+	t.Log(cmdr.GetUint64("app.retry"))
+	t.Log(cmdr.GetUint64R("retry"))
+	t.Log(cmdr.GetUint64RP("", "retry"))
+	t.Log(cmdr.GetString("app.version"))
+	t.Log(cmdr.GetStringR("version"))
+	t.Log(cmdr.GetStringRP("", "version"))
+	t.Log(cmdr.GetStringP("", "app.version"))
+
+	if cmdr.WrapWithRxxtPrefix("ms") != "app.ms" {
+		t.Fatal("WrapWithRxxtPrefix failed")
+	}
+
+	t.Log(cmdr.GetMap("app.ms.tags"))
+	t.Log(cmdr.GetMapR("app.ms.tags"))
 	t.Log(cmdr.GetStringSlice("app.ms.tags.modify.set"))
 	t.Log(cmdr.GetStringSliceP("app", "ms.tags.modify.set"))
+	t.Log(cmdr.GetStringSliceR("ms.tags.modify.set"))
+	t.Log(cmdr.GetStringSliceRP("ms.tags", "modify.set"))
 	t.Log(cmdr.GetIntSlice("app.ms.tags.modify.xed"))
 	t.Log(cmdr.GetIntSliceP("app", "ms.tags.modify.xed"))
+	t.Log(cmdr.GetIntSliceR("ms.tags.modify.xed"))
+	t.Log(cmdr.GetIntSliceRP("ms.tags", "modify.xed"))
 	t.Log(cmdr.GetDuration("app.ms.tags.modify.v"))
 	t.Log(cmdr.GetDurationP("app", "ms.tags.modify.v"))
+	// t.Log(cmdr.GetDurationR("ms.tags.modify.v"))
 
 	// comma separator string -> int slice
 	t.Log(cmdr.GetIntSlice("app.ms.tags.modify.ued"))
@@ -682,8 +718,8 @@ func TestExec(t *testing.T) {
 	cmdr.SetCustomShowBuildInfo(nil)
 
 	defer func() {
-		t.Logf("--------- stdout // %v // %v", cmdr.GetExcutableDir(), cmdr.GetExcutablePath())
-		t.Log(outX.String())
+		x := outX.String()
+		t.Logf("--------- stdout // %v // %v\n%v", cmdr.GetExcutableDir(), cmdr.GetExcutablePath(), x)
 
 		_ = cmdr.EnsureDir("ci")
 		if err = cmdr.EnsureDir(""); err == nil {
@@ -763,7 +799,7 @@ var (
 	// testing args
 	execTestings = map[string]func(t *testing.T) error{
 		// "consul-tags -qq": func(t *testing.T) error {
-		//	return nil
+		// 	return nil
 		// },
 		"consul-tags --help --help-zsh 1": func(t *testing.T) error {
 			return nil

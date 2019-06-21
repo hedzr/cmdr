@@ -12,6 +12,12 @@ func buildRootCrossRefs(root *RootCommand) {
 	// initializes the internal variables/members
 	ensureCmdMembers(&root.Command)
 
+	conf.AppName = root.AppName
+	conf.Version = root.Version
+	if len(conf.Buildstamp) == 0 {
+		conf.Buildstamp = time.Now().Format(time.RFC1123)
+	}
+
 	attachVersionCommands(root)
 	attachHelpCommands(root)
 	attachVerboseCommands(root)

@@ -126,7 +126,10 @@ func run(cmd *cmdr.Command, args []string) (err error) {
 		err = daemonImpl.OnStop(cmd, args)
 	}
 
-	log.Println("daemon terminated.", err)
+	if err != nil {
+		log.Fatal("daemon terminated.", err)
+	}
+	log.Println("daemon terminated.")
 	return
 }
 

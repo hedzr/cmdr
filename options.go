@@ -214,6 +214,16 @@ func GetR(key string) interface{} {
 	return rxxtOptions.Get(wrapWithRxxtPrefix(key))
 }
 
+// GetH an `Option` by key string, it returns a hierarchy map or nil
+func GetH(key string) map[string]interface{} {
+	return rxxtOptions.GetH(key)
+}
+
+// GetH an `Option` by key string with [WrapWithRxxtPrefix], it returns a hierarchy map or nil
+func GetHR(key string) map[string]interface{} {
+	return rxxtOptions.GetH(wrapWithRxxtPrefix(key))
+}
+
 // Get an `Option` by key string, eg:
 // ```golang
 // cmdr.Get("app.logger.level") => 'DEBUG',...
@@ -223,6 +233,41 @@ func (s *Options) Get(key string) interface{} {
 	defer s.rw.RUnlock()
 	s.rw.RLock()
 	return s.entries[key]
+}
+
+// GetH an `Option` by key string, it returns a hierarchy map or nil
+func (s *Options) GetH(key string) map[string]interface{} {
+	defer s.rw.RUnlock()
+	s.rw.RLock()
+
+	return s.getHNoLock(key)
+}
+
+func (s *Options) getHNoLock(key string) map[string]interface{} {
+	a := strings.Split(key, ".")
+	if len(a) > 0 {
+		return s.getH(s.hierarchy, a[0], a[1:]...)
+	}
+	return nil
+}
+
+func (s *Options) getH(vp map[string]interface{}, key string, remains ...string) map[string]interface{} {
+	if len(remains) > 0 {
+		if v, ok := vp[key]; ok {
+			if vm, ok := v.(map[string]interface{}); ok {
+				return s.getH(vm, remains[0], remains[1:]...)
+			}
+		}
+		return nil
+	}
+
+	if v, ok := vp[key]; ok {
+		if vm, ok := v.(map[string]interface{}); ok {
+			return vm
+		}
+		return vp
+	}
+	return nil
 }
 
 // GetBool returns the bool value of an `Option` key.
@@ -384,7 +429,9 @@ func (s *Options) GetString(key string) (ret string) {
 		case reflect.String:
 			ret = v.(string)
 		default:
-			ret = fmt.Sprintf("%v", v)
+			if v != nil {
+				ret = fmt.Sprintf("%v", v)
+			}
 		}
 	}
 	return
@@ -470,6 +517,13 @@ func (s *Options) Set(key string, val interface{}) {
 func (s *Options) SetNx(key string, val interface{}) {
 	defer s.rw.Unlock()
 	s.rw.Lock()
+
+	if val == nil {
+		if s.getHNoLock(key) != nil {
+			// don't set a branch node to nil if it have children.
+			return
+		}
+	}
 
 	s.entries[key] = val
 	a := strings.Split(key, ".")

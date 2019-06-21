@@ -5,7 +5,9 @@
 package cmdr
 
 import (
+	"github.com/hedzr/cmdr/conf"
 	"strings"
+	"time"
 )
 
 func buildRootCrossRefs(root *RootCommand) {
@@ -59,13 +61,25 @@ func attachVersionCommands(root *RootCommand) {
 						showVersion()
 						return ErrShouldBeStopException
 					},
-					owner: &root.Command,
 				},
 				DefaultValue: false,
 			}
 			root.plainLongFlags["version"] = root.allFlags[SysMgmtGroup]["version"]
 			root.plainLongFlags["ver"] = root.allFlags[SysMgmtGroup]["version"]
 			root.plainShortFlags["V"] = root.allFlags[SysMgmtGroup]["version"]
+		}
+		if _, ok := root.allFlags[SysMgmtGroup]["version-sim"]; !ok {
+			root.allFlags[SysMgmtGroup]["version"] = &Flag{
+				BaseOpt: BaseOpt{
+					Full:        "version-sim",
+					Aliases:     []string{"version-simulate"},
+					Description: "Simulate a faked version number for this app.",
+					Hidden:      true,
+				},
+				DefaultValue: "",
+			}
+			root.plainLongFlags["version-sim"] = root.allFlags[SysMgmtGroup]["version-sim"]
+			root.plainLongFlags["version-simulate"] = root.allFlags[SysMgmtGroup]["version-sim"]
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["build-info"]; !ok {
 			root.allFlags[SysMgmtGroup]["build-info"] = &Flag{
@@ -78,7 +92,6 @@ func attachVersionCommands(root *RootCommand) {
 						showBuildInfo()
 						return ErrShouldBeStopException
 					},
-					owner: &root.Command,
 				},
 				DefaultValue: false,
 			}

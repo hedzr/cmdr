@@ -407,6 +407,16 @@ func GetDurationP(prefix, key string) time.Duration {
 	return rxxtOptions.GetDuration(fmt.Sprintf("%s.%s", prefix, key))
 }
 
+// GetDurationR returns the int slice value of an `Option` key.
+func GetDurationR(key string) time.Duration {
+	return rxxtOptions.GetDuration(wrapWithRxxtPrefix(key))
+}
+
+// GetDurationRP returns the int slice value of an `Option` key.
+func GetDurationRP(prefix, key string) time.Duration {
+	return rxxtOptions.GetDuration(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)))
+}
+
 // GetDuration returns the time duration value of an `Option` key.
 func (s *Options) GetDuration(key string) (ir time.Duration) {
 	str := s.GetString(key)

@@ -86,8 +86,10 @@ func (s *Options) LoadConfigFile(file string) (err error) {
 	}
 
 	usedConfigFile = file
+	dir := path.Dir(usedConfigFile)
+	_ = os.Setenv("CFG_DIR", dir)
 
-	usedConfigSubDir = path.Join(path.Dir(usedConfigFile), "conf.d")
+	usedConfigSubDir = path.Join(dir, "conf.d")
 	if !FileExists(usedConfigSubDir) {
 		usedConfigSubDir = ""
 		return

@@ -642,7 +642,8 @@ func resetFlagsAndLog(t *testing.T) {
 	t.Log(cmdr.GetIntSliceRP("ms.tags", "modify.xed"))
 	t.Log(cmdr.GetDuration("app.ms.tags.modify.v"))
 	t.Log(cmdr.GetDurationP("app", "ms.tags.modify.v"))
-	// t.Log(cmdr.GetDurationR("ms.tags.modify.v"))
+	t.Log(cmdr.GetDurationR("ms.tags.modify.v"))
+	t.Log(cmdr.GetDurationRP("ms.tags", "modify.v"))
 
 	// comma separator string -> int slice
 	t.Log(cmdr.GetIntSlice("app.ms.tags.modify.ued"))

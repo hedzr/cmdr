@@ -268,6 +268,18 @@ func attachCmdrCommands(root *RootCommand) {
 			}
 			root.plainLongFlags["no-env-overrides"] = root.allFlags[SysMgmtGroup]["no-env-overrides"]
 		}
+		if _, ok := root.allFlags[SysMgmtGroup]["no-color"]; !ok {
+			root.allFlags[SysMgmtGroup]["no-color"] = &Flag{
+				BaseOpt: BaseOpt{
+					Full:        "no-color",
+					Description: "No color output for `cmdr`.",
+					Hidden:      true,
+					owner:       &root.Command,
+				},
+				DefaultValue: false,
+			}
+			root.plainLongFlags["no-color"] = root.allFlags[SysMgmtGroup]["no-color"]
+		}
 	}
 }
 

@@ -822,7 +822,7 @@ var (
 		"consul-tags ms ls --help": func(t *testing.T) error {
 			return nil
 		},
-		"consul-tags ms tags --help": func(t *testing.T) error {
+		"consul-tags ms tags --help --no-color": func(t *testing.T) error {
 			return nil
 		},
 		"consul-tags kv b -K- -K+ --": func(t *testing.T) error {

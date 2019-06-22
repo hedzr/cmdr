@@ -81,20 +81,31 @@ func (s *helpPainter) FpCommandsTitle(command *Command) {
 
 func (s *helpPainter) FpCommandsGroupTitle(group string) {
 	if group != UnsortedGroup {
-		// fp("  [%s]:", StripOrderPrefix(group))
-		s.Printf("  [\x1b[2m\x1b[%dm%s\x1b[0m]", CurrentGroupTitleColor, StripOrderPrefix(group))
+		if GetBoolR("no-color") {
+			s.Printf("  [%s]", StripOrderPrefix(group))
+		} else {
+			s.Printf("  [\x1b[2m\x1b[%dm%s\x1b[0m]", CurrentGroupTitleColor, StripOrderPrefix(group))
+		}
 	}
 }
 
 func (s *helpPainter) FpCommandsLine(command *Command) {
 	if !command.Hidden {
 		if len(command.Deprecated) > 0 {
-			s.Printf("  \x1b[%dm\x1b[%dm%-48s%s\x1b[0m [deprecated since %v]", BgNormal, CurrentDescColor, command.GetTitleNames(), command.Description, command.Deprecated)
+			if GetBoolR("no-color") {
+				s.Printf("  %-48s%s [deprecated since %v]", command.GetTitleNames(), command.Description, command.Deprecated)
+			} else {
+				s.Printf("  \x1b[%dm\x1b[%dm%-48s%s\x1b[0m [deprecated since %v]", BgNormal, CurrentDescColor, command.GetTitleNames(), command.Description, command.Deprecated)
+			}
 		} else {
-			// s.Printf("  %-48s%v", command.GetTitleNames(), command.Description)
-			// s.Printf("\n\x1b[%dm\x1b[%dm%s\x1b[0m", BgNormal, DarkColor, title)
-			// s.Printf("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", BgDim, DarkColor, StripOrderPrefix(group))
-			s.Printf("  %-48s\x1b[%dm\x1b[%dm%s\x1b[0m", command.GetTitleNames(), BgNormal, CurrentDescColor, command.Description)
+			if GetBoolR("no-color") {
+				s.Printf("  %-48s%s", command.GetTitleNames(), command.Description)
+			} else {
+				// s.Printf("  %-48s%v", command.GetTitleNames(), command.Description)
+				// s.Printf("\n\x1b[%dm\x1b[%dm%s\x1b[0m", BgNormal, DarkColor, title)
+				// s.Printf("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", BgDim, DarkColor, StripOrderPrefix(group))
+				s.Printf("  %-48s\x1b[%dm\x1b[%dm%s\x1b[0m", command.GetTitleNames(), BgNormal, CurrentDescColor, command.Description)
+			}
 		}
 	}
 }
@@ -115,22 +126,35 @@ func (s *helpPainter) FpFlagsTitle(command *Command, flag *Flag, title string) {
 
 func (s *helpPainter) FpFlagsGroupTitle(group string) {
 	if group != UnsortedGroup {
-		// fp("  [%s]:", StripOrderPrefix(group))
-		// // echo -e "Normal \e[2mDim"
-		// _, _ = fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m\x1b[2m\x1b[%dm[%04d]\x1b[0m%-48s \x1b[2m\x1b[%dm%s\x1b[0m ",
-		// 	levelColor, levelText, DarkColor, int(entry.Time.Sub(baseTimestamp)/time.Second), entry.Message, DarkColor, caller)
-		s.Printf("  [\x1b[2m\x1b[%dm%s\x1b[0m]", CurrentGroupTitleColor, StripOrderPrefix(group))
+		if GetBoolR("no-color") {
+			s.Printf("  [%s]", StripOrderPrefix(group))
+		} else {
+			// fp("  [%s]:", StripOrderPrefix(group))
+			// // echo -e "Normal \e[2mDim"
+			// _, _ = fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m\x1b[2m\x1b[%dm[%04d]\x1b[0m%-48s \x1b[2m\x1b[%dm%s\x1b[0m ",
+			// 	levelColor, levelText, DarkColor, int(entry.Time.Sub(baseTimestamp)/time.Second), entry.Message, DarkColor, caller)
+			s.Printf("  [\x1b[2m\x1b[%dm%s\x1b[0m]", CurrentGroupTitleColor, StripOrderPrefix(group))
+		}
 	}
 }
 
 func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, defValStr string) {
 	if len(flg.Deprecated) > 0 {
-		s.Printf("  \x1b[%dm\x1b[%dm%-48s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]",
-			BgNormal, CurrentDescColor, flg.GetTitleFlagNames(), flg.Description,
-			BgItalic, CurrentDefaultValueColor, defValStr, flg.Deprecated)
+		if GetBoolR("no-color") {
+			s.Printf("  %-48s%s%s [deprecated since %v]", flg.GetTitleFlagNames(), flg.Description,
+				defValStr, flg.Deprecated)
+		} else {
+			s.Printf("  \x1b[%dm\x1b[%dm%-48s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]",
+				BgNormal, CurrentDescColor, flg.GetTitleFlagNames(), flg.Description,
+				BgItalic, CurrentDefaultValueColor, defValStr, flg.Deprecated)
+		}
 	} else {
-		s.Printf("  %-48s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%s\x1b[0m",
-			flg.GetTitleFlagNames(), BgNormal, CurrentDescColor, flg.Description,
-			BgItalic, CurrentDefaultValueColor, defValStr)
+		if GetBoolR("no-color") {
+			s.Printf("  %-48s%s%s", flg.GetTitleFlagNames(), flg.Description, defValStr)
+		} else {
+			s.Printf("  %-48s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%s\x1b[0m",
+				flg.GetTitleFlagNames(), BgNormal, CurrentDescColor, flg.Description,
+				BgItalic, CurrentDefaultValueColor, defValStr)
+		}
 	}
 }

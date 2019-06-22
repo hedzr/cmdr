@@ -33,8 +33,12 @@ func printHelp(command *Command, justFlags bool) {
 	}
 
 	if rxxtOptions.GetBool("debug") {
-		// "  [\x1b[2m\x1b[%dm%s\x1b[0m]"
-		fp("\n\x1b[2m\x1b[%dmDUMP:\n\n%v\x1b[0m\n", DarkColor, rxxtOptions.DumpAsString())
+		if GetBoolR("no-color") {
+			fp("\nDUMP:\n\n%v\n", rxxtOptions.DumpAsString())
+		} else {
+			// "  [\x1b[2m\x1b[%dm%s\x1b[0m]"
+			fp("\n\x1b[2m\x1b[%dmDUMP:\n\n%v\x1b[0m\n", DarkColor, rxxtOptions.DumpAsString())
+		}
 	}
 	if currentHelpPainter != nil {
 		currentHelpPainter.Results()

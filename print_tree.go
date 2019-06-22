@@ -26,12 +26,21 @@ func dumpTreeForAllCommands(cmd *Command, args []string) (err error) {
 			// 	BgNormal, CurrentDescColor, cmd.Description)
 
 			if len(cmd.Deprecated) > 0 {
-				fmt.Printf("%s\x1b[%dm\x1b[%dm%s - %s\x1b[0m [deprecated since %v]\n",
-					sp, BgNormal, CurrentDescColor, cmd.GetTitleNames(), cmd.Description,
-					cmd.Deprecated)
+				if GetBoolR("no-color") {
+					fmt.Printf("%s%s - %s [deprecated since %v]\n",
+						sp, cmd.GetTitleNames(), cmd.Description, cmd.Deprecated)
+				} else {
+					fmt.Printf("%s\x1b[%dm\x1b[%dm%s - %s\x1b[0m [deprecated since %v]\n",
+						sp, BgNormal, CurrentDescColor, cmd.GetTitleNames(), cmd.Description,
+						cmd.Deprecated)
+				}
 			} else {
-				fmt.Printf("%s%s - \x1b[%dm\x1b[%dm%s\x1b[0m\n",
-					sp, cmd.GetTitleNames(), BgNormal, CurrentDescColor, cmd.Description)
+				if GetBoolR("no-color") {
+					fmt.Printf("%s%s - %s\n", sp, cmd.GetTitleNames(), cmd.Description)
+				} else {
+					fmt.Printf("%s%s - \x1b[%dm\x1b[%dm%s\x1b[0m\n",
+						sp, cmd.GetTitleNames(), BgNormal, CurrentDescColor, cmd.Description)
+				}
 			}
 		}
 		return

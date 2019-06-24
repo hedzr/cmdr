@@ -28,7 +28,10 @@ func TestSingleCommandLine1(t *testing.T) {
 	}()
 
 	os.Args = []string{"consul-tags", "kv", "b"}
+
 	cmdr.SetInternalOutputStreams(nil, nil)
+	cmdr.SetHelpTabStop(70)
+
 	_ = cmdr.Exec(rootCmd)
 	_ = cmdr.ExecWith(rootCmd, nil, nil)
 

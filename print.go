@@ -23,6 +23,8 @@ func ferr(fmtStr string, args ...interface{}) {
 }
 
 func printHelp(command *Command, justFlags bool) {
+	SetHelpTabStop(tabStop)
+
 	if GetIntP(getPrefix(), "help-zsh") > 0 {
 		printHelpZsh(command, justFlags)
 	} else if GetBoolP(getPrefix(), "help-bash") {

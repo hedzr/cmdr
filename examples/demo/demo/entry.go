@@ -25,6 +25,7 @@ func Entry() {
 	// cmdr.EnableGenerateCommands = false
 
 	daemon.Enable(svr.NewDaemon(), nil, nil, nil)
+	// cmdr.SetHelpTabStop(40)
 
 	if err := cmdr.Exec(rootCmd); err != nil {
 		logrus.Errorf("Error: %v", err)

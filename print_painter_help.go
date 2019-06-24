@@ -6,6 +6,7 @@ package cmdr
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -82,9 +83,9 @@ func (s *helpPainter) FpCommandsTitle(command *Command) {
 func (s *helpPainter) FpCommandsGroupTitle(group string) {
 	if group != UnsortedGroup {
 		if GetBoolR("no-color") {
-			s.Printf("  [%s]", StripOrderPrefix(group))
+			s.Printf(fmtCmdGroupTitleNC, StripOrderPrefix(group))
 		} else {
-			s.Printf("  [\x1b[2m\x1b[%dm%s\x1b[0m]", CurrentGroupTitleColor, StripOrderPrefix(group))
+			s.Printf(fmtCmdGroupTitle, CurrentGroupTitleColor, StripOrderPrefix(group))
 		}
 	}
 }
@@ -93,18 +94,18 @@ func (s *helpPainter) FpCommandsLine(command *Command) {
 	if !command.Hidden {
 		if len(command.Deprecated) > 0 {
 			if GetBoolR("no-color") {
-				s.Printf("  %-48s%s [deprecated since %v]", command.GetTitleNames(), command.Description, command.Deprecated)
+				s.Printf(fmtCmdlineDepNC, command.GetTitleNames(), command.Description, command.Deprecated)
 			} else {
-				s.Printf("  \x1b[%dm\x1b[%dm%-48s%s\x1b[0m [deprecated since %v]", BgNormal, CurrentDescColor, command.GetTitleNames(), command.Description, command.Deprecated)
+				s.Printf(fmtCmdlineDep, BgNormal, CurrentDescColor, command.GetTitleNames(), command.Description, command.Deprecated)
 			}
 		} else {
 			if GetBoolR("no-color") {
-				s.Printf("  %-48s%s", command.GetTitleNames(), command.Description)
+				s.Printf(fmtCmdlineNC, command.GetTitleNames(), command.Description)
 			} else {
 				// s.Printf("  %-48s%v", command.GetTitleNames(), command.Description)
 				// s.Printf("\n\x1b[%dm\x1b[%dm%s\x1b[0m", BgNormal, DarkColor, title)
 				// s.Printf("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", BgDim, DarkColor, StripOrderPrefix(group))
-				s.Printf("  %-48s\x1b[%dm\x1b[%dm%s\x1b[0m", command.GetTitleNames(), BgNormal, CurrentDescColor, command.Description)
+				s.Printf(fmtCmdline, command.GetTitleNames(), BgNormal, CurrentDescColor, command.Description)
 			}
 		}
 	}
@@ -127,13 +128,13 @@ func (s *helpPainter) FpFlagsTitle(command *Command, flag *Flag, title string) {
 func (s *helpPainter) FpFlagsGroupTitle(group string) {
 	if group != UnsortedGroup {
 		if GetBoolR("no-color") {
-			s.Printf("  [%s]", StripOrderPrefix(group))
+			s.Printf(fmtGroupTitleNC, StripOrderPrefix(group))
 		} else {
 			// fp("  [%s]:", StripOrderPrefix(group))
 			// // echo -e "Normal \e[2mDim"
 			// _, _ = fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m\x1b[2m\x1b[%dm[%04d]\x1b[0m%-48s \x1b[2m\x1b[%dm%s\x1b[0m ",
 			// 	levelColor, levelText, DarkColor, int(entry.Time.Sub(baseTimestamp)/time.Second), entry.Message, DarkColor, caller)
-			s.Printf("  [\x1b[2m\x1b[%dm%s\x1b[0m]", CurrentGroupTitleColor, StripOrderPrefix(group))
+			s.Printf(fmtGroupTitle, CurrentGroupTitleColor, StripOrderPrefix(group))
 		}
 	}
 }
@@ -141,20 +142,55 @@ func (s *helpPainter) FpFlagsGroupTitle(group string) {
 func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, defValStr string) {
 	if len(flg.Deprecated) > 0 {
 		if GetBoolR("no-color") {
-			s.Printf("  %-48s%s%s [deprecated since %v]", flg.GetTitleFlagNames(), flg.Description,
-				defValStr, flg.Deprecated)
+			s.Printf(fmtFlagsDepNC, // "  %-48s%s%s [deprecated since %v]",
+				flg.GetTitleFlagNames(), flg.Description, defValStr, flg.Deprecated)
 		} else {
-			s.Printf("  \x1b[%dm\x1b[%dm%-48s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]",
+			s.Printf(fmtFlagsDep, // "  \x1b[%dm\x1b[%dm%-48s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]",
 				BgNormal, CurrentDescColor, flg.GetTitleFlagNames(), flg.Description,
 				BgItalic, CurrentDefaultValueColor, defValStr, flg.Deprecated)
 		}
 	} else {
 		if GetBoolR("no-color") {
-			s.Printf("  %-48s%s%s", flg.GetTitleFlagNames(), flg.Description, defValStr)
+			s.Printf(fmtFlagsNC, flg.GetTitleFlagNames(), flg.Description, defValStr)
 		} else {
-			s.Printf("  %-48s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%s\x1b[0m",
+			s.Printf(fmtFlags, // "  %-48s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%s\x1b[0m",
 				flg.GetTitleFlagNames(), BgNormal, CurrentDescColor, flg.Description,
 				BgItalic, CurrentDefaultValueColor, defValStr)
 		}
 	}
 }
+
+// SetHelpTabStop sets the tab stop for help screen output
+func SetHelpTabStop(tabStop int) {
+	initTabStop(tabStop)
+}
+
+func initTabStop(ts int) {
+	tabStop = ts
+
+	var s = strconv.Itoa(tabStop)
+
+	fmtCmdGroupTitle = "  [\x1b[2m\x1b[%dm%s\x1b[0m]"
+	fmtCmdGroupTitleNC = "  [%s]"
+
+	fmtCmdline = "  %-" + s + "s\x1b[%dm\x1b[%dm%s\x1b[0m"
+	fmtCmdlineDep = "  \x1b[%dm\x1b[%dm%-" + s + "s%s\x1b[0m [deprecated since %v]"
+	fmtCmdlineNC = "  %-" + s + "s%s"
+	fmtCmdlineDepNC = "  %-" + s + "s%s [deprecated since %v]"
+
+	fmtGroupTitle = "  [\x1b[2m\x1b[%dm%s\x1b[0m]"
+	fmtGroupTitleNC = "  [%s]"
+
+	fmtFlagsDep = "  \x1b[%dm\x1b[%dm%-" + s + "s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]"
+	fmtFlags = "  %-" + s + "s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%s\x1b[0m"
+	fmtFlagsDepNC = "  %-" + s + "s%s%s [deprecated since %v]"
+	fmtFlagsNC = "  %-" + s + "s%s%s"
+}
+
+var (
+	tabStop                                                  = 48
+	fmtCmdGroupTitle, fmtCmdGroupTitleNC                     string
+	fmtCmdline, fmtCmdlineDep, fmtCmdlineNC, fmtCmdlineDepNC string
+	fmtGroupTitle, fmtGroupTitleNC                           string
+	fmtFlags, fmtFlagsDep, fmtFlagsNC, fmtFlagsDepNC         string
+)

@@ -12,11 +12,7 @@
 see also [Examples](#examples), and [cmdr-http2](https://github.com/hedzr/cmdr-http2) (a http2 server with daemon supports, graceful shutdown).
 
 
-> Before our introduce for CMDR, I decided to post A memory of mine, in each new project. Here it is:
->
 > [Youtube - 李宗盛2013最新單曲 山丘 官方完整版音檔](https://www.youtube.com/watch?v=_qNpR1Ew5jA) / [Jonathan Lee - Hill *CHT + ENU*](https://www.youtube.com/watch?v=FNlFe8ftBh0)
->
-> Thanks.
 
 
 
@@ -192,11 +188,28 @@ see also [Examples](#examples), and [cmdr-http2](https://github.com/hedzr/cmdr-h
 
   - `cmdr.GetP(prefix, key)`, `cmdr.GetBoolP(prefix, key)`, ….
 
+  - `cmdr.GetR(key)`, `cmdr.GetBoolR(key)`, ….
+
+  - `cmdr.GetRP(prefix, key)`, `cmdr.GetBoolRP(prefix, key)`, ….
+
   - `cmdr.Set(key, value)`, `cmdr.SerNx(key, value)`
 
     `Set()` set value by key without RxxtPrefix, eg: `cmdr.Set("debug", true)` for `--debug`.
 
     `SetNx()` set value by exact key. so: `cmdr.SetNx("app.debug", true)` for `--debug`.
+    
+  - Fast Guide for `Get`, `GetP` and `GetR`:
+    
+    `cmdr.Get("app.server.port")` == `cmdr.GetP("app.server", "port")`
+    
+    `cmdr.Get("app.server.port")` == `cmdr.GetR("server.port")` (*if cmdr.RxxtPrefix == ["app"]*)
+    
+    So:
+    ```go
+    cmdr.Set("server.port", 7100)
+    assert cmdr.GetR("server.port") == 7100
+    assert cmdr.Get("app.server.port") == 7100
+    ```
 
 - Walkable
 

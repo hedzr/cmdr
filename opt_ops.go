@@ -60,6 +60,16 @@ type (
 		optFlagImpl
 	}
 
+	// Float32Opt for fluent api
+	Float32Opt struct {
+		optFlagImpl
+	}
+
+	// Float64Opt for fluent api
+	Float64Opt struct {
+		optFlagImpl
+	}
+
 	// DurationOpt for fluent api
 	DurationOpt struct {
 		optFlagImpl
@@ -164,6 +174,20 @@ func NewUint64() (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
 	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
 	return &Uint64Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+}
+
+// NewFloat32 for fluent api
+func NewFloat32() (opt OptFlag) {
+	optCtx.workingFlag = &Flag{}
+	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
+	return &Float32Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+}
+
+// NewFloat64 for fluent api
+func NewFloat64() (opt OptFlag) {
+	optCtx.workingFlag = &Flag{}
+	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
+	return &Float64Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 }
 
 // NewDuration for fluent api

@@ -509,6 +509,18 @@ func TestFluentAPI(t *testing.T) {
 		Group("").
 		DefaultValue(3, "RETRY")
 
+	co.NewFlag(cmdr.OptFlagTypeFloat32).
+		Titles("t8", "retry8").
+		Description("", "").
+		Group("").
+		DefaultValue(3.14, "PI")
+
+	co.NewFlag(cmdr.OptFlagTypeFloat64).
+		Titles("t9", "retry9").
+		Description("", "").
+		Group("").
+		DefaultValue(3.14159265358979323846264338327950288419716939937510582097494459230781640628620899, "PI")
+
 	// ms tags
 
 	cTags := co.NewSubCommand().
@@ -619,11 +631,19 @@ func resetFlagsAndLog(t *testing.T) {
 	t.Log(cmdr.GetInt64R("retry"))
 	t.Log(cmdr.GetInt64RP("", "retry"))
 	t.Log(cmdr.GetUint("app.retry"))
+	t.Log(cmdr.GetUintP("app", "retry"))
 	t.Log(cmdr.GetUintR("retry"))
 	t.Log(cmdr.GetUintRP("", "retry"))
 	t.Log(cmdr.GetUint64("app.retry"))
 	t.Log(cmdr.GetUint64R("retry"))
 	t.Log(cmdr.GetUint64RP("", "retry"))
+	t.Log(cmdr.GetFloat32("app.retry"))
+	t.Log(cmdr.GetFloat32P("app", "retry"))
+	t.Log(cmdr.GetFloat32R("retry"))
+	t.Log(cmdr.GetFloat32RP("", "retry"))
+	t.Log(cmdr.GetFloat64("app.retry"))
+	t.Log(cmdr.GetFloat64R("retry"))
+	t.Log(cmdr.GetFloat64RP("", "retry"))
 	t.Log(cmdr.GetString("app.version"))
 	t.Log(cmdr.GetStringR("version"))
 	t.Log(cmdr.GetStringRP("", "version"))

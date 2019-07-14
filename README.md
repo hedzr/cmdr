@@ -177,14 +177,14 @@ see also [Examples](#examples), and [cmdr-http2](https://github.com/hedzr/cmdr-h
   - `cmdr.Get(key)`, `cmdr.GetBool(key)`, `cmdr.GetInt(key)`, `cmdr.GetString(key)`, `cmdr.GetStringSlice(key)` and `cmdr.GetIntSlice(key)`, `cmdr.GetDuration(key)` for Option value extractions.
 
     - bool
-    - int, int64, uint, uint64
+    - int, int64, uint, uint64, float32, float64
     - string
     - string slice
     - int slice
     - time duration
-    - *todo: float, time, ~~duration~~, ~~int slice~~, ...*
+    - *todo: ~~float~~, time, ~~duration~~, ~~int slice~~, ...*
     - *todo: all primitive go types*
-    - *todo: maps*
+    - map
 
   - `cmdr.GetP(prefix, key)`, `cmdr.GetBoolP(prefix, key)`, ….
 

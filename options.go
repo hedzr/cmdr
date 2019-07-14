@@ -156,6 +156,46 @@ func GetUint64RP(prefix, key string) uint64 {
 	return rxxtOptions.GetUint(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)))
 }
 
+// GetFloat32 returns the float32 value of an `Option` key.
+func GetFloat32(key string) float32 {
+	return float32(rxxtOptions.GetFloat32(key))
+}
+
+// GetFloat32P returns the float32 value of an `Option` key.
+func GetFloat32P(prefix, key string) float32 {
+	return float32(rxxtOptions.GetFloat32(fmt.Sprintf("%s.%s", prefix, key)))
+}
+
+// GetFloat32R returns the float32 value of an `Option` key with [WrapWithRxxtPrefix].
+func GetFloat32R(key string) float32 {
+	return float32(rxxtOptions.GetFloat32(wrapWithRxxtPrefix(key)))
+}
+
+// GetFloat32RP returns the float32 value of an `Option` key with [WrapWithRxxtPrefix].
+func GetFloat32RP(prefix, key string) float32 {
+	return float32(rxxtOptions.GetFloat32(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key))))
+}
+
+// GetFloat64 returns the float64 value of an `Option` key.
+func GetFloat64(key string) float64 {
+	return rxxtOptions.GetFloat64(key)
+}
+
+// GetFloat64P returns the float64 value of an `Option` key.
+func GetFloat64P(prefix, key string) float64 {
+	return rxxtOptions.GetFloat64(fmt.Sprintf("%s.%s", prefix, key))
+}
+
+// GetFloat64R returns the float64 value of an `Option` key with [WrapWithRxxtPrefix].
+func GetFloat64R(key string) float64 {
+	return rxxtOptions.GetFloat64(wrapWithRxxtPrefix(key))
+}
+
+// GetFloat64RP returns the float64 value of an `Option` key with [WrapWithRxxtPrefix].
+func GetFloat64RP(prefix, key string) float64 {
+	return rxxtOptions.GetFloat64(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)))
+}
+
 // GetString returns the string value of an `Option` key.
 func GetString(key string) string {
 	return rxxtOptions.GetString(key)
@@ -290,6 +330,22 @@ func (s *Options) GetInt(key string) (ir int64) {
 // GetUint returns the uint64 value of an `Option` key.
 func (s *Options) GetUint(key string) (ir uint64) {
 	if ir64, err := strconv.ParseUint(s.GetString(key), 10, 64); err == nil {
+		ir = ir64
+	}
+	return
+}
+
+// GetFloat32 returns the float32 value of an `Option` key.
+func (s *Options) GetFloat32(key string) (ir float32) {
+	if ir64, err := strconv.ParseFloat(s.GetString(key), 10); err == nil {
+		ir = float32(ir64)
+	}
+	return
+}
+
+// GetFloat64 returns the float64 value of an `Option` key.
+func (s *Options) GetFloat64(key string) (ir float64) {
+	if ir64, err := strconv.ParseFloat(s.GetString(key), 10); err == nil {
 		ir = ir64
 	}
 	return

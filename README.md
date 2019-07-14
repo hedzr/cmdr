@@ -233,7 +233,7 @@ see also [Examples](#examples), and [cmdr-http2](https://github.com/hedzr/cmdr-h
   }
   ```
 
-  See full codes in [demo](./examples/demo/) app.
+  See full codes in [demo](./examples/demo/) app, and [**cmdr-http2**](https://github.com/hedzr/cmdr-http2).
 
   ```bash
   bin/demo server [start|stop|status|restart|install|uninstall]

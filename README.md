@@ -22,8 +22,16 @@ see also [Examples](#examples), and [cmdr-http2](https://github.com/hedzr/cmdr-h
 
 ## Import
 
+for non-go-modules user:
+
 ```go
 import "gopkg.in/hedzr/cmdr.v1"
+```
+
+with go-modules enabled:
+
+```go
+import "github.com/hedzr/cmdr"
 ```
 
 

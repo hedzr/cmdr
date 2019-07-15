@@ -20,6 +20,14 @@ see also [Examples](#examples), and [cmdr-http2](https://github.com/hedzr/cmdr-h
 
 
 
+## Import
+
+```go
+import "gopkg.in/hedzr/cmdr.v1"
+```
+
+
+
 
 ## Features
 

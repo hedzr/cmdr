@@ -48,7 +48,12 @@ func (s *helpPainter) FpUsagesTitle(command *Command, title string) {
 }
 
 func (s *helpPainter) FpUsagesLine(command *Command, fmt, appName, cmdList, cmdsTitle, tailPlaceHolder string) {
-	s.Printf("    %s %v%s%s [Options] [Parent/Global Options] [tail args...]"+fmt, appName, cmdList, cmdsTitle, tailPlaceHolder)
+	if strings.HasPrefix(cmdList, appName) {
+		appName = ""
+	} else {
+		cmdList = " " + cmdList
+	}
+	s.Printf("    %s%v%s%s [Options] [Parent/Global Options] [tail args...]"+fmt, appName, cmdList, cmdsTitle, tailPlaceHolder)
 }
 
 func (s *helpPainter) FpDescTitle(command *Command, title string) {

@@ -595,6 +595,10 @@ app:
 
 }
 
+type testStruct struct {
+	Debug bool
+}
+
 func resetFlagsAndLog(t *testing.T) {
 	// reset all option values
 	cmdr.Set("kv.port", 8500)
@@ -618,6 +622,10 @@ func resetFlagsAndLog(t *testing.T) {
 	// cmdr.Set("app.generate.shell.auto", false)
 
 	_ = os.Setenv("APP_DEBUG", "1")
+
+	ac := new(testStruct)
+	_ = cmdr.GetSectionFrom("app.debug", &ac)
+	t.Log(ac.Debug)
 
 	t.Log(cmdr.Get("app.debug"))
 	t.Log(cmdr.GetR("debug"))

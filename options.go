@@ -264,6 +264,39 @@ func GetMapR(key string) map[string]interface{} {
 	return rxxtOptions.GetMap(wrapWithRxxtPrefix(key))
 }
 
+// GetSectionFrom returns error while cannot yaml Marshal and Unmarshal
+// `cmdr.GetSectionFrom(sectionKeyPath, &holder)` could load all sub-tree nodes from sectionKeyPath and transform them into holder structure, such as:
+// ```go
+//  type ServerConfig struct {
+//    Port int
+//    HttpMode int
+//    EnableTls bool
+//  }
+//  var serverConfig = new(ServerConfig)
+//  cmdr.GetSectionFrom("server", &serverConfig)
+//  assert serverConfig.Port == 7100
+// ```
+func GetSectionFrom(sectionKeyPath string, holder interface{}) (err error) {
+	var b []byte
+	fObj := GetMapR(sectionKeyPath)
+	if fObj == nil {
+		return
+	}
+
+	b, err = yaml.Marshal(fObj)
+	if err != nil {
+		return
+	}
+
+	err = yaml.Unmarshal(b, holder)
+	if err != nil {
+		return
+	}
+
+	// logrus.Debugf("configuration section got: %v", configHolder)
+	return
+}
+
 // Get an `Option` by key string, eg:
 // ```golang
 // cmdr.Get("app.logger.level") => 'DEBUG',...

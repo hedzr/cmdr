@@ -201,10 +201,11 @@ import "github.com/hedzr/cmdr"
     - *todo: ~~float~~, time, ~~duration~~, ~~int slice~~, ...*
     - *todo: all primitive go types*
     - map
+    - struct: `cmdr.GetSectionFrom(sectionKeyPath, &holder)`
 
   - `cmdr.GetP(prefix, key)`, `cmdr.GetBoolP(prefix, key)`, ….
 
-  - `cmdr.GetR(key)`, `cmdr.GetBoolR(key)`, ….
+  - `cmdr.GetR(key)`, `cmdr.GetBoolR(key)`, …, `cmdr.GetMapR(key)`
 
   - `cmdr.GetRP(prefix, key)`, `cmdr.GetBoolRP(prefix, key)`, ….
 
@@ -213,13 +214,13 @@ import "github.com/hedzr/cmdr"
     `Set()` set value by key without RxxtPrefix, eg: `cmdr.Set("debug", true)` for `--debug`.
 
     `SetNx()` set value by exact key. so: `cmdr.SetNx("app.debug", true)` for `--debug`.
-    
+
   - Fast Guide for `Get`, `GetP` and `GetR`:
-    
+
     `cmdr.Get("app.server.port")` == `cmdr.GetP("app.server", "port")`
-    
+
     `cmdr.Get("app.server.port")` == `cmdr.GetR("server.port")` (*if cmdr.RxxtPrefix == ["app"]*)
-    
+
     So:
     ```go
     cmdr.Set("server.port", 7100)

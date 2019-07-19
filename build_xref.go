@@ -298,7 +298,7 @@ func attachGeneratorsCommands(root *RootCommand) {
 	}
 }
 
-func buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagNames, stringFlagNames map[string]bool) {
+func forFlagNames(flg *Flag, cmd *Command, singleFlagNames, stringFlagNames map[string]bool) {
 	if len(flg.Short) != 0 {
 		if _, ok := singleFlagNames[flg.Short]; ok {
 			ferr("flag char '%v' was been used. (command: %v)", flg.Short, backtraceCmdNames(cmd))
@@ -320,6 +320,11 @@ func buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagNames, stringFlagN
 			stringFlagNames[flg.Name] = true
 		}
 	}
+}
+
+func buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagNames, stringFlagNames map[string]bool) {
+	forFlagNames(flg, cmd, singleFlagNames, stringFlagNames)
+
 	for _, sz := range flg.Aliases {
 		if _, ok := stringFlagNames[sz]; ok {
 			ferr("flag alias name '%v' was been used. (command: %v)", sz, backtraceCmdNames(cmd))
@@ -345,7 +350,7 @@ func buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagNames, stringFlagN
 	cmd.allFlags[flg.Group][flg.GetTitleName()] = flg
 }
 
-func buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames, stringCmdNames map[string]bool) {
+func forCommandNames(cx, cmd *Command, singleCmdNames, stringCmdNames map[string]bool) {
 	if len(cx.Short) != 0 {
 		if _, ok := singleCmdNames[cx.Short]; ok {
 			ferr("command char '%v' was been used. (command: %v)", cx.Short, backtraceCmdNames(cmd))
@@ -368,6 +373,11 @@ func buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames, stringCmdNames m
 		}
 		cmd.plainCmds[cx.Name] = cx
 	}
+}
+
+func buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames, stringCmdNames map[string]bool) {
+	forCommandNames(cx, cmd, singleCmdNames, stringCmdNames)
+
 	for _, sz := range cx.Aliases {
 		if len(sz) != 0 {
 			if _, ok := stringCmdNames[sz]; ok {

@@ -339,6 +339,9 @@ func buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagNames, stringFlagN
 	for _, sz := range flg.GetLongTitleNamesArray() {
 		cmd.plainLongFlags[sz] = flg
 	}
+	if flg.HeadLike {
+		cmd.headLikeFlag = flg
+	}
 	cmd.allFlags[flg.Group][flg.GetTitleName()] = flg
 }
 

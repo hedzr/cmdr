@@ -4,6 +4,10 @@
 
 package cmdr
 
+import (
+	"regexp"
+)
+
 func cmdMatching(pkg *ptpkg, goCommand **Command, args []string) (matched, stop bool, err error) {
 	// command, files
 	if cmd, ok := (*goCommand).plainCmds[pkg.a]; ok {
@@ -61,6 +65,19 @@ func flagsPrepare(pkg *ptpkg, goCommand **Command, args []string) (stop bool, er
 		pkg.fn = pkg.a[2:]
 		findValueAttached(pkg, &pkg.fn)
 	} else {
+		// short flag
+
+		if (*goCommand).headLikeFlag != nil && IsDigitHeavy(pkg.a[1:]) {
+			println("head-like")
+			pkg.short = true
+			pkg.flg = (*goCommand).headLikeFlag
+			pkg.val = pkg.a[1:]
+			pkg.fn = pkg.flg.Short
+			pkg.found = true
+			err = processTypeIntCore(pkg, args)
+			return
+		}
+
 		pkg.suffix = pkg.a[len(pkg.a)-1]
 		if pkg.suffix == '+' || pkg.suffix == '-' {
 			pkg.a = pkg.a[0 : len(pkg.a)-1]

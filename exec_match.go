@@ -111,7 +111,9 @@ GO_UP:
 				pkg.fn = fnf[0:2]
 				pkg.savedFn = fnf[2:]
 				*goCommand = pkg.savedGoCommand
-				goto GO_UP
+				if (*goCommand).owner != nil {
+					goto GO_UP
+				}
 			}
 		}
 

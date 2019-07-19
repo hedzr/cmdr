@@ -40,6 +40,15 @@ func cmdMatched(pkg *ptpkg, goCommand *Command, args []string) (stop bool, err e
 	return
 }
 
+// IsDigitHeavy tests if the whole string is digit
+func IsDigitHeavy(s string) bool {
+	m, err := regexp.MatchString("^\\d", s)
+	if err != nil {
+		return false
+	}
+	return m
+}
+
 func flagsPrepare(pkg *ptpkg, goCommand **Command, args []string) (stop bool, err error) {
 	if len(pkg.a) > 1 && (pkg.a[1] == '-' || pkg.a[1] == '~') {
 		if len(pkg.a) == 2 {

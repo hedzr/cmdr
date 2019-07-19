@@ -7,6 +7,7 @@ package cmdr
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"os"
 	"sync"
 )
@@ -85,6 +86,7 @@ type (
 		plainCmds       map[string]*Command
 		plainShortFlags map[string]*Flag
 		plainLongFlags  map[string]*Flag
+		headLikeFlag    *Flag
 	}
 
 	// RootCommand holds some application information
@@ -121,6 +123,23 @@ type (
 		// ExternalTool to get the value text by invoking external tool
 		// It's an environment variable name, such as: "EDITOR" (or cmdr.ExternalToolEditor)
 		ExternalTool string
+
+		// HeadLike enables a free-hand option like `head -3`.
+		//
+		// When a free-hand option presents, it'll be treated as a named option with an integer value.
+		//
+		// For example, option/flag = `{{Full:"line",Short:"l"},HeadLike:true}`, the command line:
+		// `app -3`
+		// is equivalent to `app -l 3`, and so on.
+		//
+		// HeadLike assumed an named option with an integer value, that means, Min and Max can be applied on it too.
+		// NOTE: Only one head-like option can be defined in a command/sub-command chain.
+		HeadLike bool
+
+		// Min minimal value of a range.
+		Min int64
+		// Max maximal value of a range.
+		Max int64
 
 		// PostAction treat this flag as a command!
 		PostAction func(cmd *Command, args []string) (err error)
@@ -212,7 +231,36 @@ var (
 
 	// ErrShouldBeStopException tips `Exec()` cancelled the following actions after `PreAction()`
 	ErrShouldBeStopException = errors.New("should be stop right now")
+
+	errWrongEnumValue = errors.New("unexpect enumerable value '%s' for option '%s', under command '%s'")
+
+	// ShouldIgnoreWrongEnumValue will be put into `cmdrError.Ignorable` while wrong enumerable value found in parsing command-line options.
+	// main program might decide whether it's a warning or error.
+	// see also: [Flag.ValidArgs]
+	ShouldIgnoreWrongEnumValue = false
 )
+
+// ErrorForCmdr structure
+type ErrorForCmdr struct {
+	Inner     error
+	Ignorable bool
+	Msg       string
+}
+
+// NewError formats a ErrorForCmdr object
+func NewError(ignorable bool, inner error, args ...interface{}) *ErrorForCmdr {
+	if len(args) > 0 {
+		return &ErrorForCmdr{Inner: nil, Ignorable: ignorable, Msg: fmt.Sprintf(inner.Error(), args...)}
+	}
+	return &ErrorForCmdr{Inner: inner, Ignorable: ignorable}
+}
+
+func (s *ErrorForCmdr) Error() string {
+	if s.Inner != nil {
+		return fmt.Sprintf("Error: %v. Inner: %v", s.Msg, s.Inner.Error())
+	}
+	return s.Msg
+}
 
 // GetStrictMode enables error when opt value missed. such as:
 // xxx a b --prefix''   => error: prefix opt has no value specified.

@@ -101,6 +101,10 @@ func xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []str
 		if stop, err = flagsPrepare(pkg, goCommand, args); stop || err != nil {
 			return
 		}
+		if pkg.flg != nil && pkg.found {
+			matched = true
+			return
+		}
 
 		// fn + val
 		// fn: short,
@@ -556,7 +560,10 @@ func processTypeInt(pkg *ptpkg, args []string) (err error) {
 	if err = preprocessPkg(pkg, args); err != nil {
 		return
 	}
+	return processTypeIntCore(pkg, args)
+}
 
+func processTypeIntCore(pkg *ptpkg, args []string) (err error) {
 	v, err := strconv.ParseInt(pkg.val, 10, 64)
 	if err != nil {
 		ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
@@ -596,6 +603,19 @@ func processTypeString(pkg *ptpkg, args []string) (err error) {
 		return
 	}
 
+	if len(pkg.flg.ValidArgs) > 0 {
+		// validate for enum
+		for _, w := range pkg.flg.ValidArgs {
+			if pkg.val == w {
+				goto SAVE_IT
+			}
+		}
+		pkg.found = true
+		err = NewError(ShouldIgnoreWrongEnumValue, errWrongEnumValue, pkg.val, pkg.fn, pkg.flg.owner.GetName())
+		return
+	}
+
+SAVE_IT:
 	if pkg.a[0] == '~' {
 		rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), pkg.val)
 	} else {

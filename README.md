@@ -324,13 +324,13 @@ import "github.com/hedzr/cmdr"
 ## Examples
 
 1. [**short**](./examples/short/README.md)  
-   simple codes.
+   simple codes with structured data style.
 2. [demo](./examples/demo/README.md)  
    normal demo with external config files.
 3. [wget-demo](./examples/wget-demo/README.md)  
    partial-covered for GNU `wget`.
 4. [fluent](./examples/fluent)  
-   demostrates how to use the fluent api style.
+   demostrates how to define your command-ui with the fluent api style.
 5. [cmdr-http2](https://github.com/hedzr/cmdr-http2)  
    http2 server with daemon supports, graceful shutdown
 

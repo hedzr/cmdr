@@ -198,30 +198,24 @@ import "github.com/hedzr/cmdr"
     - string slice
     - int slice
     - time duration
-    - *todo: ~~float~~, time, ~~duration~~, ~~int slice~~, ...*
-    - *todo: all primitive go types*
+    - *todo: ~~float~~, time, ~~duration~~, ~~int slice~~, …, all primitive go types*
     - map
     - struct: `cmdr.GetSectionFrom(sectionKeyPath, &holderStruct)`
 
-  - `cmdr.GetP(prefix, key)`, `cmdr.GetBoolP(prefix, key)`, ….
-
-  - `cmdr.GetR(key)`, `cmdr.GetBoolR(key)`, …, `cmdr.GetMapR(key)`
-
-  - `cmdr.GetRP(prefix, key)`, `cmdr.GetBoolRP(prefix, key)`, ….
-
   - `cmdr.Set(key, value)`, `cmdr.SerNx(key, value)`
 
-    `Set()` set value by key without RxxtPrefix, eg: `cmdr.Set("debug", true)` for `--debug`.
+    - `Set()` set value by key without RxxtPrefix, eg: `cmdr.Set("debug", true)` for `--debug`.
 
-    `SetNx()` set value by exact key. so: `cmdr.SetNx("app.debug", true)` for `--debug`.
+    - `SetNx()` set value by exact key. so: `cmdr.SetNx("app.debug", true)` for `--debug`.
 
   - Fast Guide for `Get`, `GetP` and `GetR`:
 
-    `cmdr.Get("app.server.port")` == `cmdr.GetP("app.server", "port")`
+    - `cmdr.GetP(prefix, key)`, `cmdr.GetBoolP(prefix, key)`, ….
+    - `cmdr.GetR(key)`, `cmdr.GetBoolR(key)`, …, `cmdr.GetMapR(key)`
+    - `cmdr.GetRP(prefix, key)`, `cmdr.GetBoolRP(prefix, key)`, ….
 
-    `cmdr.Get("app.server.port")` == `cmdr.GetR("server.port")` (*if cmdr.RxxtPrefix == ["app"]*)
+    `cmdr.Get("app.server.port")` == `cmdr.GetP("app.server", "port")` == `cmdr.GetR("server.port")` (*if cmdr.RxxtPrefix == ["app"]*); so:
 
-    So:
     ```go
     cmdr.Set("server.port", 7100)
     assert cmdr.GetR("server.port") == 7100
@@ -230,8 +224,8 @@ import "github.com/hedzr/cmdr"
 
 - Walkable
 
-  - Customizable `Painter` interface to loop each commands and flags.
-  - Uses `WalkAllCommands(walker)` to loop commands.
+  - Customizable `Painter` interface to loop each command and flag.
+  - Walks for all commands with `WalkAllCommands(walker)`.
 
 - Daemon (*Linux Only*)
 
@@ -266,7 +260,7 @@ import "github.com/hedzr/cmdr"
 
   `AddOnAfterXrefBuilt(cb)`
 
-- Advanced festures
+- Advanced features
 
   - Launch external editor by `&Flag{BaseOpt:BaseOpt{},ExternalTool:cmdr.ExternalToolEditor}`:
 
@@ -312,6 +306,22 @@ import "github.com/hedzr/cmdr"
             ValidArgs:    []string{"apple", "banana", "orange"},
         },
     },
+    ```
+
+    While a non-in-list value found, An error (`*ErrorForCmdr`) will be thrown:
+
+    ```go
+    cmdr.ShouldIgnoreWrongEnumValue = true
+    if err := cmdr.Exec(rootCmd); err != nil {
+        if e, ok := err(*cmdr.ErrorForCmdr); ok {
+            // e.Ignorable is a copy of [cmdr.ShouldIgnoreWrongEnumValue]
+            if e.Ignorable {
+                logrus.Warning("Non-recognaizable value found: ", e)
+                os.Exit(0)
+            }
+        }
+        logrus.Fatal(err)
+    }
     ```
 
     

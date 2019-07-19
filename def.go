@@ -255,6 +255,11 @@ func NewError(ignorable bool, inner error, args ...interface{}) *ErrorForCmdr {
 	return &ErrorForCmdr{Inner: inner, Ignorable: ignorable}
 }
 
+// NewErrorWithMsg formats a ErrorForCmdr object
+func NewErrorWithMsg(msg string, inner error) *ErrorForCmdr {
+	return &ErrorForCmdr{Inner: inner, Ignorable: false, Msg: msg}
+}
+
 func (s *ErrorForCmdr) Error() string {
 	if s.Inner != nil {
 		return fmt.Sprintf("Error: %v. Inner: %v", s.Msg, s.Inner.Error())

@@ -279,21 +279,15 @@ func GetMapR(key string) map[string]interface{} {
 func GetSectionFrom(sectionKeyPath string, holder interface{}) (err error) {
 	var b []byte
 	fObj := GetMapR(sectionKeyPath)
-	if fObj == nil {
-		return
+	if fObj != nil {
+		b, err = yaml.Marshal(fObj)
+		if err == nil {
+			err = yaml.Unmarshal(b, holder)
+			// if err == nil {
+			// 	logrus.Debugf("configuration section got: %v", configHolder)
+			// }
+		}
 	}
-
-	b, err = yaml.Marshal(fObj)
-	if err != nil {
-		return
-	}
-
-	err = yaml.Unmarshal(b, holder)
-	if err != nil {
-		return
-	}
-
-	// logrus.Debugf("configuration section got: %v", configHolder)
 	return
 }
 

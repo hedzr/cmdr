@@ -728,7 +728,7 @@ func TestTightFlag(t *testing.T) {
 	cmdr.ResetOptions()
 }
 
-func TestExec(t *testing.T) {
+func TestCmdrClone(t *testing.T) {
 	cmdr.ResetOptions()
 
 	if rootCmd.SubCommands[1].SubCommands[0].Flags[0] == rootCmd.SubCommands[2].Flags[0] {
@@ -739,6 +739,10 @@ func TestExec(t *testing.T) {
 
 	flags := *cmdr.Clone(&consulConnectFlags, &[]*cmdr.Flag{}).(*[]*cmdr.Flag)
 	t.Log(flags)
+}
+
+func TestExec(t *testing.T) {
+	cmdr.ResetOptions()
 
 	var err error
 	var outX = bytes.NewBufferString("")
@@ -1053,26 +1057,36 @@ var (
 		Flags: []*cmdr.Flag{
 			{
 				BaseOpt: cmdr.BaseOpt{
-					Short:       "t",
+					Short:       "h",
+					Full:        "head",
+					Description: "head -1 like",
+				},
+				DefaultValue: 0,
+				HeadLike:     true,
+			},
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:       "l",
+					Full:        "tail",
+					Description: "tail -1 like",
+				},
+				DefaultValue: 0,
+				HeadLike:     true,
+			},
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:       "e",
+					Full:        "enum",
+					Description: "enum tests",
+				},
+				DefaultValue: "apple",
+				ValidArgs:    []string{"apple", "banana", "orange"},
+			},
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:       "tt",
 					Full:        "retry",
 					Description: "ss",
-				},
-				DefaultValue:            1,
-				DefaultValuePlaceholder: "RETRY",
-			},
-			{
-				BaseOpt: cmdr.BaseOpt{
-					Short:       "t",
-					Full:        "retry",
-					Description: "ss: dup test",
-				},
-				DefaultValue:            1,
-				DefaultValuePlaceholder: "RETRY",
-			},
-			{
-				BaseOpt: cmdr.BaseOpt{
-					Name:        "retry",
-					Description: "ss: dup test",
 				},
 				DefaultValue:            1,
 				DefaultValuePlaceholder: "RETRY",
@@ -1089,22 +1103,50 @@ var (
 				},
 				// PreAction: impl.ServerStartPre,
 				// PostAction: impl.ServerStartPost,
-			},
-			{
-				BaseOpt: cmdr.BaseOpt{
-					Short:       "s",
-					Full:        "start",
-					Aliases:     []string{"run", "startup"},
-					Description: "dup test: startup this system service/daemon.",
-					// Action:impl.ServerStart,
+				Flags: []*cmdr.Flag{
+					// {
+					// 	BaseOpt: cmdr.BaseOpt{
+					// 		Short:       "t",
+					// 		Full:        "retry",
+					// 		Description: "ss",
+					// 	},
+					// 	DefaultValue:            1,
+					// 	DefaultValuePlaceholder: "RETRY",
+					// },
+					// {
+					// 	BaseOpt: cmdr.BaseOpt{
+					// 		Short:       "t",
+					// 		Full:        "retry",
+					// 		Description: "ss: dup test",
+					// 	},
+					// 	DefaultValue:            1,
+					// 	DefaultValuePlaceholder: "RETRY",
+					// },
+					// {
+					// 	BaseOpt: cmdr.BaseOpt{
+					// 		Name:        "retry",
+					// 		Description: "ss: dup test",
+					// 	},
+					// 	DefaultValue:            1,
+					// 	DefaultValuePlaceholder: "RETRY",
+					// },
 				},
-				// PreAction: impl.ServerStartPre,
-				// PostAction: impl.ServerStartPost,
 			},
+			// {
+			// 	BaseOpt: cmdr.BaseOpt{
+			// 		Short:       "s",
+			// 		Full:        "start",
+			// 		Aliases:     []string{"run", "startup"},
+			// 		Description: "dup test: startup this system service/daemon.",
+			// 		// Action:impl.ServerStart,
+			// 	},
+			// 	// PreAction: impl.ServerStartPre,
+			// 	// PostAction: impl.ServerStartPost,
+			// },
 			{
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "nf", // parent no Full
-					Aliases:     []string{"run", "startup"},
+					Aliases:     []string{"run1", "startup1"},
 					Description: "dup test: startup this system service/daemon.",
 				},
 				PreAction: func(cmd *cmdr.Command, args []string) (err error) {

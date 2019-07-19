@@ -282,6 +282,40 @@ import "github.com/hedzr/cmdr"
 
   - Safe password input for end-user: `cmdr.ExternalToolPasswordInput`
 
+  - `head`-like option: treat `app do sth -1973` as `app do sth -a=1973`, just like `head -1`.
+
+    ```go
+    Flags: []*cmdr.Flag{
+        {
+            BaseOpt: cmdr.BaseOpt{
+                Short:       "h",
+                Full:        "head",
+                Description: "head -1 like",
+            },
+            DefaultValue: 0,
+            HeadLike:     true,
+        },
+    },
+    ```
+
+  - limitation with enumerable values:
+
+    ```go
+    Flags: []*cmdr.Flag{
+        {
+            BaseOpt: cmdr.BaseOpt{
+                Short:       "e",
+                Full:        "enum",
+                Description: "enum tests",
+            },
+            DefaultValue: "", // "apple",
+            ValidArgs:    []string{"apple", "banana", "orange"},
+        },
+    },
+    ```
+
+    
+
 - More...
 
 

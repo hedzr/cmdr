@@ -37,6 +37,21 @@ func TestDumpers(t *testing.T) {
 
 }
 
+func TestNewError(t *testing.T) {
+
+	errWrongEnumValue := errors.New("unexpect enumerable value '%s' for option '%s', under command '%s'")
+
+	err := cmdr.NewError(cmdr.ShouldIgnoreWrongEnumValue, errWrongEnumValue, "ds", "head", "server")
+	println(err)
+
+	err = cmdr.NewError(cmdr.ShouldIgnoreWrongEnumValue, errors.New("unexpect enumerable value"))
+	println(err.Error())
+
+	err = cmdr.NewErrorWithMsg("Holo", errors.New("unexpect enumerable value"))
+	println(err.Error())
+
+}
+
 func TestHeadLike(t *testing.T) {
 
 	cmdr.ResetOptions()

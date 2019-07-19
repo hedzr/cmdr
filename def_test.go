@@ -195,13 +195,18 @@ func TestStrictMode(t *testing.T) {
 func TestTreeDump(t *testing.T) {
 	copyRootCmd = rootCmd
 	cmdr.ResetOptions()
-	os.Args = []string{"consul-tags", "--tree"}
-	cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmd); err != nil {
-		t.Fatal(err)
+	for _, args := range [][]string{
+		{"consul-tags", "--tree"},
+		{"consul-tags", "--no-color", "--tree"},
+	} {
+		os.Args = args
+		cmdr.SetInternalOutputStreams(nil, nil)
+		if err := cmdr.Exec(rootCmd); err != nil {
+			t.Fatal(err)
+		}
+		resetOsArgs()
+		cmdr.ResetOptions()
 	}
-	resetOsArgs()
-	cmdr.ResetOptions()
 }
 
 func TestVersionCommand(t *testing.T) {
@@ -599,6 +604,35 @@ type testStruct struct {
 	Debug bool
 }
 
+type testServerStruct struct {
+	Retry int
+	Enum  string
+	Tail  int
+	Head  int
+}
+
+func TestGetSectionFrom(t *testing.T) {
+
+	cmdr.Set("debug", true)
+	ac := new(testStruct)
+	_ = cmdr.GetSectionFrom("debug", &ac) // for app.debug
+	if ac.Debug == false {
+		t.Fatal(ac.Debug)
+	}
+
+	cmdr.Set("server.head", 3)
+	cmdr.Set("server.tail", 5)
+	cmdr.Set("server.retry", 7)
+	cmdr.Set("server.enum", "bug")
+	sc := new(testServerStruct)
+	_ = cmdr.GetSectionFrom("server", &sc) // for app.server
+	if sc.Enum != "bug" {
+		t.Fatal(sc.Enum)
+	}
+
+	resetFlagsAndLog(t)
+}
+
 func resetFlagsAndLog(t *testing.T) {
 	// reset all option values
 	cmdr.Set("kv.port", 8500)
@@ -606,10 +640,10 @@ func resetFlagsAndLog(t *testing.T) {
 	cmdr.SetNx("app.help", false)
 	cmdr.SetNx("app.help-zsh", false)
 	cmdr.SetNx("app.help-bash", false)
-	cmdr.SetNx("app.debug", false)
+	cmdr.SetNx("app.debug", false) // = cmdr.Set("debug", false)
+	cmdr.SetNx("debug", false)
 	cmdr.SetNx("app.verbose", false)
 	cmdr.SetNx("help", false)
-	cmdr.SetNx("debug", false)
 	cmdr.Set("generate.shell.zsh", false)
 	cmdr.Set("generate.shell.bash", false)
 
@@ -622,10 +656,6 @@ func resetFlagsAndLog(t *testing.T) {
 	// cmdr.Set("app.generate.shell.auto", false)
 
 	_ = os.Setenv("APP_DEBUG", "1")
-
-	ac := new(testStruct)
-	_ = cmdr.GetSectionFrom("app.debug", &ac)
-	t.Log(ac.Debug)
 
 	t.Log(cmdr.Get("app.debug"))
 	t.Log(cmdr.GetR("debug"))
@@ -649,9 +679,11 @@ func resetFlagsAndLog(t *testing.T) {
 	t.Log(cmdr.GetFloat32P("app", "retry"))
 	t.Log(cmdr.GetFloat32R("retry"))
 	t.Log(cmdr.GetFloat32RP("", "retry"))
+	t.Log(cmdr.GetFloat32P("app", "retry"))
 	t.Log(cmdr.GetFloat64("app.retry"))
 	t.Log(cmdr.GetFloat64R("retry"))
 	t.Log(cmdr.GetFloat64RP("", "retry"))
+	t.Log(cmdr.GetFloat64P("app", "retry"))
 	t.Log(cmdr.GetString("app.version"))
 	t.Log(cmdr.GetStringR("version"))
 	t.Log(cmdr.GetStringRP("", "version"))
@@ -857,6 +889,12 @@ var (
 		"consul-tags ms ls --help": func(t *testing.T) error {
 			return nil
 		},
+		"consul-tags --no-color --help": func(t *testing.T) error {
+			return nil
+		},
+		// "consul-tags --no-color --tree": func(t *testing.T) error {
+		// 	return nil
+		// },
 		"consul-tags ms tags --help --no-color": func(t *testing.T) error {
 			return nil
 		},
@@ -947,6 +985,7 @@ var (
 						Full:        "retry",
 						Description: "ss",
 						Examples:    `random examples`,
+						Deprecated:  "1.2.3",
 					},
 					DefaultValue:            1,
 					DefaultValuePlaceholder: "RETRY",

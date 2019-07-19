@@ -201,7 +201,7 @@ import "github.com/hedzr/cmdr"
     - *todo: ~~float~~, time, ~~duration~~, ~~int slice~~, ...*
     - *todo: all primitive go types*
     - map
-    - struct: `cmdr.GetSectionFrom(sectionKeyPath, &holder)`
+    - struct: `cmdr.GetSectionFrom(sectionKeyPath, &holderStruct)`
 
   - `cmdr.GetP(prefix, key)`, `cmdr.GetBoolP(prefix, key)`, ….
 

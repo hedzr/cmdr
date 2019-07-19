@@ -224,7 +224,7 @@ import "github.com/hedzr/cmdr"
 
 - Walkable
 
-  - Customizable `Painter` interface to loop each command and flag.
+  - Customizable `Painter` interface to loop *each* command and flag.
   - Walks for all commands with `WalkAllCommands(walker)`.
 
 - Daemon (*Linux Only*)

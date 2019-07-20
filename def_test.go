@@ -526,6 +526,20 @@ func TestFluentAPI(t *testing.T) {
 		Group("").
 		DefaultValue(3.14159265358979323846264338327950288419716939937510582097494459230781640628620899, "PI")
 
+	co.NewFlag(cmdr.OptFlagTypeInt).
+		Titles("h", "head").
+		Description("", "").
+		Group("").
+		DefaultValue(1, "").
+		HeadLike(true, 1, 8000)
+
+	co.NewFlag(cmdr.OptFlagTypeString).
+		Titles("i", "ienum").
+		Description("", "").
+		Group("").
+		DefaultValue("", "").
+		ValidArgs("apple", "banana", "orange")
+
 	// ms tags
 
 	cTags := co.NewSubCommand().

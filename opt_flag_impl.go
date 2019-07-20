@@ -99,6 +99,12 @@ func (s *optFlagImpl) HeadLike(enable bool, min, max int64) (opt OptFlag) {
 	return
 }
 
+func (s *optFlagImpl) OnSet(f func(keyPath string, value interface{})) (opt OptFlag) {
+	s.working.onSet = f
+	opt = s
+	return
+}
+
 func (s *optFlagImpl) SetOwner(opt OptCmd) {
 	s.parent = opt
 	return

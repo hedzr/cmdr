@@ -41,6 +41,7 @@ type (
 		// min, max will be ignored at this version, its might be impl in the future
 		HeadLike(enable bool, min, max int64) (opt OptFlag)
 
+		OnSet(func(keyPath string, value interface{})) (opt OptFlag)
 		OwnerCommand() (opt OptCmd)
 		SetOwner(opt OptCmd)
 

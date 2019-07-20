@@ -15,6 +15,7 @@ import (
 )
 
 var (
+	treatAsLongOpt = flag.TreatAsLongOpt(true)
 	serv           = flag.String("service", "hello_service", "service name")
 	host           = flag.String("host", "localhost", "listening host")
 	port           = flag.Int("port", 50001, "listening port")
@@ -39,6 +40,8 @@ var (
 // var servers []*grpc.Server
 
 func init() {
+	// flag.treatAsLongOpt = true
+
 	// app logger
 	// logrus.SetLevel(logrus.TraceLevel)
 	// logex.Enable()

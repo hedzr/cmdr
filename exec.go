@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 )
 
 //
@@ -445,6 +446,14 @@ func tryExtractingValue(pkg *ptpkg, args []string) (err error) {
 
 func tryExtractingOthers(pkg *ptpkg, args []string, kind reflect.Kind) (err error) {
 	if isTypeSInt(kind) {
+		if _, ok := pkg.flg.DefaultValue.(time.Duration); ok {
+			if err = processTypeDuration(pkg, args); err != nil {
+				ferr("wrong time.Duration: flag=%v, value=%v", pkg.fn, pkg.val)
+				return
+			}
+			// ferr("wrong time.Duration: flag=%v, value=%v", pkg.fn, pkg.val)
+			return
+		}
 		if err = processTypeInt(pkg, args); err != nil {
 			return
 		}
@@ -487,10 +496,15 @@ func tryExtractingBoolValue(pkg *ptpkg) (err error) {
 		pkg.flg.DefaultValue = true
 	}
 
+	var v = pkg.flg.DefaultValue
+	var keyPath = backtraceFlagNames(pkg.flg)
 	if pkg.a[0] == '~' {
-		rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), pkg.flg.DefaultValue)
+		rxxtOptions.SetNx(keyPath, v)
 	} else {
-		rxxtOptions.Set(backtraceFlagNames(pkg.flg), pkg.flg.DefaultValue)
+		rxxtOptions.Set(keyPath, v)
+	}
+	if pkg.flg != nil && pkg.flg.onSet != nil {
+		pkg.flg.onSet(keyPath, v)
 	}
 	pkg.found = true
 	return
@@ -563,17 +577,49 @@ func processTypeInt(pkg *ptpkg, args []string) (err error) {
 	return processTypeIntCore(pkg, args)
 }
 
+func processTypeDuration(pkg *ptpkg, args []string) (err error) {
+	if err = preprocessPkg(pkg, args); err != nil {
+		return
+	}
+
+	var v time.Duration
+	v, err = time.ParseDuration(pkg.val)
+	if err != nil {
+		return
+	}
+
+	var keyPath = backtraceFlagNames(pkg.flg)
+	if pkg.a[0] == '~' {
+		rxxtOptions.SetNx(keyPath, v)
+	} else {
+		rxxtOptions.Set(keyPath, v)
+	}
+	if pkg.flg != nil && pkg.flg.onSet != nil {
+		pkg.flg.onSet(keyPath, v)
+	}
+	pkg.found = true
+	return
+}
+
 func processTypeIntCore(pkg *ptpkg, args []string) (err error) {
 	v, err := strconv.ParseInt(pkg.val, 10, 64)
 	if err != nil {
+		if _, ok := pkg.flg.DefaultValue.(time.Duration); ok {
+			err = processTypeDuration(pkg, args)
+			return
+		}
 		ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
 		err = fmt.Errorf("wrong number: flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
 	}
 
+	var keyPath = backtraceFlagNames(pkg.flg)
 	if pkg.a[0] == '~' {
-		rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), v)
+		rxxtOptions.SetNx(keyPath, v)
 	} else {
-		rxxtOptions.Set(backtraceFlagNames(pkg.flg), v)
+		rxxtOptions.Set(keyPath, v)
+	}
+	if pkg.flg != nil && pkg.flg.onSet != nil {
+		pkg.flg.onSet(keyPath, v)
 	}
 	pkg.found = true
 	return
@@ -589,10 +635,14 @@ func processTypeUint(pkg *ptpkg, args []string) (err error) {
 		ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
 	}
 
+	var keyPath = backtraceFlagNames(pkg.flg)
 	if pkg.a[0] == '~' {
-		rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), v)
+		rxxtOptions.SetNx(keyPath, v)
 	} else {
-		rxxtOptions.Set(backtraceFlagNames(pkg.flg), v)
+		rxxtOptions.Set(keyPath, v)
+	}
+	if pkg.flg != nil && pkg.flg.onSet != nil {
+		pkg.flg.onSet(keyPath, v)
 	}
 	pkg.found = true
 	return
@@ -616,10 +666,15 @@ func processTypeString(pkg *ptpkg, args []string) (err error) {
 	}
 
 SAVE_IT:
+	var v = pkg.val
+	var keyPath = backtraceFlagNames(pkg.flg)
 	if pkg.a[0] == '~' {
-		rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), pkg.val)
+		rxxtOptions.SetNx(keyPath, v)
 	} else {
-		rxxtOptions.Set(backtraceFlagNames(pkg.flg), pkg.val)
+		rxxtOptions.Set(keyPath, v)
+	}
+	if pkg.flg != nil && pkg.flg.onSet != nil {
+		pkg.flg.onSet(keyPath, v)
 	}
 	pkg.found = true
 	return
@@ -630,10 +685,15 @@ func processTypeStringSlice(pkg *ptpkg, args []string) (err error) {
 		return
 	}
 
+	var v = strings.Split(pkg.val, ",")
+	var keyPath = backtraceFlagNames(pkg.flg)
 	if pkg.a[0] == '~' {
-		rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), strings.Split(pkg.val, ","))
+		rxxtOptions.SetNx(keyPath, v)
 	} else {
-		rxxtOptions.Set(backtraceFlagNames(pkg.flg), strings.Split(pkg.val, ","))
+		rxxtOptions.Set(keyPath, v)
+	}
+	if pkg.flg != nil && pkg.flg.onSet != nil {
+		pkg.flg.onSet(keyPath, v)
 	}
 	pkg.found = true
 	return
@@ -644,17 +704,21 @@ func processTypeIntSlice(pkg *ptpkg, args []string) (err error) {
 		return
 	}
 
-	valary := make([]int64, 0)
+	v := make([]int64, 0)
 	for _, x := range strings.Split(pkg.val, ",") {
 		if xi, err := strconv.ParseInt(x, 10, 64); err == nil {
-			valary = append(valary, xi)
+			v = append(v, xi)
 		}
 	}
 
+	var keyPath = backtraceFlagNames(pkg.flg)
 	if pkg.a[0] == '~' {
-		rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), valary)
+		rxxtOptions.SetNx(keyPath, v)
 	} else {
-		rxxtOptions.Set(backtraceFlagNames(pkg.flg), valary)
+		rxxtOptions.Set(keyPath, v)
+	}
+	if pkg.flg != nil && pkg.flg.onSet != nil {
+		pkg.flg.onSet(keyPath, v)
 	}
 	pkg.found = true
 	return
@@ -665,17 +729,21 @@ func processTypeUintSlice(pkg *ptpkg, args []string) (err error) {
 		return
 	}
 
-	valary := make([]uint64, 0)
+	v := make([]uint64, 0)
 	for _, x := range strings.Split(pkg.val, ",") {
 		if xi, err := strconv.ParseUint(x, 10, 64); err == nil {
-			valary = append(valary, xi)
+			v = append(v, xi)
 		}
 	}
 
+	var keyPath = backtraceFlagNames(pkg.flg)
 	if pkg.a[0] == '~' {
-		rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), valary)
+		rxxtOptions.SetNx(keyPath, v)
 	} else {
-		rxxtOptions.Set(backtraceFlagNames(pkg.flg), valary)
+		rxxtOptions.Set(keyPath, v)
+	}
+	if pkg.flg != nil && pkg.flg.onSet != nil {
+		pkg.flg.onSet(keyPath, v)
 	}
 	pkg.found = true
 	return

@@ -31,21 +31,18 @@ const (
 )
 
 type (
-	getopt struct {
-		Name string
-	}
-
 	// BaseOpt is base of `Command`, `Flag`
 	BaseOpt struct {
 		Name string
+		// Short rune. short option/command name.
 		// single char. example for flag: "a" -> "-a"
-		// Short rune.
 		Short string
+		// Full full/long option/command name.
 		// word string. example for flag: "addr" -> "--addr"
 		Full string
-		// more synonyms
+		// Aliases are the more synonyms
 		Aliases []string
-		// group name
+		// Group group name
 		Group string
 
 		owner  *Command
@@ -140,6 +137,8 @@ type (
 		Min int64
 		// Max maximal value of a range.
 		Max int64
+
+		onSet func(keyPath string, value interface{})
 
 		// PostAction treat this flag as a command!
 		PostAction func(cmd *Command, args []string) (err error)

@@ -36,6 +36,10 @@ type (
 		ToggleGroup(group string) (opt OptFlag)
 		DefaultValue(val interface{}, placeholder string) (opt OptFlag)
 		ExternalTool(envKeyName string) (opt OptFlag)
+		ValidArgs(list ...string) (opt OptFlag)
+		// HeadLike enables `head -n` mode.
+		// min, max will be ignored at this version, its might be impl in the future
+		HeadLike(enable bool, min, max int64) (opt OptFlag)
 
 		OwnerCommand() (opt OptCmd)
 		SetOwner(opt OptCmd)

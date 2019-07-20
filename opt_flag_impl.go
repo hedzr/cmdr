@@ -86,6 +86,19 @@ func (s *optFlagImpl) ExternalTool(envKeyName string) (opt OptFlag) {
 	return
 }
 
+func (s *optFlagImpl) ValidArgs(list ...string) (opt OptFlag) {
+	s.working.ValidArgs = list
+	opt = s
+	return
+}
+
+func (s *optFlagImpl) HeadLike(enable bool, min, max int64) (opt OptFlag) {
+	s.working.HeadLike = enable
+	s.working.Min, s.working.Max = min, max
+	opt = s
+	return
+}
+
 func (s *optFlagImpl) SetOwner(opt OptCmd) {
 	s.parent = opt
 	return

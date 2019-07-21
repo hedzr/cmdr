@@ -145,6 +145,12 @@ func (s *helpPainter) FpFlagsGroupTitle(group string) {
 }
 
 func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, defValStr string) {
+	if len(flg.ValidArgs) > 0 {
+		defValStr = fmt.Sprintf("%v, in %v", defValStr, flg.ValidArgs)
+	}
+	if flg.Min >= 0 && flg.Max > 0 {
+		defValStr = fmt.Sprintf("%v, in [%v..%v]", defValStr, flg.Min, flg.Max)
+	}
 	if len(flg.Deprecated) > 0 {
 		if GetBoolR("no-color") {
 			s.Printf(fmtFlagsDepNC, // "  %-48s%s%s [deprecated since %v]",

@@ -110,6 +110,18 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 		Group("").
 		DefaultValue("", "MESG").
 		ExternalTool(cmdr.ExternalToolEditor)
+	mx.NewFlag(cmdr.OptFlagTypeString).
+		Titles("fr", "fruit").
+		Description("the message.", "").
+		Group("").
+		DefaultValue("", "FRUIT").
+		ValidArgs("apple", "banana", "orange")
+	mx.NewFlag(cmdr.OptFlagTypeInt).
+		Titles("hd", "head").
+		Description("the head lines.", "").
+		Group("").
+		DefaultValue(1, "LINES").
+		HeadLike(true, 1, 3000)
 
 	// kv
 

@@ -77,6 +77,12 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 			//  - -n'consul', -n"consul" could works too.
 			// -t3: opt with an argument.
 			matched, stop, err = xxTestCmd(pkg, &goCommand, rootCmd, args)
+			if e, ok := err.(*ErrorForCmdr); ok {
+				ferr("%v", e)
+				if !e.Ignorable {
+					return
+				}
+			}
 			if stop {
 				if pkg.lastCommandHeld || (matched && pkg.flg == nil) {
 					err = afterInternalExec(pkg, rootCmd, goCommand, args)

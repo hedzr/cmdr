@@ -96,6 +96,8 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			fmt.Printf("*** Got pp: %s\n", cmdr.GetString("app.mx-test.password"))
 			fmt.Printf("*** Got msg: %s\n", cmdr.GetString("app.mx-test.message"))
+			fmt.Printf("*** Got fruit: %v\n", cmdr.GetString("app.mx-test.fruit"))
+			fmt.Printf("*** Got head: %v\n", cmdr.GetInt("app.mx-test.head"))
 			return
 		})
 	mx.NewFlag(cmdr.OptFlagTypeString).

@@ -77,6 +77,16 @@ type (
 		RootCommand() *RootCommand
 	}
 
+	// OptFlagType to support fluent api of cmdr.
+	// see also: OptCmd.NewFlag(OptFlagType)
+	// usage:
+	// ```golang
+	// root := cmdr.Root()
+	// co := root.NewSubCommand()
+	// co.NewFlag(cmdr.OptFlagTypeUint)
+	// ```
+	OptFlagType int
+
 	optContext struct {
 		current     *Command
 		root        *RootCommand
@@ -92,16 +102,6 @@ type (
 		working *Command
 		parent  OptCmd
 	}
-
-	// OptFlagType to support fluent api of cmdr.
-	// see also: OptCmd.NewFlag(OptFlagType)
-	// usage:
-	// ```golang
-	// root := cmdr.Root()
-	// co := root.NewSubCommand()
-	// co.NewFlag(cmdr.OptFlagTypeUint)
-	// ```
-	OptFlagType int
 )
 
 const (
@@ -135,7 +135,12 @@ var optCtx *optContext
 func Root(appName, version string) (opt *RootCmdOpt) {
 	root := &RootCommand{AppName: appName, Version: version, Command: Command{BaseOpt: BaseOpt{Name: appName}}}
 	// rootCommand = root
+	opt = RootFrom(root)
+	return
+}
 
+// RootFrom for fluent api
+func RootFrom(root *RootCommand) (opt *RootCmdOpt) {
 	optCtx = &optContext{current: &root.Command, root: root, workingFlag: nil}
 
 	opt = &RootCmdOpt{optCommandImpl: optCommandImpl{working: optCtx.current}}

@@ -192,7 +192,13 @@ func NewFloat64() (opt OptFlag) {
 
 // NewDuration for fluent api
 func NewDuration() (opt OptFlag) {
-	optCtx.workingFlag = &Flag{}
+	opt = NewDurationFrom(&Flag{})
+	return
+}
+
+// NewDurationFrom for fluent api
+func NewDurationFrom(flg *Flag) (opt OptFlag) {
+	optCtx.workingFlag = flg
 	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
 	return &DurationOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 }

@@ -415,164 +415,6 @@ func (s *cfgLoaded) OnConfigReloaded() {
 	//
 }
 
-func TestFluentAPIDefault(t *testing.T) {
-	root := cmdr.Root("aa", "1.0.1").
-		Header("aa - test for cmdr - no version - hedzr").
-		Copyright("s", "x")
-	rootCmd1 := root.RootCommand()
-	t.Log(rootCmd1)
-
-	cmdr.NewCmdFrom(&rootCmd1.Command)
-	cmdr.NewCmd()
-	cmdr.NewSubCmd()
-	cmdr.NewBool()
-	cmdr.NewDuration()
-	cmdr.NewInt()
-	cmdr.NewInt64()
-	cmdr.NewIntSlice()
-	cmdr.NewString()
-	cmdr.NewStringSlice()
-	cmdr.NewUint()
-	cmdr.NewUint64()
-
-	cmdr.NewOptions()
-	cmdr.NewOptionsWith(nil)
-}
-
-func TestFluentAPI(t *testing.T) {
-
-	root := cmdr.Root("aa", "1.0.1").
-		Header("aa - test for cmdr - no version - hedzr").
-		Copyright("s", "x")
-	rootCmd1 := root.RootCommand()
-	t.Log(rootCmd1)
-
-	// ms
-
-	co := root.NewSubCommand().
-		Titles("ms", "micro-service").
-		Short("ms").Long("micro-service").Aliases("goms").
-		Examples(``).Hidden(false).Deprecated("").
-		PreAction(nil).PostAction(nil).Action(nil).
-		TailPlaceholder("").
-		Description("", "").
-		Group("")
-
-	co.OwnerCommand()
-	co.SetOwner(root)
-
-	co.NewFlag(cmdr.OptFlagTypeUint).
-		Titles("t", "retry").
-		Short("tt").Long("retry-tt").Aliases("go-tt").
-		Examples(``).Hidden(false).Deprecated("").
-		Action(nil).
-		ExternalTool(cmdr.ExternalToolEditor).
-		ExternalTool(cmdr.ExternalToolPasswordInput).
-		Description("", "").
-		Group("").
-		DefaultValue(3, "RETRY").SetOwner(root)
-
-	co.NewFlag(cmdr.OptFlagTypeBool).
-		Titles("t1", "retry1").
-		Description("", "").
-		Group("").
-		DefaultValue(3, "RETRY").OwnerCommand()
-
-	co.NewFlag(cmdr.OptFlagTypeInt).
-		Titles("t2", "retry2").
-		Description("", "").
-		Group("").ToggleGroup("").
-		DefaultValue(3, "RETRY").RootCommand()
-
-	co.NewFlag(cmdr.OptFlagTypeUint64).
-		Titles("t3", "retry3").
-		Description("", "").
-		Group("").
-		DefaultValue(3, "RETRY")
-
-	co.NewFlag(cmdr.OptFlagTypeInt64).
-		Titles("t4", "retry4").
-		Description("", "").
-		Group("").
-		DefaultValue(3, "RETRY")
-
-	co.NewFlag(cmdr.OptFlagTypeStringSlice).
-		Titles("t5", "retry5").
-		Description("", "").
-		Group("").
-		DefaultValue(3, "RETRY")
-
-	co.NewFlag(cmdr.OptFlagTypeIntSlice).
-		Titles("t6", "retry6").
-		Description("", "").
-		Group("").
-		DefaultValue(3, "RETRY")
-
-	co.NewFlag(cmdr.OptFlagTypeDuration).
-		Titles("t7", "retry7").
-		Description("", "").
-		Group("").
-		DefaultValue(3, "RETRY")
-
-	co.NewFlag(cmdr.OptFlagTypeFloat32).
-		Titles("t8", "retry8").
-		Description("", "").
-		Group("").
-		DefaultValue(3.14, "PI")
-
-	co.NewFlag(cmdr.OptFlagTypeFloat64).
-		Titles("t9", "retry9").
-		Description("", "").
-		Group("").
-		DefaultValue(3.14159265358979323846264338327950288419716939937510582097494459230781640628620899, "PI")
-
-	co.NewFlag(cmdr.OptFlagTypeInt).
-		Titles("h", "head").
-		Description("", "").
-		Group("").
-		DefaultValue(1, "").
-		HeadLike(true, 1, 8000)
-
-	co.NewFlag(cmdr.OptFlagTypeString).
-		Titles("i", "ienum").
-		Description("", "").
-		Group("").
-		DefaultValue("", "").
-		ValidArgs("apple", "banana", "orange")
-
-	// ms tags
-
-	cTags := co.NewSubCommand().
-		Titles("t", "tags").
-		Description("", "").
-		Group("")
-
-	cTags.NewFlag(cmdr.OptFlagTypeString).
-		Titles("a", "addr").
-		Description("", "").
-		Group("").
-		DefaultValue("consul.ops.local", "ADDR")
-
-	// ms tags ls
-
-	cTags.NewSubCommand().
-		Titles("ls", "list").
-		Description("", "").
-		Group("").
-		Action(func(cmd *cmdr.Command, args []string) (err error) {
-			return
-		})
-
-	cTags.NewSubCommand().
-		Titles("a", "add").
-		Description("", "").
-		Group("").
-		Action(func(cmd *cmdr.Command, args []string) (err error) {
-			return
-		})
-
-}
-
 func cfg(t *testing.T, clcl cmdr.ConfigReloaded) {
 	cmdr.AddOnConfigLoadedListener(clcl)
 
@@ -819,6 +661,10 @@ func TestExec(t *testing.T) {
 	}()
 
 	copyRootCmd = rootCmd
+	_ = cmdr.RootFrom(rootCmd)
+	flg := cmdr.FindFlag("ddduration", &copyRootCmd.Command)
+	flgOpt := cmdr.NewDurationFrom(flg)
+	flgOpt.OnSet(func(keyPath string, value interface{}) {})
 
 	var clcl = &cfgLoaded{}
 	cfg(t, clcl)
@@ -906,9 +752,12 @@ var (
 		"consul-tags --no-color --help": func(t *testing.T) error {
 			return nil
 		},
-		// "consul-tags --no-color --tree": func(t *testing.T) error {
-		// 	return nil
-		// },
+		"consul-tags -dd 1h": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags ~dd 1h": func(t *testing.T) error {
+			return nil
+		},
 		"consul-tags ms tags --help --no-color": func(t *testing.T) error {
 			return nil
 		},
@@ -1070,6 +919,14 @@ var (
 					},
 					DefaultValue: "567",
 					ExternalTool: cmdr.ExternalToolEditor,
+				},
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Short:       "dd",
+						Full:        "ddduration",
+						Description: "",
+					},
+					DefaultValue: time.Second,
 				},
 			},
 			PreAction: func(cmd *cmdr.Command, args []string) (err error) {

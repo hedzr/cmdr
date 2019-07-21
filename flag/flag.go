@@ -6,11 +6,15 @@ package flag
 
 import (
 	. "github.com/hedzr/cmdr"
-	"github.com/hedzr/cmdr/conf"
 	"log"
 	"os"
 	"reflect"
 	"time"
+)
+
+type (
+	// Option is used by cmdr fluent API and flag compatible API
+	Option func(flag OptFlag)
 )
 
 var (
@@ -50,9 +54,125 @@ func TreatAsLongOpt(b bool) bool {
 	return b
 }
 
+//
+// -----------------------
+//
+
+// WithTitles setup short title, long title, and aliases titles
+func WithTitles(short, long string, aliases ...string) (opt Option) {
+	return func(flag OptFlag) {
+		flag.Titles(short, long, aliases...)
+	}
+}
+
+// WithShort sets the short title
+func WithShort(short string) (opt Option) {
+	return func(flag OptFlag) {
+		flag.Short(short)
+	}
+}
+
+// WithLong sets the Long/Full title
+func WithLong(long string) (opt Option) {
+	return func(flag OptFlag) {
+		flag.Long(long)
+	}
+}
+
+// WithAliases sets the aliases string list
+func WithAliases(aliases ...string) (opt Option) {
+	return func(flag OptFlag) {
+		flag.Aliases(aliases...)
+	}
+}
+
+// WithDescription sets the description string
+func WithDescription(oneLine, long string) (opt Option) {
+	return func(flag OptFlag) {
+		flag.Description(oneLine, long)
+	}
+}
+
+// WithExamples sets the example string for an option
+func WithExamples(examples string) (opt Option) {
+	return func(flag OptFlag) {
+		flag.Examples(examples)
+	}
+}
+
+// WithGroup sets the group name
+func WithGroup(group string) (opt Option) {
+	return func(flag OptFlag) {
+		flag.Group(group)
+	}
+}
+
+// WithHidden sets an hidden option that does not be displayed in any list or help screen.
+func WithHidden(hidden bool) (opt Option) {
+	return func(flag OptFlag) {
+		flag.Hidden(hidden)
+	}
+}
+
+// WithDeprecated sets a version string for an deprecation option
+func WithDeprecated(deprecation string) (opt Option) {
+	return func(flag OptFlag) {
+		flag.Deprecated(deprecation)
+	}
+}
+
+// WithAction to specify the action as the option was matched
+func WithAction(action func(cmd *Command, args []string) (err error)) (opt Option) {
+	return func(flag OptFlag) {
+		flag.Action(action)
+	}
+}
+
+// WithToggleGroup allows to specify an group name, and any options in this group will be treated as an toggleable group, just like raido button group.
+func WithToggleGroup(group string) (opt Option) {
+	return func(flag OptFlag) {
+		flag.ToggleGroup(group)
+	}
+}
+
+// WithDefaultValue set the value with explicit data type, and its placeholder name.
+func WithDefaultValue(val interface{}, placeholder string) (opt Option) {
+	return func(flag OptFlag) {
+		flag.DefaultValue(val, placeholder)
+	}
+}
+
+// WithExternalTool allows launch an external program via an environment key yours specified.
+// for example, while you setup by `WithExternalTool("EDITOR")`, cmdr will lookup it from os environment and launch that program.
+// for EDITOR=vim, `vim` will be launched.
+func WithExternalTool(envKeyName string) (opt Option) {
+	return func(flag OptFlag) {
+		flag.ExternalTool(envKeyName)
+	}
+}
+
+// WithValidArgs enables enumerable values for an option.
+func WithValidArgs(list ...string) (opt Option) {
+	return func(flag OptFlag) {
+		flag.ValidArgs(list...)
+	}
+}
+
+// WithHeadLike enables `head -n` mode.
+// min, max will be ignored at this version, its might be impl in the future
+func WithHeadLike(enable bool, min, max int64) (opt Option) {
+	return func(flag OptFlag) {
+		flag.HeadLike(enable, min, max)
+	}
+}
+
+//
+// -----------------------
+//
+
 // BoolVar defines a bool flag with specified name, default value, and usage string.
 // The argument p points to a bool variable in which to store the value of the flag.
-func BoolVar(p *bool, name string, value bool, usage string, options ...conf.Option) {
+func BoolVar(p *bool, name string, value bool, usage string, options ...Option) {
 	// CommandLine.Var(newBoolValue(value, p), name, usage)
 
 	*p = value
@@ -65,6 +185,10 @@ func BoolVar(p *bool, name string, value bool, usage string, options ...conf.Opt
 		f.Short(name)
 	}
 
+	for _, opt := range options {
+		opt.Apply(f)
+	}
+
 	f.OnSet(func(keyPath string, val interface{}) {
 		if b, ok := val.(bool); ok {
 			*p = b
@@ -74,7 +198,7 @@ func BoolVar(p *bool, name string, value bool, usage string, options ...conf.Opt
 
 // Bool defines a bool flag with specified name, default value, and usage string.
 // The return value is the address of a bool variable that stores the value of the flag.
-func Bool(name string, value bool, usage string, options ...conf.Option) *bool {
+func Bool(name string, value bool, usage string, options ...Option) *bool {
 	var p = new(bool)
 	BoolVar(p, name, value, usage, options...)
 	return p
@@ -82,7 +206,7 @@ func Bool(name string, value bool, usage string, options ...conf.Option) *bool {
 
 // IntVar defines an int flag with specified name, default value, and usage string.
 // The argument p points to an int variable in which to store the value of the flag.
-func IntVar(p *int, name string, value int, usage string, options ...conf.Option) {
+func IntVar(p *int, name string, value int, usage string, options ...Option) {
 	// CommandLine.Var(newIntValue(value, p), name, usage)
 
 	*p = value
@@ -141,7 +265,7 @@ func isTypeSInt(kind reflect.Kind) bool {
 
 // Int defines an int flag with specified name, default value, and usage string.
 // The return value is the address of an int variable that stores the value of the flag.
-func Int(name string, value int, usage string, options ...conf.Option) *int {
+func Int(name string, value int, usage string, options ...Option) *int {
 	// return CommandLine.Int(name, value, usage)
 	var p = new(int)
 	IntVar(p, name, value, usage, options...)
@@ -150,7 +274,7 @@ func Int(name string, value int, usage string, options ...conf.Option) *int {
 
 // Int64Var defines an int64 flag with specified name, default value, and usage string.
 // The argument p points to an int64 variable in which to store the value of the flag.
-func Int64Var(p *int64, name string, value int64, usage string, options ...conf.Option) {
+func Int64Var(p *int64, name string, value int64, usage string, options ...Option) {
 	// CommandLine.Var(newInt64Value(value, p), name, usage)
 
 	*p = value
@@ -183,7 +307,7 @@ func Int64Var(p *int64, name string, value int64, usage string, options ...conf.
 
 // Int64 defines an int64 flag with specified name, default value, and usage string.
 // The return value is the address of an int64 variable that stores the value of the flag.
-func Int64(name string, value int64, usage string, options ...conf.Option) *int64 {
+func Int64(name string, value int64, usage string, options ...Option) *int64 {
 	// return CommandLine.Int64(name, value, usage)
 	var p = new(int64)
 	Int64Var(p, name, value, usage, options...)
@@ -192,7 +316,7 @@ func Int64(name string, value int64, usage string, options ...conf.Option) *int6
 
 // UintVar defines a uint flag with specified name, default value, and usage string.
 // The argument p points to a uint variable in which to store the value of the flag.
-func UintVar(p *uint, name string, value uint, usage string, options ...conf.Option) {
+func UintVar(p *uint, name string, value uint, usage string, options ...Option) {
 	// CommandLine.Var(newUintValue(value, p), name, usage)
 
 	*p = value
@@ -225,7 +349,7 @@ func UintVar(p *uint, name string, value uint, usage string, options ...conf.Opt
 
 // Uint defines a uint flag with specified name, default value, and usage string.
 // The return value is the address of a uint variable that stores the value of the flag.
-func Uint(name string, value uint, usage string, options ...conf.Option) *uint {
+func Uint(name string, value uint, usage string, options ...Option) *uint {
 	// return CommandLine.Uint(name, value, usage)
 	var p = new(uint)
 	UintVar(p, name, value, usage, options...)
@@ -234,7 +358,7 @@ func Uint(name string, value uint, usage string, options ...conf.Option) *uint {
 
 // Uint64Var defines a uint64 flag with specified name, default value, and usage string.
 // The argument p points to a uint64 variable in which to store the value of the flag.
-func Uint64Var(p *uint64, name string, value uint64, usage string, options ...conf.Option) {
+func Uint64Var(p *uint64, name string, value uint64, usage string, options ...Option) {
 	// CommandLine.Var(newUint64Value(value, p), name, usage)
 
 	*p = value
@@ -267,7 +391,7 @@ func Uint64Var(p *uint64, name string, value uint64, usage string, options ...co
 
 // Uint64 defines a uint64 flag with specified name, default value, and usage string.
 // The return value is the address of a uint64 variable that stores the value of the flag.
-func Uint64(name string, value uint64, usage string, options ...conf.Option) *uint64 {
+func Uint64(name string, value uint64, usage string, options ...Option) *uint64 {
 	// return CommandLine.Uint64(name, value, usage)
 	var p = new(uint64)
 	Uint64Var(p, name, value, usage, options...)
@@ -276,7 +400,7 @@ func Uint64(name string, value uint64, usage string, options ...conf.Option) *ui
 
 // StringVar defines a string flag with specified name, default value, and usage string.
 // The argument p points to a string variable in which to store the value of the flag.
-func StringVar(p *string, name string, value string, usage string, options ...conf.Option) {
+func StringVar(p *string, name string, value string, usage string, options ...Option) {
 	// CommandLine.Var(newStringValue(value, p), name, usage)
 
 	*p = value
@@ -298,7 +422,7 @@ func StringVar(p *string, name string, value string, usage string, options ...co
 
 // String defines a string flag with specified name, default value, and usage string.
 // The return value is the address of a string variable that stores the value of the flag.
-func String(name string, value string, usage string, options ...conf.Option) *string {
+func String(name string, value string, usage string, options ...Option) *string {
 	// return CommandLine.String(name, value, usage)
 	var p = new(string)
 	StringVar(p, name, value, usage, options...)
@@ -307,7 +431,7 @@ func String(name string, value string, usage string, options ...conf.Option) *st
 
 // Float64Var defines a float64 flag with specified name, default value, and usage string.
 // The argument p points to a float64 variable in which to store the value of the flag.
-func Float64Var(p *float64, name string, value float64, usage string, options ...conf.Option) {
+func Float64Var(p *float64, name string, value float64, usage string, options ...Option) {
 	// CommandLine.Var(newFloat64Value(value, p), name, usage)
 
 	*p = value
@@ -329,7 +453,7 @@ func Float64Var(p *float64, name string, value float64, usage string, options ..
 
 // Float64 defines a float64 flag with specified name, default value, and usage string.
 // The return value is the address of a float64 variable that stores the value of the flag.
-func Float64(name string, value float64, usage string, options ...conf.Option) *float64 {
+func Float64(name string, value float64, usage string, options ...Option) *float64 {
 	// return CommandLine.Float64(name, value, usage)
 	var p = new(float64)
 	Float64Var(p, name, value, usage, options...)
@@ -339,7 +463,7 @@ func Float64(name string, value float64, usage string, options ...conf.Option) *
 // DurationVar defines a time.Duration flag with specified name, default value, and usage string.
 // The argument p points to a time.Duration variable in which to store the value of the flag.
 // The flag accepts a value acceptable to time.ParseDuration.
-func DurationVar(p *time.Duration, name string, value time.Duration, usage string, options ...conf.Option) {
+func DurationVar(p *time.Duration, name string, value time.Duration, usage string, options ...Option) {
 	// CommandLine.Var(newDurationValue(value, p), name, usage)
 
 	*p = value
@@ -362,7 +486,7 @@ func DurationVar(p *time.Duration, name string, value time.Duration, usage strin
 // Duration defines a time.Duration flag with specified name, default value, and usage string.
 // The return value is the address of a time.Duration variable that stores the value of the flag.
 // The flag accepts a value acceptable to time.ParseDuration.
-func Duration(name string, value time.Duration, usage string, options ...conf.Option) *time.Duration {
+func Duration(name string, value time.Duration, usage string, options ...Option) *time.Duration {
 	// return CommandLine.Duration(name, value, usage)
 	var p = new(time.Duration)
 	DurationVar(p, name, value, usage, options...)

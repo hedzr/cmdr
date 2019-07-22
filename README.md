@@ -36,6 +36,58 @@ import "github.com/hedzr/cmdr"
 
 
 
+## News
+
+- added compatibilities for go `flag` migrating:
+
+  <details>
+  <summary> Expand to source codes </summary>
+
+  ```go
+  // old code
+  package main
+  import "flag"
+  var (
+  	serv           = flag.String("service", "hello_service", "service name")
+  	host           = flag.String("host", "localhost", "listening host")
+  	port           = flag.Int("port", 50001, "listening port")
+  	reg            = flag.String("reg", "localhost:32379", "register etcd address")
+  	count          = flag.Int("count", 3, "instance's count")
+  	connectTimeout = flag.Duration("connect-timeout", 5*time.Second, "connect timeout")
+  )
+  
+  func main(){
+      flag.Parse()
+      // ...
+  }
+  ```
+
+  to migrate it to `cmdr`, just replace the import line with:
+
+  ```go
+  import "github.com/hedzr/cmdr/flag"
+  ```
+
+  if you wanna use the new features from `cmdr`, try `Withxxx`:
+
+  ```go
+  import (
+  	"github.com/hedzr/cmdr"
+  	"github.com/hedzr/cmdr/flag"
+  )
+  var (
+      // uncomment this line if you like long opt (such as --service)
+      //treatAsLongOpt = flag.TreatAsLongOpt(true)
+  
+      serv           = flag.String("service", "hello_service", "service name",
+  		flag.WithAction(func(cmd *cmdr.Command, args []string) (err error) {
+  			return
+  		}))
+  )
+  ```
+
+  </details>
+
 
 ## Features
 
@@ -78,6 +130,7 @@ import "github.com/hedzr/cmdr"
 
   - Data Definitions style (Classical style): see also [root_cmd.go in demo](https://github.com/hedzr/cmdr/blob/master/examples/demo/demo/root_cmd.go)
   - Fluent API style: see also [main.go in fluent](https://github.com/hedzr/cmdr/blob/master/examples/fluent/main.go)
+  - **go `flag`-like API style**: see also [main.go in ffmain](https://github.com/hedzr/cmdr/blob/master/examples/ffmain/main.go)
 
 - Strict Mode
 

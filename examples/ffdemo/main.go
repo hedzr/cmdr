@@ -6,6 +6,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/flag"
 	"github.com/sirupsen/logrus"
 	"os"
@@ -16,7 +17,10 @@ import (
 
 var (
 	treatAsLongOpt = flag.TreatAsLongOpt(true)
-	serv           = flag.String("service", "hello_service", "service name")
+	serv           = flag.String("service", "hello_service", "service name",
+		flag.WithAction(func(cmd *cmdr.Command, args []string) (err error) {
+			return
+		}), flag.WithDescription("", ""))
 	host           = flag.String("host", "localhost", "listening host")
 	port           = flag.Int("port", 50001, "listening port")
 	reg            = flag.String("reg", "localhost:32379", "register etcd address")

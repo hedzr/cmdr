@@ -45,11 +45,11 @@ import "github.com/hedzr/cmdr"
 
   ```go
   // old code
-
+  
   package main
-
+  
   import "flag"
-
+  
   var (
   	serv           = flag.String("service", "hello_service", "service name")
   	host           = flag.String("host", "localhost", "listening host")
@@ -69,10 +69,10 @@ import "github.com/hedzr/cmdr"
 
   ```go
   import (
-	// flag
-	"github.com/hedzr/cmdr/flag"
+  // flag
+  "github.com/hedzr/cmdr/flag"
   )
-
+  
   var (
   	serv           = flag.String("service", "hello_service", "service name")
   	host           = flag.String("host", "localhost", "listening host")
@@ -92,24 +92,25 @@ import "github.com/hedzr/cmdr"
 
   ```go
   import (
-	// flag
+  // flag
   	"github.com/hedzr/cmdr"
   	"github.com/hedzr/cmdr/flag"
   )
-
+  
   var (
       // uncomment this line if you like long opt (such as --service)
       //treatAsLongOpt = flag.TreatAsLongOpt(true)
   
-      serv           = flag.String("service", "hello_service", "service name",
+      serv = flag.String("service", "hello_service", "service name",
   		flag.WithAction(func(cmd *cmdr.Command, args []string) (err error) {
   			return
   		}))
       // ...
-      // WithTitles, WithShort, WithLong, WithAliases, WithDescription, 
-      // WithExamples, WithHidden, WithGroup, WithDeprecated,
-      // WithAction, WithDefaultValue, WithToggleGroup,
-      // WithValidArgs, WithExternalTool, WithHeadLike,
+      // WithTitles, WithShort, WithLong, WithAliases, 
+      // WithDescription, WithExamples, WithHidden, 
+      // WithGroup, WithDeprecated, WithToggleGroup,
+      // WithAction, WithDefaultValue, 
+      // WithValidArgs, WithHeadLike, WithExternalTool, 
       // ...
   )
   ```
@@ -127,14 +128,16 @@ import "github.com/hedzr/cmdr"
   - Options with and without arguments (bool v.s. other type)
   - Options with optional arguments and default values
   - Multiple option groups each containing a set of options
-  - Supports multiple short options -aux
+  - Supports the compat short options -aux
   - Supports namespaces for (nested) option groups
 
 - Automatic help screen generation (*Generate and print well-formatted help message*)
 
 - Support the Fluent API style
   ```go
-  root := cmdr.Root("aa", "1.0.1").Header("aa - test for cmdr - hedzr")
+  root := cmdr.Root("aa", "1.0.3")
+      // Or  // .Copyright("All rights reserved", "sombody@example.com")
+      .Header("aa - test for cmdr - hedzr")
   rootCmd = root.RootCommand()
   
   co := root.NewSubCommand().
@@ -315,7 +318,7 @@ import "github.com/hedzr/cmdr"
   ```golang
   import "github.com/hedzr/cmdr/plugin/daemon"
   func main() {
-  	daemon.Enable(NewDaemon())
+  	daemon.Enable(NewDaemon(), nil, nil, nil)
   	if err := cmdr.Exec(rootCmd); err != nil {
   		log.Fatal("Error:", err)
   	}
@@ -424,6 +427,8 @@ import "github.com/hedzr/cmdr"
    demostrates how to define your command-ui with the fluent api style.
 5. [cmdr-http2](https://github.com/hedzr/cmdr-http2)  
    http2 server with daemon supports, graceful shutdown
+6. [awesome-tool](https://github.com/hedzr/awesome-tool)  
+   `awesome-tool` is a cli app that fetch the repo stars and generate a markdown summary, accordingly with most of awesome-xxx list in github (such as awesome-go).
 
 
 ## Documentation

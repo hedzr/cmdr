@@ -45,8 +45,11 @@ import "github.com/hedzr/cmdr"
 
   ```go
   // old code
+
   package main
+
   import "flag"
+
   var (
   	serv           = flag.String("service", "hello_service", "service name")
   	host           = flag.String("host", "localhost", "listening host")
@@ -65,16 +68,35 @@ import "github.com/hedzr/cmdr"
   to migrate it to `cmdr`, just replace the import line with:
 
   ```go
-  import "github.com/hedzr/cmdr/flag"
+  import (
+	// flag
+	"github.com/hedzr/cmdr/flag"
+  )
+
+  var (
+  	serv           = flag.String("service", "hello_service", "service name")
+  	host           = flag.String("host", "localhost", "listening host")
+  	port           = flag.Int("port", 50001, "listening port")
+  	reg            = flag.String("reg", "localhost:32379", "register etcd address")
+  	count          = flag.Int("count", 3, "instance's count")
+  	connectTimeout = flag.Duration("connect-timeout", 5*time.Second, "connect timeout")
+  )
+  
+  func main(){
+      flag.Parse()
+      // ...
+  }
   ```
 
   if you wanna use the new features from `cmdr`, try `Withxxx`:
 
   ```go
   import (
+	// flag
   	"github.com/hedzr/cmdr"
   	"github.com/hedzr/cmdr/flag"
   )
+
   var (
       // uncomment this line if you like long opt (such as --service)
       //treatAsLongOpt = flag.TreatAsLongOpt(true)
@@ -83,6 +105,12 @@ import "github.com/hedzr/cmdr"
   		flag.WithAction(func(cmd *cmdr.Command, args []string) (err error) {
   			return
   		}))
+      // ...
+      // WithTitles, WithShort, WithLong, WithAliases, WithDescription, 
+      // WithExamples, WithHidden, WithGroup, WithDeprecated,
+      // WithAction, WithDefaultValue, WithToggleGroup,
+      // WithValidArgs, WithExternalTool, WithHeadLike,
+      // ...
   )
   ```
 

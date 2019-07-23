@@ -170,6 +170,17 @@ func WithHeadLike(enable bool, min, max int64) (opt Option) {
 // -----------------------
 //
 
+func WithCommand(cmdDefines func(newSubCmd OptCmd)) (opt Option) {
+	return func(flag OptFlag) {
+		var oo = flag.OwnerCommand().NewSubCommand()
+		cmdDefines(oo)
+	}
+}
+
+//
+// -----------------------
+//
+
 // BoolVar defines a bool flag with specified name, default value, and usage string.
 // The argument p points to a bool variable in which to store the value of the flag.
 func BoolVar(p *bool, name string, value bool, usage string, options ...Option) {
@@ -186,7 +197,7 @@ func BoolVar(p *bool, name string, value bool, usage string, options ...Option) 
 	}
 
 	for _, opt := range options {
-		opt.Apply(f)
+		opt(f)
 	}
 
 	f.OnSet(func(keyPath string, val interface{}) {
@@ -217,6 +228,10 @@ func IntVar(p *int, name string, value int, usage string, options ...Option) {
 		f.Long(name)
 	} else {
 		f.Short(name)
+	}
+
+	for _, opt := range options {
+		opt(f)
 	}
 
 	f.OnSet(func(keyPath string, val interface{}) {
@@ -287,6 +302,10 @@ func Int64Var(p *int64, name string, value int64, usage string, options ...Optio
 		f.Short(name)
 	}
 
+	for _, opt := range options {
+		opt(f)
+	}
+
 	f.OnSet(func(keyPath string, val interface{}) {
 		switch reflect.ValueOf(val).Kind() {
 		case reflect.Uint:
@@ -327,6 +346,10 @@ func UintVar(p *uint, name string, value uint, usage string, options ...Option) 
 		f.Long(name)
 	} else {
 		f.Short(name)
+	}
+
+	for _, opt := range options {
+		opt(f)
 	}
 
 	f.OnSet(func(keyPath string, val interface{}) {
@@ -371,6 +394,10 @@ func Uint64Var(p *uint64, name string, value uint64, usage string, options ...Op
 		f.Short(name)
 	}
 
+	for _, opt := range options {
+		opt(f)
+	}
+
 	f.OnSet(func(keyPath string, val interface{}) {
 		switch reflect.ValueOf(val).Kind() {
 		case reflect.Uint:
@@ -413,6 +440,10 @@ func StringVar(p *string, name string, value string, usage string, options ...Op
 		f.Short(name)
 	}
 
+	for _, opt := range options {
+		opt(f)
+	}
+
 	f.OnSet(func(keyPath string, val interface{}) {
 		if b, ok := val.(string); ok {
 			*p = b
@@ -442,6 +473,10 @@ func Float64Var(p *float64, name string, value float64, usage string, options ..
 		f.Long(name)
 	} else {
 		f.Short(name)
+	}
+
+	for _, opt := range options {
+		opt(f)
 	}
 
 	f.OnSet(func(keyPath string, val interface{}) {
@@ -474,6 +509,10 @@ func DurationVar(p *time.Duration, name string, value time.Duration, usage strin
 		f.Long(name)
 	} else {
 		f.Short(name)
+	}
+
+	for _, opt := range options {
+		opt(f)
 	}
 
 	f.OnSet(func(keyPath string, val interface{}) {

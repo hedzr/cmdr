@@ -124,11 +124,11 @@ import "github.com/hedzr/cmdr"
 
   - Options with short names (`-h`)
   - Options with long names (`--help`)
-  - Options with aliases (`—helpme`, `—usage`, `--info`)
+  - Options with aliases (`--helpme`, `--usage`, `--info`)
   - Options with and without arguments (bool v.s. other type)
   - Options with optional arguments and default values
   - Multiple option groups each containing a set of options
-  - Supports the compat short options -aux
+  - Supports the compat short options `-aux`
   - Supports namespaces for (nested) option groups
 
 - Automatic help screen generation (*Generate and print well-formatted help message*)

@@ -419,15 +419,24 @@ import "github.com/hedzr/cmdr"
 
 1. [**short**](./examples/short/README.md)  
    simple codes with structured data style.
+
 2. [demo](./examples/demo/README.md)  
    normal demo with external config files.
+
 3. [wget-demo](./examples/wget-demo/README.md)  
    partial-covered for GNU `wget`.
+
 4. [fluent](./examples/fluent)  
    demostrates how to define your command-ui with the fluent api style.
-5. [cmdr-http2](https://github.com/hedzr/cmdr-http2)  
+
+5. [ffmain](./examples/ffmain)
+
+   a demo to show you how to migrate from go `flag` smoothly.
+
+6. [cmdr-http2](https://github.com/hedzr/cmdr-http2)  
    http2 server with daemon supports, graceful shutdown
-6. [awesome-tool](https://github.com/hedzr/awesome-tool)  
+
+7. [awesome-tool](https://github.com/hedzr/awesome-tool)  
    `awesome-tool` is a cli app that fetch the repo stars and generate a markdown summary, accordingly with most of awesome-xxx list in github (such as awesome-go).
 
 
@@ -494,6 +503,7 @@ import "github.com/hedzr/cmdr"
 
 - https://github.com/hedzr/consul-tags
 - https://github.com/hedzr/ini-op
+- https://github.com/hedzr/awesome-tool
 - voxr
 - austr
 - Issue me to adding yours

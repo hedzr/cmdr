@@ -533,6 +533,76 @@ func Duration(name string, value time.Duration, usage string, options ...Option)
 	return p
 }
 
+// StringSliceVar defines a string slice flag with specified name, default value, and usage string.
+// The argument p points to a string variable in which to store the value of the flag.
+func StringSliceVar(p *[]string, name string, value []string, usage string, options ...Option) {
+	// CommandLine.Var(newStringValue(value, p), name, usage)
+
+	*p = value
+	f := pfRootCmd.StringSlice()
+	// f:= pfRootCmd.NewFlag(cmdr.OptFlagTypeString)
+	f.Description(usage, usage).DefaultValue(value, "")
+	if treatAsLongOpt {
+		f.Long(name)
+	} else {
+		f.Short(name)
+	}
+
+	for _, opt := range options {
+		opt(f)
+	}
+
+	f.OnSet(func(keyPath string, val interface{}) {
+		if b, ok := val.([]string); ok {
+			*p = b
+		}
+	})
+}
+
+// StringSlice defines a string slice flag with specified name, default value, and usage string.
+// The return value is the address of a string variable that stores the value of the flag.
+func StringSlice(name string, value []string, usage string, options ...Option) *string {
+	// return CommandLine.String(name, value, usage)
+	var p = new([]string)
+	StringSliceVar(p, name, value, usage, options...)
+	return p
+}
+
+// IntSliceVar defines a int slice flag with specified name, default value, and usage string.
+// The argument p points to a string variable in which to store the value of the flag.
+func IntSliceVar(p *[]int, name string, value []int, usage string, options ...Option) {
+	// CommandLine.Var(newStringValue(value, p), name, usage)
+
+	*p = value
+	f := pfRootCmd.IntSlice()
+	// f:= pfRootCmd.NewFlag(cmdr.OptFlagTypeString)
+	f.Description(usage, usage).DefaultValue(value, "")
+	if treatAsLongOpt {
+		f.Long(name)
+	} else {
+		f.Short(name)
+	}
+
+	for _, opt := range options {
+		opt(f)
+	}
+
+	f.OnSet(func(keyPath string, val interface{}) {
+		if b, ok := val.([]int); ok {
+			*p = b
+		}
+	})
+}
+
+// IntSlice defines a int slice flag with specified name, default value, and usage string.
+// The return value is the address of a string variable that stores the value of the flag.
+func IntSlice(name string, value []int, usage string, options ...Option) *string {
+	// return CommandLine.String(name, value, usage)
+	var p = new([]int)
+	IntSliceVar(p, name, value, usage, options...)
+	return p
+}
+
 //
 //
 // ---------------------------------------------------------------------------

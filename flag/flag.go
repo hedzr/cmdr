@@ -5,7 +5,7 @@
 package flag
 
 import (
-	. "github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr"
 	"log"
 	"os"
 	"reflect"
@@ -14,16 +14,16 @@ import (
 
 type (
 	// Option is used by cmdr fluent API and flag compatible API
-	Option func(flag OptFlag)
+	Option func(flag cmdr.OptFlag)
 )
 
 var (
-	pfRootCmd *RootCmdOpt
+	pfRootCmd *cmdr.RootCmdOpt
 	parsed    bool
 )
 
 func init() {
-	pfRootCmd = Root("", "")
+	pfRootCmd = cmdr.Root("", "")
 }
 
 // Parse parses the command-line flags from os.Args[1:]. Must be called
@@ -31,7 +31,7 @@ func init() {
 func Parse() {
 	// Ignore errors; CommandLine is set for ExitOnError.
 	// CommandLine.Parse(os.Args[1:])
-	if err := Exec(pfRootCmd.RootCommand()); err != nil {
+	if err := cmdr.Exec(pfRootCmd.RootCommand()); err != nil {
 		log.Fatal(err)
 	}
 	parsed = true
@@ -60,84 +60,84 @@ func TreatAsLongOpt(b bool) bool {
 
 // WithTitles setup short title, long title, and aliases titles
 func WithTitles(short, long string, aliases ...string) (opt Option) {
-	return func(flag OptFlag) {
+	return func(flag cmdr.OptFlag) {
 		flag.Titles(short, long, aliases...)
 	}
 }
 
 // WithShort sets the short title
 func WithShort(short string) (opt Option) {
-	return func(flag OptFlag) {
+	return func(flag cmdr.OptFlag) {
 		flag.Short(short)
 	}
 }
 
 // WithLong sets the Long/Full title
 func WithLong(long string) (opt Option) {
-	return func(flag OptFlag) {
+	return func(flag cmdr.OptFlag) {
 		flag.Long(long)
 	}
 }
 
 // WithAliases sets the aliases string list
 func WithAliases(aliases ...string) (opt Option) {
-	return func(flag OptFlag) {
+	return func(flag cmdr.OptFlag) {
 		flag.Aliases(aliases...)
 	}
 }
 
 // WithDescription sets the description string
 func WithDescription(oneLine, long string) (opt Option) {
-	return func(flag OptFlag) {
+	return func(flag cmdr.OptFlag) {
 		flag.Description(oneLine, long)
 	}
 }
 
 // WithExamples sets the example string for an option
 func WithExamples(examples string) (opt Option) {
-	return func(flag OptFlag) {
+	return func(flag cmdr.OptFlag) {
 		flag.Examples(examples)
 	}
 }
 
 // WithGroup sets the group name
 func WithGroup(group string) (opt Option) {
-	return func(flag OptFlag) {
+	return func(flag cmdr.OptFlag) {
 		flag.Group(group)
 	}
 }
 
 // WithHidden sets an hidden option that does not be displayed in any list or help screen.
 func WithHidden(hidden bool) (opt Option) {
-	return func(flag OptFlag) {
+	return func(flag cmdr.OptFlag) {
 		flag.Hidden(hidden)
 	}
 }
 
 // WithDeprecated sets a version string for an deprecation option
 func WithDeprecated(deprecation string) (opt Option) {
-	return func(flag OptFlag) {
+	return func(flag cmdr.OptFlag) {
 		flag.Deprecated(deprecation)
 	}
 }
 
 // WithAction to specify the action as the option was matched
-func WithAction(action func(cmd *Command, args []string) (err error)) (opt Option) {
-	return func(flag OptFlag) {
+func WithAction(action func(cmd *cmdr.Command, args []string) (err error)) (opt Option) {
+	return func(flag cmdr.OptFlag) {
 		flag.Action(action)
 	}
 }
 
 // WithToggleGroup allows to specify an group name, and any options in this group will be treated as an toggleable group, just like raido button group.
 func WithToggleGroup(group string) (opt Option) {
-	return func(flag OptFlag) {
+	return func(flag cmdr.OptFlag) {
 		flag.ToggleGroup(group)
 	}
 }
 
 // WithDefaultValue set the value with explicit data type, and its placeholder name.
 func WithDefaultValue(val interface{}, placeholder string) (opt Option) {
-	return func(flag OptFlag) {
+	return func(flag cmdr.OptFlag) {
 		flag.DefaultValue(val, placeholder)
 	}
 }
@@ -146,14 +146,14 @@ func WithDefaultValue(val interface{}, placeholder string) (opt Option) {
 // for example, while you setup by `WithExternalTool("EDITOR")`, cmdr will lookup it from os environment and launch that program.
 // for EDITOR=vim, `vim` will be launched.
 func WithExternalTool(envKeyName string) (opt Option) {
-	return func(flag OptFlag) {
+	return func(flag cmdr.OptFlag) {
 		flag.ExternalTool(envKeyName)
 	}
 }
 
 // WithValidArgs enables enumerable values for an option.
 func WithValidArgs(list ...string) (opt Option) {
-	return func(flag OptFlag) {
+	return func(flag cmdr.OptFlag) {
 		flag.ValidArgs(list...)
 	}
 }
@@ -161,7 +161,7 @@ func WithValidArgs(list ...string) (opt Option) {
 // WithHeadLike enables `head -n` mode.
 // min, max will be ignored at this version, its might be impl in the future
 func WithHeadLike(enable bool, min, max int64) (opt Option) {
-	return func(flag OptFlag) {
+	return func(flag cmdr.OptFlag) {
 		flag.HeadLike(enable, min, max)
 	}
 }
@@ -170,8 +170,9 @@ func WithHeadLike(enable bool, min, max int64) (opt Option) {
 // -----------------------
 //
 
-func WithCommand(cmdDefines func(newSubCmd OptCmd)) (opt Option) {
-	return func(flag OptFlag) {
+// WithCommand define an Command
+func WithCommand(cmdDefines func(newSubCmd cmdr.OptCmd)) (opt Option) {
+	return func(flag cmdr.OptFlag) {
 		var oo = flag.OwnerCommand().NewSubCommand()
 		cmdDefines(oo)
 	}

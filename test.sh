@@ -22,28 +22,29 @@ build-fluent() {
 
 build-all() {
 	for APPNAME in short demo wget-demo fluent; do
-		PKG_SRC=./examples/$APPNAME/main.go ./build.sh all $*
+		APPNAME=$APPNAME PKG_SRC=./examples/$APPNAME/main.go ./build.sh all $*
 	done
 }
 
 build-full() {
 	for APPNAME in short demo wget-demo fluent; do
-		PKG_SRC=./examples/$APPNAME/main.go ./build.sh full $*
+		APPNAME=$APPNAME PKG_SRC=./examples/$APPNAME/main.go ./build.sh full $*
 	done
 }
 
 build-all-linux() {
 	for APPNAME in short demo wget-demo fluent; do
-		PKG_SRC=./examples/$APPNAME/main.go ./build.sh linux $*
+		APPNAME=$APPNAME PKG_SRC=./examples/$APPNAME/main.go ./build.sh linux $*
 	done
 }
 
 build-ci() {
   go mod download
 	for APPNAME in short demo wget-demo fluent; do
-		PKG_SRC=./examples/$APPNAME/main.go ./build.sh all $*
+		APPNAME=$APPNAME PKG_SRC=./examples/$APPNAME/main.go ./build.sh all $*
 	done
 	ls -la ./bin/
+	headline "gzipping..."
 	for f in bin/*; do gzip $f; done 
 	ls -la ./bin/
 }

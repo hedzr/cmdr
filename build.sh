@@ -21,6 +21,7 @@ build_darwin () {
 build_all () {
 	for ARCH in amd64; do
 		for OS in darwin linux windows; do
+			# headline "---- Building the binary, for $PROJ_DIR | S='$S', OS='$OS' | suffix=$suffix | APPNAME=$APPNAME" && exit
 			build_one $ARCH $OS $OS-$ARCH $*
 		done
 	done
@@ -47,7 +48,7 @@ build_one () {
 	esac
 	shift;shift;shift;
 	echo "PWD=$(pwd)"
-	headline "---- Building the binary, for $PROJ_DIR | S='$S', OS='$OS' | suffix=$suffix"
+	headline "---- Building the binary, for $PROJ_DIR | S='$S', OS='$OS' | suffix=$suffix | APPNAME=$APPNAME"
 
 	cat <<-EOF
 	GOARCH=$ARCH GOOS=$OS CGO_ENABLED=0 go build -tags="gocql_debug" -ldflags "$LDFLAGS" -o "$PROJ_DIR/bin/${APPNAME}$S" $* $PKG_SRC

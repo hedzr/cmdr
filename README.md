@@ -38,7 +38,7 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- added compatibilities for go `flag` migrating:
+- Since v1.0.3, we added compatibilities for go `flag` migrating:
 
   <details>
   <summary> Expand to source codes </summary>

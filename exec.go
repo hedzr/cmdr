@@ -216,6 +216,11 @@ func buildXref(rootCmd *RootCommand) (err error) {
 
 		// and now, loading the external configuration files
 		err = loadFromPredefinedLocation(rootCmd)
+
+		envPrefix := strings.Split(GetStringR("env-prefix"), ".")
+		if len(envPrefix) > 0 {
+			EnvPrefix = envPrefix
+		}
 	}
 	return
 }

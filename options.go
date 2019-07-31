@@ -6,6 +6,7 @@ package cmdr
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/BurntSushi/toml"
@@ -724,29 +725,42 @@ func DumpAsString() (str string) {
 	return rxxtOptions.DumpAsString()
 }
 
+// AsYaml returns a yaml string bytes about all options
+func AsYaml() (b []byte) {
+	obj := rxxtOptions.GetHierarchyList()
+	b, _ = yaml.Marshal(obj)
+	return
+}
+
 // SaveAsYaml to Save all config entries as a yaml file
 func SaveAsYaml(filename string) (err error) {
-	obj := rxxtOptions.GetHierarchyList()
-
-	b, err := yaml.Marshal(obj)
-	if err != nil {
-		return
-	}
-
+	b := AsYaml()
 	err = ioutil.WriteFile(filename, b, 0644)
+	return
+}
+
+// AsJSON returns a json string bytes about all options
+func AsJSON() (b []byte) {
+	obj := rxxtOptions.GetHierarchyList()
+	b, _ = json.Marshal(obj)
 	return
 }
 
 // SaveAsJSON to Save all config entries as a json file
 func SaveAsJSON(filename string) (err error) {
-	obj := rxxtOptions.GetHierarchyList()
-
-	b, err := json.Marshal(obj)
-	if err != nil {
-		return
-	}
-
+	b := AsJSON()
 	err = ioutil.WriteFile(filename, b, 0644)
+	return
+}
+
+// AsToml returns a toml string bytes about all options
+func AsToml() (b []byte) {
+	obj := rxxtOptions.GetHierarchyList()
+	buf := bytes.NewBuffer([]byte{})
+	e := toml.NewEncoder(buf)
+	if err := e.Encode(obj); err == nil {
+		b = buf.Bytes()
+	}
 	return
 }
 
@@ -791,6 +805,11 @@ func (s *Options) DumpAsString() (str string) {
 		str += string(b)
 	}
 	return
+}
+
+// GetHierarchyList returns the hierarchy data
+func GetHierarchyList() map[string]interface{} {
+	return rxxtOptions.GetHierarchyList()
 }
 
 // GetHierarchyList returns the hierarchy data for dumping

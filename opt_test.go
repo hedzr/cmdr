@@ -98,9 +98,18 @@ func TestFluentAPIDefault(t *testing.T) {
 	cmdr.NewStringSlice()
 	cmdr.NewUint()
 	cmdr.NewUint64()
+	cmdr.NewFloat32()
+	cmdr.NewFloat64()
 
 	cmdr.NewOptions()
 	cmdr.NewOptionsWith(nil)
+}
+
+func TestAsXXX(t *testing.T) {
+	cmdr.AsYaml()
+	cmdr.AsJSON()
+	cmdr.AsToml()
+	cmdr.GetHierarchyList()
 }
 
 func TestFluentAPI(t *testing.T) {

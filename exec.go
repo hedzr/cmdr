@@ -326,28 +326,20 @@ func getArgs(pkg *ptpkg, args []string) []string {
 
 func isTypeUint(kind reflect.Kind) bool {
 	switch kind {
-	case reflect.Uint:
-	case reflect.Uint8:
-	case reflect.Uint16:
-	case reflect.Uint32:
-	case reflect.Uint64:
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return true
 	default:
 		return false
 	}
-	return true
 }
 
 func isTypeSInt(kind reflect.Kind) bool {
 	switch kind {
-	case reflect.Int:
-	case reflect.Int8:
-	case reflect.Int16:
-	case reflect.Int32:
-	case reflect.Int64:
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return true
 	default:
 		return false
 	}
-	return true
 }
 
 func isBool(v interface{}) bool {

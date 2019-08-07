@@ -237,17 +237,9 @@ func IntVar(p *int, name string, value int, usage string, options ...Option) {
 
 	f.OnSet(func(keyPath string, val interface{}) {
 		switch reflect.ValueOf(val).Kind() {
-		case reflect.Uint:
-		case reflect.Uint8:
-		case reflect.Uint16:
-		case reflect.Uint32:
-		case reflect.Uint64:
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			*p = int(val.(uint64))
-		case reflect.Int:
-		case reflect.Int8:
-		case reflect.Int16:
-		case reflect.Int32:
-		case reflect.Int64:
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			*p = int(val.(int64))
 		}
 	})
@@ -255,28 +247,20 @@ func IntVar(p *int, name string, value int, usage string, options ...Option) {
 
 func isTypeUint(kind reflect.Kind) bool {
 	switch kind {
-	case reflect.Uint:
-	case reflect.Uint8:
-	case reflect.Uint16:
-	case reflect.Uint32:
-	case reflect.Uint64:
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return true
 	default:
 		return false
 	}
-	return true
 }
 
 func isTypeSInt(kind reflect.Kind) bool {
 	switch kind {
-	case reflect.Int:
-	case reflect.Int8:
-	case reflect.Int16:
-	case reflect.Int32:
-	case reflect.Int64:
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return true
 	default:
 		return false
 	}
-	return true
 }
 
 // Int defines an int flag with specified name, default value, and usage string.
@@ -309,17 +293,9 @@ func Int64Var(p *int64, name string, value int64, usage string, options ...Optio
 
 	f.OnSet(func(keyPath string, val interface{}) {
 		switch reflect.ValueOf(val).Kind() {
-		case reflect.Uint:
-		case reflect.Uint8:
-		case reflect.Uint16:
-		case reflect.Uint32:
-		case reflect.Uint64:
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			*p = int64(val.(uint64))
-		case reflect.Int:
-		case reflect.Int8:
-		case reflect.Int16:
-		case reflect.Int32:
-		case reflect.Int64:
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			*p = int64(val.(int64))
 		}
 	})
@@ -355,17 +331,9 @@ func UintVar(p *uint, name string, value uint, usage string, options ...Option) 
 
 	f.OnSet(func(keyPath string, val interface{}) {
 		switch reflect.ValueOf(val).Kind() {
-		case reflect.Uint:
-		case reflect.Uint8:
-		case reflect.Uint16:
-		case reflect.Uint32:
-		case reflect.Uint64:
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			*p = uint(val.(uint64))
-		case reflect.Int:
-		case reflect.Int8:
-		case reflect.Int16:
-		case reflect.Int32:
-		case reflect.Int64:
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			*p = uint(val.(int64))
 		}
 	})
@@ -401,17 +369,9 @@ func Uint64Var(p *uint64, name string, value uint64, usage string, options ...Op
 
 	f.OnSet(func(keyPath string, val interface{}) {
 		switch reflect.ValueOf(val).Kind() {
-		case reflect.Uint:
-		case reflect.Uint8:
-		case reflect.Uint16:
-		case reflect.Uint32:
-		case reflect.Uint64:
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			*p = uint64(val.(uint64))
-		case reflect.Int:
-		case reflect.Int8:
-		case reflect.Int16:
-		case reflect.Int32:
-		case reflect.Int64:
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			*p = uint64(val.(int64))
 		}
 	})

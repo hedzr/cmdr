@@ -278,9 +278,9 @@ func GetMapR(key string) map[string]interface{} {
 //  assert serverConfig.Port == 7100
 // ```
 func GetSectionFrom(sectionKeyPath string, holder interface{}) (err error) {
-	var b []byte
 	fObj := GetMapR(sectionKeyPath)
 	if fObj != nil {
+		var b []byte
 		b, err = yaml.Marshal(fObj)
 		if err == nil {
 			err = yaml.Unmarshal(b, holder)

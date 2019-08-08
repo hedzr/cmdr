@@ -75,6 +75,11 @@ func attachVersionCommands(root *RootCommand) {
 					Aliases:     []string{"version-simulate"},
 					Description: "Simulate a faked version number for this app.",
 					Hidden:      true,
+					Action: func(cmd *Command, args []string) (err error) {
+						conf.Version = GetStringR("version-sim")
+						Set("version", conf.Version) // set into option 'app.version' too.
+						return
+					},
 				},
 				DefaultValue: "",
 			}

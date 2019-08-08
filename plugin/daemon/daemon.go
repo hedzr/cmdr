@@ -19,7 +19,7 @@ import (
 // - pidfile
 // - go-daemon supports
 // -
-func Enable(daemonImplX Daemon, modifier func(daemonServerCommands *cmdr.Command) *cmdr.Command,
+func Enable(daemonImplX Daemon, modifier func(daemonServerCommand *cmdr.Command) *cmdr.Command,
 	preAction func(cmd *cmdr.Command, args []string) (err error),
 	postAction func(cmd *cmdr.Command, args []string)) {
 	daemonImpl = daemonImplX
@@ -27,9 +27,9 @@ func Enable(daemonImplX Daemon, modifier func(daemonServerCommands *cmdr.Command
 	cmdr.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
 
 		if modifier != nil {
-			root.SubCommands = append(root.SubCommands, modifier(DaemonServerCommands))
+			root.SubCommands = append(root.SubCommands, modifier(DaemonServerCommand))
 		} else {
-			root.SubCommands = append(root.SubCommands, DaemonServerCommands)
+			root.SubCommands = append(root.SubCommands, DaemonServerCommand)
 		}
 
 		prefix = strings.Join(append(cmdr.RxxtPrefix, "server"), ".")

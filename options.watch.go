@@ -27,7 +27,9 @@ func GetUsedConfigFile() string {
 	return usedConfigFile
 }
 
-// GetUsedConfigSubDir returns the sub-directory `conf.d` of config files
+// GetUsedConfigSubDir returns the sub-directory `conf.d` of config files.
+// Note that it be always normalized now.
+// Sometimes it might be empty string ("") if `conf.d` have not been found.
 func GetUsedConfigSubDir() string {
 	return usedConfigSubDir
 }
@@ -95,13 +97,14 @@ func (s *Options) LoadConfigFile(file string) (err error) {
 		return
 	}
 
-	err = filepath.Walk(usedConfigSubDir, s.visit)
-
+	usedConfigSubDir, err = filepath.Abs(usedConfigSubDir)
 	if err == nil {
-		s.watchConfigDir(usedConfigSubDir)
+		err = filepath.Walk(usedConfigSubDir, s.visit)
+		if err == nil {
+			s.watchConfigDir(usedConfigSubDir)
+		}
+		// log.Fatalf("ERROR: filepath.Walk() returned %v\n", err)
 	}
-	// log.Fatalf("ERROR: filepath.Walk() returned %v\n", err)
-
 	return
 }
 

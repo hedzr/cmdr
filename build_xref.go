@@ -69,7 +69,7 @@ func attachVersionCommands(root *RootCommand) {
 			root.plainShortFlags["V"] = root.allFlags[SysMgmtGroup]["version"]
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["version-sim"]; !ok {
-			root.allFlags[SysMgmtGroup]["version"] = &Flag{
+			root.allFlags[SysMgmtGroup]["version-sim"] = &Flag{
 				BaseOpt: BaseOpt{
 					Full:        "version-sim",
 					Aliases:     []string{"version-simulate"},

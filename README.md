@@ -38,7 +38,7 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- Since v1.0.3, we added compatibilities for go `flag` migrating:
+- Since v1.0.3, we added compatibilities for migrating from go `flag`:
 
   <details>
   <summary> Expand to source codes </summary>
@@ -131,9 +131,9 @@ import "github.com/hedzr/cmdr"
   - Supports the compat short options `-aux`
   - Supports namespaces for (nested) option groups
 
-- Automatic help screen generation (*Generate and print well-formatted help message*)
+- Automatic help screen generation (*Generates and prints well-formatted help message*)
 
-- Support the Fluent API style
+- Supports the Fluent API style
   ```go
   root := cmdr.Root("aa", "1.0.3")
       // Or  // .Copyright("All rights reserved", "sombody@example.com")
@@ -176,20 +176,20 @@ import "github.com/hedzr/cmdr"
         strict-mode: true
       ```
 
-- Support for unlimited multiple sub-commands.
+- Supports for unlimited multiple sub-commands.
 
-- Support `-I/usr/include -I=/usr/include` `-I /usr/include` option argument specifications
+- Supports `-I/usr/include -I=/usr/include` `-I /usr/include` option argument specifications
   Automatically allows those formats (applied to long option too):
 
   - `-I file`, `-Ifile`, and `-I=files`
   - `-I 'file'`, `-I'file'`, and `-I='files'`
   - `-I "file"`, `-I"file"`, and `-I="files"`
 
-- Support for `-D+`, `-D-` to enable/disable a bool option.
+- Supports for `-D+`, `-D-` to enable/disable a bool option.
 
-- Support for **PassThrough** by `--`. (*Passing remaining command line arguments after -- (optional)*)
+- Supports for **PassThrough** by `--`. (*Passing remaining command line arguments after -- (optional)*)
 
-- Support for options being specified multiple times, with different values
+- Supports for options being specified multiple times, with different values
 
 - Smart suggestions for wrong command and flags
 
@@ -207,6 +207,8 @@ import "github.com/hedzr/cmdr"
 
   - Help: `-h`, `-?`, `--help`, ...
   - Version & Build Info: `--version`/`-V`, `--build-info`/`-#`
+    - Simulating version at runtime with `—version-sim 1.9.1`
+    - generally, `conf.AppName` and `conf.Version` are originally.
   - Verbose & Debug: `—verbose`/`-v`, `—debug`/`-D`, `—quiet`/`-q`
   - `--no-env-overrides`, and `--strict-mode`
   - Generate Commands:
@@ -233,7 +235,7 @@ import "github.com/hedzr/cmdr"
 
   - `/usr/local/etc/<appname>/<appname>.yml` and `conf.d` sub-directory.
 
-  - `$HOME/<appname>/<appname>.yml` and `conf.d` sub-directory.
+  - `$HOME/.<appname>/<appname>.yml` and `conf.d` sub-directory.
 
   - Watch `conf.d` directory:
     - `AddOnConfigLoadedListener(c)`
@@ -279,8 +281,7 @@ import "github.com/hedzr/cmdr"
     - bool
     - int, int64, uint, uint64, float32, float64
     - string
-    - string slice
-    - int slice
+    - string slice, int slice
     - time duration
     - *todo: ~~float~~, time, ~~duration~~, ~~int slice~~, …, all primitive go types*
     - map
@@ -309,7 +310,7 @@ import "github.com/hedzr/cmdr"
 - Walkable
 
   - Customizable `Painter` interface to loop *each* command and flag.
-  - Walks for all commands with `WalkAllCommands(walker)`.
+  - Walks on all commands with `WalkAllCommands(walker)`.
 
 - Daemon (*Linux Only*)
 
@@ -346,7 +347,7 @@ import "github.com/hedzr/cmdr"
 
 - Advanced features
 
-  - Launch external editor by `&Flag{BaseOpt:BaseOpt{},ExternalTool:cmdr.ExternalToolEditor}`:
+  - Launches external editor by `&Flag{BaseOpt:BaseOpt{},ExternalTool:cmdr.ExternalToolEditor}`:
 
     just like `git -m`, try this command:
 

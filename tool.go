@@ -330,59 +330,8 @@ func (s *jaroWinklerDistance) Calc(src1, src2 string, opts ...DistanceOption) (d
 	}
 	s.maxLength = lenMax
 
-	iRange := max(lenMax/2-1, 0)
-	iMatchIndexes := make([]int, lenMin)
-	for i := 0; i < lenMin; i++ {
-		iMatchIndexes[i] = -1
-	}
-
-	s.prefix, s.matches = 0, 0
-	for mi := 0; mi < len(sMin); mi++ {
-		if s1[mi] == s2[mi] {
-			s.prefix++
-		} else {
-			break
-		}
-	}
-	s.matches = s.prefix
-
-	matchFlags := make([]bool, lenMax)
-
-	for mi := s.prefix; mi < lenMin; mi++ {
-		c1 := sMin[mi]
-		xi, xn := max(mi-iRange, s.prefix), lenMax // min(mi+iRange-1, lenMax)
-		for ; xi < xn; xi++ {
-			if !matchFlags[xi] && c1 == sMax[xi] {
-				iMatchIndexes[mi] = xi
-				matchFlags[xi] = true
-				s.matches++
-				break
-			}
-		}
-	}
-
-	ms1, ms2 := make([]rune, s.matches), make([]rune, s.matches)
-	for i, si := 0, 0; i < lenMin; i++ {
-		if iMatchIndexes[i] != -1 {
-			ms1[si] = sMin[i]
-			si++
-		}
-	}
-	for i, si := 0, 0; i < lenMax; i++ {
-		if matchFlags[i] {
-			ms2[si] = sMax[i]
-			si++
-		}
-	}
-	// fmt.Printf("iMatchIndexes, s1, s2: %v, %v, %v\n", iMatchIndexes, string(sMax), string(sMin))
-	// println("     ms1, ms2: ", string(ms1), string(ms2))
-
-	s.transpositions = 0
-	for mi := 0; mi < len(ms1); mi++ {
-		if ms1[mi] != ms2[mi] {
-			s.transpositions++
-		}
-	}
+	iMatchIndexes, matchFlags := s.match(sMax, sMin, lenMax, lenMin)
+	s.findTranspositions(sMax, sMin, lenMax, lenMin, iMatchIndexes, matchFlags)
 
 	// println("  matches, transpositions, prefix: ", s.matches, s.transpositions, s.prefix)
 
@@ -408,6 +357,65 @@ func (s *jaroWinklerDistance) Calc(src1, src2 string, opts ...DistanceOption) (d
 	s.distance = jw * s.factor
 	distance = int(math.Round(s.distance))
 	return
+}
+
+func (s *jaroWinklerDistance) match(sMax, sMin []rune, lenMax, lenMin int) (iMatchIndexes []int, matchFlags []bool) {
+	iRange := max(lenMax/2-1, 0)
+	iMatchIndexes = make([]int, lenMin)
+	for i := 0; i < lenMin; i++ {
+		iMatchIndexes[i] = -1
+	}
+
+	s.prefix, s.matches = 0, 0
+	for mi := 0; mi < len(sMin); mi++ {
+		if sMax[mi] == sMin[mi] {
+			s.prefix++
+		} else {
+			break
+		}
+	}
+	s.matches = s.prefix
+
+	matchFlags = make([]bool, lenMax)
+
+	for mi := s.prefix; mi < lenMin; mi++ {
+		c1 := sMin[mi]
+		xi, xn := max(mi-iRange, s.prefix), lenMax // min(mi+iRange-1, lenMax)
+		for ; xi < xn; xi++ {
+			if !matchFlags[xi] && c1 == sMax[xi] {
+				iMatchIndexes[mi] = xi
+				matchFlags[xi] = true
+				s.matches++
+				break
+			}
+		}
+	}
+	return
+}
+
+func (s *jaroWinklerDistance) findTranspositions(sMax, sMin []rune, lenMax, lenMin int, iMatchIndexes []int, matchFlags []bool) {
+	ms1, ms2 := make([]rune, s.matches), make([]rune, s.matches)
+	for i, si := 0, 0; i < lenMin; i++ {
+		if iMatchIndexes[i] != -1 {
+			ms1[si] = sMin[i]
+			si++
+		}
+	}
+	for i, si := 0, 0; i < lenMax; i++ {
+		if matchFlags[i] {
+			ms2[si] = sMax[i]
+			si++
+		}
+	}
+	// fmt.Printf("iMatchIndexes, s1, s2: %v, %v, %v\n", iMatchIndexes, string(sMax), string(sMin))
+	// println("     ms1, ms2: ", string(ms1), string(ms2))
+
+	s.transpositions = 0
+	for mi := 0; mi < len(ms1); mi++ {
+		if ms1[mi] != ms2[mi] {
+			s.transpositions++
+		}
+	}
 }
 
 func max(a, b int) int {

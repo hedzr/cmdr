@@ -193,6 +193,8 @@ import "github.com/hedzr/cmdr"
 
 - Smart suggestions for wrong command and flags
 
+  since v1.1.3, using [Jaro-Winkler distance](https://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance) instead of soundex.
+
 - Groupable commands and options/flags.
 
   Sortable group name with `[0-9A-Za-z]+\..+` format, eg:
@@ -345,7 +347,7 @@ import "github.com/hedzr/cmdr"
 
   `AddOnAfterXrefBuilt(cb)`
 
-- Advanced features
+- More Advanced features
 
   - Launches external editor by `&Flag{BaseOpt:BaseOpt{},ExternalTool:cmdr.ExternalToolEditor}`:
 

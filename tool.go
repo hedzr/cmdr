@@ -289,7 +289,7 @@ type (
 
 // JaroWinklerDistance returns an calculator for two strings distance metric, with Jaro-Winkler algorithm.
 func JaroWinklerDistance(opts ...DistanceOption) StringDistance {
-	x := &jaroWinklerDistance{threashold: 0.7, factor: stringMetricFactor}
+	x := &jaroWinklerDistance{threshold: 0.7, factor: stringMetricFactor}
 	for _, c := range opts {
 		c(x)
 	}
@@ -300,14 +300,14 @@ func JaroWinklerDistance(opts ...DistanceOption) StringDistance {
 func JWWithThreshold(threshold float64) DistanceOption {
 	return func(distance StringDistance) {
 		if v, ok := distance.(*jaroWinklerDistance); ok {
-			v.threashold = threshold
+			v.threshold = threshold
 		}
 	}
 }
 
 type jaroWinklerDistance struct {
-	threashold float64
-	factor     float64
+	threshold float64
+	factor    float64
 
 	matches        int
 	maxLength      int
@@ -397,7 +397,7 @@ func (s *jaroWinklerDistance) Calc(src1, src2 string, opts ...DistanceOption) (d
 	jaroDistance /= 3
 
 	var jw float64
-	if jaroDistance < s.threashold {
+	if jaroDistance < s.threshold {
 		jw = jaroDistance
 	} else {
 		jw = jaroDistance + math.Min(0.1, 1/float64(s.maxLength))*float64(s.prefix)*(1-jaroDistance)

@@ -33,37 +33,64 @@ func unknownFlag(pkg *ptpkg, cmd *Command, args []string) {
 }
 
 func unknownCommandDetector(pkg *ptpkg, cmd *Command, args []string) {
-	sndSrc := soundex(pkg.a)
 	ever := false
 	for k := range cmd.plainCmds {
-		snd := soundex(k)
-		if sndSrc == snd {
+		distance := float64(defaultStringMetric.Calc(pkg.a, k)) / stringMetricFactor
+		if distance >= similiarThreshold {
 			ferr("  - do you mean: %v", k)
 			ever = true
-			// } else {
-			// 	ferr("  . %v -> %v: --%v -> %v", pkg.a, sndSrc, k, snd)
 		}
 	}
+
+	// sndSrc := soundex(pkg.a)
+	// ever := false
+	// for k := range cmd.plainCmds {
+	// 	snd := soundex(k)
+	// 	if sndSrc == snd {
+	// 		ferr("  - do you mean: %v", k)
+	// 		ever = true
+	// 		// } else {
+	// 		// 	ferr("  . %v -> %v: --%v -> %v", pkg.a, sndSrc, k, snd)
+	// 	}
+	// }
+
 	if !ever && cmd.HasParent() {
 		unknownCommandDetector(pkg, cmd.GetOwner(), args)
 	}
 }
 
 func unknownFlagDetector(pkg *ptpkg, cmd *Command, args []string) {
-	sndSrc := soundex(pkg.a)
 	if !pkg.short {
 		ever := false
+		str := stripPrefix(pkg.a, "--")
 		for k := range cmd.plainLongFlags {
-			snd := soundex(k)
-			if sndSrc == snd {
-				ferr("  - do you mean: --%v", k)
+			distance := float64(defaultStringMetric.Calc(str, k)) / stringMetricFactor
+			if distance >= similiarThreshold {
+				ferr("  - do you mean: %v", k)
 				ever = true
 				// } else {
-				// 	ferr("  . %v -> %v: --%v -> %v", pkg.a, sndSrc, k, snd)
+				// 	ferr("  ? '%v' - '%v': %v", pkg.a, k, distance)
 			}
 		}
 		if !ever && cmd.HasParent() {
 			unknownFlagDetector(pkg, cmd.GetOwner(), args)
 		}
 	}
+
+	// sndSrc := soundex(pkg.a)
+	// if !pkg.short {
+	// 	ever := false
+	// 	for k := range cmd.plainLongFlags {
+	// 		snd := soundex(k)
+	// 		if sndSrc == snd {
+	// 			ferr("  - do you mean: --%v", k)
+	// 			ever = true
+	// 			// } else {
+	// 			// 	ferr("  . %v -> %v: --%v -> %v", pkg.a, sndSrc, k, snd)
+	// 		}
+	// 	}
+	// 	if !ever && cmd.HasParent() {
+	// 		unknownFlagDetector(pkg, cmd.GetOwner(), args)
+	// 	}
+	// }
 }

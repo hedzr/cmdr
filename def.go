@@ -237,7 +237,11 @@ var (
 	// main program might decide whether it's a warning or error.
 	// see also: [Flag.ValidArgs]
 	ShouldIgnoreWrongEnumValue = false
+
+	defaultStringMetric = JaroWinklerDistance(JWWithThreshold(similiarThreshold))
 )
+
+const similiarThreshold = 0.6666666666666666
 
 // ErrorForCmdr structure
 type ErrorForCmdr struct {

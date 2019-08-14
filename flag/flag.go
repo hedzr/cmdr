@@ -521,7 +521,7 @@ func StringSliceVar(p *[]string, name string, value []string, usage string, opti
 
 // StringSlice defines a string slice flag with specified name, default value, and usage string.
 // The return value is the address of a string variable that stores the value of the flag.
-func StringSlice(name string, value []string, usage string, options ...Option) *string {
+func StringSlice(name string, value []string, usage string, options ...Option) *[]string {
 	// return CommandLine.String(name, value, usage)
 	var p = new([]string)
 	StringSliceVar(p, name, value, usage, options...)
@@ -556,7 +556,7 @@ func IntSliceVar(p *[]int, name string, value []int, usage string, options ...Op
 
 // IntSlice defines a int slice flag with specified name, default value, and usage string.
 // The return value is the address of a string variable that stores the value of the flag.
-func IntSlice(name string, value []int, usage string, options ...Option) *string {
+func IntSlice(name string, value []int, usage string, options ...Option) *[]int {
 	// return CommandLine.String(name, value, usage)
 	var p = new([]int)
 	IntSliceVar(p, name, value, usage, options...)

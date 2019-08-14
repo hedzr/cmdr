@@ -33,6 +33,7 @@ cover.out
 cover.html
 .tmp.*
 conf.d/
+*.local
 
 ### two executable files
 

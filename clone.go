@@ -17,8 +17,8 @@ type (
 		Copy(toValue interface{}, fromValue interface{}, ignoreNames ...string) (err error)
 	}
 
-	// CopierImpl impl
-	CopierImpl struct {
+	// copierImpl impl
+	copierImpl struct {
 		KeepIfFromIsNil  bool // 源字段值为nil指针时，目标字段的值保持不变
 		ZeroIfEqualsFrom bool // 源和目标字段值相同时，目标字段被清除为未初始化的零值
 		KeepIfFromIsZero bool // 源字段值为未初始化的零值时，目标字段的值保持不变 // 此条尚未实现
@@ -27,9 +27,9 @@ type (
 
 var (
 	// GormDefaultCopier used for gorm
-	GormDefaultCopier = &CopierImpl{true, true, true}
+	GormDefaultCopier = &copierImpl{true, true, true}
 	// StandardCopier is a normal copier
-	StandardCopier = &CopierImpl{false, false, false}
+	StandardCopier = &copierImpl{false, false, false}
 )
 
 // Clone deep copy source to target
@@ -39,7 +39,7 @@ func Clone(fromValue, toValue interface{}) interface{} {
 }
 
 // Copy copy things
-func (s *CopierImpl) Copy(toValue interface{}, fromValue interface{}, ignoreNames ...string) (err error) {
+func (s *copierImpl) Copy(toValue interface{}, fromValue interface{}, ignoreNames ...string) (err error) {
 	var (
 		isSlice bool
 		amount  = 1
@@ -80,7 +80,7 @@ func (s *CopierImpl) Copy(toValue interface{}, fromValue interface{}, ignoreName
 	return
 }
 
-func (s *CopierImpl) copyAll(amount int, isSlice bool, from, to reflect.Value, fromType, toType reflect.Type, ignoreNames []string) error {
+func (s *copierImpl) copyAll(amount int, isSlice bool, from, to reflect.Value, fromType, toType reflect.Type, ignoreNames []string) error {
 	for i := 0; i < amount; i++ {
 		var dest, source reflect.Value
 
@@ -120,7 +120,7 @@ func (s *CopierImpl) copyAll(amount int, isSlice bool, from, to reflect.Value, f
 	return nil
 }
 
-func (s *CopierImpl) copyFieldToField(dest, source reflect.Value, fromType reflect.Type, ignoreNames []string) error {
+func (s *copierImpl) copyFieldToField(dest, source reflect.Value, fromType reflect.Type, ignoreNames []string) error {
 	// Copy from field to field or method
 	for _, field := range s.deepFields(fromType) {
 		name := field.Name
@@ -156,7 +156,7 @@ func (s *CopierImpl) copyFieldToField(dest, source reflect.Value, fromType refle
 	return nil
 }
 
-func (s *CopierImpl) copyMethodToField(dest, source reflect.Value, toType reflect.Type) error {
+func (s *copierImpl) copyMethodToField(dest, source reflect.Value, toType reflect.Type) error {
 	// Copy from method to field
 	for _, field := range s.deepFields(toType) {
 		name := field.Name
@@ -180,7 +180,7 @@ func (s *CopierImpl) copyMethodToField(dest, source reflect.Value, toType reflec
 	return nil
 }
 
-func (s *CopierImpl) deepFields(reflectType reflect.Type) []reflect.StructField {
+func (s *copierImpl) deepFields(reflectType reflect.Type) []reflect.StructField {
 	var fields []reflect.StructField
 
 	if reflectType = s.indirectType(reflectType); reflectType.Kind() == reflect.Struct {
@@ -197,14 +197,14 @@ func (s *CopierImpl) deepFields(reflectType reflect.Type) []reflect.StructField 
 	return fields
 }
 
-func (s *CopierImpl) indirect(reflectValue reflect.Value) reflect.Value {
+func (s *copierImpl) indirect(reflectValue reflect.Value) reflect.Value {
 	for reflectValue.Kind() == reflect.Ptr {
 		reflectValue = reflectValue.Elem()
 	}
 	return reflectValue
 }
 
-func (s *CopierImpl) indirectType(reflectType reflect.Type) reflect.Type {
+func (s *copierImpl) indirectType(reflectType reflect.Type) reflect.Type {
 	for reflectType.Kind() == reflect.Ptr || reflectType.Kind() == reflect.Slice {
 		reflectType = reflectType.Elem()
 	}
@@ -376,7 +376,7 @@ func isNil(to reflect.Value) bool {
 	return false
 }
 
-func (s *CopierImpl) set(to, from reflect.Value) bool {
+func (s *copierImpl) set(to, from reflect.Value) bool {
 	if from.IsValid() {
 		if to.Kind() == reflect.Ptr {
 			// set `to` to nil if from is nil

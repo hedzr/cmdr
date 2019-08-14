@@ -4,6 +4,11 @@
 
 package cmdr
 
+type optCommandImpl struct {
+	working *Command
+	parent  OptCmd
+}
+
 func (s *optCommandImpl) Titles(short, long string, aliases ...string) (opt OptCmd) {
 	s.working.Short = short
 	s.working.Full = long
@@ -88,67 +93,67 @@ func (s *optCommandImpl) TailPlaceholder(placeholder string) (opt OptCmd) {
 func (s *optCommandImpl) Bool() (opt OptFlag) {
 	flg := &Flag{}
 	s.working.Flags = append(s.working.Flags, flg)
-	return &BoolOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
+	return &boolOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) String() (opt OptFlag) {
 	flg := &Flag{}
 	s.working.Flags = append(s.working.Flags, flg)
-	return &StringOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
+	return &stringOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) StringSlice() (opt OptFlag) {
 	flg := &Flag{}
 	s.working.Flags = append(s.working.Flags, flg)
-	return &StringSliceOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
+	return &stringSliceOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) IntSlice() (opt OptFlag) {
 	flg := &Flag{}
 	s.working.Flags = append(s.working.Flags, flg)
-	return &IntSliceOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
+	return &intSliceOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) Int() (opt OptFlag) {
 	flg := &Flag{}
 	s.working.Flags = append(s.working.Flags, flg)
-	return &IntOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
+	return &intOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) Uint() (opt OptFlag) {
 	flg := &Flag{}
 	s.working.Flags = append(s.working.Flags, flg)
-	return &UintOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
+	return &uintOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) Int64() (opt OptFlag) {
 	flg := &Flag{}
 	s.working.Flags = append(s.working.Flags, flg)
-	return &Int64Opt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
+	return &int64Opt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) Uint64() (opt OptFlag) {
 	flg := &Flag{}
 	s.working.Flags = append(s.working.Flags, flg)
-	return &Uint64Opt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
+	return &uint64Opt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) Float32() (opt OptFlag) {
 	flg := &Flag{}
 	s.working.Flags = append(s.working.Flags, flg)
-	return &Float32Opt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
+	return &float32Opt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) Float64() (opt OptFlag) {
 	flg := &Flag{}
 	s.working.Flags = append(s.working.Flags, flg)
-	return &Float64Opt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
+	return &float64Opt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) Duration() (opt OptFlag) {
 	flg := &Flag{}
 	s.working.Flags = append(s.working.Flags, flg)
-	return &DurationOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
+	return &durationOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) NewFlag(typ OptFlagType) (opt OptFlag) {
@@ -192,7 +197,7 @@ func (s *optCommandImpl) NewSubCommand() (opt OptCmd) {
 
 	s.working.SubCommands = append(s.working.SubCommands, cmd)
 
-	opt = &SubCmdOpt{optCommandImpl: optCommandImpl{working: cmd, parent: s}}
+	opt = &subCmdOpt{optCommandImpl: optCommandImpl{working: cmd, parent: s}}
 	return
 }
 

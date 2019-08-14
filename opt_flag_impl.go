@@ -4,6 +4,11 @@
 
 package cmdr
 
+type optFlagImpl struct {
+	working *Flag
+	parent  OptCmd
+}
+
 func (s *optFlagImpl) Titles(short, long string, aliases ...string) (opt OptFlag) {
 	s.working.Short = short
 	s.working.Full = long

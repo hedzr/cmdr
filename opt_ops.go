@@ -10,68 +10,68 @@ type (
 		optCommandImpl
 	}
 
-	// CmdOpt for fluent api
-	CmdOpt struct {
+	// cmdOpt for fluent api
+	cmdOpt struct {
 		optCommandImpl
 	}
 
-	// SubCmdOpt for fluent api
-	SubCmdOpt struct {
+	// subCmdOpt for fluent api
+	subCmdOpt struct {
 		optCommandImpl
 	}
 
-	// StringOpt for fluent api
-	StringOpt struct {
+	// stringOpt for fluent api
+	stringOpt struct {
 		optFlagImpl
 	}
 
-	// StringSliceOpt for fluent api
-	StringSliceOpt struct {
+	// stringSliceOpt for fluent api
+	stringSliceOpt struct {
 		optFlagImpl
 	}
 
-	// IntSliceOpt for fluent api
-	IntSliceOpt struct {
+	// intSliceOpt for fluent api
+	intSliceOpt struct {
 		optFlagImpl
 	}
 
-	// BoolOpt for fluent api
-	BoolOpt struct {
+	// boolOpt for fluent api
+	boolOpt struct {
 		optFlagImpl
 	}
 
-	// IntOpt for fluent api
-	IntOpt struct {
+	// intOpt for fluent api
+	intOpt struct {
 		optFlagImpl
 	}
 
-	// UintOpt for fluent api
-	UintOpt struct {
+	// uintOpt for fluent api
+	uintOpt struct {
 		optFlagImpl
 	}
 
-	// Int64Opt for fluent api
-	Int64Opt struct {
+	// int64Opt for fluent api
+	int64Opt struct {
 		optFlagImpl
 	}
 
-	// Uint64Opt for fluent api
-	Uint64Opt struct {
+	// uint64Opt for fluent api
+	uint64Opt struct {
 		optFlagImpl
 	}
 
-	// Float32Opt for fluent api
-	Float32Opt struct {
+	// float32Opt for fluent api
+	float32Opt struct {
 		optFlagImpl
 	}
 
-	// Float64Opt for fluent api
-	Float64Opt struct {
+	// float64Opt for fluent api
+	float64Opt struct {
 		optFlagImpl
 	}
 
-	// DurationOpt for fluent api
-	DurationOpt struct {
+	// durationOpt for fluent api
+	durationOpt struct {
 		optFlagImpl
 	}
 )
@@ -89,7 +89,7 @@ func (s *RootCmdOpt) Copyright(copyright, author string) *RootCmdOpt {
 	return s
 }
 
-// func (s *RootCmdOpt) Command(cmdOpt *CmdOpt) *RootCmdOpt {
+// func (s *RootCmdOpt) Command(cmdOpt *cmdOpt) *RootCmdOpt {
 // 	optCtx.root.Command = *cmdOpt.workingFlag
 // 	return s
 // }
@@ -98,96 +98,96 @@ func (s *RootCmdOpt) Copyright(copyright, author string) *RootCmdOpt {
 // 	cmd := &Command{}
 // 	optCtx.root.SubCommands = append(optCtx.root.SubCommands, cmd)
 // 	optCtx.current = cmd
-// 	return &SubCmdOpt{optCommandImpl: optCommandImpl{workingFlag: cmd},}
+// 	return &subCmdOpt{optCommandImpl: optCommandImpl{workingFlag: cmd},}
 // }
 
 // NewCmdFrom for fluent api
 func NewCmdFrom(cmd *Command) (opt OptCmd) {
 	optCtx.current = cmd
-	return &CmdOpt{optCommandImpl: optCommandImpl{working: optCtx.current}}
+	return &cmdOpt{optCommandImpl: optCommandImpl{working: optCtx.current}}
 }
 
 // NewCmd for fluent api
 func NewCmd() (opt OptCmd) {
 	optCtx.current = &Command{}
-	return &CmdOpt{optCommandImpl: optCommandImpl{working: optCtx.current}}
+	return &cmdOpt{optCommandImpl: optCommandImpl{working: optCtx.current}}
 }
 
 // NewSubCmd for fluent api
 func NewSubCmd() (opt OptCmd) {
 	cmd := &Command{}
 	optCtx.current.SubCommands = append(optCtx.current.SubCommands, cmd)
-	return &SubCmdOpt{optCommandImpl: optCommandImpl{working: cmd}}
+	return &subCmdOpt{optCommandImpl: optCommandImpl{working: cmd}}
 }
 
 // NewBool for fluent api
 func NewBool() (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
 	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
-	return &BoolOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	return &boolOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 }
 
 // NewString for fluent api
 func NewString() (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
 	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
-	return &StringOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	return &stringOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 }
 
 // NewStringSlice for fluent api
 func NewStringSlice() (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
 	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
-	return &StringSliceOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	return &stringSliceOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 }
 
 // NewIntSlice for fluent api
 func NewIntSlice() (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
 	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
-	return &IntSliceOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	return &intSliceOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 }
 
 // NewInt for fluent api
 func NewInt() (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
 	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
-	return &IntOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	return &intOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 }
 
 // NewUint for fluent api
 func NewUint() (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
 	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
-	return &UintOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	return &uintOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 }
 
 // NewInt64 for fluent api
 func NewInt64() (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
 	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
-	return &Int64Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	return &int64Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 }
 
 // NewUint64 for fluent api
 func NewUint64() (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
 	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
-	return &Uint64Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	return &uint64Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 }
 
 // NewFloat32 for fluent api
 func NewFloat32() (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
 	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
-	return &Float32Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	return &float32Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 }
 
 // NewFloat64 for fluent api
 func NewFloat64() (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
 	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
-	return &Float64Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	return &float64Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 }
 
 // NewDuration for fluent api
@@ -200,5 +200,5 @@ func NewDuration() (opt OptFlag) {
 func NewDurationFrom(flg *Flag) (opt OptFlag) {
 	optCtx.workingFlag = flg
 	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
-	return &DurationOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	return &durationOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 }

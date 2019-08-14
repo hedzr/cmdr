@@ -5,19 +5,19 @@
 package cmdr
 
 type (
-	// Opt never used?
-	Opt interface {
-		Titles(short, long string, aliases ...string) (opt Opt)
-		Short(short string) (opt Opt)
-		Long(long string) (opt Opt)
-		Aliases(ss ...string) (opt Opt)
-		Description(oneLine, long string) (opt Opt)
-		Examples(examples string) (opt Opt)
-		Group(group string) (opt Opt)
-		Hidden(hidden bool) (opt Opt)
-		Deprecated(deprecation string) (opt Opt)
-		Action(action func(cmd *Command, args []string) (err error)) (opt Opt)
-	}
+	// // Opt never used?
+	// Opt interface {
+	// 	Titles(short, long string, aliases ...string) (opt Opt)
+	// 	Short(short string) (opt Opt)
+	// 	Long(long string) (opt Opt)
+	// 	Aliases(ss ...string) (opt Opt)
+	// 	Description(oneLine, long string) (opt Opt)
+	// 	Examples(examples string) (opt Opt)
+	// 	Group(group string) (opt Opt)
+	// 	Hidden(hidden bool) (opt Opt)
+	// 	Deprecated(deprecation string) (opt Opt)
+	// 	Action(action func(cmd *Command, args []string) (err error)) (opt Opt)
+	// }
 
 	// OptFlag to support fluent api of cmdr.
 	// see also: cmdr.Root().NewSubCommand()/.NewFlag()
@@ -79,29 +79,15 @@ type (
 
 	// OptFlagType to support fluent api of cmdr.
 	// see also: OptCmd.NewFlag(OptFlagType)
-	// usage:
-	// ```golang
-	// root := cmdr.Root()
-	// co := root.NewSubCommand()
-	// co.NewFlag(cmdr.OptFlagTypeUint)
-	// ```
+	//
+	// Usage
+	//
+	//   root := cmdr.Root()
+	//   co := root.NewSubCommand()
+	//   co.NewFlag(cmdr.OptFlagTypeUint)
+	//
+	// See also those short-hand constructors: Bool(), Int(), ....
 	OptFlagType int
-
-	optContext struct {
-		current     *Command
-		root        *RootCommand
-		workingFlag *Flag
-	}
-
-	optFlagImpl struct {
-		working *Flag
-		parent  OptCmd
-	}
-
-	optCommandImpl struct {
-		working *Command
-		parent  OptCmd
-	}
 )
 
 const (
@@ -121,17 +107,23 @@ const (
 	OptFlagTypeStringSlice OptFlagType = iota + 6
 	// OptFlagTypeIntSlice to create a new int slice flag
 	OptFlagTypeIntSlice OptFlagType = iota + 7
-	// OptFlagTypeFloat32 to create a new int slice flag
+	// OptFlagTypeFloat32 to create a new int float32 flag
 	OptFlagTypeFloat32 OptFlagType = iota + 8
-	// OptFlagTypeFloat64 to create a new int slice flag
+	// OptFlagTypeFloat64 to create a new int float64 flag
 	OptFlagTypeFloat64 OptFlagType = iota + 9
 	// OptFlagTypeDuration to create a new duration flag
 	OptFlagTypeDuration OptFlagType = iota + 10
 )
 
+type optContext struct {
+	current     *Command
+	root        *RootCommand
+	workingFlag *Flag
+}
+
 var optCtx *optContext
 
-// Root for fluent api, create an new RootCommand
+// Root for fluent api, to create a new [*RootCmdOpt] object.
 func Root(appName, version string) (opt *RootCmdOpt) {
 	root := &RootCommand{AppName: appName, Version: version, Command: Command{BaseOpt: BaseOpt{Name: appName}}}
 	// rootCommand = root
@@ -139,7 +131,7 @@ func Root(appName, version string) (opt *RootCmdOpt) {
 	return
 }
 
-// RootFrom for fluent api
+// RootFrom for fluent api, to create the new [*RootCmdOpt] object from an existed [RootCommand]
 func RootFrom(root *RootCommand) (opt *RootCmdOpt) {
 	optCtx = &optContext{current: &root.Command, root: root, workingFlag: nil}
 

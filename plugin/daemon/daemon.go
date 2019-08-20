@@ -102,10 +102,21 @@ func runAsDaemon(cmd *cmdr.Command, args []string) (err error) {
 		return
 	}
 
+	cmdr.Set(DaemonizedKey, true)
+
 	defer cxt.Release()
 	err = run(cmd, args)
 	return
 }
+
+// IsRunningInDemonizedMode returns true if you are running under demonized mode.
+// false means that you're running in normal console/tty mode.
+func IsRunningInDemonizedMode() bool {
+	return cmdr.GetBoolR(DaemonizedKey)
+}
+
+// DaemonizedKey is the keyPath to ensure you are running in demonized mode.
+const DaemonizedKey = "demonized"
 
 var child *os.Process
 

@@ -7,6 +7,7 @@ package cmdr_test
 import (
 	"fmt"
 	"github.com/hedzr/cmdr"
+	"gopkg.in/yaml.v2"
 	"testing"
 )
 
@@ -244,4 +245,34 @@ func TestFluentAPI(t *testing.T) {
 			return
 		})
 
+}
+
+func TestMergeWith(t *testing.T) {
+	cmdr.Set("test.1", 8)
+	cmdr.Set("test.deep.branch.1", "test")
+
+	var m = make(map[string]interface{})
+	err := yaml.Unmarshal([]byte(`
+app:
+  test:
+    1: 9
+    deep:
+      branch:
+        1: test-ok
+`), &m)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = cmdr.MergeWith(m)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if cmdr.GetInt("app.test.1") != 9 {
+		t.Fatalf("err, expect 9, but got %v", cmdr.GetInt("app.test.1"))
+	}
+	if cmdr.GetString("app.test.deep.branch.1") != "test-ok" {
+		t.Fatalf("err, expect 'test-ok', but got '%v'", cmdr.GetString("app.test.deep.branch.1"))
+	}
 }

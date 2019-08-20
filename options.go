@@ -571,13 +571,13 @@ func wrapWithRxxtPrefix(key string) string {
 }
 
 // Set set the value of an `Option` key (with prefix auto-wrap). The key MUST not have an `app` prefix. eg:
-// ```golang
-// cmdr.Set("logger.level", "DEBUG")
-// cmdr.Set("ms.tags.port", 8500)
-// ...
-// cmdr.Set("debug", true)
-// cmdr.GetBool("app.debug") => true
-// ```
+//
+//   cmdr.Set("logger.level", "DEBUG")
+//   cmdr.Set("ms.tags.port", 8500)
+//   ...
+//   cmdr.Set("debug", true)
+//   cmdr.GetBool("app.debug") => true
+//
 //
 func Set(key string, val interface{}) {
 	rxxtOptions.Set(key, val)
@@ -616,29 +616,65 @@ func (s *Options) SetNx(key string, val interface{}) {
 
 	s.entries[key] = val
 	a := strings.Split(key, ".")
-	mergeMap(s.hierarchy, a[0], et(a, 1, val))
+	s.mergeMap(s.hierarchy, a[0], "", et(a, 1, val))
 }
 
-func mergeMap(m map[string]interface{}, key string, val interface{}) map[string]interface{} {
+// MergeWith will merge a map recursive.
+// You could merge a yaml/json/toml options into cmdr Hierarchy Options.
+func MergeWith(m map[string]interface{}) (err error) {
+	err = rxxtOptions.MergeWith(m)
+	return
+}
+
+// MergeWith will merge a map recursive.
+func (s *Options) MergeWith(m map[string]interface{}) (err error) {
+	for k, v := range m {
+		s.mergeMap(s.hierarchy, k, "", v)
+	}
+	return
+}
+
+func (s *Options) mergeMap(m map[string]interface{}, key, path string, val interface{}) map[string]interface{} {
+	if len(path) > 0 {
+		path = fmt.Sprintf("%v.%v", path, key)
+	} else {
+		path = key
+	}
+
 	if z, ok := m[key]; ok {
 		if zm, ok := z.(map[string]interface{}); ok {
 			if vm, ok := val.(map[string]interface{}); ok {
 				for k, v := range vm {
-					zm = mergeMap(zm, k, v)
+					zm = s.mergeMap(zm, k, path, v)
 				}
 				m[key] = zm
+				s.entries[path] = zm
+			} else if vm, ok := val.(map[interface{}]interface{}); ok {
+				for k, v := range vm {
+					kk, ok := k.(string)
+					if !ok {
+						kk = fmt.Sprintf("%v", k)
+					}
+					zm = s.mergeMap(zm, kk, path, v)
+				}
+				m[key] = zm
+				s.entries[path] = zm
 			} else {
 				m[key] = val
+				s.entries[path] = val
 			}
 		} else {
 			m[key] = val
+			s.entries[path] = val
 		}
 	} else {
 		m[key] = val
+		s.entries[path] = val
 	}
 	return m
 }
 
+// et will eat the left part string from `keys[ix:]`
 func et(keys []string, ix int, val interface{}) interface{} {
 	if ix <= len(keys)-1 {
 		p := make(map[string]interface{})

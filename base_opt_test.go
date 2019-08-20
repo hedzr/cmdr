@@ -202,16 +202,8 @@ func TestSetGetIntSlice2(t *testing.T) {
 	}
 }
 
-func TestTomlLoad(t *testing.T) {
-	var (
-		err    error
-		b      []byte
-		mm     map[string]map[string]interface{}
-		config tomlConfig
-		meta   toml.MetaData
-	)
-
-	b = []byte(`
+var (
+	tomlSample = []byte(`
 
 runmode="devel"
 
@@ -254,8 +246,18 @@ hosts = [
 ]
 
 `)
+)
 
-	if err = ioutil.WriteFile(".tmp.toml", b, 0644); err != nil {
+func TestTomlLoad(t *testing.T) {
+	var (
+		err    error
+		b      []byte
+		mm     map[string]map[string]interface{}
+		config tomlConfig
+		meta   toml.MetaData
+	)
+
+	if err = ioutil.WriteFile(".tmp.toml", tomlSample, 0644); err != nil {
 		t.Fatal(err)
 	}
 

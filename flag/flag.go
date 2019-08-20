@@ -456,6 +456,41 @@ func Float64(name string, value float64, usage string, options ...Option) *float
 	return p
 }
 
+// Float32Var defines a float32 flag with specified name, default value, and usage string.
+// The argument p points to a float64 variable in which to store the value of the flag.
+func Float32Var(p *float32, name string, value float32, usage string, options ...Option) {
+	// CommandLine.Var(newFloat64Value(value, p), name, usage)
+
+	*p = value
+	f := pfRootCmd.Float32()
+	// f:= pfRootCmd.NewFlag(cmdr.OptFlagTypeString)
+	f.Description(usage, usage).DefaultValue(value, "")
+	if treatAsLongOpt {
+		f.Long(name)
+	} else {
+		f.Short(name)
+	}
+
+	for _, opt := range options {
+		opt(f)
+	}
+
+	f.OnSet(func(keyPath string, val interface{}) {
+		if b, ok := val.(float32); ok {
+			*p = b
+		}
+	})
+}
+
+// Float32 defines a float64 flag with specified name, default value, and usage string.
+// The return value is the address of a float64 variable that stores the value of the flag.
+func Float32(name string, value float32, usage string, options ...Option) *float32 {
+	// return CommandLine.Float64(name, value, usage)
+	var p = new(float32)
+	Float32Var(p, name, value, usage, options...)
+	return p
+}
+
 // DurationVar defines a time.Duration flag with specified name, default value, and usage string.
 // The argument p points to a time.Duration variable in which to store the value of the flag.
 // The flag accepts a value acceptable to time.ParseDuration.

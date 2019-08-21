@@ -1,4 +1,4 @@
-// +build linux,windows,freebsd,darwin,aix,arm_linux,netbsd,openbsd,plan9,solaris
+// +build !nacl,!amd64p32
 
 /*
  * Copyright © 2019 Hedzr Yeh.

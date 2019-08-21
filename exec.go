@@ -95,7 +95,7 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 }
 
 func xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []string) (matched, stop bool, err error) {
-	if pkg.a[0] == '-' || pkg.a[0] == '/' || pkg.a[0] == '~' {
+	if len(pkg.a) > 0 && (pkg.a[0] == '-' || pkg.a[0] == '/' || pkg.a[0] == '~') {
 		if len(pkg.a) == 1 {
 			pkg.needHelp = true
 			pkg.needFlagsHelp = true

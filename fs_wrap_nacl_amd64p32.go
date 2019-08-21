@@ -6,6 +6,10 @@
 
 package cmdr
 
+import (
+	"sync"
+)
+
 func fsWatcherRoutine(s *Options, configDir string, initWG *sync.WaitGroup) {
 	initWG.Done() // done initializing the watch in this go routine, so the parent routine can move on...
 }

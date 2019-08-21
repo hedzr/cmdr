@@ -7,12 +7,10 @@ package cmdr
 import (
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
-	"golang.org/x/crypto/ssh/terminal"
 	"os"
 	"reflect"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 )
 
@@ -535,17 +533,15 @@ func processExternalTool(pkg *ptpkg) (err error) {
 	switch pkg.flg.ExternalTool {
 	case ExternalToolPasswordInput:
 		fmt.Print("Password: ")
-		var bytePassword []byte
+		var password string
 		if InTesting() {
-			bytePassword = []byte("demo")
+			password = "demo"
 		} else {
-			if bytePassword, err = terminal.ReadPassword(int(syscall.Stdin)); err != nil {
-				fmt.Println() // it's necessary to add a new line after user's input
+			if password, err = readPassword(); err != nil {
 				return
 			}
-			fmt.Println() // it's necessary to add a new line after user's input
 		}
-		pkg.val = string(bytePassword)
+		pkg.val = password
 
 	default:
 		editor := os.Getenv(pkg.flg.ExternalTool)

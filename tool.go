@@ -195,6 +195,22 @@ func randomFilename() (fn string) {
 	return
 }
 
+// const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func randomStringPure(length int) (result string) {
+	buf := make([]byte, length)
+	if _, err := rand.Read(buf); err == nil {
+		result = string(buf)
+	}
+	return
+	// source:=rand.NewSource(time.Now().UnixNano())
+	// b := make([]byte, length)
+	// for i := range b {
+	// 	b[i] = charset[source.Int63()%int64(len(charset))]
+	// }
+	// return string(b)
+}
+
 // LaunchEditor launches the specified editor
 func LaunchEditor(editor string) (content []byte, err error) {
 	return launchEditorWith(editor, randomFilename())

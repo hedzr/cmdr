@@ -8,15 +8,13 @@ import (
 	"fmt"
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/flag"
-	"github.com/sirupsen/logrus"
 	"os"
-	"os/signal"
-	"syscall"
 	"time"
 )
 
 var (
 	treatAsLongOpt = flag.TreatAsLongOpt(true)
+	
 	serv           = flag.String("service", "hello_service", "service name",
 		flag.WithAction(func(cmd *cmdr.Command, args []string) (err error) {
 			return
@@ -92,38 +90,21 @@ func main() {
 func doServer() {
 	defer initRegistry()
 
-	done := make(chan struct{}, 1)
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGQUIT)
-
 	for p := *port; p < *port+*count; p++ {
 		// logrus.Debugf("checking port %v and starting...", p)
 		go serverRun(p, *ver)
 	}
 
-	go func() {
-		s := <-sigs
-		logrus.Infof("receive signal '%v'", s)
-
-		// for _, s := range servers {
-		// 	s.Stop()
-		// }
-		// logrus.Infof("done")
-		done <- struct{}{}
-	}()
-
 	defer func() {
 		// logrus.Println("\nEND")
 	}()
 
-	for {
-		select {
-		case <-done:
-			// os.Exit(1)
-			// logrus.Infof("done got.")
-			return
-		}
-	}
+	go cmdr.TrapSignals(func(s os.Signal) {
+		// for _, s := range servers {
+		// 	s.Stop()
+		// }
+		// logrus.Infof("done")
+	})()
 }
 
 func serverRun(port int, version string) {

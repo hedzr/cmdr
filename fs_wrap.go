@@ -1,5 +1,5 @@
 // +build darwin dragonfly freebsd linux netbsd openbsd windows aix arm_linux plan9 solaris
-// +build !nacl,!amd64p32
+// +build !nacl
 
 /*
  * Copyright © 2019 Hedzr Yeh.

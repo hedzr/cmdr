@@ -1,4 +1,4 @@
-// +build nacl,amd64p32
+// +build nacl
 
 /*
  * Copyright © 2019 Hedzr Yeh.

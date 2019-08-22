@@ -103,6 +103,59 @@ CN = hedzr/$(N)
 ## build: Compile the binary. Synonym of `compile`
 build: compile
 
+## build-linux: build to linux executable, for LAN deploy manually.
+build-linux:
+	@echo "  >  Building linux binary..."
+	@echo "  >  LDFLAGS = $(LDFLAGS)"
+	$(foreach an, fluent demo ffdemo short wget-demo, \
+	$(foreach os, linux, \
+	  echo "     Building $(GOBIN)/$(an)_$(os)_$(goarch)...$(os)"; \
+	    GOARCH="$(goarch)" GOOS="$(os)" \
+	    GOPATH="$(GOPATH)" GOBIN="$(GOBIN)" GO111MODULE="$(GO111MODULE)" GOPROXY="$(GOPROXY)" \
+	      go build -ldflags "$(LDFLAGS) -X '$(W_PKG).AppName=$(an)'" -o $(GOBIN)/$(an)_$(os)_$(goarch) $(GOBASE)/examples/$(an)/main.go; \
+	    chmod +x $(GOBIN)/$(an)_$(os)_$(goarch); \
+	    ls -la $(LS_OPT) $(GOBIN)/$(an)_$(os)_$(goarch); \
+	) \
+	)
+	#@ls -la $(LS_OPT) $(GOBIN)/*linux*
+
+## build-nacl: build to linux executable, for LAN deploy manually.
+build-nacl:
+	@echo "  >  Building linux binary..."
+	@echo "  >  LDFLAGS = $(LDFLAGS)"
+	$(foreach an, short ffdemo, \
+	$(foreach os, nacl, \
+	$(foreach goarch, 386 amd64p32 arm, \
+	  echo "     >> Building $(GOBIN)/$(an)_$(os)_$(goarch)...$(os)"; \
+	    GOARCH="$(goarch)" GOOS="$(os)" \
+	    GOPATH="$(GOPATH)" GOBIN="$(GOBIN)" GO111MODULE="$(GO111MODULE)" GOPROXY="$(GOPROXY)" \
+	      go build -ldflags "$(LDFLAGS) -X '$(W_PKG).AppName=$(an)'" -o $(GOBIN)/$(an)_$(os)_$(goarch) $(GOBASE)/examples/$(an)/main.go; \
+	    chmod +x $(GOBIN)/$(an)_$(os)_$(goarch); \
+	    ls -la $(LS_OPT) $(GOBIN)/$(an)_$(os)_$(goarch); \
+	) \
+	) \
+	)
+	#@ls -la $(LS_OPT) $(GOBIN)/*linux*
+
+## build-ci: run build-ci task. just for CI tools
+build-ci:
+	@echo "  >  Building binaries in CI flow..."
+	@echo "  >  LDFLAGS = $(LDFLAGS)"
+	$(foreach an, fluent ffdemo demo short wget-demo, \
+	  echo "  >  APPNAME = $(APPNAME)|$(an)"; \
+	  $(foreach os, darwin linux windows, \
+	    echo "     Building $(GOBIN)/$(an)_$(os)_$(goarch)...$(os)"; \
+	      GOARCH="$(goarch)" GOOS="$(os)" \
+	      GOPATH="$(GOPATH)" GOBIN="$(GOBIN)" GO111MODULE="$(GO111MODULE)" GOPROXY="$(GOPROXY)" \
+	        go build -ldflags "$(LDFLAGS) -X '$(W_PKG).AppName=$(an)'" -o $(GOBIN)/$(an)_$(os)_$(goarch) $(GOBASE)/examples/$(an)/main.go; \
+	        gzip -f $(GOBIN)/$(an)_$(os)_$(goarch); \
+	  ) \
+	)
+	@ls -la $(LS_OPT) $(GOBIN)/*
+
+
+
+
 ## compile: Compile the binary.
 compile: go-clean go-generate
 	@-touch $(STDERR)
@@ -129,38 +182,6 @@ clean:
 run:
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) GO111MODULE=$(GO111MODULE) GOPROXY=$(GOPROXY) \
 	go run -ldflags "$(LDFLAGS)" $(GOBASE)/cli/main.go
-
-## build-linux: build to linux executable, for LAN deploy manually.
-build-linux:
-	@echo "  >  Building linux binary..."
-	@echo "  >  LDFLAGS = $(LDFLAGS)"
-	$(foreach an, fluent demo ffdemo short wget-demo, \
-	$(foreach os, linux, \
-	  echo "     Building $(GOBIN)/$(an)_$(os)_$(goarch)...$(os)"; \
-	    GOARCH="$(goarch)" GOOS="$(os)" \
-	    GOPATH="$(GOPATH)" GOBIN="$(GOBIN)" GO111MODULE="$(GO111MODULE)" GOPROXY="$(GOPROXY)" \
-	      go build -ldflags "$(LDFLAGS) -X '$(W_PKG).AppName=$(an)'" -o $(GOBIN)/$(an)_$(os)_$(goarch) $(GOBASE)/examples/$(an)/main.go; \
-	    chmod +x $(GOBIN)/$(an)_$(os)_$(goarch); \
-	    ls -la $(LS_OPT) $(GOBIN)/$(an)_$(os)_$(goarch); \
-	) \
-	)
-	#@ls -la $(LS_OPT) $(GOBIN)/*linux*
-
-## build-ci: run build-ci task. just for CI tools
-build-ci:
-	@echo "  >  Building binaries in CI flow..."
-	@echo "  >  LDFLAGS = $(LDFLAGS)"
-	$(foreach an, fluent ffdemo demo short wget-demo, \
-	  echo "  >  APPNAME = $(APPNAME)|$(an)"; \
-	  $(foreach os, darwin linux windows, \
-	    echo "     Building $(GOBIN)/$(an)_$(os)_$(goarch)...$(os)"; \
-	      GOARCH="$(goarch)" GOOS="$(os)" \
-	      GOPATH="$(GOPATH)" GOBIN="$(GOBIN)" GO111MODULE="$(GO111MODULE)" GOPROXY="$(GOPROXY)" \
-	        go build -ldflags "$(LDFLAGS) -X '$(W_PKG).AppName=$(an)'" -o $(GOBIN)/$(an)_$(os)_$(goarch) $(GOBASE)/examples/$(an)/main.go; \
-	        gzip -f $(GOBIN)/$(an)_$(os)_$(goarch); \
-	  ) \
-	)
-	@ls -la $(LS_OPT) $(GOBIN)/*
 
 go-build:
 	@echo "  >  Building binary '$(GOBIN)/$(APPNAME)'..."

@@ -120,9 +120,10 @@ func xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []str
 
 		pkg.savedGoCommand = *goCommand
 		cc := *goCommand
-		if matched, stop, err = flagsMatching(pkg, cc, goCommand, args); stop || err != nil {
-			return
-		}
+		// if matched, stop, err = flagsMatching(pkg, cc, goCommand, args); stop || err != nil {
+		// 	return
+		// }
+		matched, stop, err = flagsMatching(pkg, cc, goCommand, args)
 
 	} else {
 		// testing the next command, but the last one has already been the end of command series.
@@ -133,9 +134,10 @@ func xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []str
 		}
 
 		// or, keep going on...
-		if matched, stop, err = cmdMatching(pkg, goCommand, args); stop || err != nil {
-			return
-		}
+		// if matched, stop, err = cmdMatching(pkg, goCommand, args); stop || err != nil {
+		// 	return
+		// }
+		matched, stop, err = cmdMatching(pkg, goCommand, args)
 	}
 	return
 }

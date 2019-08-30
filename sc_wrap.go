@@ -14,8 +14,7 @@ import (
 	"syscall"
 )
 
-
-// TrapSignal is a helper for simplify your infinite loop codes.
+// TrapSignals is a helper for simplify your infinite loop codes.
 //
 // Usage
 //
@@ -27,7 +26,7 @@ import (
 //  }
 //
 //
-// 
+//
 func TrapSignals(onTrapped func(s os.Signal)) (waiter func()) {
 	done := make(chan struct{}, 1)
 	sigs := make(chan os.Signal, 1)
@@ -38,14 +37,14 @@ func TrapSignals(onTrapped func(s os.Signal)) (waiter func()) {
 		logrus.Debugf("receive signal '%v'", s)
 
 		onTrapped(s)
-		
+
 		// for _, s := range servers {
 		// 	s.Stop()
 		// }
 		// logrus.Infof("done")
 		done <- struct{}{}
 	}()
-	
+
 	waiter = func() {
 		for {
 			select {
@@ -56,6 +55,6 @@ func TrapSignals(onTrapped func(s os.Signal)) (waiter func()) {
 			}
 		}
 	}
-	
+
 	return
 }

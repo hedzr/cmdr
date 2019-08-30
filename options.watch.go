@@ -189,15 +189,12 @@ func (s *Options) visit(path string, f os.FileInfo, e error) (err error) {
 			if err == nil {
 				defer file.Close()
 				if err = s.mergeConfigFile(bufio.NewReader(file), ext); err != nil {
-					err = fmt.Errorf("Error in merging config file '%s': %v", path, err)
+					err = fmt.Errorf("error in merging config file '%s': %v", path, err)
 					return
 				}
 				configFiles = append(configFiles, path)
-				// env := viper.Get("app.registrar.env")
-				// key := fmt.Sprintf("app.registrar.consul.%s.addr", env)
-				// log.Infof("%s = %s", key, viper.Get(key))
 			} else {
-				err = fmt.Errorf("Error in merging config file '%s': %v", path, err)
+				err = fmt.Errorf("error in merging config file '%s': %v", path, err)
 			}
 		}
 	} else {

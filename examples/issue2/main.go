@@ -10,7 +10,7 @@ import (
 
 func main() {
 	// fmt.Println("Hello, playground")
-	
+
 	// To disable internal commands and flags, uncomment the following codes
 	cmdr.EnableVersionCommands = false
 	cmdr.EnableVerboseCommands = false

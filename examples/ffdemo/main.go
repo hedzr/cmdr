@@ -14,8 +14,8 @@ import (
 
 var (
 	treatAsLongOpt = flag.TreatAsLongOpt(true)
-	
-	serv           = flag.String("service", "hello_service", "service name",
+
+	serv = flag.String("service", "hello_service", "service name",
 		flag.WithAction(func(cmd *cmdr.Command, args []string) (err error) {
 			return
 		}), flag.WithDescription("", ""))

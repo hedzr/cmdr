@@ -130,7 +130,7 @@ import "github.com/hedzr/cmdr"
   - Options with and without arguments (bool v.s. other type)
   - Options with optional arguments and default values
   - Multiple option groups each containing a set of options
-  - Supports the compat short options `-aux`
+  - Supports the compat short options `-aux` == `-a -u -x`
   - Supports namespaces for (nested) option groups
 
 - Automatic help screen generation (*Generates and prints well-formatted help message*)
@@ -209,12 +209,15 @@ import "github.com/hedzr/cmdr"
 
 - Predefined commands and flags:
 
-  - Help: `-h`, `-?`, `--help`, ...
-  - Version & Build Info: `--version`/`-V`, `--build-info`/`-#`
+  - Help: `-h`, `-?`, `--help`, `--info`, `--usage`, `--helpme`, ...
+  - Version & Build Info: `--version`/`--ver`/`-V`, `--build-info`/`-#`
     - Simulating version at runtime with `—version-sim 1.9.1`
     - generally, `conf.AppName` and `conf.Version` are originally.
+    - `--tree`: list all commands and sub-commands.
+    - `--config <location>`: specify the location of the root config file.
   - Verbose & Debug: `—verbose`/`-v`, `—debug`/`-D`, `—quiet`/`-q`
-  - `--no-env-overrides`, and `--strict-mode`
+    - `--no-env-overrides`, and `--strict-mode`
+    - `--no-color`: print the plain text to console without ANSI colors.
   - Generate Commands:
     - `generate shell`: `—bash`/`—zsh`(*todo*)/`--auto`
     - `generate manual`:  man 1 ready.
@@ -287,7 +290,7 @@ import "github.com/hedzr/cmdr"
     - string
     - string slice, int slice
     - time duration
-    - *todo: ~~float~~, time, ~~duration~~, ~~int slice~~, …, all primitive go types*
+    - ~~*todo: float, time, duration, int slice, …, all primitive go types*~~
     - map
     - struct: `cmdr.GetSectionFrom(sectionKeyPath, &holderStruct)`
 
@@ -509,7 +512,6 @@ import "github.com/hedzr/cmdr"
 - https://github.com/hedzr/consul-tags
 - https://github.com/hedzr/ini-op
 - https://github.com/hedzr/awesome-tool
-- voxr
 - austr
 - Issue me to adding yours
 

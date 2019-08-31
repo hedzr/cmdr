@@ -115,14 +115,34 @@ func IsRunningInDemonizedMode() bool {
 	return cmdr.GetBoolR(DaemonizedKey)
 }
 
+// SetTermSignals allows an functor to provide a list of Signals
+func SetTermSignals(sig func() []os.Signal) {
+	onSetTermHandler = sig
+}
+
+// SetReloadSignals allows an functor to provide a list of Signals
+func SetReloadSignals(sig func() []os.Signal) {
+	onSetReloadHandler = sig
+}
+
 // DaemonizedKey is the keyPath to ensure you are running in demonized mode.
 const DaemonizedKey = "demonized"
 
 var child *os.Process
+var onSetTermHandler func() []os.Signal
+var onSetReloadHandler func() []os.Signal
 
 func run(cmd *cmdr.Command, args []string) (err error) {
-	daemon.SetSigHandler(termHandler, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGABRT, syscall.SIGINT)
-	daemon.SetSigHandler(reloadHandler, syscall.SIGHUP)
+	signals := []os.Signal{syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGABRT, syscall.SIGINT, syscall.SIGKILL}
+	if onSetTermHandler != nil {
+		signals = onSetTermHandler()
+	}
+	daemon.SetSigHandler(termHandler, signals...)
+	signals = []os.Signal{syscall.SIGHUP}
+	if onSetReloadHandler != nil {
+		signals = onSetReloadHandler()
+	}
+	daemon.SetSigHandler(reloadHandler, signals...)
 
 	if daemonImpl != nil {
 		if err = daemonImpl.OnRun(cmd, args, stop, done); err != nil {

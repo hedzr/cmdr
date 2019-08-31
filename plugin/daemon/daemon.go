@@ -132,18 +132,23 @@ var child *os.Process
 var onSetTermHandler func() []os.Signal
 var onSetReloadHandler func() []os.Signal
 
-func run(cmd *cmdr.Command, args []string) (err error) {
-	signals := []os.Signal{syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGABRT, syscall.SIGINT, syscall.SIGKILL}
+func setupSignals(){
+	signals := []os.Signal{syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGABRT, syscall.SIGINT, syscall.SIGKILL, syscall.SIGUSR1, syscall.SIGUSR2,}
 	if onSetTermHandler != nil {
 		signals = onSetTermHandler()
 	}
 	daemon.SetSigHandler(termHandler, signals...)
+	
 	signals = []os.Signal{syscall.SIGHUP}
 	if onSetReloadHandler != nil {
 		signals = onSetReloadHandler()
 	}
 	daemon.SetSigHandler(reloadHandler, signals...)
+}
 
+func run(cmd *cmdr.Command, args []string) (err error) {
+	setupSignals()
+	
 	if daemonImpl != nil {
 		if err = daemonImpl.OnRun(cmd, args, stop, done); err != nil {
 			return

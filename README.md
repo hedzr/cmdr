@@ -416,7 +416,25 @@ import "github.com/hedzr/cmdr"
     }
     ```
 
+  - `cmdr.TrapSignals(fn, signals...)`
+
+    It is a helper to simplify your infinite loop before exit program:
+
+    <details>
+      Here is sample fragment:
+      ```go
+      func enteringLoop() {
+     	  waiter := cmdr.TrapSignals(func(s os.Signal) {
+     	    logrus.Debugf("receive signal '%v' in onTrapped()", s)
+     	  })
+     	  go waiter()
+      }
+      ```
+    </details>
+
     
+
+  - 
 
 - More...
 

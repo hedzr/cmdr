@@ -18,8 +18,8 @@ import (
 //
 // Usage
 //
-//  func aLoop() {
-// 	  waiter := trapSignals(func(s os.Signal) {
+//  func enteringLoop() {
+// 	  waiter := cmdr.TrapSignals(func(s os.Signal) {
 // 	    logrus.Debugf("receive signal '%v' in onTrapped()", s)
 // 	  })
 // 	  go waiter()
@@ -27,10 +27,13 @@ import (
 //
 //
 //
-func TrapSignals(onTrapped func(s os.Signal)) (waiter func()) {
+func TrapSignals(onTrapped func(s os.Signal), signals ...os.Signal) (waiter func()) {
 	done := make(chan struct{}, 1)
 	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGQUIT)
+	if len(signals) == 0 {
+		signals = []os.Signal{syscall.SIGTERM, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGQUIT}
+	}
+	signal.Notify(sigs, signals...)
 
 	go func() {
 		s := <-sigs

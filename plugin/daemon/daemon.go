@@ -120,6 +120,11 @@ func SetTermSignals(sig func() []os.Signal) {
 	onSetTermHandler = sig
 }
 
+// SetSigEmtSignals allows an functor to provide a list of Signals
+func SetSigEmtSignals(sig func() []os.Signal) {
+	onSetSigEmtHandler = sig
+}
+
 // SetReloadSignals allows an functor to provide a list of Signals
 func SetReloadSignals(sig func() []os.Signal) {
 	onSetReloadHandler = sig
@@ -130,15 +135,26 @@ const DaemonizedKey = "demonized"
 
 var child *os.Process
 var onSetTermHandler func() []os.Signal
+var onSetSigEmtHandler func() []os.Signal
 var onSetReloadHandler func() []os.Signal
 
-func setupSignals(){
+func setupSignals() {
+	// for i := 1; i < 34; i++ {
+	// 	daemon.SetSigHandler(termHandler, syscall.Signal(i))
+	// }
+	
 	signals := []os.Signal{syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGABRT, syscall.SIGINT, syscall.SIGKILL, syscall.SIGUSR1, syscall.SIGUSR2,}
 	if onSetTermHandler != nil {
 		signals = onSetTermHandler()
 	}
 	daemon.SetSigHandler(termHandler, signals...)
-	
+
+	signals = []os.Signal{syscall.SIGEMT}
+	if onSetSigEmtHandler != nil {
+		signals = onSetSigEmtHandler()
+	}
+	daemon.SetSigHandler(sigEmtHandler, signals...)
+
 	signals = []os.Signal{syscall.SIGHUP}
 	if onSetReloadHandler != nil {
 		signals = onSetReloadHandler()
@@ -148,7 +164,7 @@ func setupSignals(){
 
 func run(cmd *cmdr.Command, args []string) (err error) {
 	setupSignals()
-	
+
 	if daemonImpl != nil {
 		if err = daemonImpl.OnRun(cmd, args, stop, done); err != nil {
 			return

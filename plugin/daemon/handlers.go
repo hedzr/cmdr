@@ -25,6 +25,15 @@ func termHandler(sig os.Signal) error {
 	return daemon.ErrStop
 }
 
+func sigEmtHandler(sig os.Signal) error {
+	log.Println("terminating (SIGEMT)...")
+	stop <- struct{}{}
+	if sig == syscall.SIGQUIT {
+		<-done
+	}
+	return daemon.ErrStop
+}
+
 func reloadHandler(sig os.Signal) error {
 	log.Println("configuration reloaded")
 	if daemonImpl != nil {

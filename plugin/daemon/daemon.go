@@ -40,7 +40,7 @@ func Enable(daemonImplX Daemon, modifier func(daemonServerCommand *cmdr.Command)
 	})
 }
 
-func attachPostAction(root *cmdr.RootCommand, postAction func(cmd *cmdr.Command, args []string)){
+func attachPostAction(root *cmdr.RootCommand, postAction func(cmd *cmdr.Command, args []string)) {
 	if root.PostAction != nil {
 		savedPostAction := root.PostAction
 		root.PostAction = func(cmd *cmdr.Command, args []string) {
@@ -62,7 +62,7 @@ func attachPostAction(root *cmdr.RootCommand, postAction func(cmd *cmdr.Command,
 	}
 }
 
-func attachPreAction(root *cmdr.RootCommand, preAction func(cmd *cmdr.Command, args []string) (err error)){
+func attachPreAction(root *cmdr.RootCommand, preAction func(cmd *cmdr.Command, args []string) (err error)) {
 	if root.PreAction != nil {
 		savedPreAction := root.PreAction
 		root.PreAction = func(cmd *cmdr.Command, args []string) (err error) {
@@ -142,8 +142,8 @@ func setupSignals() {
 	// for i := 1; i < 34; i++ {
 	// 	daemon.SetSigHandler(termHandler, syscall.Signal(i))
 	// }
-	
-	signals := []os.Signal{syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGABRT, syscall.SIGINT, syscall.SIGKILL, syscall.SIGUSR1, syscall.SIGUSR2,}
+
+	signals := []os.Signal{syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGABRT, syscall.SIGINT, syscall.SIGKILL, syscall.SIGUSR1, syscall.SIGUSR2}
 	if onSetTermHandler != nil {
 		signals = onSetTermHandler()
 	}

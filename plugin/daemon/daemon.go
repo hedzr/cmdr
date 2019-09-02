@@ -34,50 +34,58 @@ func Enable(daemonImplX Daemon, modifier func(daemonServerCommand *cmdr.Command)
 
 		prefix = strings.Join(append(cmdr.RxxtPrefix, "server"), ".")
 
-		if root.PreAction != nil {
-			savedPreAction := root.PreAction
-			root.PreAction = func(cmd *cmdr.Command, args []string) (err error) {
-				pidfile.Create(cmd)
-				logger.Setup(cmd)
-				if err = savedPreAction(cmd, args); err != nil {
-					return
-				}
-				if preAction != nil {
-					err = preAction(cmd, args)
-				}
-				return
-			}
-		} else {
-			root.PreAction = func(cmd *cmdr.Command, args []string) (err error) {
-				pidfile.Create(cmd)
-				logger.Setup(cmd)
-				if preAction != nil {
-					err = preAction(cmd, args)
-				}
-				return
-			}
-		}
-		if root.PostAction != nil {
-			savedPostAction := root.PostAction
-			root.PostAction = func(cmd *cmdr.Command, args []string) {
-				if postAction != nil {
-					postAction(cmd, args)
-				}
-				pidfile.Destroy()
-				savedPostAction(cmd, args)
-				return
-			}
-		} else {
-			root.PostAction = func(cmd *cmdr.Command, args []string) {
-				if postAction != nil {
-					postAction(cmd, args)
-				}
-				pidfile.Destroy()
-				return
-			}
-		}
+		attachPreAction(root, preAction)
+		attachPostAction(root, postAction)
 
 	})
+}
+
+func attachPostAction(root *cmdr.RootCommand, postAction func(cmd *cmdr.Command, args []string)){
+	if root.PostAction != nil {
+		savedPostAction := root.PostAction
+		root.PostAction = func(cmd *cmdr.Command, args []string) {
+			if postAction != nil {
+				postAction(cmd, args)
+			}
+			pidfile.Destroy()
+			savedPostAction(cmd, args)
+			return
+		}
+	} else {
+		root.PostAction = func(cmd *cmdr.Command, args []string) {
+			if postAction != nil {
+				postAction(cmd, args)
+			}
+			pidfile.Destroy()
+			return
+		}
+	}
+}
+
+func attachPreAction(root *cmdr.RootCommand, preAction func(cmd *cmdr.Command, args []string) (err error)){
+	if root.PreAction != nil {
+		savedPreAction := root.PreAction
+		root.PreAction = func(cmd *cmdr.Command, args []string) (err error) {
+			pidfile.Create(cmd)
+			logger.Setup(cmd)
+			if err = savedPreAction(cmd, args); err != nil {
+				return
+			}
+			if preAction != nil {
+				err = preAction(cmd, args)
+			}
+			return
+		}
+	} else {
+		root.PreAction = func(cmd *cmdr.Command, args []string) (err error) {
+			pidfile.Create(cmd)
+			logger.Setup(cmd)
+			if preAction != nil {
+				err = preAction(cmd, args)
+			}
+			return
+		}
+	}
 }
 
 func daemonStart(cmd *cmdr.Command, args []string) (err error) {
@@ -129,14 +137,6 @@ func SetSigEmtSignals(sig func() []os.Signal) {
 func SetReloadSignals(sig func() []os.Signal) {
 	onSetReloadHandler = sig
 }
-
-// DaemonizedKey is the keyPath to ensure you are running in demonized mode.
-const DaemonizedKey = "demonized"
-
-var child *os.Process
-var onSetTermHandler func() []os.Signal
-var onSetSigEmtHandler func() []os.Signal
-var onSetReloadHandler func() []os.Signal
 
 func setupSignals() {
 	// for i := 1; i < 34; i++ {
@@ -257,5 +257,13 @@ func daemonUninstall(cmd *cmdr.Command, args []string) (err error) {
 	}
 	return
 }
+
+// DaemonizedKey is the keyPath to ensure you are running in demonized mode.
+const DaemonizedKey = "demonized"
+
+var child *os.Process
+var onSetTermHandler func() []os.Signal
+var onSetSigEmtHandler func() []os.Signal
+var onSetReloadHandler func() []os.Signal
 
 var prefix string

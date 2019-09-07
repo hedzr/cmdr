@@ -382,9 +382,11 @@ func (pkg *ptpkg) Reset() {
 
 func toggleGroup(pkg *ptpkg) {
 	tg := pkg.flg.ToggleGroup
-	for _, f := range pkg.flg.owner.Flags {
-		if f.ToggleGroup == tg && (isBool(f.DefaultValue) || isNil1(f.DefaultValue)) {
-			rxxtOptions.SetNx(backtraceFlagNames(pkg.flg), false)
+	if len(tg) > 0 {
+		for _, f := range pkg.flg.owner.Flags {
+			if f.ToggleGroup == tg && (isBool(f.DefaultValue) || isNil1(f.DefaultValue)) {
+				rxxtOptions.Set(backtraceFlagNames(pkg.flg), false)
+			}
 		}
 	}
 }

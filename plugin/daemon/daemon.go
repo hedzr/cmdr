@@ -49,7 +49,7 @@ func WithDaemon(daemonImplX Daemon,
 // - pidfile
 // - go-daemon supports
 // -
-// Deprecated from v1.5.0, replaced with WithDaemon()
+// Deprecated: from v1.5.0, replaced with WithDaemon()
 func Enable(daemonImplX Daemon,
 	modifier func(daemonServerCommand *cmdr.Command) *cmdr.Command,
 	preAction func(cmd *cmdr.Command, args []string) (err error),

@@ -13,6 +13,7 @@ import (
 	"math"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 	"text/template"
 )
@@ -453,4 +454,13 @@ func stripPrefix(s, p string) string {
 		return s[len(p):]
 	}
 	return s
+}
+
+// IsDigitHeavy tests if the whole string is digit
+func IsDigitHeavy(s string) bool {
+	m, err := regexp.MatchString("^\\d", s)
+	if err != nil {
+		return false
+	}
+	return m
 }

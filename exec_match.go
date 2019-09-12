@@ -4,10 +4,6 @@
 
 package cmdr
 
-import (
-	"regexp"
-)
-
 func cmdMatching(pkg *ptpkg, goCommand **Command, args []string) (matched, stop bool, err error) {
 	// command, files
 	if cmd, ok := (*goCommand).plainCmds[pkg.a]; ok {
@@ -44,15 +40,6 @@ func cmdMatched(pkg *ptpkg, goCommand *Command, args []string) (stop bool, err e
 	return
 }
 
-// IsDigitHeavy tests if the whole string is digit
-func IsDigitHeavy(s string) bool {
-	m, err := regexp.MatchString("^\\d", s)
-	if err != nil {
-		return false
-	}
-	return m
-}
-
 func flagsPrepare(pkg *ptpkg, goCommand **Command, args []string) (stop bool, err error) {
 	if len(pkg.a) > 1 && (pkg.a[1] == '-' || pkg.a[1] == '~') {
 		if len(pkg.a) == 2 {
@@ -63,7 +50,7 @@ func flagsPrepare(pkg *ptpkg, goCommand **Command, args []string) (stop bool, er
 
 		// long flag
 		pkg.fn = pkg.a[2:]
-		findValueAttached(pkg, &pkg.fn)
+		pkg.findValueAttached(&pkg.fn)
 	} else {
 		// short flag
 
@@ -74,7 +61,7 @@ func flagsPrepare(pkg *ptpkg, goCommand **Command, args []string) (stop bool, er
 			pkg.val = pkg.a[1:]
 			pkg.fn = pkg.flg.Short
 			pkg.found = true
-			err = processTypeIntCore(pkg, args)
+			err = pkg.processTypeIntCore(args)
 			return
 		}
 
@@ -85,7 +72,7 @@ func flagsPrepare(pkg *ptpkg, goCommand **Command, args []string) (stop bool, er
 			pkg.suffix = 0
 		}
 
-		if i := matchShortFlag(pkg, *goCommand, pkg.a); i >= 0 {
+		if i := pkg.matchShortFlag(*goCommand, pkg.a); i >= 0 {
 			pkg.fn = pkg.a[1:i]
 			pkg.savedFn = pkg.a[i:]
 		} else {
@@ -93,7 +80,7 @@ func flagsPrepare(pkg *ptpkg, goCommand **Command, args []string) (stop bool, er
 			pkg.savedFn = pkg.a[2:]
 		}
 		pkg.short = true
-		findValueAttached(pkg, &pkg.savedFn)
+		pkg.findValueAttached(&pkg.savedFn)
 	}
 	return
 }
@@ -141,7 +128,7 @@ GO_UP:
 }
 
 func flagsMatched(pkg *ptpkg, goCommand *Command, args []string) (upLevel, stop bool, err error) {
-	if err = tryExtractingValue(pkg, args); err != nil {
+	if err = pkg.tryExtractingValue(args); err != nil {
 		stop = true
 		return
 	}
@@ -158,7 +145,7 @@ func flagsMatched(pkg *ptpkg, goCommand *Command, args []string) (upLevel, stop 
 			}
 		}
 		if isBool(pkg.flg.DefaultValue) || isNil1(pkg.flg.DefaultValue) {
-			toggleGroup(pkg)
+			pkg.toggleGroup()
 		}
 
 		if !pkg.assigned {

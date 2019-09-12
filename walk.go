@@ -12,7 +12,7 @@ func WalkAllCommands(walk func(cmd *Command, index int) (err error)) (err error)
 
 func walkFromCommand(cmd *Command, index int, walk func(cmd *Command, index int) (err error)) (err error) {
 	if cmd == nil {
-		cmd = &rootCommand.Command
+		cmd = &uniqueWorker.rootCommand.Command
 	}
 	err = walk(cmd, index)
 	if err == nil {

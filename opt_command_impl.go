@@ -191,7 +191,7 @@ func (s *optCommandImpl) NewFlag(typ OptFlagType) (opt OptFlag) {
 }
 
 func (s *optCommandImpl) NewSubCommand() (opt OptCmd) {
-	cmd := &Command{root: rootCommand}
+	cmd := &Command{root: uniqueWorker.rootCommand}
 
 	optCtx.current = cmd
 

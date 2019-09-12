@@ -177,10 +177,10 @@ var (
 	//
 	// doNotLoadingConfigFiles = false
 
-	// rootCommand the root of all commands
-	rootCommand *RootCommand
-	// rootOptions *Opt
-	rxxtOptions = NewOptions()
+	// // rootCommand the root of all commands
+	// rootCommand *RootCommand
+	// // rootOptions *Opt
+	// rxxtOptions = NewOptions()
 
 	// usedConfigFile
 	// usedConfigFile            string
@@ -214,8 +214,8 @@ var (
 	// beforeXrefBuilding []HookXrefFunc
 	// afterXrefBuilt     []HookXrefFunc
 
-	// GetEditor sets callback to get editor program
-	GetEditor func() (string, error)
+	// getEditor sets callback to get editor program
+	// getEditor func() (string, error)
 
 	// ErrShouldBeStopException tips `Exec()` cancelled the following actions after `PreAction()`
 	ErrShouldBeStopException = errors.New("should be stop right now")

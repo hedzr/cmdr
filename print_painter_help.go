@@ -26,7 +26,7 @@ func (s *helpPainter) Results() (res []byte) {
 }
 
 func (s *helpPainter) Printf(fmtStr string, args ...interface{}) {
-	_, _ = fmt.Fprintf(rootCommand.ow, fmtStr+"\n", args...)
+	_, _ = fmt.Fprintf(uniqueWorker.rootCommand.ow, fmtStr+"\n", args...)
 }
 
 func (s *helpPainter) FpPrintHeader(command *Command) {

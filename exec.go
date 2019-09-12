@@ -41,6 +41,11 @@ type ExecWorker struct {
 
 	defaultStdout *bufio.Writer
 	defaultStderr *bufio.Writer
+
+	// rootCommand the root of all commands
+	rootCommand *RootCommand
+	// rootOptions *Opt
+	rxxtOptions *Options
 }
 
 // ExecOption is the functional option for Exec()
@@ -74,6 +79,8 @@ var uniqueWorker = &ExecWorker{
 
 	defaultStdout: bufio.NewWriterSize(os.Stdout, 16384),
 	defaultStderr: bufio.NewWriterSize(os.Stderr, 16384),
+
+	rxxtOptions: NewOptions(),
 }
 
 //
@@ -117,7 +124,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (err e
 	w.envPrefixes = EnvPrefix
 	w.rxxtPrefixes = RxxtPrefix
 
-	if rootCommand == nil {
+	if w.rootCommand == nil {
 		w.setRootCommand(rootCmd)
 	}
 
@@ -221,7 +228,7 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 	err = w.buildXref(rootCmd)
 
 	if err == nil {
-		err = rxxtOptions.buildAutomaticEnv(rootCmd)
+		err = w.rxxtOptions.buildAutomaticEnv(rootCmd)
 	}
 
 	if err == nil {
@@ -341,7 +348,7 @@ func (w *ExecWorker) loadFromPredefinedLocation(rootCmd *RootCommand) (err error
 		}
 
 		if FileExists(fn) {
-			err = rxxtOptions.LoadConfigFile(fn)
+			err = w.rxxtOptions.LoadConfigFile(fn)
 			if err != nil {
 				return
 			}
@@ -371,10 +378,10 @@ func (w *ExecWorker) AddOnAfterXrefBuilt(cb HookXrefFunc) {
 }
 
 func (w *ExecWorker) setRootCommand(rootCmd *RootCommand) {
-	rootCommand = rootCmd
+	w.rootCommand = rootCmd
 
-	rootCommand.ow = w.defaultStdout
-	rootCommand.oerr = w.defaultStderr
+	w.rootCommand.ow = w.defaultStdout
+	w.rootCommand.oerr = w.defaultStderr
 }
 
 func (w *ExecWorker) getPrefix() string {

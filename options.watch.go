@@ -22,30 +22,30 @@ import (
 
 // GetOptions retusns the global options instance (rxxtOptions)
 func GetOptions() *Options {
-	return rxxtOptions
+	return uniqueWorker.rxxtOptions
 }
 
 // GetUsedConfigFile returns the main config filename (generally it's `<appname>.yml`)
 func GetUsedConfigFile() string {
-	return rxxtOptions.usedConfigFile
+	return uniqueWorker.rxxtOptions.usedConfigFile
 }
 
 // GetUsedConfigSubDir returns the sub-directory `conf.d` of config files.
 // Note that it be always normalized now.
 // Sometimes it might be empty string ("") if `conf.d` have not been found.
 func GetUsedConfigSubDir() string {
-	return rxxtOptions.usedConfigSubDir
+	return uniqueWorker.rxxtOptions.usedConfigSubDir
 }
 
 // var rwlCfgReload = new(sync.RWMutex)
 
 // AddOnConfigLoadedListener add an functor on config loaded and merged
 func AddOnConfigLoadedListener(c ConfigReloaded) {
-	defer rxxtOptions.rwlCfgReload.Unlock()
-	rxxtOptions.rwlCfgReload.Lock()
+	defer uniqueWorker.rxxtOptions.rwlCfgReload.Unlock()
+	uniqueWorker.rxxtOptions.rwlCfgReload.Lock()
 
 	// rwlCfgReload.RLock()
-	if _, ok := rxxtOptions.onConfigReloadedFunctions[c]; ok {
+	if _, ok := uniqueWorker.rxxtOptions.onConfigReloadedFunctions[c]; ok {
 		// rwlCfgReload.RUnlock()
 		return
 	}
@@ -55,27 +55,27 @@ func AddOnConfigLoadedListener(c ConfigReloaded) {
 
 	// defer rwlCfgReload.Unlock()
 
-	rxxtOptions.onConfigReloadedFunctions[c] = true
+	uniqueWorker.rxxtOptions.onConfigReloadedFunctions[c] = true
 }
 
 // RemoveOnConfigLoadedListener remove an functor on config loaded and merged
 func RemoveOnConfigLoadedListener(c ConfigReloaded) {
-	defer rxxtOptions.rwlCfgReload.Unlock()
-	rxxtOptions.rwlCfgReload.Lock()
-	delete(rxxtOptions.onConfigReloadedFunctions, c)
+	defer uniqueWorker.rxxtOptions.rwlCfgReload.Unlock()
+	uniqueWorker.rxxtOptions.rwlCfgReload.Lock()
+	delete(uniqueWorker.rxxtOptions.onConfigReloadedFunctions, c)
 }
 
 // SetOnConfigLoadedListener enable/disable an functor on config loaded and merged
 func SetOnConfigLoadedListener(c ConfigReloaded, enabled bool) {
-	defer rxxtOptions.rwlCfgReload.Unlock()
-	rxxtOptions.rwlCfgReload.Lock()
-	rxxtOptions.onConfigReloadedFunctions[c] = enabled
+	defer uniqueWorker.rxxtOptions.rwlCfgReload.Unlock()
+	uniqueWorker.rxxtOptions.rwlCfgReload.Lock()
+	uniqueWorker.rxxtOptions.onConfigReloadedFunctions[c] = enabled
 }
 
 // LoadConfigFile Load a yaml config file and merge the settings into `rxxtOptions`
 // and load files in the `conf.d` child directory too.
 func LoadConfigFile(file string) (err error) {
-	return rxxtOptions.LoadConfigFile(file)
+	return uniqueWorker.rxxtOptions.LoadConfigFile(file)
 }
 
 // LoadConfigFile Load a yaml config file and merge the settings into `rxxtOptions`

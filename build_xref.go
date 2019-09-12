@@ -419,7 +419,7 @@ func (w *ExecWorker) buildCrossRefs(cmd *Command) {
 		w.buildCrossRefsForFlag(flg, cmd, singleFlagNames, stringFlagNames)
 
 		// opt.Children[flg.Full] = &OptOne{Value: flg.DefaultValue,}
-		rxxtOptions.Set(w.backtraceFlagNames(flg), flg.DefaultValue)
+		w.rxxtOptions.Set(w.backtraceFlagNames(flg), flg.DefaultValue)
 	}
 
 	for _, cx := range cmd.SubCommands {
@@ -428,7 +428,7 @@ func (w *ExecWorker) buildCrossRefs(cmd *Command) {
 		w.buildCrossRefsForCommand(cx, cmd, singleCmdNames, stringCmdNames)
 		// opt.Children[cx.Full] = newOpt()
 
-		rxxtOptions.Set(w.backtraceCmdNames(cx), nil)
+		w.rxxtOptions.Set(w.backtraceCmdNames(cx), nil)
 		// buildCrossRefs(cx, opt.Children[cx.Full])
 		w.buildCrossRefs(cx)
 	}
@@ -503,7 +503,7 @@ func (w *ExecWorker) ensureCmdMembers(cmd *Command) *Command {
 	}
 
 	if cmd.root == nil {
-		cmd.root = rootCommand
+		cmd.root = w.rootCommand
 	}
 	return cmd
 }

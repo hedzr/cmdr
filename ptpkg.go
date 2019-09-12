@@ -47,7 +47,7 @@ func (pkg *ptpkg) toggleGroup() {
 	if len(tg) > 0 {
 		for _, f := range pkg.flg.owner.Flags {
 			if f.ToggleGroup == tg && (isBool(f.DefaultValue) || isNil1(f.DefaultValue)) {
-				rxxtOptions.Set(uniqueWorker.backtraceFlagNames(pkg.flg), false)
+				uniqueWorker.rxxtOptions.Set(uniqueWorker.backtraceFlagNames(pkg.flg), false)
 			}
 		}
 	}
@@ -248,9 +248,9 @@ func (pkg *ptpkg) processTypeDuration(args []string) (err error) {
 
 func (pkg *ptpkg) xxSet(keyPath string, v interface{}) {
 	if pkg.a[0] == '~' {
-		rxxtOptions.SetNx(keyPath, v)
+		uniqueWorker.rxxtOptions.SetNx(keyPath, v)
 	} else {
-		rxxtOptions.Set(keyPath, v)
+		uniqueWorker.rxxtOptions.Set(keyPath, v)
 	}
 	if pkg.flg != nil && pkg.flg.onSet != nil {
 		pkg.flg.onSet(keyPath, v)
@@ -298,7 +298,7 @@ func (pkg *ptpkg) processTypeString(args []string) (err error) {
 		// validate for enum
 		for _, w := range pkg.flg.ValidArgs {
 			if pkg.val == w {
-				goto SAVE_IT
+				goto saveIt
 			}
 		}
 		pkg.found = true
@@ -306,7 +306,7 @@ func (pkg *ptpkg) processTypeString(args []string) (err error) {
 		return
 	}
 
-SAVE_IT:
+saveIt:
 	var v = pkg.val
 	var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
 	pkg.xxSet(keyPath, v)

@@ -13,11 +13,11 @@ import (
 )
 
 func fp(fmtStr string, args ...interface{}) {
-	_, _ = fmt.Fprintf(rootCommand.ow, fmtStr+"\n", args...)
+	_, _ = fmt.Fprintf(uniqueWorker.rootCommand.ow, fmtStr+"\n", args...)
 }
 
 func ferr(fmtStr string, args ...interface{}) {
-	_, _ = fmt.Fprintf(rootCommand.oerr, fmtStr+"\n", args...)
+	_, _ = fmt.Fprintf(uniqueWorker.rootCommand.oerr, fmtStr+"\n", args...)
 }
 
 func (w *ExecWorker) printHelp(command *Command, justFlags bool) {
@@ -32,12 +32,12 @@ func (w *ExecWorker) printHelp(command *Command, justFlags bool) {
 		w.paintFromCommand(w.currentHelpPainter, command, justFlags)
 	}
 
-	if rxxtOptions.GetBool("debug") {
+	if w.rxxtOptions.GetBool("debug") {
 		if GetBoolR("no-color") {
-			fp("\nDUMP:\n\n%v\n", rxxtOptions.DumpAsString())
+			fp("\nDUMP:\n\n%v\n", w.rxxtOptions.DumpAsString())
 		} else {
 			// "  [\x1b[2m\x1b[%dm%s\x1b[0m]"
-			fp("\n\x1b[2m\x1b[%dmDUMP:\n\n%v\x1b[0m\n", DarkColor, rxxtOptions.DumpAsString())
+			fp("\n\x1b[2m\x1b[%dmDUMP:\n\n%v\x1b[0m\n", DarkColor, w.rxxtOptions.DumpAsString())
 		}
 	}
 	if w.currentHelpPainter != nil {
@@ -75,7 +75,7 @@ func (w *ExecWorker) printHelpTailLine(p Painter, command *Command) {
 
 func (w *ExecWorker) printHelpZsh(command *Command, justFlags bool) {
 	if command == nil {
-		command = &rootCommand.Command
+		command = &w.rootCommand.Command
 	}
 
 	w.printHelpZshCommands(command, justFlags)
@@ -115,7 +115,7 @@ func (w *ExecWorker) printHelpZshCommands(command *Command, justFlags bool) {
 }
 
 func (w *ExecWorker) printHelpUsages(p Painter, command *Command) {
-	if len(rootCommand.Header) == 0 || !command.IsRoot() {
+	if len(w.rootCommand.Header) == 0 || !command.IsRoot() {
 		p.FpUsagesTitle(command, "Usages")
 
 		ttl := "[Commands] "
@@ -132,7 +132,7 @@ func (w *ExecWorker) printHelpUsages(p Painter, command *Command) {
 			cmds += " "
 		}
 
-		p.FpUsagesLine(command, "", rootCommand.Name, cmds, ttl, command.TailPlaceHolder)
+		p.FpUsagesLine(command, "", w.rootCommand.Name, cmds, ttl, command.TailPlaceHolder)
 	}
 }
 
@@ -299,7 +299,7 @@ func (w *ExecWorker) showBuildInfo() {
 		return
 	}
 
-	w.printHeader(w.currentHelpPainter, &rootCommand.Command)
+	w.printHeader(w.currentHelpPainter, &w.rootCommand.Command)
 	// buildTime
 	fp(`
        Built by: %v

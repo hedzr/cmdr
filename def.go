@@ -205,8 +205,8 @@ var (
 	// CurrentGroupTitleColor the print color for titles
 	CurrentGroupTitleColor = DarkColor
 
-	globalShowVersion   func()
-	globalShowBuildInfo func()
+	// globalShowVersion   func()
+	// globalShowBuildInfo func()
 
 	// beforeXrefBuilding []HookXrefFunc
 	// afterXrefBuilt     []HookXrefFunc

@@ -16,7 +16,7 @@ func (c *Command) PrintHelp(justFlags bool) {
 
 // PrintVersion prints versions information
 func (c *Command) PrintVersion() {
-	showVersion()
+	uniqueWorker.showVersion()
 }
 
 // GetRoot returns the `RootCommand`

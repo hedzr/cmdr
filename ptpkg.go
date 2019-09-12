@@ -47,7 +47,7 @@ func (pkg *ptpkg) toggleGroup() {
 	if len(tg) > 0 {
 		for _, f := range pkg.flg.owner.Flags {
 			if f.ToggleGroup == tg && (isBool(f.DefaultValue) || isNil1(f.DefaultValue)) {
-				rxxtOptions.Set(backtraceFlagNames(pkg.flg), false)
+				rxxtOptions.Set(uniqueWorker.backtraceFlagNames(pkg.flg), false)
 			}
 		}
 	}
@@ -164,7 +164,7 @@ func (pkg *ptpkg) tryExtractingBoolValue() (err error) {
 	}
 
 	var v = pkg.flg.DefaultValue
-	var keyPath = backtraceFlagNames(pkg.flg)
+	var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
 	pkg.xxSet(keyPath, v)
 	return
 }
@@ -239,7 +239,7 @@ func (pkg *ptpkg) processTypeDuration(args []string) (err error) {
 		var v time.Duration
 		v, err = time.ParseDuration(pkg.val)
 		if err == nil {
-			var keyPath = backtraceFlagNames(pkg.flg)
+			var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
 			pkg.xxSet(keyPath, v)
 		}
 	}
@@ -269,7 +269,7 @@ func (pkg *ptpkg) processTypeIntCore(args []string) (err error) {
 		err = fmt.Errorf("wrong number: flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
 	}
 
-	var keyPath = backtraceFlagNames(pkg.flg)
+	var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
 	pkg.xxSet(keyPath, v)
 	return
 }
@@ -284,7 +284,7 @@ func (pkg *ptpkg) processTypeUint(args []string) (err error) {
 		ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
 	}
 
-	var keyPath = backtraceFlagNames(pkg.flg)
+	var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
 	pkg.xxSet(keyPath, v)
 	return
 }
@@ -308,7 +308,7 @@ func (pkg *ptpkg) processTypeString(args []string) (err error) {
 
 SAVE_IT:
 	var v = pkg.val
-	var keyPath = backtraceFlagNames(pkg.flg)
+	var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
 	pkg.xxSet(keyPath, v)
 	return
 }
@@ -319,7 +319,7 @@ func (pkg *ptpkg) processTypeStringSlice(args []string) (err error) {
 	}
 
 	var v = strings.Split(pkg.val, ",")
-	var keyPath = backtraceFlagNames(pkg.flg)
+	var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
 	pkg.xxSet(keyPath, v)
 	return
 }
@@ -336,7 +336,7 @@ func (pkg *ptpkg) processTypeIntSlice(args []string) (err error) {
 		}
 	}
 
-	var keyPath = backtraceFlagNames(pkg.flg)
+	var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
 	pkg.xxSet(keyPath, v)
 	return
 }
@@ -353,7 +353,7 @@ func (pkg *ptpkg) processTypeUintSlice(args []string) (err error) {
 		}
 	}
 
-	var keyPath = backtraceFlagNames(pkg.flg)
+	var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
 	pkg.xxSet(keyPath, v)
 	return
 }

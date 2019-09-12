@@ -4,7 +4,10 @@
 
 package cmdr
 
-import "os"
+import (
+	"bufio"
+	"os"
+)
 
 var (
 	// EnableVersionCommands supports injecting the default `--version` flags and commands
@@ -44,6 +47,33 @@ func AddOnBeforeXrefBuilding(cb HookXrefFunc) {
 // Deprecated from v1.5.0
 func AddOnAfterXrefBuilt(cb HookXrefFunc) {
 	uniqueWorker.AddOnAfterXrefBuilt(cb)
+}
+
+// SetInternalOutputStreams sets the internal output streams for debugging
+// Deprecated from v1.5.0
+func SetInternalOutputStreams(out, err *bufio.Writer) {
+	uniqueWorker.defaultStdout = out
+	uniqueWorker.defaultStderr = err
+
+	if uniqueWorker.defaultStdout == nil {
+		uniqueWorker.defaultStdout = bufio.NewWriterSize(os.Stdout, 16384)
+	}
+	if uniqueWorker.defaultStderr == nil {
+		uniqueWorker.defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
+	}
+}
+
+
+// SetCustomShowVersion supports your `ShowVersion()` instead of internal `showVersion()`
+// Deprecated from v1.5.0
+func SetCustomShowVersion(fn func()) {
+	uniqueWorker.globalShowVersion = fn
+}
+
+// SetCustomShowBuildInfo supports your `ShowBuildInfo()` instead of internal `showBuildInfo()`
+// Deprecated from v1.5.0
+func SetCustomShowBuildInfo(fn func()) {
+	uniqueWorker.globalShowBuildInfo = fn
 }
 
 // ExecWith is main entry of `cmdr`.

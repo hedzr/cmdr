@@ -5,10 +5,8 @@
 package cmdr
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
-	"os"
 	"regexp"
 	"sort"
 	"strings"
@@ -129,7 +127,7 @@ func printHelpUsages(p Painter, command *Command) {
 			}
 		}
 
-		cmds := strings.ReplaceAll(backtraceCmdNames(command), ".", " ")
+		cmds := strings.ReplaceAll(uniqueWorker.backtraceCmdNames(command), ".", " ")
 		if len(cmds) > 0 {
 			cmds += " "
 		}
@@ -282,33 +280,9 @@ GO_PRINT_FLAGS:
 
 }
 
-// SetInternalOutputStreams sets the internal output streams for debugging
-// Deprecated from v1.5.0
-func SetInternalOutputStreams(out, err *bufio.Writer) {
-	uniqueWorker.defaultStdout = out
-	uniqueWorker.defaultStderr = err
-
-	if uniqueWorker.defaultStdout == nil {
-		uniqueWorker.defaultStdout = bufio.NewWriterSize(os.Stdout, 16384)
-	}
-	if uniqueWorker.defaultStderr == nil {
-		uniqueWorker.defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
-	}
-}
-
-// SetCustomShowVersion supports your `ShowVersion()` instead of internal `showVersion()`
-func SetCustomShowVersion(fn func()) {
-	globalShowVersion = fn
-}
-
-// SetCustomShowBuildInfo supports your `ShowBuildInfo()` instead of internal `showBuildInfo()`
-func SetCustomShowBuildInfo(fn func()) {
-	globalShowBuildInfo = fn
-}
-
-func showVersion() {
-	if globalShowVersion != nil {
-		globalShowVersion()
+func (w *ExecWorker) showVersion() {
+	if w.globalShowVersion != nil {
+		w.globalShowVersion()
 		return
 	}
 
@@ -321,12 +295,12 @@ func showVersion() {
 
 // PrintBuildInfo print building information
 func PrintBuildInfo() {
-	showBuildInfo()
+	uniqueWorker.showBuildInfo()
 }
 
-func showBuildInfo() {
-	if globalShowBuildInfo != nil {
-		globalShowBuildInfo()
+func (w *ExecWorker) showBuildInfo() {
+	if w.globalShowBuildInfo != nil {
+		w.globalShowBuildInfo()
 		return
 	}
 

@@ -30,6 +30,9 @@ type ExecWorker struct {
 	enableCmdrCommands     bool
 	enableGenerateCommands bool
 
+	globalShowVersion   func()
+	globalShowBuildInfo func()
+
 	defaultStdout *bufio.Writer
 	defaultStderr *bufio.Writer
 }
@@ -122,6 +125,35 @@ func WithBuiltinCommands(versionsCmds, helpCmds, verboseCmds, generateCmds, gene
 		w.enableVerboseCommands = verboseCmds
 		w.enableCmdrCommands = generalCmdrCmds
 		w.enableGenerateCommands = generateCmds
+	}
+}
+
+// WithInternalOutputStreams sets the internal output streams for debugging
+func WithInternalOutputStreams(out, err *bufio.Writer) ExecOption {
+	return func(w *ExecWorker) {
+		w.defaultStdout = out
+		w.defaultStderr = err
+
+		if w.defaultStdout == nil {
+			w.defaultStdout = bufio.NewWriterSize(os.Stdout, 16384)
+		}
+		if w.defaultStderr == nil {
+			w.defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
+		}
+	}
+}
+
+// SetCustomShowVersion supports your `ShowVersion()` instead of internal `showVersion()`
+func WithCustomShowVersion(fn func()) ExecOption {
+	return func(w *ExecWorker) {
+		w.globalShowVersion = fn
+	}
+}
+
+// SetCustomShowBuildInfo supports your `ShowBuildInfo()` instead of internal `showBuildInfo()`
+func WithCustomShowBuildInfo(fn func()) ExecOption {
+	return func(w *ExecWorker) {
+		w.globalShowBuildInfo = fn
 	}
 }
 
@@ -321,7 +353,7 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 	// build xref for root command and its all sub-commands and flags
 	// and build the default values
-	buildRootCrossRefs(rootCmd)
+	w.buildRootCrossRefs(rootCmd)
 
 	if !doNotLoadingConfigFiles {
 		// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`

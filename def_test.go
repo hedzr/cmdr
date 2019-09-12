@@ -698,7 +698,7 @@ func TestExec(t *testing.T) {
 			fmt.Println("xx*: ***: ", sss)
 		}
 
-		if err = cmdr.InternalExecFor(rootCmd, strings.Split(sss, " ")); err != nil {
+		if err = cmdr.Worker().InternalExecFor(rootCmd, strings.Split(sss, " ")); err != nil {
 			t.Fatal(err)
 		}
 		if sss == "consul-tags kv unknown" {

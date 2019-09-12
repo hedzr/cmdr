@@ -168,16 +168,6 @@ type (
 )
 
 var (
-	// EnableVersionCommands supports injecting the default `--version` flags and commands
-	EnableVersionCommands = true
-	// EnableHelpCommands supports injecting the default `--help` flags and commands
-	EnableHelpCommands = true
-	// EnableVerboseCommands supports injecting the default `--verbose` flags and commands
-	EnableVerboseCommands = true
-	// EnableCmdrCommands support these flags: `--strict-mode`, `--no-env-overrides`
-	EnableCmdrCommands = true
-	// EnableGenerateCommands supports injecting the default `generate` commands and subcommands
-	EnableGenerateCommands = true
 
 	//
 	doNotLoadingConfigFiles = false
@@ -190,9 +180,6 @@ var (
 	// RxxtPrefix create a top-level namespace, which contains all normalized `Flag`s.
 	RxxtPrefix = []string{"app"}
 
-	// EnvPrefix attaches a prefix to key to retrieve the option value.
-	// Deprecated from v1.5.0
-	EnvPrefix = []string{"CMDR"}
 
 	// usedConfigFile
 	usedConfigFile            string
@@ -233,12 +220,7 @@ var (
 	ErrShouldBeStopException = errors.New("should be stop right now")
 
 	errWrongEnumValue = errors.New("unexpect enumerable value '%s' for option '%s', under command '%s'")
-
-	// ShouldIgnoreWrongEnumValue will be put into `cmdrError.Ignorable` while wrong enumerable value found in parsing command-line options.
-	// main program might decide whether it's a warning or error.
-	// see also: [Flag.ValidArgs]
-	ShouldIgnoreWrongEnumValue = false
-
+	
 	defaultStringMetric = JaroWinklerDistance(JWWithThreshold(similiarThreshold))
 )
 

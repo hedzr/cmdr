@@ -8,24 +8,23 @@ import (
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
 	"os"
-	"reflect"
-	"strconv"
 	"strings"
-	"time"
 )
 
 //
 
-// 
+//
 type ExecWorker struct {
 	// beforeXrefBuildingX, afterXrefBuiltX HookXrefFunc
 	beforeXrefBuilding  []HookXrefFunc
 	afterXrefBuilt      []HookXrefFunc
 	envPrefixes         []string
 	predefinedLocations []string
+
+	shouldIgnoreWrongEnumValue bool
 }
 
-// ExecOption is the functional option for Exec() 
+// ExecOption is the functional option for Exec()
 type ExecOption func(w *ExecWorker)
 
 //
@@ -38,6 +37,8 @@ var uniqueWorker = &ExecWorker{
 		"/usr/local/etc/%s/%s.yml",
 		os.Getenv("HOME") + "/.%s/%s.yml",
 	},
+
+	shouldIgnoreWrongEnumValue: true,
 }
 
 //
@@ -56,7 +57,7 @@ func WithXrefBuildingHooks(beforeXrefBuildingX, afterXrefBuiltX HookXrefFunc) fu
 }
 
 // WithEnvPrefix sets the environment variable text prefixes.
-// cmdr will lookup envvars for a key. 
+// cmdr will lookup envvars for a key.
 func WithEnvPrefix(prefix []string) ExecOption {
 	return func(w *ExecWorker) {
 		w.envPrefixes = prefix
@@ -64,10 +65,38 @@ func WithEnvPrefix(prefix []string) ExecOption {
 }
 
 // WithPredefinedLocations sets the environment variable text prefixes.
-// cmdr will lookup envvars for a key. 
+// cmdr will lookup envvars for a key.
 func WithPredefinedLocations(locations []string) ExecOption {
 	return func(w *ExecWorker) {
 		w.predefinedLocations = locations
+	}
+}
+
+// WithIgnoreWrongEnumValue will be put into `cmdrError.Ignorable` while wrong enumerable value found in parsing command-line options.
+// main program might decide whether it's a warning or error.
+// see also: [Flag.ValidArgs]
+func WithIgnoreWrongEnumValue(ignored bool) ExecOption {
+	return func(w *ExecWorker) {
+		w.shouldIgnoreWrongEnumValue = ignored
+		ShouldIgnoreWrongEnumValue = ignored
+	}
+}
+
+// WithBuiltinCommands enables/disables those builtin predefined commands. Such as:
+//
+// 	- versionsCmds / EnableVersionCommands supports injecting the default `--version` flags and commands
+// 	- helpCmds / EnableHelpCommands supports injecting the default `--help` flags and commands
+// 	- verboseCmds / EnableVerboseCommands supports injecting the default `--verbose` flags and commands
+// 	- generalCmdrCmds / EnableCmdrCommands support these flags: `--strict-mode`, `--no-env-overrides`
+// 	- generateCmds / EnableGenerateCommands supports injecting the default `generate` commands and subcommands
+//
+func WithBuiltinCommands(versionsCmds, helpCmds, verboseCmds, generateCmds, generalCmdrCmds bool) ExecOption {
+	return func(w *ExecWorker) {
+		EnableVersionCommands = versionsCmds
+		EnableHelpCommands = helpCmds
+		EnableVerboseCommands = verboseCmds
+		EnableCmdrCommands = generalCmdrCmds
+		EnableGenerateCommands = generateCmds
 	}
 }
 
@@ -356,394 +385,4 @@ func getArgs(pkg *ptpkg, args []string) []string {
 		a = args[pkg.i+1:]
 	}
 	return a
-}
-
-// func isTypeInt(kind reflect.Kind) bool {
-// 	switch kind {
-// 	case reflect.Int:
-// 	case reflect.Int8:
-// 	case reflect.Int16:
-// 	case reflect.Int32:
-// 	case reflect.Int64:
-// 	case reflect.Uint:
-// 	case reflect.Uint8:
-// 	case reflect.Uint16:
-// 	case reflect.Uint32:
-// 	case reflect.Uint64:
-// 	default:
-// 		return false
-// 	}
-// 	return true
-// }
-
-func isTypeUint(kind reflect.Kind) bool {
-	switch kind {
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return true
-	default:
-		return false
-	}
-}
-
-func isTypeSInt(kind reflect.Kind) bool {
-	switch kind {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return true
-	default:
-		return false
-	}
-}
-
-func isBool(v interface{}) bool {
-	_, ok := v.(bool)
-	return ok
-}
-
-func isNil1(v interface{}) bool {
-	return v == nil
-}
-
-type ptpkg struct {
-	assigned          bool
-	found             bool
-	short             bool
-	lastCommandHeld   bool
-	fn, val           string
-	savedFn, savedVal string
-	i                 int
-	a                 string
-	flg               *Flag
-	savedGoCommand    *Command
-	needHelp          bool
-	needFlagsHelp     bool
-	suffix            uint8
-	unknownCmds       []string
-	unknownFlags      []string
-}
-
-func (pkg *ptpkg) Reset() {
-	pkg.assigned = false
-	pkg.found = false
-	pkg.short = false
-
-	pkg.savedFn = ""
-	pkg.savedVal = ""
-	pkg.fn = ""
-	pkg.val = ""
-}
-
-func toggleGroup(pkg *ptpkg) {
-	tg := pkg.flg.ToggleGroup
-	if len(tg) > 0 {
-		for _, f := range pkg.flg.owner.Flags {
-			if f.ToggleGroup == tg && (isBool(f.DefaultValue) || isNil1(f.DefaultValue)) {
-				rxxtOptions.Set(backtraceFlagNames(pkg.flg), false)
-			}
-		}
-	}
-}
-
-func findValueAttached(pkg *ptpkg, fn *string) {
-	if strings.Contains(*fn, "=") {
-		aa := strings.Split(*fn, "=")
-		*fn = aa[0]
-		pkg.val = trimQuotes(aa[1])
-		pkg.assigned = true
-	} else {
-		splitQuotedValueIfNecessary(pkg, fn)
-	}
-}
-
-func splitQuotedValueIfNecessary(pkg *ptpkg, fn *string) {
-	if pos := strings.Index(*fn, "'"); pos >= 0 {
-		pkg.val = trimQuotes((*fn)[pos:])
-		*fn = (*fn)[0:pos]
-		pkg.assigned = true
-	} else if pos := strings.Index(*fn, "\""); pos >= 0 {
-		pkg.val = trimQuotes((*fn)[pos:])
-		*fn = (*fn)[0:pos]
-		pkg.assigned = true
-		// } else {
-		// --xVALUE need to be parsed.
-	}
-}
-
-func matchShortFlag(pkg *ptpkg, goCommand *Command, a string) (i int) {
-	for i = len(a); i > 1; i-- {
-		fn := a[1:i]
-		if _, ok := goCommand.plainShortFlags[fn]; ok {
-			return
-		}
-	}
-	return -1
-}
-
-func tryExtractingValue(pkg *ptpkg, args []string) (err error) {
-	if _, ok := pkg.flg.DefaultValue.(bool); ok {
-		return tryExtractingBoolValue(pkg)
-	}
-
-	vv := reflect.ValueOf(pkg.flg.DefaultValue)
-	kind := vv.Kind()
-	switch kind {
-	case reflect.String:
-		if err = processTypeString(pkg, args); err != nil {
-			return
-		}
-
-	case reflect.Slice:
-		err = tryExtractingSliceValue(pkg, args)
-
-	default:
-		err = tryExtractingOthers(pkg, args, kind)
-	}
-
-	return
-}
-
-func tryExtractingOthers(pkg *ptpkg, args []string, kind reflect.Kind) (err error) {
-	if isTypeSInt(kind) {
-		if _, ok := pkg.flg.DefaultValue.(time.Duration); ok {
-			if err = processTypeDuration(pkg, args); err != nil {
-				ferr("wrong time.Duration: flag=%v, value=%v", pkg.fn, pkg.val)
-				return
-			}
-			// ferr("wrong time.Duration: flag=%v, value=%v", pkg.fn, pkg.val)
-			return
-		}
-		if err = processTypeInt(pkg, args); err != nil {
-			return
-		}
-	} else if isTypeUint(kind) {
-		if err = processTypeUint(pkg, args); err != nil {
-			return
-		}
-	} else {
-		ferr("Unacceptable default value kind=%v", kind)
-	}
-	return
-}
-
-func tryExtractingSliceValue(pkg *ptpkg, args []string) (err error) {
-	typ := reflect.TypeOf(pkg.flg.DefaultValue).Elem()
-	if typ.Kind() == reflect.String {
-		if err = processTypeStringSlice(pkg, args); err != nil {
-			return
-		}
-	} else if isTypeSInt(typ.Kind()) {
-		if err = processTypeIntSlice(pkg, args); err != nil {
-			return
-		}
-	} else if isTypeUint(typ.Kind()) {
-		if err = processTypeUintSlice(pkg, args); err != nil {
-			return
-		}
-	}
-	return
-}
-
-func tryExtractingBoolValue(pkg *ptpkg) (err error) {
-	// bool flag, -D+, -D-
-
-	if pkg.suffix == '+' {
-		pkg.flg.DefaultValue = true
-	} else if pkg.suffix == '-' {
-		pkg.flg.DefaultValue = false
-	} else {
-		pkg.flg.DefaultValue = true
-	}
-
-	var v = pkg.flg.DefaultValue
-	var keyPath = backtraceFlagNames(pkg.flg)
-	xxSet(keyPath, v, pkg)
-	return
-}
-
-func preprocessPkg(pkg *ptpkg, args []string) (err error) {
-	if !pkg.assigned {
-		if len(pkg.savedVal) > 0 {
-			pkg.val = pkg.savedVal
-			pkg.savedVal = ""
-		} else if len(pkg.savedFn) > 0 {
-			pkg.val = pkg.savedFn
-			pkg.savedFn = ""
-		} else {
-			if pkg.i < len(args)-1 && args[pkg.i+1][0] != '-' && args[pkg.i+1][0] != '~' {
-				pkg.i++
-				pkg.val = args[pkg.i]
-			} else {
-				if len(pkg.flg.ExternalTool) > 0 {
-					err = processExternalTool(pkg)
-				} else if GetStrictMode() {
-					err = fmt.Errorf("unexpect end of command line [i=%v,args=(%v)], need more args for %v", pkg.i, args, pkg)
-					return
-				}
-			}
-		}
-		pkg.assigned = true
-	}
-	return
-}
-
-func processExternalTool(pkg *ptpkg) (err error) {
-	switch pkg.flg.ExternalTool {
-	case ExternalToolPasswordInput:
-		fmt.Print("Password: ")
-		var password string
-		if InTesting() {
-			password = "demo"
-		} else {
-			if password, err = readPassword(); err != nil {
-				return
-			}
-		}
-		pkg.val = password
-
-	default:
-		editor := os.Getenv(pkg.flg.ExternalTool)
-		if len(editor) == 0 {
-			editor = DefaultEditor
-		}
-		var content []byte
-		if InTesting() {
-			content = []byte("demo for testing")
-		} else {
-			if content, err = LaunchEditor(editor); err != nil {
-				return
-			}
-		}
-		pkg.val = string(content)
-	}
-	return
-}
-
-func processTypeInt(pkg *ptpkg, args []string) (err error) {
-	if err = preprocessPkg(pkg, args); err != nil {
-		return
-	}
-	return processTypeIntCore(pkg, args)
-}
-
-func processTypeDuration(pkg *ptpkg, args []string) (err error) {
-	if err = preprocessPkg(pkg, args); err == nil {
-		var v time.Duration
-		v, err = time.ParseDuration(pkg.val)
-		if err == nil {
-			var keyPath = backtraceFlagNames(pkg.flg)
-			xxSet(keyPath, v, pkg)
-		}
-	}
-	return
-}
-
-func xxSet(keyPath string, v interface{}, pkg *ptpkg) {
-	if pkg.a[0] == '~' {
-		rxxtOptions.SetNx(keyPath, v)
-	} else {
-		rxxtOptions.Set(keyPath, v)
-	}
-	if pkg.flg != nil && pkg.flg.onSet != nil {
-		pkg.flg.onSet(keyPath, v)
-	}
-	pkg.found = true
-}
-
-func processTypeIntCore(pkg *ptpkg, args []string) (err error) {
-	v, err := strconv.ParseInt(pkg.val, 10, 64)
-	if err != nil {
-		if _, ok := pkg.flg.DefaultValue.(time.Duration); ok {
-			err = processTypeDuration(pkg, args)
-			return
-		}
-		ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
-		err = fmt.Errorf("wrong number: flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
-	}
-
-	var keyPath = backtraceFlagNames(pkg.flg)
-	xxSet(keyPath, v, pkg)
-	return
-}
-
-func processTypeUint(pkg *ptpkg, args []string) (err error) {
-	if err = preprocessPkg(pkg, args); err != nil {
-		return
-	}
-
-	v, err := strconv.ParseUint(pkg.val, 10, 64)
-	if err != nil {
-		ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
-	}
-
-	var keyPath = backtraceFlagNames(pkg.flg)
-	xxSet(keyPath, v, pkg)
-	return
-}
-
-func processTypeString(pkg *ptpkg, args []string) (err error) {
-	if err = preprocessPkg(pkg, args); err != nil {
-		return
-	}
-
-	if len(pkg.flg.ValidArgs) > 0 {
-		// validate for enum
-		for _, w := range pkg.flg.ValidArgs {
-			if pkg.val == w {
-				goto SAVE_IT
-			}
-		}
-		pkg.found = true
-		err = NewError(ShouldIgnoreWrongEnumValue, errWrongEnumValue, pkg.val, pkg.fn, pkg.flg.owner.GetName())
-		return
-	}
-
-SAVE_IT:
-	var v = pkg.val
-	var keyPath = backtraceFlagNames(pkg.flg)
-	xxSet(keyPath, v, pkg)
-	return
-}
-
-func processTypeStringSlice(pkg *ptpkg, args []string) (err error) {
-	if err = preprocessPkg(pkg, args); err != nil {
-		return
-	}
-
-	var v = strings.Split(pkg.val, ",")
-	var keyPath = backtraceFlagNames(pkg.flg)
-	xxSet(keyPath, v, pkg)
-	return
-}
-
-func processTypeIntSlice(pkg *ptpkg, args []string) (err error) {
-	if err = preprocessPkg(pkg, args); err != nil {
-		return
-	}
-
-	v := make([]int64, 0)
-	for _, x := range strings.Split(pkg.val, ",") {
-		if xi, err := strconv.ParseInt(x, 10, 64); err == nil {
-			v = append(v, xi)
-		}
-	}
-
-	var keyPath = backtraceFlagNames(pkg.flg)
-	xxSet(keyPath, v, pkg)
-	return
-}
-
-func processTypeUintSlice(pkg *ptpkg, args []string) (err error) {
-	if err = preprocessPkg(pkg, args); err != nil {
-		return
-	}
-
-	v := make([]uint64, 0)
-	for _, x := range strings.Split(pkg.val, ",") {
-		if xi, err := strconv.ParseUint(x, 10, 64); err == nil {
-			v = append(v, xi)
-		}
-	}
-
-	var keyPath = backtraceFlagNames(pkg.flg)
-	xxSet(keyPath, v, pkg)
-	return
 }

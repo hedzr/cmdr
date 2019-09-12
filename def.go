@@ -150,6 +150,13 @@ type (
 		entries   map[string]interface{}
 		hierarchy map[string]interface{}
 		rw        *sync.RWMutex
+
+		usedConfigFile   string
+		usedConfigSubDir string
+		configFiles      []string
+
+		onConfigReloadedFunctions map[ConfigReloaded]bool
+		rwlCfgReload              *sync.RWMutex
 	}
 
 	// OptOne struct {
@@ -167,7 +174,6 @@ type (
 )
 
 var (
-
 	//
 	// doNotLoadingConfigFiles = false
 
@@ -180,10 +186,10 @@ var (
 	RxxtPrefix = []string{"app"}
 
 	// usedConfigFile
-	usedConfigFile            string
-	usedConfigSubDir          string
-	configFiles               []string
-	onConfigReloadedFunctions map[ConfigReloaded]bool
+	// usedConfigFile            string
+	// usedConfigSubDir          string
+	// configFiles               []string
+	// onConfigReloadedFunctions map[ConfigReloaded]bool
 	//
 	// predefinedLocations = []string{
 	// 	"./ci/etc/%s/%s.yml",
@@ -278,7 +284,7 @@ func GetQuietMode() bool {
 	return GetBool("app.quiet")
 }
 
-func init() {
-	onConfigReloadedFunctions = make(map[ConfigReloaded]bool)
-	// SetCurrentHelpPainter(new(helpPainter))
-}
+// func init() {
+// 	// onConfigReloadedFunctions = make(map[ConfigReloaded]bool)
+// 	// SetCurrentHelpPainter(new(helpPainter))
+// }

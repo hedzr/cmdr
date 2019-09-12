@@ -20,27 +20,32 @@ import (
 	"sync"
 )
 
+// GetOptions retusns the global options instance (rxxtOptions)
+func GetOptions() *Options {
+	return rxxtOptions
+}
+
 // GetUsedConfigFile returns the main config filename (generally it's `<appname>.yml`)
 func GetUsedConfigFile() string {
-	return usedConfigFile
+	return rxxtOptions.usedConfigFile
 }
 
 // GetUsedConfigSubDir returns the sub-directory `conf.d` of config files.
 // Note that it be always normalized now.
 // Sometimes it might be empty string ("") if `conf.d` have not been found.
 func GetUsedConfigSubDir() string {
-	return usedConfigSubDir
+	return rxxtOptions.usedConfigSubDir
 }
 
-var rwlCfgReload = new(sync.RWMutex)
+// var rwlCfgReload = new(sync.RWMutex)
 
 // AddOnConfigLoadedListener add an functor on config loaded and merged
 func AddOnConfigLoadedListener(c ConfigReloaded) {
-	defer rwlCfgReload.Unlock()
-	rwlCfgReload.Lock()
+	defer rxxtOptions.rwlCfgReload.Unlock()
+	rxxtOptions.rwlCfgReload.Lock()
 
 	// rwlCfgReload.RLock()
-	if _, ok := onConfigReloadedFunctions[c]; ok {
+	if _, ok := rxxtOptions.onConfigReloadedFunctions[c]; ok {
 		// rwlCfgReload.RUnlock()
 		return
 	}
@@ -50,21 +55,21 @@ func AddOnConfigLoadedListener(c ConfigReloaded) {
 
 	// defer rwlCfgReload.Unlock()
 
-	onConfigReloadedFunctions[c] = true
+	rxxtOptions.onConfigReloadedFunctions[c] = true
 }
 
 // RemoveOnConfigLoadedListener remove an functor on config loaded and merged
 func RemoveOnConfigLoadedListener(c ConfigReloaded) {
-	defer rwlCfgReload.Unlock()
-	rwlCfgReload.Lock()
-	delete(onConfigReloadedFunctions, c)
+	defer rxxtOptions.rwlCfgReload.Unlock()
+	rxxtOptions.rwlCfgReload.Lock()
+	delete(rxxtOptions.onConfigReloadedFunctions, c)
 }
 
 // SetOnConfigLoadedListener enable/disable an functor on config loaded and merged
 func SetOnConfigLoadedListener(c ConfigReloaded, enabled bool) {
-	defer rwlCfgReload.Unlock()
-	rwlCfgReload.Lock()
-	onConfigReloadedFunctions[c] = enabled
+	defer rxxtOptions.rwlCfgReload.Unlock()
+	rxxtOptions.rwlCfgReload.Lock()
+	rxxtOptions.onConfigReloadedFunctions[c] = enabled
 }
 
 // LoadConfigFile Load a yaml config file and merge the settings into `rxxtOptions`
@@ -85,21 +90,21 @@ func (s *Options) LoadConfigFile(file string) (err error) {
 		return
 	}
 
-	usedConfigFile = file
-	dir := path.Dir(usedConfigFile)
+	s.usedConfigFile = file
+	dir := path.Dir(s.usedConfigFile)
 	_ = os.Setenv("CFG_DIR", dir)
 
-	usedConfigSubDir = path.Join(dir, "conf.d")
-	if !FileExists(usedConfigSubDir) {
-		usedConfigSubDir = ""
+	s.usedConfigSubDir = path.Join(dir, "conf.d")
+	if !FileExists(s.usedConfigSubDir) {
+		s.usedConfigSubDir = ""
 		return
 	}
 
-	usedConfigSubDir, err = filepath.Abs(usedConfigSubDir)
+	s.usedConfigSubDir, err = filepath.Abs(s.usedConfigSubDir)
 	if err == nil {
-		err = filepath.Walk(usedConfigSubDir, s.visit)
+		err = filepath.Walk(s.usedConfigSubDir, s.visit)
 		if err == nil {
-			s.watchConfigDir(usedConfigSubDir)
+			s.watchConfigDir(s.usedConfigSubDir)
 		}
 		// log.Fatalf("ERROR: filepath.Walk() returned %v\n", err)
 	}
@@ -192,7 +197,7 @@ func (s *Options) visit(path string, f os.FileInfo, e error) (err error) {
 					err = fmt.Errorf("error in merging config file '%s': %v", path, err)
 					return
 				}
-				configFiles = append(configFiles, path)
+				s.configFiles = append(s.configFiles, path)
 			} else {
 				err = fmt.Errorf("error in merging config file '%s': %v", path, err)
 			}
@@ -206,10 +211,10 @@ func (s *Options) visit(path string, f os.FileInfo, e error) (err error) {
 func (s *Options) reloadConfig() {
 	// log.Debugf("\n\nConfig file changed: %s\n", e.String())
 
-	defer rwlCfgReload.RUnlock()
-	rwlCfgReload.RLock()
+	defer s.rwlCfgReload.RUnlock()
+	s.rwlCfgReload.RLock()
 
-	for x, ok := range onConfigReloadedFunctions {
+	for x, ok := range s.onConfigReloadedFunctions {
 		if ok {
 			x.OnConfigReloaded()
 		}

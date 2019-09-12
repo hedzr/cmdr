@@ -27,6 +27,9 @@ func NewOptions() *Options {
 		entries:   make(map[string]interface{}),
 		hierarchy: make(map[string]interface{}),
 		rw:        new(sync.RWMutex),
+
+		onConfigReloadedFunctions: make(map[ConfigReloaded]bool),
+		rwlCfgReload:              new(sync.RWMutex),
 	}
 }
 
@@ -36,6 +39,9 @@ func NewOptionsWith(entries map[string]interface{}) *Options {
 		entries:   entries,
 		hierarchy: make(map[string]interface{}),
 		rw:        new(sync.RWMutex),
+
+		onConfigReloadedFunctions: make(map[ConfigReloaded]bool),
+		rwlCfgReload:              new(sync.RWMutex),
 	}
 }
 

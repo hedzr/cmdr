@@ -179,6 +179,13 @@ func WithHelpPainter(painter Painter) ExecOption {
 	}
 }
 
+// AddOnConfigLoadedListener add an functor on config loaded and merged
+func WithConfigLoadedListener(c ConfigReloaded) ExecOption {
+	return func(w *ExecWorker) {
+		AddOnConfigLoadedListener(c)
+	}
+}
+
 //
 //
 // *******************************************

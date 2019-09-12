@@ -550,7 +550,7 @@ func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 func (s *Options) envKey(key string) (envkey string) {
 	key = strings.ReplaceAll(key, ".", "_")
 	key = strings.ReplaceAll(key, "-", "_")
-	envkey = strings.Join(append(EnvPrefix, strings.ToUpper(key)), "_")
+	envkey = strings.Join(append(uniqueWorker.envPrefixes, strings.ToUpper(key)), "_")
 	return
 }
 

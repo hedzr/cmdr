@@ -11,7 +11,7 @@ import (
 
 // WithXrefBuildingHooks sets the hook before and after building xref indices.
 // It's replacers for AddOnBeforeXrefBuilding, and AddOnAfterXrefBuilt.
-func WithXrefBuildingHooks(beforeXrefBuildingX, afterXrefBuiltX HookXrefFunc) func(w *ExecWorker) {
+func WithXrefBuildingHooks(beforeXrefBuildingX, afterXrefBuiltX HookXrefFunc) ExecOption {
 	return func(w *ExecWorker) {
 		if beforeXrefBuildingX != nil {
 			w.beforeXrefBuilding = append(w.beforeXrefBuilding, beforeXrefBuildingX)
@@ -55,8 +55,12 @@ func WithPredefinedLocations(locations []string) ExecOption {
 }
 
 // WithIgnoreWrongEnumValue will be put into `cmdrError.Ignorable` while wrong enumerable value found in parsing command-line options.
-// main program might decide whether it's a warning or error.
-// see also: [Flag.ValidArgs]
+// 
+// Main program might decide whether it's a warning or error.
+// 
+// See also
+// 
+// [Flag.ValidArgs]
 func WithIgnoreWrongEnumValue(ignored bool) ExecOption {
 	return func(w *ExecWorker) {
 		w.shouldIgnoreWrongEnumValue = ignored
@@ -66,11 +70,11 @@ func WithIgnoreWrongEnumValue(ignored bool) ExecOption {
 
 // WithBuiltinCommands enables/disables those builtin predefined commands. Such as:
 //
-// 	- versionsCmds / EnableVersionCommands supports injecting the default `--version` flags and commands
-// 	- helpCmds / EnableHelpCommands supports injecting the default `--help` flags and commands
-// 	- verboseCmds / EnableVerboseCommands supports injecting the default `--verbose` flags and commands
-// 	- generalCmdrCmds / EnableCmdrCommands support these flags: `--strict-mode`, `--no-env-overrides`
-// 	- generateCmds / EnableGenerateCommands supports injecting the default `generate` commands and subcommands
+//  - versionsCmds / EnableVersionCommands supports injecting the default `--version` flags and commands
+//  - helpCmds / EnableHelpCommands supports injecting the default `--help` flags and commands
+//  - verboseCmds / EnableVerboseCommands supports injecting the default `--verbose` flags and commands
+//  - generalCmdrCmds / EnableCmdrCommands support these flags: `--strict-mode`, `--no-env-overrides`
+//  - generateCmds / EnableGenerateCommands supports injecting the default `generate` commands and subcommands
 //
 func WithBuiltinCommands(versionsCmds, helpCmds, verboseCmds, generateCmds, generalCmdrCmds bool) ExecOption {
 	return func(w *ExecWorker) {

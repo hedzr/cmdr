@@ -246,18 +246,23 @@ $(BIN)/yolo: | $(GOBASE)     # # # ❶
 	@GOPATH=$(GOPATH) GO111MODULE=$(GO111MODULE) GOPROXY=$(GOPROXY) \
 	go install github.com/azer/yolo
 
+$(BIN)/godoc: | $(GOBASE)     # # # ❶
+	@echo "  >  installing godoc ..."
+	@GOPATH=$(GOPATH) GO111MODULE=$(GO111MODULE) GOPROXY=$(GOPROXY) \
+	go install golang.org/x/tools/cmd/godoc
+
 $(BASE):
 	# @mkdir -p $(dir $@)
 	# @ln -sf $(CURDIR) $@
 
 
 ## godoc: run godoc server at "localhost;6060"
-godoc:
+godoc: | $(GOBASE) $(BIN)/godoc
 	@echo "  >  PWD = $(shell pwd)"
 	@echo "  >  started godoc server at :6060: http://localhost:6060/pkg/github.com/hedzr/$(PROJECTNAME1) ..."
-	@echo "  $  GOPATH=$(GOPATH) godoc -http=:6060 -index -notes '(BUG|TODO|DONE)' -play -timestamps"
+	@echo "  $  GOPATH=$(GOPATH) godoc -http=:6060 -index -notes '(BUG|TODO|DONE|Deprecated)' -play -timestamps"
 	@GOPATH=$(GOPATH) \
-	godoc -http=:6060 -notes '(BUG|TODO|DONE)' -play -timestamps
+	$(BIN)/godoc -http=:6060 -notes '(BUG|TODO|DONE)' -play -timestamps
 	# -goroot $(GOPATH) -index
 	# https://medium.com/@elliotchance/godoc-tips-tricks-cda6571549b
 

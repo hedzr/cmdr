@@ -8,4 +8,3 @@ package cmdr
 func Worker() *ExecWorker {
 	return uniqueWorker
 }
-

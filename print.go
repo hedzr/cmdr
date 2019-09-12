@@ -283,15 +283,16 @@ GO_PRINT_FLAGS:
 }
 
 // SetInternalOutputStreams sets the internal output streams for debugging
+// Deprecated from v1.5.0
 func SetInternalOutputStreams(out, err *bufio.Writer) {
-	defaultStdout = out
-	defaultStderr = err
+	uniqueWorker.defaultStdout = out
+	uniqueWorker.defaultStderr = err
 
-	if defaultStdout == nil {
-		defaultStdout = bufio.NewWriterSize(os.Stdout, 16384)
+	if uniqueWorker.defaultStdout == nil {
+		uniqueWorker.defaultStdout = bufio.NewWriterSize(os.Stdout, 16384)
 	}
-	if defaultStderr == nil {
-		defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
+	if uniqueWorker.defaultStderr == nil {
+		uniqueWorker.defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
 	}
 }
 

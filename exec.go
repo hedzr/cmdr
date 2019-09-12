@@ -5,6 +5,7 @@
 package cmdr
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
 	"os"
@@ -22,6 +23,15 @@ type ExecWorker struct {
 	predefinedLocations []string
 
 	shouldIgnoreWrongEnumValue bool
+
+	enableVersionCommands  bool
+	enableHelpCommands     bool
+	enableVerboseCommands  bool
+	enableCmdrCommands     bool
+	enableGenerateCommands bool
+
+	defaultStdout *bufio.Writer
+	defaultStderr *bufio.Writer
 }
 
 // ExecOption is the functional option for Exec()
@@ -39,6 +49,15 @@ var uniqueWorker = &ExecWorker{
 	},
 
 	shouldIgnoreWrongEnumValue: true,
+
+	enableVersionCommands:  true,
+	enableHelpCommands:     true,
+	enableVerboseCommands:  true,
+	enableCmdrCommands:     true,
+	enableGenerateCommands: true,
+
+	defaultStdout: bufio.NewWriterSize(os.Stdout, 16384),
+	defaultStderr: bufio.NewWriterSize(os.Stderr, 16384),
 }
 
 //
@@ -97,6 +116,12 @@ func WithBuiltinCommands(versionsCmds, helpCmds, verboseCmds, generateCmds, gene
 		EnableVerboseCommands = verboseCmds
 		EnableCmdrCommands = generalCmdrCmds
 		EnableGenerateCommands = generateCmds
+
+		w.enableVersionCommands = versionsCmds
+		w.enableHelpCommands = helpCmds
+		w.enableVerboseCommands = verboseCmds
+		w.enableCmdrCommands = generalCmdrCmds
+		w.enableGenerateCommands = generateCmds
 	}
 }
 
@@ -105,6 +130,7 @@ func WithBuiltinCommands(versionsCmds, helpCmds, verboseCmds, generateCmds, gene
 // Exec is main entry of `cmdr`.
 func Exec(rootCmd *RootCommand, opts ...ExecOption) (err error) {
 	w := uniqueWorker
+
 	for _, opt := range opts {
 		opt(w)
 	}
@@ -123,8 +149,20 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (err e
 		// helpFlag = rootCmd.allFlags[UnsortedGroup]["help"]
 	)
 
+	// for deprecated variables
+	//
+	w.shouldIgnoreWrongEnumValue = ShouldIgnoreWrongEnumValue
+	//
+	w.enableVersionCommands = EnableVersionCommands
+	w.enableHelpCommands = EnableHelpCommands
+	w.enableVerboseCommands = EnableVerboseCommands
+	w.enableCmdrCommands = EnableCmdrCommands
+	w.enableGenerateCommands = EnableGenerateCommands
+	//
+	w.envPrefixes = EnvPrefix
+
 	if rootCommand == nil {
-		setRootCommand(rootCmd)
+		w.setRootCommand(rootCmd)
 	}
 
 	defer func() {
@@ -368,15 +406,15 @@ func (w *ExecWorker) AddOnAfterXrefBuilt(cb HookXrefFunc) {
 	w.afterXrefBuilt = append(w.afterXrefBuilt, cb)
 }
 
-func getPrefix() string {
-	return strings.Join(RxxtPrefix, ".")
-}
-
-func setRootCommand(rootCmd *RootCommand) {
+func (w *ExecWorker) setRootCommand(rootCmd *RootCommand) {
 	rootCommand = rootCmd
 
-	rootCommand.ow = defaultStdout
-	rootCommand.oerr = defaultStderr
+	rootCommand.ow = w.defaultStdout
+	rootCommand.oerr = w.defaultStderr
+}
+
+func getPrefix() string {
+	return strings.Join(RxxtPrefix, ".")
 }
 
 func getArgs(pkg *ptpkg, args []string) []string {

@@ -50,12 +50,14 @@ func AddOnAfterXrefBuilt(cb HookXrefFunc) {
 // Deprecated from v1.5.0
 func ExecWith(rootCmd *RootCommand, beforeXrefBuildingX, afterXrefBuiltX HookXrefFunc) (err error) {
 	w := uniqueWorker
+	
 	if beforeXrefBuildingX != nil {
 		w.beforeXrefBuilding = append(w.beforeXrefBuilding, beforeXrefBuildingX)
 	}
 	if afterXrefBuiltX != nil {
 		w.afterXrefBuilt = append(w.afterXrefBuilt, afterXrefBuiltX)
 	}
+	
 	err = w.InternalExecFor(rootCmd, os.Args)
 	return
 }

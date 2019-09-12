@@ -8,7 +8,6 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"os"
 	"sync"
 )
 
@@ -194,8 +193,8 @@ var (
 	// }
 
 	//
-	defaultStdout = bufio.NewWriterSize(os.Stdout, 16384)
-	defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
+	// defaultStdout = bufio.NewWriterSize(os.Stdout, 16384)
+	// defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
 
 	//
 	currentHelpPainter Painter

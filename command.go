@@ -19,6 +19,11 @@ func (c *Command) PrintVersion() {
 	uniqueWorker.showVersion()
 }
 
+// PrintBuildInfo print building information
+func (c *Command) PrintBuildInfo() {
+	uniqueWorker.showBuildInfo()
+}
+
 // GetRoot returns the `RootCommand`
 func (c *Command) GetRoot() *RootCommand {
 	return c.root

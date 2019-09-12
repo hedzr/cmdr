@@ -293,11 +293,6 @@ func (w *ExecWorker) showVersion() {
 %v`, conf.Version, conf.AppName, conf.Buildstamp, conf.Githash, conf.GoVersion)
 }
 
-// PrintBuildInfo print building information
-func PrintBuildInfo() {
-	uniqueWorker.showBuildInfo()
-}
-
 func (w *ExecWorker) showBuildInfo() {
 	if w.globalShowBuildInfo != nil {
 		w.globalShowBuildInfo()

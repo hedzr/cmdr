@@ -14,14 +14,47 @@ import (
 	"syscall"
 )
 
-// Enable daemon plugin:
+// WithDaemon enables daemon plugin:
 // - add daemon commands and sub-commands: start/run, stop, restart/reload, status, install/uninstall
 // - pidfile
 // - go-daemon supports
 // -
-func Enable(daemonImplX Daemon, modifier func(daemonServerCommand *cmdr.Command) *cmdr.Command,
+func WithDaemon(daemonImplX Daemon,
+	modifier func(daemonServerCommand *cmdr.Command) *cmdr.Command,
 	preAction func(cmd *cmdr.Command, args []string) (err error),
-	postAction func(cmd *cmdr.Command, args []string)) {
+	postAction func(cmd *cmdr.Command, args []string),
+) cmdr.ExecOption {
+	return func(w *cmdr.ExecWorker) {
+		daemonImpl = daemonImplX
+
+		w.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
+
+			if modifier != nil {
+				root.SubCommands = append(root.SubCommands, modifier(DaemonServerCommand))
+			} else {
+				root.SubCommands = append(root.SubCommands, DaemonServerCommand)
+			}
+
+			prefix = strings.Join(append(cmdr.RxxtPrefix, "server"), ".")
+
+			attachPreAction(root, preAction)
+			attachPostAction(root, postAction)
+
+		})
+	}
+}
+
+// Enable enables the daemon plugin:
+// - add daemon commands and sub-commands: start/run, stop, restart/reload, status, install/uninstall
+// - pidfile
+// - go-daemon supports
+// -
+// Deprecated from v1.5.0, replaced with WithDaemon()
+func Enable(daemonImplX Daemon,
+	modifier func(daemonServerCommand *cmdr.Command) *cmdr.Command,
+	preAction func(cmd *cmdr.Command, args []string) (err error),
+	postAction func(cmd *cmdr.Command, args []string),
+) {
 	daemonImpl = daemonImplX
 
 	cmdr.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {

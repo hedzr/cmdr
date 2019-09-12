@@ -16,28 +16,76 @@ import (
 
 //
 
+// 
+type ExecWorker struct {
+	// beforeXrefBuildingX, afterXrefBuiltX HookXrefFunc
+	beforeXrefBuilding  []HookXrefFunc
+	afterXrefBuilt      []HookXrefFunc
+	envPrefixes         []string
+	predefinedLocations []string
+}
+
+// ExecOption is the functional option for Exec() 
+type ExecOption func(w *ExecWorker)
+
+//
+
+var uniqueWorker = &ExecWorker{
+	envPrefixes: []string{"CMDR"},
+	predefinedLocations: []string{
+		"./ci/etc/%s/%s.yml",
+		"/etc/%s/%s.yml",
+		"/usr/local/etc/%s/%s.yml",
+		os.Getenv("HOME") + "/.%s/%s.yml",
+	},
+}
+
+//
+
+// WithXrefBuildingHooks sets the hook before and after building xref indices.
+// It's replacers for AddOnBeforeXrefBuilding, and AddOnAfterXrefBuilt.
+func WithXrefBuildingHooks(beforeXrefBuildingX, afterXrefBuiltX HookXrefFunc) func(w *ExecWorker) {
+	return func(w *ExecWorker) {
+		if beforeXrefBuildingX != nil {
+			w.beforeXrefBuilding = append(w.beforeXrefBuilding, beforeXrefBuildingX)
+		}
+		if afterXrefBuiltX != nil {
+			w.afterXrefBuilt = append(w.afterXrefBuilt, afterXrefBuiltX)
+		}
+	}
+}
+
+// WithEnvPrefix sets the environment variable text prefixes.
+// cmdr will lookup envvars for a key. 
+func WithEnvPrefix(prefix []string) ExecOption {
+	return func(w *ExecWorker) {
+		w.envPrefixes = prefix
+	}
+}
+
+// WithPredefinedLocations sets the environment variable text prefixes.
+// cmdr will lookup envvars for a key. 
+func WithPredefinedLocations(locations []string) ExecOption {
+	return func(w *ExecWorker) {
+		w.predefinedLocations = locations
+	}
+}
+
 //
 
 // Exec is main entry of `cmdr`.
-func Exec(rootCmd *RootCommand) (err error) {
-	err = InternalExecFor(rootCmd, os.Args)
-	return
-}
+func Exec(rootCmd *RootCommand, opts ...ExecOption) (err error) {
+	w := uniqueWorker
+	for _, opt := range opts {
+		opt(w)
+	}
 
-// ExecWith is main entry of `cmdr`.
-func ExecWith(rootCmd *RootCommand, beforeXrefBuildingX, afterXrefBuiltX HookXrefFunc) (err error) {
-	if beforeXrefBuildingX != nil {
-		beforeXrefBuilding = append(beforeXrefBuilding, beforeXrefBuildingX)
-	}
-	if afterXrefBuiltX != nil {
-		afterXrefBuilt = append(afterXrefBuilt, afterXrefBuiltX)
-	}
-	err = InternalExecFor(rootCmd, os.Args)
+	err = w.InternalExecFor(rootCmd, os.Args)
 	return
 }
 
 // InternalExecFor is an internal helper, esp for debugging
-func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
+func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 	var (
 		pkg       = new(ptpkg)
 		goCommand = &rootCmd.Command
@@ -55,7 +103,7 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 		_ = rootCmd.oerr.Flush()
 	}()
 
-	err = preprocess(rootCmd, args)
+	err = w.preprocess(rootCmd, args)
 
 	if err == nil {
 		for pkg.i = 1; pkg.i < len(args); pkg.i++ {
@@ -74,7 +122,7 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 			//  - -nconsul is not good format, but it could get somewhat works.
 			//  - -n'consul', -n"consul" could works too.
 			// -t3: opt with an argument.
-			matched, stop, err = xxTestCmd(pkg, &goCommand, rootCmd, args)
+			matched, stop, err = w.xxTestCmd(pkg, &goCommand, rootCmd, args)
 			if e, ok := err.(*ErrorForCmdr); ok {
 				ferr("%v", e)
 				if !e.Ignorable {
@@ -83,18 +131,18 @@ func InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
 			}
 			if stop {
 				if pkg.lastCommandHeld || (matched && pkg.flg == nil) {
-					err = afterInternalExec(pkg, rootCmd, goCommand, args)
+					err = w.afterInternalExec(pkg, rootCmd, goCommand, args)
 				}
 				return
 			}
 		}
 
-		err = afterInternalExec(pkg, rootCmd, goCommand, args)
+		err = w.afterInternalExec(pkg, rootCmd, goCommand, args)
 	}
 	return
 }
 
-func xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []string) (matched, stop bool, err error) {
+func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []string) (matched, stop bool, err error) {
 	if len(pkg.a) > 0 && (pkg.a[0] == '-' || pkg.a[0] == '/' || pkg.a[0] == '~') {
 		if len(pkg.a) == 1 {
 			pkg.needHelp = true
@@ -142,26 +190,26 @@ func xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []str
 	return
 }
 
-func preprocess(rootCmd *RootCommand, args []string) (err error) {
-	for _, x := range beforeXrefBuilding {
+func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error) {
+	for _, x := range w.beforeXrefBuilding {
 		x(rootCmd, args)
 	}
 
-	err = buildXref(rootCmd)
+	err = w.buildXref(rootCmd)
 
 	if err == nil {
 		err = rxxtOptions.buildAutomaticEnv(rootCmd)
 	}
 
 	if err == nil {
-		for _, x := range afterXrefBuilt {
+		for _, x := range w.afterXrefBuilt {
 			x(rootCmd, args)
 		}
 	}
 	return
 }
 
-func afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string) (err error) {
+func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string) (err error) {
 	if !pkg.needHelp {
 		pkg.needHelp = GetBoolP(getPrefix(), "help")
 	}
@@ -203,29 +251,33 @@ func afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, arg
 	return
 }
 
-func buildXref(rootCmd *RootCommand) (err error) {
+func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 	// build xref for root command and its all sub-commands and flags
 	// and build the default values
 	buildRootCrossRefs(rootCmd)
 
 	if !doNotLoadingConfigFiles {
 		// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
-		if err = parsePredefinedLocation(); err != nil {
+		if err = w.parsePredefinedLocation(); err != nil {
 			return
 		}
 
 		// and now, loading the external configuration files
-		err = loadFromPredefinedLocation(rootCmd)
+		err = w.loadFromPredefinedLocation(rootCmd)
 
+		if len(w.envPrefixes) > 0 {
+			EnvPrefix = w.envPrefixes
+		}
+		w.envPrefixes = EnvPrefix
 		envPrefix := strings.Split(GetStringR("env-prefix"), ".")
 		if len(envPrefix) > 0 {
-			EnvPrefix = envPrefix
+			w.envPrefixes = envPrefix
 		}
 	}
 	return
 }
 
-func parsePredefinedLocation() (err error) {
+func (w *ExecWorker) parsePredefinedLocation() (err error) {
 	// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
 	if ix, str, yes := partialContains(os.Args, "--config"); yes {
 		var location string
@@ -254,7 +306,7 @@ func parsePredefinedLocation() (err error) {
 	return
 }
 
-func loadFromPredefinedLocation(rootCmd *RootCommand) (err error) {
+func (w *ExecWorker) loadFromPredefinedLocation(rootCmd *RootCommand) (err error) {
 	// and now, loading the external configuration files
 	for _, s := range getExpandedPredefinedLocations() {
 		fn := s
@@ -278,13 +330,13 @@ func loadFromPredefinedLocation(rootCmd *RootCommand) (err error) {
 }
 
 // AddOnBeforeXrefBuilding add hook func
-func AddOnBeforeXrefBuilding(cb HookXrefFunc) {
-	beforeXrefBuilding = append(beforeXrefBuilding, cb)
+func (w *ExecWorker) AddOnBeforeXrefBuilding(cb HookXrefFunc) {
+	w.beforeXrefBuilding = append(w.beforeXrefBuilding, cb)
 }
 
 // AddOnAfterXrefBuilt add hook func
-func AddOnAfterXrefBuilt(cb HookXrefFunc) {
-	afterXrefBuilt = append(afterXrefBuilt, cb)
+func (w *ExecWorker) AddOnAfterXrefBuilt(cb HookXrefFunc) {
+	w.afterXrefBuilt = append(w.afterXrefBuilt, cb)
 }
 
 func getPrefix() string {

@@ -4,14 +4,14 @@
 
 package cmdr
 
-func cmdMatching(pkg *ptpkg, goCommand **Command, args []string) (matched, stop bool, err error) {
+func (w *ExecWorker) cmdMatching(pkg *ptpkg, goCommand **Command, args []string) (matched, stop bool, err error) {
 	// command, files
 	if cmd, ok := (*goCommand).plainCmds[pkg.a]; ok {
 		cmd.strHit = pkg.a
 		*goCommand = cmd
 		matched = true
 		// logrus.Debugf("-- command '%v' hit, go ahead...", cmd.GetTitleName())
-		stop, err = cmdMatched(pkg, *goCommand, args)
+		stop, err = w.cmdMatched(pkg, *goCommand, args)
 	} else {
 		if (*goCommand).Action != nil && len((*goCommand).SubCommands) == 0 {
 			// the args remained are files, not sub-commands.
@@ -26,9 +26,9 @@ func cmdMatching(pkg *ptpkg, goCommand **Command, args []string) (matched, stop 
 	return
 }
 
-func cmdMatched(pkg *ptpkg, goCommand *Command, args []string) (stop bool, err error) {
+func (w *ExecWorker) cmdMatched(pkg *ptpkg, goCommand *Command, args []string) (stop bool, err error) {
 	if goCommand.PreAction != nil {
-		if err = goCommand.PreAction(goCommand, getArgs(pkg, args)); err == ErrShouldBeStopException {
+		if err = goCommand.PreAction(goCommand, w.getArgs(pkg, args)); err == ErrShouldBeStopException {
 			return false, nil
 		}
 	}
@@ -40,7 +40,7 @@ func cmdMatched(pkg *ptpkg, goCommand *Command, args []string) (stop bool, err e
 	return
 }
 
-func flagsPrepare(pkg *ptpkg, goCommand **Command, args []string) (stop bool, err error) {
+func (w *ExecWorker) flagsPrepare(pkg *ptpkg, goCommand **Command, args []string) (stop bool, err error) {
 	if len(pkg.a) > 1 && (pkg.a[1] == '-' || pkg.a[1] == '~') {
 		if len(pkg.a) == 2 {
 			// disableParser = true // '--': ignore the following args
@@ -85,18 +85,18 @@ func flagsPrepare(pkg *ptpkg, goCommand **Command, args []string) (stop bool, er
 	return
 }
 
-func flagsMatching(pkg *ptpkg, cc *Command, goCommand **Command, args []string) (matched, stop bool, err error) {
+func (w *ExecWorker) flagsMatching(pkg *ptpkg, cc *Command, goCommand **Command, args []string) (matched, stop bool, err error) {
 	var upLevel bool
 GO_UP:
 	pkg.found = false
 	if pkg.short {
 		pkg.flg, matched = cc.plainShortFlags[pkg.fn]
 	} else {
-		matched = matchForLongFlags(pkg.fn, cc, pkg)
+		matched = w.matchForLongFlags(pkg.fn, cc, pkg)
 	}
 
 	if matched {
-		if upLevel, stop, err = flagsMatched(pkg, *goCommand, args); stop || err != nil {
+		if upLevel, stop, err = w.flagsMatched(pkg, *goCommand, args); stop || err != nil {
 			return
 		}
 		if upLevel {
@@ -127,7 +127,7 @@ GO_UP:
 	return
 }
 
-func flagsMatched(pkg *ptpkg, goCommand *Command, args []string) (upLevel, stop bool, err error) {
+func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string) (upLevel, stop bool, err error) {
 	if err = pkg.tryExtractingValue(args); err != nil {
 		stop = true
 		return
@@ -138,7 +138,7 @@ func flagsMatched(pkg *ptpkg, goCommand *Command, args []string) (upLevel, stop 
 		// 	logrus.Debugf("-- flag '%v' hit, go ahead...", pkg.flg.GetTitleName())
 		// }
 		if pkg.flg.Action != nil {
-			if err = pkg.flg.Action(goCommand, getArgs(pkg, args)); err == ErrShouldBeStopException {
+			if err = pkg.flg.Action(goCommand, w.getArgs(pkg, args)); err == ErrShouldBeStopException {
 				stop = true
 				err = nil
 				return
@@ -160,7 +160,7 @@ func flagsMatched(pkg *ptpkg, goCommand *Command, args []string) (upLevel, stop 
 	return
 }
 
-func matchForLongFlags(fn string, cc *Command, pkg *ptpkg) (ok bool) {
+func (w *ExecWorker) matchForLongFlags(fn string, cc *Command, pkg *ptpkg) (ok bool) {
 	var ln = len(fn)
 	for ; ln > 1; ln-- {
 		fn = pkg.fn[0:ln]

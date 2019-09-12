@@ -30,6 +30,10 @@ var (
 	// Deprecated from v1.5.0
 	EnvPrefix = []string{"CMDR"}
 
+	// RxxtPrefix create a top-level namespace, which contains all normalized `Flag`s.
+	// Deprecated from v1.5.0
+	RxxtPrefix = []string{"app"}
+
 	// ShouldIgnoreWrongEnumValue will be put into `cmdrError.Ignorable` while wrong enumerable value found in parsing command-line options.
 	// main program might decide whether it's a warning or error.
 	// see also: [Flag.ValidArgs]

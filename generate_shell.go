@@ -17,14 +17,14 @@ import (
 func genShell(cmd *Command, args []string) (err error) {
 	// logrus.Infof("OK gen shell. %v", *cmd)
 
-	if GetBoolP(getPrefix(), "generate.shell.zsh") {
+	if GetBoolP(uniqueWorker.getPrefix(), "generate.shell.zsh") {
 		// if !GetBoolP(getPrefix(), "quiet") {
 		// 	logrus.Debugf("zsh-dump")
 		// }
 		// printHelpZsh(command, justFlags)
 
 		// not yet
-	} else if GetBoolP(getPrefix(), "generate.shell.bash") {
+	} else if GetBoolP(uniqueWorker.getPrefix(), "generate.shell.bash") {
 		err = genShellBash(cmd, args)
 	} else {
 		// auto
@@ -296,7 +296,7 @@ Re-login to enable the new bash completion script.
 
 func genManual(command *Command, args []string) (err error) {
 	painter := newManPainter()
-	prefix := strings.Join(append(RxxtPrefix, "generate.manual"), ".")
+	prefix := strings.Join(append(uniqueWorker.rxxtPrefixes, "generate.manual"), ".")
 	// logrus.Debugf("OK gen manual: hit=%v", cmd.strHit)
 	// paintFromCommand(newManPainter(), &rootCommand.Command, false)
 	err = WalkAllCommands(func(cmd *Command, index int) (err error) {
@@ -335,7 +335,7 @@ func genManual(command *Command, args []string) (err error) {
 //
 
 func genDoc(command *Command, args []string) (err error) {
-	prefix := strings.Join(append(RxxtPrefix, "generate.doc"), ".")
+	prefix := strings.Join(append(uniqueWorker.rxxtPrefixes, "generate.doc"), ".")
 	// logrus.Infof("OK gen doc: hit=%v", cmd.strHit)
 	var painter Painter
 	switch command.strHit {

@@ -23,11 +23,11 @@ func ferr(fmtStr string, args ...interface{}) {
 func (w *ExecWorker) printHelp(command *Command, justFlags bool) {
 	SetHelpTabStop(tabStop)
 
-	if GetIntP(getPrefix(), "help-zsh") > 0 {
-		printHelpZsh(command, justFlags)
-	} else if GetBoolP(getPrefix(), "help-bash") {
+	if GetIntP(w.getPrefix(), "help-zsh") > 0 {
+		w.printHelpZsh(command, justFlags)
+	} else if GetBoolP(w.getPrefix(), "help-bash") {
 		// TODO for bash
-		printHelpZsh(command, justFlags)
+		w.printHelpZsh(command, justFlags)
 	} else {
 		w.paintFromCommand(w.currentHelpPainter, command, justFlags)
 	}
@@ -73,18 +73,18 @@ func (w *ExecWorker) printHelpTailLine(p Painter, command *Command) {
 	p.FpPrintHelpTailLine(command)
 }
 
-func printHelpZsh(command *Command, justFlags bool) {
+func (w *ExecWorker) printHelpZsh(command *Command, justFlags bool) {
 	if command == nil {
 		command = &rootCommand.Command
 	}
 
-	printHelpZshCommands(command, justFlags)
+	w.printHelpZshCommands(command, justFlags)
 }
 
-func printHelpZshCommands(command *Command, justFlags bool) {
+func (w *ExecWorker) printHelpZshCommands(command *Command, justFlags bool) {
 	if !justFlags {
 		var x strings.Builder
-		x.WriteString(fmt.Sprintf("%d: :((", GetIntP(getPrefix(), "help-zsh")))
+		x.WriteString(fmt.Sprintf("%d: :((", GetIntP(w.getPrefix(), "help-zsh")))
 		for _, cx := range command.SubCommands {
 			for _, n := range cx.GetExpandableNamesArray() {
 				x.WriteString(fmt.Sprintf(`%v:'%v' `, n, cx.Description))

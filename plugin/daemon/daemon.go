@@ -10,7 +10,6 @@ import (
 	"github.com/sevlyar/go-daemon"
 	"log"
 	"os"
-	"strings"
 	"syscall"
 )
 
@@ -35,7 +34,8 @@ func WithDaemon(daemonImplX Daemon,
 				root.SubCommands = append(root.SubCommands, DaemonServerCommand)
 			}
 
-			prefix = strings.Join(append(cmdr.RxxtPrefix, "server"), ".")
+			// prefix = strings.Join(append(cmdr.RxxtPrefix, "server"), ".")
+			// prefix = "server"
 
 			attachPreAction(root, preAction)
 			attachPostAction(root, postAction)
@@ -65,7 +65,7 @@ func Enable(daemonImplX Daemon,
 			root.SubCommands = append(root.SubCommands, DaemonServerCommand)
 		}
 
-		prefix = strings.Join(append(cmdr.RxxtPrefix, "server"), ".")
+		// prefix = strings.Join(append(cmdr.RxxtPrefix, "server"), ".")
 
 		attachPreAction(root, preAction)
 		attachPostAction(root, postAction)
@@ -122,7 +122,7 @@ func attachPreAction(root *cmdr.RootCommand, preAction func(cmd *cmdr.Command, a
 }
 
 func daemonStart(cmd *cmdr.Command, args []string) (err error) {
-	if cmdr.GetBoolP(prefix, "foreground") {
+	if cmdr.GetBoolRP(keyPrefix, "foreground") {
 		err = run(cmd, args)
 	} else if cmd.GetHitStr() == "run" {
 		err = run(cmd, args)
@@ -299,4 +299,5 @@ var onSetTermHandler func() []os.Signal
 var onSetSigEmtHandler func() []os.Signal
 var onSetReloadHandler func() []os.Signal
 
-var prefix string
+// var prefix string
+const keyPrefix = "server"

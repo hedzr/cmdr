@@ -17,9 +17,11 @@ import (
 //
 type ExecWorker struct {
 	// beforeXrefBuildingX, afterXrefBuiltX HookXrefFunc
-	beforeXrefBuilding  []HookXrefFunc
-	afterXrefBuilt      []HookXrefFunc
+	beforeXrefBuilding []HookXrefFunc
+	afterXrefBuilt     []HookXrefFunc
+
 	envPrefixes         []string
+	rxxtPrefixes        []string
 	predefinedLocations []string
 
 	shouldIgnoreWrongEnumValue bool
@@ -47,7 +49,9 @@ type ExecOption func(w *ExecWorker)
 //
 
 var uniqueWorker = &ExecWorker{
-	envPrefixes: []string{"CMDR"},
+	envPrefixes:  []string{"CMDR"},
+	rxxtPrefixes: []string{"app"},
+
 	predefinedLocations: []string{
 		"./ci/etc/%s/%s.yml",
 		"/etc/%s/%s.yml",
@@ -91,6 +95,22 @@ func WithXrefBuildingHooks(beforeXrefBuildingX, afterXrefBuiltX HookXrefFunc) fu
 func WithEnvPrefix(prefix []string) ExecOption {
 	return func(w *ExecWorker) {
 		w.envPrefixes = prefix
+	}
+}
+
+// WithOptionsPrefix create a top-level namespace, which contains all normalized `Flag`s.
+// =WithRxxtPrefix
+func WithOptionsPrefix(prefix []string) ExecOption {
+	return func(w *ExecWorker) {
+		w.rxxtPrefixes = prefix
+	}
+}
+
+// WithRxxtPrefix create a top-level namespace, which contains all normalized `Flag`s.
+// cmdr will lookup envvars for a key.
+func WithRxxtPrefix(prefix []string) ExecOption {
+	return func(w *ExecWorker) {
+		w.rxxtPrefixes = prefix
 	}
 }
 
@@ -225,6 +245,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (err e
 	w.enableGenerateCommands = EnableGenerateCommands
 	//
 	w.envPrefixes = EnvPrefix
+	w.rxxtPrefixes = RxxtPrefix
 
 	if rootCommand == nil {
 		w.setRootCommand(rootCmd)
@@ -283,7 +304,7 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 		}
 
 		// flag
-		if stop, err = flagsPrepare(pkg, goCommand, args); stop || err != nil {
+		if stop, err = w.flagsPrepare(pkg, goCommand, args); stop || err != nil {
 			return
 		}
 		if pkg.flg != nil && pkg.found {
@@ -303,7 +324,7 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 		// if matched, stop, err = flagsMatching(pkg, cc, goCommand, args); stop || err != nil {
 		// 	return
 		// }
-		matched, stop, err = flagsMatching(pkg, cc, goCommand, args)
+		matched, stop, err = w.flagsMatching(pkg, cc, goCommand, args)
 
 	} else {
 		// testing the next command, but the last one has already been the end of command series.
@@ -317,7 +338,7 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 		// if matched, stop, err = cmdMatching(pkg, goCommand, args); stop || err != nil {
 		// 	return
 		// }
-		matched, stop, err = cmdMatching(pkg, goCommand, args)
+		matched, stop, err = w.cmdMatching(pkg, goCommand, args)
 	}
 	return
 }
@@ -343,12 +364,12 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 
 func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string) (err error) {
 	if !pkg.needHelp {
-		pkg.needHelp = GetBoolP(getPrefix(), "help")
+		pkg.needHelp = GetBoolP(w.getPrefix(), "help")
 	}
 
 	if !pkg.needHelp && len(pkg.unknownCmds) == 0 && len(pkg.unknownFlags) == 0 {
 		if goCommand.Action != nil {
-			args := getArgs(pkg, args)
+			args := w.getArgs(pkg, args)
 
 			if goCommand != &rootCmd.Command {
 				if rootCmd.PostAction != nil {
@@ -478,11 +499,11 @@ func (w *ExecWorker) setRootCommand(rootCmd *RootCommand) {
 	rootCommand.oerr = w.defaultStderr
 }
 
-func getPrefix() string {
-	return strings.Join(RxxtPrefix, ".")
+func (w *ExecWorker) getPrefix() string {
+	return strings.Join(w.rxxtPrefixes, ".")
 }
 
-func getArgs(pkg *ptpkg, args []string) []string {
+func (w *ExecWorker) getArgs(pkg *ptpkg, args []string) []string {
 	var a []string
 	if pkg.i+1 < len(args) {
 		a = args[pkg.i+1:]

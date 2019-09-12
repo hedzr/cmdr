@@ -182,9 +182,6 @@ var (
 	// rootOptions *Opt
 	rxxtOptions = NewOptions()
 
-	// RxxtPrefix create a top-level namespace, which contains all normalized `Flag`s.
-	RxxtPrefix = []string{"app"}
-
 	// usedConfigFile
 	// usedConfigFile            string
 	// usedConfigSubDir          string

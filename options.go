@@ -539,7 +539,7 @@ func (s *Options) GetString(key string) (ret string) {
 
 func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 	// p := strings.Join(EnvPrefix,"_")
-	p := strings.Join(RxxtPrefix, ".")
+	p := uniqueWorker.getPrefix() // strings.Join(RxxtPrefix, ".")
 	for key := range s.entries {
 		ek := s.envKey(key)
 		if v, ok := os.LookupEnv(ek); ok {
@@ -566,10 +566,10 @@ func WrapWithRxxtPrefix(key string) string {
 }
 
 func wrapWithRxxtPrefix(key string) string {
-	if len(RxxtPrefix) == 0 {
+	if len(uniqueWorker.rxxtPrefixes) == 0 {
 		return key
 	}
-	p := strings.Join(RxxtPrefix, ".")
+	p := uniqueWorker.getPrefix() // strings.Join(RxxtPrefix, ".")
 	if len(key) == 0 {
 		return p
 	}

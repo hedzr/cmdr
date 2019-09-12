@@ -90,7 +90,7 @@ func TestHeadLike(t *testing.T) {
 
 		println("xxx: ***: ", sss)
 
-		if err = cmdr.InternalExecFor(rootCmd, strings.Split(sss, " ")); err != nil {
+		if err = cmdr.Worker().InternalExecFor(rootCmd, strings.Split(sss, " ")); err != nil {
 			if e, ok := err.(*cmdr.ErrorForCmdr); !ok || !e.Ignorable {
 				t.Fatal(err)
 			}

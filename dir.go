@@ -99,7 +99,7 @@ func normalizeDir(s string) string {
 
 // getExpandedPredefinedLocations for internal using
 func getExpandedPredefinedLocations() (locations []string) {
-	for _, d := range predefinedLocations {
+	for _, d := range uniqueWorker.predefinedLocations {
 		locations = append(locations, normalizeDir(d))
 	}
 	return
@@ -107,7 +107,7 @@ func getExpandedPredefinedLocations() (locations []string) {
 
 // GetPredefinedLocations return the searching locations for loading config files.
 func GetPredefinedLocations() []string {
-	return predefinedLocations
+	return uniqueWorker.predefinedLocations
 }
 
 // SetPredefinedLocations to customize the searching locations for loading config files.
@@ -116,5 +116,5 @@ func GetPredefinedLocations() []string {
 //     SetPredefinedLocations([]string{"./config", "~/.config/cmdr/", "$GOPATH/running-configs/cmdr"})
 // ```
 func SetPredefinedLocations(locations []string) {
-	predefinedLocations = locations
+	uniqueWorker.predefinedLocations = locations
 }

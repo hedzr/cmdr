@@ -191,6 +191,7 @@ var (
 	RxxtPrefix = []string{"app"}
 
 	// EnvPrefix attaches a prefix to key to retrieve the option value.
+	// Deprecated from v1.5.0
 	EnvPrefix = []string{"CMDR"}
 
 	// usedConfigFile
@@ -199,12 +200,12 @@ var (
 	configFiles               []string
 	onConfigReloadedFunctions map[ConfigReloaded]bool
 	//
-	predefinedLocations = []string{
-		"./ci/etc/%s/%s.yml",
-		"/etc/%s/%s.yml",
-		"/usr/local/etc/%s/%s.yml",
-		os.Getenv("HOME") + "/.%s/%s.yml",
-	}
+	// predefinedLocations = []string{
+	// 	"./ci/etc/%s/%s.yml",
+	// 	"/etc/%s/%s.yml",
+	// 	"/usr/local/etc/%s/%s.yml",
+	// 	os.Getenv("HOME") + "/.%s/%s.yml",
+	// }
 
 	//
 	defaultStdout = bufio.NewWriterSize(os.Stdout, 16384)
@@ -222,8 +223,8 @@ var (
 	globalShowVersion   func()
 	globalShowBuildInfo func()
 
-	beforeXrefBuilding []HookXrefFunc
-	afterXrefBuilt     []HookXrefFunc
+	// beforeXrefBuilding []HookXrefFunc
+	// afterXrefBuilt     []HookXrefFunc
 
 	// GetEditor sets callback to get editor program
 	GetEditor func() (string, error)

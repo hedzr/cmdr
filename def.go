@@ -180,7 +180,6 @@ var (
 	// RxxtPrefix create a top-level namespace, which contains all normalized `Flag`s.
 	RxxtPrefix = []string{"app"}
 
-
 	// usedConfigFile
 	usedConfigFile            string
 	usedConfigSubDir          string
@@ -220,7 +219,7 @@ var (
 	ErrShouldBeStopException = errors.New("should be stop right now")
 
 	errWrongEnumValue = errors.New("unexpect enumerable value '%s' for option '%s', under command '%s'")
-	
+
 	defaultStringMetric = JaroWinklerDistance(JWWithThreshold(similiarThreshold))
 )
 

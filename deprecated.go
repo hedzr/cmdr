@@ -6,7 +6,7 @@ package cmdr
 
 import "os"
 
-var(
+var (
 	// EnableVersionCommands supports injecting the default `--version` flags and commands
 	// Deprecated from v1.5.0
 	EnableVersionCommands = true

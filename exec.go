@@ -30,8 +30,12 @@ type ExecWorker struct {
 	enableCmdrCommands     bool
 	enableGenerateCommands bool
 
+	doNotLoadingConfigFiles bool
+
 	globalShowVersion   func()
 	globalShowBuildInfo func()
+
+	currentHelpPainter Painter
 
 	defaultStdout *bufio.Writer
 	defaultStderr *bufio.Writer
@@ -58,6 +62,10 @@ var uniqueWorker = &ExecWorker{
 	enableVerboseCommands:  true,
 	enableCmdrCommands:     true,
 	enableGenerateCommands: true,
+
+	doNotLoadingConfigFiles: false,
+
+	currentHelpPainter: new(helpPainter),
 
 	defaultStdout: bufio.NewWriterSize(os.Stdout, 16384),
 	defaultStderr: bufio.NewWriterSize(os.Stderr, 16384),
@@ -157,6 +165,24 @@ func WithCustomShowBuildInfo(fn func()) ExecOption {
 	}
 }
 
+// SetNoLoadConfigFiles true means no loading config files
+func WithNoLoadConfigFiles(b bool) ExecOption {
+	return func(w *ExecWorker) {
+		w.doNotLoadingConfigFiles = b
+	}
+}
+
+// SetCurrentHelpPainter allows to change the behavior and facade of help screen.
+func WithHelpPainter(painter Painter) ExecOption {
+	return func(w *ExecWorker) {
+		w.currentHelpPainter = painter
+	}
+}
+
+//
+//
+// *******************************************
+//
 //
 
 // Exec is main entry of `cmdr`.
@@ -346,7 +372,7 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 	// 	}
 	// }
 
-	printHelp(goCommand, pkg.needFlagsHelp)
+	w.printHelp(goCommand, pkg.needFlagsHelp)
 	return
 }
 
@@ -355,7 +381,7 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 	// and build the default values
 	w.buildRootCrossRefs(rootCmd)
 
-	if !doNotLoadingConfigFiles {
+	if !w.doNotLoadingConfigFiles {
 		// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
 		if err = w.parsePredefinedLocation(); err != nil {
 			return

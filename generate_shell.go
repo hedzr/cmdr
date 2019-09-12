@@ -319,7 +319,7 @@ func genManual(command *Command, args []string) (err error) {
 		}
 		fn = fmt.Sprintf("%s/%v.1", dir, fn)
 
-		paintFromCommand(painter, cmd, false)
+		uniqueWorker.paintFromCommand(painter, cmd, false)
 		if err = ioutil.WriteFile(fn, painter.Results(), 0644); err == nil {
 			logrus.Debugf("'%v' generated...", fn)
 		}
@@ -378,7 +378,7 @@ func genDoc(command *Command, args []string) (err error) {
 		}
 		fn = fmt.Sprintf("%s/%v.md", dir, fn)
 
-		paintFromCommand(painter, cmd, false)
+		uniqueWorker.paintFromCommand(painter, cmd, false)
 		if err = ioutil.WriteFile(fn, painter.Results(), 0644); err == nil {
 			logrus.Debugf("'%v' generated...", fn)
 		}

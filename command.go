@@ -11,7 +11,7 @@ import (
 
 // PrintHelp prints help screen
 func (c *Command) PrintHelp(justFlags bool) {
-	printHelp(c, justFlags)
+	uniqueWorker.printHelp(c, justFlags)
 }
 
 // PrintVersion prints versions information

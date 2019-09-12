@@ -81,6 +81,18 @@ func PrintBuildInfo() {
 	uniqueWorker.showBuildInfo()
 }
 
+// SetNoLoadConfigFiles true means no loading config files
+// Deprecated from v1.5.0
+func SetNoLoadConfigFiles(b bool) {
+	uniqueWorker.doNotLoadingConfigFiles = b
+}
+
+// SetCurrentHelpPainter allows to change the behavior and facade of help screen.
+// Deprecated from v1.5.0
+func SetCurrentHelpPainter(painter Painter) {
+	uniqueWorker.currentHelpPainter = painter
+}
+
 // ExecWith is main entry of `cmdr`.
 // Deprecated from v1.5.0
 func ExecWith(rootCmd *RootCommand, beforeXrefBuildingX, afterXrefBuiltX HookXrefFunc) (err error) {

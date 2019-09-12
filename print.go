@@ -20,7 +20,7 @@ func ferr(fmtStr string, args ...interface{}) {
 	_, _ = fmt.Fprintf(rootCommand.oerr, fmtStr+"\n", args...)
 }
 
-func printHelp(command *Command, justFlags bool) {
+func (w *ExecWorker) printHelp(command *Command, justFlags bool) {
 	SetHelpTabStop(tabStop)
 
 	if GetIntP(getPrefix(), "help-zsh") > 0 {
@@ -29,7 +29,7 @@ func printHelp(command *Command, justFlags bool) {
 		// TODO for bash
 		printHelpZsh(command, justFlags)
 	} else {
-		paintFromCommand(currentHelpPainter, command, justFlags)
+		w.paintFromCommand(w.currentHelpPainter, command, justFlags)
 	}
 
 	if rxxtOptions.GetBool("debug") {
@@ -40,36 +40,36 @@ func printHelp(command *Command, justFlags bool) {
 			fp("\n\x1b[2m\x1b[%dmDUMP:\n\n%v\x1b[0m\n", DarkColor, rxxtOptions.DumpAsString())
 		}
 	}
-	if currentHelpPainter != nil {
-		currentHelpPainter.Results()
-		currentHelpPainter.Reset()
+	if w.currentHelpPainter != nil {
+		w.currentHelpPainter.Results()
+		w.currentHelpPainter.Reset()
 
-		paintFromCommand(nil, command, false) // for gocov testing
+		w.paintFromCommand(nil, command, false) // for gocov testing
 	}
 }
 
-func paintFromCommand(p Painter, command *Command, justFlags bool) {
+func (w *ExecWorker) paintFromCommand(p Painter, command *Command, justFlags bool) {
 	if p == nil {
 		return
 	}
 
-	printHeader(p, command)
+	w.printHeader(p, command)
 
-	printHelpUsages(p, command)
-	printHelpDescription(p, command)
-	printHelpExamples(p, command)
-	printHelpSection(p, command, justFlags)
+	w.printHelpUsages(p, command)
+	w.printHelpDescription(p, command)
+	w.printHelpExamples(p, command)
+	w.printHelpSection(p, command, justFlags)
 
-	printHelpTailLine(p, command)
+	w.printHelpTailLine(p, command)
 
 	p.Flush()
 }
 
-func printHeader(p Painter, command *Command) {
+func (w *ExecWorker) printHeader(p Painter, command *Command) {
 	p.FpPrintHeader(command)
 }
 
-func printHelpTailLine(p Painter, command *Command) {
+func (w *ExecWorker) printHelpTailLine(p Painter, command *Command) {
 	p.FpPrintHelpTailLine(command)
 }
 
@@ -114,7 +114,7 @@ func printHelpZshCommands(command *Command, justFlags bool) {
 	}
 }
 
-func printHelpUsages(p Painter, command *Command) {
+func (w *ExecWorker) printHelpUsages(p Painter, command *Command) {
 	if len(rootCommand.Header) == 0 || !command.IsRoot() {
 		p.FpUsagesTitle(command, "Usages")
 
@@ -136,7 +136,7 @@ func printHelpUsages(p Painter, command *Command) {
 	}
 }
 
-func printHelpDescription(p Painter, command *Command) {
+func (w *ExecWorker) printHelpDescription(p Painter, command *Command) {
 	if len(command.Description) > 0 {
 		p.FpDescTitle(command, "Description")
 		p.FpDescLine(command)
@@ -144,7 +144,7 @@ func printHelpDescription(p Painter, command *Command) {
 	}
 }
 
-func printHelpExamples(p Painter, command *Command) {
+func (w *ExecWorker) printHelpExamples(p Painter, command *Command) {
 	if len(command.Examples) > 0 {
 		p.FpExamplesTitle(command, "Examples")
 		p.FpExamplesLine(command)
@@ -152,7 +152,7 @@ func printHelpExamples(p Painter, command *Command) {
 	}
 }
 
-func printHelpSection(p Painter, command *Command, justFlags bool) {
+func (w *ExecWorker) printHelpSection(p Painter, command *Command, justFlags bool) {
 	if !justFlags {
 		printHelpCommandSection(p, command, justFlags)
 	}
@@ -299,7 +299,7 @@ func (w *ExecWorker) showBuildInfo() {
 		return
 	}
 
-	printHeader(currentHelpPainter, &rootCommand.Command)
+	w.printHeader(w.currentHelpPainter, &rootCommand.Command)
 	// buildTime
 	fp(`
        Built by: %v

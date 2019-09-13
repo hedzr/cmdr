@@ -13,14 +13,18 @@ func main() {
 	logrus.SetLevel(logrus.DebugLevel)
 	logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
 
-	// To disable internal commands and flags, uncomment the following codes
-	cmdr.EnableVersionCommands = false
-	cmdr.EnableVerboseCommands = false
-	cmdr.EnableHelpCommands = false
-	cmdr.EnableGenerateCommands = false
-	cmdr.EnableCmdrCommands = false
+	// // To disable internal commands and flags, uncomment the following codes
+	// cmdr.EnableVersionCommands = false
+	// cmdr.EnableVerboseCommands = false
+	// cmdr.EnableHelpCommands = false
+	// cmdr.EnableGenerateCommands = false
+	// cmdr.EnableCmdrCommands = false
 
-	if err := cmdr.Exec(rootCmd); err != nil {
+	if err := cmdr.Exec(rootCmd,
+		// To disable internal commands and flags, uncomment the following codes
+		cmdr.WithBuiltinCommands(false, false, false, false, false),
+		// daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
+	); err != nil {
 		logrus.Errorf("Error: %v", err)
 	}
 }

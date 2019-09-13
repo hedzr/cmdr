@@ -11,15 +11,19 @@ import (
 func main() {
 	// fmt.Println("Hello, playground")
 
-	// To disable internal commands and flags, uncomment the following codes
-	cmdr.EnableVersionCommands = false
-	cmdr.EnableVerboseCommands = false
-	cmdr.EnableHelpCommands = false
-	cmdr.EnableGenerateCommands = false
-	cmdr.EnableCmdrCommands = false
+	// // To disable internal commands and flags, uncomment the following codes
+	// cmdr.EnableVersionCommands = false
+	// cmdr.EnableVerboseCommands = false
+	// cmdr.EnableHelpCommands = false
+	// cmdr.EnableGenerateCommands = false
+	// cmdr.EnableCmdrCommands = false
 
 	rootCmd := buildRootCmd()
-	if err := cmdr.Exec(rootCmd); err != nil {
+	if err := cmdr.Exec(rootCmd,
+		// To disable internal commands and flags, uncomment the following codes
+		cmdr.WithBuiltinCommands(false, false, false, false, false),
+		// daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
+	); err != nil {
 		panic(err)
 	}
 }

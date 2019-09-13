@@ -44,7 +44,7 @@ var (
 	// ShouldIgnoreWrongEnumValue will be put into `cmdrError.Ignorable` while wrong enumerable value found in parsing command-line options.
 	// main program might decide whether it's a warning or error.
 	// see also: [Flag.ValidArgs]
-	// 
+	//
 	// Deprecated: from v1.5.0
 	ShouldIgnoreWrongEnumValue = false
 )
@@ -111,6 +111,13 @@ func SetNoLoadConfigFiles(b bool) {
 // Deprecated: from v1.5.0
 func SetCurrentHelpPainter(painter Painter) {
 	uniqueWorker.currentHelpPainter = painter
+}
+
+// SetHelpTabStop sets the tab stop for help screen output.
+//
+// Deprecated: from v1.5.0, replaced with WithHelpTabStop(tabStop).
+func SetHelpTabStop(tabStop int) {
+	initTabStop(tabStop)
 }
 
 // ExecWith is main entry of `cmdr`.

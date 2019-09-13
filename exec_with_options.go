@@ -55,11 +55,11 @@ func WithPredefinedLocations(locations []string) ExecOption {
 }
 
 // WithIgnoreWrongEnumValue will be put into `cmdrError.Ignorable` while wrong enumerable value found in parsing command-line options.
-// 
+//
 // Main program might decide whether it's a warning or error.
-// 
+//
 // See also
-// 
+//
 // [Flag.ValidArgs]
 func WithIgnoreWrongEnumValue(ignored bool) ExecOption {
 	return func(w *ExecWorker) {
@@ -139,5 +139,11 @@ func WithHelpPainter(painter Painter) ExecOption {
 func WithConfigLoadedListener(c ConfigReloaded) ExecOption {
 	return func(w *ExecWorker) {
 		AddOnConfigLoadedListener(c)
+	}
+}
+
+func WithHelpTabStop(tabStop int) ExecOption {
+	return func(w *ExecWorker) {
+		initTabStop(tabStop)
 	}
 }

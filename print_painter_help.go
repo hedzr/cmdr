@@ -173,11 +173,6 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, defValStr string)
 	}
 }
 
-// SetHelpTabStop sets the tab stop for help screen output
-func SetHelpTabStop(tabStop int) {
-	initTabStop(tabStop)
-}
-
 func initTabStop(ts int) {
 	tabStop = ts
 

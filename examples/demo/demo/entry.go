@@ -23,11 +23,16 @@ func Entry() {
 	// cmdr.EnableCmdrCommands = false
 	// cmdr.EnableHelpCommands = false
 	// cmdr.EnableGenerateCommands = false
-
-	daemon.Enable(svr.NewDaemon(), nil, nil, nil)
+	//
+	// daemon.Enable(svr.NewDaemon(), nil, nil, nil)
 	// cmdr.SetHelpTabStop(40)
 
-	if err := cmdr.Exec(rootCmd); err != nil {
+	if err := cmdr.Exec(rootCmd,
+		// To disable internal commands and flags, uncomment the following codes
+		// cmdr.WithBuiltinCommands(false, false, false, false, false),
+		daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
+		cmdr.WithHelpTabStop(40),
+	); err != nil {
 		logrus.Errorf("Error: %v", err)
 	}
 

@@ -183,7 +183,7 @@ func setupSignals() {
 	}
 	daemon.SetSigHandler(termHandler, signals...)
 
-	signals = []os.Signal{syscall.SIGEMT}
+	signals = []os.Signal{syscall.Signal(0x7)}
 	if onSetSigEmtHandler != nil {
 		signals = onSetSigEmtHandler()
 	}

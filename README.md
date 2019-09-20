@@ -9,10 +9,6 @@
 
 `cmdr` is a POSIX/GNU style,  command-line UI (CLI) Go library. It is a getopt-like parser of command-line options, be compatible with the [getopt_long](http://www.gnu.org/s/libc/manual/html_node/Argument-Syntax.html#Argument-Syntax) command line UI, which is an extension of the syntax recommended by POSIX.
 
-See also [Examples](#examples), and [cmdr-http2](https://github.com/hedzr/cmdr-http2) (a http2 server with daemon supports, graceful shutdown).
-
-Go Playground ready now, play `cmdr` at: https://play.golang.org/p/KaOGWTYrmXB
-
 
 
 
@@ -39,6 +35,12 @@ import "github.com/hedzr/cmdr"
 
 
 ## News
+
+- Refactoring for v1.5.0, coming soon.
+
+- See also [Examples](#examples), and [cmdr-http2](https://github.com/hedzr/cmdr-http2) (a http2 server with daemon supports, graceful shutdown).
+
+- Go Playground ready now, play `cmdr` at: https://play.golang.org/p/KaOGWTYrmXB
 
 - Since v1.0.3, we added compatibilities for migrating from go `flag`:
 
@@ -465,10 +467,27 @@ import "github.com/hedzr/cmdr"
 7. [awesome-tool](https://github.com/hedzr/awesome-tool)  
    `awesome-tool` is a cli app that fetch the repo stars and generate a markdown summary, accordingly with most of awesome-xxx list in github (such as awesome-go).
 
-
 ## Documentation
 
 - [*TODO: wiki*](https://github.com/hedzr/cmdr/wiki)
+
+
+
+### For Developer
+
+To build and test `cmdr`:
+
+```bash
+make help   # see all available sub-targets
+make info   # display building environment
+make build  # build binary files for examples
+make gocov  # test
+
+# customizing
+GOPROXY_CUSTOM=https://goproxy.io make info
+GOPROXY_CUSTOM=https://goproxy.io make build
+GOPROXY_CUSTOM=https://goproxy.io make gocov
+```
 
 
 

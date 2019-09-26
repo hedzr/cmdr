@@ -14,7 +14,7 @@ import (
 
 //
 
-//
+// ExecWorker is a core logic worker and holder
 type ExecWorker struct {
 	// beforeXrefBuildingX, afterXrefBuiltX HookXrefFunc
 	beforeXrefBuilding []HookXrefFunc

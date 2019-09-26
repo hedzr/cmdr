@@ -78,9 +78,10 @@ func SetInternalOutputStreams(out, err *bufio.Writer) {
 	}
 }
 
+// SetCustomShowVersion supports your `ShowVersion()` instead of internal `showVersion()`
+//
 // Deprecated: from v1.5.0
 //
-// SetCustomShowVersion supports your `ShowVersion()` instead of internal `showVersion()`
 func SetCustomShowVersion(fn func()) {
 	uniqueWorker.globalShowVersion = fn
 }

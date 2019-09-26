@@ -107,41 +107,42 @@ func WithInternalOutputStreams(out, err *bufio.Writer) ExecOption {
 	}
 }
 
-// SetCustomShowVersion supports your `ShowVersion()` instead of internal `showVersion()`
+// WithCustomShowVersion supports your `ShowVersion()` instead of internal `showVersion()`
 func WithCustomShowVersion(fn func()) ExecOption {
 	return func(w *ExecWorker) {
 		w.globalShowVersion = fn
 	}
 }
 
-// SetCustomShowBuildInfo supports your `ShowBuildInfo()` instead of internal `showBuildInfo()`
+// WithCustomShowBuildInfo supports your `ShowBuildInfo()` instead of internal `showBuildInfo()`
 func WithCustomShowBuildInfo(fn func()) ExecOption {
 	return func(w *ExecWorker) {
 		w.globalShowBuildInfo = fn
 	}
 }
 
-// SetNoLoadConfigFiles true means no loading config files
+// WithNoLoadConfigFiles true means no loading config files
 func WithNoLoadConfigFiles(b bool) ExecOption {
 	return func(w *ExecWorker) {
 		w.doNotLoadingConfigFiles = b
 	}
 }
 
-// SetCurrentHelpPainter allows to change the behavior and facade of help screen.
+// WithHelpPainter allows to change the behavior and facade of help screen.
 func WithHelpPainter(painter Painter) ExecOption {
 	return func(w *ExecWorker) {
 		w.currentHelpPainter = painter
 	}
 }
 
-// AddOnConfigLoadedListener add an functor on config loaded and merged
+// WithConfigLoadedListener add an functor on config loaded and merged
 func WithConfigLoadedListener(c ConfigReloaded) ExecOption {
 	return func(w *ExecWorker) {
 		AddOnConfigLoadedListener(c)
 	}
 }
 
+// WithHelpTabStop sets the tab-stop position in the help screen
 func WithHelpTabStop(tabStop int) ExecOption {
 	return func(w *ExecWorker) {
 		initTabStop(tabStop)

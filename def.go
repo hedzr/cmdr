@@ -201,6 +201,7 @@ var (
 
 	//
 	// currentHelpPainter Painter
+	
 	// CurrentDescColor the print color for description line
 	CurrentDescColor = FgDarkGray
 	// CurrentDefaultValueColor the print color for default value line

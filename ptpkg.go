@@ -97,9 +97,7 @@ func (pkg *ptpkg) tryExtractingValue(args []string) (err error) {
 	kind := vv.Kind()
 	switch kind {
 	case reflect.String:
-		if err = pkg.processTypeString(args); err != nil {
-			return
-		}
+		err = pkg.processTypeString(args)
 
 	case reflect.Slice:
 		err = pkg.tryExtractingSliceValue(args)
@@ -121,13 +119,9 @@ func (pkg *ptpkg) tryExtractingOthers(args []string, kind reflect.Kind) (err err
 			// ferr("wrong time.Duration: flag=%v, value=%v", pkg.fn, pkg.val)
 			return
 		}
-		if err = pkg.processTypeInt(args); err != nil {
-			return
-		}
+		err = pkg.processTypeInt(args)
 	} else if isTypeUint(kind) {
-		if err = pkg.processTypeUint(args); err != nil {
-			return
-		}
+		err = pkg.processTypeUint(args)
 	} else {
 		ferr("Unacceptable default value kind=%v", kind)
 	}
@@ -137,17 +131,11 @@ func (pkg *ptpkg) tryExtractingOthers(args []string, kind reflect.Kind) (err err
 func (pkg *ptpkg) tryExtractingSliceValue(args []string) (err error) {
 	typ := reflect.TypeOf(pkg.flg.DefaultValue).Elem()
 	if typ.Kind() == reflect.String {
-		if err = pkg.processTypeStringSlice(args); err != nil {
-			return
-		}
+		err = pkg.processTypeStringSlice(args)
 	} else if isTypeSInt(typ.Kind()) {
-		if err = pkg.processTypeIntSlice(args); err != nil {
-			return
-		}
+		err = pkg.processTypeIntSlice(args)
 	} else if isTypeUint(typ.Kind()) {
-		if err = pkg.processTypeUintSlice(args); err != nil {
-			return
-		}
+		err = pkg.processTypeUintSlice(args)
 	}
 	return
 }

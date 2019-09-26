@@ -32,7 +32,23 @@ func TestSingleCommandLine1(t *testing.T) {
 	cmdr.SetInternalOutputStreams(nil, nil)
 	cmdr.SetHelpTabStop(70)
 
-	_ = cmdr.Exec(rootCmd)
+	_ = cmdr.Exec(rootCmd, cmdr.WithCustomShowVersion(func() {}),
+	cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {}, func(root *cmdr.RootCommand, args []string) {}), 
+	cmdr.WithEnvPrefix([]string{"APP_"}),
+	cmdr.WithOptionsPrefix([]string{"app"}),
+	cmdr.WithRxxtPrefix([]string{"app"}),
+	cmdr.WithPredefinedLocations(nil),
+	cmdr.WithIgnoreWrongEnumValue(true),
+	cmdr.WithBuiltinCommands(true,true,true,true,true),
+	cmdr.WithInternalOutputStreams(nil,nil),
+	cmdr.WithCustomShowBuildInfo(func(){}),
+	cmdr.WithNoLoadConfigFiles(false),
+	cmdr.WithHelpPainter(nil),
+	cmdr.WithConfigLoadedListener(nil),
+	cmdr.WithHelpTabStop(70),
+	)
+
+	cmdr.ResetWorker()
 	_ = cmdr.ExecWith(rootCmd, nil, nil)
 
 	_ = cmdr.SaveAsYaml(".tmp.1.yaml")
@@ -658,6 +674,7 @@ func TestExec(t *testing.T) {
 			t.Failed()
 		}
 		cmdr.SetNoLoadConfigFiles(false)
+		cmdr.SetCurrentHelpPainter(nil)
 	}()
 
 	copyRootCmd = rootCmd
@@ -750,6 +767,12 @@ var (
 			return nil
 		},
 		"consul-tags --no-color --help": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags --version-sim 3.3.3": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags -pp": func(t *testing.T) error {
 			return nil
 		},
 		"consul-tags -dd 1h": func(t *testing.T) error {
@@ -902,6 +925,7 @@ var (
 						Action: func(cmd *cmdr.Command, args []string) (err error) {
 							cmd.PrintVersion()
 							cmdr.PrintBuildInfo()
+							cmd.PrintBuildInfo()
 
 							cmdr.SetCustomShowVersion(nil)
 							cmdr.SetCustomShowBuildInfo(nil)

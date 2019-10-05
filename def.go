@@ -171,6 +171,9 @@ type (
 
 	// HookFunc the hook function prototype for SetBeforeXrefBuilding and SetAfterXrefBuilt
 	HookFunc func(root *RootCommand, args []string)
+
+	// HookOptsFunc the hook function prototype
+	HookOptsFunc func(root *RootCommand, opts *Options)
 )
 
 var (

@@ -22,6 +22,15 @@ func WithXrefBuildingHooks(beforeXrefBuildingX, afterXrefBuiltX HookFunc) ExecOp
 	}
 }
 
+// WithAutomaticEnvHooks sets the hook after building automatic environment.
+func WithAutomaticEnvHooks(hook HookOptsFunc) ExecOption {
+	return func(w *ExecWorker) {
+		if hook != nil {
+			w.afterAutomaticEnv = append(w.afterAutomaticEnv, hook)
+		}
+	}
+}
+
 // WithEnvPrefix sets the environment variable text prefixes.
 // cmdr will lookup envvars for a key.
 func WithEnvPrefix(prefix []string) ExecOption {

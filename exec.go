@@ -19,7 +19,7 @@ type ExecWorker struct {
 	// beforeXrefBuildingX, afterXrefBuiltX HookFunc
 	beforeXrefBuilding []HookFunc
 	afterXrefBuilt     []HookFunc
-	afterAutomaticEnv
+	afterAutomaticEnv  []HookOptsFunc
 
 	envPrefixes         []string
 	rxxtPrefixes        []string
@@ -59,13 +59,13 @@ var uniqueWorker = &ExecWorker{
 	rxxtPrefixes: []string{"app"},
 
 	predefinedLocations: []string{
-		"./ci/etc/%s/%s.yml",		// for developer
-		"/etc/%s/%s.yml",			// regular location
-		"/usr/local/etc/%s/%s.yml",	// regular macOS location
-		"$HOME/.config/%s/%s.yml",	// per user
-		"$HOME/.%s/%s.yml",			// ext location per user
-		"$THIS/%s.yml",				// executable's directory
-		"%s.yml",					// current directory
+		"./ci/etc/%s/%s.yml",       // for developer
+		"/etc/%s/%s.yml",           // regular location
+		"/usr/local/etc/%s/%s.yml", // regular macOS location
+		"$HOME/.config/%s/%s.yml",  // per user
+		"$HOME/.%s/%s.yml",         // ext location per user
+		"$THIS/%s.yml",             // executable's directory
+		"%s.yml",                   // current directory
 	},
 
 	shouldIgnoreWrongEnumValue: true,

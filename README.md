@@ -38,12 +38,38 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- Refactoring for v1.5.0, coming soon.
+- Refactoring for v1.5.1, coming soon.
 
 - See also [Examples](#examples), and [cmdr-http2](https://github.com/hedzr/cmdr-http2) (a http2 server with daemon supports, graceful shutdown).
 
 - Go Playground ready now, play `cmdr` at: https://play.golang.org/p/KaOGWTYrmXB
 
+- Since v1.5.0, main entry `Exec()` uses `With Options` style:
+
+  <details>
+  <summary> Expand to source codes </summary>
+  
+  ```go
+  err := cmdr.Exec(rootCmd,
+		cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {}, func(root *cmdr.RootCommand, args []string) {}),
+		cmdr.WithAutomaticEnvHooks(func(root *cmdr.RootCommand, opts *cmdr.Options) {}),
+		cmdr.WithEnvPrefix([]string{"CMDR"}),
+		cmdr.WithOptionsPrefix([]string{"app"}), // cmdr.WithRxxtPrefix([]string{"app"}),
+		cmdr.WithPredefinedLocations(nil),
+		cmdr.WithIgnoreWrongEnumValue(true),
+		cmdr.WithBuiltinCommands(true, true, true, true, true),
+		cmdr.WithInternalOutputStreams(nil, nil),
+		cmdr.WithCustomShowVersion(func() {}),
+		cmdr.WithCustomShowBuildInfo(func() {}),
+		cmdr.WithNoLoadConfigFiles(false),
+		cmdr.WithHelpPainter(nil),
+		cmdr.WithConfigLoadedListener(nil),
+		cmdr.WithHelpTabStop(70),
+	)
+	```
+  
+  </details>
+  
 - Since v1.0.3, we added compatibilities for migrating from go `flag`:
 
   <details>
@@ -135,6 +161,7 @@ import "github.com/hedzr/cmdr"
   - Options with optional arguments and default values
   - Multiple option groups each containing a set of options
   - Supports the compat short options `-aux` == `-a -u -x`
+  - and multiple flags `-vvv` == `-v -v -v`, then `cmdr.FindFlagRecursive("verbose", nil).GetTriggeredTime()` should be `3`
   - Supports namespaces for (nested) option groups
 
 - Automatic help screen generation (*Generates and prints well-formatted help message*)
@@ -248,13 +275,29 @@ import "github.com/hedzr/cmdr"
 
   - `$HOME/.<appname>/<appname>.yml` and `conf.d` sub-directory.
 
-  - Watch `conf.d` directory:
+  - all locatipredefinedons are:
+  
+    ```go
+    	predefinedLocations: []string{
+  		"./ci/etc/%s/%s.yml",       // for developer
+    		"/etc/%s/%s.yml",           // regular location
+  		"/usr/local/etc/%s/%s.yml", // regular macOS HomeBrew location
+    		"$HOME/.config/%s/%s.yml",  // per user
+  		"$HOME/.%s/%s.yml",         // ext location per user
+    		"$THIS/%s.yml",             // executable's directory
+  		"%s.yml",                   // current directory
+    	},
+    ```
+  
+- Watch `conf.d` directory:
+    
+  - `cmdr.WithConfigLoadedListener(listener)`
     - `AddOnConfigLoadedListener(c)`
-    - `RemoveOnConfigLoadedListener(c)`
+  - `RemoveOnConfigLoadedListener(c)`
     - `SetOnConfigLoadedListener(c, enabled)`
-
+    
   - As a feature, do NOT watch the changes on `<appname>.yml`.
-
+  
   - To customize the searching locations yourself:
 
     - `SetPredefinedLocations(locations)`
@@ -272,15 +315,17 @@ import "github.com/hedzr/cmdr"
     bin/demo --config=ci/etc/demo-yy/any.yml ~~debug
     # version = 1.2
     ```
-
+  
   - supports muiltiple file formats:
-
+  
     - Yaml
     - JSON
     - TOML
-
-  - `SetNoLoadConfigFiles(bool)` to disable external config file loading.
-
+  
+  - ~~`SetNoLoadConfigFiles(bool)` to disable external config file loading~~.
+  
+  - `cmdr.Exec(root, cmdr.WithNoLoadConfigFiles(false))`: to disabled loading external config files.
+  
 - Overrides by environment variables.
 
   *priority level:* `defaultValue -> config-file -> env-var -> command-line opts`
@@ -350,11 +395,13 @@ import "github.com/hedzr/cmdr"
 
   > Just for Linux
 
-- `ExecWith(rootCmd *RootCommand, beforeXrefBuilding_, afterXrefBuilt_ HookXrefFunc) (err error)`
+- ~~`ExecWith(rootCmd *RootCommand, beforeXrefBuilding_, afterXrefBuilt_ HookXrefFunc) (err error)`~~
 
-  `AddOnBeforeXrefBuilding(cb)`
+  ~~`AddOnBeforeXrefBuilding(cb)`~~
 
-  `AddOnAfterXrefBuilt(cb)`
+  ~~`AddOnAfterXrefBuilt(cb)`~~
+
+- `cmdr.WithXrefBuildingHooks(beforeXrefBuilding, afterXrefBuilding)`
 
 - More Advanced features
 
@@ -422,7 +469,7 @@ import "github.com/hedzr/cmdr"
 
   - `cmdr.TrapSignals(fn, signals...)`
 
-    It is a helper to simplify your infinite loop before exit program:
+    It is a helper to simplify your infidonite loop before exit program:
 
     <details>
       Here is sample fragment:

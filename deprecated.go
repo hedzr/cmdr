@@ -52,14 +52,14 @@ var (
 // AddOnBeforeXrefBuilding add hook func
 //
 // Deprecated: from v1.5.0
-func AddOnBeforeXrefBuilding(cb HookXrefFunc) {
+func AddOnBeforeXrefBuilding(cb HookFunc) {
 	uniqueWorker.AddOnBeforeXrefBuilding(cb)
 }
 
 // AddOnAfterXrefBuilt add hook func
 //
 // Deprecated: from v1.5.0
-func AddOnAfterXrefBuilt(cb HookXrefFunc) {
+func AddOnAfterXrefBuilt(cb HookFunc) {
 	uniqueWorker.AddOnAfterXrefBuilt(cb)
 }
 
@@ -124,7 +124,7 @@ func SetHelpTabStop(tabStop int) {
 // ExecWith is main entry of `cmdr`.
 //
 // Deprecated: from v1.5.0
-func ExecWith(rootCmd *RootCommand, beforeXrefBuildingX, afterXrefBuiltX HookXrefFunc) (err error) {
+func ExecWith(rootCmd *RootCommand, beforeXrefBuildingX, afterXrefBuiltX HookFunc) (err error) {
 	w := uniqueWorker
 
 	if beforeXrefBuildingX != nil {

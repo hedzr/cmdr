@@ -11,7 +11,7 @@ import (
 
 // WithXrefBuildingHooks sets the hook before and after building xref indices.
 // It's replacers for AddOnBeforeXrefBuilding, and AddOnAfterXrefBuilt.
-func WithXrefBuildingHooks(beforeXrefBuildingX, afterXrefBuiltX HookXrefFunc) ExecOption {
+func WithXrefBuildingHooks(beforeXrefBuildingX, afterXrefBuiltX HookFunc) ExecOption {
 	return func(w *ExecWorker) {
 		if beforeXrefBuildingX != nil {
 			w.beforeXrefBuilding = append(w.beforeXrefBuilding, beforeXrefBuildingX)

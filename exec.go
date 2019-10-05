@@ -16,9 +16,10 @@ import (
 
 // ExecWorker is a core logic worker and holder
 type ExecWorker struct {
-	// beforeXrefBuildingX, afterXrefBuiltX HookXrefFunc
-	beforeXrefBuilding []HookXrefFunc
-	afterXrefBuilt     []HookXrefFunc
+	// beforeXrefBuildingX, afterXrefBuiltX HookFunc
+	beforeXrefBuilding []HookFunc
+	afterXrefBuilt     []HookFunc
+	afterAutomaticEnv
 
 	envPrefixes         []string
 	rxxtPrefixes        []string
@@ -370,12 +371,12 @@ func (w *ExecWorker) getExpandedPredefinedLocations() (locations []string) {
 }
 
 // AddOnBeforeXrefBuilding add hook func
-func (w *ExecWorker) AddOnBeforeXrefBuilding(cb HookXrefFunc) {
+func (w *ExecWorker) AddOnBeforeXrefBuilding(cb HookFunc) {
 	w.beforeXrefBuilding = append(w.beforeXrefBuilding, cb)
 }
 
 // AddOnAfterXrefBuilt add hook func
-func (w *ExecWorker) AddOnAfterXrefBuilt(cb HookXrefFunc) {
+func (w *ExecWorker) AddOnAfterXrefBuilt(cb HookFunc) {
 	w.afterXrefBuilt = append(w.afterXrefBuilt, cb)
 }
 

@@ -554,6 +554,7 @@ func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 	// fmt.Printf("EXE = %v, PWD = %v, CURRDIR = %v\n", GetExcutableDir(), os.Getenv("PWD"), GetCurrentDir())
 	_ = os.Setenv("THIS", GetExcutableDir())
 	
+	//TODO 
 	return
 }
 

@@ -169,8 +169,8 @@ type (
 		OnConfigReloaded()
 	}
 
-	// HookXrefFunc the hook function prototype for SetBeforeXrefBuilding and SetAfterXrefBuilt
-	HookXrefFunc func(root *RootCommand, args []string)
+	// HookFunc the hook function prototype for SetBeforeXrefBuilding and SetAfterXrefBuilt
+	HookFunc func(root *RootCommand, args []string)
 )
 
 var (
@@ -212,8 +212,8 @@ var (
 	// globalShowVersion   func()
 	// globalShowBuildInfo func()
 
-	// beforeXrefBuilding []HookXrefFunc
-	// afterXrefBuilt     []HookXrefFunc
+	// beforeXrefBuilding []HookFunc
+	// afterXrefBuilt     []HookFunc
 
 	// getEditor sets callback to get editor program
 	// getEditor func() (string, error)

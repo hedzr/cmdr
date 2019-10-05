@@ -30,7 +30,7 @@ func (w *ExecWorker) buildRootCrossRefs(root *RootCommand) {
 }
 
 func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
-	if EnableVersionCommands {
+	if w.enableVersionCommands {
 		if _, ok := root.allCmds[SysMgmtGroup]["version"]; !ok {
 			cx := &Command{
 				BaseOpt: BaseOpt{
@@ -107,7 +107,7 @@ func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
 }
 
 func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
-	if EnableHelpCommands {
+	if w.enableHelpCommands {
 		if _, ok := root.allFlags[SysMgmtGroup]["help"]; !ok {
 			root.allFlags[SysMgmtGroup]["help"] = &Flag{
 				BaseOpt: BaseOpt{
@@ -196,22 +196,31 @@ $ {{.AppName}} --config=ci/etc/demo-yy/any.yml ~~debug
 }
 
 func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
-	if EnableVerboseCommands {
+	if w.enableVerboseCommands {
 		if _, ok := root.allFlags[SysMgmtGroup]["verbose"]; !ok {
-			root.allFlags[SysMgmtGroup]["verbose"] = &Flag{
+			ff := &Flag{
 				BaseOpt: BaseOpt{
-					Short:       "v",
-					Full:        "verbose",
-					Aliases:     []string{"vv", "vvv"},
+					Short: "v",
+					Full:  "verbose",
+					// Aliases:     []string{"vv", "vvv"},
 					Description: "Show this help screen",
 					// Hidden:      true,
 					owner: &root.Command,
+					Action: func(cmd *Command, args []string) (err error) {
+						if f := FindFlag("verbose", cmd); f != nil {
+							f.times++
+							// fmt.Println("verbose++: ", f.times)
+						}
+						return
+					},
 				},
 				DefaultValue: false,
 			}
+			root.Flags = append(root.Flags, ff)
+			root.allFlags[SysMgmtGroup]["verbose"] = ff
 			root.plainLongFlags["verbose"] = root.allFlags[SysMgmtGroup]["verbose"]
-			root.plainLongFlags["vvv"] = root.allFlags[SysMgmtGroup]["verbose"]
-			root.plainLongFlags["vv"] = root.allFlags[SysMgmtGroup]["verbose"]
+			// root.plainLongFlags["vvv"] = root.allFlags[SysMgmtGroup]["verbose"]
+			// root.plainLongFlags["vv"] = root.allFlags[SysMgmtGroup]["verbose"]
 			root.plainShortFlags["v"] = root.allFlags[SysMgmtGroup]["verbose"]
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["quiet"]; !ok {
@@ -248,7 +257,7 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 }
 
 func (w *ExecWorker) attachCmdrCommands(root *RootCommand) {
-	if EnableCmdrCommands {
+	if w.enableCmdrCommands {
 		if _, ok := root.allFlags[SysMgmtGroup]["strict-mode"]; !ok {
 			root.allFlags[SysMgmtGroup]["strict-mode"] = &Flag{
 				BaseOpt: BaseOpt{
@@ -289,7 +298,7 @@ func (w *ExecWorker) attachCmdrCommands(root *RootCommand) {
 }
 
 func (w *ExecWorker) attachGeneratorsCommands(root *RootCommand) {
-	if EnableGenerateCommands {
+	if w.enableGenerateCommands {
 		found := false
 		for _, sc := range root.SubCommands {
 			if sc.Full == generatorCommands.Full {

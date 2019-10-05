@@ -61,7 +61,7 @@ var uniqueWorker = &ExecWorker{
 	predefinedLocations: []string{
 		"./ci/etc/%s/%s.yml",       // for developer
 		"/etc/%s/%s.yml",           // regular location
-		"/usr/local/etc/%s/%s.yml", // regular macOS location
+		"/usr/local/etc/%s/%s.yml", // regular macOS HomeBrew location
 		"$HOME/.config/%s/%s.yml",  // per user
 		"$HOME/.%s/%s.yml",         // ext location per user
 		"$THIS/%s.yml",             // executable's directory

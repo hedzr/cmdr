@@ -538,18 +538,22 @@ func (s *Options) GetString(key string) (ret string) {
 }
 
 func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
-	// p := strings.Join(EnvPrefix,"_")
-	p := uniqueWorker.getPrefix() // strings.Join(RxxtPrefix, ".")
+	// prefix := strings.Join(EnvPrefix,"_")
+	prefix := uniqueWorker.getPrefix() // strings.Join(RxxtPrefix, ".")
 	for key := range s.entries {
 		ek := s.envKey(key)
 		if v, ok := os.LookupEnv(ek); ok {
-			if strings.HasPrefix(key, p) {
-				s.Set(key[len(p)+1:], v)
+			if strings.HasPrefix(key, prefix) {
+				s.Set(key[len(prefix)+1:], v)
 			} else {
 				s.Set(key, v)
 			}
 		}
 	}
+	
+	// fmt.Printf("EXE = %v, PWD = %v, CURRDIR = %v\n", GetExcutableDir(), os.Getenv("PWD"), GetCurrentDir())
+	_ = os.Setenv("THIS", GetExcutableDir())
+	
 	return
 }
 

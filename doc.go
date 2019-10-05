@@ -6,9 +6,9 @@ package cmdr
 
 const (
 	// AppName const
-	AppName = "cmdr" // main app-name
+	AppName = "cmdr"
 	// Version const
-	Version = "1.5.0" // version name
+	Version = "1.5.1"
 	// VersionInt const
-	VersionInt = 0x010500 // using as
+	VersionInt = 0x010501
 )

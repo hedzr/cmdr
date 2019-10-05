@@ -19,7 +19,7 @@ import (
 )
 
 // FindSubCommand find sub-command with `longName` from `cmd`
-// if cmd == nil: finding from root command 
+// if cmd == nil: finding from root command
 func FindSubCommand(longName string, cmd *Command) (res *Command) {
 	if cmd == nil {
 		cmd = &uniqueWorker.rootCommand.Command
@@ -34,7 +34,7 @@ func FindSubCommand(longName string, cmd *Command) (res *Command) {
 }
 
 // FindFlag find flag with `longName` from `cmd`
-// if cmd == nil: finding from root command 
+// if cmd == nil: finding from root command
 func FindFlag(longName string, cmd *Command) (res *Flag) {
 	if cmd == nil {
 		cmd = &uniqueWorker.rootCommand.Command
@@ -49,7 +49,7 @@ func FindFlag(longName string, cmd *Command) (res *Flag) {
 }
 
 // FindSubCommandRecursive find sub-command with `longName` from `cmd` recursively
-// if cmd == nil: finding from root command 
+// if cmd == nil: finding from root command
 func FindSubCommandRecursive(longName string, cmd *Command) (res *Command) {
 	if cmd == nil {
 		cmd = &uniqueWorker.rootCommand.Command
@@ -71,7 +71,7 @@ func FindSubCommandRecursive(longName string, cmd *Command) (res *Command) {
 }
 
 // FindFlagRecursive find flag with `longName` from `cmd` recursively
-// if cmd == nil: finding from root command 
+// if cmd == nil: finding from root command
 func FindFlagRecursive(longName string, cmd *Command) (res *Flag) {
 	if cmd == nil {
 		cmd = &uniqueWorker.rootCommand.Command

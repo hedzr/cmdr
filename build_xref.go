@@ -231,7 +231,7 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 			root.plainShortFlags["v"] = root.allFlags[SysMgmtGroup]["verbose"]
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["quiet"]; !ok {
-			root.allFlags[SysMgmtGroup]["quiet"] = &Flag{
+			ff := &Flag{
 				BaseOpt: BaseOpt{
 					Short:       "q",
 					Full:        "quiet",
@@ -242,11 +242,12 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 				},
 				DefaultValue: false,
 			}
+			root.allFlags[SysMgmtGroup]["quiet"] = ff
 			root.plainLongFlags["quiet"] = root.allFlags[SysMgmtGroup]["quiet"]
 			root.plainShortFlags["q"] = root.allFlags[SysMgmtGroup]["quiet"]
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["debug"]; !ok {
-			root.allFlags[SysMgmtGroup]["debug"] = &Flag{
+			ff := &Flag{
 				BaseOpt: BaseOpt{
 					Short:       "D",
 					Full:        "debug",
@@ -257,6 +258,7 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 				},
 				DefaultValue: false,
 			}
+			root.allFlags[SysMgmtGroup]["debug"] = ff
 			root.plainLongFlags["debug"] = root.allFlags[SysMgmtGroup]["debug"]
 			root.plainShortFlags["D"] = root.allFlags[SysMgmtGroup]["debug"]
 		}

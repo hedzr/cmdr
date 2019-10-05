@@ -44,18 +44,22 @@ func (c *Command) GetHitStr() string {
 	return c.strHit
 }
 
+// FindSubCommand find sub-command with `longName` from `cmd`
 func (c *Command) FindSubCommand(longName string) (res *Command) {
 	return FindSubCommand(longName, c)
 }
 
+// FindSubCommandRecursive find sub-command with `longName` from `cmd` recursively
 func (c *Command) FindSubCommandRecursive(longName string) (res *Command) {
 	return FindSubCommandRecursive(longName, c)
 }
 
+// FindFlag find flag with `longName` from `cmd`
 func (c *Command) FindFlag(longName string) (res *Flag) {
 	return FindFlag(longName, c)
 }
 
+// FindFlagRecursive find flag with `longName` from `cmd` recursively
 func (c *Command) FindFlagRecursive(longName string) (res *Flag) {
 	return FindFlagRecursive(longName, c)
 }

@@ -9,6 +9,11 @@ import (
 	"strings"
 )
 
+// GetTriggeredTimes returns the matched times
+func (s *Flag) GetTriggeredTimes() int {
+	return s.times
+}
+
 // GetTitleFlagNames temp
 func (s *Flag) GetTitleFlagNames() string {
 	return s.GetTitleFlagNamesBy(",")

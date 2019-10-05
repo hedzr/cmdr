@@ -128,6 +128,8 @@ GO_UP:
 }
 
 func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string) (upLevel, stop bool, err error) {
+	pkg.flg.times++
+	
 	if err = pkg.tryExtractingValue(args); err != nil {
 		stop = true
 		return

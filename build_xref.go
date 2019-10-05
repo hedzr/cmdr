@@ -206,13 +206,20 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 					Description: "Show this help screen",
 					// Hidden:      true,
 					owner: &root.Command,
-					Action: func(cmd *Command, args []string) (err error) {
-						if f := FindFlag("verbose", cmd); f != nil {
-							f.times++
-							// fmt.Println("verbose++: ", f.times)
-						}
-						return
-					},
+					// Action: func(cmd *Command, args []string) (err error) {
+					// 	if f := FindFlag("verbose", cmd); f != nil {
+					// 		f.times++
+					// 		// fmt.Println("verbose++: ", f.times)
+					// 	}
+					// 	return
+					// },
+
+					// Action: func(cmd *Command, args []string) (err error) {
+					// 	if f := FindFlag("verbose", cmd); f != nil {
+					// 		fmt.Println("verbose++: ", f.times)
+					// 	}
+					// 	return
+					// },
 				},
 				DefaultValue: false,
 			}

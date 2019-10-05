@@ -53,8 +53,8 @@ import "github.com/hedzr/cmdr"
   err := cmdr.Exec(rootCmd,
 		cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {}, func(root *cmdr.RootCommand, args []string) {}),
 		cmdr.WithAutomaticEnvHooks(func(root *cmdr.RootCommand, opts *cmdr.Options) {}),
-		cmdr.WithEnvPrefix([]string{"CMDR"}),
-		cmdr.WithOptionsPrefix([]string{"app"}), // cmdr.WithRxxtPrefix([]string{"app"}),
+	  cmdr.WithEnvPrefix("CMDR"), // WithEnvPrefix("F","YY") == T_YY_xxx
+		cmdr.WithOptionsPrefix("app"), // cmdr.WithRxxtPrefix("app"),
 		cmdr.WithPredefinedLocations(nil),
 		cmdr.WithIgnoreWrongEnumValue(true),
 		cmdr.WithBuiltinCommands(true, true, true, true, true),

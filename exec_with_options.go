@@ -33,7 +33,7 @@ func WithAutomaticEnvHooks(hook HookOptsFunc) ExecOption {
 
 // WithEnvPrefix sets the environment variable text prefixes.
 // cmdr will lookup envvars for a key.
-func WithEnvPrefix(prefix []string) ExecOption {
+func WithEnvPrefix(prefix ...string) ExecOption {
 	return func(w *ExecWorker) {
 		w.envPrefixes = prefix
 	}
@@ -41,7 +41,7 @@ func WithEnvPrefix(prefix []string) ExecOption {
 
 // WithOptionsPrefix create a top-level namespace, which contains all normalized `Flag`s.
 // =WithRxxtPrefix
-func WithOptionsPrefix(prefix []string) ExecOption {
+func WithOptionsPrefix(prefix ...string) ExecOption {
 	return func(w *ExecWorker) {
 		w.rxxtPrefixes = prefix
 	}
@@ -49,7 +49,7 @@ func WithOptionsPrefix(prefix []string) ExecOption {
 
 // WithRxxtPrefix create a top-level namespace, which contains all normalized `Flag`s.
 // cmdr will lookup envvars for a key.
-func WithRxxtPrefix(prefix []string) ExecOption {
+func WithRxxtPrefix(prefix ...string) ExecOption {
 	return func(w *ExecWorker) {
 		w.rxxtPrefixes = prefix
 	}
@@ -57,7 +57,7 @@ func WithRxxtPrefix(prefix []string) ExecOption {
 
 // WithPredefinedLocations sets the environment variable text prefixes.
 // cmdr will lookup envvars for a key.
-func WithPredefinedLocations(locations []string) ExecOption {
+func WithPredefinedLocations(locations ...string) ExecOption {
 	return func(w *ExecWorker) {
 		w.predefinedLocations = locations
 	}

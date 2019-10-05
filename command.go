@@ -44,6 +44,22 @@ func (c *Command) GetHitStr() string {
 	return c.strHit
 }
 
+func (c *Command) FindSubCommand(longName string) (res *Command) {
+	return FindSubCommand(longName, c)
+}
+
+func (c *Command) FindSubCommandRecursive(longName string) (res *Command) {
+	return FindSubCommandRecursive(longName, c)
+}
+
+func (c *Command) FindFlag(longName string) (res *Flag) {
+	return FindFlag(longName, c)
+}
+
+func (c *Command) FindFlagRecursive(longName string) (res *Flag) {
+	return FindFlagRecursive(longName, c)
+}
+
 // // HasParent detects whether owner is available or not
 // func (c *BaseOpt) HasParent() bool {
 // 	return c.owner != nil

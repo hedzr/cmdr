@@ -29,6 +29,7 @@ func GetExcutablePath() string {
 }
 
 // GetCurrentDir returns the current workingFlag directory
+// it should be equal with os.Getenv("PWD")
 func GetCurrentDir() string {
 	dir, _ := os.Getwd()
 	// if err != nil {
@@ -89,7 +90,7 @@ func normalizeDir(s string) string {
 	} else if strings.HasPrefix(s, "./") {
 		return path.Join(GetCurrentDir(), s)
 	} else if strings.HasPrefix(s, "../") {
-		return path.Join(GetCurrentDir(), s)
+		return path.Dir(path.Join(GetCurrentDir(), s))
 	} else if strings.HasPrefix(s, "~/") {
 		return path.Join(os.Getenv("HOME"), s[2:])
 	} else {

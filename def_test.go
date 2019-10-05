@@ -32,8 +32,10 @@ func TestSingleCommandLine1(t *testing.T) {
 	cmdr.SetInternalOutputStreams(nil, nil)
 	cmdr.SetHelpTabStop(70)
 
-	_ = cmdr.Exec(rootCmd, cmdr.WithCustomShowVersion(func() {}),
+	_ = cmdr.Exec(rootCmd, 
+		cmdr.WithCustomShowVersion(func() {}),
 		cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {}, func(root *cmdr.RootCommand, args []string) {}),
+		cmdr.WithAutomaticEnvHooks(func(root *cmdr.RootCommand, opts *cmdr.Options) {}),
 		cmdr.WithEnvPrefix([]string{"APP_"}),
 		cmdr.WithOptionsPrefix([]string{"app"}),
 		cmdr.WithRxxtPrefix([]string{"app"}),

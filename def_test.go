@@ -33,7 +33,6 @@ func TestSingleCommandLine1(t *testing.T) {
 	cmdr.SetHelpTabStop(70)
 
 	_ = cmdr.Exec(rootCmd,
-		cmdr.WithCustomShowVersion(func() {}),
 		cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {}, func(root *cmdr.RootCommand, args []string) {}),
 		cmdr.WithAutomaticEnvHooks(func(root *cmdr.RootCommand, opts *cmdr.Options) {}),
 		cmdr.WithEnvPrefix([]string{"APP_"}),
@@ -43,6 +42,7 @@ func TestSingleCommandLine1(t *testing.T) {
 		cmdr.WithIgnoreWrongEnumValue(true),
 		cmdr.WithBuiltinCommands(true, true, true, true, true),
 		cmdr.WithInternalOutputStreams(nil, nil),
+		cmdr.WithCustomShowVersion(func() {}),
 		cmdr.WithCustomShowBuildInfo(func() {}),
 		cmdr.WithNoLoadConfigFiles(false),
 		cmdr.WithHelpPainter(nil),

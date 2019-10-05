@@ -285,6 +285,9 @@ lint: | $(GOBASE) $(GOLINT)
 ## cov: =`coverage`, run go coverage test
 cov: coverage
 
+## gocov: =`coverage`, run go coverage test
+gocov: coverage
+
 ## coverage: run go coverage test
 coverage: | $(GOBASE)
 	@echo "  >  gocov ..."

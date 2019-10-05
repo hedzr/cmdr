@@ -12,12 +12,12 @@ VERSION=$(shell grep -E "Version[ \t]+=[ \t]+" doc.go|grep -Eo "[0-9.]+")
 
 # Go related variables.
 GOBASE = $(shell pwd)
-#GOPATH="$(GOBASE)/vendor:$(GOBASE)"
-#GOPATH=$(GOBASE)/vendor:$(GOBASE):$(shell dirname $(GOBASE))
-GOPATH2= $(shell dirname $(GOBASE))
-GOPATH1= $(shell dirname $(GOPATH2))
-GOPATH0= $(shell dirname $(GOPATH1))
-GOPATH = $(shell dirname $(GOPATH0))
+##GOPATH="$(GOBASE)/vendor:$(GOBASE)"
+##GOPATH=$(GOBASE)/vendor:$(GOBASE):$(shell dirname $(GOBASE))
+#GOPATH2= $(shell dirname $(GOBASE))
+#GOPATH1= $(shell dirname $(GOPATH2))
+#GOPATH0= $(shell dirname $(GOPATH1))
+#GOPATH = $(shell dirname $(GOPATH0))
 GOBIN  = $(GOBASE)/bin
 GOFILES= $(wildcard *.go)
 BIN    = $(GOPATH)/bin

@@ -24,12 +24,7 @@ func FindSubCommand(longName string, cmd *Command) (res *Command) {
 	if cmd == nil {
 		cmd = &uniqueWorker.rootCommand.Command
 	}
-	for _, cx := range cmd.SubCommands {
-		if longName == cx.Full {
-			res = cx
-			return
-		}
-	}
+	res = cmd.FindSubCommand(longName)
 	return
 }
 
@@ -39,12 +34,7 @@ func FindFlag(longName string, cmd *Command) (res *Flag) {
 	if cmd == nil {
 		cmd = &uniqueWorker.rootCommand.Command
 	}
-	for _, cx := range cmd.Flags {
-		if longName == cx.Full {
-			res = cx
-			return
-		}
-	}
+	res = cmd.FindFlag(longName)
 	return
 }
 
@@ -54,19 +44,7 @@ func FindSubCommandRecursive(longName string, cmd *Command) (res *Command) {
 	if cmd == nil {
 		cmd = &uniqueWorker.rootCommand.Command
 	}
-	for _, cx := range cmd.SubCommands {
-		if longName == cx.Full {
-			res = cx
-			return
-		}
-	}
-	for _, cx := range cmd.SubCommands {
-		if len(cx.SubCommands) > 0 {
-			if res = FindSubCommandRecursive(longName, cx); res != nil {
-				return
-			}
-		}
-	}
+	res = cmd.FindSubCommandRecursive(longName)
 	return
 }
 
@@ -76,19 +54,7 @@ func FindFlagRecursive(longName string, cmd *Command) (res *Flag) {
 	if cmd == nil {
 		cmd = &uniqueWorker.rootCommand.Command
 	}
-	for _, cx := range cmd.Flags {
-		if longName == cx.Full {
-			res = cx
-			return
-		}
-	}
-	for _, cx := range cmd.SubCommands {
-		// if len(cx.SubCommands) > 0 {
-		if res = FindFlagRecursive(longName, cx); res != nil {
-			return
-		}
-		// }
-	}
+	res = cmd.FindFlagRecursive(longName)
 	return
 }
 

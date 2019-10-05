@@ -46,22 +46,64 @@ func (c *Command) GetHitStr() string {
 
 // FindSubCommand find sub-command with `longName` from `cmd`
 func (c *Command) FindSubCommand(longName string) (res *Command) {
-	return FindSubCommand(longName, c)
+	// return FindSubCommand(longName, c)
+	for _, cx := range c.SubCommands {
+		if longName == cx.Full {
+			res = cx
+			return
+		}
+	}
+	return
 }
 
 // FindSubCommandRecursive find sub-command with `longName` from `cmd` recursively
 func (c *Command) FindSubCommandRecursive(longName string) (res *Command) {
-	return FindSubCommandRecursive(longName, c)
+	// return FindSubCommandRecursive(longName, c)
+	for _, cx := range c.SubCommands {
+		if longName == cx.Full {
+			res = cx
+			return
+		}
+	}
+	for _, cx := range c.SubCommands {
+		if len(cx.SubCommands) > 0 {
+			if res = cx.FindSubCommandRecursive(longName); res != nil {
+				return
+			}
+		}
+	}
+	return
 }
 
 // FindFlag find flag with `longName` from `cmd`
 func (c *Command) FindFlag(longName string) (res *Flag) {
-	return FindFlag(longName, c)
+	// return FindFlag(longName, c)
+	for _, cx := range c.Flags {
+		if longName == cx.Full {
+			res = cx
+			return
+		}
+	}
+	return
 }
 
 // FindFlagRecursive find flag with `longName` from `cmd` recursively
 func (c *Command) FindFlagRecursive(longName string) (res *Flag) {
-	return FindFlagRecursive(longName, c)
+	// return FindFlagRecursive(longName, c)
+	for _, cx := range c.Flags {
+		if longName == cx.Full {
+			res = cx
+			return
+		}
+	}
+	for _, cx := range c.SubCommands {
+		// if len(cx.SubCommands) > 0 {
+		if res = cx.FindFlagRecursive(longName); res != nil {
+			return
+		}
+		// }
+	}
+	return
 }
 
 // // HasParent detects whether owner is available or not

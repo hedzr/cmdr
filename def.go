@@ -139,8 +139,11 @@ type (
 
 		onSet func(keyPath string, value interface{})
 
+		// times how many times this flag was triggered.
+		times int
+
 		// PostAction treat this flag as a command!
-		PostAction func(cmd *Command, args []string) (err error)
+		// PostAction func(cmd *Command, args []string) (err error)
 
 		// by default, a flag is always `optional`.
 	}

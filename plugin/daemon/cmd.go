@@ -13,7 +13,7 @@ var (
 			// Name:        "server",
 			Short:       "s",
 			Full:        "server",
-			Aliases:     []string{"serve", "svr", "daemon"},
+			Aliases:     []string{"svr", "daemon"},
 			Description: "server ops: for linux daemon.",
 			Group:       "Daemonization",
 		},

@@ -229,10 +229,10 @@ var (
 
 	errWrongEnumValue = errors.New("unexpect enumerable value '%s' for option '%s', under command '%s'")
 
-	defaultStringMetric = JaroWinklerDistance(JWWithThreshold(similiarThreshold))
+	defaultStringMetric = JaroWinklerDistance(JWWithThreshold(similarThreshold))
 )
 
-const similiarThreshold = 0.6666666666666666
+const similarThreshold = 0.6666666666666666
 
 // ErrorForCmdr structure
 type ErrorForCmdr struct {

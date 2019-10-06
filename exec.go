@@ -47,6 +47,8 @@ type ExecWorker struct {
 	rootCommand *RootCommand
 	// rootOptions *Opt
 	rxxtOptions *Options
+
+	similarThreshold float64
 }
 
 // ExecOption is the functional option for Exec()
@@ -84,6 +86,8 @@ var uniqueWorker = &ExecWorker{
 	defaultStderr: bufio.NewWriterSize(os.Stderr, 16384),
 
 	rxxtOptions: NewOptions(),
+
+	similarThreshold: similarThreshold,
 }
 
 //

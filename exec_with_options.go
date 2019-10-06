@@ -165,3 +165,12 @@ func WithUnknownOptionHandler(handler func(isFlag bool, title string, cmd *Comma
 		unknownOptionHandler = handler
 	}
 }
+
+// WithSimilarThreshold defines a threshold for command/option similar detector.
+// Default threshold is 0.6666666666666666.
+// See also JaroWinklerDistance
+func WithSimilarThreshold(similiarThreshold float64) ExecOption {
+	return func(w *ExecWorker) {
+		w.similarThreshold = similiarThreshold
+	}
+}

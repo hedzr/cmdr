@@ -47,9 +47,10 @@ func TestSingleCommandLine1(t *testing.T) {
 		cmdr.WithHelpPainter(nil),
 		cmdr.WithConfigLoadedListener(nil),
 		cmdr.WithHelpTabStop(70),
-		cmdr.WithUnknownOptionHandler(func(isFlag bool, title string, cmd *cmdr.Command, args []string) {
-			//
+		cmdr.WithUnknownOptionHandler(func(isFlag bool, title string, cmd *cmdr.Command, args []string) (fallback bool) {
+			return
 		}),
+		cmdr.WithSimilarThreshold(0.7),
 	)
 
 	cmdr.ResetWorker()
@@ -84,8 +85,9 @@ func TestUnknownHandler(t *testing.T) {
 
 	defer prepareConfD(t)()
 
-	cmdr.SetUnknownOptionHandler(func(isFlag bool, title string, cmd *cmdr.Command, args []string) {
+	cmdr.SetUnknownOptionHandler(func(isFlag bool, title string, cmd *cmdr.Command, args []string) (fallback bool) {
 		t.Logf("isFlag: %v, title: %v, cmd: %v, args: %v", isFlag, title, cmd, args)
+		return
 	})
 
 	os.Args = []string{"consul-tags", "--confug", "./conf.d"}

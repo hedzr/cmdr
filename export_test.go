@@ -51,4 +51,6 @@ func TestTrapSignals(t *testing.T) {
 	TrapSignals(func(s os.Signal) {
 		//
 	})
+
+	// testTypes(t)
 }

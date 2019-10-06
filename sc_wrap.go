@@ -52,9 +52,7 @@ func TrapSignals(onTrapped func(s os.Signal), signals ...os.Signal) (waiter func
 		for {
 			select {
 			case <-done:
-				// os.Exit(1)
-				// logrus.Infof("done got.")
-				return
+				return // os.Exit(1) // logrus.Infof("done got.")
 			}
 		}
 	}

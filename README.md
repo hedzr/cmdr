@@ -38,13 +38,13 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- Refactoring for v1.5.1, coming soon.
+- Refactoring for v1.5.5, coming soon.
 
 - See also [Examples](#examples), and [cmdr-http2](https://github.com/hedzr/cmdr-http2) (a http2 server with daemon supports, graceful shutdown).
 
 - Go Playground ready now, play `cmdr` at: https://play.golang.org/p/KaOGWTYrmXB
 
-- Since v1.5.0, main entry `Exec()` uses `With Options` style:
+- Since v1.5.0, main entry `Exec()` uses `With Functional Options` style too:
 
   <details>
   <summary> Expand to source codes </summary>
@@ -155,37 +155,20 @@ import "github.com/hedzr/cmdr"
 - Unix [*getopt*(3)](http://man7.org/linux/man-pages/man3/getopt.3.html) representation but without its programmatic interface.
 
   - Options with short names (`-h`)
-
   - Options with long names (`--help`)
-
   - Options with aliases (`--helpme`, `--usage`, `--info`)
-
   - Options with and without arguments (bool v.s. other type)
-
   - Options with optional arguments and default values
-
   - Multiple option groups each containing a set of options
-
   - Supports the compat short options `-aux` == `-a -u -x`
-
-  - and multiple flags `-vvv` == `-v -v -v`, then `cmdr.FindFlagRecursive("verbose", nil).GetTriggeredTime()` should be `3`
-
-  - for bool, string, int, ... flags, last one will be kept and others abandoned:
-
-    `-t 1 -t 2 -t3` == `-t 3`
-
-  - for slice flags, all of its will be merged (NOTE that duplicated entries are as is):
-
-    slice flag overlapped
-
-    - `--root A --root B,C,D --root Z` == `--root A,B,C,D,Z`
-      cmdr.GetStringSliceR("root") will return `[]string{"A","B","C","D","Z"}`
-
   - Supports namespaces for (nested) option groups
 
 - Automatic help screen generation (*Generates and prints well-formatted help message*)
 
 - Supports the Fluent API style
+  
+  <details>
+  
   ```go
   root := cmdr.Root("aa", "1.0.3")
       // Or  // .Copyright("All rights reserved", "sombody@example.com")
@@ -208,7 +191,9 @@ import "github.com/hedzr/cmdr"
   	Description("", "").
   	Group("")
   ```
-
+  
+  </details>
+  
 - Muiltiple API styles:
 
   - Data Definitions style (Classical style): see also [root_cmd.go in demo](https://github.com/hedzr/cmdr/blob/master/examples/demo/demo/root_cmd.go)
@@ -242,6 +227,21 @@ import "github.com/hedzr/cmdr"
 - Supports for **PassThrough** by `--`. (*Passing remaining command line arguments after -- (optional)*)
 
 - Supports for options being specified multiple times, with different values
+
+  > since v1.5.0:
+  >
+  > - and multiple flags `-vvv` == `-v -v -v`, then `cmdr.FindFlagRecursive("verbose", nil).GetTriggeredTime()` should be `3`
+  >
+  > - for bool, string, int, ... flags, last one will be kept and others abandoned:
+  >
+  >   `-t 1 -t 2 -t3` == `-t 3`
+  >
+  > - for slice flags, all of its will be merged (NOTE that duplicated entries are as is):
+  >
+  >   slice flag overlapped
+  >
+  >   - `--root A --root B,C,D --root Z` == `--root A,B,C,D,Z`
+  >     cmdr.GetStringSliceR("root") will return `[]string{"A","B","C","D","Z"}`
 
 - Smart suggestions for wrong command and flags
 
@@ -294,10 +294,10 @@ import "github.com/hedzr/cmdr"
 
   - `$HOME/.<appname>/<appname>.yml` and `conf.d` sub-directory.
 
-  - all locatipredefinedons are:
+  - all predefined locations are:
   
     ```go
-    	predefinedLocations: []string{
+    predefinedLocations: []string{
   		"./ci/etc/%s/%s.yml",       // for developer
     		"/etc/%s/%s.yml",           // regular location
   		"/usr/local/etc/%s/%s.yml", // regular macOS HomeBrew location
@@ -305,28 +305,32 @@ import "github.com/hedzr/cmdr"
   		"$HOME/.%s/%s.yml",         // ext location per user
     		"$THIS/%s.yml",             // executable's directory
   		"%s.yml",                   // current directory
-    	},
+    },
     ```
   
 - Watch `conf.d` directory:
-    
+  
   - `cmdr.WithConfigLoadedListener(listener)`
+    
     - `AddOnConfigLoadedListener(c)`
   - `RemoveOnConfigLoadedListener(c)`
+    
     - `SetOnConfigLoadedListener(c, enabled)`
     
   - As a feature, do NOT watch the changes on `<appname>.yml`.
-  
+
   - To customize the searching locations yourself:
 
-    - `SetPredefinedLocations(locations)`
-
+    - ~~`SetPredefinedLocations(locations)`~~
+  
       ```go
-      SetPredefinedLocations([]string{"./config", "~/.config/cmdr/", "$GOPATH/running-configs/cmdr"})
+    SetPredefinedLocations([]string{"./config", "~/.config/cmdr/", "$GOPATH/running-configs/cmdr"})
       ```
-
+    
+    - since v1.5.0, uses `cmdr.WithPredefinedLocations("a","b",...),`
+  
   - on command-line:
-
+  
     ```bash
     # version = 1: bin/demo ~~debug
     bin/demo --configci/etc/demo-yy ~~debug

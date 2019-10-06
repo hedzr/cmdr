@@ -430,6 +430,66 @@ func stringSliceToIntSlice(in []string) (out []int) {
 	return
 }
 
+func stringSliceToInt64Slice(in []string) (out []int64) {
+	for _, ii := range in {
+		if i, err := strconv.ParseInt(ii, 10, 64); err == nil {
+			out = append(out, i)
+		}
+	}
+	return
+}
+
+func stringSliceToUint64Slice(in []string) (out []uint64) {
+	for _, ii := range in {
+		if i, err := strconv.ParseUint(ii, 10, 64); err == nil {
+			out = append(out, i)
+		}
+	}
+	return
+}
+
+func intSliceToInt64Slice(in []int) (out []int64) {
+	for _, ii := range in {
+		out = append(out, int64(ii))
+	}
+	return
+}
+
+func intSliceToUint64Slice(in []int) (out []uint64) {
+	for _, ii := range in {
+		out = append(out, uint64(ii))
+	}
+	return
+}
+
+func int64SliceToIntSlice(in []int64) (out []int) {
+	for _, ii := range in {
+		out = append(out, int(ii))
+	}
+	return
+}
+
+func int64SliceToUint64Slice(in []int64) (out []uint64) {
+	for _, ii := range in {
+		out = append(out, uint64(ii))
+	}
+	return
+}
+
+func uint64SliceToIntSlice(in []uint64) (out []int) {
+	for _, ii := range in {
+		out = append(out, int(ii))
+	}
+	return
+}
+
+func uint64SliceToInt64Slice(in []uint64) (out []int64) {
+	for _, ii := range in {
+		out = append(out, int64(ii))
+	}
+	return
+}
+
 // GetIntSlice returns the int slice value of an `Option` key.
 func GetIntSlice(key string) []int {
 	return uniqueWorker.rxxtOptions.GetIntSlice(key)
@@ -470,6 +530,10 @@ func (s *Options) GetIntSlice(key string) (ir []int) {
 				ir = stringSliceToIntSlice(r)
 			} else if ri, ok := v.([]int); ok {
 				ir = ri
+			} else if ri, ok := v.([]int64); ok {
+				ir = int64SliceToIntSlice(ri)
+			} else if ri, ok := v.([]uint64); ok {
+				ir = uint64SliceToIntSlice(ri)
 			} else if ri, ok := v.([]byte); ok {
 				xx := strings.Split(string(ri), ",")
 				ir = stringSliceToIntSlice(xx)
@@ -482,6 +546,88 @@ func (s *Options) GetIntSlice(key string) (ir []int) {
 			}
 		default:
 			ir = stringSliceToIntSlice(strings.Split(fmt.Sprintf("%v", v), ","))
+		}
+	}
+	return
+}
+
+// GetInt64Slice returns the string slice value of an `Option` key.
+func (s *Options) GetInt64Slice(key string) (ir []int64) {
+	// envkey := s.envKey(key)
+	// if s, ok := os.LookupEnv(envkey); ok {
+	// 	ir = stringSliceToIntSlice(strings.Split(s, ","))
+	// }
+
+	defer s.rw.RUnlock()
+	s.rw.RLock()
+
+	if v, ok := s.entries[key]; ok {
+		vvv := reflect.ValueOf(v)
+		switch vvv.Kind() {
+		case reflect.String:
+			ir = stringSliceToInt64Slice(strings.Split(v.(string), ","))
+		case reflect.Slice:
+			if r, ok := v.([]string); ok {
+				ir = stringSliceToInt64Slice(r)
+			} else if ri, ok := v.([]int); ok {
+				ir = intSliceToInt64Slice(ri)
+			} else if ri, ok := v.([]int64); ok {
+				ir = ri
+			} else if ri, ok := v.([]uint64); ok {
+				ir = uint64SliceToInt64Slice(ri)
+			} else if ri, ok := v.([]byte); ok {
+				xx := strings.Split(string(ri), ",")
+				ir = stringSliceToInt64Slice(xx)
+			} else {
+				var xx []string
+				for i := 0; i < vvv.Len(); i++ {
+					xx = append(xx, fmt.Sprintf("%v", vvv.Index(i).Interface()))
+				}
+				ir = stringSliceToInt64Slice(xx)
+			}
+		default:
+			ir = stringSliceToInt64Slice(strings.Split(fmt.Sprintf("%v", v), ","))
+		}
+	}
+	return
+}
+
+// GetUint64Slice returns the string slice value of an `Option` key.
+func (s *Options) GetUint64Slice(key string) (ir []uint64) {
+	// envkey := s.envKey(key)
+	// if s, ok := os.LookupEnv(envkey); ok {
+	// 	ir = stringSliceToIntSlice(strings.Split(s, ","))
+	// }
+
+	defer s.rw.RUnlock()
+	s.rw.RLock()
+
+	if v, ok := s.entries[key]; ok {
+		vvv := reflect.ValueOf(v)
+		switch vvv.Kind() {
+		case reflect.String:
+			ir = stringSliceToUint64Slice(strings.Split(v.(string), ","))
+		case reflect.Slice:
+			if r, ok := v.([]string); ok {
+				ir = stringSliceToUint64Slice(r)
+			} else if ri, ok := v.([]int); ok {
+				ir = intSliceToUint64Slice(ri)
+			} else if ri, ok := v.([]int64); ok {
+				ir = int64SliceToUint64Slice(ri)
+			} else if ri, ok := v.([]uint64); ok {
+				ir = ri
+			} else if ri, ok := v.([]byte); ok {
+				xx := strings.Split(string(ri), ",")
+				ir = stringSliceToUint64Slice(xx)
+			} else {
+				var xx []string
+				for i := 0; i < vvv.Len(); i++ {
+					xx = append(xx, fmt.Sprintf("%v", vvv.Index(i).Interface()))
+				}
+				ir = stringSliceToUint64Slice(xx)
+			}
+		default:
+			ir = stringSliceToUint64Slice(strings.Split(fmt.Sprintf("%v", v), ","))
 		}
 	}
 	return

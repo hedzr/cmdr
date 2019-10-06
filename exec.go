@@ -132,8 +132,12 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (err e
 	}
 
 	defer func() {
-		_ = rootCmd.ow.Flush()
-		_ = rootCmd.oerr.Flush()
+		if rootCmd.ow != nil {
+			_ = rootCmd.ow.Flush()
+		}
+		if rootCmd.oerr != nil {
+			_ = rootCmd.oerr.Flush()
+		}
 	}()
 
 	err = w.preprocess(rootCmd, args)

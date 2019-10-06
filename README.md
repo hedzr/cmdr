@@ -65,8 +65,11 @@ import "github.com/hedzr/cmdr"
 		cmdr.WithHelpPainter(nil),
 		cmdr.WithConfigLoadedListener(nil),
 		cmdr.WithHelpTabStop(70),
-	)
-	```
+	  cmdr.WithUnknownOptionHandler(func(isFlag bool, title string, cmd *cmdr.Command, args []string) {
+				//
+  	}),
+  )
+  ```
   
   </details>
   

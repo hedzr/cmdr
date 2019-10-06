@@ -5,21 +5,23 @@
 package cmdr
 
 var (
-	unknownOptionHandler func(isFlag bool, title string, cmd *Command, args []string)
+	unknownOptionHandler func(isFlag bool, title string, cmd *Command, args []string) (fallbackToDefaultDetector bool)
 )
 
 // SetUnknownOptionHandler enables your customized wrong command/flag processor.
 // internal processor supports smart suggestions for those wrong commands and flags.
 //
 // Deprecated: from v1.5.5, replaced with WithUnknownOptionHandler
-func SetUnknownOptionHandler(handler func(isFlag bool, title string, cmd *Command, args []string)) {
+func SetUnknownOptionHandler(handler func(isFlag bool, title string, cmd *Command, args []string) (fallbackToDefaultDetector bool)) {
 	unknownOptionHandler = handler
 }
 
 func unknownCommand(pkg *ptpkg, cmd *Command, args []string) {
 	ferr("\n\x1b[%dmUnknown command:\x1b[0m %v", BgBoldOrBright, pkg.a)
 	if unknownOptionHandler != nil {
-		unknownOptionHandler(false, pkg.a, cmd, args)
+		if unknownOptionHandler(false, pkg.a, cmd, args) {
+			unknownCommandDetector(pkg, cmd, args)
+		}
 	} else {
 		unknownCommandDetector(pkg, cmd, args)
 	}
@@ -28,7 +30,9 @@ func unknownCommand(pkg *ptpkg, cmd *Command, args []string) {
 func unknownFlag(pkg *ptpkg, cmd *Command, args []string) {
 	ferr("\n\x1b[%dmUnknown flag:\x1b[0m %v", BgBoldOrBright, pkg.a)
 	if unknownOptionHandler != nil && !pkg.short {
-		unknownOptionHandler(true, pkg.a, cmd, args)
+		if unknownOptionHandler(true, pkg.a, cmd, args) {
+			unknownFlagDetector(pkg, cmd, args)
+		}
 	} else {
 		unknownFlagDetector(pkg, cmd, args)
 	}
@@ -38,7 +42,7 @@ func unknownCommandDetector(pkg *ptpkg, cmd *Command, args []string) {
 	ever := false
 	for k := range cmd.plainCmds {
 		distance := float64(defaultStringMetric.Calc(pkg.a, k)) / stringMetricFactor
-		if distance >= similiarThreshold {
+		if distance >= uniqueWorker.similarThreshold {
 			ferr("  - do you mean: %v", k)
 			ever = true
 		}
@@ -67,8 +71,8 @@ func unknownFlagDetector(pkg *ptpkg, cmd *Command, args []string) {
 		str := stripPrefix(pkg.a, "--")
 		for k := range cmd.plainLongFlags {
 			distance := float64(defaultStringMetric.Calc(str, k)) / stringMetricFactor
-			if distance >= similiarThreshold {
-				ferr("  - do you mean: %v", k)
+			if distance >= uniqueWorker.similarThreshold {
+				ferr("  - do you mean: --%v", k)
 				ever = true
 				// } else {
 				// 	ferr("  ? '%v' - '%v': %v", pkg.a, k, distance)

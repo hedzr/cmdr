@@ -313,7 +313,7 @@ func (pkg *ptpkg) processTypeStringSlice(args []string) (err error) {
 	if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
 		existedVal = nil
 	}
-	pkg.xxSet(keyPath, append(v, existedVal...))
+	pkg.xxSet(keyPath, append(existedVal, v...))
 	return
 }
 
@@ -335,7 +335,7 @@ func (pkg *ptpkg) processTypeIntSlice(args []string) (err error) {
 	if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
 		existedVal = nil
 	}
-	pkg.xxSet(keyPath, append(v, existedVal...))
+	pkg.xxSet(keyPath, append(existedVal, v...))
 	return
 }
 
@@ -357,6 +357,6 @@ func (pkg *ptpkg) processTypeUintSlice(args []string) (err error) {
 	if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
 		existedVal = nil
 	}
-	pkg.xxSet(keyPath, append(v, existedVal...))
+	pkg.xxSet(keyPath, append(existedVal, v...))
 	return
 }

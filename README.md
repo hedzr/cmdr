@@ -155,13 +155,32 @@ import "github.com/hedzr/cmdr"
 - Unix [*getopt*(3)](http://man7.org/linux/man-pages/man3/getopt.3.html) representation but without its programmatic interface.
 
   - Options with short names (`-h`)
+
   - Options with long names (`--help`)
+
   - Options with aliases (`--helpme`, `--usage`, `--info`)
+
   - Options with and without arguments (bool v.s. other type)
+
   - Options with optional arguments and default values
+
   - Multiple option groups each containing a set of options
+
   - Supports the compat short options `-aux` == `-a -u -x`
+
   - and multiple flags `-vvv` == `-v -v -v`, then `cmdr.FindFlagRecursive("verbose", nil).GetTriggeredTime()` should be `3`
+
+  - for bool, string, int, ... flags, last one will be kept and others abandoned:
+
+    `-t 1 -t 2 -t3` == `-t 3`
+
+  - for slice flags, all of its will be merged (NOTE that duplicated entries are as is):
+
+    slice flag overlapped
+
+    - `--root A --root B,C,D --root Z` == `--root A,B,C,D,Z`
+      cmdr.GetStringSliceR("root") will return `[]string{"A","B","C","D","Z"}`
+
   - Supports namespaces for (nested) option groups
 
 - Automatic help screen generation (*Generates and prints well-formatted help message*)

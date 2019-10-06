@@ -65,9 +65,10 @@ import "github.com/hedzr/cmdr"
 		cmdr.WithHelpPainter(nil),
 		cmdr.WithConfigLoadedListener(nil),
 		cmdr.WithHelpTabStop(70),
-	  cmdr.WithUnknownOptionHandler(func(isFlag bool, title string, cmd *cmdr.Command, args []string) {
-				//
-  	}),
+	  cmdr.WithUnknownOptionHandler(func(isFlag bool, title string, cmd *cmdr.Command, args []string) (fallbackToDefaultDetector bool) {
+				return true
+  	}), // since v1.5.5
+    cmdr.WithSimilarThreshold(0.73), // since v1.5.5
   )
   ```
   

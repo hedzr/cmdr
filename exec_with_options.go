@@ -160,7 +160,7 @@ func WithHelpTabStop(tabStop int) ExecOption {
 
 // WithUnknownOptionHandler enables your customized wrong command/flag processor.
 // internal processor supports smart suggestions for those wrong commands and flags.
-func WithUnknownOptionHandler(handler func(isFlag bool, title string, cmd *Command, args []string) (fallbackToDefaultDetector bool)) ExecOption {
+func WithUnknownOptionHandler(handler UnknownOptionHandler) ExecOption {
 	return func(w *ExecWorker) {
 		unknownOptionHandler = handler
 	}

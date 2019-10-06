@@ -156,17 +156,19 @@ func init() {
 
 // InTesting detects whether is running under go test mode
 func InTesting() bool {
-	if strings.HasSuffix(SavedOsArgs[0], ".test") ||
-		strings.Contains(SavedOsArgs[0], "/T/___Test") ||
-		strings.Contains(SavedOsArgs[0], "/T/go-build") {
-		return true
-	}
-	for _, s := range SavedOsArgs {
-		if s == "-test.v" || s == "-test.run" {
-			return true
+	if !strings.HasSuffix(SavedOsArgs[0], ".test") &&
+		!strings.Contains(SavedOsArgs[0], "/T/___Test") &&
+		!strings.Contains(SavedOsArgs[0], "/T/go-build") {
+
+		for _, s := range SavedOsArgs {
+			if s == "-test.v" || s == "-test.run" {
+				return true
+			}
 		}
+		return false
+
 	}
-	return false
+	return true
 }
 
 func randomFilename() (fn string) {
@@ -440,7 +442,7 @@ func stripPrefix(s, p string) string {
 
 // IsDigitHeavy tests if the whole string is digit
 func IsDigitHeavy(s string) bool {
-	m, err := regexp.MatchString("^\\d", s)
+	m, err := regexp.MatchString("^\\d+$", s)
 	if err != nil {
 		return false
 	}

@@ -166,7 +166,7 @@ func (pkg *ptpkg) preprocessPkg(args []string) (err error) {
 			pkg.val = pkg.savedFn
 			pkg.savedFn = ""
 		} else {
-			if pkg.i < len(args)-1 && args[pkg.i+1][0] != '-' && args[pkg.i+1][0] != '~' {
+			if pkg.i < len(args)-1 && args[pkg.i+1][0] != '-' && (args[pkg.i+1][0] != '~' || args[pkg.i+1][1] != '~') {
 				pkg.i++
 				pkg.val = args[pkg.i]
 			} else {
@@ -307,8 +307,13 @@ func (pkg *ptpkg) processTypeStringSlice(args []string) (err error) {
 	}
 
 	var v = strings.Split(pkg.val, ",")
+
 	var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
-	pkg.xxSet(keyPath, v)
+	var existedVal = uniqueWorker.rxxtOptions.GetStringSlice(wrapWithRxxtPrefix(keyPath))
+	if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
+		existedVal = nil
+	}
+	pkg.xxSet(keyPath, append(v, existedVal...))
 	return
 }
 
@@ -325,7 +330,12 @@ func (pkg *ptpkg) processTypeIntSlice(args []string) (err error) {
 	}
 
 	var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
-	pkg.xxSet(keyPath, v)
+	// pkg.xxSet(keyPath, v)
+	var existedVal = uniqueWorker.rxxtOptions.GetInt64Slice(wrapWithRxxtPrefix(keyPath))
+	if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
+		existedVal = nil
+	}
+	pkg.xxSet(keyPath, append(v, existedVal...))
 	return
 }
 
@@ -342,6 +352,11 @@ func (pkg *ptpkg) processTypeUintSlice(args []string) (err error) {
 	}
 
 	var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
-	pkg.xxSet(keyPath, v)
+	// pkg.xxSet(keyPath, v)
+	var existedVal = uniqueWorker.rxxtOptions.GetUint64Slice(wrapWithRxxtPrefix(keyPath))
+	if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
+		existedVal = nil
+	}
+	pkg.xxSet(keyPath, append(v, existedVal...))
 	return
 }

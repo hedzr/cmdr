@@ -38,7 +38,9 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- Refactoring for v1.5.5, coming soon.
+- Next rel will be v1.6, and the deprecated functions will be removed.
+
+- The v1.5.5 is last release that the **DEPRECATED functions** would be kept.
 
 - See also [Examples](#examples), and [cmdr-http2](https://github.com/hedzr/cmdr-http2) (a http2 server with daemon supports, graceful shutdown).
 

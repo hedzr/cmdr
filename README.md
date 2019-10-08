@@ -42,6 +42,37 @@ import "github.com/hedzr/cmdr"
 
 - The v1.5.5 is last release that the **DEPRECATED functions** would be kept.
 
+  <details><summary>THE DEPRECATED FUNCTIONS</summary>
+
+    - Functions:
+      1. AddOnBeforeXrefBuilding()
+      1. AddOnAfterXrefBuilt()
+      1. SetInternalOutputStreams()
+      1. SetCustomShowVersion()
+      1. SetCustomShowBuildInfo()
+      1. PrintBuildInfo()
+      1. SetNoLoadConfigFiles()
+      1. SetCurrentHelpPainter()
+      1. SetHelpTabStop()
+      1. ExecWith()
+      1. SetUnknownOptionHandler()
+      1. SetInternalOutputStreams()
+      1. daemon.Enable()
+    
+    - Global Variables:
+      1. EnableVersionCommands
+      1. EnableHelpCommands
+      1. EnableVerboseCommands
+      1. EnableCmdrCommands
+      1. EnableGenerateCommands
+      1. EnvPrefix
+      1. RxxtPrefix
+      1. ShouldIgnoreWrongEnumValue
+
+  </details>
+
+  
+
 - See also [Examples](#examples), and [cmdr-http2](https://github.com/hedzr/cmdr-http2) (a http2 server with daemon supports, graceful shutdown).
 
 - Go Playground ready now, play `cmdr` at: https://play.golang.org/p/KaOGWTYrmXB

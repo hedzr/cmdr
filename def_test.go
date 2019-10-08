@@ -27,9 +27,9 @@ func TestSingleCommandLine1(t *testing.T) {
 
 	os.Args = []string{"consul-tags", "kv", "b"}
 
-	cmdr.SetInternalOutputStreams(nil, nil)
-	cmdr.SetHelpTabStop(70)
-	cmdr.SetUnknownOptionHandler(nil)
+	// cmdr.SetInternalOutputStreams(nil, nil)
+	// cmdr.SetHelpTabStop(70)
+	// cmdr.SetUnknownOptionHandler(nil)
 
 	_ = cmdr.Exec(rootCmd,
 		cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {}, func(root *cmdr.RootCommand, args []string) {}),
@@ -63,12 +63,12 @@ func TestSingleCommandLine1(t *testing.T) {
 	}
 	// _ = os.Remove(".tmp.json")
 
-	cmdr.AddOnAfterXrefBuilt(func(root *cmdr.RootCommand, args []string) {
-		return
-	})
-	cmdr.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
-		return
-	})
+	// cmdr.AddOnAfterXrefBuilt(func(root *cmdr.RootCommand, args []string) {
+	// 	return
+	// })
+	// cmdr.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
+	// 	return
+	// })
 	cmdr.AddOnConfigLoadedListener(&cfgLoaded{})
 	_ = cmdr.ExecWith(rootCmd, func(root *cmdr.RootCommand, args []string) {
 		return
@@ -85,40 +85,46 @@ func TestUnknownHandler(t *testing.T) {
 
 	defer prepareConfD(t)()
 
-	cmdr.SetUnknownOptionHandler(func(isFlag bool, title string, cmd *cmdr.Command, args []string) (fallback bool) {
-		t.Logf("isFlag: %v, title: %v, cmd: %v, args: %v", isFlag, title, cmd, args)
-		return
-	})
+	// cmdr.SetUnknownOptionHandler(func(isFlag bool, title string, cmd *cmdr.Command, args []string) (fallback bool) {
+	// 	t.Logf("isFlag: %v, title: %v, cmd: %v, args: %v", isFlag, title, cmd, args)
+	// 	return
+	// })
 
 	os.Args = []string{"consul-tags", "--confug", "./conf.d"}
-	cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmd); err != nil {
+	// cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	resetOsArgs()
 	cmdr.ResetOptions()
 
 	os.Args = []string{"consul-tags", "tigs"}
-	cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmd); err != nil {
+	// cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd,
+		cmdr.WithInternalOutputStreams(nil, nil),
+		cmdr.WithUnknownOptionHandler(func(isFlag bool, title string, cmd *cmdr.Command, args []string) (fallback bool) {
+			t.Logf("isFlag: %v, title: %v, cmd: %v, args: %v", isFlag, title, cmd, args)
+			return
+		}),
+	); err != nil {
 		t.Fatal(err)
 	}
 	resetOsArgs()
 	cmdr.ResetOptions()
 
-	cmdr.SetUnknownOptionHandler(nil)
+	// cmdr.SetUnknownOptionHandler(nil)
 
 	os.Args = []string{"consul-tags", "--confug", "./conf.d"}
-	cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmd); err != nil {
+	// cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	resetOsArgs()
 	cmdr.ResetOptions()
 
 	os.Args = []string{"consul-tags", "tegs"}
-	cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmd); err != nil {
+	// cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	resetOsArgs()
@@ -133,24 +139,24 @@ func TestConfigOption(t *testing.T) {
 	defer prepareConfD(t)()
 
 	os.Args = []string{"consul-tags", "--config", "./conf.d"}
-	cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmd); err != nil {
+	// cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	resetOsArgs()
 	cmdr.ResetOptions()
 
 	os.Args = []string{"consul-tags", "--config=./conf.d"}
-	cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmd); err != nil {
+	// cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	resetOsArgs()
 	cmdr.ResetOptions()
 
 	os.Args = []string{"consul-tags", "--config./conf.d/tmp.yaml"}
-	cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmd); err != nil {
+	// cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	resetOsArgs()
@@ -161,22 +167,22 @@ func TestStrictMode(t *testing.T) {
 	copyRootCmd = rootCmd
 	cmdr.ResetOptions()
 	os.Args = []string{"consul-tags", "ms", "tags", "add", "--strict-mode"}
-	cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmd); err != nil {
+	// cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	cmdr.ResetOptions()
 
 	os.Args = []string{"consul-tags", "server", "start", "~f", "--strict-mode"}
-	cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmd); err != nil {
+	// cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	cmdr.ResetOptions()
 
 	os.Args = []string{"consul-tags", "server", "nf", "nf", "--strict-mode"}
-	cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmd); err != nil {
+	// cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 
@@ -192,8 +198,8 @@ func TestTreeDump(t *testing.T) {
 		{"consul-tags", "--no-color", "--tree"},
 	} {
 		os.Args = args
-		cmdr.SetInternalOutputStreams(nil, nil)
-		if err := cmdr.Exec(rootCmd); err != nil {
+		// cmdr.SetInternalOutputStreams(nil, nil)
+		if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 			t.Fatal(err)
 		}
 		resetOsArgs()
@@ -212,29 +218,29 @@ func TestVersionCommand(t *testing.T) {
 	}()
 
 	os.Args = []string{"consul-tags", "version"}
-	cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmd); err != nil {
+	// cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	cmdr.ResetOptions()
 
 	os.Args = []string{"consul-tags", "ver"}
-	cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmd); err != nil {
+	// cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	cmdr.ResetOptions()
 
 	os.Args = []string{"consul-tags", "--version"}
-	cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmd); err != nil {
+	// cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	cmdr.ResetOptions()
 
 	os.Args = []string{"consul-tags", "-#"}
-	cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmd); err != nil {
+	// cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	cmdr.ResetOptions()
@@ -244,17 +250,18 @@ func TestVersionCommand(t *testing.T) {
 
 func TestGlobalShow(t *testing.T) {
 	copyRootCmd = rootCmd
-	cmdr.SetInternalOutputStreams(nil, nil)
+	// cmdr.SetInternalOutputStreams(nil, nil)
 
 	os.Args = []string{"consul-tags", "--version"}
-	if err := cmdr.Exec(rootCmd); err != nil {
+	// cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 
-	cmdr.SetCustomShowVersion(func() {
-		//
-	})
-	if err := cmdr.Exec(rootCmd); err != nil {
+	// cmdr.SetCustomShowVersion(func() {
+	// 	//
+	// })
+	if err := cmdr.Exec(rootCmd, cmdr.WithCustomShowVersion(func() {})); err != nil {
 		t.Fatal(err)
 	}
 
@@ -263,10 +270,10 @@ func TestGlobalShow(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cmdr.SetCustomShowBuildInfo(func() {
-		//
-	})
-	if err := cmdr.Exec(rootCmd); err != nil {
+	// cmdr.SetCustomShowBuildInfo(func() {
+	// 	//
+	// })
+	if err := cmdr.Exec(rootCmd, cmdr.WithCustomShowBuildInfo(func() {})); err != nil {
 		t.Fatal(err)
 	}
 
@@ -277,8 +284,8 @@ func TestPP(t *testing.T) {
 	copyRootCmd = rootCmd
 	cmdr.ResetOptions()
 	os.Args = []string{"consul-tags", "-pp"}
-	cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmd); err != nil {
+	// cmdr.SetInternalOutputStreams(nil, nil)
+	if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	resetOsArgs()
@@ -332,8 +339,8 @@ func TestForGenerateCommands(t *testing.T) {
 		cmdr.Set("generate.doc.docx", false)
 
 		os.Args = strings.Split(cc, " ")
-		cmdr.SetInternalOutputStreams(nil, nil)
-		if err := cmdr.Exec(rootCmd); err != nil {
+		// cmdr.SetInternalOutputStreams(nil, nil)
+		if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -349,8 +356,8 @@ func TestForGenerateDoc(t *testing.T) {
 	}
 	for _, cc := range commands {
 		os.Args = strings.Split(cc, " ")
-		cmdr.SetInternalOutputStreams(nil, nil)
-		if err := cmdr.Exec(rootCmd); err != nil {
+		// cmdr.SetInternalOutputStreams(nil, nil)
+		if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -366,8 +373,8 @@ func TestForGenerateMan(t *testing.T) {
 	}
 	for _, cc := range commands {
 		os.Args = strings.Split(cc, " ")
-		cmdr.SetInternalOutputStreams(nil, nil)
-		if err := cmdr.Exec(rootCmd); err != nil {
+		// cmdr.SetInternalOutputStreams(nil, nil)
+		if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -415,8 +422,8 @@ func TestTightFlag(t *testing.T) {
 	for _, cc := range commands {
 		t.Logf("--- command-line: %v", cc)
 		os.Args = strings.Split(cc, " ")
-		cmdr.SetInternalOutputStreams(nil, nil)
-		if err := cmdr.Exec(rootCmd); err != nil {
+		// cmdr.SetInternalOutputStreams(nil, nil)
+		if err := cmdr.Exec(rootCmd, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -449,8 +456,8 @@ func TestExec(t *testing.T) {
 	var outBuf = bufio.NewWriterSize(outX, 16384)
 	var errBuf = bufio.NewWriterSize(errX, 16384)
 	cmdr.SetInternalOutputStreams(outBuf, errBuf)
-	cmdr.SetCustomShowVersion(nil)
-	cmdr.SetCustomShowBuildInfo(nil)
+	// cmdr.SetCustomShowVersion(nil)
+	// cmdr.SetCustomShowBuildInfo(nil)
 
 	defer func() {
 		x := outX.String()
@@ -468,8 +475,8 @@ func TestExec(t *testing.T) {
 		if len(cmdr.GetPredefinedLocations()) != 0 {
 			t.Failed()
 		}
-		cmdr.SetNoLoadConfigFiles(false)
-		cmdr.SetCurrentHelpPainter(nil)
+		// cmdr.SetNoLoadConfigFiles(false)
+		// cmdr.SetCurrentHelpPainter(nil)
 	}()
 
 	copyRootCmd = rootCmd
@@ -487,10 +494,10 @@ func TestExec(t *testing.T) {
 		if sss == "consul-tags -qq" {
 			fmt.Println("xxx: ***: ", sss)
 			rootCmd.Header = "fhsdjkfhdsfhskfhsdjhfksdjfkhsjhfds"
-			cmdr.SetCustomShowVersion(func() {
-			})
-			cmdr.SetCustomShowBuildInfo(func() {
-			})
+			// cmdr.SetCustomShowVersion(func() {
+			// })
+			// cmdr.SetCustomShowBuildInfo(func() {
+			// })
 		}
 		if sss == "consul-tags ms tags modify -h ~~debug --port8509 --prefix/" {
 			fmt.Println("xx*: ***: ", sss)
@@ -705,11 +712,11 @@ var (
 						Description: "",
 						Action: func(cmd *cmdr.Command, args []string) (err error) {
 							cmd.PrintVersion()
-							cmdr.PrintBuildInfo()
+							// cmdr.PrintBuildInfo()
 							cmd.PrintBuildInfo()
 
-							cmdr.SetCustomShowVersion(nil)
-							cmdr.SetCustomShowBuildInfo(nil)
+							// cmdr.SetCustomShowVersion(nil)
+							// cmdr.SetCustomShowBuildInfo(nil)
 							return
 						},
 					},

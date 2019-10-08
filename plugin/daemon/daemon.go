@@ -44,35 +44,35 @@ func WithDaemon(daemonImplX Daemon,
 	}
 }
 
-// Enable enables the daemon plugin:
-// - add daemon commands and sub-commands: start/run, stop, restart/reload, status, install/uninstall
-// - pidfile
-// - go-daemon supports
-// -
+// // Enable enables the daemon plugin:
+// // - add daemon commands and sub-commands: start/run, stop, restart/reload, status, install/uninstall
+// // - pidfile
+// // - go-daemon supports
+// // -
+// //
+// // Deprecated: from v1.5.0, replaced with WithDaemon()
+// func Enable(daemonImplX Daemon,
+// 	modifier func(daemonServerCommand *cmdr.Command) *cmdr.Command,
+// 	preAction func(cmd *cmdr.Command, args []string) (err error),
+// 	postAction func(cmd *cmdr.Command, args []string),
+// ) {
+// 	daemonImpl = daemonImplX
 //
-// Deprecated: from v1.5.0, replaced with WithDaemon()
-func Enable(daemonImplX Daemon,
-	modifier func(daemonServerCommand *cmdr.Command) *cmdr.Command,
-	preAction func(cmd *cmdr.Command, args []string) (err error),
-	postAction func(cmd *cmdr.Command, args []string),
-) {
-	daemonImpl = daemonImplX
-
-	cmdr.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
-
-		if modifier != nil {
-			root.SubCommands = append(root.SubCommands, modifier(DaemonServerCommand))
-		} else {
-			root.SubCommands = append(root.SubCommands, DaemonServerCommand)
-		}
-
-		// prefix = strings.Join(append(cmdr.RxxtPrefix, "server"), ".")
-
-		attachPreAction(root, preAction)
-		attachPostAction(root, postAction)
-
-	})
-}
+// 	cmdr.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
+//
+// 		if modifier != nil {
+// 			root.SubCommands = append(root.SubCommands, modifier(DaemonServerCommand))
+// 		} else {
+// 			root.SubCommands = append(root.SubCommands, DaemonServerCommand)
+// 		}
+//
+// 		// prefix = strings.Join(append(cmdr.RxxtPrefix, "server"), ".")
+//
+// 		attachPreAction(root, preAction)
+// 		attachPostAction(root, postAction)
+//
+// 	})
+// }
 
 func attachPostAction(root *cmdr.RootCommand, postAction func(cmd *cmdr.Command, args []string)) {
 	if root.PostAction != nil {

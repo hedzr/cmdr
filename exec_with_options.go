@@ -73,7 +73,7 @@ func WithPredefinedLocations(locations ...string) ExecOption {
 func WithIgnoreWrongEnumValue(ignored bool) ExecOption {
 	return func(w *ExecWorker) {
 		w.shouldIgnoreWrongEnumValue = ignored
-		ShouldIgnoreWrongEnumValue = ignored
+		// ShouldIgnoreWrongEnumValue = ignored
 	}
 }
 
@@ -87,11 +87,11 @@ func WithIgnoreWrongEnumValue(ignored bool) ExecOption {
 //
 func WithBuiltinCommands(versionsCmds, helpCmds, verboseCmds, generateCmds, generalCmdrCmds bool) ExecOption {
 	return func(w *ExecWorker) {
-		EnableVersionCommands = versionsCmds
-		EnableHelpCommands = helpCmds
-		EnableVerboseCommands = verboseCmds
-		EnableCmdrCommands = generalCmdrCmds
-		EnableGenerateCommands = generateCmds
+		// EnableVersionCommands = versionsCmds
+		// EnableHelpCommands = helpCmds
+		// EnableVerboseCommands = verboseCmds
+		// EnableCmdrCommands = generalCmdrCmds
+		// EnableGenerateCommands = generateCmds
 
 		w.enableVersionCommands = versionsCmds
 		w.enableHelpCommands = helpCmds

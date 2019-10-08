@@ -38,7 +38,7 @@ func (s *helpPainter) FpPrintHeader(command *Command) {
 }
 
 func (s *helpPainter) FpPrintHelpTailLine(command *Command) {
-	if EnableHelpCommands {
+	if uniqueWorker.enableHelpCommands {
 		s.Printf("\nType '-h' or '--help' to get command help screen.")
 	}
 }

@@ -13,13 +13,13 @@ var (
 	unknownOptionHandler UnknownOptionHandler
 )
 
-// SetUnknownOptionHandler enables your customized wrong command/flag processor.
-// internal processor supports smart suggestions for those wrong commands and flags.
-//
-// Deprecated: from v1.5.5, replaced with WithUnknownOptionHandler
-func SetUnknownOptionHandler(handler UnknownOptionHandler) {
-	unknownOptionHandler = handler
-}
+// // SetUnknownOptionHandler enables your customized wrong command/flag processor.
+// // internal processor supports smart suggestions for those wrong commands and flags.
+// //
+// // Deprecated: from v1.5.5, replaced with WithUnknownOptionHandler
+// func SetUnknownOptionHandler(handler UnknownOptionHandler) {
+// 	unknownOptionHandler = handler
+// }
 
 func unknownCommand(pkg *ptpkg, cmd *Command, args []string) {
 	ferr("\n\x1b[%dmUnknown command:\x1b[0m %v", BgBoldOrBright, pkg.a)

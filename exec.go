@@ -118,18 +118,18 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (err e
 		// helpFlag = rootCmd.allFlags[UnsortedGroup]["help"]
 	)
 
-	// for deprecated variables
-	//
-	w.shouldIgnoreWrongEnumValue = ShouldIgnoreWrongEnumValue
-	//
-	w.enableVersionCommands = EnableVersionCommands
-	w.enableHelpCommands = EnableHelpCommands
-	w.enableVerboseCommands = EnableVerboseCommands
-	w.enableCmdrCommands = EnableCmdrCommands
-	w.enableGenerateCommands = EnableGenerateCommands
-	//
-	w.envPrefixes = EnvPrefix
-	w.rxxtPrefixes = RxxtPrefix
+	// // for deprecated variables
+	// //
+	// w.shouldIgnoreWrongEnumValue = ShouldIgnoreWrongEnumValue
+	// //
+	// w.enableVersionCommands = EnableVersionCommands
+	// w.enableHelpCommands = EnableHelpCommands
+	// w.enableVerboseCommands = EnableVerboseCommands
+	// w.enableCmdrCommands = EnableCmdrCommands
+	// w.enableGenerateCommands = EnableGenerateCommands
+	// //
+	// w.envPrefixes = EnvPrefix
+	// w.rxxtPrefixes = RxxtPrefix
 
 	if w.rootCommand == nil {
 		w.setRootCommand(rootCmd)
@@ -306,10 +306,10 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 		// and now, loading the external configuration files
 		err = w.loadFromPredefinedLocation(rootCmd)
 
-		if len(w.envPrefixes) > 0 {
-			EnvPrefix = w.envPrefixes
-		}
-		w.envPrefixes = EnvPrefix
+		// if len(w.envPrefixes) > 0 {
+		// 	EnvPrefix = w.envPrefixes
+		// }
+		// w.envPrefixes = EnvPrefix
 		envPrefix := strings.Split(GetStringR("env-prefix"), ".")
 		if len(envPrefix) > 0 {
 			w.envPrefixes = envPrefix

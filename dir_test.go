@@ -41,10 +41,10 @@ func TestNewError(t *testing.T) {
 
 	errWrongEnumValue := errors.New("unexpect enumerable value '%s' for option '%s', under command '%s'")
 
-	err := cmdr.NewError(cmdr.ShouldIgnoreWrongEnumValue, errWrongEnumValue, "ds", "head", "server")
+	err := cmdr.NewError(false, errWrongEnumValue, "ds", "head", "server")
 	println(err)
 
-	err = cmdr.NewError(cmdr.ShouldIgnoreWrongEnumValue, errors.New("unexpect enumerable value"))
+	err = cmdr.NewError(true, errors.New("unexpect enumerable value"))
 	println(err.Error())
 
 	err = cmdr.NewErrorWithMsg("Holo", errors.New("unexpect enumerable value"))
@@ -62,8 +62,8 @@ func TestHeadLike(t *testing.T) {
 	var outBuf = bufio.NewWriterSize(outX, 16384)
 	var errBuf = bufio.NewWriterSize(errX, 16384)
 	cmdr.SetInternalOutputStreams(outBuf, errBuf)
-	cmdr.SetCustomShowVersion(nil)
-	cmdr.SetCustomShowBuildInfo(nil)
+	// cmdr.SetCustomShowVersion(nil)
+	// cmdr.SetCustomShowBuildInfo(nil)
 
 	copyRootCmd = rootCmd
 
@@ -86,11 +86,11 @@ func TestHeadLike(t *testing.T) {
 	for sss, verifier := range execTestingsHeadLike {
 		resetFlagsAndLog(t)
 
-		cmdr.ShouldIgnoreWrongEnumValue = true
+		// cmdr.ShouldIgnoreWrongEnumValue = true
 
 		println("xxx: ***: ", sss)
 
-		if err = cmdr.Worker().InternalExecFor(rootCmd, strings.Split(sss, " ")); err != nil {
+		if err = cmdr.Worker2(true).InternalExecFor(rootCmd, strings.Split(sss, " ")); err != nil {
 			if e, ok := err.(*cmdr.ErrorForCmdr); !ok || !e.Ignorable {
 				t.Fatal(err)
 			}

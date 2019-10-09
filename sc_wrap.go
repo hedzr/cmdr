@@ -1,4 +1,4 @@
-// +build darwin dragonfly freebsd linux netbsd openbsd windows aix arm_linux plan9 solaris
+// +build darwin dragonfly freebsd linux netbsd openbsd windows aix arm_linux solaris
 // +build !nacl
 
 /*

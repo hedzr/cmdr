@@ -48,7 +48,8 @@ type ExecWorker struct {
 	// rootOptions *Opt
 	rxxtOptions *Options
 
-	similarThreshold float64
+	similarThreshold    float64
+	noDefaultHelpScreen bool
 }
 
 // ExecOption is the functional option for Exec()
@@ -56,38 +57,10 @@ type ExecOption func(w *ExecWorker)
 
 //
 
-var uniqueWorker = &ExecWorker{
-	envPrefixes:  []string{"CMDR"},
-	rxxtPrefixes: []string{"app"},
+var uniqueWorker *ExecWorker
 
-	predefinedLocations: []string{
-		"./ci/etc/%s/%s.yml",       // for developer
-		"/etc/%s/%s.yml",           // regular location
-		"/usr/local/etc/%s/%s.yml", // regular macOS HomeBrew location
-		"$HOME/.config/%s/%s.yml",  // per user
-		"$HOME/.%s/%s.yml",         // ext location per user
-		"$THIS/%s.yml",             // executable's directory
-		"%s.yml",                   // current directory
-	},
-
-	shouldIgnoreWrongEnumValue: true,
-
-	enableVersionCommands:  true,
-	enableHelpCommands:     true,
-	enableVerboseCommands:  true,
-	enableCmdrCommands:     true,
-	enableGenerateCommands: true,
-
-	doNotLoadingConfigFiles: false,
-
-	currentHelpPainter: new(helpPainter),
-
-	defaultStdout: bufio.NewWriterSize(os.Stdout, 16384),
-	defaultStderr: bufio.NewWriterSize(os.Stderr, 16384),
-
-	rxxtOptions: NewOptions(),
-
-	similarThreshold: similarThreshold,
+func init() {
+	InternalResetWorker()
 }
 
 //
@@ -105,6 +78,57 @@ func Exec(rootCmd *RootCommand, opts ...ExecOption) (err error) {
 	}
 
 	err = w.InternalExecFor(rootCmd, os.Args)
+	return
+}
+
+// InternalGetWorker is an internal helper, esp for debugging
+func InternalGetWorker() (w *ExecWorker) {
+	w = uniqueWorker
+	return
+}
+
+// InternalResetWorker is an internal helper, esp for debugging
+func InternalResetWorker() (w *ExecWorker) {
+	uniqueWorker = &ExecWorker{
+		envPrefixes:  []string{"CMDR"},
+		rxxtPrefixes: []string{"app"},
+
+		predefinedLocations: []string{
+			"./ci/etc/%s/%s.yml",       // for developer
+			"/etc/%s/%s.yml",           // regular location
+			"/usr/local/etc/%s/%s.yml", // regular macOS HomeBrew location
+			"$HOME/.config/%s/%s.yml",  // per user
+			"$HOME/.%s/%s.yml",         // ext location per user
+			"$THIS/%s.yml",             // executable's directory
+			"%s.yml",                   // current directory
+			// "./ci/etc/%s/%s.yml",
+			// "/etc/%s/%s.yml",
+			// "/usr/local/etc/%s/%s.yml",
+			// "$HOME/.%s/%s.yml",
+			// "$HOME/.config/%s/%s.yml",
+		},
+
+		shouldIgnoreWrongEnumValue: true,
+
+		enableVersionCommands:  true,
+		enableHelpCommands:     true,
+		enableVerboseCommands:  true,
+		enableCmdrCommands:     true,
+		enableGenerateCommands: true,
+
+		doNotLoadingConfigFiles: false,
+
+		currentHelpPainter: new(helpPainter),
+
+		defaultStdout: bufio.NewWriterSize(os.Stdout, 16384),
+		defaultStderr: bufio.NewWriterSize(os.Stderr, 16384),
+
+		rxxtOptions: NewOptions(),
+
+		similarThreshold:    similarThreshold,
+		noDefaultHelpScreen: false,
+	}
+	w = uniqueWorker
 	return
 }
 
@@ -135,6 +159,11 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (err e
 		w.setRootCommand(rootCmd)
 	}
 
+	if len(conf.AppName) == 0 {
+		conf.AppName = w.rootCommand.AppName
+		conf.Version = w.rootCommand.Version
+	}
+	
 	defer func() {
 		if rootCmd.ow != nil {
 			_ = rootCmd.ow.Flush()
@@ -288,7 +317,9 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 	// 	}
 	// }
 
-	w.printHelp(goCommand, pkg.needFlagsHelp)
+	if w.noDefaultHelpScreen == false {
+		w.printHelp(goCommand, pkg.needFlagsHelp)
+	}
 	return
 }
 

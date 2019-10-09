@@ -12,46 +12,18 @@ import (
 
 // Worker returns unexported worker for testing
 func Worker() *ExecWorker {
-	return uniqueWorker
+	return InternalGetWorker()
 }
 
 // Worker2 + shouldIgnoreWrongEnumValue
 func Worker2(b bool) *ExecWorker {
-	uniqueWorker.shouldIgnoreWrongEnumValue = b
-	return uniqueWorker
+	InternalGetWorker().shouldIgnoreWrongEnumValue = b
+	return InternalGetWorker()
 }
 
 // ResetWorker function
 func ResetWorker() {
-	uniqueWorker = &ExecWorker{
-		envPrefixes:  []string{"CMDR"},
-		rxxtPrefixes: []string{"app"},
-
-		predefinedLocations: []string{
-			"./ci/etc/%s/%s.yml",
-			"/etc/%s/%s.yml",
-			"/usr/local/etc/%s/%s.yml",
-			"$HOME/.%s/%s.yml",
-			"$HOME/.config/%s/%s.yml",
-		},
-
-		shouldIgnoreWrongEnumValue: true,
-
-		enableVersionCommands:  true,
-		enableHelpCommands:     true,
-		enableVerboseCommands:  true,
-		enableCmdrCommands:     true,
-		enableGenerateCommands: true,
-
-		doNotLoadingConfigFiles: false,
-
-		currentHelpPainter: new(helpPainter),
-
-		defaultStdout: bufio.NewWriterSize(os.Stdout, 16384),
-		defaultStderr: bufio.NewWriterSize(os.Stderr, 16384),
-
-		rxxtOptions: NewOptions(),
-	}
+	InternalResetWorker()
 }
 
 func TestTrapSignals(t *testing.T) {

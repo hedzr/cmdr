@@ -29,7 +29,7 @@ GO111MODULE = on
 GOPROXY     = $(or $(GOPROXY_CUSTOM),https://athens.azurefd.net)
 
 # Redirect error output to a file, so we can show it in development mode.
-STDERR      = $(or $(STDERR_CUSTOM),$/tmp/.$(PROJECTNAME)-stderr.txt)
+STDERR      = $(or $(STDERR_CUSTOM),/tmp/.$(PROJECTNAME)-stderr.txt)
 
 # PID file will keep the process id of the server
 PID         = $(or $(PID_CUSTOM),/tmp/.$(PROJECTNAME).pid)

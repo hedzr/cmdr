@@ -1,13 +1,11 @@
 // Copyright © 2019 Hedzr Yeh.
 
-// +build !plan9
+// +build plan9
 
 package impl
 
 import (
-	"bytes"
 	"os"
-	"syscall"
 )
 
 // Readlink returns the file pointed to by the given soft link, or an error of
@@ -26,17 +24,5 @@ import (
 // affected with this bug. But it's wiser to optimize for the general case
 // (i.e., those not affected).
 func Readlink(name string) (string, error) {
-	for len := 128; ; len *= 2 {
-		b := make([]byte, len)
-		n, e := syscall.Readlink(name, b)
-		if e != nil {
-			return "", &os.PathError{"readlink", name, e}
-		}
-		if n < len {
-			if z := bytes.IndexByte(b[:n], 0); z >= 0 {
-				n = z
-			}
-			return string(b[:n]), nil
-		}
-	}
+	return os.Readlink(name)
 }

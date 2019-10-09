@@ -79,7 +79,7 @@ func TestHeadLike(t *testing.T) {
 		resetOsArgs()
 
 		// x := outX.String()
-		// t.Logf("--------- stdout // %v // %v\n%v", cmdr.GetExcutableDir(), cmdr.GetExcutablePath(), x)
+		// t.Logf("--------- stdout // %v // %v\n%v", cmdr.GetExecutableDir(), cmdr.GetExcutablePath(), x)
 	}()
 
 	t.Log("xxx: -------- loops for execTestings")

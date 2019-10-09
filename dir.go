@@ -12,8 +12,11 @@ import (
 	"strings"
 )
 
-// GetExcutableDir returns the executable file directory
-func GetExcutableDir() string {
+// GetExecutableDir returns the executable file directory
+func GetExecutableDir() string {
+	// _ = ioutil.WriteFile("/tmp/11", []byte(strings.Join(os.Args,",")), 0644)
+	// fmt.Printf("os.Args[0] = %v\n", os.Args[0])
+	
 	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
 	// if err != nil {
 	// 	logrus.Fatal(err)
@@ -84,6 +87,10 @@ func NormalizeDir(s string) string {
 }
 
 func normalizeDir(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+
 	s = os.Expand(s, os.Getenv)
 	if s[0] == '/' {
 		return s

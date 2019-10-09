@@ -461,7 +461,7 @@ func TestExec(t *testing.T) {
 
 	defer func() {
 		x := outX.String()
-		t.Logf("--------- stdout // %v // %v\n%v", cmdr.GetExcutableDir(), cmdr.GetExcutablePath(), x)
+		t.Logf("--------- stdout // %v // %v\n%v", cmdr.GetExecutableDir(), cmdr.GetExcutablePath(), x)
 
 		_ = cmdr.EnsureDir("ci")
 		if err = cmdr.EnsureDir(""); err == nil {

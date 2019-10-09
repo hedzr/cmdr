@@ -7,8 +7,7 @@ package daemon
 import (
 	"fmt"
 	"github.com/hedzr/cmdr"
-	"github.com/sevlyar/go-daemon"
-	"log"
+
 	"os"
 	"syscall"
 )
@@ -134,20 +133,20 @@ func daemonStart(cmd *cmdr.Command, args []string) (err error) {
 }
 
 func runAsDaemon(cmd *cmdr.Command, args []string) (err error) {
-	cxt := getContext(cmd, args)
-	child, err = cxt.Reborn()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	if child != nil {
-		fmt.Println("Daemon started. parent stopped.")
-		return
-	}
-
-	cmdr.Set(DaemonizedKey, true)
-
-	defer cxt.Release()
-	err = run(cmd, args)
+	// cxt := getContext(cmd, args)
+	// child, err = cxt.Reborn()
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
+	// if child != nil {
+	// 	fmt.Println("Daemon started. parent stopped.")
+	// 	return
+	// }
+	// 
+	// cmdr.Set(DaemonizedKey, true)
+	// 
+	// defer cxt.Release()
+	// err = run(cmd, args)
 	return
 }
 
@@ -172,52 +171,52 @@ func SetReloadSignals(sig func() []os.Signal) {
 	onSetReloadHandler = sig
 }
 
-func setupSignals() {
-	// for i := 1; i < 34; i++ {
-	// 	daemon.SetSigHandler(termHandler, syscall.Signal(i))
-	// }
-
-	signals := []os.Signal{syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGABRT, syscall.SIGINT, syscall.SIGKILL, syscall.SIGUSR1, syscall.SIGUSR2}
-	if onSetTermHandler != nil {
-		signals = onSetTermHandler()
-	}
-	daemon.SetSigHandler(termHandler, signals...)
-
-	signals = []os.Signal{syscall.Signal(0x7)}
-	if onSetSigEmtHandler != nil {
-		signals = onSetSigEmtHandler()
-	}
-	daemon.SetSigHandler(sigEmtHandler, signals...)
-
-	signals = []os.Signal{syscall.SIGHUP}
-	if onSetReloadHandler != nil {
-		signals = onSetReloadHandler()
-	}
-	daemon.SetSigHandler(reloadHandler, signals...)
-}
+// func setupSignals() {
+// 	// for i := 1; i < 34; i++ {
+// 	// 	daemon.SetSigHandler(termHandler, syscall.Signal(i))
+// 	// }
+// 
+// 	signals := []os.Signal{syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGABRT, syscall.SIGINT, syscall.SIGKILL, syscall.SIGUSR1, syscall.SIGUSR2}
+// 	if onSetTermHandler != nil {
+// 		signals = onSetTermHandler()
+// 	}
+// 	daemon.SetSigHandler(termHandler, signals...)
+// 
+// 	signals = []os.Signal{syscall.Signal(0x7)}
+// 	if onSetSigEmtHandler != nil {
+// 		signals = onSetSigEmtHandler()
+// 	}
+// 	daemon.SetSigHandler(sigEmtHandler, signals...)
+// 
+// 	signals = []os.Signal{syscall.SIGHUP}
+// 	if onSetReloadHandler != nil {
+// 		signals = onSetReloadHandler()
+// 	}
+// 	daemon.SetSigHandler(reloadHandler, signals...)
+// }
 
 func run(cmd *cmdr.Command, args []string) (err error) {
-	setupSignals()
-
-	if daemonImpl != nil {
-		if err = daemonImpl.OnRun(cmd, args, stop, done); err != nil {
-			return
-		}
-	}
-
-	log.Printf("daemon ServeSignals, pid = %v", os.Getpid())
-	if err = daemon.ServeSignals(); err != nil {
-		log.Println("Error:", err)
-	}
-
-	if daemonImpl != nil {
-		err = daemonImpl.OnStop(cmd, args)
-	}
-
-	if err != nil {
-		log.Fatal("daemon terminated.", err)
-	}
-	log.Println("daemon terminated.")
+	// setupSignals()
+	// 
+	// if daemonImpl != nil {
+	// 	if err = daemonImpl.OnRun(cmd, args, stop, done); err != nil {
+	// 		return
+	// 	}
+	// }
+	// 
+	// log.Printf("daemon ServeSignals, pid = %v", os.Getpid())
+	// if err = daemon.ServeSignals(); err != nil {
+	// 	log.Println("Error:", err)
+	// }
+	// 
+	// if daemonImpl != nil {
+	// 	err = daemonImpl.OnStop(cmd, args)
+	// }
+	// 
+	// if err != nil {
+	// 	log.Fatal("daemon terminated.", err)
+	// }
+	// log.Println("daemon terminated.")
 	return
 }
 

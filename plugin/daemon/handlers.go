@@ -10,12 +10,12 @@ package daemon
 // 	"os"
 // 	"syscall"
 // )
-// 
+//
 // var (
 // 	stop = make(chan struct{})
 // 	done = make(chan struct{})
 // )
-// 
+//
 // func termHandler(sig os.Signal) error {
 // 	log.Println("terminating...")
 // 	stop <- struct{}{}
@@ -24,7 +24,7 @@ package daemon
 // 	}
 // 	return daemon.ErrStop
 // }
-// 
+//
 // func sigEmtHandler(sig os.Signal) error {
 // 	log.Println("terminating (SIGEMT)...")
 // 	stop <- struct{}{}
@@ -33,7 +33,7 @@ package daemon
 // 	}
 // 	return daemon.ErrStop
 // }
-// 
+//
 // func reloadHandler(sig os.Signal) error {
 // 	log.Println("configuration reloaded")
 // 	if daemonImpl != nil {

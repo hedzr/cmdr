@@ -29,7 +29,7 @@ func QuitSignals() chan os.Signal {
 	return quitSignal
 }
 
-// StopSelf will terminate the app gracefully
-func StopSelf() {
-	child.Signal(syscall.SIGTERM)
-}
+// // StopSelf will terminate the app gracefully
+// func StopSelf() {
+// 	child.Signal(syscall.SIGTERM)
+// }

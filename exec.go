@@ -163,7 +163,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (err e
 		conf.AppName = w.rootCommand.AppName
 		conf.Version = w.rootCommand.Version
 	}
-	
+
 	defer func() {
 		if rootCmd.ow != nil {
 			_ = rootCmd.ow.Flush()

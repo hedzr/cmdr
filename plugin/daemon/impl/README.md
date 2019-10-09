@@ -2,6 +2,18 @@
 
 I rewrote this one because most of others are dead or deading.
 
+
+
+To find out all goos and goarch values:
+
+- https://github.com/golang/go/blob/master/src/go/build/syslist.go#L7
+
+
+
+
+
+## ACK
+
 Thanks them (incompletely):
 
 - <https://github.com/sevlyar/go-daemon>

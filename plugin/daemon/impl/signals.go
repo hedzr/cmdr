@@ -13,7 +13,7 @@ import (
 
 // ServeSignals calls handlers for system signals.
 // before invoking ServeSignals(), you should run SetupSignals() at first.
-func ServeSignals() (err error) {
+func ServeSignals(ctx *Context) (err error) {
 	if len(handlers) == 0 {
 		setupSignals()
 	}
@@ -25,7 +25,7 @@ func ServeSignals() (err error) {
 	signals := makeHandlers()
 
 	defer func() {
-		removePID()
+		removePID(ctx)
 	}()
 
 	ch := make(chan os.Signal, 8)
@@ -48,6 +48,9 @@ func ServeSignals() (err error) {
 	return
 }
 
+// HandleSignalCaughtEvent is a shortcut to block the main business logic loop but break it if os signals caught.
+// `stop` channel will be trigger if any hooked os signal caught, such as os.Interrupt;
+// the main business logic loop should trigger `done` once `stop` holds.
 func HandleSignalCaughtEvent() bool {
 	select {
 	case <-stop:
@@ -57,6 +60,12 @@ func HandleSignalCaughtEvent() bool {
 	default:
 		return false
 	}
+}
+
+// GetChs returns the standard `stop`, `done` channel
+func GetChs() (stopCh, doneCh chan struct{}) {
+	stopCh, doneCh = stop, done
+	return
 }
 
 func reloadHandler(sig os.Signal) error {
@@ -74,7 +83,7 @@ var (
 
 	handlers = make(map[os.Signal]SignalHandlerFunc)
 
-	child *os.Process
+	// child *os.Process
 
 	onSetTermHandler   func() []os.Signal
 	onSetSigEmtHandler func() []os.Signal
@@ -85,6 +94,7 @@ var (
 )
 
 const (
+	// ErrnoForkAndDaemonFailed is os errno when daemon plugin and its impl occurs errors.
 	ErrnoForkAndDaemonFailed = -1
 	envvarInDaemonized       = "__DAEMON"
 )

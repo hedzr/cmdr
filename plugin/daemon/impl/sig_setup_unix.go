@@ -73,3 +73,11 @@ func makeHandlers() (signals []os.Signal) {
 func nilSigSend(process *os.Process) error {
 	return process.Signal(syscall.Signal(0))
 }
+
+func sigSendHUP(process *os.Process) error {
+	return process.Signal(syscall.SIGHUP)
+}
+
+func sigSendTERM(process *os.Process) error {
+	return process.Signal(syscall.SIGTERM)
+}

@@ -4,9 +4,9 @@
 
 package impl
 
-import(
-	"os"
+import (
 	"log"
+	"os"
 )
 
 // // SetupSignals initialize all signal handlers
@@ -24,13 +24,13 @@ func setupSignals() {
 	// 	signals = onSetTermHandler()
 	// }
 	// SetSigHandler(termHandler, signals...)
-	// 
+	//
 	// signals = []os.Signal{syscall.Signal(0x7)}
 	// if onSetSigEmtHandler != nil {
 	// 	signals = onSetSigEmtHandler()
 	// }
 	// SetSigHandler(sigEmtHandler, signals...)
-	// 
+	//
 	// signals = []os.Signal{syscall.SIGHUP}
 	// if onSetReloadHandler != nil {
 	// 	signals = onSetReloadHandler()
@@ -69,5 +69,15 @@ func makeHandlers() (signals []os.Signal) {
 
 func nilSigSend(process *os.Process) error {
 	// return process.Signal(syscall.Signal(0))
+	return nil
+}
+
+func sigSendHUP(process *os.Process) error {
+	// return process.Signal(syscall.SIGHUP)
+	return nil
+}
+
+func sigSendTERM(process *os.Process) error {
+	// return process.Signal(syscall.SIGTERM)
 	return nil
 }

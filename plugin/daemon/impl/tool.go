@@ -82,7 +82,7 @@ func pidExists(pid int) (bool, error) {
 		// fmt.Printf("Failed to find process: %s\n", err)
 		return false, nil
 	} else {
-		err := process.Signal(syscall.Signal(0))
+		err := nilSigSend(process)
 		log.Printf("process.Signal on pid %d returned: %v\n", pid, err)
 		return err == nil, err
 	}

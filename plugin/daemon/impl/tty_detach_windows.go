@@ -4,6 +4,5 @@
 
 package impl
 
-func detachFromTty(nochdir, noclose bool) {
+func detachFromTty(workDir string, nochdir, noclose bool) {
 }
-

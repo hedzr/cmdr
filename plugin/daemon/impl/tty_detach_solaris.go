@@ -8,7 +8,7 @@ import (
 	"syscall"
 )
 
-func detachFromTty(nochdir, noclose bool) {
+func detachFromTty(workDir string, nochdir, noclose bool) {
 	/* Change the file mode mask */
 	_ = syscall.Umask(0)
 
@@ -27,7 +27,7 @@ func detachFromTty(nochdir, noclose bool) {
 	}
 
 	// TODO find the replacement for syscall.Dup2() in solaris
-	
+
 	// if !noclose {
 	// 	fds := fds(0, 0, 0)
 	// 	s_errno = syscall.Dup2(int(fds[0]), int(os.Stdin.Fd()))

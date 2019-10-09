@@ -130,6 +130,13 @@ func WithCustomShowBuildInfo(fn func()) ExecOption {
 	}
 }
 
+// WithNoDefaultHelpScreen true to disable printing help screen if without any arguments
+func WithNoDefaultHelpScreen(b bool) ExecOption {
+	return func(w *ExecWorker) {
+		w.noDefaultHelpScreen = b
+	}
+}
+
 // WithNoLoadConfigFiles true means no loading config files
 func WithNoLoadConfigFiles(b bool) ExecOption {
 	return func(w *ExecWorker) {

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/plugin/daemon"
+	"github.com/hedzr/cmdr/plugin/daemon/impl"
 	"github.com/sirupsen/logrus"
 	"os"
 	"time"
@@ -50,19 +51,19 @@ func (*daemonImpl) OnReload() {
 	logrus.Debugf("demo daemon OnReload")
 }
 
-func (*daemonImpl) OnStatus(cxt *daemon.Context, cmd *cmdr.Command, p *os.Process) (err error) {
+func (*daemonImpl) OnStatus(cxt *impl.Context, cmd *cmdr.Command, p *os.Process) (err error) {
 	fmt.Printf("%v v%v\n", cmd.GetRoot().AppName, cmd.GetRoot().Version)
 	fmt.Printf("PID=%v\nLOG=%v\n", cxt.PidFileName, cxt.LogFileName)
 	return
 }
 
-func (*daemonImpl) OnInstall(cxt *daemon.Context, cmd *cmdr.Command, args []string) (err error) {
+func (*daemonImpl) OnInstall(cxt *impl.Context, cmd *cmdr.Command, args []string) (err error) {
 	logrus.Debugf("demo daemon OnInstall")
 	return
 	// panic("implement me")
 }
 
-func (*daemonImpl) OnUninstall(cxt *daemon.Context, cmd *cmdr.Command, args []string) (err error) {
+func (*daemonImpl) OnUninstall(cxt *impl.Context, cmd *cmdr.Command, args []string) (err error) {
 	logrus.Debugf("demo daemon OnUninstall")
 	return
 	// panic("implement me")

@@ -15,13 +15,15 @@ import (
 
 func main() {
 	fmt.Printf("-- args: %v\n", os.Args)
-	
+
 	flag.Parse() // enable cmdr working table
+
+	daemonContext := impl.DefaultContext()
 
 	// https://blog.csdn.net/fyxichen/article/details/50541449
 	// daemon(false, true)
 	// BAD: daemonNew()
-	if err := impl.Enable(); err != nil {
+	if err := impl.Demonize(daemonContext); err != nil {
 		log.Printf("Unable to create child process: %+v", err)
 		os.Exit(impl.ErrnoForkAndDaemonFailed)
 	}
@@ -59,7 +61,7 @@ func main() {
 	log.Println("For Signals...")
 	time.Sleep(5 * time.Second)
 
-	if err := impl.ServeSignals(); err != nil {
+	if err := impl.ServeSignals(daemonContext); err != nil {
 		log.Printf("error at ServeSignals: %+v", err)
 	}
 	// exitCh <- struct{}{}

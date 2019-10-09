@@ -12,16 +12,16 @@ import (
 	"syscall"
 )
 
-func forkDaemon() (err error) {
+func forkDaemon(ctx *Context) (err error) {
 	if isDemonized() {
 		// log.Println("Already a daemon.")
-		detachFromTty(false, true)
+		detachFromTty(ctx.WorkDir, false, true)
 		return
 	}
 
-	if IsPidFileExists() {
-		log.Printf("Already running or %v file exist.", PIDFile)
-		s, _ := ioutil.ReadFile(PIDFile)
+	if IsPidFileExists(ctx) {
+		log.Printf("Already running or %v file exist.", ctx.PidFileName)
+		s, _ := ioutil.ReadFile(ctx.PidFileName)
 		pid, err := strconv.ParseInt(string(s), 10, 64)
 		if err != nil {
 			log.Fatal(err)
@@ -30,7 +30,7 @@ func forkDaemon() (err error) {
 		log.Printf("    pid: %v | %v", pid, ok)
 		if !ok && err != nil {
 			log.Println("    pidfile removed because it's finished or not useable.")
-			removePID()
+			removePID(ctx)
 		}
 		os.Exit(ErrnoForkAndDaemonFailed)
 	}
@@ -47,9 +47,9 @@ func forkDaemon() (err error) {
 		os.Exit(ErrnoForkAndDaemonFailed)
 	}
 
-	savePID(pid)
+	savePID(pid, ctx)
 	log.Printf("parent process stop itself now.")
 	log.Printf("child process is running and detached at: %v", pid)
-	os.Exit(0)
+	os.Exit(0) // parent process exit itself here.
 	return
 }

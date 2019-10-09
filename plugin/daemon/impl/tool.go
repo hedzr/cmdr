@@ -15,7 +15,7 @@ import (
 	"syscall"
 )
 
-func fds(fdin, fdout, fderr uintptr) ([]uintptr) {
+func fds(fdin, fdout, fderr uintptr) []uintptr {
 	logFile, logErrFile, logDir := nullDev, nullDev, cmdr.NormalizeDir(cmdr.GetStringR("logger.dir"))
 	if len(logDir) == 0 || logDir == "-" {
 		logDir = os.TempDir()
@@ -81,11 +81,11 @@ func pidExists(pid int) (bool, error) {
 	if err != nil {
 		// fmt.Printf("Failed to find process: %s\n", err)
 		return false, nil
-	} else {
-		err := nilSigSend(process)
-		log.Printf("process.Signal on pid %d returned: %v\n", pid, err)
-		return err == nil, err
 	}
+
+	err := nilSigSend(process)
+	log.Printf("process.Signal on pid %d returned: %v\n", pid, err)
+	return err == nil, err
 }
 
 const nullDev = "/dev/null"

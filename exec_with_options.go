@@ -183,7 +183,7 @@ func WithSimilarThreshold(similiarThreshold float64) ExecOption {
 }
 
 // WithNoColor make console outputs plain and without ANSI escape colors
-// 
+//
 // Since v1.6.2+
 func WithNoColor(b bool) ExecOption {
 	return func(w *ExecWorker) {
@@ -192,10 +192,10 @@ func WithNoColor(b bool) ExecOption {
 }
 
 // WithNoEnvOverrides enables the internal no-env-overrides mode
-// 
+//
 // Since v1.6.2+
-// 
-// In this mode, cmdr do NOT find and transfer equivalent envvar 
+//
+// In this mode, cmdr do NOT find and transfer equivalent envvar
 // value into cmdr options store.
 func WithNoEnvOverrides(b bool) ExecOption {
 	return func(w *ExecWorker) {
@@ -204,12 +204,12 @@ func WithNoEnvOverrides(b bool) ExecOption {
 }
 
 // WithStrictMode enables the internal strict mode
-// 
+//
 // Since v1.6.2+
-// 
-// In this mode, any warnings will be treat as an error and cause app 
+//
+// In this mode, any warnings will be treat as an error and cause app
 // fatal exit.
-// 
+//
 // In normal mode, these cases are assumed as warnings:
 // - flag name not found
 // - command or sub-command name not found

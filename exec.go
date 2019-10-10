@@ -336,7 +336,7 @@ func (w *ExecWorker) checkState(pkg *ptpkg) {
 	if w.noEnvOverrides {
 		Set("no-env-overrides", true)
 	}
-	
+
 	if w.strictMode {
 		Set("strict-mode", true)
 	}

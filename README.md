@@ -108,6 +108,7 @@ import "github.com/hedzr/cmdr"
 		}), // since v1.5.5
 		cmdr.WithSimilarThreshold(0.73), // since v1.5.5
 		cmdr.WithNoColor(true), // since v1.6.2
+		cmdr.WithNoEnvOverrides(true), // since v1.6.2
 		cmdr.WithStrictMode(true), // since v1.6.2
 	)
   ```

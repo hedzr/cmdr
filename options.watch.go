@@ -20,7 +20,7 @@ import (
 	"sync"
 )
 
-// GetOptions retusns the global options instance (rxxtOptions)
+// GetOptions returns the global options instance (rxxtOptions), ie. cmdr Options Store
 func GetOptions() *Options {
 	return uniqueWorker.rxxtOptions
 }
@@ -39,7 +39,7 @@ func GetUsedConfigSubDir() string {
 
 // var rwlCfgReload = new(sync.RWMutex)
 
-// AddOnConfigLoadedListener add an functor on config loaded and merged
+// AddOnConfigLoadedListener adds an functor on config loaded and merged
 func AddOnConfigLoadedListener(c ConfigReloaded) {
 	defer uniqueWorker.rxxtOptions.rwlCfgReload.Unlock()
 	uniqueWorker.rxxtOptions.rwlCfgReload.Lock()
@@ -72,13 +72,13 @@ func SetOnConfigLoadedListener(c ConfigReloaded, enabled bool) {
 	uniqueWorker.rxxtOptions.onConfigReloadedFunctions[c] = enabled
 }
 
-// LoadConfigFile Load a yaml config file and merge the settings into `rxxtOptions`
+// LoadConfigFile loads a yaml config file and merge the settings into `rxxtOptions`
 // and load files in the `conf.d` child directory too.
 func LoadConfigFile(file string) (err error) {
 	return uniqueWorker.rxxtOptions.LoadConfigFile(file)
 }
 
-// LoadConfigFile Load a yaml config file and merge the settings into `rxxtOptions`
+// LoadConfigFile loads a yaml config file and merge the settings into `rxxtOptions`
 // and load files in the `conf.d` child directory too.
 func (s *Options) LoadConfigFile(file string) (err error) {
 	if !FileExists(file) {

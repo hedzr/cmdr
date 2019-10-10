@@ -51,6 +51,7 @@ type ExecWorker struct {
 	similarThreshold    float64
 	noDefaultHelpScreen bool
 	noColor             bool
+	strictMode          bool
 }
 
 // ExecOption is the functional option for Exec()
@@ -281,14 +282,8 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 }
 
 func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string) (err error) {
-	if !pkg.needHelp {
-		pkg.needHelp = GetBoolP(w.getPrefix(), "help")
-	}
+	w.checkState(pkg)
 
-	if w.noColor {
-		Set("no-color", true)
-	}
-	
 	if !pkg.needHelp && len(pkg.unknownCmds) == 0 && len(pkg.unknownFlags) == 0 {
 		if goCommand.Action != nil {
 			args := w.getArgs(pkg, args)
@@ -326,6 +321,20 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 		w.printHelp(goCommand, pkg.needFlagsHelp)
 	}
 	return
+}
+
+func (w *ExecWorker) checkState(pkg *ptpkg) {
+	if !pkg.needHelp {
+		pkg.needHelp = GetBoolP(w.getPrefix(), "help")
+	}
+
+	if w.noColor {
+		Set("no-color", true)
+	}
+
+	if w.strictMode {
+		Set("strict-mode", true)
+	}
 }
 
 func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {

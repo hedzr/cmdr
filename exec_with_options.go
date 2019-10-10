@@ -189,3 +189,11 @@ func WithNoColor(b bool) ExecOption {
 		w.noColor = b
 	}
 }
+
+// WithStrictMode enables the internal strict mode
+// Since v1.6.2+
+func WithStrictMode(b bool) ExecOption {
+	return func(w *ExecWorker) {
+		w.strictMode = b
+	}
+}

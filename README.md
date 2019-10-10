@@ -76,8 +76,10 @@ import "github.com/hedzr/cmdr"
 
 - See also [Examples](#examples), and [cmdr-http2](https://github.com/hedzr/cmdr-http2) (a http2 server with daemon supports, graceful shutdown).
 
-- Go Playground ready now, play `cmdr` at: https://play.golang.org/p/KaOGWTYrmXB
+- Go Playground ready now, play `cmdr` at: https://play.golang.org/p/ieExm3V1Pcx 
+  <!-- https://play.golang.org/p/KaOGWTYrmXB -->
 
+  wget-demo at playground: 
   And another one with daemon plugin: https://play.golang.org/p/wJUA59uGu2M
 
 - Since v1.5.0, main entry `Exec()` uses `With Functional Options` style too:
@@ -89,7 +91,7 @@ import "github.com/hedzr/cmdr"
   err := cmdr.Exec(rootCmd,
 		cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {}, func(root *cmdr.RootCommand, args []string) {}),
 		cmdr.WithAutomaticEnvHooks(func(root *cmdr.RootCommand, opts *cmdr.Options) {}),
-	  cmdr.WithEnvPrefix("CMDR"), // WithEnvPrefix("F","YY") == T_YY_xxx
+		cmdr.WithEnvPrefix("CMDR"), // WithEnvPrefix("F","YY") == T_YY_xxx
 		cmdr.WithOptionsPrefix("app"), // cmdr.WithRxxtPrefix("app"),
 		cmdr.WithPredefinedLocations(nil),
 		cmdr.WithIgnoreWrongEnumValue(true),
@@ -101,11 +103,13 @@ import "github.com/hedzr/cmdr"
 		cmdr.WithHelpPainter(nil),
 		cmdr.WithConfigLoadedListener(nil),
 		cmdr.WithHelpTabStop(70),
-	  cmdr.WithUnknownOptionHandler(func(isFlag bool, title string, cmd *cmdr.Command, args []string) (fallbackToDefaultDetector bool) {
+		cmdr.WithUnknownOptionHandler(func(isFlag bool, title string, cmd *cmdr.Command, args []string) (fallbackToDefaultDetector bool) {
 				return true
-  	}), // since v1.5.5
-    cmdr.WithSimilarThreshold(0.73), // since v1.5.5
-  )
+		}), // since v1.5.5
+		cmdr.WithSimilarThreshold(0.73), // since v1.5.5
+		cmdr.WithNoColor(true), // since v1.6.2
+		cmdr.WithStrictMode(true), // since v1.6.2
+	)
   ```
   
   </details>
@@ -306,12 +310,13 @@ import "github.com/hedzr/cmdr"
     - `--tree`: list all commands and sub-commands.
     - `--config <location>`: specify the location of the root config file.
   - Verbose & Debug: `—verbose`/`-v`, `—debug`/`-D`, `—quiet`/`-q`
-    - `--no-env-overrides`, and `--strict-mode`
-    - `--no-color`: print the plain text to console without ANSI colors.
   - Generate Commands:
     - `generate shell`: `—bash`/`—zsh`(*todo*)/`--auto`
     - `generate manual`:  man 1 ready.
     - `generate doc`: markdown ready.
+  - `cmdr` Specials:
+    - `--no-env-overrides`, and `--strict-mode`
+    - `--no-color`: print the plain text to console without ANSI colors.
 
 - Generators
 

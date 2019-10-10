@@ -361,7 +361,7 @@ import "github.com/hedzr/cmdr"
     - ~~`SetPredefinedLocations(locations)`~~
   
       ```go
-    SetPredefinedLocations([]string{"./config", "~/.config/cmdr/", "$GOPATH/running-configs/cmdr"})
+      SetPredefinedLocations([]string{"./config", "~/.config/cmdr/", "$GOPATH/running-configs/cmdr"})
       ```
     
     - since v1.5.0, uses `cmdr.WithPredefinedLocations("a","b",...),`
@@ -435,8 +435,9 @@ import "github.com/hedzr/cmdr"
   ```golang
   import "github.com/hedzr/cmdr/plugin/daemon"
   func main() {
-  	daemon.Enable(NewDaemon(), nil, nil, nil)
-  	if err := cmdr.Exec(rootCmd); err != nil {
+  	if err := cmdr.Exec(rootCmd,
+	    daemon.WithDaemon(NewDaemon(), nil,nil,nil),
+		); err != nil {
   		log.Fatal("Error:", err)
   	}
   }

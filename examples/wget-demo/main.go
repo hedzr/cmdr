@@ -15,9 +15,10 @@ func main() {
 
 	if err := cmdr.Exec(rootCmd,
 		// To disable internal commands and flags, uncomment the following codes
-		cmdr.WithBuiltinCommands(false, false, false, false, false),
+		cmdr.WithBuiltinCommands(false, false, false, false, true),
 		// daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
 		// cmdr.WithHelpTabStop(40),
+		// cmdr.WithNoColor(true),
 	); err != nil {
 		logrus.Errorf("Error: %v", err)
 	}

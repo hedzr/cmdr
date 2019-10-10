@@ -83,7 +83,7 @@ func pidExists(pid int) (bool, error) {
 		return false, nil
 	}
 
-	err := nilSigSend(process)
+	err = nilSigSend(process)
 	log.Printf("process.Signal on pid %d returned: %v\n", pid, err)
 	return err == nil, err
 }

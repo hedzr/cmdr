@@ -270,22 +270,27 @@ func (s *ErrorForCmdr) Error() string {
 //
 // the flag value of `--strict-mode`.
 func GetStrictMode() bool {
-	return GetBool("app.strict-mode")
+	return GetBoolR("strict-mode")
 }
 
 // GetDebugMode returns the flag value of `--debug`/`-D`
 func GetDebugMode() bool {
-	return GetBool("app.debug")
+	return GetBoolR("debug")
 }
 
 // GetVerboseMode returns the flag value of `--verbose`/`-v`
 func GetVerboseMode() bool {
-	return GetBool("app.verbose")
+	return GetBoolR("verbose")
 }
 
 // GetQuietMode returns the flag value of `--quiet`/`-q`
 func GetQuietMode() bool {
-	return GetBool("app.quiet")
+	return GetBoolR("quiet")
+}
+
+// GetNoColorMode return the flag value of `--no-color`
+func GetNoColorMode() bool {
+	return GetBoolR("no-color")
 }
 
 // func init() {

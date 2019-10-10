@@ -89,7 +89,7 @@ func (s *helpPainter) FpCommandsTitle(command *Command) {
 
 func (s *helpPainter) FpCommandsGroupTitle(group string) {
 	if group != UnsortedGroup {
-		if GetBoolR("no-color") {
+		if GetNoColorMode() {
 			s.Printf(fmtCmdGroupTitleNC, StripOrderPrefix(group))
 		} else {
 			s.Printf(fmtCmdGroupTitle, CurrentGroupTitleColor, StripOrderPrefix(group))
@@ -100,13 +100,13 @@ func (s *helpPainter) FpCommandsGroupTitle(group string) {
 func (s *helpPainter) FpCommandsLine(command *Command) {
 	if !command.Hidden {
 		if len(command.Deprecated) > 0 {
-			if GetBoolR("no-color") {
+			if GetNoColorMode() {
 				s.Printf(fmtCmdlineDepNC, command.GetTitleNames(), command.Description, command.Deprecated)
 			} else {
 				s.Printf(fmtCmdlineDep, BgNormal, CurrentDescColor, command.GetTitleNames(), command.Description, command.Deprecated)
 			}
 		} else {
-			if GetBoolR("no-color") {
+			if GetNoColorMode() {
 				s.Printf(fmtCmdlineNC, command.GetTitleNames(), command.Description)
 			} else {
 				// s.Printf("  %-48s%v", command.GetTitleNames(), command.Description)
@@ -134,7 +134,7 @@ func (s *helpPainter) FpFlagsTitle(command *Command, flag *Flag, title string) {
 
 func (s *helpPainter) FpFlagsGroupTitle(group string) {
 	if group != UnsortedGroup {
-		if GetBoolR("no-color") {
+		if GetNoColorMode() {
 			s.Printf(fmtGroupTitleNC, StripOrderPrefix(group))
 		} else {
 			// fp("  [%s]:", StripOrderPrefix(group))
@@ -154,7 +154,7 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, defValStr string)
 		defValStr = fmt.Sprintf("%v, in [%v..%v]", defValStr, flg.Min, flg.Max)
 	}
 	if len(flg.Deprecated) > 0 {
-		if GetBoolR("no-color") {
+		if GetNoColorMode() {
 			s.Printf(fmtFlagsDepNC, // "  %-48s%s%s [deprecated since %v]",
 				flg.GetTitleFlagNames(), flg.Description, defValStr, flg.Deprecated)
 		} else {
@@ -163,7 +163,7 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, defValStr string)
 				BgItalic, CurrentDefaultValueColor, defValStr, flg.Deprecated)
 		}
 	} else {
-		if GetBoolR("no-color") {
+		if GetNoColorMode() {
 			s.Printf(fmtFlagsNC, flg.GetTitleFlagNames(), flg.Description, defValStr)
 		} else {
 			s.Printf(fmtFlags, // "  %-48s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%s\x1b[0m",

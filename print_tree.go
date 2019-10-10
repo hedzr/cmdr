@@ -26,7 +26,7 @@ func dumpTreeForAllCommands(cmd *Command, args []string) (err error) {
 			// 	BgNormal, CurrentDescColor, cmd.Description)
 
 			if len(cmd.Deprecated) > 0 {
-				if GetBoolR("no-color") {
+				if GetNoColorMode() {
 					fmt.Printf("%s%s - %s [deprecated since %v]\n",
 						sp, cmd.GetTitleNames(), cmd.Description, cmd.Deprecated)
 				} else {
@@ -35,7 +35,7 @@ func dumpTreeForAllCommands(cmd *Command, args []string) (err error) {
 						cmd.Deprecated)
 				}
 			} else {
-				if GetBoolR("no-color") {
+				if GetNoColorMode() {
 					fmt.Printf("%s%s - %s\n", sp, cmd.GetTitleNames(), cmd.Description)
 				} else {
 					fmt.Printf("%s%s - \x1b[%dm\x1b[%dm%s\x1b[0m\n",

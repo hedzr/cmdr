@@ -33,7 +33,7 @@ func (w *ExecWorker) printHelp(command *Command, justFlags bool) {
 	}
 
 	if w.rxxtOptions.GetBool("debug") {
-		if GetBoolR("no-color") {
+		if GetNoColorMode() {
 			fp("\nDUMP:\n\n%v\n", w.rxxtOptions.DumpAsString())
 		} else {
 			// "  [\x1b[2m\x1b[%dm%s\x1b[0m]"

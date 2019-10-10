@@ -181,3 +181,11 @@ func WithSimilarThreshold(similiarThreshold float64) ExecOption {
 		w.similarThreshold = similiarThreshold
 	}
 }
+
+// WithNoColor make console outputs plain and without ANSI escape colors
+// Since v1.6.2+
+func WithNoColor(b bool) ExecOption {
+	return func(w *ExecWorker) {
+		w.noColor = b
+	}
+}

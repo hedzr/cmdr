@@ -51,6 +51,7 @@ func TestSingleCommandLine1(t *testing.T) {
 			return
 		}),
 		cmdr.WithSimilarThreshold(0.7),
+		cmdr.WithNoColor(true),
 	)
 
 	cmdr.ResetWorker()

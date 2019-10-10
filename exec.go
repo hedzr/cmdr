@@ -50,6 +50,7 @@ type ExecWorker struct {
 
 	similarThreshold    float64
 	noDefaultHelpScreen bool
+	noColor             bool
 }
 
 // ExecOption is the functional option for Exec()
@@ -284,6 +285,10 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 		pkg.needHelp = GetBoolP(w.getPrefix(), "help")
 	}
 
+	if w.noColor {
+		Set("no-color", true)
+	}
+	
 	if !pkg.needHelp && len(pkg.unknownCmds) == 0 && len(pkg.unknownFlags) == 0 {
 		if goCommand.Action != nil {
 			args := w.getArgs(pkg, args)

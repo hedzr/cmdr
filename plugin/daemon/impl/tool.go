@@ -16,7 +16,7 @@ import (
 )
 
 func fds(fdin, fdout, fderr uintptr) []uintptr {
-	logFile, logErrFile := nullDev, nullDev
+	// logFile, logErrFile := nullDev, nullDev
 	logDir := cmdr.NormalizeDir(cmdr.GetStringR("logger.dir"))
 	if len(logDir) == 0 || logDir == "-" {
 		logDir = os.TempDir()

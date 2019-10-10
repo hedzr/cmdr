@@ -23,7 +23,7 @@ func Entry() {
 		daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
 		cmdr.WithHelpTabStop(40),
 	); err != nil {
-		logrus.Errorf("Error: %v", err)
+		logrus.Errorf("Error: %+v", err)
 	}
 
 }

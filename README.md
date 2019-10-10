@@ -78,6 +78,8 @@ import "github.com/hedzr/cmdr"
 
 - Go Playground ready now, play `cmdr` at: https://play.golang.org/p/KaOGWTYrmXB
 
+  And another one with daemon plugin: https://play.golang.org/p/wJUA59uGu2M
+
 - Since v1.5.0, main entry `Exec()` uses `With Functional Options` style too:
 
   <details>

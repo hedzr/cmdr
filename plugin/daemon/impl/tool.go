@@ -22,8 +22,8 @@ func fds(fdin, fdout, fderr uintptr) []uintptr {
 		logDir = os.TempDir()
 	}
 
-	logFile = path.Join(logDir, fmt.Sprintf("%v.log", conf.AppName))
-	logErrFile = logFile
+	logFile := path.Join(logDir, fmt.Sprintf("%v.log", conf.AppName))
+	logErrFile := logFile
 	if cmdr.GetBoolR("logger.splitted") {
 		logErrFile = path.Join(logDir, fmt.Sprintf("%v.err.log", conf.AppName))
 	}

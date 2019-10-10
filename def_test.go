@@ -52,6 +52,7 @@ func TestSingleCommandLine1(t *testing.T) {
 		}),
 		cmdr.WithSimilarThreshold(0.7),
 		cmdr.WithNoColor(true),
+		cmdr.WithNoEnvOverrides(true),
 		cmdr.WithStrictMode(true),
 	)
 

@@ -51,6 +51,7 @@ type ExecWorker struct {
 	similarThreshold    float64
 	noDefaultHelpScreen bool
 	noColor             bool
+	noEnvOverrides      bool
 	strictMode          bool
 }
 
@@ -332,6 +333,10 @@ func (w *ExecWorker) checkState(pkg *ptpkg) {
 		Set("no-color", true)
 	}
 
+	if w.noEnvOverrides {
+		Set("no-env-overrides", true)
+	}
+	
 	if w.strictMode {
 		Set("strict-mode", true)
 	}

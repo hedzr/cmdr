@@ -38,7 +38,8 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- Next rel will be v1.6, and the deprecated functions will be removed.
+- The v1.6.1 released: those deprecated functions have been removed.  
+  This is a bug-fixed version on v1.6.0
 
 - The v1.5.5 is last release that the **DEPRECATED functions** would be kept.
 

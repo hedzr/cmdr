@@ -430,7 +430,7 @@ import "github.com/hedzr/cmdr"
 
 - Daemon (*Linux Only*)
 
-  > Uses daemon feature with `go-daemon`
+  > rewrote since v1.6.0
 
   ```golang
   import "github.com/hedzr/cmdr/plugin/daemon"

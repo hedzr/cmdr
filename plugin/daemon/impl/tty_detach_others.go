@@ -26,6 +26,9 @@ func detachFromTty(workDir string, nochdir, noclose bool) {
 	}
 	if !nochdir {
 		sErrno = os.Chdir(workDir)
+		if sErrno == nil {
+			log.Printf("Error: syscall.Setsid errno: %d", sErrno)
+		}
 	}
 
 	if !noclose {
@@ -36,6 +39,9 @@ func detachFromTty(workDir string, nochdir, noclose bool) {
 		}
 		if sErrno == nil {
 			sErrno = syscall.Dup2(int(fds[2]), int(os.Stderr.Fd()))
+		}
+		if sErrno == nil {
+			log.Printf("Error: syscall.Setsid errno: %d", sErrno)
 		}
 	}
 }

@@ -144,16 +144,6 @@ func Launch(cmd string, args ...string) (err error) {
 // 	return exec.LookPath(DefaultEditor)
 // }
 
-// SavedOsArgs is a copy of os.Args, just for testing
-var SavedOsArgs []string
-
-func init() {
-	// bug: can't copt slice to slice: _ = StandardCopier.Copy(&SavedOsArgs, &os.Args)
-	for _, s := range os.Args {
-		SavedOsArgs = append(SavedOsArgs, s)
-	}
-}
-
 // InTesting detects whether is running under go test mode
 func InTesting() bool {
 	if !strings.HasSuffix(SavedOsArgs[0], ".test") &&
@@ -447,4 +437,35 @@ func IsDigitHeavy(s string) bool {
 		return false
 	}
 	return m
+}
+
+func (w *ExecWorker) setupRootCommand(rootCmd *RootCommand) {
+	w.rootCommand = rootCmd
+
+	w.rootCommand.ow = w.defaultStdout
+	w.rootCommand.oerr = w.defaultStderr
+}
+
+func (w *ExecWorker) getPrefix() string {
+	return strings.Join(w.rxxtPrefixes, ".")
+}
+
+func (w *ExecWorker) getArgs(pkg *ptpkg, args []string) []string {
+	var a []string
+	if pkg.i+1 < len(args) {
+		a = args[pkg.i+1:]
+	}
+	return a
+}
+
+// SavedOsArgs is a copy of os.Args, just for testing
+var SavedOsArgs []string
+
+func init() {
+	if SavedOsArgs == nil {
+		// bug: can't copt slice to slice: _ = StandardCopier.Copy(&SavedOsArgs, &os.Args)
+		for _, s := range os.Args {
+			SavedOsArgs = append(SavedOsArgs, s)
+		}
+	}
 }

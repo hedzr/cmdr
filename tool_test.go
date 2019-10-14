@@ -13,8 +13,11 @@ import (
 
 func TestFinds(t *testing.T) {
 	t.Log("finds")
+	cmdr.ResetOptions()
 
-	// copyRootCmd = rootCmd
+	cmdr.Set("no-watch-conf-dir", true)
+
+	// copyRootCmd = rootCmdForTesting
 	var rootCmdX = &cmdr.RootCommand{
 		Command: cmdr.Command{
 			BaseOpt: cmdr.BaseOpt{
@@ -22,7 +25,7 @@ func TestFinds(t *testing.T) {
 			},
 		},
 	}
-	t.Log("rootCmd", rootCmdX)
+	t.Log("rootCmdForTesting", rootCmdX)
 
 	var commands = []string{
 		"consul-tags --help -q",
@@ -32,7 +35,6 @@ func TestFinds(t *testing.T) {
 		cmdr.SetInternalOutputStreams(nil, nil)
 
 		if err := cmdr.Exec(rootCmdX); err != nil {
-
 			t.Fatal(err)
 		}
 	}
@@ -45,4 +47,5 @@ func TestFinds(t *testing.T) {
 	} else {
 		t.Log("noted")
 	}
+	resetOsArgs()
 }

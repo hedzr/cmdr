@@ -106,6 +106,7 @@ func (pkg *ptpkg) tryExtractingValue(args []string) (err error) {
 		err = pkg.tryExtractingOthers(args, kind)
 	}
 
+	// fmt.Println("tryExtractingValue end")
 	return
 }
 
@@ -186,14 +187,14 @@ func (pkg *ptpkg) preprocessPkg(args []string) (err error) {
 func (pkg *ptpkg) processExternalTool() (err error) {
 	switch pkg.flg.ExternalTool {
 	case ExternalToolPasswordInput:
-		fmt.Print("Password: ")
 		var password string
 		if InTesting() {
+			fmt.Printf("go-demo")
 			password = "demo"
 		} else {
-			if password, err = readPassword(); err != nil {
-				return
-			}
+			// fmt.Printf("InTesting = false,,,\n")
+			fmt.Print("Password: ")
+			password, err = readPassword()
 		}
 		pkg.val = password
 
@@ -206,9 +207,7 @@ func (pkg *ptpkg) processExternalTool() (err error) {
 		if InTesting() {
 			content = []byte("demo for testing")
 		} else {
-			if content, err = LaunchEditor(editor); err != nil {
-				return
-			}
+			content, err = LaunchEditor(editor)
 		}
 		pkg.val = string(content)
 	}

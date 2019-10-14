@@ -6,10 +6,8 @@ package cmdr
 
 import (
 	"bufio"
-	"fmt"
 	"github.com/hedzr/cmdr/conf"
 	"os"
-	"strings"
 )
 
 //
@@ -53,6 +51,9 @@ type ExecWorker struct {
 	noColor             bool
 	noEnvOverrides      bool
 	strictMode          bool
+
+	withLogex       bool
+	afterArgsParsed func(cmd *Command, args []string) (err error)
 }
 
 // ExecOption is the functional option for Exec()
@@ -84,11 +85,11 @@ func Exec(rootCmd *RootCommand, opts ...ExecOption) (err error) {
 	return
 }
 
-// InternalGetWorker is an internal helper, esp for debugging
-func InternalGetWorker() (w *ExecWorker) {
-	w = uniqueWorker
-	return
-}
+// // InternalGetWorker is an internal helper, esp for debugging
+// func InternalGetWorker() (w *ExecWorker) {
+// 	w = uniqueWorker
+// 	return
+// }
 
 // InternalResetWorker is an internal helper, esp for debugging
 func InternalResetWorker() (w *ExecWorker) {
@@ -142,24 +143,10 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (err e
 		goCommand = &rootCmd.Command
 		stop      bool
 		matched   bool
-		// helpFlag = rootCmd.allFlags[UnsortedGroup]["help"]
 	)
 
-	// // for deprecated variables
-	// //
-	// w.shouldIgnoreWrongEnumValue = ShouldIgnoreWrongEnumValue
-	// //
-	// w.enableVersionCommands = EnableVersionCommands
-	// w.enableHelpCommands = EnableHelpCommands
-	// w.enableVerboseCommands = EnableVerboseCommands
-	// w.enableCmdrCommands = EnableCmdrCommands
-	// w.enableGenerateCommands = EnableGenerateCommands
-	// //
-	// w.envPrefixes = EnvPrefix
-	// w.rxxtPrefixes = RxxtPrefix
-
 	if w.rootCommand == nil {
-		w.setRootCommand(rootCmd)
+		w.setupRootCommand(rootCmd)
 	}
 
 	if len(conf.AppName) == 0 {
@@ -167,7 +154,11 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (err e
 		conf.Version = w.rootCommand.Version
 	}
 
+	// initExitingChannelForFsWatcher()
 	defer func() {
+		// stop fs watcher explicitly
+		stopExitingChannelForFsWatcher()
+
 		if rootCmd.ow != nil {
 			_ = rootCmd.ow.Flush()
 		}
@@ -212,6 +203,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (err e
 
 		err = w.afterInternalExec(pkg, rootCmd, goCommand, args)
 	}
+
 	return
 }
 
@@ -290,21 +282,12 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 			args := w.getArgs(pkg, args)
 
 			if goCommand != &rootCmd.Command {
-				if rootCmd.PostAction != nil {
-					defer rootCmd.PostAction(goCommand, args)
-				}
-				if rootCmd.PreAction != nil {
-					if err = rootCmd.PreAction(goCommand, args); err == ErrShouldBeStopException {
-						return nil
-					}
+				if err = w.beforeInvokeCommand(rootCmd, goCommand, args); err == ErrShouldBeStopException {
+					return nil
 				}
 			}
 
-			if goCommand.PostAction != nil {
-				defer goCommand.PostAction(goCommand, args)
-			}
-
-			if err = goCommand.Action(goCommand, args); err == ErrShouldBeStopException {
+			if err = w.invokeCommand(rootCmd, goCommand, args); err == ErrShouldBeStopException {
 				return nil
 			}
 
@@ -342,117 +325,38 @@ func (w *ExecWorker) checkState(pkg *ptpkg) {
 	}
 }
 
-func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
-	// build xref for root command and its all sub-commands and flags
-	// and build the default values
-	w.buildRootCrossRefs(rootCmd)
+func (w *ExecWorker) beforeInvokeCommand(rootCmd *RootCommand, goCommand *Command, args []string) (err error) {
+	if rootCmd.PostAction != nil {
+		defer rootCmd.PostAction(goCommand, args)
+	}
 
-	if !w.doNotLoadingConfigFiles {
-		// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
-		if err = w.parsePredefinedLocation(); err != nil {
+	if w.withLogex {
+		if err = w.initWithLogex(goCommand, args); err == ErrShouldBeStopException {
 			return
 		}
+	}
 
-		// and now, loading the external configuration files
-		err = w.loadFromPredefinedLocation(rootCmd)
+	if w.afterArgsParsed != nil {
+		if err = w.afterArgsParsed(goCommand, args); err == ErrShouldBeStopException {
+			return
+		}
+	}
 
-		// if len(w.envPrefixes) > 0 {
-		// 	EnvPrefix = w.envPrefixes
-		// }
-		// w.envPrefixes = EnvPrefix
-		envPrefix := strings.Split(GetStringR("env-prefix"), ".")
-		if len(envPrefix) > 0 {
-			w.envPrefixes = envPrefix
+	if rootCmd.PreAction != nil {
+		if err = rootCmd.PreAction(goCommand, args); err == ErrShouldBeStopException {
+			return
 		}
 	}
 	return
 }
 
-func (w *ExecWorker) parsePredefinedLocation() (err error) {
-	// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
-	if ix, str, yes := partialContains(os.Args, "--config"); yes {
-		var location string
-		if i := strings.Index(str, "="); i > 0 {
-			location = str[i+1:]
-		} else if len(str) > 8 {
-			location = str[8:]
-		} else if ix+1 < len(os.Args) {
-			location = os.Args[ix+1]
-		}
+func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, goCommand *Command, args []string) (err error) {
+	if goCommand.PostAction != nil {
+		defer goCommand.PostAction(goCommand, args)
+	}
 
-		location = trimQuotes(location)
-
-		if len(location) > 0 && FileExists(location) {
-			if yes, err = IsDirectory(location); yes {
-				if FileExists(location + "/conf.d") {
-					SetPredefinedLocations([]string{location + "/%s.yml"})
-				} else {
-					SetPredefinedLocations([]string{location + "/%s/%s.yml"})
-				}
-			} else if yes, err = IsRegularFile(location); yes {
-				SetPredefinedLocations([]string{location})
-			}
-		}
+	if err = goCommand.Action(goCommand, args); err == ErrShouldBeStopException {
+		return
 	}
 	return
-}
-
-func (w *ExecWorker) loadFromPredefinedLocation(rootCmd *RootCommand) (err error) {
-	// and now, loading the external configuration files
-	for _, s := range w.getExpandedPredefinedLocations() {
-		fn := s
-		switch strings.Count(fn, "%s") {
-		case 2:
-			fn = fmt.Sprintf(s, rootCmd.AppName, rootCmd.AppName)
-		case 1:
-			fn = fmt.Sprintf(s, rootCmd.AppName)
-		}
-
-		if FileExists(fn) {
-			err = w.rxxtOptions.LoadConfigFile(fn)
-			if err != nil {
-				return
-			}
-			conf.CfgFile = fn
-			break
-		}
-	}
-	return
-}
-
-// getExpandedPredefinedLocations for internal using
-func (w *ExecWorker) getExpandedPredefinedLocations() (locations []string) {
-	for _, d := range uniqueWorker.predefinedLocations {
-		locations = append(locations, normalizeDir(d))
-	}
-	return
-}
-
-// AddOnBeforeXrefBuilding add hook func
-func (w *ExecWorker) AddOnBeforeXrefBuilding(cb HookFunc) {
-	w.beforeXrefBuilding = append(w.beforeXrefBuilding, cb)
-}
-
-// AddOnAfterXrefBuilt add hook func
-func (w *ExecWorker) AddOnAfterXrefBuilt(cb HookFunc) {
-	w.afterXrefBuilt = append(w.afterXrefBuilt, cb)
-}
-
-func (w *ExecWorker) setRootCommand(rootCmd *RootCommand) {
-	w.rootCommand = rootCmd
-
-	w.rootCommand.ow = w.defaultStdout
-	w.rootCommand.oerr = w.defaultStderr
-}
-
-func (w *ExecWorker) getPrefix() string {
-	return strings.Join(w.rxxtPrefixes, ".")
-}
-
-func (w *ExecWorker) getArgs(pkg *ptpkg, args []string) []string {
-	var a []string
-	if pkg.i+1 < len(args) {
-		a = args[pkg.i+1:]
-	}
-	return a
 }

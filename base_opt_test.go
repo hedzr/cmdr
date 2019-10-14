@@ -294,6 +294,8 @@ func TestTomlLoad(t *testing.T) {
 func TestConfigFiles(t *testing.T) {
 	var err error
 
+	cmdr.Set("no-watch-conf-dir", true)
+
 	defer func() {
 		_ = os.Remove(".tmp.json")
 		_ = os.Remove(".tmp.yaml")

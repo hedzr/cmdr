@@ -15,6 +15,8 @@ import (
 )
 
 func TestIsDirectory(t *testing.T) {
+	cmdr.NormalizeDir("")
+
 	if yes, err := cmdr.IsDirectory("./conf.d1"); yes {
 		t.Fatal(err)
 	}
@@ -65,7 +67,7 @@ func TestHeadLike(t *testing.T) {
 	// cmdr.SetCustomShowVersion(nil)
 	// cmdr.SetCustomShowBuildInfo(nil)
 
-	copyRootCmd = rootCmd
+	copyRootCmd = rootCmdForTesting
 
 	defer func() {
 
@@ -89,8 +91,12 @@ func TestHeadLike(t *testing.T) {
 		// cmdr.ShouldIgnoreWrongEnumValue = true
 
 		println("xxx: ***: ", sss)
-
-		if err = cmdr.Worker2(true).InternalExecFor(rootCmd, strings.Split(sss, " ")); err != nil {
+		w := cmdr.Worker2(true)
+		w.AddOnAfterXrefBuilt(func(root *cmdr.RootCommand, args []string) {
+		})
+		w.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
+		})
+		if err = w.InternalExecFor(rootCmdForTesting, strings.Split(sss, " ")); err != nil {
 			if e, ok := err.(*cmdr.ErrorForCmdr); !ok || !e.Ignorable {
 				t.Fatal(err)
 			}

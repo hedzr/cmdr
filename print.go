@@ -23,16 +23,17 @@ func ferr(fmtStr string, args ...interface{}) {
 func (w *ExecWorker) printHelp(command *Command, justFlags bool) {
 	initTabStop(tabStop)
 
-	if GetIntP(w.getPrefix(), "help-zsh") > 0 {
+	if GetIntR("help-zsh") > 0 {
 		w.printHelpZsh(command, justFlags)
-	} else if GetBoolP(w.getPrefix(), "help-bash") {
+	} else if GetBoolR("help-bash") {
 		// TODO for bash
 		w.printHelpZsh(command, justFlags)
 	} else {
 		w.paintFromCommand(w.currentHelpPainter, command, justFlags)
 	}
 
-	if w.rxxtOptions.GetBool("debug") {
+	// NOTE: checking `~~debug`
+	if w.rxxtOptions.GetBoolEx("debug", false) {
 		if GetNoColorMode() {
 			fp("\nDUMP:\n\n%v\n", w.rxxtOptions.DumpAsString())
 		} else {

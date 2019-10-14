@@ -222,10 +222,16 @@ func (s *Options) reloadConfig() {
 }
 
 func (s *Options) watchConfigDir(configDir string) {
+	if GetBoolR("no-watch-conf-dir") {
+		return
+	}
+
 	initWG := &sync.WaitGroup{}
 	initWG.Add(1)
+	// initExitingChannelForFsWatcher()
 	go fsWatcherRoutine(s, configDir, initWG)
 	initWG.Wait() // make sure that the go routine above fully ended before returning
+	s.SetNx("watching", true)
 }
 
 func testCfgSuffix(name string) bool {

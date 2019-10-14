@@ -19,6 +19,16 @@ import (
 )
 
 func fsWatcherRoutine(s *Options, configDir string, initWG *sync.WaitGroup) {
+	// effw.Lock()
+	// if cmdrExitingForFsWatcher != nil {
+	// 	effw.Unlock()
+	// 	return
+	// }
+	//
+	// cmdrExitingForFsWatcher = make(chan struct{}, 16)
+	// effw.Unlock()
+	// // initExitingChannelForFsWatcher()
+
 	watcher, err := fsnotify.NewWatcher()
 	if err == nil {
 		defer watcher.Close()
@@ -29,11 +39,19 @@ func fsWatcherRoutine(s *Options, configDir string, initWG *sync.WaitGroup) {
 		_ = watcher.Add(configDir)
 		initWG.Done()   // done initializing the watch in this go routine, so the parent routine can move on...
 		eventsWG.Wait() // now, wait for event loop to end in this go-routine...
+	} else {
+		stopExitingChannelForFsWatcher()
 	}
 }
 
 func fsWatchRunner(s *Options, configDir string, watcher *fsnotify.Watcher, eventsWG *sync.WaitGroup) {
 	defer func() {
+		// effw.Lock()
+		// defer effw.Unlock()
+		// if cmdrExitingForFsWatcher != nil {
+		// 	close(cmdrExitingForFsWatcher)
+		// 	cmdrExitingForFsWatcher = nil
+		// }
 		eventsWG.Done()
 	}()
 	for {
@@ -70,6 +88,29 @@ func fsWatchRunner(s *Options, configDir string, watcher *fsnotify.Watcher, even
 				log.Printf("Watcher error: %v\n", err)
 			}
 			return
+
+		case <-cmdrExitingForFsWatcher:
+			return
 		}
 	}
 }
+
+// stopExitingChannelForFsWatcher stop fs watcher explicitly
+func stopExitingChannelForFsWatcher() {
+	effw.Lock()
+	defer effw.Unlock()
+	if cmdrExitingForFsWatcher != nil && GetBool("watching") {
+		cmdrExitingForFsWatcher <- struct{}{}
+	}
+}
+
+// func initExitingChannelForFsWatcher() {
+// 	effw.Lock()
+// 	defer effw.Unlock()
+// 	if cmdrExitingForFsWatcher == nil {
+// 		cmdrExitingForFsWatcher = make(chan struct{}, 16)
+// 	}
+// }
+
+var cmdrExitingForFsWatcher = make(chan struct{}, 16)
+var effw sync.RWMutex

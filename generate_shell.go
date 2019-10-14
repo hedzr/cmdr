@@ -361,8 +361,10 @@ func genDoc(command *Command, args []string) (err error) {
 		}
 	}
 
+	// fmt.Printf("  .  . args = [%v]\n", args)
 	err = WalkAllCommands(func(cmd *Command, index int) (err error) {
 		painter.Reset()
+		// fmt.Printf("  .  .  cmd = %v\n", cmd.GetTitleNames())
 
 		dir := GetStringP(prefix, "dir")
 		if err = EnsureDir(dir); err != nil {

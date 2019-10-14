@@ -119,7 +119,7 @@ var (
 // // ExecWith is main entry of `cmdr`.
 // //
 // // Deprecated: from v1.5.0
-// func ExecWith(rootCmd *RootCommand, beforeXrefBuildingX, afterXrefBuiltX HookFunc) (err error) {
+// func ExecWith(rootCmdForTesting *RootCommand, beforeXrefBuildingX, afterXrefBuiltX HookFunc) (err error) {
 // 	w := uniqueWorker
 //
 // 	if beforeXrefBuildingX != nil {
@@ -129,6 +129,6 @@ var (
 // 		w.afterXrefBuilt = append(w.afterXrefBuilt, afterXrefBuiltX)
 // 	}
 //
-// 	err = w.InternalExecFor(rootCmd, os.Args)
+// 	err = w.InternalExecFor(rootCmdForTesting, os.Args)
 // 	return
 // }

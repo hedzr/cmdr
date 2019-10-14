@@ -401,7 +401,9 @@ import "github.com/hedzr/cmdr"
 
 - Unify option value extraction:
 
-  - `cmdr.Get(key)`, `cmdr.GetBool(key)`, `cmdr.GetInt(key)`, `cmdr.GetString(key)`, `cmdr.GetStringSlice(key)` and `cmdr.GetIntSlice(key)`, `cmdr.GetDuration(key)` for Option value extractions.
+  - `cmdr.Get(key)`, `cmdr.GetBool(key)`, `cmdr.GetInt(key)`, `cmdr.GetString(key)`, `cmdr.GetStringSlice(key, defaultValues...)` and `cmdr.GetIntSlice(key, defaultValues...)`, `cmdr.GetDuration(key)` for Option value extractions.
+
+    >  **NOTE**: since v1.6.2, `cmdr.Get{Bool,Int,String,Duration}Ex(key,defaultVal)` allows extra default value.
 
     - bool
     - int, int64, uint, uint64, float32, float64
@@ -424,7 +426,7 @@ import "github.com/hedzr/cmdr"
     - `cmdr.GetR(key)`, `cmdr.GetBoolR(key)`, …, `cmdr.GetMapR(key)`
     - `cmdr.GetRP(prefix, key)`, `cmdr.GetBoolRP(prefix, key)`, ….
 
-    `cmdr.Get("app.server.port")` == `cmdr.GetP("app.server", "port")` == `cmdr.GetR("server.port")` (*if cmdr.RxxtPrefix == ["app"]*); so:
+      `cmdr.Get("app.server.port")` == `cmdr.GetP("app.server", "port")` == `cmdr.GetR("server.port")` (*if cmdr.RxxtPrefix == ["app"]*); so:
 
     ```go
     cmdr.Set("server.port", 7100)

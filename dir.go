@@ -81,6 +81,33 @@ func EnsureDir(dir string) (err error) {
 	return
 }
 
+// RemoveDirRecursive removes a directory and any children it contains.
+func RemoveDirRecursive(dir string) (err error) {
+	// RemoveContentsInDir(dir)
+	err = os.RemoveAll(dir)
+	return
+}
+
+// // RemoveContentsInDir removes all file and sub-directory in a directory
+// func RemoveContentsInDir(dir string) error {
+// 	d, err := os.Open(dir)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	defer d.Close()
+// 	names, err := d.Readdirnames(-1)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	for _, name := range names {
+// 		err = os.RemoveAll(filepath.Join(dir, name))
+// 		if err != nil {
+// 			return err
+// 		}
+// 	}
+// 	return nil
+// }
+
 // NormalizeDir make dir name normalized
 func NormalizeDir(s string) string {
 	return normalizeDir(s)
@@ -110,12 +137,16 @@ func GetPredefinedLocations() []string {
 	return uniqueWorker.predefinedLocations
 }
 
-// SetPredefinedLocations to customize the searching locations for loading config files.
-//
-// It MUST be invoked before `cmdr.Exec`. Such as:
-// ```go
-//     SetPredefinedLocations([]string{"./config", "~/.config/cmdr/", "$GOPATH/running-configs/cmdr"})
-// ```
-func SetPredefinedLocations(locations []string) {
+// // SetPredefinedLocations to customize the searching locations for loading config files.
+// //
+// // It MUST be invoked before `cmdr.Exec`. Such as:
+// // ```go
+// //     SetPredefinedLocations([]string{"./config", "~/.config/cmdr/", "$GOPATH/running-configs/cmdr"})
+// // ```
+// func SetPredefinedLocations(locations []string) {
+// 	uniqueWorker.predefinedLocations = locations
+// }
+
+func setPredefinedLocations(locations ...string) {
 	uniqueWorker.predefinedLocations = locations
 }

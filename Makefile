@@ -187,9 +187,9 @@ go-build:
 	@echo "  >  Building binary '$(GOBIN)/$(APPNAME)'..."
 	# demo short wget-demo 
 	$(foreach an, fluent ffdemo, \
-	  echo "  >  APPNAME = $(APPNAME)|$(an), LDFLAGS = $(LDFLAGS)"; \
+	  echo "  >  +race. APPNAME = $(APPNAME)|$(an), LDFLAGS = $(LDFLAGS)"; \
 	  GOPATH=$(GOPATH) GOBIN=$(GOBIN) GO111MODULE=$(GO111MODULE) GOPROXY=$(GOPROXY) \
-	    go build -v -ldflags "$(LDFLAGS) -X '$(W_PKG).AppName=$(an)'" -o $(GOBIN)/$(an) $(GOBASE)/examples/$(an)/main.go; \
+	    go build -v -race -ldflags "$(LDFLAGS) -X '$(W_PKG).AppName=$(an)'" -o $(GOBIN)/$(an) $(GOBASE)/examples/$(an)/main.go; \
 	  ls -la $(LS_OPT) $(GOBIN)/$(an); \
 	)
 	ls -la $(LS_OPT) $(GOBIN)/
@@ -292,16 +292,16 @@ gocov: coverage
 coverage: | $(GOBASE)
 	@echo "  >  gocov ..."
 	@GOPATH=$(GOPATH) GOBIN=$(BIN) GO111MODULE=$(GO111MODULE) GOPROXY=$(GOPROXY) \
-	go test -race -covermode=atomic -coverprofile cover.out ./...
+	go test -v -race -coverprofile=coverage.txt -covermode=atomic
 	@GOPATH=$(GOPATH) GOBIN=$(BIN) GO111MODULE=$(GO111MODULE) GOPROXY=$(GOPROXY) \
-	go tool cover -html=cover.out -o cover.html
+	go tool cover -html=coverage.txt -o cover.html
 	@open cover.html
 
 ## codecov: run go test for codecov; (codecov.io)
 codecov: | $(GOBASE)
 	@echo "  >  codecov ..."
 	@GOPATH=$(GOPATH) GOBIN=$(BIN) GO111MODULE=$(GO111MODULE) GOPROXY=$(GOPROXY) \
-	go test -race -coverprofile=coverage.txt -covermode=atomic
+	go test -v -race -coverprofile=coverage.txt -covermode=atomic
 	@bash <(curl -s https://codecov.io/bash) -t $(CODECOV_TOKEN)
 
 ## cyclo: run gocyclo tool

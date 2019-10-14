@@ -10,6 +10,48 @@ import (
 	"time"
 )
 
+// AddOnBeforeXrefBuilding add hook func
+// daemon plugin needed
+func (w *ExecWorker) AddOnBeforeXrefBuilding(cb HookFunc) {
+	if cb != nil {
+		w.beforeXrefBuilding = append(w.beforeXrefBuilding, cb)
+	}
+}
+
+// AddOnAfterXrefBuilt add hook func
+// daemon plugin needed
+func (w *ExecWorker) AddOnAfterXrefBuilt(cb HookFunc) {
+	if cb != nil {
+		w.afterXrefBuilt = append(w.afterXrefBuilt, cb)
+	}
+}
+
+func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
+	// build xref for root command and its all sub-commands and flags
+	// and build the default values
+	w.buildRootCrossRefs(rootCmd)
+
+	if !w.doNotLoadingConfigFiles {
+		// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
+		if err = w.parsePredefinedLocation(); err != nil {
+			return
+		}
+
+		// and now, loading the external configuration files
+		err = w.loadFromPredefinedLocation(rootCmd)
+
+		// if len(w.envPrefixes) > 0 {
+		// 	EnvPrefix = w.envPrefixes
+		// }
+		// w.envPrefixes = EnvPrefix
+		envPrefix := strings.Split(GetStringR("env-prefix"), ".")
+		if len(envPrefix) > 0 {
+			w.envPrefixes = envPrefix
+		}
+	}
+	return
+}
+
 func (w *ExecWorker) buildRootCrossRefs(root *RootCommand) {
 	// initializes the internal variables/members
 	w.ensureCmdMembers(&root.Command)

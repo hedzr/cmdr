@@ -63,7 +63,10 @@ func WithPredefinedLocations(locations ...string) ExecOption {
 	}
 }
 
-// WithIgnoreWrongEnumValue will be put into `cmdrError.Ignorable` while wrong enumerable value found in parsing command-line options.
+// WithIgnoreWrongEnumValue will be put into `cmdrError.Ignorable`
+// while wrong enumerable value found in parsing command-line
+// options.
+// The default is true.
 //
 // Main program might decide whether it's a warning or error.
 //
@@ -82,17 +85,11 @@ func WithIgnoreWrongEnumValue(ignored bool) ExecOption {
 //  - versionsCmds / EnableVersionCommands supports injecting the default `--version` flags and commands
 //  - helpCmds / EnableHelpCommands supports injecting the default `--help` flags and commands
 //  - verboseCmds / EnableVerboseCommands supports injecting the default `--verbose` flags and commands
-//  - generalCmdrCmds / EnableCmdrCommands support these flags: `--strict-mode`, `--no-env-overrides`
-//  - generateCmds / EnableGenerateCommands supports injecting the default `generate` commands and subcommands
+//  - generalCmdrCmds / EnableCmdrCommands support these flags: `--strict-mode`, `--no-env-overrides`, and `--no-color`
+//  - generateCmds / EnableGenerateCommands supports injecting the default `generate` commands and sub-commands
 //
 func WithBuiltinCommands(versionsCmds, helpCmds, verboseCmds, generateCmds, generalCmdrCmds bool) ExecOption {
 	return func(w *ExecWorker) {
-		// EnableVersionCommands = versionsCmds
-		// EnableHelpCommands = helpCmds
-		// EnableVerboseCommands = verboseCmds
-		// EnableCmdrCommands = generalCmdrCmds
-		// EnableGenerateCommands = generateCmds
-
 		w.enableVersionCommands = versionsCmds
 		w.enableHelpCommands = helpCmds
 		w.enableVerboseCommands = verboseCmds
@@ -218,5 +215,23 @@ func WithNoEnvOverrides(b bool) ExecOption {
 func WithStrictMode(b bool) ExecOption {
 	return func(w *ExecWorker) {
 		w.strictMode = b
+	}
+}
+
+// WithAfterArgsParsed sets a callback point after command-line args parsed by cmdr internal exec().
+// Your callback func will be invoked before invoking the matched command `cmd`.
+// At this time, all command-line args parsed and a command found.
+//
+// If program was launched with empty or wrong arguments, your callback func won't triggered.
+//
+// When empty argument or `--help` found, cmdr will display help screen. To customize it
+// see also cmdr.WithCustomShowVersion and cmdr.WithCustomShowBuildInfo.
+//
+// When any wrong/warn arguments found, cmdr will display some tip message. To customize it
+// see also cmdr.WithUnknownOptionHandler.
+//
+func WithAfterArgsParsed(hookFunc func(cmd *Command, args []string) (err error)) ExecOption {
+	return func(w *ExecWorker) {
+		w.afterArgsParsed = hookFunc
 	}
 }

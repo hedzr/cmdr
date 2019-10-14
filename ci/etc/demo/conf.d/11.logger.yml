@@ -3,7 +3,7 @@ app:
     level: DEBUG              # logrus based: DEBUG, INFO, WARNING, ERROR, FATAL, PANIC
     format: text              # text (default), json
     target: journal           # missing or 'default': "$dir/app.log" will be created under demonized mode; 'journal': log to stdout and stderr, and you could send its to journal
-    dir: /var/log/$APPNAME    # used. since v1.6.0. "-" means os.Stdin and os.Stdout, and the logging output will be discarded in demonized mode.
+    dir: /var/log/$APPNAME    # used. since v1.6.0. "-" means os.Stdin and os.Stdout, and the logging output will be discarded or forwarded to logfile in demonized mode.
     splitted: false           # in demonize mode, logfile should be splitted as app.log and app.err.log or not.
 
   #logger:

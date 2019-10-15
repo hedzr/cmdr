@@ -362,7 +362,7 @@ func GetString(key string) string {
 	return uniqueWorker.rxxtOptions.GetString(key, "")
 }
 
-// GetString returns the string value of an `Option` key.
+// GetStringEx returns the string value of an `Option` key.
 func GetStringEx(key, defaultVal string) string {
 	return uniqueWorker.rxxtOptions.GetString(key, defaultVal)
 }

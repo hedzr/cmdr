@@ -10,6 +10,7 @@ import (
 	"github.com/hedzr/cmdr/examples/demo/svr"
 	"github.com/hedzr/cmdr/plugin/daemon"
 	"github.com/sirupsen/logrus"
+	"log"
 )
 
 func main() {
@@ -90,10 +91,20 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 		Description("test new features", "test new features,\nverbose long descriptions here.").
 		Group("Test").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
+			cmdr.Set("test.1", 8)
+			cmdr.Set("test.deep.branch.1", "test")
+			fmt.Printf("*** Got app.test.deep.branch.1: %s\n", cmdr.GetString("app.test.deep.branch.1"))
+
+			cmdr.DeleteKey("app.test.deep.branch.1")
+			if cmdr.HasKey("app.test.deep.branch.1") {
+				log.Fatalf("FAILED, expect key not found, but found: %v", cmdr.Get("app.test.deep.branch.1"))
+			}
+			fmt.Printf("*** Got app.test.deep.branch.1 (after deleted): %s\n", cmdr.GetString("app.test.deep.branch.1"))
+
 			fmt.Printf("*** Got pp: %s\n", cmdr.GetString("app.mx-test.password"))
 			fmt.Printf("*** Got msg: %s\n", cmdr.GetString("app.mx-test.message"))
-			fmt.Printf("*** Got fruit: %v\n", cmdr.GetString("app.mx-test.fruit"))
-			fmt.Printf("*** Got head: %v\n", cmdr.GetInt("app.mx-test.head"))
+			fmt.Printf("*** Got fruit (toggle group): %v\n", cmdr.GetString("app.mx-test.fruit"))
+			fmt.Printf("*** Got head (head-like): %v\n", cmdr.GetInt("app.mx-test.head"))
 			return
 		})
 	mx.NewFlag(cmdr.OptFlagTypeString).

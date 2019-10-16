@@ -251,6 +251,10 @@ func TestMergeWith(t *testing.T) {
 	cmdr.Set("test.1", 8)
 	cmdr.Set("test.deep.branch.1", "test")
 
+	// if cmdr.GetString("app.test.deep.branch.1") != "test" {
+	// 	t.Fatalf("err, expect 'test', but got '%v'", cmdr.GetString("app.test.deep.branch.1"))
+	// }
+	
 	var m = make(map[string]interface{})
 	err := yaml.Unmarshal([]byte(`
 app:
@@ -274,5 +278,33 @@ app:
 	}
 	if cmdr.GetString("app.test.deep.branch.1") != "test-ok" {
 		t.Fatalf("err, expect 'test-ok', but got '%v'", cmdr.GetString("app.test.deep.branch.1"))
+	}
+}
+
+func TestDelete(t *testing.T) {
+	cmdr.Set("test.1", 8)
+	cmdr.Set("test.deep.branch.1", "test")
+
+	if cmdr.GetString("app.test.deep.branch.1") != "test" {
+		t.Fatalf("err, expect 'test', but got '%v'", cmdr.GetString("app.test.deep.branch.1"))
+	}
+	
+// 	var m = make(map[string]interface{})
+// 	err := yaml.Unmarshal([]byte(`
+// app:
+//   test:
+//     1: 9
+//     deep:
+//       branch:
+//         1: test-ok
+// `), &m)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+
+	cmdr.DeleteKey("app.test.branch.1")
+	
+	if cmdr.HasKey("app.test.branch.1") {
+		t.Fatalf("FAILED, expect key not found, but found: %v", cmdr.Get("app.test.branch.1"))
 	}
 }

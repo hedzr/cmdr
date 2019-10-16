@@ -251,9 +251,9 @@ func TestMergeWith(t *testing.T) {
 	cmdr.Set("test.1", 8)
 	cmdr.Set("test.deep.branch.1", "test")
 
-	// if cmdr.GetString("app.test.deep.branch.1") != "test" {
-	// 	t.Fatalf("err, expect 'test', but got '%v'", cmdr.GetString("app.test.deep.branch.1"))
-	// }
+	if cmdr.GetString("app.test.deep.branch.1") != "test" {
+		t.Fatalf("err, expect 'test', but got '%v'", cmdr.GetString("app.test.deep.branch.1"))
+	}
 	
 	var m = make(map[string]interface{})
 	err := yaml.Unmarshal([]byte(`

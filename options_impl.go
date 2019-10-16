@@ -449,7 +449,7 @@ func (s *Options) SetNx(key string, val interface{}) {
 		}
 	}
 
-	// s.entries[key] = val
+	s.entries[key] = val
 	a := strings.Split(key, ".")
 	s.mergeMap(s.hierarchy, a[0], "", et(a, 1, val))
 }
@@ -461,7 +461,6 @@ func (s *Options) MergeWith(m map[string]interface{}) (err error) {
 	}
 	return
 }
-
 
 func (s *Options) mergeMap(m map[string]interface{}, key, path string, val interface{}) map[string]interface{} {
 	if len(path) > 0 {

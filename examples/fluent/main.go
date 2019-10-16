@@ -91,9 +91,13 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 		Description("test new features", "test new features,\nverbose long descriptions here.").
 		Group("Test").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
-			cmdr.Set("test.1", 8)
+			// cmdr.Set("test.1", 8)
 			cmdr.Set("test.deep.branch.1", "test")
-			fmt.Printf("*** Got app.test.deep.branch.1: %s\n", cmdr.GetString("app.test.deep.branch.1"))
+			z := cmdr.GetString("app.test.deep.branch.1")
+			fmt.Printf("*** Got app.test.deep.branch.1: %s\n", z)
+			if z != "test" {
+				log.Fatalf("err, expect 'test', but got '%v'", z)
+			}
 
 			cmdr.DeleteKey("app.test.deep.branch.1")
 			if cmdr.HasKey("app.test.deep.branch.1") {

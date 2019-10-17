@@ -288,20 +288,7 @@ func TestDelete(t *testing.T) {
 	if cmdr.GetString("app.test.deep.branch.1") != "test" {
 		t.Fatalf("err, expect 'test', but got '%v'", cmdr.GetString("app.test.deep.branch.1"))
 	}
-
-	// 	var m = make(map[string]interface{})
-	// 	err := yaml.Unmarshal([]byte(`
-	// app:
-	//   test:
-	//     1: 9
-	//     deep:
-	//       branch:
-	//         1: test-ok
-	// `), &m)
-	// 	if err != nil {
-	// 		t.Fatal(err)
-	// 	}
-
+	
 	cmdr.DeleteKey("app.test.branch.1")
 
 	if cmdr.HasKey("app.test.branch.1") {

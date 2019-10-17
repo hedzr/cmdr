@@ -288,7 +288,7 @@ func TestDelete(t *testing.T) {
 	if cmdr.GetString("app.test.deep.branch.1") != "test" {
 		t.Fatalf("err, expect 'test', but got '%v'", cmdr.GetString("app.test.deep.branch.1"))
 	}
-	
+
 	cmdr.DeleteKey("app.test.branch.1")
 
 	if cmdr.HasKey("app.test.branch.1") {

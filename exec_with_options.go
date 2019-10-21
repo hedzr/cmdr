@@ -42,7 +42,7 @@ func WithEnvPrefix(prefix ...string) ExecOption {
 
 // WithOptionsPrefix create a top-level namespace, which contains all normalized `Flag`s.
 // =WithRxxtPrefix
-// Default Options Prefix is array ["APP"], ie 'APP_'
+// Default Options Prefix is array ["app"], ie 'app.xxx'
 func WithOptionsPrefix(prefix ...string) ExecOption {
 	return func(w *ExecWorker) {
 		w.rxxtPrefixes = prefix
@@ -51,7 +51,7 @@ func WithOptionsPrefix(prefix ...string) ExecOption {
 
 // WithRxxtPrefix create a top-level namespace, which contains all normalized `Flag`s.
 // cmdr will lookup envvars for a key.
-// Default Options Prefix is array ["APP"], ie 'APP_'
+// Default Options Prefix is array ["app"], ie 'app.xxx'
 func WithRxxtPrefix(prefix ...string) ExecOption {
 	return func(w *ExecWorker) {
 		w.rxxtPrefixes = prefix

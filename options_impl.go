@@ -145,48 +145,86 @@ func (s *Options) getMap(vp map[string]interface{}, key string, remains ...strin
 }
 
 // GetBoolEx returns the bool value of an `Option` key.
-func (s *Options) GetBoolEx(key string, defaultVal bool) (ret bool) {
+func (s *Options) GetBoolEx(key string, defaultVal ...bool) (ret bool) {
 	switch strings.ToLower(s.GetString(key, "")) {
 	case "1", "y", "t", "yes", "true", "ok", "on":
 		ret = true
 	case "":
-		ret = defaultVal
+		for _, vv := range defaultVal {
+			ret = vv
+		}
 	}
 	return
 }
 
 // GetIntEx returns the int64 value of an `Option` key.
-func (s *Options) GetIntEx(key string, defaultVal int64) (ir int64) {
-	ir = defaultVal
+func (s *Options) GetIntEx(key string, defaultVal ...int) (ir int) {
+	if ir64, err := strconv.ParseInt(s.GetString(key, ""), 10, 64); err == nil {
+		ir = int(ir64)
+	} else {
+		for _, vv := range defaultVal {
+			ir = vv
+		}
+	}
+	return
+}
+
+// GetInt64Ex returns the int64 value of an `Option` key.
+func (s *Options) GetInt64Ex(key string, defaultVal ...int64) (ir int64) {
 	if ir64, err := strconv.ParseInt(s.GetString(key, ""), 10, 64); err == nil {
 		ir = ir64
+	} else {
+		for _, vv := range defaultVal {
+			ir = vv
+		}
 	}
 	return
 }
 
 // GetUintEx returns the uint64 value of an `Option` key.
-func (s *Options) GetUintEx(key string, defaultVal uint64) (ir uint64) {
-	ir = defaultVal
+func (s *Options) GetUintEx(key string, defaultVal ...uint) (ir uint) {
+	if ir64, err := strconv.ParseUint(s.GetString(key, ""), 10, 64); err == nil {
+		ir = uint(ir64)
+	} else {
+		for _, vv := range defaultVal {
+			ir = vv
+		}
+	}
+	return
+}
+
+// GetUint64Ex returns the uint64 value of an `Option` key.
+func (s *Options) GetUint64Ex(key string, defaultVal ...uint64) (ir uint64) {
 	if ir64, err := strconv.ParseUint(s.GetString(key, ""), 10, 64); err == nil {
 		ir = ir64
+	} else {
+		for _, vv := range defaultVal {
+			ir = vv
+		}
 	}
 	return
 }
 
 // GetFloat32Ex returns the float32 value of an `Option` key.
-func (s *Options) GetFloat32Ex(key string, defaultVal float32) (ir float32) {
-	ir = defaultVal
+func (s *Options) GetFloat32Ex(key string, defaultVal ...float32) (ir float32) {
 	if ir64, err := strconv.ParseFloat(s.GetString(key, ""), 10); err == nil {
 		ir = float32(ir64)
+	} else {
+		for _, vv := range defaultVal {
+			ir = vv
+		}
 	}
 	return
 }
 
 // GetFloat64Ex returns the float64 value of an `Option` key.
-func (s *Options) GetFloat64Ex(key string, defaultVal float64) (ir float64) {
-	ir = defaultVal
+func (s *Options) GetFloat64Ex(key string, defaultVal ...float64) (ir float64) {
 	if ir64, err := strconv.ParseFloat(s.GetString(key, ""), 10); err == nil {
 		ir = ir64
+	} else {
+		for _, vv := range defaultVal {
+			ir = vv
+		}
 	}
 	return
 }
@@ -357,21 +395,25 @@ func (s *Options) GetUint64Slice(key string, defaultVal ...uint64) (ir []uint64)
 }
 
 // GetDuration returns the time duration value of an `Option` key.
-func (s *Options) GetDuration(key string, defaultVal time.Duration) (ir time.Duration) {
+func (s *Options) GetDuration(key string, defaultVal ...time.Duration) (ir time.Duration) {
 	str := s.GetString(key, "BAD")
 	if str == "BAD" {
-		ir = defaultVal
+		for _, vv := range defaultVal {
+			ir = vv
+		}
 	} else {
 		var err error
 		if ir, err = time.ParseDuration(str); err != nil {
-			ir = defaultVal
+			for _, vv := range defaultVal {
+				ir = vv
+			}
 		}
 	}
 	return
 }
 
 // GetString returns the string value of an `Option` key.
-func (s *Options) GetString(key, defaultVal string) (ret string) {
+func (s *Options) GetString(key string, defaultVal ...string) (ret string) {
 	// envkey := s.envKey(key)
 	// if s, ok := os.LookupEnv(envkey); ok {
 	// 	ret = s
@@ -390,7 +432,9 @@ func (s *Options) GetString(key, defaultVal string) (ret string) {
 			}
 		}
 	} else {
-		ret = defaultVal
+		for _, vv := range defaultVal {
+			ret = vv
+		}
 	}
 	return
 }

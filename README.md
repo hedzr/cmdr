@@ -38,6 +38,8 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
+- v1.6.3 WIP: `Getxxx()` with defaultValues; `WithLogex()`; `WithAfterArgsParsed(fn)`; `WithNoEnvOverrides(b)`; `WithNoColor(b)`; `WithStrictMode(b)`; `DeleteKey(key)`;
+  
 - The v1.6.1 released: those deprecated functions have been removed.  
   This is a bug-fixed version on v1.6.0
 
@@ -403,17 +405,15 @@ import "github.com/hedzr/cmdr"
 
   - `cmdr.Get(key)`, `cmdr.GetBool(key)`, `cmdr.GetInt(key)`, `cmdr.GetString(key)`, `cmdr.GetStringSlice(key, defaultValues...)` and `cmdr.GetIntSlice(key, defaultValues...)`, `cmdr.GetDuration(key)` for Option value extractions.
 
-    >  **NOTE**: since v1.6.2, `cmdr.Get{Bool,Int,String,Duration}Ex(key,defaultVal)` allows extra default value.
-
     - bool
-    - int, int64, uint, uint64, float32, float64
+- int, int64, uint, uint64, float32, float64
     - string
     - string slice, int slice
     - time duration
     - ~~*todo: float, time, duration, int slice, …, all primitive go types*~~
     - map
     - struct: `cmdr.GetSectionFrom(sectionKeyPath, &holderStruct)`
-
+    
   - `cmdr.Set(key, value)`, `cmdr.SerNx(key, value)`
 
     - `Set()` set value by key without RxxtPrefix, eg: `cmdr.Set("debug", true)` for `--debug`.
@@ -423,17 +423,17 @@ import "github.com/hedzr/cmdr"
   - Fast Guide for `Get`, `GetP` and `GetR`:
 
     - `cmdr.GetP(prefix, key)`, `cmdr.GetBoolP(prefix, key)`, ….
-    - `cmdr.GetR(key)`, `cmdr.GetBoolR(key)`, …, `cmdr.GetMapR(key)`
+  - `cmdr.GetR(key)`, `cmdr.GetBoolR(key)`, …, `cmdr.GetMapR(key)`
     - `cmdr.GetRP(prefix, key)`, `cmdr.GetBoolRP(prefix, key)`, ….
-
+  
       `cmdr.Get("app.server.port")` == `cmdr.GetP("app.server", "port")` == `cmdr.GetR("server.port")` (*if cmdr.RxxtPrefix == ["app"]*); so:
 
     ```go
-    cmdr.Set("server.port", 7100)
+  cmdr.Set("server.port", 7100)
     assert cmdr.GetR("server.port") == 7100
     assert cmdr.Get("app.server.port") == 7100
     ```
-
+  
 - Walkable
 
   - Customizable `Painter` interface to loop *each* command and flag.

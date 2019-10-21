@@ -21,7 +21,7 @@ func main() {
 		// To disable internal commands and flags, uncomment the following codes
 		// cmdr.WithBuiltinCommands(false, false, false, false, false),
 		daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
-		// cmdr.WithHelpTabStop(40),
+		cmdr.WithHelpTabStop(50),
 	); err != nil {
 		logrus.Fatal(err)
 	}

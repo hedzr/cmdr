@@ -33,6 +33,7 @@ func WithAutomaticEnvHooks(hook HookOptsFunc) ExecOption {
 
 // WithEnvPrefix sets the environment variable text prefixes.
 // cmdr will lookup envvars for a key.
+// Default env-prefix is array ["CMDR"], ie 'CMDR_'
 func WithEnvPrefix(prefix ...string) ExecOption {
 	return func(w *ExecWorker) {
 		w.envPrefixes = prefix
@@ -41,6 +42,7 @@ func WithEnvPrefix(prefix ...string) ExecOption {
 
 // WithOptionsPrefix create a top-level namespace, which contains all normalized `Flag`s.
 // =WithRxxtPrefix
+// Default Options Prefix is array ["APP"], ie 'APP_'
 func WithOptionsPrefix(prefix ...string) ExecOption {
 	return func(w *ExecWorker) {
 		w.rxxtPrefixes = prefix
@@ -49,6 +51,7 @@ func WithOptionsPrefix(prefix ...string) ExecOption {
 
 // WithRxxtPrefix create a top-level namespace, which contains all normalized `Flag`s.
 // cmdr will lookup envvars for a key.
+// Default Options Prefix is array ["APP"], ie 'APP_'
 func WithRxxtPrefix(prefix ...string) ExecOption {
 	return func(w *ExecWorker) {
 		w.rxxtPrefixes = prefix
@@ -57,6 +60,19 @@ func WithRxxtPrefix(prefix ...string) ExecOption {
 
 // WithPredefinedLocations sets the environment variable text prefixes.
 // cmdr will lookup envvars for a key.
+// Default locations are:
+//
+//     []string{
+//       "./ci/etc/%s/%s.yml",       // for developer
+//       "/etc/%s/%s.yml",           // regular location
+//       "/usr/local/etc/%s/%s.yml", // regular macOS HomeBrew location
+//       "$HOME/.config/%s/%s.yml",  // per user
+//       "$HOME/.%s/%s.yml",         // ext location per user
+//       "$THIS/%s.yml",             // executable's directory
+//       "%s.yml",                   // current directory
+//     },
+//
+// See also InternalResetWorker
 func WithPredefinedLocations(locations ...string) ExecOption {
 	return func(w *ExecWorker) {
 		w.predefinedLocations = locations
@@ -156,6 +172,7 @@ func WithConfigLoadedListener(c ConfigReloaded) ExecOption {
 }
 
 // WithHelpTabStop sets the tab-stop position in the help screen
+// Default tabstop is 48
 func WithHelpTabStop(tabStop int) ExecOption {
 	return func(w *ExecWorker) {
 		initTabStop(tabStop)

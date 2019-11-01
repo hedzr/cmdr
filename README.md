@@ -310,7 +310,7 @@ import "github.com/hedzr/cmdr"
   - Version & Build Info: `--version`/`--ver`/`-V`, `--build-info`/`-#`
     - Simulating version at runtime with `—version-sim 1.9.1`
     - generally, `conf.AppName` and `conf.Version` are originally.
-    - `--tree`: list all commands and sub-commands.
+    - `~~tree`: list all commands and sub-commands.
     - `--config <location>`: specify the location of the root config file.
   - Verbose & Debug: `—verbose`/`-v`, `—debug`/`-D`, `—quiet`/`-q`
   - Generate Commands:
@@ -347,14 +347,16 @@ import "github.com/hedzr/cmdr"
     ```go
     predefinedLocations: []string{
   		"./ci/etc/%s/%s.yml",       // for developer
-    		"/etc/%s/%s.yml",           // regular location
+    	"/etc/%s/%s.yml",           // regular location
   		"/usr/local/etc/%s/%s.yml", // regular macOS HomeBrew location
-    		"$HOME/.config/%s/%s.yml",  // per user
+    	"$HOME/.config/%s/%s.yml",  // per user
   		"$HOME/.%s/%s.yml",         // ext location per user
-    		"$THIS/%s.yml",             // executable's directory
+    	"$THIS/%s.yml",             // executable's directory
   		"%s.yml",                   // current directory
     },
     ```
+    
+  - since v1.5.0, uses `cmdr.WithPredefinedLocations("a","b",...),`
   
 - Watch `conf.d` directory:
   
@@ -395,7 +397,7 @@ import "github.com/hedzr/cmdr"
   
   - ~~`SetNoLoadConfigFiles(bool)` to disable external config file loading~~.
   
-  - `cmdr.Exec(root, cmdr.WithNoLoadConfigFiles(false))`: to disabled loading external config files.
+  - `cmdr.Exec(root, cmdr.WithNoLoadConfigFiles(false))`: disable loading external config files.
   
 - Overrides by environment variables.
 
@@ -406,6 +408,7 @@ import "github.com/hedzr/cmdr"
   - `cmdr.Get(key)`, `cmdr.GetBool(key)`, `cmdr.GetInt(key)`, `cmdr.GetString(key)`, `cmdr.GetStringSlice(key, defaultValues...)` and `cmdr.GetIntSlice(key, defaultValues...)`, `cmdr.GetDuration(key)` for Option value extractions.
 
     - bool
+  
 - int, int64, uint, uint64, float32, float64
     - string
     - string slice, int slice
@@ -475,6 +478,25 @@ import "github.com/hedzr/cmdr"
 
 - `cmdr.WithXrefBuildingHooks(beforeXrefBuilding, afterXrefBuilding)`
 
+- Debugging options:
+
+  - `~~debug`: dump all key value pairs in parsed options store
+
+    ```bash
+bin/demo ~~debug
+    bin/demo ~~debug ~~raw  # without envvar expanding
+  bin/demo ~~debug ~~env  # print envvar k-v pairs too
+    bin/demo ~~debug --more
+  ```
+    
+- `~~tree`: dump all sub-commands
+  
+  ```bash
+    bin/demo ~~tree
+  ```
+  
+  
+  
 - More Advanced features
 
   - Launches external editor by `&Flag{BaseOpt:BaseOpt{},ExternalTool:cmdr.ExternalToolEditor}`:

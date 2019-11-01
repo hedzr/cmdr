@@ -7,6 +7,7 @@ package cmdr
 import (
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
+	"os"
 	"regexp"
 	"sort"
 	"strings"
@@ -34,18 +35,35 @@ func (w *ExecWorker) printHelp(command *Command, justFlags bool) {
 
 	// NOTE: checking `~~debug`
 	if w.rxxtOptions.GetBoolEx("debug", false) {
-		if GetNoColorMode() {
-			fp("\nDUMP:\n\n%v\n", w.rxxtOptions.DumpAsString())
-		} else {
-			// "  [\x1b[2m\x1b[%dm%s\x1b[0m]"
-			fp("\n\x1b[2m\x1b[%dmDUMP:\n\n%v\x1b[0m\n", DarkColor, w.rxxtOptions.DumpAsString())
-		}
+		w.paintTildeDebugCommand()
 	}
 	if w.currentHelpPainter != nil {
 		w.currentHelpPainter.Results()
 		w.currentHelpPainter.Reset()
 
 		w.paintFromCommand(nil, command, false) // for gocov testing
+	}
+}
+
+// paintTildeDebugCommand for `~~debug`
+func (w *ExecWorker) paintTildeDebugCommand() {
+	if GetNoColorMode() {
+		fp("\nDUMP:\n\n%v\n", w.rxxtOptions.DumpAsString())
+	} else {
+		// "  [\x1b[2m\x1b[%dm%s\x1b[0m]"
+		fp("\n\x1b[2m\x1b[%dmDUMP:\n\n%v\x1b[0m\n", DarkColor, w.rxxtOptions.DumpAsString())
+
+		if w.rxxtOptions.GetBoolEx("env") {
+			fp("---- ENV: ")
+			for _, s := range os.Environ() {
+				s2 := strings.Split(s, "=")
+				fp("  - %s = \x1b[2m\x1b[%dm%s\x1b[0m", s2[0], DarkColor, s2[1])
+			}
+		}
+		if w.rxxtOptions.GetBoolEx("more") {
+			fp("---- INFO: ")
+			fp("Exec: \x1b[2m\x1b[%dm%s\x1b[0m, %s", DarkColor, GetExcutablePath(), GetExecutableDir())
+		}
 	}
 }
 

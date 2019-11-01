@@ -165,8 +165,8 @@ import "github.com/hedzr/cmdr"
 
   ```go
   import (
-  // flag
-  "github.com/hedzr/cmdr/flag"
+    // flag
+    "github.com/hedzr/cmdr/flag"
   )
   
   var (
@@ -188,7 +188,7 @@ import "github.com/hedzr/cmdr"
 
   ```go
   import (
-  // flag
+    // flag
   	"github.com/hedzr/cmdr"
   	"github.com/hedzr/cmdr/flag"
   )
@@ -231,7 +231,7 @@ import "github.com/hedzr/cmdr"
 
 - Supports the Fluent API style
   
-  <details>
+  <details><summary>Sample codes</summary>
   
   ```go
   root := cmdr.Root("aa", "1.0.3")
@@ -315,9 +315,8 @@ import "github.com/hedzr/cmdr"
 
   Sortable group name with `[0-9A-Za-z]+\..+` format, eg:
 
-  `1001.c++`, `1100.golang`, `1200.java`, …;
-
-  `abcd.c++`, `b999.golang`, `zzzz.java`, …;
+  - `1001.c++`, `1100.golang`, `1200.java`, …;
+  - `abcd.c++`, `b999.golang`, `zzzz.java`, …;
 
 - Sortable commands and options/flags. Or sorted by alphabetic order.
 
@@ -380,8 +379,7 @@ import "github.com/hedzr/cmdr"
   - `cmdr.WithConfigLoadedListener(listener)`
     
     - `AddOnConfigLoadedListener(c)`
-  - `RemoveOnConfigLoadedListener(c)`
-    
+    - `RemoveOnConfigLoadedListener(c)`  
     - `SetOnConfigLoadedListener(c, enabled)`
     
   - As a feature, do NOT watch the changes on `<appname>.yml`.
@@ -425,8 +423,7 @@ import "github.com/hedzr/cmdr"
   - `cmdr.Get(key)`, `cmdr.GetBool(key)`, `cmdr.GetInt(key)`, `cmdr.GetString(key)`, `cmdr.GetStringSlice(key, defaultValues...)` and `cmdr.GetIntSlice(key, defaultValues...)`, `cmdr.GetDuration(key)` for Option value extractions.
 
     - bool
-  
-- int, int64, uint, uint64, float32, float64
+    - int, int64, uint, uint64, float32, float64
     - string
     - string slice, int slice
     - time duration
@@ -437,19 +434,19 @@ import "github.com/hedzr/cmdr"
   - `cmdr.Set(key, value)`, `cmdr.SerNx(key, value)`
 
     - `Set()` set value by key without RxxtPrefix, eg: `cmdr.Set("debug", true)` for `--debug`.
-
     - `SetNx()` set value by exact key. so: `cmdr.SetNx("app.debug", true)` for `--debug`.
 
   - Fast Guide for `Get`, `GetP` and `GetR`:
 
     - `cmdr.GetP(prefix, key)`, `cmdr.GetBoolP(prefix, key)`, ….
-  - `cmdr.GetR(key)`, `cmdr.GetBoolR(key)`, …, `cmdr.GetMapR(key)`
+    - `cmdr.GetR(key)`, `cmdr.GetBoolR(key)`, …, `cmdr.GetMapR(key)`
     - `cmdr.GetRP(prefix, key)`, `cmdr.GetBoolRP(prefix, key)`, ….
   
-      `cmdr.Get("app.server.port")` == `cmdr.GetP("app.server", "port")` == `cmdr.GetR("server.port")` (*if cmdr.RxxtPrefix == ["app"]*); so:
+    As a fact, `cmdr.Get("app.server.port")` == `cmdr.GetP("app.server", "port")` == `cmdr.GetR("server.port")`
+	(*if cmdr.RxxtPrefix == ["app"]*); so:
 
     ```go
-  cmdr.Set("server.port", 7100)
+    cmdr.Set("server.port", 7100)
     assert cmdr.GetR("server.port") == 7100
     assert cmdr.Get("app.server.port") == 7100
     ```
@@ -500,20 +497,17 @@ import "github.com/hedzr/cmdr"
   - `~~debug`: dump all key value pairs in parsed options store
 
     ```bash
-bin/demo ~~debug
+    bin/demo ~~debug
     bin/demo ~~debug ~~raw  # without envvar expanding
-  bin/demo ~~debug ~~env  # print envvar k-v pairs too
+    bin/demo ~~debug ~~env  # print envvar k-v pairs too
     bin/demo ~~debug --more
     ```
-  ```
-  
-  ```
   
 - `~~tree`: dump all sub-commands
   
-  ```bash
+    ```bash
     bin/demo ~~tree
-  ```
+    ```
   
   
   
@@ -585,7 +579,7 @@ bin/demo ~~debug
 
     It is a helper to simplify your infidonite loop before exit program:
 
-    <details>
+    <details><summary>Sample codes</summary>
       Here is sample fragment:
       ```go
       func enteringLoop() {
@@ -597,9 +591,6 @@ bin/demo ~~debug
       ```
     </details>
 
-    
-
-  - 
 
 - More...
 

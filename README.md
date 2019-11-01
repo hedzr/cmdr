@@ -50,7 +50,7 @@ import "github.com/hedzr/cmdr"
   - add DeleteKey
   - GetXXX() supports optional default value(s) now
   - add WithEnvVarMap
-- lint, doc, bugs fixed, and enable `-race` testing
+  - lint, doc, bugs fixed, and enable `-race` testing
   - add code owners file
   
   ~~v1.6.3 WIP: `Getxxx()` with defaultValues; `WithLogex()`; `WithAfterArgsParsed(fn)`; `WithNoEnvOverrides(b)`; `WithNoColor(b)`; `WithStrictMode(b)`; `DeleteKey(key)`~~;

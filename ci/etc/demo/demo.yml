@@ -25,7 +25,9 @@ app:
 
   deploy: # the declarations for deployment
 
-
+  test-dir-1: $THIS
+  test-dir-2: $APPNAME
+  test-dir-3: $CFG_DIR
 
 
 

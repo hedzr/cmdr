@@ -54,6 +54,8 @@ type ExecWorker struct {
 
 	withLogex       bool
 	afterArgsParsed func(cmd *Command, args []string) (err error)
+
+	envvarToValueMap map[string]func() string
 }
 
 // ExecOption is the functional option for Exec()
@@ -133,6 +135,7 @@ func InternalResetWorker() (w *ExecWorker) {
 		noDefaultHelpScreen: false,
 	}
 	w = uniqueWorker
+	WithEnvVarMap(nil)(w)
 	return
 }
 

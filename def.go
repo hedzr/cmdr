@@ -105,20 +105,23 @@ type (
 	Flag struct {
 		BaseOpt
 
-		// ToggleGroup: to-do: Toggle Group
+		// ToggleGroup for Toggle Group
 		ToggleGroup string
 		// DefaultValuePlaceholder for flag
 		DefaultValuePlaceholder string
 		// DefaultValue default value for flag
 		DefaultValue interface{}
-		// ValidArgs to-do
+		// ValidArgs for enum flag
 		ValidArgs []string
 		// Required to-do
 		Required bool
 
-		// ExternalTool to get the value text by invoking external tool
+		// ExternalTool to get the value text by invoking external tool.
 		// It's an environment variable name, such as: "EDITOR" (or cmdr.ExternalToolEditor)
 		ExternalTool string
+
+		// EnvVars give a list to bind to environment variables manually
+		EnvVars []string
 
 		// HeadLike enables a free-hand option like `head -3`.
 		//

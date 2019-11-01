@@ -6,7 +6,9 @@ package cmdr
 
 import (
 	"bufio"
+	"github.com/hedzr/cmdr/conf"
 	"os"
+	"path"
 )
 
 // WithXrefBuildingHooks sets the hook before and after building xref indices.
@@ -28,6 +30,34 @@ func WithAutomaticEnvHooks(hook HookOptsFunc) ExecOption {
 		if hook != nil {
 			w.afterAutomaticEnv = append(w.afterAutomaticEnv, hook)
 		}
+	}
+}
+
+// WithEnvVarMap adds a (envvar-name, value) map, which will be applied
+// to string option value, string-slice option values, ....
+// For example, you could define a key-value entry in your `<app>.yml` file:
+//    app:
+//      test-value: "$THIS/$APPNAME.yml"
+//      home-dir: "$HOME"
+// it will be expanded by mapping to OS environment and this map (WithEnvVarMap).
+// That is, $THIS will be expanded to the directory path of this
+// executable, $APPNAME to the app name.
+// And of course, $HOME will be mapped to os home directory path.
+func WithEnvVarMap(varToValue map[string]func() string) ExecOption {
+	return func(w *ExecWorker) {
+		if varToValue == nil {
+			varToValue = make(map[string]func() string)
+		}
+		w.envvarToValueMap = varToValue
+		testAndSetMap(w.envvarToValueMap, "THIS", func() string { return GetExecutableDir() })
+		testAndSetMap(w.envvarToValueMap, "APPNAME", func() string { return conf.AppName })
+		testAndSetMap(w.envvarToValueMap, "CFG_DIR", func() string { return path.Dir(GetUsedConfigFile()) })
+	}
+}
+
+func testAndSetMap(m map[string]func() string, key string, value func() string) {
+	if _, ok := m[key]; !ok {
+		m[key] = value
 	}
 }
 

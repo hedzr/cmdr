@@ -428,9 +428,10 @@ func (s *Options) GetString(key string, defaultVal ...string) (ret string) {
 			ret = v.(string)
 		default:
 			if v != nil {
-				ret = fmt.Sprintf("%v", v)
+				ret = fmt.Sprint(v)
 			}
 		}
+		ret = os.ExpandEnv(ret)
 	} else {
 		for _, vv := range defaultVal {
 			ret = vv
@@ -454,7 +455,10 @@ func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 	}
 
 	// fmt.Printf("EXE = %v, PWD = %v, CURRDIR = %v\n", GetExecutableDir(), os.Getenv("PWD"), GetCurrentDir())
-	_ = os.Setenv("THIS", GetExecutableDir())
+	// _ = os.Setenv("THIS", GetExecutableDir())
+	for k, v := range uniqueWorker.envvarToValueMap {
+		_ = os.Setenv(k, v())
+	}
 
 	for _, h := range uniqueWorker.afterAutomaticEnv {
 		h(rootCmd, s)

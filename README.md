@@ -38,7 +38,22 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- v1.6.3 WIP: `Getxxx()` with defaultValues; `WithLogex()`; `WithAfterArgsParsed(fn)`; `WithNoEnvOverrides(b)`; `WithNoColor(b)`; `WithStrictMode(b)`; `DeleteKey(key)`;
+- v1.6.3
+  
+  <details><summary>Relnotes</summary>
+  
+  - add WithNoColor, WithStrictMode, WithNoEnvOverrides
+  - add WithLogex
+  - add WithAfterArgsParsed
+  - add DeleteKey
+  - GetXXX() supports optional default value(s) now
+  - add WithEnvVarMap
+  - lint, doc, bugs fixed, and enable `-race` testing
+  - add code owners file
+
+  ~~v1.6.3 WIP: `Getxxx()` with defaultValues; `WithLogex()`; `WithAfterArgsParsed(fn)`; `WithNoEnvOverrides(b)`; `WithNoColor(b)`; `WithStrictMode(b)`; `DeleteKey(key)`~~;
+  
+  </details>
   
 - The v1.6.1 released: those deprecated functions have been removed.  
   This is a bug-fixed version on v1.6.0
@@ -487,8 +502,11 @@ bin/demo ~~debug
     bin/demo ~~debug ~~raw  # without envvar expanding
   bin/demo ~~debug ~~env  # print envvar k-v pairs too
     bin/demo ~~debug --more
+    ```
   ```
-    
+  
+  ```
+  
 - `~~tree`: dump all sub-commands
   
   ```bash

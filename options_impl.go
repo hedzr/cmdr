@@ -638,7 +638,13 @@ func (s *Options) DumpAsString() (str string) {
 
 	b, err := yaml.Marshal(s.hierarchy)
 	if err == nil {
-		str += string(b)
+		if s.GetBoolEx("raw") {
+			str += string(b)
+		} else {
+			ss := string(b)
+			ss = os.ExpandEnv(ss)
+			str += ss
+		}
 	}
 	return
 }

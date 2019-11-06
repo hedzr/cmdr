@@ -43,15 +43,6 @@ func GetR(key string) interface{} {
 	return uniqueWorker.rxxtOptions.Get(wrapWithRxxtPrefix(key))
 }
 
-// // GetBool returns the bool value of an `Option` key. Such as:
-// // ```golang
-// // cmdr.GetBool("app.logger.enable") => true,...
-// // ```
-// //
-// func GetBool(key string) bool {
-// 	return uniqueWorker.rxxtOptions.GetBoolEx(key, false)
-// }
-
 // GetBool returns the bool value of an `Option` key. Such as:
 // ```golang
 // cmdr.GetBool("app.logger.enable", false) => true,...
@@ -61,14 +52,6 @@ func GetBool(key string, defaultVal ...bool) bool {
 	return uniqueWorker.rxxtOptions.GetBoolEx(key, defaultVal...)
 }
 
-// // GetBoolP returns the bool value of an `Option` key. Such as:
-// // ```golang
-// // cmdr.GetBoolP("app.logger", "enable") => true,...
-// // ```
-// func GetBoolP(prefix, key string) bool {
-// 	return uniqueWorker.rxxtOptions.GetBoolEx(fmt.Sprintf("%s.%s", prefix, key), false)
-// }
-
 // GetBoolP returns the bool value of an `Option` key. Such as:
 // ```golang
 // cmdr.GetBoolP("app.logger", "enable", false) => true,...
@@ -76,15 +59,6 @@ func GetBool(key string, defaultVal ...bool) bool {
 func GetBoolP(prefix, key string, defaultVal ...bool) bool {
 	return uniqueWorker.rxxtOptions.GetBoolEx(fmt.Sprintf("%s.%s", prefix, key), defaultVal...)
 }
-
-// // GetBoolR returns the bool value of an `Option` key with [WrapWithRxxtPrefix]. Such as:
-// // ```golang
-// // cmdr.GetBoolR("logger.enable") => true,...
-// // ```
-// //
-// func GetBoolR(key string) bool {
-// 	return uniqueWorker.rxxtOptions.GetBoolEx(wrapWithRxxtPrefix(key), false)
-// }
 
 // GetBoolR returns the bool value of an `Option` key with [WrapWithRxxtPrefix]. Such as:
 // ```golang
@@ -95,14 +69,6 @@ func GetBoolR(key string, defaultVal ...bool) bool {
 	return uniqueWorker.rxxtOptions.GetBoolEx(wrapWithRxxtPrefix(key), defaultVal...)
 }
 
-// // GetBoolRP returns the bool value of an `Option` key with [WrapWithRxxtPrefix]. Such as:
-// // ```golang
-// // cmdr.GetBoolRP("logger", "enable") => true,...
-// // ```
-// func GetBoolRP(prefix, key string) bool {
-// 	return uniqueWorker.rxxtOptions.GetBoolEx(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), false)
-// }
-
 // GetBoolRP returns the bool value of an `Option` key with [WrapWithRxxtPrefix]. Such as:
 // ```golang
 // cmdr.GetBoolRP("logger", "enable", false) => true,...
@@ -111,280 +77,140 @@ func GetBoolRP(prefix, key string, defaultVal ...bool) bool {
 	return uniqueWorker.rxxtOptions.GetBoolEx(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), defaultVal...)
 }
 
-// // GetInt returns the int value of an `Option` key.
-// func GetInt(key string) int {
-// 	return int(uniqueWorker.rxxtOptions.GetIntEx(key, 0))
-// }
-
 // GetInt returns the int value of an `Option` key.
 func GetInt(key string, defaultVal ...int) int {
 	return uniqueWorker.rxxtOptions.GetIntEx(key, defaultVal...)
 }
-
-// // GetIntP returns the int value of an `Option` key.
-// func GetIntP(prefix, key string) int {
-// 	return int(uniqueWorker.rxxtOptions.GetIntEx(fmt.Sprintf("%s.%s", prefix, key), 0))
-// }
 
 // GetIntP returns the int value of an `Option` key.
 func GetIntP(prefix, key string, defaultVal ...int) int {
 	return uniqueWorker.rxxtOptions.GetIntEx(fmt.Sprintf("%s.%s", prefix, key), defaultVal...)
 }
 
-// // GetIntR returns the int value of an `Option` key with [WrapWithRxxtPrefix].
-// func GetIntR(key string) int {
-// 	return int(uniqueWorker.rxxtOptions.GetIntEx(wrapWithRxxtPrefix(key), 0))
-// }
-
 // GetIntR returns the int value of an `Option` key with [WrapWithRxxtPrefix].
 func GetIntR(key string, defaultVal ...int) int {
 	return uniqueWorker.rxxtOptions.GetIntEx(wrapWithRxxtPrefix(key), defaultVal...)
 }
-
-// // GetIntRP returns the int value of an `Option` key with [WrapWithRxxtPrefix].
-// func GetIntRP(prefix, key string) int {
-// 	return int(uniqueWorker.rxxtOptions.GetIntEx(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), 0))
-// }
 
 // GetIntRP returns the int value of an `Option` key with [WrapWithRxxtPrefix].
 func GetIntRP(prefix, key string, defaultVal ...int) int {
 	return uniqueWorker.rxxtOptions.GetIntEx(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), defaultVal...)
 }
 
-// // GetInt64 returns the int64 value of an `Option` key.
-// func GetInt64(key string) int64 {
-// 	return uniqueWorker.rxxtOptions.GetInt64Ex(key, 0)
-// }
-
 // GetInt64 returns the int64 value of an `Option` key.
 func GetInt64(key string, defaultVal ...int64) int64 {
 	return uniqueWorker.rxxtOptions.GetInt64Ex(key, defaultVal...)
 }
-
-// // GetInt64P returns the int64 value of an `Option` key.
-// func GetInt64P(prefix, key string) int64 {
-// 	return uniqueWorker.rxxtOptions.GetInt64Ex(fmt.Sprintf("%s.%s", prefix, key), 0)
-// }
 
 // GetInt64P returns the int64 value of an `Option` key.
 func GetInt64P(prefix, key string, defaultVal ...int64) int64 {
 	return uniqueWorker.rxxtOptions.GetInt64Ex(fmt.Sprintf("%s.%s", prefix, key), defaultVal...)
 }
 
-// // GetInt64R returns the int64 value of an `Option` key with [WrapWithRxxtPrefix].
-// func GetInt64R(key string) int64 {
-// 	return uniqueWorker.rxxtOptions.GetInt64Ex(wrapWithRxxtPrefix(key), 0)
-// }
-
 // GetInt64R returns the int64 value of an `Option` key with [WrapWithRxxtPrefix].
 func GetInt64R(key string, defaultVal ...int64) int64 {
 	return uniqueWorker.rxxtOptions.GetInt64Ex(wrapWithRxxtPrefix(key), defaultVal...)
 }
-
-// // GetInt64RP returns the int64 value of an `Option` key with [WrapWithRxxtPrefix].
-// func GetInt64RP(prefix, key string) int64 {
-// 	return uniqueWorker.rxxtOptions.GetInt64Ex(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), 0)
-// }
 
 // GetInt64RP returns the int64 value of an `Option` key with [WrapWithRxxtPrefix].
 func GetInt64RP(prefix, key string, defaultVal ...int64) int64 {
 	return uniqueWorker.rxxtOptions.GetInt64Ex(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), defaultVal...)
 }
 
-// // GetUint returns the uint value of an `Option` key.
-// func GetUint(key string) uint {
-// 	return uint(uniqueWorker.rxxtOptions.GetUintEx(key, 0))
-// }
-
 // GetUint returns the uint value of an `Option` key.
 func GetUint(key string, defaultVal ...uint) uint {
 	return uniqueWorker.rxxtOptions.GetUintEx(key, defaultVal...)
 }
-
-// // GetUintP returns the uint value of an `Option` key.
-// func GetUintP(prefix, key string) uint {
-// 	return uint(uniqueWorker.rxxtOptions.GetUintEx(fmt.Sprintf("%s.%s", prefix, key), 0))
-// }
 
 // GetUintP returns the uint value of an `Option` key.
 func GetUintP(prefix, key string, defaultVal ...uint) uint {
 	return uniqueWorker.rxxtOptions.GetUintEx(fmt.Sprintf("%s.%s", prefix, key), defaultVal...)
 }
 
-// // GetUintR returns the uint value of an `Option` key with [WrapWithRxxtPrefix].
-// func GetUintR(key string) uint {
-// 	return uint(uniqueWorker.rxxtOptions.GetUintEx(wrapWithRxxtPrefix(key), 0))
-// }
-
 // GetUintR returns the uint value of an `Option` key with [WrapWithRxxtPrefix].
 func GetUintR(key string, defaultVal ...uint) uint {
 	return uniqueWorker.rxxtOptions.GetUintEx(wrapWithRxxtPrefix(key), defaultVal...)
 }
-
-// // GetUintRP returns the uint value of an `Option` key with [WrapWithRxxtPrefix].
-// func GetUintRP(prefix, key string) uint {
-// 	return uint(uniqueWorker.rxxtOptions.GetUintEx(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), 0))
-// }
 
 // GetUintRP returns the uint value of an `Option` key with [WrapWithRxxtPrefix].
 func GetUintRP(prefix, key string, defaultVal ...uint) uint {
 	return uniqueWorker.rxxtOptions.GetUintEx(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), defaultVal...)
 }
 
-// // GetUint64 returns the uint64 value of an `Option` key.
-// func GetUint64(key string) uint64 {
-// 	return uniqueWorker.rxxtOptions.GetUintEx(key, 0)
-// }
-
 // GetUint64 returns the uint64 value of an `Option` key.
 func GetUint64(key string, defaultVal ...uint64) uint64 {
 	return uniqueWorker.rxxtOptions.GetUint64Ex(key, defaultVal...)
 }
-
-// // GetUint64P returns the uint64 value of an `Option` key.
-// func GetUint64P(prefix, key string) uint64 {
-// 	return uniqueWorker.rxxtOptions.GetUintEx(fmt.Sprintf("%s.%s", prefix, key), 0)
-// }
 
 // GetUint64P returns the uint64 value of an `Option` key.
 func GetUint64P(prefix, key string, defaultVal ...uint64) uint64 {
 	return uniqueWorker.rxxtOptions.GetUint64Ex(fmt.Sprintf("%s.%s", prefix, key), defaultVal...)
 }
 
-// // GetUint64R returns the uint64 value of an `Option` key with [WrapWithRxxtPrefix].
-// func GetUint64R(key string) uint64 {
-// 	return uniqueWorker.rxxtOptions.GetUintEx(wrapWithRxxtPrefix(key), 0)
-// }
-
 // GetUint64R returns the uint64 value of an `Option` key with [WrapWithRxxtPrefix].
 func GetUint64R(key string, defaultVal ...uint64) uint64 {
 	return uniqueWorker.rxxtOptions.GetUint64Ex(wrapWithRxxtPrefix(key), defaultVal...)
 }
-
-// // GetUint64RP returns the uint64 value of an `Option` key with [WrapWithRxxtPrefix].
-// func GetUint64RP(prefix, key string) uint64 {
-// 	return uniqueWorker.rxxtOptions.GetUintEx(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), 0)
-// }
 
 // GetUint64RP returns the uint64 value of an `Option` key with [WrapWithRxxtPrefix].
 func GetUint64RP(prefix, key string, defaultVal ...uint64) uint64 {
 	return uniqueWorker.rxxtOptions.GetUint64Ex(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), defaultVal...)
 }
 
-// // GetFloat32 returns the float32 value of an `Option` key.
-// func GetFloat32(key string) float32 {
-// 	return float32(uniqueWorker.rxxtOptions.GetFloat32Ex(key, 0))
-// }
-
 // GetFloat32 returns the float32 value of an `Option` key.
 func GetFloat32(key string, defaultVal ...float32) float32 {
 	return float32(uniqueWorker.rxxtOptions.GetFloat32Ex(key, defaultVal...))
 }
-
-// // GetFloat32P returns the float32 value of an `Option` key.
-// func GetFloat32P(prefix, key string) float32 {
-// 	return float32(uniqueWorker.rxxtOptions.GetFloat32Ex(fmt.Sprintf("%s.%s", prefix, key), 0))
-// }
 
 // GetFloat32P returns the float32 value of an `Option` key.
 func GetFloat32P(prefix, key string, defaultVal ...float32) float32 {
 	return float32(uniqueWorker.rxxtOptions.GetFloat32Ex(fmt.Sprintf("%s.%s", prefix, key), defaultVal...))
 }
 
-// // GetFloat32R returns the float32 value of an `Option` key with [WrapWithRxxtPrefix].
-// func GetFloat32R(key string) float32 {
-// 	return float32(uniqueWorker.rxxtOptions.GetFloat32Ex(wrapWithRxxtPrefix(key), 0))
-// }
-
 // GetFloat32R returns the float32 value of an `Option` key with [WrapWithRxxtPrefix].
 func GetFloat32R(key string, defaultVal ...float32) float32 {
 	return float32(uniqueWorker.rxxtOptions.GetFloat32Ex(wrapWithRxxtPrefix(key), defaultVal...))
 }
-
-// // GetFloat32RP returns the float32 value of an `Option` key with [WrapWithRxxtPrefix].
-// func GetFloat32RP(prefix, key string) float32 {
-// 	return float32(uniqueWorker.rxxtOptions.GetFloat32Ex(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), 0))
-// }
 
 // GetFloat32RP returns the float32 value of an `Option` key with [WrapWithRxxtPrefix].
 func GetFloat32RP(prefix, key string, defaultVal ...float32) float32 {
 	return float32(uniqueWorker.rxxtOptions.GetFloat32Ex(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), defaultVal...))
 }
 
-// // GetFloat64 returns the float64 value of an `Option` key.
-// func GetFloat64(key string) float64 {
-// 	return uniqueWorker.rxxtOptions.GetFloat64Ex(key, 0)
-// }
-
 // GetFloat64 returns the float64 value of an `Option` key.
 func GetFloat64(key string, defaultVal ...float64) float64 {
 	return uniqueWorker.rxxtOptions.GetFloat64Ex(key, defaultVal...)
 }
-
-// // GetFloat64P returns the float64 value of an `Option` key.
-// func GetFloat64P(prefix, key string) float64 {
-// 	return uniqueWorker.rxxtOptions.GetFloat64Ex(fmt.Sprintf("%s.%s", prefix, key), 0)
-// }
 
 // GetFloat64P returns the float64 value of an `Option` key.
 func GetFloat64P(prefix, key string, defaultVal ...float64) float64 {
 	return uniqueWorker.rxxtOptions.GetFloat64Ex(fmt.Sprintf("%s.%s", prefix, key), defaultVal...)
 }
 
-// // GetFloat64R returns the float64 value of an `Option` key with [WrapWithRxxtPrefix].
-// func GetFloat64R(key string) float64 {
-// 	return uniqueWorker.rxxtOptions.GetFloat64Ex(wrapWithRxxtPrefix(key), 0)
-// }
-
 // GetFloat64R returns the float64 value of an `Option` key with [WrapWithRxxtPrefix].
 func GetFloat64R(key string, defaultVal ...float64) float64 {
 	return uniqueWorker.rxxtOptions.GetFloat64Ex(wrapWithRxxtPrefix(key), defaultVal...)
 }
-
-// // GetFloat64RP returns the float64 value of an `Option` key with [WrapWithRxxtPrefix].
-// func GetFloat64RP(prefix, key string) float64 {
-// 	return uniqueWorker.rxxtOptions.GetFloat64Ex(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), 0)
-// }
 
 // GetFloat64RP returns the float64 value of an `Option` key with [WrapWithRxxtPrefix].
 func GetFloat64RP(prefix, key string, defaultVal ...float64) float64 {
 	return uniqueWorker.rxxtOptions.GetFloat64Ex(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), defaultVal...)
 }
 
-// // GetString returns the string value of an `Option` key.
-// func GetString(key string) string {
-// 	return uniqueWorker.rxxtOptions.GetString(key, "")
-// }
-
 // GetString returns the string value of an `Option` key.
 func GetString(key string, defaultVal ...string) string {
 	return uniqueWorker.rxxtOptions.GetString(key, defaultVal...)
 }
-
-// // GetStringP returns the string value of an `Option` key.
-// func GetStringP(prefix, key string) string {
-// 	return uniqueWorker.rxxtOptions.GetString(fmt.Sprintf("%s.%s", prefix, key), "")
-// }
 
 // GetStringP returns the string value of an `Option` key.
 func GetStringP(prefix, key string, defaultVal ...string) string {
 	return uniqueWorker.rxxtOptions.GetString(fmt.Sprintf("%s.%s", prefix, key), defaultVal...)
 }
 
-// // GetStringR returns the string value of an `Option` key with [WrapWithRxxtPrefix].
-// func GetStringR(key string) string {
-// 	return uniqueWorker.rxxtOptions.GetString(wrapWithRxxtPrefix(key), "")
-// }
-
 // GetStringR returns the string value of an `Option` key with [WrapWithRxxtPrefix].
 func GetStringR(key string, defaultVal ...string) string {
 	return uniqueWorker.rxxtOptions.GetString(wrapWithRxxtPrefix(key), defaultVal...)
 }
-
-// // GetStringRP returns the string value of an `Option` key with [WrapWithRxxtPrefix].
-// func GetStringRP(prefix, key string) string {
-// 	return uniqueWorker.rxxtOptions.GetString(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), "")
-// }
 
 // GetStringRP returns the string value of an `Option` key with [WrapWithRxxtPrefix].
 func GetStringRP(prefix, key string, defaultVal ...string) string {

@@ -52,7 +52,9 @@ type ExecWorker struct {
 	noEnvOverrides      bool
 	strictMode          bool
 
-	withLogex       bool
+	logexInitialFunctor func(cmd *Command, args []string) (err error)
+	logexPrefix         string
+
 	afterArgsParsed func(cmd *Command, args []string) (err error)
 
 	envvarToValueMap map[string]func() string
@@ -333,8 +335,8 @@ func (w *ExecWorker) beforeInvokeCommand(rootCmd *RootCommand, goCommand *Comman
 		defer rootCmd.PostAction(goCommand, args)
 	}
 
-	if w.withLogex {
-		if err = w.initWithLogex(goCommand, args); err == ErrShouldBeStopException {
+	if w.logexInitialFunctor != nil {
+		if err = w.logexInitialFunctor(goCommand, args); err == ErrShouldBeStopException {
 			return
 		}
 	}

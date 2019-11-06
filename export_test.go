@@ -169,12 +169,12 @@ func TestLog(t *testing.T) {
 
 	for _, x := range []string{"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "PANIC", ""} {
 		Set("logger.level", x)
-		_ = uniqueWorker.initWithLogex(&rootCmdX.Command, []string{})
+		_ = uniqueWorker.getWithLogexInitializor(&rootCmdX.Command, []string{})
 	}
 
 	Set("logger.target", "journal")
 	Set("logger.format", "json")
-	_ = uniqueWorker.initWithLogex(&rootCmdX.Command, []string{})
+	_ = uniqueWorker.getWithLogexInitializor(&rootCmdX.Command, []string{})
 }
 
 // TestPtpkgToggleGroup functions

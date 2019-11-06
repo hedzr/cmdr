@@ -450,7 +450,13 @@ import "github.com/hedzr/cmdr"
     assert cmdr.GetR("server.port") == 7100
     assert cmdr.Get("app.server.port") == 7100
     ```
-  
+    
+    In most case, **GetXxxR()** are recommended.
+
+- cmdr Options Store
+
+  internal `rxxtOptions`
+
 - Walkable
 
   - Customizable `Painter` interface to loop *each* command and flag.

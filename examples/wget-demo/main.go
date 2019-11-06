@@ -10,13 +10,15 @@ import (
 )
 
 func main() {
-	logrus.SetLevel(logrus.DebugLevel)
-	logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
+	// logrus.SetLevel(logrus.DebugLevel)
+	// logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
 
 	if err := cmdr.Exec(rootCmd,
 		// To disable internal commands and flags, uncomment the following codes
 		cmdr.WithBuiltinCommands(false, false, false, false, true),
 		// daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
+		cmdr.WithLogex(logrus.DebugLevel),
+		cmdr.WithLogexPrefix("logger"),
 		// cmdr.WithHelpTabStop(40),
 		// cmdr.WithNoColor(true),
 	); err != nil {

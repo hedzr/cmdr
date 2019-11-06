@@ -17,7 +17,7 @@ func WithLogex(lvl logrus.Level, opts ...logex.LogexOption) ExecOption {
 }
 
 // WithLogexPrefix specify a prefix string PS.
-// 
+//
 // In cmdr options store, we will load the logging options under this key path:
 //
 //    app:
@@ -25,10 +25,10 @@ func WithLogex(lvl logrus.Level, opts ...logex.LogexOption) ExecOption {
 //        level:  DEBUG
 //        format: text             # text, json, logfmt
 //        target: default          # default, todo: journal
-//        
+//
 // As showing above, the default prefix is "logger".
 // You can replace it with yours, via WithLogexPrefix().
-// For example, when you compose WithLogexPrefix("logging"), the following entries would be applied: 
+// For example, when you compose WithLogexPrefix("logging"), the following entries would be applied:
 //
 //    app:
 //      logging:

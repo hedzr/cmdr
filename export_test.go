@@ -7,6 +7,7 @@ package cmdr
 import (
 	"bufio"
 	"github.com/hedzr/logex"
+	"github.com/sirupsen/logrus"
 	"os"
 	"reflect"
 	"strings"
@@ -169,12 +170,12 @@ func TestLog(t *testing.T) {
 
 	for _, x := range []string{"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "PANIC", ""} {
 		Set("logger.level", x)
-		_ = uniqueWorker.getWithLogexInitializor(&rootCmdX.Command, []string{})
+		_ = uniqueWorker.getWithLogexInitializor(logrus.DebugLevel)(&rootCmdX.Command, []string{})
 	}
 
 	Set("logger.target", "journal")
 	Set("logger.format", "json")
-	_ = uniqueWorker.getWithLogexInitializor(&rootCmdX.Command, []string{})
+	_ = uniqueWorker.getWithLogexInitializor(logrus.DebugLevel)(&rootCmdX.Command, []string{})
 }
 
 // TestPtpkgToggleGroup functions

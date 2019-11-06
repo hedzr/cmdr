@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/logex"
+	"github.com/sirupsen/logrus"
 	"os"
 	"strings"
 	"testing"
@@ -59,7 +60,8 @@ func TestSingleCommandLine1(t *testing.T) {
 		cmdr.WithNoColor(true),
 		cmdr.WithNoEnvOverrides(true),
 		cmdr.WithStrictMode(true),
-		cmdr.WithLogex(),
+		cmdr.WithLogex(logrus.DebugLevel),
+		cmdr.WithLogexPrefix(""),
 	)
 
 	cmdr.ResetWorker()

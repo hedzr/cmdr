@@ -74,18 +74,21 @@ func (s *optCommandImpl) Action(action func(cmd *Command, args []string) (err er
 
 func (s *optCommandImpl) PreAction(pre func(cmd *Command, args []string) (err error)) (opt OptCmd) {
 	// s.workingFlag.ExternalTool = envKeyName
+	s.working.PreAction = pre
 	opt = s
 	return
 }
 
-func (s *optCommandImpl) PostAction(pre func(cmd *Command, args []string)) (opt OptCmd) {
+func (s *optCommandImpl) PostAction(post func(cmd *Command, args []string)) (opt OptCmd) {
 	// s.workingFlag.ExternalTool = envKeyName
+	s.working.PostAction = post
 	opt = s
 	return
 }
 
 func (s *optCommandImpl) TailPlaceholder(placeholder string) (opt OptCmd) {
 	// s.workingFlag.ExternalTool = envKeyName
+	s.working.TailPlaceHolder = placeholder
 	opt = s
 	return
 }

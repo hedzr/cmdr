@@ -217,6 +217,26 @@ func GetStringRP(prefix, key string, defaultVal ...string) string {
 	return uniqueWorker.rxxtOptions.GetString(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), defaultVal...)
 }
 
+// GetStringNoExpand returns the string value of an `Option` key.
+func GetStringNoExpand(key string, defaultVal ...string) string {
+	return uniqueWorker.rxxtOptions.GetStringNoExpand(key, defaultVal...)
+}
+
+// GetStringNoExpandP returns the string value of an `Option` key.
+func GetStringNoExpandP(prefix, key string, defaultVal ...string) string {
+	return uniqueWorker.rxxtOptions.GetStringNoExpand(fmt.Sprintf("%s.%s", prefix, key), defaultVal...)
+}
+
+// GetStringNoExpandR returns the string value of an `Option` key with [WrapWithRxxtPrefix].
+func GetStringNoExpandR(key string, defaultVal ...string) string {
+	return uniqueWorker.rxxtOptions.GetStringNoExpand(wrapWithRxxtPrefix(key), defaultVal...)
+}
+
+// GetStringNoExpandRP returns the string value of an `Option` key with [WrapWithRxxtPrefix].
+func GetStringNoExpandRP(prefix, key string, defaultVal ...string) string {
+	return uniqueWorker.rxxtOptions.GetStringNoExpand(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), defaultVal...)
+}
+
 // GetStringSlice returns the string slice value of an `Option` key.
 func GetStringSlice(key string, defaultVal ...string) []string {
 	return uniqueWorker.rxxtOptions.GetStringSlice(key, defaultVal...)

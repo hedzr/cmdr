@@ -24,7 +24,7 @@ func Entry() {
 
 		cmdr.WithLogex(logrus.DebugLevel),
 		cmdr.WithLogexPrefix("logger"),
-		
+
 		cmdr.WithHelpTabStop(40),
 	); err != nil {
 		logrus.Errorf("Error: %+v", err)

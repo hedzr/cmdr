@@ -33,7 +33,7 @@ func TrapSignals(onTrapped func(s os.Signal), signals ...os.Signal) (waiter func
 	return
 }
 
-// TrapSignals is a helper for simplify your infinite loop codes.
+// TrapSignalsEnh is a helper for simplify your infinite loop codes.
 //
 // Usage
 //

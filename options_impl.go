@@ -414,6 +414,13 @@ func (s *Options) GetDuration(key string, defaultVal ...time.Duration) (ir time.
 
 // GetString returns the string value of an `Option` key.
 func (s *Options) GetString(key string, defaultVal ...string) (ret string) {
+	ret = s.GetStringNoExpand(key, defaultVal...)
+	ret = os.ExpandEnv(ret)
+	return
+}
+
+// GetStringNoExpand returns the string value of an `Option` key.
+func (s *Options) GetStringNoExpand(key string, defaultVal ...string) (ret string) {
 	// envkey := s.envKey(key)
 	// if s, ok := os.LookupEnv(envkey); ok {
 	// 	ret = s
@@ -431,7 +438,6 @@ func (s *Options) GetString(key string, defaultVal ...string) (ret string) {
 				ret = fmt.Sprint(v)
 			}
 		}
-		ret = os.ExpandEnv(ret)
 	} else {
 		for _, vv := range defaultVal {
 			ret = vv

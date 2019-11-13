@@ -24,7 +24,7 @@ func main() {
 
 		cmdr.WithLogex(logrus.DebugLevel),
 		cmdr.WithLogexPrefix("logger"),
-		
+
 		cmdr.WithHelpTabStop(50),
 	); err != nil {
 		logrus.Fatal(err)

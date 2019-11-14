@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"fmt"
+	"github.com/hedzr/cmdr/plugin/isdelve"
 	"io/ioutil"
 	"log"
 	"math"
@@ -143,6 +144,19 @@ func Launch(cmd string, args ...string) (err error) {
 // 	}
 // 	return exec.LookPath(DefaultEditor)
 // }
+
+// InDebugging return the status if in debug mode
+//noinspection GoBoolExpressions
+func InDebugging() bool {
+	return isdelve.Enabled
+}
+
+// IsDebuggerAttached return the status if in debug mode
+//noinspection GoBoolExpressions
+func IsDebuggerAttached() bool {
+	return isdelve.Enabled
+	// NOTE that `isdelve` algor is from https://stackoverflow.com/questions/47879070/how-can-i-see-if-the-goland-debugger-is-running-in-the-program
+}
 
 // InTesting detects whether is running under go test mode
 func InTesting() bool {

@@ -156,6 +156,10 @@ func InDebugging() bool {
 func IsDebuggerAttached() bool {
 	return isdelve.Enabled
 	// NOTE that `isdelve` algor is from https://stackoverflow.com/questions/47879070/how-can-i-see-if-the-goland-debugger-is-running-in-the-program
+	//
+	// In Goland, you can enable this under 'Run/Debug Configurations', by adding the following into 'Go tool arguments:'
+	//
+	// -tags=delve
 }
 
 // InTesting detects whether is running under go test mode

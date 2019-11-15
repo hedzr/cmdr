@@ -86,6 +86,22 @@ func TestFluentAPIDefault(t *testing.T) {
 		Copyright("s", "x")
 	rootCmd1 := root.RootCommand()
 	t.Log(rootCmd1)
+	t.Log(root.ToCommand())
+
+	root.AddOptFlag(cmdr.NewBool())
+	root.AddFlag(cmdr.NewBool().ToFlag())
+	root.AddOptCmd(cmdr.NewCmd())
+	root.AddCommand(cmdr.NewCmd().ToCommand())
+
+	optcmd := cmdr.NewCmd()
+
+	optcmd.AttachToRoot(rootCmd1)
+	optcmd.AttachTo(root)
+	optcmd.AttachToCommand(&rootCmd1.Command)
+
+	cmdr.NewBool().AttachToCommand(&rootCmd1.Command)
+	cmdr.NewBool().AttachToRoot(rootCmd1)
+	cmdr.NewBool().AttachTo(root)
 
 	cmdr.NewCmdFrom(&rootCmd1.Command)
 	cmdr.NewCmd()

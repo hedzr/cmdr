@@ -30,6 +30,8 @@ func TestSingleCommandLine1(t *testing.T) {
 
 	os.Args = []string{"consul-tags", "kv", "b"}
 
+	cmdr.InternalResetWorker()
+
 	// cmdr.SetInternalOutputStreams(nil, nil)
 	// cmdr.SetHelpTabStop(70)
 	// cmdr.SetUnknownOptionHandler(nil)
@@ -62,6 +64,7 @@ func TestSingleCommandLine1(t *testing.T) {
 		cmdr.WithStrictMode(true),
 		cmdr.WithLogex(logrus.DebugLevel),
 		cmdr.WithLogexPrefix(""),
+		cmdr.WithNoDefaultHelpScreen(true),
 	)
 
 	cmdr.ResetWorker()
@@ -102,24 +105,34 @@ func TestUnknownHandler(t *testing.T) {
 	defer logex.CaptureLog(t).Release()
 
 	copyRootCmd = rootCmdForTesting
+
+	cmdr.InternalResetWorker()
 	cmdr.ResetOptions()
 
 	defer prepareConfD(t)()
 
+	time.Sleep(3 * time.Second)
+
+	// cmdr.WithUnknownOptionHandler(nil)
 	// cmdr.SetUnknownOptionHandler(func(isFlag bool, title string, cmd *cmdr.Command, args []string) (fallback bool) {
 	// 	t.Logf("isFlag: %v, title: %v, cmd: %v, args: %v", isFlag, title, cmd, args)
 	// 	return
 	// })
 
-	os.Args = []string{"consul-tags", "--confug", "./conf.d"}
+	t.Log("............... 1")
+
+	os.Args = []string{"consul-tags", "--confih", "./conf.d"}
 	// cmdr.SetInternalOutputStreams(nil, nil)
 	if err := cmdr.Exec(rootCmdForTesting, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	resetOsArgs()
 	cmdr.ResetOptions()
+	cmdr.InternalResetWorker()
 
-	os.Args = []string{"consul-tags", "tigs"}
+	t.Log("............... 2")
+
+	os.Args = []string{"consul-tags", "ms", "tigs"}
 	// cmdr.SetInternalOutputStreams(nil, nil)
 	if err := cmdr.Exec(rootCmdForTesting,
 		cmdr.WithInternalOutputStreams(nil, nil),
@@ -132,30 +145,40 @@ func TestUnknownHandler(t *testing.T) {
 	}
 	resetOsArgs()
 	cmdr.ResetOptions()
+	cmdr.InternalResetWorker()
 
 	// cmdr.SetUnknownOptionHandler(nil)
 
+	t.Log("............... 3")
+
 	os.Args = []string{"consul-tags", "--confug", "./conf.d"}
 	// cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmdForTesting, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+	if err := cmdr.Exec(rootCmdForTesting,
+		cmdr.WithInternalOutputStreams(nil, nil),
+		cmdr.WithUnknownOptionHandler(nil)); err != nil {
 		t.Fatal(err)
 	}
 	resetOsArgs()
 	cmdr.ResetOptions()
+	cmdr.InternalResetWorker()
 
-	os.Args = []string{"consul-tags", "tegs"}
+	t.Log("............... 4")
+
+	os.Args = []string{"consul-tags", "kv", "list"}
 	// cmdr.SetInternalOutputStreams(nil, nil)
 	if err := cmdr.Exec(rootCmdForTesting, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	resetOsArgs()
 	cmdr.ResetOptions()
+	cmdr.InternalResetWorker()
 
 }
 
 func TestConfigOption(t *testing.T) {
 	copyRootCmd = rootCmdForTesting
 	cmdr.ResetOptions()
+	cmdr.InternalResetWorker()
 
 	defer prepareConfD(t)()
 
@@ -187,6 +210,7 @@ func TestConfigOption(t *testing.T) {
 func TestStrictMode(t *testing.T) {
 	copyRootCmd = rootCmdForTesting
 	cmdr.ResetOptions()
+	cmdr.InternalResetWorker()
 	os.Args = []string{"consul-tags", "ms", "tags", "add", "--strict-mode"}
 	// cmdr.SetInternalOutputStreams(nil, nil)
 	if err := cmdr.Exec(rootCmdForTesting, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
@@ -214,6 +238,7 @@ func TestStrictMode(t *testing.T) {
 func TestTreeDump(t *testing.T) {
 	copyRootCmd = rootCmdForTesting
 
+	cmdr.InternalResetWorker()
 	cmdr.ResetOptions()
 	cmdr.Set("no-watch-conf-dir", true)
 
@@ -235,6 +260,7 @@ func TestTreeDump(t *testing.T) {
 func TestVersionCommand(t *testing.T) {
 	copyRootCmd = rootCmdForTesting
 
+	cmdr.InternalResetWorker()
 	cmdr.ResetOptions()
 	cmdr.Set("no-watch-conf-dir", true)
 	resetFlagsAndLog(t)
@@ -255,6 +281,7 @@ func TestVersionCommand(t *testing.T) {
 		}
 		resetOsArgs()
 		cmdr.ResetOptions()
+		cmdr.InternalResetWorker()
 		resetFlagsAndLog(t)
 	}
 
@@ -265,6 +292,7 @@ func TestGlobalShow(t *testing.T) {
 	copyRootCmd = rootCmdForTesting
 	// cmdr.SetInternalOutputStreams(nil, nil)
 
+	cmdr.InternalResetWorker()
 	cmdr.ResetOptions()
 	cmdr.Set("no-watch-conf-dir", true)
 
@@ -311,6 +339,7 @@ func TestGlobalShow(t *testing.T) {
 func TestPP(t *testing.T) {
 	copyRootCmd = rootCmdForTesting
 
+	cmdr.InternalResetWorker()
 	cmdr.ResetOptions()
 	cmdr.Set("no-watch-conf-dir", true)
 
@@ -337,6 +366,7 @@ func TestPP(t *testing.T) {
 func TestForGenerateCommands(t *testing.T) {
 	copyRootCmd = rootCmdForTesting
 
+	cmdr.InternalResetWorker()
 	cmdr.ResetOptions()
 	cmdr.Set("no-watch-conf-dir", true)
 
@@ -391,6 +421,7 @@ func TestForGenerateCommands(t *testing.T) {
 func TestForGenerateDoc(t *testing.T) {
 	copyRootCmd = rootCmdForTesting
 
+	cmdr.InternalResetWorker()
 	cmdr.ResetOptions()
 	cmdr.Set("no-watch-conf-dir", true)
 
@@ -416,6 +447,7 @@ func TestForGenerateDoc(t *testing.T) {
 func TestForGenerateMan(t *testing.T) {
 	copyRootCmd = rootCmdForTesting
 
+	cmdr.InternalResetWorker()
 	cmdr.ResetOptions()
 	cmdr.Set("no-watch-conf-dir", true)
 
@@ -502,6 +534,7 @@ func TestCmdrClone(t *testing.T) {
 }
 
 func TestExec(t *testing.T) {
+	cmdr.InternalResetWorker()
 	cmdr.ResetOptions()
 
 	var err error
@@ -581,6 +614,9 @@ func TestExec(t *testing.T) {
 		if cmdr.GetStrictMode() == false && cmdr.GetQuietMode() == false {
 			rootCmdForTesting.Header = ""
 		}
+
+		// cmdr.InternalResetWorker()
+
 	}
 
 }
@@ -814,6 +850,13 @@ var (
 				serverCommands,
 				msCommands,
 				kvCommands,
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Short:       "ls",
+						Full:        "list",
+						Description: "list to Consul's KV store, from a a JSON/YAML backup file",
+					},
+				},
 			},
 		},
 
@@ -1037,7 +1080,7 @@ var (
 						if cmd.GetParentName() != "kv" {
 							return errors.New("failed: GetParentName() is wrong")
 						}
-						if cmd.GetOwner().GetSubCommandNamesBy(",") != "b,backup,bk,bf,bkp,r,restore" {
+						if cmd.GetOwner().GetSubCommandNamesBy(",") != "b,backup,bk,bf,bkp,r,restore,ls,list" {
 							return errors.New(fmt.Sprintf("failed: GetSubCommandNamesBy() is wrong: '%s'", cmd.GetOwner().GetSubCommandNamesBy(",")))
 						}
 
@@ -1089,6 +1132,13 @@ var (
 					Full:        "hidden-cmd",
 					Description: "restore to Consul's KV store, from a a JSON/YAML backup file",
 					Hidden:      true,
+				},
+			},
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:       "ls",
+					Full:        "list",
+					Description: "list to Consul's KV store, from a a JSON/YAML backup file",
 				},
 			},
 		},

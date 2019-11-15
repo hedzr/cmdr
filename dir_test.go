@@ -86,6 +86,7 @@ func TestHeadLike(t *testing.T) {
 
 	t.Log("xxx: -------- loops for execTestings")
 	for sss, verifier := range execTestingsHeadLike {
+		cmdr.InternalResetWorker()
 		resetFlagsAndLog(t)
 
 		// cmdr.ShouldIgnoreWrongEnumValue = true

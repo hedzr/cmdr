@@ -13,6 +13,7 @@ import (
 
 func TestFinds(t *testing.T) {
 	t.Log("finds")
+	cmdr.InternalResetWorker()
 	cmdr.ResetOptions()
 
 	cmdr.Set("no-watch-conf-dir", true)

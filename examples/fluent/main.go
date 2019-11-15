@@ -13,19 +13,36 @@ import (
 	"log"
 )
 
+var optAddTraceOption cmdr.ExecOption
+
+func init() {
+	// attaches `--trace` to root command
+	optAddTraceOption = cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {
+		cmdr.NewBool().
+			Titles("t", "trace").
+			Description("enable trace mode for tcp/mqtt send/recv data dump", "").
+			AttachToRoot(root)
+	}, nil)
+}
+
 func main() {
 	// logrus.SetLevel(logrus.DebugLevel)
 	// logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
 
 	if err := cmdr.Exec(buildRootCmd(),
+		
 		// To disable internal commands and flags, uncomment the following codes
 		// cmdr.WithBuiltinCommands(false, false, false, false, false),
 		daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
 
+		// integrate with logex library
 		cmdr.WithLogex(logrus.DebugLevel),
 		cmdr.WithLogexPrefix("logger"),
 
 		cmdr.WithHelpTabStop(50),
+		
+		optAddTraceOption,
+		
 	); err != nil {
 		logrus.Fatal(err)
 	}

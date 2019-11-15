@@ -124,7 +124,12 @@ func (s *manPainter) FpUsagesTitle(command *Command, title string) {
 
 func (s *manPainter) FpUsagesLine(command *Command, fmt, appName, cmdList, cmdsTitle, tailPlaceHolder string) {
 	if !command.IsRoot() {
-		s.Printf(".PP\n\\fB%s\\fP %v%s%s [Options] [Parent/Global Options] [tail args...]"+fmt+"\n\n", appName, cmdList, cmdsTitle, tailPlaceHolder)
+		if len(tailPlaceHolder) > 0 {
+			tailPlaceHolder = command.TailPlaceHolder
+		} else {
+			tailPlaceHolder = "[tail args...]"
+		}
+		s.Printf(".PP\n\\fB%s\\fP %v%s%s [Options] [Parent/Global Options]"+fmt+"\n\n", appName, cmdList, cmdsTitle, tailPlaceHolder)
 	}
 }
 

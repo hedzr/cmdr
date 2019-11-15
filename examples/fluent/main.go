@@ -21,6 +21,7 @@ func init() {
 		cmdr.NewBool().
 			Titles("tr", "trace").
 			Description("enable trace mode for tcp/mqtt send/recv data dump", "").
+			DefaultValue(false, "").
 			AttachToRoot(root)
 	}, nil)
 }

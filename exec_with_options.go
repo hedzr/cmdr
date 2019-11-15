@@ -13,6 +13,9 @@ import (
 
 // WithXrefBuildingHooks sets the hook before and after building xref indices.
 // It's replacers for AddOnBeforeXrefBuilding, and AddOnAfterXrefBuilt.
+//
+// By using beforeXrefBuildingX, you could append, modify, or remove the
+// builtin commands and options.
 func WithXrefBuildingHooks(beforeXrefBuildingX, afterXrefBuiltX HookFunc) ExecOption {
 	return func(w *ExecWorker) {
 		if beforeXrefBuildingX != nil {
@@ -25,6 +28,8 @@ func WithXrefBuildingHooks(beforeXrefBuildingX, afterXrefBuiltX HookFunc) ExecOp
 }
 
 // WithAutomaticEnvHooks sets the hook after building automatic environment.
+//
+// At this point, you could override the option default values.
 func WithAutomaticEnvHooks(hook HookOptsFunc) ExecOption {
 	return func(w *ExecWorker) {
 		if hook != nil {
@@ -266,15 +271,16 @@ func WithStrictMode(b bool) ExecOption {
 }
 
 // WithAfterArgsParsed sets a callback point after command-line args parsed by cmdr internal exec().
+//
 // Your callback func will be invoked before invoking the matched command `cmd`.
 // At this time, all command-line args parsed and a command found.
 //
-// If program was launched with empty or wrong arguments, your callback func won't triggered.
+// If program was launched with empty or wrong arguments, your callback func won't be triggered.
 //
 // When empty argument or `--help` found, cmdr will display help screen. To customize it
 // see also cmdr.WithCustomShowVersion and cmdr.WithCustomShowBuildInfo.
 //
-// When any wrong/warn arguments found, cmdr will display some tip message. To customize it
+// When any wrong/warn arguments found, cmdr will display some tip messages. To customize it
 // see also cmdr.WithUnknownOptionHandler.
 //
 func WithAfterArgsParsed(hookFunc func(cmd *Command, args []string) (err error)) ExecOption {

@@ -59,6 +59,8 @@ func TrapSignalsEnh(done chan bool, onTrapped func(s os.Signal), signals ...os.S
 	signal.Notify(sigs, signals...)
 
 	go func() {
+		defer close(sigs)
+		defer close(done)
 		for {
 			select {
 			case s := <-sigs:

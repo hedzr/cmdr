@@ -21,6 +21,8 @@ type (
 
 	// OptFlag to support fluent api of cmdr.
 	// see also: cmdr.Root().NewSubCommand()/.NewFlag()
+	//
+	// For an option, its default value must be declared with exact type as is
 	OptFlag interface {
 		Titles(short, long string, aliases ...string) (opt OptFlag)
 		Short(short string) (opt OptFlag)
@@ -34,6 +36,8 @@ type (
 		Action(action func(cmd *Command, args []string) (err error)) (opt OptFlag)
 
 		ToggleGroup(group string) (opt OptFlag)
+		// DefaultValue needs an exact typed 'val'.
+		// IMPORTANT: cmdr interprets value type of an option based on the underlying default value set.
 		DefaultValue(val interface{}, placeholder string) (opt OptFlag)
 		ExternalTool(envKeyName string) (opt OptFlag)
 		ValidArgs(list ...string) (opt OptFlag)

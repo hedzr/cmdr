@@ -215,10 +215,10 @@ func (pkg *ptpkg) processExternalTool() (err error) {
 }
 
 func (pkg *ptpkg) processTypeInt(args []string) (err error) {
-	if err = pkg.preprocessPkg(args); err != nil {
-		return
+	if err = pkg.preprocessPkg(args); err == nil {
+		err = pkg.processTypeIntCore(args)
 	}
-	return pkg.processTypeIntCore(args)
+	return
 }
 
 func (pkg *ptpkg) processTypeDuration(args []string) (err error) {
@@ -262,100 +262,94 @@ func (pkg *ptpkg) processTypeIntCore(args []string) (err error) {
 }
 
 func (pkg *ptpkg) processTypeUint(args []string) (err error) {
-	if err = pkg.preprocessPkg(args); err != nil {
-		return
-	}
+	if err = pkg.preprocessPkg(args); err == nil {
+		var v uint64
+		v, err = strconv.ParseUint(pkg.val, 10, 64)
+		if err != nil {
+			ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
+			return
+		}
 
-	v, err := strconv.ParseUint(pkg.val, 10, 64)
-	if err != nil {
-		ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
+		var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
+		pkg.xxSet(keyPath, v)
 	}
-
-	var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
-	pkg.xxSet(keyPath, v)
 	return
 }
 
 func (pkg *ptpkg) processTypeString(args []string) (err error) {
-	if err = pkg.preprocessPkg(args); err != nil {
-		return
-	}
+	if err = pkg.preprocessPkg(args); err == nil {
 
-	if len(pkg.flg.ValidArgs) > 0 {
-		// validate for enum
-		for _, w := range pkg.flg.ValidArgs {
-			if pkg.val == w {
-				goto saveIt
+		if len(pkg.flg.ValidArgs) > 0 {
+			// validate for enum
+			for _, w := range pkg.flg.ValidArgs {
+				if pkg.val == w {
+					goto saveIt
+				}
 			}
+			pkg.found = true
+			err = NewError(uniqueWorker.shouldIgnoreWrongEnumValue, errWrongEnumValue, pkg.val, pkg.fn, pkg.flg.owner.GetName())
+			return
 		}
-		pkg.found = true
-		err = NewError(uniqueWorker.shouldIgnoreWrongEnumValue, errWrongEnumValue, pkg.val, pkg.fn, pkg.flg.owner.GetName())
-		return
-	}
 
-saveIt:
-	var v = pkg.val
-	var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
-	pkg.xxSet(keyPath, v)
+	saveIt:
+		var v = pkg.val
+		var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
+		pkg.xxSet(keyPath, v)
+
+	}
 	return
 }
 
 func (pkg *ptpkg) processTypeStringSlice(args []string) (err error) {
-	if err = pkg.preprocessPkg(args); err != nil {
-		return
-	}
+	if err = pkg.preprocessPkg(args); err == nil {
+		var v = strings.Split(pkg.val, ",")
 
-	var v = strings.Split(pkg.val, ",")
-
-	var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
-	var existedVal = uniqueWorker.rxxtOptions.GetStringSlice(wrapWithRxxtPrefix(keyPath))
-	if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
-		existedVal = nil
+		var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
+		var existedVal = uniqueWorker.rxxtOptions.GetStringSlice(wrapWithRxxtPrefix(keyPath))
+		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
+			existedVal = nil
+		}
+		pkg.xxSet(keyPath, append(existedVal, v...))
 	}
-	pkg.xxSet(keyPath, append(existedVal, v...))
 	return
 }
 
 func (pkg *ptpkg) processTypeIntSlice(args []string) (err error) {
-	if err = pkg.preprocessPkg(args); err != nil {
-		return
-	}
-
-	v := make([]int64, 0)
-	for _, x := range strings.Split(pkg.val, ",") {
-		if xi, err := strconv.ParseInt(x, 10, 64); err == nil {
-			v = append(v, xi)
+	if err = pkg.preprocessPkg(args); err == nil {
+		v := make([]int64, 0)
+		for _, x := range strings.Split(pkg.val, ",") {
+			if xi, err := strconv.ParseInt(x, 10, 64); err == nil {
+				v = append(v, xi)
+			}
 		}
-	}
 
-	var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
-	// pkg.xxSet(keyPath, v)
-	var existedVal = uniqueWorker.rxxtOptions.GetInt64Slice(wrapWithRxxtPrefix(keyPath))
-	if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
-		existedVal = nil
+		var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
+		// pkg.xxSet(keyPath, v)
+		var existedVal = uniqueWorker.rxxtOptions.GetInt64Slice(wrapWithRxxtPrefix(keyPath))
+		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
+			existedVal = nil
+		}
+		pkg.xxSet(keyPath, append(existedVal, v...))
 	}
-	pkg.xxSet(keyPath, append(existedVal, v...))
 	return
 }
 
 func (pkg *ptpkg) processTypeUintSlice(args []string) (err error) {
-	if err = pkg.preprocessPkg(args); err != nil {
-		return
-	}
-
-	v := make([]uint64, 0)
-	for _, x := range strings.Split(pkg.val, ",") {
-		if xi, err := strconv.ParseUint(x, 10, 64); err == nil {
-			v = append(v, xi)
+	if err = pkg.preprocessPkg(args); err == nil {
+		v := make([]uint64, 0)
+		for _, x := range strings.Split(pkg.val, ",") {
+			if xi, err := strconv.ParseUint(x, 10, 64); err == nil {
+				v = append(v, xi)
+			}
 		}
-	}
 
-	var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
-	// pkg.xxSet(keyPath, v)
-	var existedVal = uniqueWorker.rxxtOptions.GetUint64Slice(wrapWithRxxtPrefix(keyPath))
-	if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
-		existedVal = nil
+		var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
+		// pkg.xxSet(keyPath, v)
+		var existedVal = uniqueWorker.rxxtOptions.GetUint64Slice(wrapWithRxxtPrefix(keyPath))
+		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
+			existedVal = nil
+		}
+		pkg.xxSet(keyPath, append(existedVal, v...))
 	}
-	pkg.xxSet(keyPath, append(existedVal, v...))
 	return
 }

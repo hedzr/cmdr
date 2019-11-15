@@ -9,6 +9,23 @@ type optFlagImpl struct {
 	parent  OptCmd
 }
 
+func (s *optFlagImpl) ToFlag() *Flag {
+	return s.working
+}
+
+func (s *optFlagImpl) AttachTo(opt OptCmd) {
+	opt.AddOptFlag(s)
+}
+
+func (s *optFlagImpl) AttachToCommand(cmd *Command) {
+	cmd.Flags = append(cmd.Flags, s.ToFlag())
+
+}
+
+func (s *optFlagImpl) AttachToRoot(root *RootCommand) {
+	root.Command.Flags = append(root.Command.Flags, s.ToFlag())
+}
+
 func (s *optFlagImpl) Titles(short, long string, aliases ...string) (opt OptFlag) {
 	s.working.Short = short
 	s.working.Full = long

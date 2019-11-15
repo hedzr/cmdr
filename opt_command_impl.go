@@ -9,6 +9,44 @@ type optCommandImpl struct {
 	parent  OptCmd
 }
 
+func (s *optCommandImpl) ToCommand() *Command {
+	return s.working
+}
+
+func (s *optCommandImpl) AddOptFlag(flag OptFlag) {
+	s.working.Flags = append(s.working.Flags, flag.ToFlag())
+}
+
+func (s *optCommandImpl) AddFlag(flag *Flag) {
+	s.working.Flags = append(s.working.Flags, flag)
+}
+
+func (s *optCommandImpl) AddOptCmd(opt OptCmd) {
+	cmd := opt.ToCommand()
+
+	// optCtx.current = cmd
+
+	s.working.SubCommands = append(s.working.SubCommands, cmd)
+
+	// opt = &subCmdOpt{optCommandImpl: optCommandImpl{working: cmd, parent: s}}
+}
+
+func (s *optCommandImpl) AddCommand(cmd *Command) {
+	s.working.SubCommands = append(s.working.SubCommands, cmd)
+}
+
+func (s *optCommandImpl) AttachTo(opt OptCmd) {
+	opt.AddOptCmd(s)
+}
+
+func (s *optCommandImpl) AttachToCommand(cmd *Command) {
+	cmd.SubCommands = append(cmd.SubCommands, s.working)
+}
+
+func (s *optCommandImpl) AttachToRoot(root *RootCommand) {
+	root.SubCommands = append(root.SubCommands, s.working)
+}
+
 func (s *optCommandImpl) Titles(short, long string, aliases ...string) (opt OptCmd) {
 	s.working.Short = short
 	s.working.Full = long

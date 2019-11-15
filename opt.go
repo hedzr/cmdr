@@ -42,10 +42,20 @@ type (
 		HeadLike(enable bool, min, max int64) (opt OptFlag)
 
 		OnSet(func(keyPath string, value interface{})) (opt OptFlag)
+
 		OwnerCommand() (opt OptCmd)
 		SetOwner(opt OptCmd)
 
 		RootCommand() *RootCommand
+
+		ToFlag() *Flag
+
+		// AttachTo attach as a flag of `opt` OptCmd object
+		AttachTo(opt OptCmd)
+		// AttachToCommand attach as a flag of *Command object
+		AttachToCommand(cmd *Command)
+		// AttachToRoot attach as a flag of *RootCommand object
+		AttachToRoot(root *RootCommand)
 	}
 
 	// OptCmd to support fluent api of cmdr.
@@ -64,6 +74,7 @@ type (
 
 		// FlagAdd(flg *Flag) (opt OptCmd)
 		// SubCommand(cmd *Command) (opt OptCmd)
+
 		PreAction(pre func(cmd *Command, args []string) (err error)) (opt OptCmd)
 		PostAction(post func(cmd *Command, args []string)) (opt OptCmd)
 		TailPlaceholder(placeholder string) (opt OptCmd)
@@ -75,6 +86,21 @@ type (
 		SetOwner(opt OptCmd)
 
 		RootCommand() *RootCommand
+
+		ToCommand() *Command
+
+		AddOptFlag(flag OptFlag)
+		AddFlag(flag *Flag)
+		// AddOptCmd adds 'opt' OptCmd as a sub-command
+		AddOptCmd(opt OptCmd)
+		// AddCommand adds a *Command as a sub-command
+		AddCommand(cmd *Command)
+		// AttachTo attaches itself as a sub-command of 'opt' OptCmd object
+		AttachTo(opt OptCmd)
+		// AttachTo attaches itself as a sub-command of *Command object
+		AttachToCommand(cmd *Command)
+		// AttachTo attaches itself as a sub-command of *RootCommand object
+		AttachToRoot(root *RootCommand)
 	}
 
 	// OptFlagType to support fluent api of cmdr.

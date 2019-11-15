@@ -19,7 +19,7 @@ func init() {
 	// attaches `--trace` to root command
 	optAddTraceOption = cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {
 		cmdr.NewBool().
-			Titles("t", "trace").
+			Titles("tr", "trace").
 			Description("enable trace mode for tcp/mqtt send/recv data dump", "").
 			AttachToRoot(root)
 	}, nil)
@@ -76,6 +76,7 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 		Titles("snd", "soundex", "sndx", "sound").
 		Description("", "soundex test").
 		Group("Test").
+		TailPlaceholder("[text1, text2, ...]").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			for ix, s := range args {
 				fmt.Printf("%5d. %s => %s\n", ix, s, cmdr.Soundex(s))

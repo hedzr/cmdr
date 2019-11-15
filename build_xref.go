@@ -366,21 +366,21 @@ func (w *ExecWorker) attachGeneratorsCommands(root *RootCommand) {
 func (w *ExecWorker) forFlagNames(flg *Flag, cmd *Command, singleFlagNames, stringFlagNames map[string]bool) {
 	if len(flg.Short) != 0 {
 		if _, ok := singleFlagNames[flg.Short]; ok {
-			ferr("flag char '%v' was been used. (command: %v)", flg.Short, w.backtraceCmdNames(cmd))
+			ferr("\nNOTE: flag char '%v' was been used. (command: %v)", flg.Short, w.backtraceCmdNames(cmd))
 		} else {
 			singleFlagNames[flg.Short] = true
 		}
 	}
 	if len(flg.Full) != 0 {
 		if _, ok := stringFlagNames[flg.Full]; ok {
-			ferr("flag '%v' was been used. (command: %v)", flg.Full, w.backtraceCmdNames(cmd))
+			ferr("\nNOTE: flag '%v' was been used. (command: %v)", flg.Full, w.backtraceCmdNames(cmd))
 		} else {
 			stringFlagNames[flg.Full] = true
 		}
 	}
 	if len(flg.Short) == 0 && len(flg.Full) == 0 && len(flg.Name) != 0 {
 		if _, ok := stringFlagNames[flg.Name]; ok {
-			ferr("flag '%v' was been used. (command: %v)", flg.Name, w.backtraceCmdNames(cmd))
+			ferr("\nNOTE: flag '%v' was been used. (command: %v)", flg.Name, w.backtraceCmdNames(cmd))
 		} else {
 			stringFlagNames[flg.Name] = true
 		}

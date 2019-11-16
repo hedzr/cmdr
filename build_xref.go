@@ -304,6 +304,51 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 			root.plainLongFlags["debug"] = root.allFlags[SysMgmtGroup]["debug"]
 			root.plainShortFlags["D"] = root.allFlags[SysMgmtGroup]["debug"]
 		}
+		if _, ok := root.allFlags[SysMgmtGroup]["env"]; !ok {
+			ff := &Flag{
+				BaseOpt: BaseOpt{
+					Short:       "",
+					Full:        "env",
+					Aliases:     []string{},
+					Description: "Dump environment info in `~~debug` mode.",
+					Hidden:      true,
+					owner:       &root.Command,
+				},
+				DefaultValue: false,
+			}
+			root.allFlags[SysMgmtGroup]["env"] = ff
+			root.plainLongFlags["env"] = root.allFlags[SysMgmtGroup]["env"]
+		}
+		if _, ok := root.allFlags[SysMgmtGroup]["raw"]; !ok {
+			ff := &Flag{
+				BaseOpt: BaseOpt{
+					Short:       "",
+					Full:        "raw",
+					Aliases:     []string{},
+					Description: "Dump the option value in raw mode (with golang data structure).",
+					Hidden:      true,
+					owner:       &root.Command,
+				},
+				DefaultValue: false,
+			}
+			root.allFlags[SysMgmtGroup]["raw"] = ff
+			root.plainLongFlags["raw"] = root.allFlags[SysMgmtGroup]["raw"]
+		}
+		if _, ok := root.allFlags[SysMgmtGroup]["more"]; !ok {
+			ff := &Flag{
+				BaseOpt: BaseOpt{
+					Short:       "",
+					Full:        "more",
+					Aliases:     []string{},
+					Description: "Dump more info in `~~debug` mode.",
+					Hidden:      true,
+					owner:       &root.Command,
+				},
+				DefaultValue: false,
+			}
+			root.allFlags[SysMgmtGroup]["more"] = ff
+			root.plainLongFlags["more"] = root.allFlags[SysMgmtGroup]["more"]
+		}
 	}
 }
 

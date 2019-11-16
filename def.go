@@ -232,6 +232,9 @@ var (
 	// ErrShouldBeStopException tips `Exec()` cancelled the following actions after `PreAction()`
 	ErrShouldBeStopException = errors.New("should be stop right now")
 
+	// ErrBadArg is a generic error for user
+	ErrBadArg = errors.New("bas argument")
+	
 	errWrongEnumValue = errors.New("unexpect enumerable value '%s' for option '%s', under command '%s'")
 
 	defaultStringMetric = JaroWinklerDistance(JWWithThreshold(similarThreshold))

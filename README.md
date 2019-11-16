@@ -46,7 +46,7 @@ import "github.com/hedzr/cmdr"
   
   - example/fluent: howto attach `--trace`
   
-  - GetStringNoExapndXxx() for string option value extraction
+  - GetStringNoExapndXxx() for string option value extraction (no envvar expanding)
   
   - more enhancements of Fluent API: ToCommand, ToFlag, AttachToxxx
   
@@ -56,7 +56,7 @@ import "github.com/hedzr/cmdr"
     bin/fluent --help ~~debug --raw --env --more
     ```
   
-    --raw: dump option value with golang format
+    --raw: dump option value with golang format, without envvar expanding
   
     --env: dump environment inside app
   

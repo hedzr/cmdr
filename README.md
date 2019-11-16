@@ -40,15 +40,20 @@ import "github.com/hedzr/cmdr"
 
 - v1.6.7 - WIP
   
-  - TrapSignalEnh() and TrapSignal(), and SignalQuitSignal,...
+  - `TrapSignalEnh()` and `TrapSignal()`, and `SignalQuitSignal`,...
   
-  - InDebugging()
+  - `InDebugging()`, isdelve (refer to [here](https://stackoverflow.com/questions/47879070/how-can-i-see-if-the-goland-debugger-is-running-in-the-program/47890273#47890273)) - To use it, add `-tags=delve`:
+  
+    ```bash
+    go build -tags=delve cli/main.go
+    go run -tags=delve cli/main.go --help
+    ```
   
   - example/fluent: howto attach `--trace`
   
-  - GetStringNoExapndXxx() for string option value extraction (no envvar expanding)
+  - `GetStringNoExapndXxx()` for string option value extraction (no envvar expanding)
   
-  - more enhancements of Fluent API: ToCommand, ToFlag, AttachToxxx
+  - more enhancements of Fluent API: `ToCommand`, `ToFlag`, `AttachToxxx`
   
   - for `~~debug`:
   
@@ -56,11 +61,11 @@ import "github.com/hedzr/cmdr"
     bin/fluent --help ~~debug --raw --env --more
     ```
   
-    --raw: dump option value with golang format, without envvar expanding
+    `--raw`: dump option value with golang format, without envvar expanding
   
-    --env: dump environment inside app
+    `--env`: dump environment inside app
   
-    --more: other information dump
+    `--more`: other information dump
   
   - 
   

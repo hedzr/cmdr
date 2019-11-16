@@ -31,7 +31,7 @@ func main() {
 	// logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
 
 	if err := cmdr.Exec(buildRootCmd(),
-		
+
 		// To disable internal commands and flags, uncomment the following codes
 		// cmdr.WithBuiltinCommands(false, false, false, false, false),
 		daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
@@ -41,9 +41,8 @@ func main() {
 		cmdr.WithLogexPrefix("logger"),
 
 		cmdr.WithHelpTabStop(50),
-		
+
 		optAddTraceOption,
-		
 	); err != nil {
 		logrus.Fatal(err)
 	}

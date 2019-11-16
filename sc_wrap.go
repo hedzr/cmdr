@@ -67,7 +67,7 @@ func TrapSignalsEnh(done chan bool, onTrapped func(s os.Signal), signals ...os.S
 				if !silent() {
 					logrus.Debugf("receive signal '%v'", s)
 				}
-				
+
 				onTrapped(s)
 
 				// for _, s := range servers {

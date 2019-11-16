@@ -64,8 +64,10 @@ func TrapSignalsEnh(done chan bool, onTrapped func(s os.Signal), signals ...os.S
 		for {
 			select {
 			case s := <-sigs:
-				logrus.Debugf("receive signal '%v'", s)
-
+				if !silent() {
+					logrus.Debugf("receive signal '%v'", s)
+				}
+				
 				onTrapped(s)
 
 				// for _, s := range servers {
@@ -75,7 +77,9 @@ func TrapSignalsEnh(done chan bool, onTrapped func(s os.Signal), signals ...os.S
 				done <- false
 				return
 			case <-done:
-				logrus.Debug("receive done sig and return for-select go-routine")
+				if !silent() {
+					logrus.Debug("receive done sig and return for-select go-routine")
+				}
 				return
 			}
 		}
@@ -114,4 +118,8 @@ func SignalQuitSignal() {
 // SignalTermSignal post a SIGTERM signal to the current process
 func SignalTermSignal() {
 	_ = SignalToSelf(syscall.SIGTERM)
+}
+
+func silent() bool {
+	return GetBoolR("quiet")
 }

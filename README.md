@@ -38,6 +38,34 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
+- v1.6.7 - WIP
+  
+  - TrapSignalEnh() and TrapSignal(), and SignalQuitSignal,...
+  
+  - InDebugging()
+  
+  - example/fluent: howto attach `--trace`
+  
+  - GetStringNoExapndXxx() for string option value extraction
+  
+  - more enhancements of Fluent API: ToCommand, ToFlag, AttachToxxx
+  
+  - for `~~debug`:
+  
+    ```bash
+    bin/fluent --help ~~debug --raw --env --more
+    ```
+  
+    --raw: dump option value with golang format
+  
+    --env: dump environment inside app
+  
+    --more: other information dump
+  
+  - 
+  
+- v1.6.5 - [logex](https://github.com/hedzr/logex) integration
+  
 - v1.6.3
   
   support option value auto-expand with os environment variables.
@@ -514,9 +542,9 @@ import "github.com/hedzr/cmdr"
     ```bash
     bin/demo ~~tree
     ```
+
   
-  
-  
+
 - More Advanced features
 
   - Launches external editor by `&Flag{BaseOpt:BaseOpt{},ExternalTool:cmdr.ExternalToolEditor}`:

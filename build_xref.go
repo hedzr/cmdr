@@ -6,6 +6,7 @@ package cmdr
 
 import (
 	"github.com/hedzr/cmdr/conf"
+	"os"
 	"strings"
 	"time"
 )
@@ -26,11 +27,19 @@ func (w *ExecWorker) AddOnAfterXrefBuilt(cb HookFunc) {
 	}
 }
 
+func (w *ExecWorker) setupFromEnvvarMap() {
+	for k, v := range w.envvarToValueMap {
+		_ = os.Setenv(k, v())
+	}
+}
+
 func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 	// build xref for root command and its all sub-commands and flags
 	// and build the default values
 	w.buildRootCrossRefs(rootCmd)
 
+	w.setupFromEnvvarMap()
+	
 	if !w.doNotLoadingConfigFiles {
 		// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
 		if err = w.parsePredefinedLocation(); err != nil {

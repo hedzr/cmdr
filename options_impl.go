@@ -460,11 +460,12 @@ func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 		}
 	}
 
-	// fmt.Printf("EXE = %v, PWD = %v, CURRDIR = %v\n", GetExecutableDir(), os.Getenv("PWD"), GetCurrentDir())
-	// _ = os.Setenv("THIS", GetExecutableDir())
-	for k, v := range uniqueWorker.envvarToValueMap {
-		_ = os.Setenv(k, v())
-	}
+	// // fmt.Printf("EXE = %v, PWD = %v, CURRDIR = %v\n", GetExecutableDir(), os.Getenv("PWD"), GetCurrentDir())
+	// // _ = os.Setenv("THIS", GetExecutableDir())
+	// for k, v := range uniqueWorker.envvarToValueMap {
+	// 	_ = os.Setenv(k, v())
+	// }
+	uniqueWorker.setupFromEnvvarMap()
 
 	for _, h := range uniqueWorker.afterAutomaticEnv {
 		h(rootCmd, s)

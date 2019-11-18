@@ -38,10 +38,12 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- v1.6.7 - WIP
+- WIP
+  - Adds `PressEnterToContinue()`, `PressAnyKeyToContinue()`
+
+- v1.6.7
   
   - `TrapSignalEnh()` and `TrapSignal()`, and `SignalQuitSignal`,...
-  
   - `InDebugging()`, isdelve (refer to [here](https://stackoverflow.com/questions/47879070/how-can-i-see-if-the-goland-debugger-is-running-in-the-program/47890273#47890273)) - To use it, add `-tags=delve`:
   
     ```bash

@@ -5,6 +5,7 @@
 package cmdr
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/rand"
 	"fmt"
@@ -474,6 +475,28 @@ func (w *ExecWorker) getArgs(pkg *ptpkg, args []string) []string {
 		a = args[pkg.i+1:]
 	}
 	return a
+}
+
+// PressEnterToContinue lets program pause and wait for user's ENTER key press in console/terminal
+func PressEnterToContinue(msg ...string) (input string) {
+	if len(msg) > 0 && len(msg[0]) > 0 {
+		fmt.Print(msg[0])
+	} else {
+		fmt.Print("Press 'Enter' to continue...")
+	}
+	b, _ := bufio.NewReader(os.Stdin).ReadBytes('\n')
+	return strings.TrimRight(string(b), "\n")
+}
+
+// PressAnyKeyToContinue lets program pause and wait for user's ANY key press in console/terminal
+func PressAnyKeyToContinue(msg ...string) (input string) {
+	if len(msg) > 0 && len(msg[0]) > 0 {
+		fmt.Print(msg[0])
+	} else {
+		fmt.Print("Press any key to continue...")
+	}
+	_, _ = fmt.Scanf("%s", &input)
+	return
 }
 
 // SavedOsArgs is a copy of os.Args, just for testing

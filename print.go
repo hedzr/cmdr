@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
 	"os"
-	"regexp"
 	"sort"
 	"strings"
 )
@@ -325,16 +324,3 @@ func (w *ExecWorker) showBuildInfo() {
 Build Timestamp: %v
         Githash: %v`, conf.GoVersion, conf.Buildstamp, conf.Githash)
 }
-
-// StripOrderPrefix strips the prefix string fragment for sorting order.
-// see also: Command.Group, Flag.Group, ...
-func StripOrderPrefix(s string) string {
-	if xre.MatchString(s) {
-		s = s[strings.Index(s, ".")+1:]
-	}
-	return s
-}
-
-var (
-	xre = regexp.MustCompile(`^[0-9A-Za-z]+\.(.+)$`)
-)

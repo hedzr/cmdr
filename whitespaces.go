@@ -6,6 +6,11 @@ package cmdr
 
 import "regexp"
 
+// StripQuotes strips single or double quotes around a string
+func StripQuotes(s string) string {
+	return trimQuotes(s)
+}
+
 func trimQuotes(s string) string {
 	if s[0] == '\'' {
 		if s[len(s)-1] == '\'' {

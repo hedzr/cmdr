@@ -442,12 +442,30 @@ func min(a, b int) int {
 	return b
 }
 
+// StripPrefix strips the prefix 'p' from a string 's'
+func StripPrefix(s, p string) string {
+	return stripPrefix(s, p)
+}
+
 func stripPrefix(s, p string) string {
 	if strings.HasPrefix(s, p) {
 		return s[len(p):]
 	}
 	return s
 }
+
+// StripOrderPrefix strips the prefix string fragment for sorting order.
+// see also: Command.Group, Flag.Group, ...
+func StripOrderPrefix(s string) string {
+	if xre.MatchString(s) {
+		s = s[strings.Index(s, ".")+1:]
+	}
+	return s
+}
+
+var (
+	xre = regexp.MustCompile(`^[0-9A-Za-z]+\.(.+)$`)
+)
 
 // IsDigitHeavy tests if the whole string is digit
 func IsDigitHeavy(s string) bool {

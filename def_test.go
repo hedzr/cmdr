@@ -41,10 +41,10 @@ func TestSingleCommandLine1(t *testing.T) {
 		cmdr.WithAutomaticEnvHooks(func(root *cmdr.RootCommand, opts *cmdr.Options) {}),
 		cmdr.WithAfterArgsParsed(func(cmd *cmdr.Command, args []string) (err error) {
 			return
-		}),
+		}), // since v1.6.3
 		cmdr.WithUnknownOptionHandler(func(isFlag bool, title string, cmd *cmdr.Command, args []string) (fallback bool) {
 			return
-		}),
+		}), // since v1.5.5
 		cmdr.WithEnvPrefix("APP_"),
 		cmdr.WithOptionsPrefix("app"),
 		cmdr.WithRxxtPrefix("app"),
@@ -58,13 +58,18 @@ func TestSingleCommandLine1(t *testing.T) {
 		cmdr.WithHelpPainter(nil),
 		cmdr.WithConfigLoadedListener(nil),
 		cmdr.WithHelpTabStop(70),
-		cmdr.WithSimilarThreshold(0.7),
-		cmdr.WithNoColor(true),
-		cmdr.WithNoEnvOverrides(true),
-		cmdr.WithStrictMode(true),
-		cmdr.WithLogex(logrus.DebugLevel),
-		cmdr.WithLogexPrefix(""),
+		cmdr.WithSimilarThreshold(0.73),   // since v1.5.5
+		cmdr.WithNoColor(true),            // since v1.6.2
+		cmdr.WithNoEnvOverrides(true),     // since v1.6.2
+		cmdr.WithStrictMode(true),         // since v1.6.2
+		cmdr.WithLogex(logrus.DebugLevel), // since v1.6.5
+		cmdr.WithLogexPrefix(""),          // since v1.6.5
 		cmdr.WithNoDefaultHelpScreen(true),
+		cmdr.WithEnvVarMap(map[string]func() string{
+			"EXT": func() string {
+				return "extension"
+			},
+		}), // since v1.6.3
 	)
 
 	cmdr.ResetWorker()

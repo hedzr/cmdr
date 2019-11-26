@@ -516,16 +516,13 @@ func SaveAsToml(filename string) (err error) {
 // SaveObjAsToml to Save an object as a toml file
 func SaveObjAsToml(obj interface{}, filename string) (err error) {
 	f, err := os.Create(filename)
-	if err != nil {
-		return
-	}
+	if err == nil {
 
-	e := toml.NewEncoder(bufio.NewWriter(f))
-	if err = e.Encode(obj); err != nil {
-		return
-	}
+		e := toml.NewEncoder(bufio.NewWriter(f))
+		err = e.Encode(obj)
 
-	// err = ioutil.WriteFile(filename, b, 0644)
+		// err = ioutil.WriteFile(filename, b, 0644)
+	}
 	return
 }
 

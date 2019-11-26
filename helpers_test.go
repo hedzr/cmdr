@@ -223,6 +223,11 @@ func resetFlagsAndLog(t *testing.T) {
 	t.Log(cmdr.GetStringRP("", "version", ""))
 	t.Log(cmdr.GetStringP("", "app.version", ""))
 
+	t.Log(cmdr.GetStringNoExpand("app.version", "1"))
+	t.Log(cmdr.GetStringNoExpandR("version", "2"))
+	t.Log(cmdr.GetStringNoExpandRP("", "version", "3"))
+	t.Log(cmdr.GetStringNoExpandP("", "app.version", "4"))
+
 	if cmdr.WrapWithRxxtPrefix("ms") != "app.ms" {
 		t.Fatal("WrapWithRxxtPrefix failed")
 	}

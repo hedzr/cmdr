@@ -39,7 +39,7 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 	w.buildRootCrossRefs(rootCmd)
 
 	w.setupFromEnvvarMap()
-	
+
 	if !w.doNotLoadingConfigFiles {
 		// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
 		if err = w.parsePredefinedLocation(); err != nil {

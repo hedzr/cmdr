@@ -40,6 +40,8 @@ import "github.com/hedzr/cmdr"
 
 - WIP
   - Adds `PressEnterToContinue()`, `PressAnyKeyToContinue()`
+  - Adds `StripQuotes(s)`, `StripPrefix(s,p)`
+  - bugs fixed
 
 - v1.6.7
   

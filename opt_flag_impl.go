@@ -102,6 +102,12 @@ func (s *optFlagImpl) DefaultValue(val interface{}, placeholder string) (opt Opt
 	return
 }
 
+func (s *optFlagImpl) Placeholder(placeholder string) (opt OptFlag) {
+	s.working.DefaultValuePlaceholder = placeholder
+	opt = s
+	return
+}
+
 func (s *optFlagImpl) ExternalTool(envKeyName string) (opt OptFlag) {
 	s.working.ExternalTool = envKeyName
 	opt = s

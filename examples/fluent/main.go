@@ -131,31 +131,33 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 			fmt.Printf("*** Got msg: %s\n", cmdr.GetString("app.mx-test.message"))
 			fmt.Printf("*** Got fruit (toggle group): %v\n", cmdr.GetString("app.mx-test.fruit"))
 			fmt.Printf("*** Got head (head-like): %v\n", cmdr.GetInt("app.mx-test.head"))
+			fmt.Println()
+			fmt.Printf("InTesting: args[0]=%v ", cmdr.SavedOsArgs[0])
 			return
 		})
-	mx.NewFlag(cmdr.OptFlagTypeString).
+	mx.NewFlagV("").
 		Titles("pp", "password").
 		Description("the password requesting.", "").
 		Group("").
-		DefaultValue("", "PASSWORD").
+		Placeholder("PASSWORD").
 		ExternalTool(cmdr.ExternalToolPasswordInput)
-	mx.NewFlag(cmdr.OptFlagTypeString).
+	mx.NewFlagV("").
 		Titles("m", "message", "msg").
 		Description("the message requesting.", "").
 		Group("").
-		DefaultValue("", "MESG").
+		Placeholder("MESG").
 		ExternalTool(cmdr.ExternalToolEditor)
-	mx.NewFlag(cmdr.OptFlagTypeString).
+	mx.NewFlagV("").
 		Titles("fr", "fruit").
 		Description("the message.", "").
 		Group("").
-		DefaultValue("", "FRUIT").
+		Placeholder("FRUIT").
 		ValidArgs("apple", "banana", "orange")
-	mx.NewFlag(cmdr.OptFlagTypeInt).
+	mx.NewFlagV(1).
 		Titles("hd", "head").
 		Description("the head lines.", "").
 		Group("").
-		DefaultValue(1, "LINES").
+		Placeholder("LINES").
 		HeadLike(true, 1, 3000)
 
 	// kv

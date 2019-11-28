@@ -4,6 +4,11 @@
 
 package cmdr
 
+import (
+	"reflect"
+	"time"
+)
+
 type optCommandImpl struct {
 	working *Command
 	parent  OptCmd
@@ -226,6 +231,53 @@ func (s *optCommandImpl) NewFlag(typ OptFlagType) (opt OptFlag) {
 	}
 
 	flg.SetOwner(s)
+
+	opt = flg
+	return
+}
+
+func (s *optCommandImpl) NewFlagV(defaultValue interface{}) (opt OptFlag) {
+	var flg OptFlag
+	var vv = reflect.TypeOf(defaultValue)
+
+	switch vv.Kind() {
+	case reflect.Int, reflect.Int16, reflect.Int32:
+		if _, ok := defaultValue.(time.Duration); ok {
+			flg = s.Duration()
+		} else {
+			flg = s.Int()
+		}
+	case reflect.Uint, reflect.Uint16, reflect.Uint32:
+		flg = s.Uint()
+	case reflect.Int64:
+		flg = s.Int64()
+	case reflect.Uint64:
+		flg = s.Uint64()
+	case reflect.String:
+		flg = s.String()
+	case reflect.Slice:
+		var elt = vv.Elem()
+		switch elt.Kind() {
+		case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64:
+			flg = s.IntSlice()
+		case reflect.Uint, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			// flg = s.UintSlice()
+			flg = s.IntSlice()
+		case reflect.String:
+			flg = s.StringSlice()
+		}
+	case reflect.Float32:
+		flg = s.Float32()
+	case reflect.Float64:
+		flg = s.Float64()
+	default:
+		flg = s.Bool()
+	}
+
+	if flg != nil {
+		flg.DefaultValue(defaultValue, "")
+		flg.SetOwner(s)
+	}
 
 	opt = flg
 	return

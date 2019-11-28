@@ -39,6 +39,7 @@ type (
 		// DefaultValue needs an exact typed 'val'.
 		// IMPORTANT: cmdr interprets value type of an option based on the underlying default value set.
 		DefaultValue(val interface{}, placeholder string) (opt OptFlag)
+		Placeholder(placeholder string) (opt OptFlag)
 		ExternalTool(envKeyName string) (opt OptFlag)
 		ValidArgs(list ...string) (opt OptFlag)
 		// HeadLike enables `head -n` mode.
@@ -83,7 +84,11 @@ type (
 		PostAction(post func(cmd *Command, args []string)) (opt OptCmd)
 		TailPlaceholder(placeholder string) (opt OptCmd)
 
+		// NewFlag create a new flag object and return it for further operations.
+		// Deprecated since v1.6.9, replace it with FlagV(defaultValue)
 		NewFlag(typ OptFlagType) (opt OptFlag)
+		// NewFlagV create a new flag object and return it for further operations.
+		NewFlagV(defaultValue interface{}) (opt OptFlag)
 		NewSubCommand() (opt OptCmd)
 
 		OwnerCommand() (opt OptCmd)

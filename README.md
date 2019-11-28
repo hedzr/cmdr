@@ -41,7 +41,9 @@ import "github.com/hedzr/cmdr"
 - WIP
   - Adds `PressEnterToContinue()`, `PressAnyKeyToContinue()`
   - Adds `StripQuotes(s)`, `StripPrefix(s,p)`
-  - bugs fixed
+  - Fluent API, `cmdopt.NewFlag(flagType)` will be deprecated, replace it with `cmdopt.NewFlagV(defaultValue)`;
+    single `flagopt.Placeholder(str)` available too.
+  - bugs fixed (better `InTesting()`)
 
 - v1.6.7
   

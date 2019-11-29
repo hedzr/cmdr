@@ -33,6 +33,7 @@ type (
 		Group(group string) (opt OptFlag)
 		Hidden(hidden bool) (opt OptFlag)
 		Deprecated(deprecation string) (opt OptFlag)
+		// Action will be triggered once being parsed ok
 		Action(action func(cmd *Command, args []string) (err error)) (opt OptFlag)
 
 		ToggleGroup(group string) (opt OptFlag)
@@ -46,6 +47,7 @@ type (
 		// min, max will be ignored at this version, its might be impl in the future
 		HeadLike(enable bool, min, max int64) (opt OptFlag)
 
+		// OnSet will be callback'd after this flag parsed
 		OnSet(func(keyPath string, value interface{})) (opt OptFlag)
 
 		OwnerCommand() (opt OptCmd)
@@ -75,13 +77,19 @@ type (
 		Group(group string) (opt OptCmd)
 		Hidden(hidden bool) (opt OptCmd)
 		Deprecated(deprecation string) (opt OptCmd)
+		// Action will be triggered after all command-line arguments parsed
 		Action(action func(cmd *Command, args []string) (err error)) (opt OptCmd)
 
 		// FlagAdd(flg *Flag) (opt OptCmd)
 		// SubCommand(cmd *Command) (opt OptCmd)
 
+		// PreAction will be invoked before running Action
+		// NOTE that RootCommand.PreAction will be invoked too.
 		PreAction(pre func(cmd *Command, args []string) (err error)) (opt OptCmd)
+		// PostAction will be invoked after run Action
+		// NOTE that RootCommand.PostAction will be invoked too.
 		PostAction(post func(cmd *Command, args []string)) (opt OptCmd)
+
 		TailPlaceholder(placeholder string) (opt OptCmd)
 
 		// NewFlag create a new flag object and return it for further operations.

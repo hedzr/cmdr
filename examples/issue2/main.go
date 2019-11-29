@@ -37,7 +37,10 @@ const (
 
 func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 
-	root := cmdr.Root(appName, versionName)
+	root := cmdr.Root(appName, versionName).
+		PreAction(appPreAction).
+		PostAction(appPostAction).
+		Action(myBizLogic)
 
 	// root.NewSubCommand().
 	// 	Titles("h", "help").
@@ -58,10 +61,10 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 	// 		return
 	// 	})
 
-	root.NewFlag(cmdr.OptFlagTypeString).
+	root.NewFlagV("").
 		Titles("o", "output-file").
 		Description("output file", "").
-		DefaultValue("", "").
+		Placeholder("").
 		OnSet(func(keyPath string, value interface{}) {
 			fmt.Println(keyPath, value)
 			os.Exit(0)
@@ -70,5 +73,19 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 
 	rootCmd = root.RootCommand()
 
+	return
+}
+
+func appPreAction(cmd *cmdr.Command, args []string) (err error) {
+	return
+}
+
+func myBizLogic(cmd *cmdr.Command, args []string) (err error) {
+	filename := cmdr.GetStringR("output-file")
+	fmt.Println(filename)
+	return
+}
+
+func appPostAction(cmd *cmdr.Command, args []string) {
 	return
 }

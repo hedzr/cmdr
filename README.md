@@ -41,7 +41,7 @@ import "github.com/hedzr/cmdr"
 - WIP
   - Adds `PressEnterToContinue()`, `PressAnyKeyToContinue()`
   - Adds `StripQuotes(s)`, `StripPrefix(s,p)`
-  - Fluent API, `cmdopt.NewFlag(flagType)` will be deprecated, replace it with `cmdopt.NewFlagV(defaultValue)`;
+  - Fluent API: Since v1.6.9, deprecated `cmdopt.NewFlag(flagType)` will be replaced with `cmdopt.NewFlagV(defaultValue)`;
     single `flagopt.Placeholder(str)` available too.
   - bugs fixed (better `InTesting()`)
 
@@ -176,7 +176,7 @@ import "github.com/hedzr/cmdr"
 - Since v1.0.3, we added compatibilities for migrating from go `flag`:
 
   <details>
-  <summary> Expand to source codes </summary>
+  <summary> Migrate to `cmdr` from go `flag` </summary>
 
   ```go
   // old code
@@ -283,11 +283,18 @@ import "github.com/hedzr/cmdr"
   	Description("", "").
   	Group("")
   
-  co.NewFlag(cmdr.OptFlagTypeUint).
+  // deprecated since v1.6.9
+  // co.NewFlag(cmdr.OptFlagTypeUint).
+  //  	Titles("t", "retry").
+  // 	Description("", "").
+  // 	Group("").
+  // 	DefaultValue(3, "RETRY")
+
+  co.NewFlagV(3).
   	Titles("t", "retry").
   	Description("", "").
   	Group("").
-  	DefaultValue(3, "RETRY")
+  	Palceholder("RETRY")
   
   cTags := co.NewSubCommand().
   	Titles("t", "tags").

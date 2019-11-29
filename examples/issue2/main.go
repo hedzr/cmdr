@@ -5,7 +5,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/hedzr/cmdr"
+	"os"
 )
 
 func main() {
@@ -55,6 +57,16 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 	// 		os.Exit(0)
 	// 		return
 	// 	})
+
+	root.NewFlag(cmdr.OptFlagTypeString).
+		Titles("o", "output-file").
+		Description("output file", "").
+		DefaultValue("", "").
+		OnSet(func(keyPath string, value interface{}) {
+			fmt.Println(keyPath, value)
+			os.Exit(0)
+			return
+		})
 
 	rootCmd = root.RootCommand()
 

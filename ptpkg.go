@@ -167,7 +167,15 @@ func (pkg *ptpkg) preprocessPkg(args []string) (err error) {
 			pkg.val = pkg.savedFn
 			pkg.savedFn = ""
 		} else {
-			if pkg.i < len(args)-1 && args[pkg.i+1][0] != '-' && (args[pkg.i+1][0] != '~' || args[pkg.i+1][1] != '~') {
+			yes := false
+			if pkg.i < len(args)-1 {
+				if len(args[pkg.i+1]) == 0 {
+					yes = true
+				} else if args[pkg.i+1][0] != '-' && (args[pkg.i+1][0] != '~' || args[pkg.i+1][1] != '~') {
+					yes = true
+				}
+			}
+			if yes {
 				pkg.i++
 				pkg.val = args[pkg.i]
 			} else {

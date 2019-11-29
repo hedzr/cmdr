@@ -4,6 +4,7 @@ package cmdr
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"os"
 	"reflect"
@@ -433,7 +434,7 @@ func (s *Options) GetStringNoExpand(key string, defaultVal ...string) (ret strin
 		switch reflect.ValueOf(v).Kind() {
 		case reflect.String:
 			ret = v.(string)
-		default:
+			// default:
 			if v != nil {
 				ret = fmt.Sprint(v)
 			}
@@ -447,6 +448,7 @@ func (s *Options) GetStringNoExpand(key string, defaultVal ...string) (ret strin
 }
 
 func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
+	logrus.SetLevel(logrus.DebugLevel)
 	// prefix := strings.Join(EnvPrefix,"_")
 	prefix := uniqueWorker.getPrefix() // strings.Join(RxxtPrefix, ".")
 	for key := range s.entries {
@@ -456,6 +458,27 @@ func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 				s.Set(key[len(prefix)+1:], v)
 			} else {
 				s.Set(key, v)
+			}
+		}
+		// logrus.Printf("buildAutomaticEnv: %v", key)
+		if flg := s.lookupFlag(key, rootCmd); flg != nil {
+			// // logrus.Debugf("buildAutomaticEnv: %v matched", key)
+			// if key == "app.mx-test.test" {
+			// 	logrus.Debugf("                 : flag=%+v", flg)
+			// }
+			for _, ek := range flg.EnvVars {
+				if v, ok := os.LookupEnv(ek); ok {
+					// logrus.Debugf("buildAutomaticEnv: envvar %v found", ek)
+					// logrus.Debugf("                 : flag=%+v", flg)
+					if strings.HasPrefix(key, prefix) {
+						// logrus.Printf("setnx: %v <-- %v", key, v)
+						s.SetNx(key, v)
+						// logrus.Printf("setnx: %v", s.GetString(key))
+					} else {
+						// logrus.Printf("set: %v <-- %v", key, v)
+						s.Set(key, v)
+					}
+				}
 			}
 		}
 	}
@@ -469,6 +492,33 @@ func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 
 	for _, h := range uniqueWorker.afterAutomaticEnv {
 		h(rootCmd, s)
+	}
+	return
+}
+
+func (s *Options) lookupFlag(keyPath string, rootCmd *RootCommand) (flg *Flag) {
+	flg = s.loopForLookupFlag(strings.Split(keyPath, ".")[len(uniqueWorker.envPrefixes):], &rootCmd.Command)
+	return
+}
+
+func (s *Options) loopForLookupFlag(keys []string, cmd *Command) (flg *Flag) {
+	switch len(keys) {
+	case 0:
+		return
+	case 1:
+		for _, f := range cmd.Flags {
+			if f.Full == keys[0] {
+				flg = f
+				return
+			}
+		}
+	default:
+		tmpkeys := keys[1:]
+		for _, sc := range cmd.SubCommands {
+			if flg = s.loopForLookupFlag(tmpkeys, sc); flg != nil {
+				return
+			}
+		}
 	}
 	return
 }

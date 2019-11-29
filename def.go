@@ -123,6 +123,7 @@ type (
 		ExternalTool string
 
 		// EnvVars give a list to bind to environment variables manually
+		// it'll take effects since v1.6.9
 		EnvVars []string
 
 		// HeadLike enables a free-hand option like `head -3`.
@@ -145,6 +146,7 @@ type (
 		onSet func(keyPath string, value interface{})
 
 		// times how many times this flag was triggered.
+		// To access it with `Flag.GetTriggeredTimes()`.
 		times int
 
 		// PostAction treat this flag as a command!

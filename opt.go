@@ -47,8 +47,8 @@ type (
 		// min, max will be ignored at this version, its might be impl in the future
 		HeadLike(enable bool, min, max int64) (opt OptFlag)
 
-		// OnSet will be callback'd after this flag parsed
-		OnSet(func(keyPath string, value interface{})) (opt OptFlag)
+		// EnvKeys is a list of env-var names of binding on this flag
+		EnvKeys(keys ...string) (opt OptFlag)
 
 		OwnerCommand() (opt OptCmd)
 		SetOwner(opt OptCmd)
@@ -63,6 +63,8 @@ type (
 		AttachToCommand(cmd *Command)
 		// AttachToRoot attach as a flag of *RootCommand object
 		AttachToRoot(root *RootCommand)
+
+		OnSet
 	}
 
 	// OptCmd to support fluent api of cmdr.
@@ -118,6 +120,12 @@ type (
 		AttachToCommand(cmd *Command)
 		// AttachTo attaches itself as a sub-command of *RootCommand object
 		AttachToRoot(root *RootCommand)
+	}
+
+	// OnSet interface
+	OnSet interface {
+		// OnSet will be callback'd after this flag parsed
+		OnSet(f func(keyPath string, value interface{})) (opt OptFlag)
 	}
 
 	// OptFlagType to support fluent api of cmdr.

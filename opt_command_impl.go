@@ -236,10 +236,7 @@ func (s *optCommandImpl) NewFlag(typ OptFlagType) (opt OptFlag) {
 	return
 }
 
-func (s *optCommandImpl) NewFlagV(defaultValue interface{}) (opt OptFlag) {
-	var flg OptFlag
-	var vv = reflect.TypeOf(defaultValue)
-
+func (s *optCommandImpl) newFlagVC(vv reflect.Type, defaultValue interface{}) (flg OptFlag) {
 	switch vv.Kind() {
 	case reflect.Int, reflect.Int16, reflect.Int32:
 		if _, ok := defaultValue.(time.Duration); ok {
@@ -273,12 +270,17 @@ func (s *optCommandImpl) NewFlagV(defaultValue interface{}) (opt OptFlag) {
 	default:
 		flg = s.Bool()
 	}
+	return
+}
 
+func (s *optCommandImpl) NewFlagV(defaultValue interface{}) (opt OptFlag) {
+	var flg OptFlag
+	var vv = reflect.TypeOf(defaultValue)
+	flg = s.newFlagVC(vv, defaultValue)
 	if flg != nil {
 		flg.DefaultValue(defaultValue, "")
 		flg.SetOwner(s)
 	}
-
 	opt = flg
 	return
 }

@@ -132,9 +132,16 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 			fmt.Printf("*** Got fruit (toggle group): %v\n", cmdr.GetString("app.mx-test.fruit"))
 			fmt.Printf("*** Got head (head-like): %v\n", cmdr.GetInt("app.mx-test.head"))
 			fmt.Println()
+			fmt.Printf("*** test text: %s\n", cmdr.GetStringR("mx-test.test"))
+			fmt.Println()
 			fmt.Printf("InTesting: args[0]=%v ", cmdr.SavedOsArgs[0])
 			return
 		})
+	mx.NewFlagV("").
+		Titles("t", "test").
+		Description("the test text.", "").
+		EnvKeys("COOLT", "TEST").
+		Group("")
 	mx.NewFlagV("").
 		Titles("pp", "password").
 		Description("the password requesting.", "").

@@ -131,6 +131,12 @@ func (s *optFlagImpl) HeadLike(enable bool, min, max int64) (opt OptFlag) {
 	return
 }
 
+func (s *optFlagImpl) EnvKeys(keys ...string) (opt OptFlag) {
+	s.working.EnvVars = append(s.working.EnvVars, keys...)
+	opt = s
+	return
+}
+
 func (s *optFlagImpl) OnSet(f func(keyPath string, value interface{})) (opt OptFlag) {
 	s.working.onSet = f
 	opt = s

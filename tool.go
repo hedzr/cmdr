@@ -167,7 +167,7 @@ func IsDebuggerAttached() bool {
 func InTesting() bool {
 	if !strings.HasSuffix(SavedOsArgs[0], ".test") &&
 		!strings.Contains(SavedOsArgs[0], "/T/___Test") {
-		
+
 		// [0] = /var/folders/td/2475l44j4n3dcjhqbmf3p5l40000gq/T/go-build328292371/b001/exe/main
 		// !strings.Contains(SavedOsArgs[0], "/T/go-build")
 

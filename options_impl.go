@@ -434,7 +434,7 @@ func (s *Options) GetStringNoExpand(key string, defaultVal ...string) (ret strin
 		switch reflect.ValueOf(v).Kind() {
 		case reflect.String:
 			ret = v.(string)
-			// default:
+		default:
 			if v != nil {
 				ret = fmt.Sprint(v)
 			}

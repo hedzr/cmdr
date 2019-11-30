@@ -44,7 +44,8 @@ type (
 		ExternalTool(envKeyName string) (opt OptFlag)
 		ValidArgs(list ...string) (opt OptFlag)
 		// HeadLike enables `head -n` mode.
-		// min, max will be ignored at this version, its might be impl in the future
+		// 'min', 'max' will be ignored at this version, its might be impl in the future.
+		// There's only one head-like flag in one command and its parent and children commands.
 		HeadLike(enable bool, min, max int64) (opt OptFlag)
 
 		// EnvKeys is a list of env-var names of binding on this flag

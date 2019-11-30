@@ -67,6 +67,7 @@ func TestNewError(t *testing.T) {
 func TestHeadLike(t *testing.T) {
 
 	cmdr.ResetOptions()
+	cmdr.InternalResetWorker()
 
 	var err error
 	var outX = bytes.NewBufferString("")
@@ -85,7 +86,8 @@ func TestHeadLike(t *testing.T) {
 
 		if errX.Len() > 0 {
 			t.Log("--------- stderr")
-			t.Fatalf("Error!! %v", errX.String())
+			// t.Fatalf("Error!! %v", errX.String())
+			t.Errorf("Error for testing (it might not be failed)!! %v", errX.String())
 		}
 
 		resetOsArgs()
@@ -138,7 +140,8 @@ var (
 		"consul-tags server -e orange": func(t *testing.T, e error) error {
 			if cmdr.GetStringR("server.enum") != "orange" {
 				println("unexpect enumerable value found. This is an error")
-				return errors.New("unexpect enumerable value found. This is an error")
+				return fmt.Errorf("unexpect enumerable value '%v' found. This is an error.",
+					cmdr.GetStringR("server.enum"))
 			}
 			return e
 		},
@@ -166,7 +169,7 @@ var (
 		},
 		"consul-tags server -1973": func(t *testing.T, e error) error {
 			if cmdr.GetIntR("server.tail") != 1973 {
-				return fmt.Errorf("wrong: server.tail=%v(expect: %v)",
+				return fmt.Errorf("wrong: server.tail=%v (expect: %v)",
 					cmdr.GetIntR("server.tail"), 1973)
 			}
 			return nil

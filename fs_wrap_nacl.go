@@ -17,3 +17,7 @@ func fsWatcherRoutine(s *Options, configDir string, initWG *sync.WaitGroup) {
 // func fsWatchRunner(s *Options, configDir string, watcher *fsnotify.Watcher, eventsWG *sync.WaitGroup) {
 // 	eventsWG.Done()
 // }
+
+// stopExitingChannelForFsWatcher stop fs watcher explicitly
+func stopExitingChannelForFsWatcher() {
+}

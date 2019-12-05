@@ -34,6 +34,7 @@ cover.html
 .tmp.*
 conf.d/
 *.local
+*___jb_old___
 
 ### two executable files
 

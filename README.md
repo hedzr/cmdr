@@ -39,11 +39,12 @@ import "github.com/hedzr/cmdr"
 ## News
 
 - *WIP* v1.6.9
-  - Adds `PressEnterToContinue()`, `PressAnyKeyToContinue()`
-  - Adds `StripQuotes(s)`, `StripPrefix(s,p)`
-  - Fluent API: Since v1.6.9, deprecated `cmdopt.NewFlag(flagType)` will be replaced with `cmdopt.NewFlagV(defaultValue)`;
-    single `flagopt.Placeholder(str)` available too.
-  - `Flag.EnvVars` be available now. And `newFlagOpt.EnvKeys(keys...)` with same effect in Fluent API style.
+  - v1.6.8 for a nacl bug
+      - Adds `PressEnterToContinue()`, `PressAnyKeyToContinue()`
+      - Adds `StripQuotes(s)`, `StripPrefix(s,p)`
+      - Fluent API: Since v1.6.9, deprecated `cmdopt.NewFlag(flagType)` will be replaced with `cmdopt.NewFlagV(defaultValue)`;
+        single `flagopt.Placeholder(str)` available too.
+      - `Flag.EnvVars` be available now. And `newFlagOpt.EnvKeys(keys...)` with same effect in Fluent API style.
   - bugs fixed (better `InTesting()`)
 
 - v1.6.7

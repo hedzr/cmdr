@@ -209,6 +209,9 @@ func GetStringP(prefix, key string, defaultVal ...string) string {
 
 // GetStringR returns the string value of an `Option` key with [WrapWithRxxtPrefix].
 func GetStringR(key string, defaultVal ...string) string {
+	if noResetWorker {
+		return uniqueWorker.rxxtOptions.GetString(wrapWithRxxtPrefix(key), defaultVal...)
+	}
 	return internalGetWorker().rxxtOptions.GetString(wrapWithRxxtPrefix(key), defaultVal...)
 }
 

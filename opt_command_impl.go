@@ -239,15 +239,15 @@ func (s *optCommandImpl) NewFlag(typ OptFlagType) (opt OptFlag) {
 func (s *optCommandImpl) newFlagVC(vv reflect.Type, defaultValue interface{}) (flg OptFlag) {
 	switch vv.Kind() {
 	case reflect.Int, reflect.Int16, reflect.Int32:
-		if _, ok := defaultValue.(time.Duration); ok {
-			flg = s.Duration()
-		} else {
-			flg = s.Int()
-		}
+		flg = s.Int()
 	case reflect.Uint, reflect.Uint16, reflect.Uint32:
 		flg = s.Uint()
 	case reflect.Int64:
-		flg = s.Int64()
+		if _, ok := defaultValue.(time.Duration); ok {
+			flg = s.Duration()
+		} else {
+			flg = s.Int64()
+		}
 	case reflect.Uint64:
 		flg = s.Uint64()
 	case reflect.String:

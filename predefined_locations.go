@@ -51,10 +51,9 @@ func (w *ExecWorker) loadFromPredefinedLocation(rootCmd *RootCommand) (err error
 
 		if FileExists(fn) {
 			err = w.rxxtOptions.LoadConfigFile(fn)
-			if err != nil {
-				return
+			if err == nil {
+				conf.CfgFile = fn
 			}
-			conf.CfgFile = fn
 			break
 		}
 	}

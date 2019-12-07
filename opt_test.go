@@ -9,6 +9,7 @@ import (
 	"github.com/hedzr/cmdr"
 	"gopkg.in/yaml.v2"
 	"testing"
+	"time"
 )
 
 func TestCommandMethods(t *testing.T) {
@@ -129,6 +130,132 @@ func TestAsXXX(t *testing.T) {
 	cmdr.GetHierarchyList()
 }
 
+func TestFluentAPINew(t *testing.T) {
+	root := cmdr.Root("aa", "1.0.1").
+		Header("aa - test for cmdr - no version - hedzr").
+		Copyright("s", "x")
+	rootCmd1 := root.RootCommand()
+	t.Log(rootCmd1)
+
+	// ms
+
+	co := root.NewSubCommand().
+		Titles("ms", "micro-service").
+		Short("ms").Long("micro-service").Aliases("goms").
+		Examples(``).Hidden(false).Deprecated("").
+		PreAction(nil).PostAction(nil).Action(nil).
+		TailPlaceholder("").
+		Description("", "").
+		Group("")
+
+	co.OwnerCommand()
+	co.SetOwner(root)
+
+	co.NewFlagV(uint(3)).
+		Titles("t", "retry").
+		Short("tt").Long("retry-tt").Aliases("go-tt").
+		Examples(``).Hidden(false).Deprecated("").
+		Action(nil).
+		ExternalTool(cmdr.ExternalToolEditor).
+		ExternalTool(cmdr.ExternalToolPasswordInput).
+		Description("", "").
+		Group("").
+		Placeholder("RETRY").SetOwner(root)
+
+	co.NewFlagV(true).
+		Titles("t1", "retry1").
+		Description("", "").
+		Group("").
+		Placeholder("RETRY").OwnerCommand()
+
+	co.NewFlagV(3).
+		Titles("t2", "retry2").
+		Description("", "").
+		Group("").ToggleGroup("").
+		RootCommand()
+
+	co.NewFlagV(uint64(3)).
+		Titles("t3", "retry3").
+		Description("", "").
+		Group("")
+
+	co.NewFlagV(int64(3)).
+		Titles("t4", "retry4").
+		Description("", "").
+		Group("")
+
+	co.NewFlagV([]string{"a", "b"}).
+		Titles("t5", "retry5").
+		Description("", "")
+
+	co.NewFlagV([]int{1, 2, 3}).
+		Titles("t6", "retry6").
+		Description("", "")
+
+	co.NewFlagV([]uint{1, 2, 3}).
+		Titles("t61", "retry61").
+		Description("", "")
+
+	co.NewFlagV(time.Second).
+		Titles("t7", "retry7")
+
+	co.NewFlagV(float32(3.14)).
+		Titles("t8", "retry8").
+		Description("", "").
+		Group("").
+		Placeholder("PI")
+
+	co.NewFlagV(3.14159265358979323846264338327950288419716939937510582097494459230781640628620899).
+		Titles("t9", "retry9").
+		Description("", "").
+		Group("").
+		Placeholder("PI")
+
+	co.NewFlagV(1).
+		Titles("h", "head").
+		Description("", "").
+		Group("").
+		HeadLike(true, 1, 8000)
+
+	co.NewFlagV("").
+		Titles("i", "ienum").
+		Description("", "").
+		Group("").
+		ValidArgs("apple", "banana", "orange")
+
+	// ms tags
+
+	cTags := co.NewSubCommand().
+		Titles("t", "tags").
+		Description("", "").
+		Group("")
+
+	cTags.NewFlagV("consul.ops.local").
+		Titles("a", "addr").
+		Description("", "").
+		Group("").
+		Placeholder("ADDR")
+
+	// ms tags ls
+
+	cTags.NewSubCommand().
+		Titles("ls", "list").
+		Description("", "").
+		Group("").
+		Action(func(cmd *cmdr.Command, args []string) (err error) {
+			return
+		})
+
+	cTags.NewSubCommand().
+		Titles("a", "add").
+		Description("", "").
+		Group("").
+		Action(func(cmd *cmdr.Command, args []string) (err error) {
+			return
+		})
+
+}
+
 func TestFluentAPI(t *testing.T) {
 
 	root := cmdr.Root("aa", "1.0.1").
@@ -160,13 +287,13 @@ func TestFluentAPI(t *testing.T) {
 		ExternalTool(cmdr.ExternalToolPasswordInput).
 		Description("", "").
 		Group("").
-		DefaultValue(3, "RETRY").SetOwner(root)
+		DefaultValue(uint(3), "RETRY").SetOwner(root)
 
 	co.NewFlag(cmdr.OptFlagTypeBool).
 		Titles("t1", "retry1").
 		Description("", "").
 		Group("").
-		DefaultValue(3, "RETRY").OwnerCommand()
+		DefaultValue(false, "RETRY").OwnerCommand()
 
 	co.NewFlag(cmdr.OptFlagTypeInt).
 		Titles("t2", "retry2").
@@ -178,25 +305,25 @@ func TestFluentAPI(t *testing.T) {
 		Titles("t3", "retry3").
 		Description("", "").
 		Group("").
-		DefaultValue(3, "RETRY")
+		DefaultValue(uint64(3), "RETRY")
 
 	co.NewFlag(cmdr.OptFlagTypeInt64).
 		Titles("t4", "retry4").
 		Description("", "").
 		Group("").
-		DefaultValue(3, "RETRY")
+		DefaultValue(int64(3), "RETRY")
 
 	co.NewFlag(cmdr.OptFlagTypeStringSlice).
 		Titles("t5", "retry5").
 		Description("", "").
 		Group("").
-		DefaultValue(3, "RETRY")
+		DefaultValue([]string{"a", "b"}, "RETRY")
 
 	co.NewFlag(cmdr.OptFlagTypeIntSlice).
 		Titles("t6", "retry6").
 		Description("", "").
 		Group("").
-		DefaultValue(3, "RETRY")
+		DefaultValue([]int{1, 2, 3}, "RETRY")
 
 	co.NewFlag(cmdr.OptFlagTypeDuration).
 		Titles("t7", "retry7").

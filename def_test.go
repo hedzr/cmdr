@@ -72,7 +72,7 @@ func TestSingleCommandLine1(t *testing.T) {
 		}), // since v1.6.3
 	)
 
-	cmdr.ResetWorker()
+	cmdr.InternalResetWorker()
 	resetFlagsAndLog(t)
 	resetOsArgs()
 	cmdr.ResetOptions()
@@ -91,7 +91,7 @@ func TestSingleCommandLine1(t *testing.T) {
 	// cmdr.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
 	// 	return
 	// })
-	cmdr.ResetWorker()
+	cmdr.InternalResetWorker()
 	resetFlagsAndLog(t)
 	resetOsArgs()
 	cmdr.ResetOptions()

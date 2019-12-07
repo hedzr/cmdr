@@ -28,9 +28,18 @@ func Worker2(b bool) *ExecWorker {
 	return internalGetWorker()
 }
 
-// ResetWorker function
-func ResetWorker() {
-	InternalResetWorker()
+// // ResetWorker function
+// func ResetWorker() {
+// 	InternalResetWorker()
+// }
+
+// InternalResetWorker is an internal helper, esp for debugging
+func InternalResetWorker() (w *ExecWorker) {
+	uniqueWorkerLock.Lock()
+	w = internalResetWorkerNoLock()
+	noResetWorker = false
+	uniqueWorkerLock.Unlock()
+	return
 }
 
 // ResetRootInWorker function

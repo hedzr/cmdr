@@ -67,7 +67,7 @@ type ExecOption func(w *ExecWorker)
 //
 
 func init() {
-	InternalResetWorker()
+	internalResetWorkerNoLock()
 }
 
 //
@@ -88,14 +88,9 @@ func Exec(rootCmd *RootCommand, opts ...ExecOption) (err error) {
 	return
 }
 
-// // InternalGetWorker is an internal helper, esp for debugging
-// func InternalGetWorker() (w *ExecWorker) {
-// 	w = uniqueWorker
-// 	return
-// }
-
 var uniqueWorkerLock sync.RWMutex
 var uniqueWorker *ExecWorker
+var noResetWorker = true
 
 func internalGetWorker() (w *ExecWorker) {
 	uniqueWorkerLock.RLock()
@@ -104,8 +99,7 @@ func internalGetWorker() (w *ExecWorker) {
 	return
 }
 
-// InternalResetWorker is an internal helper, esp for debugging
-func InternalResetWorker() (w *ExecWorker) {
+func internalResetWorkerNoLock() (w *ExecWorker) {
 	w = &ExecWorker{
 		envPrefixes:  []string{"CMDR"},
 		rxxtPrefixes: []string{"app"},
@@ -147,9 +141,7 @@ func InternalResetWorker() (w *ExecWorker) {
 	}
 	WithEnvVarMap(nil)(w)
 
-	uniqueWorkerLock.Lock()
 	uniqueWorker = w
-	uniqueWorkerLock.Unlock()
 	return
 }
 

@@ -100,11 +100,11 @@ func BenchmarkGetStringRNL(b *testing.B) {
 	})
 }
 
-func BenchmarkGetStringRNoLock(b *testing.B) {
+func BenchmarkGetStringRLock(b *testing.B) {
 	benchmarkGetStringR(false, b)
 }
 
-func BenchmarkGetStringRLock(b *testing.B) {
+func BenchmarkGetStringRNoLock(b *testing.B) {
 	benchmarkGetStringR(true, b)
 }
 
@@ -117,14 +117,14 @@ pkg: github.com/hedzr/cmdr
 BenchmarkGetStringR-4         	 9215539	       138 ns/op
 BenchmarkGetStringRNL-4       	 7936184	       149 ns/op
 BenchmarkGetStringRNoLock-4   	 5068267	       215 ns/op
---- BENCH: BenchmarkGetStringRNoLock-4
+--- BENCH: BenchmarkGetStringRLock-4
     b_test.go:51: got id:  default-kafka
     b_test.go:51: got id:  default-kafka
     b_test.go:51: got id:  default-kafka
     b_test.go:51: got id:  default-kafka
     b_test.go:51: got id:  default-kafka
 BenchmarkGetStringRLock-4     	 5475811	       220 ns/op
---- BENCH: BenchmarkGetStringRLock-4
+--- BENCH: BenchmarkGetStringRNoLock-4
     b_test.go:51: got id:  default-kafka
     b_test.go:51: got id:  default-kafka
     b_test.go:51: got id:  default-kafka
@@ -133,5 +133,28 @@ BenchmarkGetStringRLock-4     	 5475811	       220 ns/op
 PASS
 ok  	github.com/hedzr/cmdr	7.607s
 
-So, it is not matter about the `internalGetWorker()` with r-lock on uniqueWorker.
+######################### So, it is not matter about the `internalGetWorker()` with r-lock on uniqueWorker.
+
+$ go test -bench '^BenchmarkGet.*$' -run '^$' -benchtime 20s
+goos: darwin
+goarch: amd64
+pkg: github.com/hedzr/cmdr
+BenchmarkGetStringR-4         	175795060	       134 ns/op
+BenchmarkGetStringRNL-4       	162173757	       150 ns/op
+BenchmarkGetStringRNoLock-4   	100000000	       219 ns/op
+--- BENCH: BenchmarkGetStringRLock-4
+    b_test.go:51: got id:  default-kafka
+    b_test.go:51: got id:  default-kafka
+    b_test.go:51: got id:  default-kafka
+    b_test.go:51: got id:  default-kafka
+    b_test.go:51: got id:  default-kafka
+BenchmarkGetStringRLock-4     	100000000	       220 ns/op
+--- BENCH: BenchmarkGetStringRNoLock-4
+    b_test.go:51: got id:  default-kafka
+    b_test.go:51: got id:  default-kafka
+    b_test.go:51: got id:  default-kafka
+    b_test.go:51: got id:  default-kafka
+    b_test.go:51: got id:  default-kafka
+PASS
+ok  	github.com/hedzr/cmdr	123.291s
  */

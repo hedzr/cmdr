@@ -42,6 +42,12 @@ func InternalResetWorker() (w *ExecWorker) {
 	return
 }
 
+// InternalResetWorkerNoLock is an internal helper, esp for debugging
+func InternalResetWorkerNoLock() (w *ExecWorker) {
+	w = internalResetWorkerNoLock()
+	return
+}
+
 // ResetRootInWorker function
 func ResetRootInWorker() {
 	internalGetWorker().rootCommand = nil

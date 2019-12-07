@@ -286,7 +286,7 @@ func (s *optCommandImpl) NewFlagV(defaultValue interface{}) (opt OptFlag) {
 }
 
 func (s *optCommandImpl) NewSubCommand() (opt OptCmd) {
-	cmd := &Command{root: uniqueWorker.rootCommand}
+	cmd := &Command{root: internalGetWorker().rootCommand}
 
 	optCtx.current = cmd
 

@@ -134,7 +134,7 @@ func normalizeDir(s string) string {
 
 // GetPredefinedLocations return the searching locations for loading config files.
 func GetPredefinedLocations() []string {
-	return uniqueWorker.predefinedLocations
+	return internalGetWorker().predefinedLocations
 }
 
 // // SetPredefinedLocations to customize the searching locations for loading config files.
@@ -148,5 +148,5 @@ func GetPredefinedLocations() []string {
 // }
 
 func setPredefinedLocations(locations ...string) {
-	uniqueWorker.predefinedLocations = locations
+	internalGetWorker().predefinedLocations = locations
 }

@@ -6,6 +6,8 @@ package cmdr
 
 import (
 	"bufio"
+	"bytes"
+	"github.com/hedzr/errors"
 	"github.com/hedzr/logex"
 	"github.com/sirupsen/logrus"
 	"os"
@@ -14,11 +16,6 @@ import (
 	"testing"
 	"time"
 )
-
-func internalGetWorker() (w *ExecWorker) {
-	w = uniqueWorker
-	return
-}
 
 // Worker returns unexported worker for testing
 func Worker() *ExecWorker {
@@ -41,42 +38,74 @@ func ResetRootInWorker() {
 	internalGetWorker().rootCommand = nil
 }
 
-func RaiseInterrupt(t *testing.T, timeout int) {
-	go func() {
-		time.Sleep(time.Duration(timeout) * time.Second)
-		p, err := os.FindProcess(os.Getpid())
-		if err != nil {
-			t.Fatal(err)
-		}
-		err = p.Signal(os.Interrupt)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}()
+func TestTplApply(t *testing.T) {
+	tplApply("{{ .dkl }}", &struct{ sth bool }{false})
 }
 
-func TestTrapSignals(t *testing.T) {
+func TestFlag(t *testing.T) {
+	t.Log(IsDebuggerAttached())
+	t.Log(InTesting())
+	t.Log(StripPrefix("8.yes", "8."))
+	t.Log(StripQuotes("'8.yes'"))
+	t.Log(IsDigitHeavy("not-digit"))
+	t.Log(IsDigitHeavy("8-is-not-digit"))
 
-	if SavedOsArgs == nil {
-		SavedOsArgs = os.Args
-	}
+	in := bytes.NewBufferString("\n")
+	PressEnterToContinue(in, "ok...")
+	in = bytes.NewBufferString("\n")
+	PressEnterToContinue(in)
+
+	in = bytes.NewBufferString("\n")
+	t.Log(PressAnyKeyToContinue(in, "ok..."))
+	in = bytes.NewBufferString("\n")
+	t.Log(PressAnyKeyToContinue(in))
+
+	x := SavedOsArgs
 	defer func() {
-		os.Args = SavedOsArgs
+		SavedOsArgs = x
 	}()
+	SavedOsArgs = []string{"xx.test"}
+	t.Log(InTesting())
+	SavedOsArgs = []string{"xx.runtime"}
+	t.Log(InTesting())
+	SavedOsArgs = []string{"xx.runtime", "-test.v"}
+	t.Log(InTesting())
 
-	RaiseInterrupt(t, 6)
-	TrapSignals(func(s os.Signal) {
-		//
+	var rootCmdX = &RootCommand{
+		Command: Command{
+			BaseOpt: BaseOpt{
+				Name: "consul-tags",
+			},
+			SubCommands: []*Command{
+				{
+					BaseOpt: BaseOpt{
+						Name: "consul-tags",
+					},
+				},
+				{
+					BaseOpt: BaseOpt{
+						Name: "consul-tags",
+					},
+				},
+			},
+		},
+	}
+	_ = walkFromCommand(&rootCmdX.Command, 0, func(cmd *Command, index int) (err error) {
+		if index > 0 {
+			return ErrBadArg
+		}
+		return nil
 	})
-
-	_ = RemoveDirRecursive("docs")
-
-	// testTypes(t)
 }
 
 func TestUnknownXXX(t *testing.T) {
 	defer logex.CaptureLog(t).Release()
-	RaiseInterrupt(t, 16)
+
+	// // RaiseInterrupt(t, 16)
+	// go func() {
+	// 	time.Sleep(16 * time.Second)
+	// 	SignalTermSignal()
+	// }()
 
 	if SavedOsArgs == nil {
 		SavedOsArgs = os.Args
@@ -121,34 +150,36 @@ func TestSliceConverters(t *testing.T) {
 	int64SliceToUint64Slice([]int64{1})
 	uint64SliceToInt64Slice([]uint64{1})
 
+	w := internalGetWorker()
+
 	Set("x", []string{"1"})
 	GetIntSliceR("x")
-	uniqueWorker.rxxtOptions.GetInt64Slice("app.x")
-	uniqueWorker.rxxtOptions.GetUint64Slice("app.x")
+	w.rxxtOptions.GetInt64Slice("app.x")
+	w.rxxtOptions.GetUint64Slice("app.x")
 	Set("x", "1,2,3")
 	GetIntSliceR("x")
-	uniqueWorker.rxxtOptions.GetInt64Slice("app.x")
-	uniqueWorker.rxxtOptions.GetUint64Slice("app.x")
+	w.rxxtOptions.GetInt64Slice("app.x")
+	w.rxxtOptions.GetUint64Slice("app.x")
 	Set("x", []int{1, 2})
 	GetIntSliceR("x")
-	uniqueWorker.rxxtOptions.GetInt64Slice("app.x")
-	uniqueWorker.rxxtOptions.GetUint64Slice("app.x")
+	w.rxxtOptions.GetInt64Slice("app.x")
+	w.rxxtOptions.GetUint64Slice("app.x")
 	Set("x", []int64{1, 2})
 	GetIntSliceR("x")
-	uniqueWorker.rxxtOptions.GetInt64Slice("app.x")
-	uniqueWorker.rxxtOptions.GetUint64Slice("app.x")
+	w.rxxtOptions.GetInt64Slice("app.x")
+	w.rxxtOptions.GetUint64Slice("app.x")
 	Set("x", []uint64{1, 2})
 	GetIntSliceR("x")
-	uniqueWorker.rxxtOptions.GetInt64Slice("app.x")
-	uniqueWorker.rxxtOptions.GetUint64Slice("app.x")
+	w.rxxtOptions.GetInt64Slice("app.x")
+	w.rxxtOptions.GetUint64Slice("app.x")
 	Set("x", []byte{1, 2})
 	GetIntSliceR("x")
-	uniqueWorker.rxxtOptions.GetInt64Slice("app.x")
-	uniqueWorker.rxxtOptions.GetUint64Slice("app.x")
+	w.rxxtOptions.GetInt64Slice("app.x")
+	w.rxxtOptions.GetUint64Slice("app.x")
 	Set("x", 57)
 	GetIntSliceR("x")
-	uniqueWorker.rxxtOptions.GetInt64Slice("app.x")
-	uniqueWorker.rxxtOptions.GetUint64Slice("app.x")
+	w.rxxtOptions.GetInt64Slice("app.x")
+	w.rxxtOptions.GetUint64Slice("app.x")
 
 	mxIx("", "")
 }
@@ -170,12 +201,12 @@ func TestLog(t *testing.T) {
 
 	for _, x := range []string{"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "PANIC", ""} {
 		Set("logger.level", x)
-		_ = uniqueWorker.getWithLogexInitializor(logrus.DebugLevel)(&rootCmdX.Command, []string{})
+		_ = internalGetWorker().getWithLogexInitializor(logrus.DebugLevel)(&rootCmdX.Command, []string{})
 	}
 
 	Set("logger.target", "journal")
 	Set("logger.format", "json")
-	_ = uniqueWorker.getWithLogexInitializor(logrus.DebugLevel)(&rootCmdX.Command, []string{})
+	_ = internalGetWorker().getWithLogexInitializor(logrus.DebugLevel)(&rootCmdX.Command, []string{})
 }
 
 // TestPtpkgToggleGroup functions
@@ -207,7 +238,7 @@ func TestPtpkgToggleGroup(t *testing.T) {
 // ExecWith is main entry of `cmdr`.
 // for testing
 func ExecWith(rootCmd *RootCommand, beforeXrefBuildingX, afterXrefBuiltX HookFunc) (err error) {
-	w := uniqueWorker
+	w := internalGetWorker()
 
 	if beforeXrefBuildingX != nil {
 		w.beforeXrefBuilding = append(w.beforeXrefBuilding, beforeXrefBuildingX)
@@ -223,19 +254,37 @@ func ExecWith(rootCmd *RootCommand, beforeXrefBuildingX, afterXrefBuiltX HookFun
 // SetInternalOutputStreams sets the internal output streams for debugging
 // for testing
 func SetInternalOutputStreams(out, err *bufio.Writer) {
-	uniqueWorker.defaultStdout = out
-	uniqueWorker.defaultStderr = err
+	w := internalGetWorker()
+	w.defaultStdout = out
+	w.defaultStderr = err
 
-	if uniqueWorker.defaultStdout == nil {
-		uniqueWorker.defaultStdout = bufio.NewWriterSize(os.Stdout, 16384)
+	if w.defaultStdout == nil {
+		w.defaultStdout = bufio.NewWriterSize(os.Stdout, 16384)
 	}
-	if uniqueWorker.defaultStderr == nil {
-		uniqueWorker.defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
+	if w.defaultStderr == nil {
+		w.defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
 	}
 }
 
 // SetPredefinedLocationsForTesting
 // for testing
 func SetPredefinedLocationsForTesting(locations ...string) {
-	uniqueWorker.predefinedLocations = locations
+	internalGetWorker().predefinedLocations = locations
+}
+
+func TestNewError(t *testing.T) {
+
+	errWrongEnumValue := newErrTmpl("unexpect enumerable value '%s' for option '%s', under command '%s'")
+
+	err := newError(false, errWrongEnumValue, "ds", "head", "server")
+	println(err)
+
+	err = newError(true, newErr("unexpect enumerable value"))
+	println(err.Error())
+
+	err = newErrorWithMsg("Holo", errors.New("unexpect enumerable value"))
+	println(err.Error())
+
+	errWrongEnumValue = newErrTmpl("unexpect enumerable value '%s' for option '%s', under command '%s'")
+	_ = errWrongEnumValue.Template("x").Format().Msg("x %v", 1).Nest(err)
 }

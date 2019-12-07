@@ -49,7 +49,7 @@ func (s *Options) Has(key string) (ok bool) {
 
 // DeleteKey deletes a key from cmdr options store
 func DeleteKey(key string) {
-	uniqueWorker.rxxtOptions.Delete(key)
+	internalGetWorker().rxxtOptions.Delete(key)
 }
 
 // Delete deletes a key from cmdr options store
@@ -450,7 +450,7 @@ func (s *Options) GetStringNoExpand(key string, defaultVal ...string) (ret strin
 func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 	logrus.SetLevel(logrus.DebugLevel)
 	// prefix := strings.Join(EnvPrefix,"_")
-	prefix := uniqueWorker.getPrefix() // strings.Join(RxxtPrefix, ".")
+	prefix := internalGetWorker().getPrefix() // strings.Join(RxxtPrefix, ".")
 	for key := range s.entries {
 		ek := s.envKey(key)
 		if v, ok := os.LookupEnv(ek); ok {
@@ -488,16 +488,16 @@ func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 	// for k, v := range uniqueWorker.envvarToValueMap {
 	// 	_ = os.Setenv(k, v())
 	// }
-	uniqueWorker.setupFromEnvvarMap()
+	internalGetWorker().setupFromEnvvarMap()
 
-	for _, h := range uniqueWorker.afterAutomaticEnv {
+	for _, h := range internalGetWorker().afterAutomaticEnv {
 		h(rootCmd, s)
 	}
 	return
 }
 
 func (s *Options) lookupFlag(keyPath string, rootCmd *RootCommand) (flg *Flag) {
-	flg = s.loopForLookupFlag(strings.Split(keyPath, ".")[len(uniqueWorker.envPrefixes):], &rootCmd.Command)
+	flg = s.loopForLookupFlag(strings.Split(keyPath, ".")[len(internalGetWorker().envPrefixes):], &rootCmd.Command)
 	return
 }
 
@@ -526,7 +526,7 @@ func (s *Options) loopForLookupFlag(keys []string, cmd *Command) (flg *Flag) {
 func (s *Options) envKey(key string) (envkey string) {
 	key = strings.ReplaceAll(key, ".", "_")
 	key = strings.ReplaceAll(key, "-", "_")
-	envkey = strings.Join(append(uniqueWorker.envPrefixes, strings.ToUpper(key)), "_")
+	envkey = strings.Join(append(internalGetWorker().envPrefixes, strings.ToUpper(key)), "_")
 	return
 }
 

@@ -13,11 +13,11 @@ import (
 )
 
 func fp(fmtStr string, args ...interface{}) {
-	_, _ = fmt.Fprintf(uniqueWorker.rootCommand.ow, fmtStr+"\n", args...)
+	_, _ = fmt.Fprintf(internalGetWorker().rootCommand.ow, fmtStr+"\n", args...)
 }
 
 func ferr(fmtStr string, args ...interface{}) {
-	_, _ = fmt.Fprintf(uniqueWorker.rootCommand.oerr, fmtStr+"\n", args...)
+	_, _ = fmt.Fprintf(internalGetWorker().rootCommand.oerr, fmtStr+"\n", args...)
 }
 
 func (w *ExecWorker) printHelp(command *Command, justFlags bool) {
@@ -145,7 +145,7 @@ func (w *ExecWorker) printHelpUsages(p Painter, command *Command) {
 			}
 		}
 
-		cmds := strings.ReplaceAll(uniqueWorker.backtraceCmdNames(command), ".", " ")
+		cmds := strings.ReplaceAll(internalGetWorker().backtraceCmdNames(command), ".", " ")
 		if len(cmds) > 0 {
 			cmds += " "
 		}

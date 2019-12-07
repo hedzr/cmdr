@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"github.com/hedzr/cmdr/conf"
 	"os"
+	"sync"
 )
 
 //
@@ -65,8 +66,6 @@ type ExecOption func(w *ExecWorker)
 
 //
 
-var uniqueWorker *ExecWorker
-
 func init() {
 	InternalResetWorker()
 }
@@ -79,7 +78,7 @@ func init() {
 
 // Exec is main entry of `cmdr`.
 func Exec(rootCmd *RootCommand, opts ...ExecOption) (err error) {
-	w := uniqueWorker
+	w := internalGetWorker()
 
 	for _, opt := range opts {
 		opt(w)
@@ -95,9 +94,19 @@ func Exec(rootCmd *RootCommand, opts ...ExecOption) (err error) {
 // 	return
 // }
 
+var uniqueWorkerLock sync.RWMutex
+var uniqueWorker *ExecWorker
+
+func internalGetWorker() (w *ExecWorker) {
+	uniqueWorkerLock.RLock()
+	w = uniqueWorker
+	uniqueWorkerLock.RUnlock()
+	return
+}
+
 // InternalResetWorker is an internal helper, esp for debugging
 func InternalResetWorker() (w *ExecWorker) {
-	uniqueWorker = &ExecWorker{
+	w = &ExecWorker{
 		envPrefixes:  []string{"CMDR"},
 		rxxtPrefixes: []string{"app"},
 
@@ -136,8 +145,11 @@ func InternalResetWorker() (w *ExecWorker) {
 		similarThreshold:    similarThreshold,
 		noDefaultHelpScreen: false,
 	}
-	w = uniqueWorker
 	WithEnvVarMap(nil)(w)
+
+	uniqueWorkerLock.Lock()
+	uniqueWorker = w
+	uniqueWorkerLock.Unlock()
 	return
 }
 

@@ -47,7 +47,7 @@ func (pkg *ptpkg) toggleGroup() {
 	if len(tg) > 0 {
 		for _, f := range pkg.flg.owner.Flags {
 			if f.ToggleGroup == tg && (isBool(f.DefaultValue) || isNil1(f.DefaultValue)) {
-				uniqueWorker.rxxtOptions.Set(uniqueWorker.backtraceFlagNames(pkg.flg), false)
+				internalGetWorker().rxxtOptions.Set(internalGetWorker().backtraceFlagNames(pkg.flg), false)
 			}
 		}
 	}
@@ -153,7 +153,7 @@ func (pkg *ptpkg) tryExtractingBoolValue() (err error) {
 	}
 
 	var v = pkg.flg.DefaultValue
-	var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
+	var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
 	pkg.xxSet(keyPath, v)
 	return
 }
@@ -234,7 +234,7 @@ func (pkg *ptpkg) processTypeDuration(args []string) (err error) {
 		var v time.Duration
 		v, err = time.ParseDuration(pkg.val)
 		if err == nil {
-			var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
+			var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
 			pkg.xxSet(keyPath, v)
 		}
 	}
@@ -243,9 +243,9 @@ func (pkg *ptpkg) processTypeDuration(args []string) (err error) {
 
 func (pkg *ptpkg) xxSet(keyPath string, v interface{}) {
 	if pkg.a[0] == '~' {
-		uniqueWorker.rxxtOptions.SetNx(keyPath, v)
+		internalGetWorker().rxxtOptions.SetNx(keyPath, v)
 	} else {
-		uniqueWorker.rxxtOptions.Set(keyPath, v)
+		internalGetWorker().rxxtOptions.Set(keyPath, v)
 	}
 	if pkg.flg != nil && pkg.flg.onSet != nil {
 		pkg.flg.onSet(keyPath, v)
@@ -264,7 +264,7 @@ func (pkg *ptpkg) processTypeIntCore(args []string) (err error) {
 		err = fmt.Errorf("wrong number: flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
 	}
 
-	var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
+	var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
 	pkg.xxSet(keyPath, v)
 	return
 }
@@ -278,7 +278,7 @@ func (pkg *ptpkg) processTypeUint(args []string) (err error) {
 			return
 		}
 
-		var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
+		var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
 		pkg.xxSet(keyPath, v)
 	}
 	return
@@ -295,13 +295,13 @@ func (pkg *ptpkg) processTypeString(args []string) (err error) {
 				}
 			}
 			pkg.found = true
-			err = NewError(uniqueWorker.shouldIgnoreWrongEnumValue, errWrongEnumValue, pkg.val, pkg.fn, pkg.flg.owner.GetName())
+			err = newError(internalGetWorker().shouldIgnoreWrongEnumValue, errWrongEnumValue, pkg.val, pkg.fn, pkg.flg.owner.GetName())
 			return
 		}
 
 	saveIt:
 		var v = pkg.val
-		var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
+		var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
 		pkg.xxSet(keyPath, v)
 
 	}
@@ -312,8 +312,8 @@ func (pkg *ptpkg) processTypeStringSlice(args []string) (err error) {
 	if err = pkg.preprocessPkg(args); err == nil {
 		var v = strings.Split(pkg.val, ",")
 
-		var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
-		var existedVal = uniqueWorker.rxxtOptions.GetStringSlice(wrapWithRxxtPrefix(keyPath))
+		var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
+		var existedVal = internalGetWorker().rxxtOptions.GetStringSlice(wrapWithRxxtPrefix(keyPath))
 		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
 			existedVal = nil
 		}
@@ -331,9 +331,9 @@ func (pkg *ptpkg) processTypeIntSlice(args []string) (err error) {
 			}
 		}
 
-		var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
+		var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
 		// pkg.xxSet(keyPath, v)
-		var existedVal = uniqueWorker.rxxtOptions.GetInt64Slice(wrapWithRxxtPrefix(keyPath))
+		var existedVal = internalGetWorker().rxxtOptions.GetInt64Slice(wrapWithRxxtPrefix(keyPath))
 		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
 			existedVal = nil
 		}
@@ -351,9 +351,9 @@ func (pkg *ptpkg) processTypeUintSlice(args []string) (err error) {
 			}
 		}
 
-		var keyPath = uniqueWorker.backtraceFlagNames(pkg.flg)
+		var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
 		// pkg.xxSet(keyPath, v)
-		var existedVal = uniqueWorker.rxxtOptions.GetUint64Slice(wrapWithRxxtPrefix(keyPath))
+		var existedVal = internalGetWorker().rxxtOptions.GetUint64Slice(wrapWithRxxtPrefix(keyPath))
 		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
 			existedVal = nil
 		}

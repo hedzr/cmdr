@@ -26,7 +26,7 @@ func (s *helpPainter) Results() (res []byte) {
 }
 
 func (s *helpPainter) Printf(fmtStr string, args ...interface{}) {
-	_, _ = fmt.Fprintf(uniqueWorker.rootCommand.ow, fmtStr+"\n", args...)
+	_, _ = fmt.Fprintf(internalGetWorker().rootCommand.ow, fmtStr+"\n", args...)
 }
 
 func (s *helpPainter) FpPrintHeader(command *Command) {
@@ -38,7 +38,7 @@ func (s *helpPainter) FpPrintHeader(command *Command) {
 }
 
 func (s *helpPainter) FpPrintHelpTailLine(command *Command) {
-	if uniqueWorker.enableHelpCommands {
+	if internalGetWorker().enableHelpCommands {
 		s.Printf("\nType '-h' or '--help' to get command help screen.")
 	}
 }

@@ -16,15 +16,15 @@ import (
 
 func genShell(cmd *Command, args []string) (err error) {
 	// logrus.Infof("OK gen shell. %v", *cmd)
-
-	if GetBoolP(uniqueWorker.getPrefix(), "generate.shell.zsh") {
+	w := internalGetWorker()
+	if GetBoolP(w.getPrefix(), "generate.shell.zsh") {
 		// if !GetBoolP(getPrefix(), "quiet") {
 		// 	logrus.Debugf("zsh-dump")
 		// }
 		// printHelpZsh(command, justFlags)
 
 		// not yet
-	} else if GetBoolP(uniqueWorker.getPrefix(), "generate.shell.bash") {
+	} else if GetBoolP(w.getPrefix(), "generate.shell.bash") {
 		err = genShellBash(cmd, args)
 	} else {
 		// auto
@@ -295,8 +295,9 @@ Re-login to enable the new bash completion script.
 //
 
 func genManual(command *Command, args []string) (err error) {
+	w := internalGetWorker()
 	painter := newManPainter()
-	prefix := strings.Join(append(uniqueWorker.rxxtPrefixes, "generate.manual"), ".")
+	prefix := strings.Join(append(w.rxxtPrefixes, "generate.manual"), ".")
 	// logrus.Debugf("OK gen manual: hit=%v", cmd.strHit)
 	// paintFromCommand(newManPainter(), &rootCommand.Command, false)
 	err = WalkAllCommands(func(cmd *Command, index int) (err error) {
@@ -309,7 +310,7 @@ func genManual(command *Command, args []string) (err error) {
 
 		fn := cmd.root.AppName
 		if !cmd.IsRoot() {
-			cmds := strings.ReplaceAll(uniqueWorker.backtraceCmdNames(cmd), ".", "-")
+			cmds := strings.ReplaceAll(w.backtraceCmdNames(cmd), ".", "-")
 			// if cmds == "generate" {
 			// 	cmds += ""
 			// }
@@ -319,7 +320,7 @@ func genManual(command *Command, args []string) (err error) {
 		}
 		fn = fmt.Sprintf("%s/%v.1", dir, fn)
 
-		uniqueWorker.paintFromCommand(painter, cmd, false)
+		w.paintFromCommand(painter, cmd, false)
 		if err = ioutil.WriteFile(fn, painter.Results(), 0644); err == nil {
 			logrus.Debugf("'%v' generated...", fn)
 		}
@@ -335,7 +336,7 @@ func genManual(command *Command, args []string) (err error) {
 //
 
 func genDoc(command *Command, args []string) (err error) {
-	prefix := strings.Join(append(uniqueWorker.rxxtPrefixes, "generate.doc"), ".")
+	prefix := strings.Join(append(internalGetWorker().rxxtPrefixes, "generate.doc"), ".")
 	// logrus.Infof("OK gen doc: hit=%v", cmd.strHit)
 	var painter Painter
 	switch command.strHit {
@@ -362,6 +363,7 @@ func genDoc(command *Command, args []string) (err error) {
 	}
 
 	// fmt.Printf("  .  . args = [%v]\n", args)
+	w := internalGetWorker()
 	err = WalkAllCommands(func(cmd *Command, index int) (err error) {
 		painter.Reset()
 		// fmt.Printf("  .  .  cmd = %v\n", cmd.GetTitleNames())
@@ -373,14 +375,14 @@ func genDoc(command *Command, args []string) (err error) {
 
 		fn := cmd.root.AppName
 		if !cmd.IsRoot() {
-			cmds := strings.ReplaceAll(uniqueWorker.backtraceCmdNames(cmd), ".", "-")
+			cmds := strings.ReplaceAll(w.backtraceCmdNames(cmd), ".", "-")
 			if len(cmds) > 0 {
 				fn += "-" + cmds
 			}
 		}
 		fn = fmt.Sprintf("%s/%v.md", dir, fn)
 
-		uniqueWorker.paintFromCommand(painter, cmd, false)
+		w.paintFromCommand(painter, cmd, false)
 		if err = ioutil.WriteFile(fn, painter.Results(), 0644); err == nil {
 			logrus.Debugf("'%v' generated...", fn)
 		}

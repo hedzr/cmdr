@@ -10,7 +10,7 @@ import (
 )
 
 func dumpTreeForAllCommands(cmd *Command, args []string) (err error) {
-	command := &uniqueWorker.rootCommand.Command
+	command := &internalGetWorker().rootCommand.Command
 	_ = walkFromCommand(command, 0, func(cmd *Command, index int) (e error) {
 		if cmd.Hidden {
 			return

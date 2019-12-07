@@ -6,8 +6,6 @@ package cmdr
 
 import (
 	"bufio"
-	"errors"
-	"fmt"
 	"sync"
 )
 
@@ -52,7 +50,7 @@ type (
 		Examples        string
 		Hidden          bool
 
-		// Deprecated is a version string just like '0.5.9', that means this command/flag was/will be deprecated since `v0.5.9`.
+		// Deprecated is a version string just like '0.5.9' or 'v0.5.9', that means this command/flag was/will be deprecated since `v0.5.9`.
 		Deprecated string
 
 		// Action is callback for the last recognized command/sub-command.
@@ -61,7 +59,7 @@ type (
 		Action func(cmd *Command, args []string) (err error)
 	}
 
-	// Command holds the structure of commands and subcommands
+	// Command holds the structure of commands and sub-commands
 	Command struct {
 		BaseOpt
 
@@ -231,45 +229,10 @@ var (
 	// getEditor sets callback to get editor program
 	// getEditor func() (string, error)
 
-	// ErrShouldBeStopException tips `Exec()` cancelled the following actions after `PreAction()`
-	ErrShouldBeStopException = errors.New("should be stop right now")
-
-	// ErrBadArg is a generic error for user
-	ErrBadArg = errors.New("bas argument")
-
-	errWrongEnumValue = errors.New("unexpect enumerable value '%s' for option '%s', under command '%s'")
-
 	defaultStringMetric = JaroWinklerDistance(JWWithThreshold(similarThreshold))
 )
 
 const similarThreshold = 0.6666666666666666
-
-// ErrorForCmdr structure
-type ErrorForCmdr struct {
-	Inner     error
-	Ignorable bool
-	Msg       string
-}
-
-// NewError formats a ErrorForCmdr object
-func NewError(ignorable bool, inner error, args ...interface{}) *ErrorForCmdr {
-	if len(args) > 0 {
-		return &ErrorForCmdr{Inner: nil, Ignorable: ignorable, Msg: fmt.Sprintf(inner.Error(), args...)}
-	}
-	return &ErrorForCmdr{Inner: inner, Ignorable: ignorable}
-}
-
-// NewErrorWithMsg formats a ErrorForCmdr object
-func NewErrorWithMsg(msg string, inner error) *ErrorForCmdr {
-	return &ErrorForCmdr{Inner: inner, Ignorable: false, Msg: msg}
-}
-
-func (s *ErrorForCmdr) Error() string {
-	if s.Inner != nil {
-		return fmt.Sprintf("Error: %v. Inner: %v", s.Msg, s.Inner.Error())
-	}
-	return s.Msg
-}
 
 // GetStrictMode enables error when opt value missed. such as:
 // xxx a b --prefix''   => error: prefix opt has no value specified.

@@ -10,6 +10,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"github.com/hedzr/cmdr/plugin/isdelve"
+	"io"
 	"io/ioutil"
 	"log"
 	"math"
@@ -24,7 +25,7 @@ import (
 // if cmd == nil: finding from root command
 func FindSubCommand(longName string, cmd *Command) (res *Command) {
 	if cmd == nil {
-		cmd = &uniqueWorker.rootCommand.Command
+		cmd = &internalGetWorker().rootCommand.Command
 	}
 	res = cmd.FindSubCommand(longName)
 	return
@@ -34,7 +35,7 @@ func FindSubCommand(longName string, cmd *Command) (res *Command) {
 // if cmd == nil: finding from root command
 func FindFlag(longName string, cmd *Command) (res *Flag) {
 	if cmd == nil {
-		cmd = &uniqueWorker.rootCommand.Command
+		cmd = &internalGetWorker().rootCommand.Command
 	}
 	res = cmd.FindFlag(longName)
 	return
@@ -44,7 +45,7 @@ func FindFlag(longName string, cmd *Command) (res *Flag) {
 // if cmd == nil: finding from root command
 func FindSubCommandRecursive(longName string, cmd *Command) (res *Command) {
 	if cmd == nil {
-		cmd = &uniqueWorker.rootCommand.Command
+		cmd = &internalGetWorker().rootCommand.Command
 	}
 	res = cmd.FindSubCommandRecursive(longName)
 	return
@@ -54,7 +55,7 @@ func FindSubCommandRecursive(longName string, cmd *Command) (res *Command) {
 // if cmd == nil: finding from root command
 func FindFlagRecursive(longName string, cmd *Command) (res *Flag) {
 	if cmd == nil {
-		cmd = &uniqueWorker.rootCommand.Command
+		cmd = &internalGetWorker().rootCommand.Command
 	}
 	res = cmd.FindFlagRecursive(longName)
 	return
@@ -104,7 +105,8 @@ func tplApply(tmpl string, data interface{}) string {
 	var w = new(bytes.Buffer)
 	var tpl = template.Must(template.New("x").Parse(tmpl))
 	if err := tpl.Execute(w, data); err != nil {
-		log.Fatalf("tpl execute error: %v", err)
+		log.Printf("tpl execute error: %v", err)
+		return ""
 	}
 	return w.String()
 }
@@ -471,10 +473,10 @@ var (
 
 // IsDigitHeavy tests if the whole string is digit
 func IsDigitHeavy(s string) bool {
-	m, err := regexp.MatchString("^\\d+$", s)
-	if err != nil {
-		return false
-	}
+	m, _ := regexp.MatchString("^\\d+$", s)
+	// if err != nil {
+	// 	return false
+	// }
 	return m
 }
 
@@ -498,24 +500,24 @@ func (w *ExecWorker) getArgs(pkg *ptpkg, args []string) []string {
 }
 
 // PressEnterToContinue lets program pause and wait for user's ENTER key press in console/terminal
-func PressEnterToContinue(msg ...string) (input string) {
+func PressEnterToContinue(in io.Reader, msg ...string) (input string) {
 	if len(msg) > 0 && len(msg[0]) > 0 {
 		fmt.Print(msg[0])
 	} else {
 		fmt.Print("Press 'Enter' to continue...")
 	}
-	b, _ := bufio.NewReader(os.Stdin).ReadBytes('\n')
+	b, _ := bufio.NewReader(in).ReadBytes('\n')
 	return strings.TrimRight(string(b), "\n")
 }
 
 // PressAnyKeyToContinue lets program pause and wait for user's ANY key press in console/terminal
-func PressAnyKeyToContinue(msg ...string) (input string) {
+func PressAnyKeyToContinue(in io.Reader, msg ...string) (input string) {
 	if len(msg) > 0 && len(msg[0]) > 0 {
 		fmt.Print(msg[0])
 	} else {
 		fmt.Print("Press any key to continue...")
 	}
-	_, _ = fmt.Scanf("%s", &input)
+	_, _ = fmt.Fscanf(in, "%s", &input)
 	return
 }
 

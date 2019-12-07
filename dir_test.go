@@ -7,7 +7,6 @@ package cmdr_test
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"fmt"
 	"github.com/hedzr/cmdr"
 	"os"
@@ -46,21 +45,6 @@ func TestDumpers(t *testing.T) {
 	if cmdr.DumpAsString() == "" {
 		t.Fatal("fatal DumpAsString")
 	}
-
-}
-
-func TestNewError(t *testing.T) {
-
-	errWrongEnumValue := errors.New("unexpect enumerable value '%s' for option '%s', under command '%s'")
-
-	err := cmdr.NewError(false, errWrongEnumValue, "ds", "head", "server")
-	println(err)
-
-	err = cmdr.NewError(true, errors.New("unexpect enumerable value"))
-	println(err.Error())
-
-	err = cmdr.NewErrorWithMsg("Holo", errors.New("unexpect enumerable value"))
-	println(err.Error())
 
 }
 

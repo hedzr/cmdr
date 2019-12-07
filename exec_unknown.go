@@ -45,7 +45,7 @@ func unknownCommandDetector(pkg *ptpkg, cmd *Command, args []string) {
 	ever := false
 	for k := range cmd.plainCmds {
 		distance := float64(defaultStringMetric.Calc(pkg.a, k)) / stringMetricFactor
-		if distance >= uniqueWorker.similarThreshold {
+		if distance >= internalGetWorker().similarThreshold {
 			ferr("  - do you mean: %v", k)
 			ever = true
 		}
@@ -74,7 +74,7 @@ func unknownFlagDetector(pkg *ptpkg, cmd *Command, args []string) {
 		str := stripPrefix(pkg.a, "--")
 		for k := range cmd.plainLongFlags {
 			distance := float64(defaultStringMetric.Calc(str, k)) / stringMetricFactor
-			if distance >= uniqueWorker.similarThreshold {
+			if distance >= internalGetWorker().similarThreshold {
 				ferr("  - do you mean: --%v", k)
 				ever = true
 				// } else {

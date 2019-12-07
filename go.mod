@@ -5,6 +5,7 @@ go 1.12
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/fsnotify/fsnotify v1.4.7
+	github.com/hedzr/errors v1.1.7
 	github.com/hedzr/logex v1.1.0
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/sirupsen/logrus v1.4.2
@@ -15,3 +16,9 @@ require (
 
 // exclude github.com/sirupsen/logrus v1.4.1
 // exclude github.com/sirupsen/logrus v1.4.2
+
+// replace github.com/hedzr/logex v0.0.0 => ../logex
+
+// replace github.com/hedzr/pools v0.0.0 => ../pools
+
+// replace github.com/hedzr/errors v0.0.0 => ../errors

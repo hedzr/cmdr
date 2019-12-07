@@ -11,17 +11,17 @@ import (
 
 // PrintHelp prints help screen
 func (c *Command) PrintHelp(justFlags bool) {
-	uniqueWorker.printHelp(c, justFlags)
+	internalGetWorker().printHelp(c, justFlags)
 }
 
 // PrintVersion prints versions information
 func (c *Command) PrintVersion() {
-	uniqueWorker.showVersion()
+	internalGetWorker().showVersion()
 }
 
 // PrintBuildInfo print building information
 func (c *Command) PrintBuildInfo() {
-	uniqueWorker.showBuildInfo()
+	internalGetWorker().showBuildInfo()
 }
 
 // GetRoot returns the `RootCommand`

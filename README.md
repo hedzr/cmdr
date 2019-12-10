@@ -433,7 +433,7 @@ import "github.com/hedzr/cmdr"
     
   - As a feature, do NOT watch the changes on `<appname>.yml`.
   
-    - since v1.6.9, `WithWatchMainConfigFileToo(true)` allows watching the main config file `<appname>.yml` too.
+    - *since v1.6.9*, `WithWatchMainConfigFileToo(true)` allows watching the main config file `<appname>.yml` too.
 
   - To customize the searching locations yourself:
 

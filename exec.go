@@ -32,7 +32,9 @@ type ExecWorker struct {
 	enableCmdrCommands     bool
 	enableGenerateCommands bool
 
-	doNotLoadingConfigFiles bool
+	watchMainConfigFileToo   bool
+	doNotLoadingConfigFiles  bool
+	doNotWatchingConfigFiles bool
 
 	globalShowVersion   func()
 	globalShowBuildInfo func()

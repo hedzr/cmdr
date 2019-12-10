@@ -131,22 +131,3 @@ func normalizeDir(s string) string {
 		return s
 	}
 }
-
-// GetPredefinedLocations return the searching locations for loading config files.
-func GetPredefinedLocations() []string {
-	return internalGetWorker().predefinedLocations
-}
-
-// // SetPredefinedLocations to customize the searching locations for loading config files.
-// //
-// // It MUST be invoked before `cmdr.Exec`. Such as:
-// // ```go
-// //     SetPredefinedLocations([]string{"./config", "~/.config/cmdr/", "$GOPATH/running-configs/cmdr"})
-// // ```
-// func SetPredefinedLocations(locations []string) {
-// 	uniqueWorker.predefinedLocations = locations
-// }
-
-func setPredefinedLocations(locations ...string) {
-	internalGetWorker().predefinedLocations = locations
-}

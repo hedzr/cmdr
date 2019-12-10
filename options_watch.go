@@ -20,12 +20,14 @@ import (
 	"sync"
 )
 
-// GetOptions returns the global options instance (rxxtOptions), ie. cmdr Options Store
+// GetOptions returns the global options instance (rxxtOptions),
+// ie. cmdr Options Store
 func GetOptions() *Options {
 	return internalGetWorker().rxxtOptions
 }
 
-// GetUsedConfigFile returns the main config filename (generally it's `<appname>.yml`)
+// GetUsedConfigFile returns the main config filename (generally
+// it's `<appname>.yml`)
 func GetUsedConfigFile() string {
 	return internalGetWorker().rxxtOptions.usedConfigFile
 }
@@ -37,9 +39,16 @@ func GetUsedConfigSubDir() string {
 	return internalGetWorker().rxxtOptions.usedConfigSubDir
 }
 
+// GetUsingConfigFiles returns all loaded config files, includes
+// the main config file and children in sub-directory `conf.d`.
+func GetUsingConfigFiles() []string {
+	return internalGetWorker().rxxtOptions.configFiles
+}
+
 // var rwlCfgReload = new(sync.RWMutex)
 
-// AddOnConfigLoadedListener adds an functor on config loaded and merged
+// AddOnConfigLoadedListener adds an functor on config loaded
+// and merged
 func AddOnConfigLoadedListener(c ConfigReloaded) {
 	defer internalGetWorker().rxxtOptions.rwlCfgReload.Unlock()
 	internalGetWorker().rxxtOptions.rwlCfgReload.Lock()
@@ -58,7 +67,8 @@ func AddOnConfigLoadedListener(c ConfigReloaded) {
 	internalGetWorker().rxxtOptions.onConfigReloadedFunctions[c] = true
 }
 
-// RemoveOnConfigLoadedListener remove an functor on config loaded and merged
+// RemoveOnConfigLoadedListener remove an functor on config
+// loaded and merged
 func RemoveOnConfigLoadedListener(c ConfigReloaded) {
 	w := internalGetWorker()
 	defer w.rxxtOptions.rwlCfgReload.Unlock()
@@ -66,7 +76,8 @@ func RemoveOnConfigLoadedListener(c ConfigReloaded) {
 	delete(w.rxxtOptions.onConfigReloadedFunctions, c)
 }
 
-// SetOnConfigLoadedListener enable/disable an functor on config loaded and merged
+// SetOnConfigLoadedListener enable/disable an functor on config
+// loaded and merged
 func SetOnConfigLoadedListener(c ConfigReloaded, enabled bool) {
 	w := internalGetWorker()
 	defer w.rxxtOptions.rwlCfgReload.Unlock()
@@ -74,13 +85,15 @@ func SetOnConfigLoadedListener(c ConfigReloaded, enabled bool) {
 	w.rxxtOptions.onConfigReloadedFunctions[c] = enabled
 }
 
-// LoadConfigFile loads a yaml config file and merge the settings into `rxxtOptions`
+// LoadConfigFile loads a yaml config file and merge the settings
+// into `rxxtOptions`
 // and load files in the `conf.d` child directory too.
 func LoadConfigFile(file string) (err error) {
 	return internalGetWorker().rxxtOptions.LoadConfigFile(file)
 }
 
-// LoadConfigFile loads a yaml config file and merge the settings into `rxxtOptions`
+// LoadConfigFile loads a yaml config file and merge the settings
+// into `rxxtOptions`
 // and load files in the `conf.d` child directory too.
 func (s *Options) LoadConfigFile(file string) (err error) {
 	if !FileExists(file) {
@@ -93,8 +106,16 @@ func (s *Options) LoadConfigFile(file string) (err error) {
 	}
 
 	s.usedConfigFile = file
+
 	dir := path.Dir(s.usedConfigFile)
 	_ = os.Setenv("CFG_DIR", dir)
+
+	enableWatching := internalGetWorker().watchMainConfigFileToo
+	dirWatch := dir
+	filesWatching := []string{}
+	if internalGetWorker().watchMainConfigFileToo {
+		filesWatching = append(filesWatching, s.usedConfigFile)
+	}
 
 	s.usedConfigSubDir = path.Join(dir, "conf.d")
 	if !FileExists(s.usedConfigSubDir) {
@@ -106,9 +127,17 @@ func (s *Options) LoadConfigFile(file string) (err error) {
 	if err == nil {
 		err = filepath.Walk(s.usedConfigSubDir, s.visit)
 		if err == nil {
-			s.watchConfigDir(s.usedConfigSubDir)
+			if !internalGetWorker().watchMainConfigFileToo {
+				dirWatch = s.usedConfigSubDir
+			}
+			filesWatching = append(filesWatching, s.configFiles...)
+			enableWatching = true
 		}
 		// log.Fatalf("ERROR: filepath.Walk() returned %v\n", err)
+	}
+
+	if enableWatching {
+		s.watchConfigDir(dirWatch, filesWatching)
 	}
 	return
 }
@@ -223,15 +252,15 @@ func (s *Options) reloadConfig() {
 	}
 }
 
-func (s *Options) watchConfigDir(configDir string) {
-	if GetBoolR("no-watch-conf-dir") {
+func (s *Options) watchConfigDir(configDir string, filesWatching []string) {
+	if internalGetWorker().doNotWatchingConfigFiles || GetBoolR("no-watch-conf-dir") {
 		return
 	}
 
 	initWG := &sync.WaitGroup{}
 	initWG.Add(1)
 	// initExitingChannelForFsWatcher()
-	go fsWatcherRoutine(s, configDir, initWG)
+	go fsWatcherRoutine(s, configDir, filesWatching, initWG)
 	initWG.Wait() // make sure that the go routine above fully ended before returning
 	s.SetNx("watching", true)
 }
@@ -243,4 +272,14 @@ func testCfgSuffix(name string) bool {
 		}
 	}
 	return false
+}
+
+func testArrayContains(s string, container []string) (contained bool) {
+	for _, ss := range container {
+		if ss == s {
+			contained = true
+			break
+		}
+	}
+	return
 }

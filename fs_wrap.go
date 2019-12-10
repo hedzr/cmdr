@@ -18,7 +18,7 @@ import (
 	"sync"
 )
 
-func fsWatcherRoutine(s *Options, configDir string, initWG *sync.WaitGroup) {
+func fsWatcherRoutine(s *Options, configDir string, filesWatching []string, initWG *sync.WaitGroup) {
 	// effw.Lock()
 	// if cmdrExitingForFsWatcher != nil {
 	// 	effw.Unlock()
@@ -35,7 +35,7 @@ func fsWatcherRoutine(s *Options, configDir string, initWG *sync.WaitGroup) {
 
 		eventsWG := &sync.WaitGroup{}
 		eventsWG.Add(1)
-		go fsWatchRunner(s, configDir, watcher, eventsWG)
+		go fsWatchRunner(s, configDir, filesWatching, watcher, eventsWG)
 		_ = watcher.Add(configDir)
 		initWG.Done()   // done initializing the watch in this go routine, so the parent routine can move on...
 		eventsWG.Wait() // now, wait for event loop to end in this go-routine...
@@ -44,7 +44,7 @@ func fsWatcherRoutine(s *Options, configDir string, initWG *sync.WaitGroup) {
 	}
 }
 
-func fsWatchRunner(s *Options, configDir string, watcher *fsnotify.Watcher, eventsWG *sync.WaitGroup) {
+func fsWatchRunner(s *Options, configDir string, filesWatching []string, watcher *fsnotify.Watcher, eventsWG *sync.WaitGroup) {
 	defer func() {
 		// effw.Lock()
 		// defer effw.Unlock()
@@ -65,19 +65,29 @@ func fsWatchRunner(s *Options, configDir string, watcher *fsnotify.Watcher, even
 				// 1 - if the config file was modified or created
 				// 2 - if the real path to the config file changed (eg: k8s ConfigMap replacement)
 				const writeOrCreateMask = fsnotify.Write | fsnotify.Create
-				if strings.HasPrefix(filepath.Clean(event.Name), configDir) &&
-					event.Op&writeOrCreateMask != 0 &&
-					(testCfgSuffix(event.Name)) {
-					file, err := os.Open(event.Name)
-					if err != nil {
-						log.Printf("ERROR: os.Open() returned %v\n", err)
-					} else {
-						err = s.mergeConfigFile(bufio.NewReader(file), path.Ext(event.Name))
-						if err != nil {
-							log.Printf("ERROR: os.Open() returned %v\n", err)
+
+				if event.Op&writeOrCreateMask != 0 {
+					suffixIsValid := testCfgSuffix(event.Name)
+					if suffixIsValid {
+						inside := strings.HasPrefix(filepath.Clean(event.Name), configDir)
+						include := testArrayContains(event.Name, filesWatching)
+						if inside || include {
+							file, err := os.Open(event.Name)
+							if err != nil {
+								log.Printf("ERROR: os.Open() returned %v\n", err)
+							} else {
+								err = s.mergeConfigFile(bufio.NewReader(file), path.Ext(event.Name))
+								if err != nil {
+									log.Printf("ERROR: os.Open() returned %v\n", err)
+								}
+								s.reloadConfig()
+								_ = file.Close()
+
+								if !include {
+									filesWatching = append(filesWatching, event.Name)
+								}
+							}
 						}
-						s.reloadConfig()
-						file.Close()
 					}
 				}
 			}

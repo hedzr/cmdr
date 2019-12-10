@@ -114,6 +114,45 @@ func WithPredefinedLocations(locations ...string) ExecOption {
 	}
 }
 
+// WithWatchMainConfigFileToo enables the watcher on main config file.
+// By default, cmdr watches all files in the sub-directory `conf.d` of
+// which folder contains the main config file. But as a feature,
+// cmdr ignore the changes in main config file.
+//
+// WithWatchMainConfigFileToo can switch this feature.
+//
+// envvars:
+//
+//    CFG_DIR: will be set to the folder contains the main config file
+//    no-watch-conf-dir: if set true, the watcher will be disabled.
+//
+func WithWatchMainConfigFileToo(b bool) ExecOption {
+	return func(w *ExecWorker) {
+		w.watchMainConfigFileToo = b
+	}
+}
+
+// WithNoLoadConfigFiles true means no loading config files
+func WithNoLoadConfigFiles(b bool) ExecOption {
+	return func(w *ExecWorker) {
+		w.doNotLoadingConfigFiles = b
+	}
+}
+
+// WithNoWatchConfigFiles true means no watching the config files
+func WithNoWatchConfigFiles(b bool) ExecOption {
+	return func(w *ExecWorker) {
+		w.doNotWatchingConfigFiles = b
+	}
+}
+
+// WithConfigLoadedListener add an functor on config loaded and merged
+func WithConfigLoadedListener(c ConfigReloaded) ExecOption {
+	return func(w *ExecWorker) {
+		AddOnConfigLoadedListener(c)
+	}
+}
+
 // WithIgnoreWrongEnumValue will be put into `cmdrError.Ignorable`
 // while wrong enumerable value found in parsing command-line
 // options.
@@ -185,24 +224,10 @@ func WithNoDefaultHelpScreen(b bool) ExecOption {
 	}
 }
 
-// WithNoLoadConfigFiles true means no loading config files
-func WithNoLoadConfigFiles(b bool) ExecOption {
-	return func(w *ExecWorker) {
-		w.doNotLoadingConfigFiles = b
-	}
-}
-
 // WithHelpPainter allows to change the behavior and facade of help screen.
 func WithHelpPainter(painter Painter) ExecOption {
 	return func(w *ExecWorker) {
 		w.currentHelpPainter = painter
-	}
-}
-
-// WithConfigLoadedListener add an functor on config loaded and merged
-func WithConfigLoadedListener(c ConfigReloaded) ExecOption {
-	return func(w *ExecWorker) {
-		AddOnConfigLoadedListener(c)
 	}
 }
 

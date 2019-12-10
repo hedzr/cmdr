@@ -41,6 +41,7 @@ func main() {
 		cmdr.WithLogexPrefix("logger"),
 
 		cmdr.WithHelpTabStop(50),
+		cmdr.WithWatchMainConfigFileToo(true),
 
 		optAddTraceOption,
 	); err != nil {
@@ -134,7 +135,11 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 			fmt.Println()
 			fmt.Printf("*** test text: %s\n", cmdr.GetStringR("mx-test.test"))
 			fmt.Println()
-			fmt.Printf("InTesting: args[0]=%v ", cmdr.SavedOsArgs[0])
+			fmt.Printf("InTesting: args[0]=%v \n", cmdr.SavedOsArgs[0])
+			fmt.Println()
+			fmt.Printf("Used config file: %v\n", cmdr.GetUsedConfigFile())
+			fmt.Printf("Used config files: %v\n", cmdr.GetUsingConfigFiles())
+			fmt.Printf("Used config sub-dir: %v\n", cmdr.GetUsedConfigSubDir())
 			return
 		})
 	mx.NewFlagV("").

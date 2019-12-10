@@ -39,6 +39,7 @@ import "github.com/hedzr/cmdr"
 ## News
 
 - *WIP* v1.6.9
+  - Adds `WithWatchMainConfigFileToo(bool)`
   - v1.6.8 for a nacl bug
       - Adds `PressEnterToContinue()`, `PressAnyKeyToContinue()`
       - Adds `StripQuotes(s)`, `StripPrefix(s,p)`
@@ -431,6 +432,8 @@ import "github.com/hedzr/cmdr"
     - `SetOnConfigLoadedListener(c, enabled)`
     
   - As a feature, do NOT watch the changes on `<appname>.yml`.
+  
+    - since v1.6.9, `WithWatchMainConfigFileToo(true)` allows watching the main config file `<appname>.yml` too.
 
   - To customize the searching locations yourself:
 

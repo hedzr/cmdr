@@ -51,7 +51,7 @@ func benchmarkGetStringR(lock bool, b *testing.B) {
 	b.Log("got id: ", str)
 }
 
-func prepare(lock bool, b *testing.B){
+func prepare(lock bool, b *testing.B) {
 	if lock {
 		cmdr.InternalResetWorker()
 	} else {
@@ -157,4 +157,4 @@ BenchmarkGetStringRLock-4     	100000000	       220 ns/op
     b_test.go:51: got id:  default-kafka
 PASS
 ok  	github.com/hedzr/cmdr	123.291s
- */
+*/

@@ -38,7 +38,7 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- *WIP* v1.6.9
+- v1.6.9
   - Adds `WithWatchMainConfigFileToo(bool)`
   - v1.6.8 for a nacl bug
       - Adds `PressEnterToContinue()`, `PressAnyKeyToContinue()`

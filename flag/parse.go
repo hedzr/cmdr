@@ -7,11 +7,14 @@ package flag
 import (
 	"github.com/hedzr/cmdr"
 	"log"
-	"os"
 )
 
 func init() {
 	pfRootCmd = cmdr.Root("", "")
+	pfRootCmd.Action(func(cmd *cmdr.Command, args []string) (err error) {
+		parsedArgs = args
+		return 
+	})
 }
 
 // Parse parses the command-line flags from os.Args[1:]. Must be called
@@ -32,7 +35,12 @@ func Parsed() bool {
 }
 
 // Args returns the non-flag command-line arguments.
-func Args() []string { return os.Args[1:] }
+func Args() []string { return parsedArgs }
+
+// NArg returns the count of non-flag command-line arguments.
+func NArg() int { return len(parsedArgs) }
+
+var parsedArgs []string
 
 // TreatAsLongOpt treat name as long option name or short.
 func TreatAsLongOpt(b bool) bool {

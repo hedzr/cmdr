@@ -76,8 +76,8 @@ func (w *ExecWorker) flagsPrepare(pkg *ptpkg, goCommand **Command, args []string
 			pkg.fn = pkg.a[1:i]
 			pkg.savedFn = pkg.a[i:]
 		} else {
-			pkg.fn = pkg.a[1:2]
-			pkg.savedFn = pkg.a[2:]
+			pkg.fn = pkg.a[1:2]     // from one char
+			pkg.savedFn = pkg.a[2:] // save others
 		}
 		pkg.short = true
 		pkg.findValueAttached(&pkg.savedFn)
@@ -90,7 +90,11 @@ func (w *ExecWorker) flagsMatching(pkg *ptpkg, cc *Command, goCommand **Command,
 GO_UP:
 	pkg.found = false
 	if pkg.short {
-		pkg.flg, matched = cc.plainShortFlags[pkg.fn]
+		if i := pkg.matchShortFlag(cc, "-"+pkg.fn+pkg.savedFn); i >= 0 {
+			pkg.fn = pkg.a[1:i]
+			pkg.savedFn = pkg.a[i:]
+			pkg.flg, matched = cc.plainShortFlags[pkg.fn]
+		}
 	} else {
 		matched = w.matchForLongFlags(pkg.fn, cc, pkg)
 	}

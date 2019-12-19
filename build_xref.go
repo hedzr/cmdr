@@ -86,28 +86,32 @@ func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
 			cx := &Command{
 				BaseOpt: BaseOpt{
 					Full:        "version",
-					Aliases:     []string{"ver"},
+					Aliases:     []string{"ver", "versions"},
 					Description: "Show the version of this app.",
 					Action: func(cmd *Command, args []string) (err error) {
 						w.showVersion()
 						return ErrShouldBeStopException
 					},
 					Hidden: true,
+					Group:  SysMgmtGroup,
 					owner:  &root.Command,
 				},
 			}
 			root.SubCommands = append(root.SubCommands, cx)
 			root.allCmds[SysMgmtGroup]["version"] = cx
+			root.allCmds[SysMgmtGroup]["versions"] = cx
 			root.allCmds[SysMgmtGroup]["ver"] = cx
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["version"]; !ok {
-			root.allFlags[SysMgmtGroup]["version"] = &Flag{
+			ff := &Flag{
 				BaseOpt: BaseOpt{
 					Short:       "V",
 					Full:        "version",
-					Aliases:     []string{"ver"},
+					Aliases:     []string{"ver", "versions"},
 					Description: "Show the version of this app.",
-					// Hidden:      true,
+					Hidden:      true,
+					Group:       SysMgmtGroup,
+					owner:       &root.Command,
 					Action: func(cmd *Command, args []string) (err error) {
 						w.showVersion()
 						return ErrShouldBeStopException
@@ -115,17 +119,22 @@ func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
 				},
 				DefaultValue: false,
 			}
-			root.plainLongFlags["version"] = root.allFlags[SysMgmtGroup]["version"]
-			root.plainLongFlags["ver"] = root.allFlags[SysMgmtGroup]["version"]
-			root.plainShortFlags["V"] = root.allFlags[SysMgmtGroup]["version"]
+			root.Flags = append(root.Flags, ff)
+			root.allFlags[SysMgmtGroup]["version"] = ff
+			root.plainLongFlags["version"] = ff
+			root.plainLongFlags["versions"] = ff
+			root.plainLongFlags["ver"] = ff
+			root.plainShortFlags["V"] = ff
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["version-sim"]; !ok {
-			root.allFlags[SysMgmtGroup]["version-sim"] = &Flag{
+			ff := &Flag{
 				BaseOpt: BaseOpt{
 					Full:        "version-sim",
 					Aliases:     []string{"version-simulate"},
 					Description: "Simulate a faked version number for this app.",
 					Hidden:      true,
+					Group:       SysMgmtGroup,
+					owner:       &root.Command,
 					Action: func(cmd *Command, args []string) (err error) {
 						conf.Version = GetStringR("version-sim")
 						Set("version", conf.Version) // set into option 'app.version' too.
@@ -134,8 +143,10 @@ func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
 				},
 				DefaultValue: "",
 			}
-			root.plainLongFlags["version-sim"] = root.allFlags[SysMgmtGroup]["version-sim"]
-			root.plainLongFlags["version-simulate"] = root.allFlags[SysMgmtGroup]["version-sim"]
+			root.Flags = append(root.Flags, ff)
+			root.allFlags[SysMgmtGroup]["version-sim"] = ff
+			root.plainLongFlags["version-sim"] = ff
+			root.plainLongFlags["version-simulate"] = ff
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["build-info"]; !ok {
 			root.allFlags[SysMgmtGroup]["build-info"] = &Flag{
@@ -144,6 +155,8 @@ func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
 					Aliases:     []string{},
 					Description: "Show the building information of this app.",
 					Hidden:      true,
+					Group:       SysMgmtGroup,
+					owner:       &root.Command,
 					Action: func(cmd *Command, args []string) (err error) {
 						w.showBuildInfo()
 						return ErrShouldBeStopException
@@ -160,66 +173,78 @@ func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
 func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 	if w.enableHelpCommands {
 		if _, ok := root.allFlags[SysMgmtGroup]["help"]; !ok {
-			root.allFlags[SysMgmtGroup]["help"] = &Flag{
+			ff := &Flag{
 				BaseOpt: BaseOpt{
 					Short:       "h",
 					Full:        "help",
 					Aliases:     []string{"?", "helpme", "info", "usage"},
 					Description: "Show this help screen",
 					Hidden:      true,
+					Group:       SysMgmtGroup,
+					owner:       &root.Command,
 					Action: func(cmd *Command, args []string) (err error) {
 						// logrus.Debugf("-- helpCommand hit. printHelp and stop.")
 						// printHelp(cmd)
 						// return ErrShouldBeStopException
 						return nil
 					},
-					owner: &root.Command,
 				},
 				DefaultValue: false,
 			}
-			root.plainLongFlags["help"] = root.allFlags[SysMgmtGroup]["help"]
-			root.plainLongFlags["helpme"] = root.allFlags[SysMgmtGroup]["help"]
-			root.plainLongFlags["info"] = root.allFlags[SysMgmtGroup]["help"]
-			root.plainLongFlags["usage"] = root.allFlags[SysMgmtGroup]["help"]
-			root.plainShortFlags["h"] = root.allFlags[SysMgmtGroup]["help"]
-			root.plainShortFlags["?"] = root.allFlags[SysMgmtGroup]["help"]
+			root.Flags = append(root.Flags, ff)
+			root.allFlags[SysMgmtGroup]["help"] = ff
+			root.plainLongFlags["help"] = ff
+			root.plainLongFlags["helpme"] = ff
+			root.plainLongFlags["info"] = ff
+			root.plainLongFlags["usage"] = ff
+			root.plainShortFlags["h"] = ff
+			root.plainShortFlags["?"] = ff
 
-			root.allFlags[SysMgmtGroup]["help-zsh"] = &Flag{
+			ff = &Flag{
 				BaseOpt: BaseOpt{
 					Full:        "help-zsh",
 					Description: "show help with zsh format, or others",
 					Hidden:      true,
+					Group:       SysMgmtGroup,
 					owner:       &root.Command,
 				},
 				DefaultValue:            0,
 				DefaultValuePlaceholder: "LEVEL",
 			}
-			root.allFlags[SysMgmtGroup]["help-bash"] = &Flag{
+			root.Flags = append(root.Flags, ff)
+			root.allFlags[SysMgmtGroup]["help-zsh"] = ff
+			root.plainLongFlags["help-zsh"] = ff
+			ff = &Flag{
 				BaseOpt: BaseOpt{
 					Full:        "help-bash",
 					Description: "show help with bash format, or others",
 					Hidden:      true,
+					Group:       SysMgmtGroup,
 					owner:       &root.Command,
 				},
 				DefaultValue: false,
 			}
-			root.plainLongFlags["help-zsh"] = root.allFlags[SysMgmtGroup]["help-zsh"]
-			root.plainLongFlags["help-bash"] = root.allFlags[SysMgmtGroup]["help-bash"]
+			root.Flags = append(root.Flags, ff)
+			root.allFlags[SysMgmtGroup]["help-bash"] = ff
+			root.plainLongFlags["help-bash"] = ff
 
-			root.allFlags[SysMgmtGroup]["tree"] = &Flag{
+			ff = &Flag{
 				BaseOpt: BaseOpt{
 					Full:        "tree",
 					Description: "show a tree for all commands",
 					Hidden:      true,
+					Group:       SysMgmtGroup,
 					owner:       &root.Command,
 					Action:      dumpTreeForAllCommands,
 				},
 				DefaultValue: false,
 			}
-			root.plainLongFlags["tree"] = root.allFlags[SysMgmtGroup]["tree"]
+			root.Flags = append(root.Flags, ff)
+			root.allFlags[SysMgmtGroup]["tree"] = ff
+			root.plainLongFlags["tree"] = ff
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["config"]; !ok {
-			root.allFlags[SysMgmtGroup]["config"] = &Flag{
+			ff := &Flag{
 				BaseOpt: BaseOpt{
 					Full:        "config",
 					Aliases:     []string{},
@@ -229,6 +254,7 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 						// return ErrShouldBeStopException
 						return nil
 					},
+					Group: SysMgmtGroup,
 					owner: &root.Command,
 					// TODO how to display examples section for a flag?
 					Examples: `
@@ -241,7 +267,9 @@ $ {{.AppName}} --config=ci/etc/demo-yy/any.yml ~~debug
 				DefaultValue:            "",
 				DefaultValuePlaceholder: "[Locations of config files]",
 			}
-			root.plainLongFlags["config"] = root.allFlags[SysMgmtGroup]["config"]
+			root.Flags = append(root.Flags, ff)
+			root.allFlags[SysMgmtGroup]["config"] = ff
+			root.plainLongFlags["config"] = ff
 		}
 	}
 }
@@ -256,6 +284,7 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 					// Aliases:     []string{"vv", "vvv"},
 					Description: "Show this help screen",
 					// Hidden:      true,
+					Group: SysMgmtGroup,
 					owner: &root.Command,
 					// Action: func(cmd *Command, args []string) (err error) {
 					// 	if f := FindFlag("verbose", cmd); f != nil {
@@ -289,10 +318,12 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 					Aliases:     []string{},
 					Description: "No more screen output.",
 					// Hidden:      true,
+					Group: SysMgmtGroup,
 					owner: &root.Command,
 				},
 				DefaultValue: false,
 			}
+			root.Flags = append(root.Flags, ff)
 			root.allFlags[SysMgmtGroup]["quiet"] = ff
 			root.plainLongFlags["quiet"] = root.allFlags[SysMgmtGroup]["quiet"]
 			root.plainShortFlags["q"] = root.allFlags[SysMgmtGroup]["quiet"]
@@ -305,10 +336,12 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 					Aliases:     []string{},
 					Description: "Get into debug mode.",
 					Hidden:      true,
+					Group:       SysMgmtGroup,
 					owner:       &root.Command,
 				},
 				DefaultValue: false,
 			}
+			root.Flags = append(root.Flags, ff)
 			root.allFlags[SysMgmtGroup]["debug"] = ff
 			root.plainLongFlags["debug"] = root.allFlags[SysMgmtGroup]["debug"]
 			root.plainShortFlags["D"] = root.allFlags[SysMgmtGroup]["debug"]
@@ -321,10 +354,12 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 					Aliases:     []string{},
 					Description: "Dump environment info in `~~debug` mode.",
 					Hidden:      true,
+					Group:       SysMgmtGroup,
 					owner:       &root.Command,
 				},
 				DefaultValue: false,
 			}
+			root.Flags = append(root.Flags, ff)
 			root.allFlags[SysMgmtGroup]["env"] = ff
 			root.plainLongFlags["env"] = root.allFlags[SysMgmtGroup]["env"]
 		}
@@ -336,10 +371,12 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 					Aliases:     []string{},
 					Description: "Dump the option value in raw mode (with golang data structure).",
 					Hidden:      true,
+					Group:       SysMgmtGroup,
 					owner:       &root.Command,
 				},
 				DefaultValue: false,
 			}
+			root.Flags = append(root.Flags, ff)
 			root.allFlags[SysMgmtGroup]["raw"] = ff
 			root.plainLongFlags["raw"] = root.allFlags[SysMgmtGroup]["raw"]
 		}
@@ -351,10 +388,12 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 					Aliases:     []string{},
 					Description: "Dump more info in `~~debug` mode.",
 					Hidden:      true,
+					Group:       SysMgmtGroup,
 					owner:       &root.Command,
 				},
 				DefaultValue: false,
 			}
+			root.Flags = append(root.Flags, ff)
 			root.allFlags[SysMgmtGroup]["more"] = ff
 			root.plainLongFlags["more"] = root.allFlags[SysMgmtGroup]["more"]
 		}
@@ -364,40 +403,49 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 func (w *ExecWorker) attachCmdrCommands(root *RootCommand) {
 	if w.enableCmdrCommands {
 		if _, ok := root.allFlags[SysMgmtGroup]["strict-mode"]; !ok {
-			root.allFlags[SysMgmtGroup]["strict-mode"] = &Flag{
+			ff := &Flag{
 				BaseOpt: BaseOpt{
 					Full:        "strict-mode",
 					Description: "strict mode for `cmdr`.",
 					Hidden:      true,
+					Group:       SysMgmtGroup,
 					owner:       &root.Command,
 				},
 				DefaultValue: false,
 			}
-			root.plainLongFlags["strict-mode"] = root.allFlags[SysMgmtGroup]["strict-mode"]
+			root.Flags = append(root.Flags, ff)
+			root.allFlags[SysMgmtGroup]["strict-mode"] = ff
+			root.plainLongFlags["strict-mode"] = ff
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["no-env-overrides"]; !ok {
-			root.allFlags[SysMgmtGroup]["no-env-overrides"] = &Flag{
+			ff := &Flag{
 				BaseOpt: BaseOpt{
 					Full:        "no-env-overrides",
 					Description: "No env var overrrides for `cmdr`.",
 					Hidden:      true,
+					Group:       SysMgmtGroup,
 					owner:       &root.Command,
 				},
 				DefaultValue: false,
 			}
-			root.plainLongFlags["no-env-overrides"] = root.allFlags[SysMgmtGroup]["no-env-overrides"]
+			root.Flags = append(root.Flags, ff)
+			root.allFlags[SysMgmtGroup]["no-env-overrides"] = ff
+			root.plainLongFlags["no-env-overrides"] = ff
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["no-color"]; !ok {
-			root.allFlags[SysMgmtGroup]["no-color"] = &Flag{
+			ff := &Flag{
 				BaseOpt: BaseOpt{
 					Full:        "no-color",
 					Description: "No color output for `cmdr`.",
 					Hidden:      true,
+					Group:       SysMgmtGroup,
 					owner:       &root.Command,
 				},
 				DefaultValue: false,
 			}
-			root.plainLongFlags["no-color"] = root.allFlags[SysMgmtGroup]["no-color"]
+			root.Flags = append(root.Flags, ff)
+			root.allFlags[SysMgmtGroup]["no-color"] = ff
+			root.plainLongFlags["no-color"] = ff
 		}
 	}
 }

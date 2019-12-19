@@ -41,7 +41,8 @@ import "github.com/hedzr/cmdr"
 - WIP: v1.6.11
   - bugs fixed
     - fixed the group of built-in cmds/flags,
-    - for sequence `-v5 -v`, the valid short option `-v5` will be reported as `can't be found`, 
+    - for sequence `-v5 -v`, the valid short option `-v5` will be reported as `can't be found`,
+    - for `GetStringR(keyPath, defaultValue)`, defaultValue can't applied to the key if it has an empty string value.
     - ...
   - **apis break**:
     <details>

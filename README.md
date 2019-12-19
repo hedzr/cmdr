@@ -43,9 +43,9 @@ import "github.com/hedzr/cmdr"
     - fixed the group of built-in cmds/flags,
     - for sequence `-v5 -v`, the valid short option `-v5` will be reported as `can't be found`, 
     - ...
-  - apis break:
+  - **apis break**:
     <details>
-    These apis adds default value as parameter, such as `NewBool(bool)...` instead of `NewBool()`:
+    These apis adds default value as parameter, such as `NewBool(bool)...` now, instead of `NewBool()`:
     
     - `NewBool(bool)`, `NewString(string)`,
     `NewStringSlice(defaultValue []string)`, `NewIntSlice(defaultValue []int)`, 

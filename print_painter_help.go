@@ -39,7 +39,11 @@ func (s *helpPainter) FpPrintHeader(command *Command) {
 
 func (s *helpPainter) FpPrintHelpTailLine(command *Command) {
 	if internalGetWorker().enableHelpCommands {
-		s.Printf("\nType '-h' or '--help' to get command help screen.")
+		if GetNoColorMode() {
+			s.Printf(fmtTailLineNC, internalGetWorker().helpTailLine)
+		} else {
+			s.Printf(fmtTailLine, CurrentGroupTitleColor, internalGetWorker().helpTailLine)
+		}
 	}
 }
 
@@ -179,9 +183,9 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, defValStr string)
 }
 
 func initTabStop(ts int) {
-	tabStop = ts
+	defaultTabStop = ts
 
-	var s = strconv.Itoa(tabStop)
+	var s = strconv.Itoa(defaultTabStop)
 
 	fmtCmdGroupTitle = "  [\x1b[2m\x1b[%dm%s\x1b[0m]"
 	fmtCmdGroupTitleNC = "  [%s]"
@@ -198,12 +202,20 @@ func initTabStop(ts int) {
 	fmtFlags = "  %-" + s + "s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%s\x1b[0m"
 	fmtFlagsDepNC = "  %-" + s + "s%s%s [deprecated since %v]"
 	fmtFlagsNC = "  %-" + s + "s%s%s"
+
+	fmtTailLine = "\x1b[2m\x1b[%dm%s\x1b[0m"
+	fmtTailLineNC = "%s"
 }
 
 var (
-	tabStop                                                  = 48
+	defaultTabStop                                           = 48
 	fmtCmdGroupTitle, fmtCmdGroupTitleNC                     string
 	fmtCmdline, fmtCmdlineDep, fmtCmdlineNC, fmtCmdlineDepNC string
 	fmtGroupTitle, fmtGroupTitleNC                           string
 	fmtFlags, fmtFlagsDep, fmtFlagsNC, fmtFlagsDepNC         string
+	fmtTailLine, fmtTailLineNC                               string
 )
+
+const defaultTailLine = `
+Type '-h'/'-?' or '--help' to get command help screen. 
+More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-info', '--no-color', '--strict-mode', '--no-env-overrides'...`

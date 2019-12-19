@@ -21,7 +21,7 @@ func ferr(fmtStr string, args ...interface{}) {
 }
 
 func (w *ExecWorker) printHelp(command *Command, justFlags bool) {
-	initTabStop(tabStop)
+	initTabStop(defaultTabStop)
 
 	if GetIntR("help-zsh") > 0 {
 		w.printHelpZsh(command, justFlags)

@@ -61,6 +61,8 @@ type ExecWorker struct {
 	afterArgsParsed func(cmd *Command, args []string) (err error)
 
 	envvarToValueMap map[string]func() string
+
+	helpTailLine string
 }
 
 // ExecOption is the functional option for Exec()
@@ -140,6 +142,8 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 
 		similarThreshold:    similarThreshold,
 		noDefaultHelpScreen: false,
+
+		helpTailLine: defaultTailLine,
 	}
 	WithEnvVarMap(nil)(w)
 

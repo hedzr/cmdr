@@ -13,7 +13,7 @@ func init() {
 	pfRootCmd = cmdr.Root("", "")
 	pfRootCmd.Action(func(cmd *cmdr.Command, args []string) (err error) {
 		parsedArgs = args
-		return 
+		return
 	})
 }
 

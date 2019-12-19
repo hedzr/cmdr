@@ -40,6 +40,19 @@ import "github.com/hedzr/cmdr"
 
 - WIP: v1.6.11
   - bugs fixed
+    - fixed the group of built-in cmds/flags, 
+    - ...
+  - apis break:
+    <details>
+    These apis adds default value as parameter, such as `NewBool(bool)...` instead of `NewBool()`:
+    
+    - `NewBool(bool)`, `NewString(string)`,
+    `NewStringSlice(defaultValue []string)`, `NewIntSlice(defaultValue []int)`, 
+    `NewInt(defaultValue int)`, `NewUint(defaultValue uint)`, `NewInt64(defaultValue int64)`, `NewUint64(defaultValue uint64)`, `NewFloat32(defaultValue float32)`, `NewFloat64(defaultValue float64)`,
+    `NewDuration(defaultValue time.Duration)`,
+       
+    </details>
+  - adds `WithHelpTailLine(line)`
   
 - v1.6.9
   - Adds `WithWatchMainConfigFileToo(bool)`

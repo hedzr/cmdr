@@ -315,7 +315,7 @@ func WithAfterArgsParsed(hookFunc func(cmd *Command, args []string) (err error))
 }
 
 // WithHelpTailLine setup the tail line in help screen
-// 
+//
 // Default line is:
 //   "\nType '-h' or '--help' to get command help screen."
 func WithHelpTailLine(line string) ExecOption {

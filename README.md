@@ -17,8 +17,8 @@
 > [Youtube - 李宗盛2013最新單曲 山丘 官方完整版音檔](https://www.youtube.com/watch?v=_qNpR1Ew5jA) / [Jonathan Lee - Hill *CHT + ENU*](https://www.youtube.com/watch?v=FNlFe8ftBh0)
 
 <!-- ![image](https://user-images.githubusercontent.com/12786150/58327052-29386500-7e61-11e9-8cd6-372aa1f14bfa.png) -->
-![image](https://user-images.githubusercontent.com/12786150/71229810-f46e8c80-2321-11ea-8c0d-d1952f47dad3.png)
-
+<!-- ![image](https://user-images.githubusercontent.com/12786150/71229810-f46e8c80-2321-11ea-8c0d-d1952f47dad3.png) -->
+![gif](https://user-images.githubusercontent.com/12786150/71230660-7f04bb00-2325-11ea-8662-673839a968c8.gif)
 
 ## Import
 

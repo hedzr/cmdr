@@ -69,7 +69,7 @@ import "github.com/hedzr/cmdr"
       - `Flag.EnvVars` be available now. And `newFlagOpt.EnvKeys(keys...)` with same effect in Fluent API style.
   - bugs fixed (better `InTesting()`)
 
-- See also [HISTORY.md](./docs/HISTORY.md)
+- See also [CHANGELOG.md](./documnets/CHANGELOG.md)
 
 
 

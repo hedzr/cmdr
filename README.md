@@ -55,7 +55,7 @@ import "github.com/hedzr/cmdr"
     `NewDuration(time.Duration)`,
        
     </details>
-  - adds `WithHelpTailLine(line)`
+  - adds `WithHelpTailLine(line)` for the customizable dim tail line
   
 - v1.6.9
   - Adds `WithWatchMainConfigFileToo(bool)`

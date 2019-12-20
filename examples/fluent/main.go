@@ -18,10 +18,9 @@ var optAddTraceOption cmdr.ExecOption
 func init() {
 	// attaches `--trace` to root command
 	optAddTraceOption = cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {
-		cmdr.NewBool().
+		cmdr.NewBool(false).
 			Titles("tr", "trace").
 			Description("enable trace mode for tcp/mqtt send/recv data dump", "").
-			DefaultValue(false, "").
 			AttachToRoot(root)
 	}, nil)
 }

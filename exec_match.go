@@ -90,9 +90,10 @@ func (w *ExecWorker) flagsMatching(pkg *ptpkg, cc *Command, goCommand **Command,
 GO_UP:
 	pkg.found = false
 	if pkg.short {
-		if i := pkg.matchShortFlag(cc, "-"+pkg.fn+pkg.savedFn); i >= 0 {
-			pkg.fn = pkg.a[1:i]
-			pkg.savedFn = pkg.a[i:]
+		a := "-" + pkg.fn + pkg.savedFn
+		if i := pkg.matchShortFlag(cc, a); i >= 0 {
+			pkg.fn = a[1:i]
+			pkg.savedFn = a[i:]
 			pkg.flg, matched = cc.plainShortFlags[pkg.fn]
 		}
 	} else {
@@ -151,7 +152,7 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 			}
 		}
 		if isBool(pkg.flg.DefaultValue) || isNil1(pkg.flg.DefaultValue) {
-			pkg.toggleGroup()
+			pkg.tryToggleGroup()
 		}
 
 		if !pkg.assigned {

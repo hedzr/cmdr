@@ -42,7 +42,7 @@ func (pkg *ptpkg) Reset() {
 	pkg.val = ""
 }
 
-func (pkg *ptpkg) toggleGroup() {
+func (pkg *ptpkg) tryToggleGroup() {
 	tg := pkg.flg.ToggleGroup
 	if len(tg) > 0 {
 		for _, f := range pkg.flg.owner.Flags {

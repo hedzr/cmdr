@@ -240,7 +240,7 @@ func TestPtpkgToggleGroup(t *testing.T) {
 		},
 	})
 
-	pkg.toggleGroup()
+	pkg.tryToggleGroup()
 
 	pkg = &ptpkg{flg: &Flag{
 		DefaultValue: time.Second,

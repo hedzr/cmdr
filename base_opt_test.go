@@ -395,3 +395,11 @@ func TestNormalizeDir(t *testing.T) {
 
 	// _ = cmdr.LaunchSudo("ls", "/not-exists")
 }
+
+func TestNoColorMode(t *testing.T) {
+	cmdr.GetStrictMode()
+	cmdr.GetDebugMode()
+	cmdr.GetVerboseMode()
+	cmdr.GetQuietMode()
+	cmdr.GetNoColorMode()
+}

@@ -509,24 +509,37 @@ func TestGetSectionFrom(t *testing.T) {
 func TestTightFlag(t *testing.T) {
 	copyRootCmd = rootCmdForTesting
 	var commands = []string{
-		"consul-tags -t3 -s 5 kv b --help-zsh 2 ~~",
-		"consul-tags -? -vD --vv kv backup --prefix'' -h ~~debug",
+		"consul-tags -? -vD kv backup --prefix'' --help ~~debug",
+		"consul-tags -? ~~debug",
+		"consul-tags -? ~~debug ~~more",
+		"consul-tags -? ~~debug ~~env",
+		"consul-tags -? ~~debug ~~raw",
+		"consul-tags -t3 -s 5 kv b --help --help-zsh 2 ~~",
 	}
+	resetOsArgs()
+	cmdr.ResetOptions()
 	for _, cc := range commands {
-		t.Logf("--- command-line: %v", cc)
+		t.Logf("-> --- command-line: %v", cc)
 		os.Args = strings.Split(cc, " ")
 		// cmdr.SetInternalOutputStreams(nil, nil)
 		if err := cmdr.Exec(rootCmdForTesting, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 			t.Fatal(err)
 		}
+		t.Log("-> stepping")
+		resetOsArgs()
+		cmdr.ResetOptions()
 	}
 
+	t.Log("-> ok end 1")
 	resetOsArgs()
 	cmdr.ResetOptions()
+	t.Log("-> ok end 2")
 }
 
 func TestCmdrClone(t *testing.T) {
 	cmdr.ResetOptions()
+
+	t.Log("-> ok 1")
 
 	if rootCmdForTesting.SubCommands[1].SubCommands[0].Flags[0] == rootCmdForTesting.SubCommands[2].Flags[0] {
 		t.Log(rootCmdForTesting.SubCommands[1].SubCommands[0].Flags)
@@ -701,7 +714,7 @@ var (
 			}
 			return nil
 		},
-		"consul-tags -? -vD --vv kv backup --prefix'' -h ~~debug": func(t *testing.T) error {
+		"consul-tags -? -vD kv backup --prefix'' -h ~~debug": func(t *testing.T) error {
 			if cmdr.GetInt("app.kv.port") != 8500 || cmdr.GetString("app.kv.prefix") != "" ||
 				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") ||
 				!cmdr.GetVerboseMode() || !cmdr.GetDebugMode() {
@@ -712,7 +725,7 @@ var (
 			}
 			return nil
 		},
-		"consul-tags -vD --vv ms tags modify --prefix'' --help ~~debug --prefix\"\" --prefix'cmdr' --prefix\"app\" --prefix=/ --prefix/ --prefix /": func(t *testing.T) error {
+		"consul-tags -vD ms tags modify --prefix'' --help ~~debug --prefix\"\" --prefix'cmdr' --prefix\"app\" --prefix=/ --prefix/ --prefix /": func(t *testing.T) error {
 			if cmdr.GetInt("app.ms.tags.port") != 8500 || cmdr.GetString("app.ms.tags.prefix") != "/" ||
 				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") ||
 				!cmdr.GetVerboseMode() || !cmdr.GetDebugMode() {

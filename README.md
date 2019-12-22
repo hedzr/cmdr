@@ -9,6 +9,9 @@
 
 `cmdr` is a POSIX/GNU style,  command-line UI (CLI) Go library. It is a getopt-like parser of command-line options, be compatible with the [getopt_long](http://www.gnu.org/s/libc/manual/html_node/Argument-Syntax.html#Argument-Syntax) command line UI, which is an extension of the syntax recommended by POSIX.
 
+There are couples of enhancements beyond the standard library `flag`.
+
+There is a full `Options Store` (configurations) for your hierarchy configuration data too.
 
 
 **| [News](#news) | [Features](#features) | [Examples](#examples) | [Docs: For Developer](#for-developer) | [Docs: Uses Fluent API](#uses-fluent-api) |**

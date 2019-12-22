@@ -191,12 +191,12 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (err e
 
 			// --debug: long opt
 			// -D:      short opt
-			// -nv:     double chars short opt
+			// -nv:     double chars short opt, more chars are supported
 			// ~~debug: long opt without opt-entry prefix.
 			// ~D:      short opt without opt-entry prefix.
 			// -abc:    the combined short opts
 			// -nvabc, -abnvc: a,b,c,nv the four short opts, if no -n & -v defined.
-			// --name=consul, --name consul, --name=consul: opt with a string, int, string slice argument
+			// --name=consul, --name consul, --nameconsul: opt with a string, int, string slice argument
 			// -nconsul, -n consul, -n=consul: opt with an argument.
 			//  - -nconsul is not good format, but it could get somewhat works.
 			//  - -n'consul', -n"consul" could works too.

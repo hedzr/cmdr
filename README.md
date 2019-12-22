@@ -7,14 +7,23 @@
 [![codecov](https://codecov.io/gh/hedzr/cmdr/branch/master/graph/badge.svg)](https://codecov.io/gh/hedzr/cmdr)
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go#command-line)
 
-`cmdr` is a POSIX/GNU style,  command-line UI (CLI) Go library. It is a getopt-like parser of command-line options, be compatible with the [getopt_long](http://www.gnu.org/s/libc/manual/html_node/Argument-Syntax.html#Argument-Syntax) command line UI, which is an extension of the syntax recommended by POSIX.
+`cmdr` is a POSIX/GNU style,  command-line UI (CLI) Go library.
+It is a getopt-like parser of command-line options, 
+be compatible with the [getopt_long](http://www.gnu.org/s/libc/manual/html_node/Argument-Syntax.html#Argument-Syntax) 
+command line UI, which is an extension of the syntax recommended
+by POSIX.
 
-There are couples of enhancements beyond the standard library `flag`.
+There are couples of enhancements beyond the standard 
+library `flag`.
 
-There is a full `Options Store` (configurations) for your hierarchy configuration data too.
+There is a full `Options Store` (configurations) for your
+hierarchy configuration data too.
 
 
-**| [News](#news) | [Features](#features) | [Examples](#examples) | [Docs: For Developer](#for-developer) | [Docs: Uses Fluent API](#uses-fluent-api) |**
+**| [News](#news) | [Features](#features) |
+[Examples](#examples) | 
+[Docs: For Developer](#for-developer) |
+[Docs: Uses Fluent API](#uses-fluent-api) |**
 
 
 > [Youtube - 李宗盛2013最新單曲 山丘 官方完整版音檔](https://www.youtube.com/watch?v=_qNpR1Ew5jA) / [Jonathan Lee - Hill *CHT + ENU*](https://www.youtube.com/watch?v=FNlFe8ftBh0)

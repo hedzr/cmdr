@@ -1,5 +1,36 @@
 # CHANGELOGS
 
+## Versions
+
+### v1.6.11
+  - bugs fixed
+    - fixed the group of built-in cmds/flags,
+    - for sequence `-v5 -v`, the valid short option `-v5` will be reported as `can't be found`,
+      - infinite loop for parsing tight short flags
+    - for `GetStringR(keyPath, defaultValue)`, defaultValue can't applied to the key if it has an empty string value.
+    - ...
+  - **apis break**:
+    <details>
+    These apis adds default value as parameter, such as `NewBool(bool)...` now, instead of `NewBool()`:
+    
+    - `NewBool(bool)`, `NewString(string)`,
+    `NewStringSlice([]string)`, `NewIntSlice([]int)`, 
+    `NewInt(int)`, `NewUint(uint)`, `NewInt64(int64)`, `NewUint64(uint64)`, `NewFloat32(float32)`, `NewFloat64(float64)`,
+    `NewDuration(time.Duration)`,
+       
+    </details>
+  - adds `WithHelpTailLine(line)` for the customizable dim tail line
+  
+### v1.6.9
+  - Adds `WithWatchMainConfigFileToo(bool)`
+  - v1.6.8 for a nacl bug
+      - Adds `PressEnterToContinue()`, `PressAnyKeyToContinue()`
+      - Adds `StripQuotes(s)`, `StripPrefix(s,p)`
+      - Fluent API: Since v1.6.9, deprecated `cmdopt.NewFlag(flagType)` will be replaced with `cmdopt.NewFlagV(defaultValue)`;
+        single `flagopt.Placeholder(str)` available too.
+      - `Flag.EnvVars` be available now. And `newFlagOpt.EnvKeys(keys...)` with same effect in Fluent API style.
+  - bugs fixed (better `InTesting()`)
+
 
 #### v1.6.7
 

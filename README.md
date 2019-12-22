@@ -43,7 +43,7 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- WIP: v1.6.11
+- v1.6.11
   - bugs fixed
     - fixed the group of built-in cmds/flags,
     - for sequence `-v5 -v`, the valid short option `-v5` will be reported as `can't be found`,
@@ -62,17 +62,7 @@ import "github.com/hedzr/cmdr"
     </details>
   - adds `WithHelpTailLine(line)` for the customizable dim tail line
   
-- v1.6.9
-  - Adds `WithWatchMainConfigFileToo(bool)`
-  - v1.6.8 for a nacl bug
-      - Adds `PressEnterToContinue()`, `PressAnyKeyToContinue()`
-      - Adds `StripQuotes(s)`, `StripPrefix(s,p)`
-      - Fluent API: Since v1.6.9, deprecated `cmdopt.NewFlag(flagType)` will be replaced with `cmdopt.NewFlagV(defaultValue)`;
-        single `flagopt.Placeholder(str)` available too.
-      - `Flag.EnvVars` be available now. And `newFlagOpt.EnvKeys(keys...)` with same effect in Fluent API style.
-  - bugs fixed (better `InTesting()`)
-
-- See also [CHANGELOG](./CHANGELOG)
+- For more information to refer to [CHANGELOG](./CHANGELOG)
 
 
 

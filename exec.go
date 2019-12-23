@@ -296,16 +296,17 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 		if goCommand.Action != nil {
 			args := w.getArgs(pkg, args)
 
-			if goCommand != &rootCmd.Command {
-				if err = w.beforeInvokeCommand(rootCmd, goCommand, args); err == ErrShouldBeStopException {
-					return nil
-				}
-			}
+			// if goCommand != &rootCmd.Command {
+			// 	if err = w.beforeInvokeCommand(rootCmd, goCommand, args); err == ErrShouldBeStopException {
+			// 		return nil
+			// 	}
+			// }
+			// 
+			// if err = w.invokeCommand(rootCmd, goCommand, args); err == ErrShouldBeStopException {
+			// 	return nil
+			// }
 
-			if err = w.invokeCommand(rootCmd, goCommand, args); err == ErrShouldBeStopException {
-				return nil
-			}
-
+			err = w.ainvk(pkg, rootCmd, goCommand, args)
 			return
 		}
 	}
@@ -319,6 +320,41 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 	if w.noDefaultHelpScreen == false {
 		w.printHelp(goCommand, pkg.needFlagsHelp)
 	}
+	return
+}
+
+func (w *ExecWorker) ainvk(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string) (err error) {
+	if goCommand != &rootCmd.Command {
+		// if err = w.beforeInvokeCommand(rootCmd, goCommand, args); err == ErrShouldBeStopException {
+		// 	return nil
+		// }
+		if rootCmd.PostAction != nil {
+			defer rootCmd.PostAction(goCommand, args)
+		}
+
+		if w.logexInitialFunctor != nil {
+			if err = w.logexInitialFunctor(goCommand, args); err == ErrShouldBeStopException {
+				return
+			}
+		}
+
+		if w.afterArgsParsed != nil {
+			if err = w.afterArgsParsed(goCommand, args); err == ErrShouldBeStopException {
+				return
+			}
+		}
+
+		if rootCmd.PreAction != nil {
+			if err = rootCmd.PreAction(goCommand, args); err == ErrShouldBeStopException {
+				return
+			}
+		}
+	}
+
+	if err = w.invokeCommand(rootCmd, goCommand, args); err == ErrShouldBeStopException {
+		return nil
+	}
+
 	return
 }
 
@@ -340,30 +376,30 @@ func (w *ExecWorker) checkState(pkg *ptpkg) {
 	}
 }
 
-func (w *ExecWorker) beforeInvokeCommand(rootCmd *RootCommand, goCommand *Command, args []string) (err error) {
-	if rootCmd.PostAction != nil {
-		defer rootCmd.PostAction(goCommand, args)
-	}
-
-	if w.logexInitialFunctor != nil {
-		if err = w.logexInitialFunctor(goCommand, args); err == ErrShouldBeStopException {
-			return
-		}
-	}
-
-	if w.afterArgsParsed != nil {
-		if err = w.afterArgsParsed(goCommand, args); err == ErrShouldBeStopException {
-			return
-		}
-	}
-
-	if rootCmd.PreAction != nil {
-		if err = rootCmd.PreAction(goCommand, args); err == ErrShouldBeStopException {
-			return
-		}
-	}
-	return
-}
+// func (w *ExecWorker) beforeInvokeCommand(rootCmd *RootCommand, goCommand *Command, args []string) (err error) {
+// 	if rootCmd.PostAction != nil {
+// 		defer rootCmd.PostAction(goCommand, args)
+// 	}
+// 
+// 	if w.logexInitialFunctor != nil {
+// 		if err = w.logexInitialFunctor(goCommand, args); err == ErrShouldBeStopException {
+// 			return
+// 		}
+// 	}
+// 
+// 	if w.afterArgsParsed != nil {
+// 		if err = w.afterArgsParsed(goCommand, args); err == ErrShouldBeStopException {
+// 			return
+// 		}
+// 	}
+// 
+// 	if rootCmd.PreAction != nil {
+// 		if err = rootCmd.PreAction(goCommand, args); err == ErrShouldBeStopException {
+// 			return
+// 		}
+// 	}
+// 	return
+// }
 
 func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, goCommand *Command, args []string) (err error) {
 	if goCommand.PostAction != nil {

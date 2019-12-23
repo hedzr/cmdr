@@ -585,8 +585,9 @@ func (s *Options) mergeMap(m map[string]interface{}, key, path string, val inter
 				for k, v := range vm {
 					zm = s.mergeMap(zm, k, path, v)
 				}
-				m[key] = zm
-				s.entries[path] = zm
+				// m[key] = zm
+				// s.entries[path] = zm
+				val = zm
 			} else if vm, ok := val.(map[interface{}]interface{}); ok {
 				for k, v := range vm {
 					kk, ok := k.(string)
@@ -595,20 +596,24 @@ func (s *Options) mergeMap(m map[string]interface{}, key, path string, val inter
 					}
 					zm = s.mergeMap(zm, kk, path, v)
 				}
-				m[key] = zm
-				s.entries[path] = zm
-			} else {
-				m[key] = val
-				s.entries[path] = val
+				// m[key] = zm
+				// s.entries[path] = zm
+				val = zm
+				// } else {
+				// 	m[key] = val
+				// 	s.entries[path] = val
 			}
-		} else {
-			m[key] = val
-			s.entries[path] = val
+			// } else {
+			// 	m[key] = val
+			// 	s.entries[path] = val
 		}
-	} else {
-		m[key] = val
-		s.entries[path] = val
+		// } else {
+		// 	m[key] = val
+		// 	s.entries[path] = val
 	}
+	m[key] = val
+	s.entries[path] = val
+	logrus.Debugf("%-> s.entries[%q] = m[%q] = %v", path, key, val)
 	return m
 }
 

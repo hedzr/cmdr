@@ -8,7 +8,7 @@
 package cmdr
 
 import (
-	"github.com/sirupsen/logrus"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -65,7 +65,7 @@ func TrapSignalsEnh(done chan bool, onTrapped func(s os.Signal), signals ...os.S
 			select {
 			case s := <-sigs:
 				if !silent() {
-					logrus.Debugf("receive signal '%v'", s)
+					log.Printf("receive signal '%v'", s)
 				}
 
 				onTrapped(s)
@@ -78,7 +78,7 @@ func TrapSignalsEnh(done chan bool, onTrapped func(s os.Signal), signals ...os.S
 				return
 			case <-done:
 				if !silent() {
-					logrus.Debug("receive done sig and return for-select go-routine")
+					log.Println("receive done sig and return for-select go-routine")
 				}
 				return
 			}
@@ -104,7 +104,7 @@ func TrapSignalsEnh(done chan bool, onTrapped func(s os.Signal), signals ...os.S
 func SignalToSelf(sig os.Signal) (err error) {
 	var p *os.Process
 	if p, err = os.FindProcess(os.Getpid()); err != nil {
-		logrus.Errorf("can't find process with pid=%v: %v", os.Getpid(), err)
+		log.Printf("error: can't find process with pid=%v: %v", os.Getpid(), err)
 	}
 	err = p.Signal(sig)
 	return
@@ -121,5 +121,5 @@ func SignalTermSignal() {
 }
 
 func silent() bool {
-	return GetBoolR("quiet")
+	return GetQuietMode()
 }

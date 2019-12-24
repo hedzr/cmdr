@@ -6,6 +6,7 @@ package cmdr
 
 import (
 	"fmt"
+	"github.com/hedzr/errors"
 	"os"
 	"reflect"
 	"strconv"
@@ -182,7 +183,7 @@ func (pkg *ptpkg) preprocessPkg(args []string) (err error) {
 				if len(pkg.flg.ExternalTool) > 0 {
 					err = pkg.processExternalTool()
 				} else if GetStrictMode() {
-					err = fmt.Errorf("unexpect end of command line [i=%v,args=(%v)], need more args for %v", pkg.i, args, pkg)
+					err = errors.New("unexpect end of command line [i=%v,args=(%v)], need more args for %v", pkg.i, args, pkg)
 					return
 				}
 			}
@@ -261,7 +262,7 @@ func (pkg *ptpkg) processTypeIntCore(args []string) (err error) {
 			return
 		}
 		ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
-		err = fmt.Errorf("wrong number: flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
+		err = errors.New("wrong number: flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
 	}
 
 	var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
@@ -275,6 +276,7 @@ func (pkg *ptpkg) processTypeUint(args []string) (err error) {
 		v, err = strconv.ParseUint(pkg.val, 10, 64)
 		if err != nil {
 			ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
+			err = errors.New("wrong number: flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
 			return
 		}
 

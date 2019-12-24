@@ -8,8 +8,8 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/BurntSushi/toml"
+	"github.com/hedzr/errors"
 	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
@@ -120,7 +120,9 @@ func (s *Options) LoadConfigFile(file string) (err error) {
 	s.usedConfigSubDir = path.Join(dir, "conf.d")
 	if !FileExists(s.usedConfigSubDir) {
 		s.usedConfigSubDir = ""
-		return
+		if len(filesWatching) == 0 {
+			return
+		}
 	}
 
 	s.usedConfigSubDir, err = filepath.Abs(s.usedConfigSubDir)
@@ -225,12 +227,12 @@ func (s *Options) visit(path string, f os.FileInfo, e error) (err error) {
 			if err == nil {
 				defer file.Close()
 				if err = s.mergeConfigFile(bufio.NewReader(file), ext); err != nil {
-					err = fmt.Errorf("error in merging config file '%s': %v", path, err)
+					err = errors.New("error in merging config file '%s': %v", path, err)
 					return
 				}
 				s.configFiles = append(s.configFiles, path)
 			} else {
-				err = fmt.Errorf("error in merging config file '%s': %v", path, err)
+				err = errors.New("error in merging config file '%s': %v", path, err)
 			}
 		}
 	} else {

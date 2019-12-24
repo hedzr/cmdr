@@ -9,6 +9,7 @@ import (
 	"github.com/hedzr/cmdr/conf"
 	"os"
 	"sync"
+	"time"
 )
 
 //
@@ -47,7 +48,9 @@ type ExecWorker struct {
 	// rootCommand the root of all commands
 	rootCommand *RootCommand
 	// rootOptions *Opt
-	rxxtOptions *Options
+	rxxtOptions        *Options
+	onOptionMergingSet func(keyPath string, value, oldVal interface{})
+	onOptionSet        func(keyPath string, value, oldVal interface{})
 
 	similarThreshold    float64
 	noDefaultHelpScreen bool
@@ -168,6 +171,9 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (err e
 		conf.AppName = w.rootCommand.AppName
 		conf.Version = w.rootCommand.Version
 	}
+	if len(conf.Buildstamp) == 0 {
+		conf.Buildstamp = time.Now().Format(time.RFC1123)
+	}
 
 	// initExitingChannelForFsWatcher()
 	defer func() {
@@ -281,6 +287,9 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 		err = w.rxxtOptions.buildAutomaticEnv(rootCmd)
 	}
 
+	w.rxxtOptions.onMergingSet = w.onOptionMergingSet
+	w.rxxtOptions.onSet = w.onOptionSet
+
 	if err == nil {
 		for _, x := range w.afterXrefBuilt {
 			x(rootCmd, args)
@@ -301,7 +310,7 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 			// 		return nil
 			// 	}
 			// }
-			// 
+			//
 			// if err = w.invokeCommand(rootCmd, goCommand, args); err == ErrShouldBeStopException {
 			// 	return nil
 			// }
@@ -380,19 +389,19 @@ func (w *ExecWorker) checkState(pkg *ptpkg) {
 // 	if rootCmd.PostAction != nil {
 // 		defer rootCmd.PostAction(goCommand, args)
 // 	}
-// 
+//
 // 	if w.logexInitialFunctor != nil {
 // 		if err = w.logexInitialFunctor(goCommand, args); err == ErrShouldBeStopException {
 // 			return
 // 		}
 // 	}
-// 
+//
 // 	if w.afterArgsParsed != nil {
 // 		if err = w.afterArgsParsed(goCommand, args); err == ErrShouldBeStopException {
 // 			return
 // 		}
 // 	}
-// 
+//
 // 	if rootCmd.PreAction != nil {
 // 		if err = rootCmd.PreAction(goCommand, args); err == ErrShouldBeStopException {
 // 			return

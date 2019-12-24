@@ -58,6 +58,13 @@ func TestTplApply(t *testing.T) {
 }
 
 func TestFlag(t *testing.T) {
+	ResetOptions()
+	ResetRootInWorker()
+	internalGetWorker().rxxtPrefixes = []string{}
+	t.Log(wrapWithRxxtPrefix("x"))
+	internalGetWorker().rxxtPrefixes = []string{"app"}
+	InternalResetWorker()
+
 	t.Log(IsDebuggerAttached())
 	t.Log(InTesting())
 	t.Log(StripPrefix("8.yes", "8."))

@@ -146,10 +146,33 @@ func WithNoWatchConfigFiles(b bool) ExecOption {
 	}
 }
 
-// WithConfigLoadedListener add an functor on config loaded and merged
+// WithConfigLoadedListener adds a functor on config loaded and merged
 func WithConfigLoadedListener(c ConfigReloaded) ExecOption {
 	return func(w *ExecWorker) {
 		AddOnConfigLoadedListener(c)
+	}
+}
+
+// WithOptionMergeModifying adds a callback which invoked on new
+// configurations was merging into, typically on loading the
+// modified external config file(s).
+// NOTE that MergeWith(...) can make it triggered too.
+// A onMergingSet callback will be enabled after first loaded
+// any external configuration files and environment variables
+// merged.
+func WithOptionMergeModifying(onMergingSet func(keyPath string, value, oldVal interface{})) ExecOption {
+	return func(w *ExecWorker) {
+		w.onOptionMergingSet = onMergingSet
+	}
+}
+
+// WithOptionModifying adds a callback which invoked at each time
+// any option was modified.
+// It will be enabled after any external config files first loaded
+// and the env variables had been merged.
+func WithOptionModifying(onOptionSet func(keyPath string, value, oldVal interface{})) ExecOption {
+	return func(w *ExecWorker) {
+		w.onOptionSet = onOptionSet
 	}
 }
 

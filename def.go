@@ -165,6 +165,8 @@ type (
 
 		onConfigReloadedFunctions map[ConfigReloaded]bool
 		rwlCfgReload              *sync.RWMutex
+		onMergingSet              func(keyPath string, value, oldVal interface{})
+		onSet                     func(keyPath string, value, oldVal interface{})
 	}
 
 	// OptOne struct {

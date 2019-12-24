@@ -292,7 +292,7 @@ gocov: coverage
 coverage: | $(GOBASE)
 	@echo "  >  gocov ..."
 	@GOPATH=$(GOPATH) GOBIN=$(BIN) GO111MODULE=$(GO111MODULE) GOPROXY=$(GOPROXY) \
-	go test -v -race -coverprofile=coverage.txt -covermode=atomic
+	go test -v -race -coverprofile=coverage.txt -covermode=atomic|tee coverage.log
 	@GOPATH=$(GOPATH) GOBIN=$(BIN) GO111MODULE=$(GO111MODULE) GOPROXY=$(GOPROXY) \
 	go tool cover -html=coverage.txt -o cover.html
 	@open cover.html

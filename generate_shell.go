@@ -6,8 +6,8 @@ package cmdr
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"strings"
@@ -322,7 +322,7 @@ func genManual(command *Command, args []string) (err error) {
 
 		w.paintFromCommand(painter, cmd, false)
 		if err = ioutil.WriteFile(fn, painter.Results(), 0644); err == nil {
-			logrus.Debugf("'%v' generated...", fn)
+			log.Printf("'%v' generated...", fn)
 		}
 		return
 	})
@@ -384,7 +384,7 @@ func genDoc(command *Command, args []string) (err error) {
 
 		w.paintFromCommand(painter, cmd, false)
 		if err = ioutil.WriteFile(fn, painter.Results(), 0644); err == nil {
-			logrus.Debugf("'%v' generated...", fn)
+			log.Printf("'%v' generated...", fn)
 		}
 		return
 	})

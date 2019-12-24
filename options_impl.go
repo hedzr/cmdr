@@ -4,7 +4,6 @@ package cmdr
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"os"
 	"reflect"
@@ -453,7 +452,8 @@ func (s *Options) GetStringNoExpand(key string, defaultVal ...string) (ret strin
 }
 
 func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
-	logrus.SetLevel(logrus.DebugLevel)
+	// logrus.SetLevel(logrus.DebugLevel)
+
 	// prefix := strings.Join(EnvPrefix,"_")
 	prefix := internalGetWorker().getPrefix() // strings.Join(RxxtPrefix, ".")
 	for key := range s.entries {
@@ -542,13 +542,17 @@ func (s *Options) envKey(key string) (envkey string) {
 // ```
 func (s *Options) Set(key string, val interface{}) {
 	k := wrapWithRxxtPrefix(key)
-	s.SetNx(k, val)
+	s.setNx(k, val)
 }
 
 // SetNx but without prefix auto-wrapped.
 // `rxxtPrefix` is a string slice to define the prefix string array, default is ["app"].
 // So, cmdr.Set("debug", true) will put an real entry with (`app.debug`, true).
 func (s *Options) SetNx(key string, val interface{}) {
+	s.setNx(key, val)
+}
+
+func (s *Options) setNx(key string, val interface{}) (oldval interface{}, modi bool) {
 	defer s.rw.Unlock()
 	s.rw.Lock()
 
@@ -559,33 +563,56 @@ func (s *Options) SetNx(key string, val interface{}) {
 		}
 	}
 
+	oldval = s.entries[key]
+	var leaf bool
+	if _, ok := oldval.(map[string]interface{}); !ok {
+		if _, ok := val.(map[string]interface{}); !ok {
+			leaf = true
+		}
+	}
+	if leaf {
+		comparable := (oldval == nil || oldval != nil && reflect.TypeOf(oldval).Comparable()) && (val == nil || (val != nil && reflect.TypeOf(val).Comparable()))
+		if comparable {
+			if oldval != val {
+				s.entries[key] = val
+				a := strings.Split(key, ".")
+				s.mergeMap(s.hierarchy, a[0], "", et(a, 1, val))
+				if s.onSet != nil {
+					s.onSet(key, val, oldval)
+				}
+				modi = true
+				return
+			}
+		}
+	}
 	s.entries[key] = val
-	a := strings.Split(key, ".")
-	s.mergeMap(s.hierarchy, a[0], "", et(a, 1, val))
+	return
 }
 
 // MergeWith will merge a map recursive.
 func (s *Options) MergeWith(m map[string]interface{}) (err error) {
+	defer s.rw.Unlock()
+	s.rw.Lock()
 	for k, v := range m {
 		s.mergeMap(s.hierarchy, k, "", v)
 	}
 	return
 }
 
-func (s *Options) mergeMap(m map[string]interface{}, key, path string, val interface{}) map[string]interface{} {
+func (s *Options) mergeMap(hierarchy map[string]interface{}, key, path string, val interface{}) map[string]interface{} {
 	if len(path) > 0 {
 		path = fmt.Sprintf("%v.%v", path, key)
 	} else {
 		path = key
 	}
 
-	if z, ok := m[key]; ok {
+	if z, ok := hierarchy[key]; ok {
 		if zm, ok := z.(map[string]interface{}); ok {
 			if vm, ok := val.(map[string]interface{}); ok {
 				for k, v := range vm {
 					zm = s.mergeMap(zm, k, path, v)
 				}
-				// m[key] = zm
+				// hierarchy[key] = zm
 				// s.entries[path] = zm
 				val = zm
 			} else if vm, ok := val.(map[interface{}]interface{}); ok {
@@ -596,25 +623,53 @@ func (s *Options) mergeMap(m map[string]interface{}, key, path string, val inter
 					}
 					zm = s.mergeMap(zm, kk, path, v)
 				}
-				// m[key] = zm
+				// hierarchy[key] = zm
 				// s.entries[path] = zm
 				val = zm
 				// } else {
-				// 	m[key] = val
+				// 	hierarchy[key] = val
 				// 	s.entries[path] = val
 			}
 			// } else {
-			// 	m[key] = val
+			// 	hierarchy[key] = val
 			// 	s.entries[path] = val
 		}
 		// } else {
-		// 	m[key] = val
+		// 	hierarchy[key] = val
 		// 	s.entries[path] = val
 	}
-	m[key] = val
+
+	s.mmset(hierarchy, key, path, val)
+	return hierarchy
+}
+
+func (s *Options) mmset(m map[string]interface{}, key, path string, val interface{}) {
+	oldval := s.entries[path]
+
+	var leaf bool
+	if _, ok := oldval.(map[string]interface{}); !ok {
+		if _, ok := val.(map[string]interface{}); !ok {
+			leaf = true
+		}
+	}
+	if leaf {
+		comparable := oldval != nil && reflect.TypeOf(oldval).Comparable() && val != nil && reflect.TypeOf(val).Comparable()
+		if comparable {
+			if oldval != val {
+				// defer s.rw.Unlock()
+				// s.rw.Lock()
+				s.entries[path] = val
+				m[key] = val
+				if s.onMergingSet != nil {
+					s.onMergingSet(path, val, oldval)
+				}
+				// logrus.Debugf("%%-> s.entries[%q] = m[%q] = %v", path, key, val)
+				return
+			}
+		}
+	}
 	s.entries[path] = val
-	logrus.Debugf("%-> s.entries[%q] = m[%q] = %v", path, key, val)
-	return m
+	m[key] = val
 }
 
 // et will eat the left part string from `keys[ix:]`
@@ -671,7 +726,12 @@ func (s *Options) loopMap(kdot string, m map[string]interface{}) (err error) {
 				return
 			}
 		} else {
-			s.SetNx(mx(kdot, k), v)
+			// s.SetNx(mx(kdot, k), v)
+			key := mxIx(kdot, k)
+			oldval, modi := s.setNx(key, v)
+			if s.onMergingSet != nil && modi {
+				s.onMergingSet(key, v, oldval)
+			}
 		}
 	}
 	return
@@ -688,7 +748,12 @@ func (s *Options) loopIxMap(kdot string, m map[interface{}]interface{}) (err err
 			// 		return
 			// 	}
 		} else {
-			s.SetNx(mxIx(kdot, k), v)
+			// s.SetNx(mx(kdot, k), v)
+			key := mxIx(kdot, k)
+			oldval, modi := s.setNx(key, v)
+			if s.onMergingSet != nil && modi {
+				s.onMergingSet(key, v, oldval)
+			}
 		}
 	}
 	return

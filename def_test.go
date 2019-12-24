@@ -6,9 +6,9 @@ package cmdr_test
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"github.com/hedzr/cmdr"
+	"github.com/hedzr/errors"
 	"github.com/hedzr/logex"
 	"github.com/sirupsen/logrus"
 	"os"
@@ -70,6 +70,17 @@ func TestSingleCommandLine1(t *testing.T) {
 				return "extension"
 			},
 		}), // since v1.6.3
+		cmdr.WithWatchMainConfigFileToo(true),
+		cmdr.WithNoWatchConfigFiles(false),
+		cmdr.WithOptionMergeModifying(func(keyPath string, value, oldVal interface{}) {
+			t.Logf("%%-> -> %q: %v -> %v", keyPath, oldVal, value)
+		}),
+		cmdr.WithOptionModifying(func(keyPath string, value, oldVal interface{}) {
+			t.Logf("%%-> -> %q: %v -> %v", keyPath, oldVal, value)
+		}),
+		cmdr.WithHelpTailLine(`
+Type '-h'/'-?' or '--help' to get command help screen. 
+More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-info', '--no-color', '--strict-mode', '--no-env-overrides'...`),
 	)
 
 	cmdr.InternalResetWorker()
@@ -708,7 +719,7 @@ var (
 		"consul-tags ms tags modify -h ~~debug --port8509 --prefix/": func(t *testing.T) error {
 			if cmdr.GetInt("app.ms.tags.port") != 8509 || cmdr.GetString("app.ms.tags.prefix") != "/" ||
 				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") {
-				return fmt.Errorf("something wrong 1. |%v|%v|%v|%v",
+				return errors.New("something wrong 1. |%v|%v|%v|%v",
 					cmdr.GetInt("app.ms.tags.port"), cmdr.GetString("app.ms.tags.prefix"),
 					cmdr.GetBool("app.help"), cmdr.GetBool("debug"))
 			}
@@ -729,7 +740,7 @@ var (
 			if cmdr.GetInt("app.ms.tags.port") != 8500 || cmdr.GetString("app.ms.tags.prefix") != "/" ||
 				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") ||
 				!cmdr.GetVerboseMode() || !cmdr.GetDebugMode() {
-				return fmt.Errorf("something wrong 3. |%v|%v|%v|%v|%v|%v",
+				return errors.New("something wrong 3. |%v|%v|%v|%v|%v|%v",
 					cmdr.GetInt("app.ms.tags.port"), cmdr.GetString("app.ms.tags.prefix"),
 					cmdr.GetBool("app.help"), cmdr.GetBool("debug"),
 					cmdr.GetVerboseMode(), cmdr.GetDebugMode())

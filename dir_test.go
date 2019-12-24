@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/hedzr/cmdr"
+	"github.com/hedzr/errors"
 	"os"
 	"strings"
 	"testing"
@@ -124,7 +125,7 @@ var (
 		"consul-tags server -e orange": func(t *testing.T, e error) error {
 			if cmdr.GetStringR("server.enum") != "orange" {
 				println("unexpect enumerable value found. This is an error")
-				return fmt.Errorf("unexpect enumerable value '%v' found. This is an error.",
+				return errors.New("unexpect enumerable value '%v' found. This is an error.",
 					cmdr.GetStringR("server.enum"))
 			}
 			return e
@@ -139,7 +140,7 @@ var (
 		},
 		"consul-tags server -2 -t 5": func(t *testing.T, e error) error {
 			if cmdr.GetIntR("retry") != 5 || cmdr.GetIntR("server.tail") != 2 {
-				return fmt.Errorf("wrong: retry=%v(expect: %v), server.tail=%v(expect: %v)",
+				return errors.New("wrong: retry=%v(expect: %v), server.tail=%v(expect: %v)",
 					cmdr.GetIntR("retry"), 5, cmdr.GetIntR("server.tail"), 2)
 			}
 			return nil
@@ -153,7 +154,7 @@ var (
 		},
 		"consul-tags server -1973": func(t *testing.T, e error) error {
 			if cmdr.GetIntR("server.tail") != 1973 {
-				return fmt.Errorf("wrong: server.tail=%v (expect: %v)",
+				return errors.New("wrong: server.tail=%v (expect: %v)",
 					cmdr.GetIntR("server.tail"), 1973)
 			}
 			return nil

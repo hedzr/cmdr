@@ -215,7 +215,7 @@ func TestFluentAPINew(t *testing.T) {
 		Titles("h", "head").
 		Description("", "").
 		Group("").
-		HeadLike(true, 1, 8000)
+		HeadLike(true, 1, 8000).EnvKeys("AVCX")
 
 	co.NewFlagV("").
 		Titles("i", "ienum").

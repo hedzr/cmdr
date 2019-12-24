@@ -89,6 +89,7 @@ app:
 	}
 
 	t.Logf("%v, %v", cmdr.GetUsedConfigFile(), cmdr.GetUsedConfigSubDir())
+	t.Logf("%v, %v", cmdr.GetOptions(), cmdr.GetUsingConfigFiles())
 	_ = ioutil.WriteFile("conf.d/tmp.yaml", []byte(`
 app:
   debug: true

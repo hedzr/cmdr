@@ -49,7 +49,13 @@ func (pkg *ptpkg) tryToggleGroup() {
 		wkr := internalGetWorker()
 		for _, f := range pkg.flg.owner.Flags {
 			if f.ToggleGroup == tg && (isBool(f.DefaultValue) || isNil1(f.DefaultValue)) {
-				wkr.rxxtOptions.Set(wkr.backtraceFlagNames(pkg.flg), false)
+				if f != pkg.flg {
+					wkr.rxxtOptions.Set(wkr.backtraceFlagNames(pkg.flg), false)
+					f.DefaultValue = false
+				} else {
+					wkr.rxxtOptions.Set(wkr.backtraceFlagNames(pkg.flg), true)
+					f.DefaultValue = true
+				}
 			}
 		}
 	}

@@ -83,6 +83,20 @@ import "github.com/hedzr/cmdr"
 
 ## Features
 
+cmdr has rich features:
+
+- builds multi-level command and sub-commands
+- builds short, long and alias options with kinds of data types
+- defines commands and options via fluent api style
+- or defines its with enhanced stdlib `flag` style
+- full featured `Options Store` for hosted any application configurations
+  - watchable external config file and child directory `conf.d`
+  - watchable option value merging event: while option value modified in external config file and loaded automatically.
+  - watchable option value modifying event: while option value modified (from config file, or programmatically)
+  - connectable with external configuration center
+
+### More
+
 - Unix [*getopt*(3)](http://man7.org/linux/man-pages/man3/getopt.3.html) representation but without its programmatic interface.
 
   - Options with short names (`-h`)

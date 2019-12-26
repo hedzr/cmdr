@@ -56,6 +56,7 @@ import "github.com/hedzr/cmdr"
   - bugs
   - Added [`WithOptionMergeModifying`](https://github.com/hedzr/cmdr/blob/master/exec_with_options.go#L163), [`WithOptionModifying`](https://github.com/hedzr/cmdr/blob/master/exec_with_options.go#L173)
     Now the changing/merging events could be hooked with a top-level watching point.
+  - Added `WithUnhandledErrorHandler()` to capture panics if necessary
     
 - v1.6.11
   - bugs fixed

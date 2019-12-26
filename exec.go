@@ -411,6 +411,27 @@ func (w *ExecWorker) checkState(pkg *ptpkg) {
 // }
 
 func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, goCommand *Command, args []string) (err error) {
+	if unhandleErrorHandler != nil {
+		defer func() {
+			// fmt.Println("defer caller")
+			if ex := recover(); ex != nil {
+				// debug.PrintStack()
+				// pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
+				// dumpStacks()
+				
+				// https://stackoverflow.com/questions/52103182/how-to-get-the-stacktrace-of-a-panic-and-store-as-a-variable
+				// http://hustcat.github.io/dive-into-stack-defer-panic-recover-in-go/
+				// fmt.Println("stacktrace from panic: \n" + string(debug.Stack()))
+				
+				// fmt.Printf("recover success. error: %v", ex)
+				unhandleErrorHandler(ex)
+				if e, ok := ex.(error); ok {
+					err = e
+				}
+			}
+		}()
+	}
+
 	if goCommand.PostAction != nil {
 		defer goCommand.PostAction(goCommand, args)
 	}
@@ -420,3 +441,9 @@ func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, goCommand *Command, arg
 	}
 	return
 }
+
+// func dumpStacks() {
+// 	buf := make([]byte, 16384)
+// 	buf = buf[:runtime.Stack(buf, true)]
+// 	fmt.Printf("=== BEGIN goroutine stack dump ===\n%s\n=== END goroutine stack dump ===\n", buf)
+// }

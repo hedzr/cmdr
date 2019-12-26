@@ -11,6 +11,7 @@ import (
 	"github.com/hedzr/cmdr/plugin/daemon"
 	"github.com/sirupsen/logrus"
 	"log"
+	"runtime"
 	"strings"
 )
 
@@ -41,6 +42,13 @@ func main() {
 	// logrus.SetLevel(logrus.DebugLevel)
 	// logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
 
+	// defer func() {
+	// 	fmt.Println("defer caller")
+	// 	if err := recover(); err != nil {
+	// 		fmt.Printf("recover success. error: %v", err)
+	// 	}
+	// }()
+
 	if err := cmdr.Exec(buildRootCmd(),
 
 		// To disable internal commands and flags, uncomment the following codes
@@ -65,11 +73,30 @@ func main() {
 			}
 		}),
 
+		cmdr.WithUnknownOptionHandler(onUnknownOptionHandler),
+		cmdr.WithUnhandledErrorHandler(onUnhandleErrorHandler),
+
 		optAddTraceOption,
 		optAddServerExtOption,
 	); err != nil {
-		logrus.Fatal(err)
+		logrus.Fatalf("error: %v", err)
 	}
+}
+
+func onUnhandleErrorHandler(err interface{}) {
+	// debug.PrintStack()
+	// pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
+	dumpStacks()
+}
+
+func dumpStacks() {
+	buf := make([]byte, 16384)
+	buf = buf[:runtime.Stack(buf, false)]
+	fmt.Printf("=== BEGIN goroutine stack dump ===\n%s\n=== END goroutine stack dump ===\n", buf)
+}
+
+func onUnknownOptionHandler(isFlag bool, title string, cmd *cmdr.Command, args []string) (fallbackToDefaultDetector bool) {
+	return true
 }
 
 func buildRootCmd() (rootCmd *cmdr.RootCommand) {
@@ -105,6 +132,34 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 			for ix, s := range args {
 				fmt.Printf("%5d. %s => %s\n", ix, s, cmdr.Soundex(s))
 			}
+			return
+		})
+
+	// panic test
+
+	pa := root.NewSubCommand().
+		Titles("pa", "panic-test").
+		Description("test panic inside cmdr actions", "").
+		Group("Test")
+
+	val := 9
+	zeroVal := zero
+
+	pa.NewSubCommand().
+		Titles("dz", "division-by-zero").
+		Description("", "").
+		Group("Test").
+		Action(func(cmd *cmdr.Command, args []string) (err error) {
+			fmt.Println(val / zeroVal)
+			return
+		})
+
+	pa.NewSubCommand().
+		Titles("pa", "panic").
+		Description("", "").
+		Group("Test").
+		Action(func(cmd *cmdr.Command, args []string) (err error) {
+			panic(9)
 			return
 		})
 
@@ -593,4 +648,6 @@ $ {{.AppName}} --help
   show help screen.
 `
 	overview = ``
+
+	zero = 0
 )

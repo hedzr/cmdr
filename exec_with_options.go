@@ -346,3 +346,19 @@ func WithHelpTailLine(line string) ExecOption {
 		w.helpTailLine = line
 	}
 }
+
+// WithUnhandledErrorHandler handle the panics or exceptions generally
+func WithUnhandledErrorHandler(handler UnhandleErrorHandler) ExecOption {
+	return func(w *ExecWorker) {
+		unhandleErrorHandler = handler
+	}
+}
+
+type (
+	// UnhandleErrorHandler for WithUnhandledErrorHandler
+	UnhandleErrorHandler func(err interface{})
+)
+
+var (
+	unhandleErrorHandler UnhandleErrorHandler
+)

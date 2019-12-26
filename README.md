@@ -227,7 +227,7 @@ cmdr has rich features:
     - `--no-color`: print the plain text to console without ANSI colors.
 
 - Generators
-
+ 
   - *Todo: ~~manual generator~~, and ~~markdown~~/docx/pdf generators.*
 
   - Man Page generator: `bin/demo generate man`
@@ -237,7 +237,7 @@ cmdr has rich features:
   - Bash and Zsh (*not yet, todo*) completion.
 
      ```bash
-     bin/wget-demo generate shell --bash
+     $ bin/wget-demo generate shell --bash
      ```
 
 - Predefined external config file locations:
@@ -276,9 +276,9 @@ cmdr has rich features:
   - on command-line:
   
     ```bash
-    bin/demo --configci/etc/demo-yy ~~debug
-    bin/demo --config=ci/etc/demo-yy/any.yml ~~debug
-    bin/demo --config ci/etc/demo-yy/any.yml ~~debug
+    $ bin/demo --configci/etc/demo-yy ~~debug
+    $ bin/demo --config=ci/etc/demo-yy/any.yml ~~debug
+    $ bin/demo --config ci/etc/demo-yy/any.yml ~~debug
     ```
   
   - supports muiltiple file formats:
@@ -300,17 +300,17 @@ cmdr has rich features:
     - bool
     - int, int64, uint, uint64, float32, float64
       ```bash
-      app -t 1    #  float: 1.1, 1e10, hex: 0x9d, oct: 0700, bin: 0b00010010
+      $ app -t 1    #  float: 1.1, 1e10, hex: 0x9d, oct: 0700, bin: 0b00010010
       ```
     - string
     - string slice, int slice (comma-separated)
       ```bash
-      app -t apple,banana      # => []string{"apple", "banana"}
-      app -t apple -t banana   # => []string{"apple", "banana"}
+      $ app -t apple,banana      # => []string{"apple", "banana"}
+      $ app -t apple -t banana   # => []string{"apple", "banana"}
       ```
     - time duration (1ns, 1ms, 1s, 1m, 1h, 1d, ...)
       ```bash
-      app -t 1ns -t 1ms -t 1s -t 1m -t 1h -t 1d
+      $ app -t 1ns -t 1ms -t 1s -t 1m -t 1h -t 1d
       ```
     - ~~*todo: float, time, duration, int slice, …, all primitive go types*~~
     - map
@@ -375,7 +375,7 @@ cmdr has rich features:
   See full codes in [demo](./examples/demo/) app, and [**cmdr-http2**](https://github.com/hedzr/cmdr-http2).
 
   ```bash
-  bin/demo server [start|stop|status|restart|install|uninstall]
+  $ bin/demo server [start|stop|status|restart|install|uninstall]
   ```
 
   `install`/`uninstall` sub-commands could install `demo` app as a systemd service.
@@ -395,10 +395,10 @@ cmdr has rich features:
   - `~~debug`: dump all key value pairs in parsed options store
 
     ```bash
-    bin/demo -? ~~debug
-    bin/demo -? ~~debug ~~raw  # without envvar expanding
-    bin/demo -? ~~debug ~~env  # print envvar k-v pairs too
-    bin/demo -? ~~debug --more
+    $ bin/demo -? ~~debug
+    $ bin/demo -? ~~debug ~~raw  # without envvar expanding
+    $ bin/demo -? ~~debug ~~env  # print envvar k-v pairs too
+    $ bin/demo -? ~~debug --more
     ```
     
     `~~debug` depends on `--help` present (or invoking a command which have one ore more children)
@@ -406,7 +406,7 @@ cmdr has rich features:
 - `~~tree`: dump all sub-commands
   
     ```bash
-    bin/demo ~~tree
+    $ bin/demo ~~tree
     ```
 
    `~~tree` is a special option/flag like a command.
@@ -419,7 +419,7 @@ cmdr has rich features:
     just like `git -m`, try this command:
 
      ```bash
-     EDITOR=nano bin/demo -m ~~debug
+     $ EDITOR=nano bin/demo -m ~~debug
      ```
 
      Default is `vim`. And `-m "something"` can skip the launching.
@@ -533,15 +533,15 @@ cmdr has rich features:
 To build and test `cmdr`:
 
 ```bash
-make help   # see all available sub-targets
-make info   # display building environment
-make build  # build binary files for examples
-make gocov  # test
+$ make help   # see all available sub-targets
+$ make info   # display building environment
+$ make build  # build binary files for examples
+$ make gocov  # test
 
 # customizing
-GOPROXY_CUSTOM=https://goproxy.io make info
-GOPROXY_CUSTOM=https://goproxy.io make build
-GOPROXY_CUSTOM=https://goproxy.io make gocov
+$ GOPROXY_CUSTOM=https://goproxy.io make info
+$ GOPROXY_CUSTOM=https://goproxy.io make build
+$ GOPROXY_CUSTOM=https://goproxy.io make gocov
 ```
 
 

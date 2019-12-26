@@ -577,9 +577,7 @@ func (s *Options) setNx(key string, val interface{}) (oldval interface{}, modi b
 				s.entries[key] = val
 				a := strings.Split(key, ".")
 				s.mergeMap(s.hierarchy, a[0], "", et(a, 1, val))
-				if s.onSet != nil {
-					s.onSet(key, val, oldval)
-				}
+				s.sfs(key, val, oldval)
 				modi = true
 				return
 			}
@@ -660,9 +658,8 @@ func (s *Options) mmset(m map[string]interface{}, key, path string, val interfac
 				// s.rw.Lock()
 				s.entries[path] = val
 				m[key] = val
-				if s.onMergingSet != nil {
-					s.onMergingSet(path, val, oldval)
-				}
+
+				s.sfms(path, val, oldval)
 				// logrus.Debugf("%%-> s.entries[%q] = m[%q] = %v", path, key, val)
 				return
 			}
@@ -670,6 +667,29 @@ func (s *Options) mmset(m map[string]interface{}, key, path string, val interfac
 	}
 	s.entries[path] = val
 	m[key] = val
+}
+
+func (s *Options) setCB(onMergingSet, onSet func(keyPath string, value, oldVal interface{})) {
+	s.rwCB.Lock()
+	defer s.rwCB.Unlock()
+	s.onMergingSet = onMergingSet
+	s.onSet = onSet
+}
+
+func (s *Options) sfms(path string, val, oldval interface{}) {
+	s.rwCB.RLock()
+	defer s.rwCB.RUnlock()
+	if s.onMergingSet != nil {
+		s.onMergingSet(path, val, oldval)
+	}
+}
+
+func (s *Options) sfs(path string, val, oldval interface{}) {
+	s.rwCB.RLock()
+	defer s.rwCB.RUnlock()
+	if s.onSet != nil {
+		s.onSet(path, val, oldval)
+	}
 }
 
 // et will eat the left part string from `keys[ix:]`
@@ -728,9 +748,8 @@ func (s *Options) loopMap(kdot string, m map[string]interface{}) (err error) {
 		} else {
 			// s.SetNx(mx(kdot, k), v)
 			key := mxIx(kdot, k)
-			oldval, modi := s.setNx(key, v)
-			if s.onMergingSet != nil && modi {
-				s.onMergingSet(key, v, oldval)
+			if oldval, modi := s.setNx(key, v); modi {
+				s.sfms(k, v, oldval)
 			}
 		}
 	}
@@ -750,9 +769,8 @@ func (s *Options) loopIxMap(kdot string, m map[interface{}]interface{}) (err err
 		} else {
 			// s.SetNx(mx(kdot, k), v)
 			key := mxIx(kdot, k)
-			oldval, modi := s.setNx(key, v)
-			if s.onMergingSet != nil && modi {
-				s.onMergingSet(key, v, oldval)
+			if oldval, modi := s.setNx(key, v); modi {
+				s.sfms(key, v, oldval)
 			}
 		}
 	}

@@ -165,6 +165,7 @@ type (
 
 		onConfigReloadedFunctions map[ConfigReloaded]bool
 		rwlCfgReload              *sync.RWMutex
+		rwCB                      sync.RWMutex
 		onMergingSet              func(keyPath string, value, oldVal interface{})
 		onSet                     func(keyPath string, value, oldVal interface{})
 	}

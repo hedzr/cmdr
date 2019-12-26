@@ -165,9 +165,10 @@ cmdr has rich features:
         strict-mode: true
       ```
 
-- Supports for unlimited multiple sub-commands.
+- Supports for unlimited multi-level sub-commands.
 
 - Supports `-I/usr/include -I=/usr/include` `-I /usr/include` option argument specifications
+  
   Automatically allows those formats (applied to long option too):
 
   - `-I file`, `-Ifile`, and `-I=files`
@@ -182,7 +183,7 @@ cmdr has rich features:
 
   > since v1.5.0:
   >
-  > - and multiple flags `-vvv` == `-v -v -v`, then `cmdr.FindFlagRecursive("verbose", nil).GetTriggeredTime()` should be `3`
+  > - and multiple flags `-vvv` == `-v -v -v`, then `cmdr.FindFlagRecursive("verbose", nil).GetTriggeredTimes()` should be `3`
   >
   > - for bool, string, int, ... flags, last one will be kept and others abandoned:
   >
@@ -192,7 +193,7 @@ cmdr has rich features:
   >
   >   slice flag overlapped
   >
-  >   - `--root A --root B,C,D --root Z` == `--root A,B,C,D,Z`
+  >   - `--root A --root B,C,D --root Z,A` == `--root A,B,C,D,Z`
   >     cmdr.GetStringSliceR("root") will return `[]string{"A","B","C","D","Z"}`
 
 - Smart suggestions for wrong command and flags
@@ -241,19 +242,17 @@ cmdr has rich features:
 
 - Predefined external config file locations:
   - `/etc/<appname>/<appname>.yml` and `conf.d` sub-directory.
-
   - `/usr/local/etc/<appname>/<appname>.yml` and `conf.d` sub-directory.
-
+  - `$HOME/.config/<appname>/<appname>.yml` and `conf.d` sub-directory.
   - `$HOME/.<appname>/<appname>.yml` and `conf.d` sub-directory.
-
   - all predefined locations are:
   
     ```go
     predefinedLocations: []string{
   		"./ci/etc/%s/%s.yml",       // for developer
-    	"/etc/%s/%s.yml",           // regular location
+    	"/etc/%s/%s.yml",           // regular location: /etc/$APPNAME/$APPNAME.yml
   		"/usr/local/etc/%s/%s.yml", // regular macOS HomeBrew location
-    	"$HOME/.config/%s/%s.yml",  // per user
+    	"$HOME/.config/%s/%s.yml",  // per user: $HOME/.config/$APPNAME/$APPNAME.yml
   		"$HOME/.%s/%s.yml",         // ext location per user
     	"$THIS/%s.yml",             // executable's directory
   		"%s.yml",                   // current directory
@@ -272,26 +271,14 @@ cmdr has rich features:
     
   - As a feature, do NOT watch the changes on `<appname>.yml`.
   
-    - *since v1.6.9*, `WithWatchMainConfigFileToo(true)` allows watching the main config file `<appname>.yml` too.
+    - *since v1.6.9*, `WithWatchMainConfigFileToo(true)` allows the main config file `<appname>.yml`  to be watched.
 
-  - To customize the searching locations yourself:
-
-    - ~~`SetPredefinedLocations(locations)`~~
-  
-      ```go
-      SetPredefinedLocations([]string{"./config", "~/.config/cmdr/", "$GOPATH/running-configs/cmdr"})
-      ```
-    
-    - since v1.5.0, uses `cmdr.WithPredefinedLocations("a","b",...),`
-  
   - on command-line:
   
     ```bash
-    # version = 1: bin/demo ~~debug
     bin/demo --configci/etc/demo-yy ~~debug
-    # version = 1.1
     bin/demo --config=ci/etc/demo-yy/any.yml ~~debug
-    # version = 1.2
+    bin/demo --config ci/etc/demo-yy/any.yml ~~debug
     ```
   
   - supports muiltiple file formats:
@@ -300,23 +287,31 @@ cmdr has rich features:
     - JSON
     - TOML
   
-  - ~~`SetNoLoadConfigFiles(bool)` to disable external config file loading~~.
-  
   - `cmdr.Exec(root, cmdr.WithNoLoadConfigFiles(false))`: disable loading external config files.
   
 - Overrides by environment variables.
 
   *priority level:* `defaultValue -> config-file -> env-var -> command-line opts`
 
-- Unify option value extraction:
+- `Option Store` - Unify option value extraction:
 
   - `cmdr.Get(key)`, `cmdr.GetBool(key)`, `cmdr.GetInt(key)`, `cmdr.GetString(key)`, `cmdr.GetStringSlice(key, defaultValues...)` and `cmdr.GetIntSlice(key, defaultValues...)`, `cmdr.GetDuration(key)` for Option value extractions.
 
     - bool
     - int, int64, uint, uint64, float32, float64
+      ```bash
+      app -t 1    #  float: 1.1, 1e10, hex: 0x9d, oct: 0700, bin: 0b00010010
+      ```
     - string
-    - string slice, int slice
-    - time duration
+    - string slice, int slice (comma-separated)
+      ```bash
+      app -t apple,banana      # => []string{"apple", "banana"}
+      app -t apple -t banana   # => []string{"apple", "banana"}
+      ```
+    - time duration (1ns, 1ms, 1s, 1m, 1h, 1d, ...)
+      ```bash
+      app -t 1ns -t 1ms -t 1s -t 1m -t 1h -t 1d
+      ```
     - ~~*todo: float, time, duration, int slice, …, all primitive go types*~~
     - map
     - struct: `cmdr.GetSectionFrom(sectionKeyPath, &holderStruct)`
@@ -341,7 +336,14 @@ cmdr has rich features:
     assert cmdr.Get("app.server.port") == 7100
     ```
     
-    In most case, **GetXxxR()** are recommended.
+    In most cases, **GetXxxR()** are recommended.
+    
+    While extracting string value, the evnvar will be expanded automatically but raw version `GetStringNoExpandXXX()` available since v1.6.7. For example:
+    
+    ```go
+    fmt.Println(cmdr.GetStringNoExpandR("kk"))  // = $HOME/Downloads
+    fmt.Println(cmdr.GetStringR("kk"))          // = /home/ubuntu/Downloads
+    ``` 
 
 - cmdr Options Store
 
@@ -356,7 +358,7 @@ cmdr has rich features:
 
   > rewrote since v1.6.0
 
-  ```golang
+  ```go
   import "github.com/hedzr/cmdr/plugin/daemon"
   func main() {
   	if err := cmdr.Exec(rootCmd,
@@ -393,11 +395,13 @@ cmdr has rich features:
   - `~~debug`: dump all key value pairs in parsed options store
 
     ```bash
-    bin/demo ~~debug
-    bin/demo ~~debug ~~raw  # without envvar expanding
-    bin/demo ~~debug ~~env  # print envvar k-v pairs too
-    bin/demo ~~debug --more
+    bin/demo -? ~~debug
+    bin/demo -? ~~debug ~~raw  # without envvar expanding
+    bin/demo -? ~~debug ~~env  # print envvar k-v pairs too
+    bin/demo -? ~~debug --more
     ```
+    
+    `~~debug` depends on `--help` present (or invoking a command which have one ore more children)
   
 - `~~tree`: dump all sub-commands
   
@@ -405,6 +409,7 @@ cmdr has rich features:
     bin/demo ~~tree
     ```
 
+   `~~tree` is a special option/flag like a command.
   
 
 - More Advanced features

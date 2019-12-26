@@ -11,9 +11,10 @@ import (
 	"github.com/hedzr/cmdr/plugin/daemon"
 	"github.com/sirupsen/logrus"
 	"log"
+	"strings"
 )
 
-var optAddTraceOption cmdr.ExecOption
+var optAddTraceOption, optAddServerExtOption cmdr.ExecOption
 
 func init() {
 	// attaches `--trace` to root command
@@ -22,6 +23,17 @@ func init() {
 			Titles("tr", "trace").
 			Description("enable trace mode for tcp/mqtt send/recv data dump", "").
 			AttachToRoot(root)
+	}, nil)
+
+	// the following statements show you how to attach an option to a sub-command
+	optAddServerExtOption = cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {
+		serverCmd := cmdr.FindSubCommandRecursive("server", nil)
+		serverStartCmd := cmdr.FindSubCommand("start", serverCmd)
+		cmdr.NewInt(5100).
+			Titles("vnc", "vnc-server").
+			Description("start as a vnc server (just a demo)", "").
+			Placeholder("PORT").
+			AttachTo(cmdr.NewCmdFrom(serverStartCmd))
 	}, nil)
 }
 
@@ -39,10 +51,22 @@ func main() {
 		cmdr.WithLogex(logrus.DebugLevel),
 		cmdr.WithLogexPrefix("logger"),
 
-		cmdr.WithHelpTabStop(50),
+		cmdr.WithHelpTabStop(41),
+
 		cmdr.WithWatchMainConfigFileToo(true),
+		cmdr.WithNoWatchConfigFiles(false),
+		cmdr.WithOptionMergeModifying(func(keyPath string, value, oldVal interface{}) {
+			logrus.Debugf("%%-> -> %q: %v -> %v", keyPath, oldVal, value)
+			if strings.HasSuffix(keyPath, ".mqtt.server.stats.enabled") {
+				// mqttlib.FindServer().EnableSysStats(!vxconf.ToBool(value))
+			}
+			if strings.HasSuffix(keyPath, ".mqtt.server.stats.log.enabled") {
+				// mqttlib.FindServer().EnableSysStatsLog(!vxconf.ToBool(value))
+			}
+		}),
 
 		optAddTraceOption,
+		optAddServerExtOption,
 	); err != nil {
 		logrus.Fatal(err)
 	}

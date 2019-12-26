@@ -472,8 +472,14 @@ func DumpAsString() (str string) {
 
 // AsYaml returns a yaml string bytes about all options
 func AsYaml() (b []byte) {
+	b, _ = AsYamlExt()
+	return
+}
+
+// AsYamlExt returns a yaml string bytes about all options
+func AsYamlExt() (b []byte, err error) {
 	obj := internalGetWorker().rxxtOptions.GetHierarchyList()
-	b, _ = yaml.Marshal(obj)
+	b, err = yaml.Marshal(obj)
 	return
 }
 
@@ -486,8 +492,14 @@ func SaveAsYaml(filename string) (err error) {
 
 // AsJSON returns a json string bytes about all options
 func AsJSON() (b []byte) {
+	b, _ = AsJSONExt()
+	return
+}
+
+// AsJSONExt returns a json string bytes about all options
+func AsJSONExt() (b []byte, err error) {
 	obj := internalGetWorker().rxxtOptions.GetHierarchyList()
-	b, _ = json.Marshal(obj)
+	b, err = json.Marshal(obj)
 	return
 }
 
@@ -500,10 +512,16 @@ func SaveAsJSON(filename string) (err error) {
 
 // AsToml returns a toml string bytes about all options
 func AsToml() (b []byte) {
+	b, _ = AsTomlExt()
+	return
+}
+
+// AsTomlExt returns a toml string bytes about all options
+func AsTomlExt() (b []byte, err error) {
 	obj := internalGetWorker().rxxtOptions.GetHierarchyList()
 	buf := bytes.NewBuffer([]byte{})
 	e := toml.NewEncoder(buf)
-	if err := e.Encode(obj); err == nil {
+	if err = e.Encode(obj); err == nil {
 		b = buf.Bytes()
 	}
 	return
@@ -518,7 +536,8 @@ func SaveAsToml(filename string) (err error) {
 
 // SaveObjAsToml to Save an object as a toml file
 func SaveObjAsToml(obj interface{}, filename string) (err error) {
-	f, err := os.Create(filename)
+	var f *os.File
+	f, err = os.Create(filename)
 	if err == nil {
 
 		e := toml.NewEncoder(bufio.NewWriter(f))

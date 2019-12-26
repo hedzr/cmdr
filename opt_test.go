@@ -128,9 +128,15 @@ func TestAsXXX(t *testing.T) {
 	cmdr.AsJSON()
 	cmdr.AsToml()
 	cmdr.GetHierarchyList()
+	if _, err := cmdr.AsTomlExt(); err != nil {
+		t.Logf("AsTomlExt error: %v", err)
+	}
 }
 
 func TestFluentAPINew(t *testing.T) {
+	cmdr.ResetOptions()
+	cmdr.InternalResetWorker()
+
 	root := cmdr.Root("aa", "1.0.1").
 		Header("aa - test for cmdr - no version - hedzr").
 		Copyright("s", "x")
@@ -254,9 +260,21 @@ func TestFluentAPINew(t *testing.T) {
 			return
 		})
 
+	if s, err := cmdr.AsYamlExt(); err != nil {
+		t.Fatalf("AsYamlExt error: %v", err)
+	} else {
+		t.Log(s)
+	}
+	if s, err := cmdr.AsTomlExt(); err != nil {
+		t.Fatalf("AsTomlExt error: %v", err)
+	} else {
+		t.Log(s)
+	}
 }
 
 func TestFluentAPI(t *testing.T) {
+	cmdr.ResetOptions()
+	cmdr.InternalResetWorker()
 
 	root := cmdr.Root("aa", "1.0.1").
 		Header("aa - test for cmdr - no version - hedzr").

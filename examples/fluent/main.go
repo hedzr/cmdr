@@ -9,9 +9,9 @@ import (
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/examples/demo/svr"
 	"github.com/hedzr/cmdr/plugin/daemon"
+	"github.com/hedzr/errors"
 	"github.com/sirupsen/logrus"
 	"log"
-	"runtime"
 	"strings"
 )
 
@@ -90,9 +90,7 @@ func onUnhandleErrorHandler(err interface{}) {
 }
 
 func dumpStacks() {
-	buf := make([]byte, 16384)
-	buf = buf[:runtime.Stack(buf, false)]
-	fmt.Printf("=== BEGIN goroutine stack dump ===\n%s\n=== END goroutine stack dump ===\n", buf)
+	fmt.Printf("=== BEGIN goroutine stack dump ===\n%s\n=== END goroutine stack dump ===\n", errors.DumpStacksAsString(true))
 }
 
 func onUnknownOptionHandler(isFlag bool, title string, cmd *cmdr.Command, args []string) (fallbackToDefaultDetector bool) {

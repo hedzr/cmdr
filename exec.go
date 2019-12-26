@@ -287,8 +287,7 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 		err = w.rxxtOptions.buildAutomaticEnv(rootCmd)
 	}
 
-	w.rxxtOptions.onMergingSet = w.onOptionMergingSet
-	w.rxxtOptions.onSet = w.onOptionSet
+	w.rxxtOptions.setCB(w.onOptionMergingSet, w.onOptionSet)
 
 	if err == nil {
 		for _, x := range w.afterXrefBuilt {
@@ -418,11 +417,11 @@ func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, goCommand *Command, arg
 				// debug.PrintStack()
 				// pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
 				// dumpStacks()
-				
+
 				// https://stackoverflow.com/questions/52103182/how-to-get-the-stacktrace-of-a-panic-and-store-as-a-variable
 				// http://hustcat.github.io/dive-into-stack-defer-panic-recover-in-go/
 				// fmt.Println("stacktrace from panic: \n" + string(debug.Stack()))
-				
+
 				// fmt.Printf("recover success. error: %v", ex)
 				unhandleErrorHandler(ex)
 				if e, ok := ex.(error); ok {

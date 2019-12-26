@@ -7,6 +7,7 @@ package cmdr
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"github.com/hedzr/errors"
 	"github.com/hedzr/logex"
 	"github.com/sirupsen/logrus"
@@ -120,6 +121,77 @@ func TestFlag(t *testing.T) {
 	})
 }
 
+func dumpStacks() {
+	fmt.Printf("=== BEGIN goroutine stack dump ===\n%s\n=== END goroutine stack dump ===\n", errors.DumpStacksAsString(true))
+}
+
+func TestHandlePanic(t *testing.T) {
+	defer logex.CaptureLog(t).Release()
+	if SavedOsArgs == nil {
+		SavedOsArgs = os.Args
+	}
+	defer func() {
+		os.Args = SavedOsArgs
+	}()
+
+	ResetOptions()
+	InternalResetWorker()
+
+	onUnhandleErrorHandler := func(err interface{}) {
+		// debug.PrintStack()
+		// pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
+		// dumpStacks()
+	}
+
+	v1, v2 := 11, 0
+	// var cmd *Command
+	var rootCmdX = &RootCommand{
+		Command: Command{
+			BaseOpt: BaseOpt{
+				Name: "consul-tags",
+			},
+			SubCommands: []*Command{
+				{
+					BaseOpt: BaseOpt{
+						Short: "dz", Full: "division-by-zero",
+						Action: func(cmd *Command, args []string) (err error) {
+							fmt.Println(v1 / v2)
+							return
+						},
+					},
+				},
+				{
+					BaseOpt: BaseOpt{
+						Short: "pa", Full: "panic",
+						Action: func(cmd *Command, args []string) (err error) {
+							panic(8.1)
+							return
+						},
+					},
+				},
+			},
+		},
+	}
+
+	// cmd = &rootCmdX.Command
+	var commands = []string{
+		"consul-tags dz",
+		"consul-tags pa",
+	}
+	for _, cc := range commands {
+		os.Args = strings.Split(cc, " ")
+		SetInternalOutputStreams(nil, nil)
+		ResetOptions()
+		if err := Exec(rootCmdX,
+			WithUnhandledErrorHandler(onUnhandleErrorHandler),
+		); err != nil {
+			t.Log(err) // hi, here is not real error occurs
+		}
+	}
+
+	t.Log(GetPredefinedLocations())
+}
+
 func TestUnknownXXX(t *testing.T) {
 	defer logex.CaptureLog(t).Release()
 
@@ -221,7 +293,7 @@ func TestLog(t *testing.T) {
 		},
 	}
 
-	for _, x := range []string{"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "PANIC", ""} {
+	for _, x := range []string{"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "PANIC", "XX"} {
 		Set("logger.level", x)
 		_ = internalGetWorker().getWithLogexInitializor(logrus.DebugLevel)(&rootCmdX.Command, []string{})
 	}

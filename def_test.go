@@ -32,9 +32,11 @@ func TestSingleCommandLine1(t *testing.T) {
 
 	cmdr.InternalResetWorker()
 
-	// cmdr.SetInternalOutputStreams(nil, nil)
-	// cmdr.SetHelpTabStop(70)
-	// cmdr.SetUnknownOptionHandler(nil)
+	onUnhandleErrorHandler := func(err interface{}) {
+		// debug.PrintStack()
+		// pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
+		t.Fatal(errors.DumpStacksAsString(false))
+	}
 
 	_ = cmdr.Exec(rootCmdForTesting,
 		cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {}, func(root *cmdr.RootCommand, args []string) {}),
@@ -81,6 +83,7 @@ func TestSingleCommandLine1(t *testing.T) {
 		cmdr.WithHelpTailLine(`
 Type '-h'/'-?' or '--help' to get command help screen. 
 More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-info', '--no-color', '--strict-mode', '--no-env-overrides'...`),
+		cmdr.WithUnhandledErrorHandler(onUnhandleErrorHandler),
 	)
 
 	cmdr.InternalResetWorker()
@@ -726,6 +729,8 @@ var (
 			return nil
 		},
 		"consul-tags -? -vD kv backup --prefix'' -h ~~debug": func(t *testing.T) error {
+			fmt.Println(cmdr.FindFlag("verbose", nil).GetTriggeredTimes())
+
 			if cmdr.GetInt("app.kv.port") != 8500 || cmdr.GetString("app.kv.prefix") != "" ||
 				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") ||
 				!cmdr.GetVerboseMode() || !cmdr.GetDebugMode() {

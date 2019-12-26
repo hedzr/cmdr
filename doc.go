@@ -6,7 +6,7 @@
 
 Package cmdr interprets command-line arguments with POSIX style.
 
- */
+*/
 package cmdr
 
 const (

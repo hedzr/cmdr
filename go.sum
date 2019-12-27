@@ -5,8 +5,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
-github.com/hedzr/errors v1.1.12 h1:DNS8X4yQbDQ+wQ2CDjN0eM5mxORQ30jEP7quQ6dasnw=
-github.com/hedzr/errors v1.1.12/go.mod h1:Cis1PG0zfL64jbANcxWzAexSaXuZPJaizhKxUkxsdfw=
+github.com/hedzr/errors v1.1.13 h1:CQv5+4A3Fd5TOWuccRJ0+e1FOUjIk3Tarwd4kBYOo7c=
+github.com/hedzr/errors v1.1.13/go.mod h1:Cis1PG0zfL64jbANcxWzAexSaXuZPJaizhKxUkxsdfw=
 github.com/hedzr/logex v1.1.3 h1:y4z2iES57ZnGHFIrsG+RXvnGP9Hewy3TltYfygHX+qQ=
 github.com/hedzr/logex v1.1.3/go.mod h1:nEJdaSj/bPI7ZzWZuDDruxHexUlNER9i+ADFe/i71vo=
 github.com/konsorten/go-windows-terminal-sequences v1.0.1 h1:mweAR1A6xJ3oS2pRaGiHgQ4OO8tzTaLawm8vnODuwDk=

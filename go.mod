@@ -5,7 +5,7 @@ go 1.12
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/fsnotify/fsnotify v1.4.7
-	github.com/hedzr/errors v1.1.12
+	github.com/hedzr/errors v1.1.13
 	github.com/hedzr/logex v1.1.3
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/sirupsen/logrus v1.4.2

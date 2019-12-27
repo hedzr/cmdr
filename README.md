@@ -52,7 +52,10 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- v1.6.13 - WIP
+- v1.6.15
+  - patch to fix errors package
+  
+- v1.6.13
   - bugs
   - Added [`WithOptionMergeModifying`](https://github.com/hedzr/cmdr/blob/master/exec_with_options.go#L163), [`WithOptionModifying`](https://github.com/hedzr/cmdr/blob/master/exec_with_options.go#L173)
     Now the changing/merging events could be hooked with a top-level watching point.

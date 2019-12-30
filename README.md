@@ -52,6 +52,12 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
+- v1.6.17
+  better supports to `flag` child package and migrating from stdline `flag`.  
+  supports to shell prompt mode, see also new release of [`cmdr-http2`](https://github.com/hedzr/cmdr-http2)
+  - `Match(cmdline, opts...)`: match the arguments line (no os.Args[0]).
+  - `WithNoCommandAction(bool)`
+  
 - v1.6.15
   - patch to fix errors package
   

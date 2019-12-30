@@ -22,6 +22,10 @@ var (
 // }
 
 func unknownCommand(pkg *ptpkg, cmd *Command, args []string) {
+	if internalGetWorker().noUnknownCmdTip {
+		return
+	}
+
 	ferr("\n\x1b[%dmUnknown command:\x1b[0m %v", BgBoldOrBright, pkg.a)
 	if unknownOptionHandler != nil {
 		if !unknownOptionHandler(false, pkg.a, cmd, args) {
@@ -32,6 +36,10 @@ func unknownCommand(pkg *ptpkg, cmd *Command, args []string) {
 }
 
 func unknownFlag(pkg *ptpkg, cmd *Command, args []string) {
+	if internalGetWorker().noUnknownCmdTip {
+		return
+	}
+
 	ferr("\n\x1b[%dmUnknown flag:\x1b[0m %v", BgBoldOrBright, pkg.a)
 	if unknownOptionHandler != nil && !pkg.short {
 		if !unknownOptionHandler(true, pkg.a, cmd, args) {

@@ -57,6 +57,8 @@ type ExecWorker struct {
 	noColor             bool
 	noEnvOverrides      bool
 	strictMode          bool
+	noUnknownCmdTip     bool
+	noCommandAction     bool
 
 	logexInitialFunctor func(cmd *Command, args []string) (err error)
 	logexPrefix         string
@@ -333,6 +335,10 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 
 func (w *ExecWorker) ainvk(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string) (err error) {
 	if goCommand != &rootCmd.Command {
+		if w.noCommandAction {
+			return
+		}
+
 		// if err = w.beforeInvokeCommand(rootCmd, goCommand, args); err == ErrShouldBeStopException {
 		// 	return nil
 		// }

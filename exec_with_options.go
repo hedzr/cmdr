@@ -362,3 +362,10 @@ type (
 var (
 	unhandleErrorHandler UnhandledErrorHandler
 )
+
+// WithNoCommandAction do NOT run the action of the matched command.
+func WithNoCommandAction(b bool) ExecOption {
+	return func(w *ExecWorker) {
+		w.noCommandAction = b
+	}
+}

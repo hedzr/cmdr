@@ -29,6 +29,14 @@ func Worker2(b bool) *ExecWorker {
 	return internalGetWorker()
 }
 
+// Worker3 + shouldIgnoreWrongEnumValue
+func Worker3(root *RootCommand) *ExecWorker {
+	w := internalGetWorker()
+	w.shouldIgnoreWrongEnumValue = false
+	w.rootCommand = root
+	return w
+}
+
 // // ResetWorker function
 // func ResetWorker() {
 // 	InternalResetWorker()
@@ -341,7 +349,7 @@ func ExecWith(rootCmd *RootCommand, beforeXrefBuildingX, afterXrefBuiltX HookFun
 		w.afterXrefBuilt = append(w.afterXrefBuilt, afterXrefBuiltX)
 	}
 
-	err = w.InternalExecFor(rootCmd, os.Args)
+	_, err = w.InternalExecFor(rootCmd, os.Args)
 	return
 }
 

@@ -49,6 +49,73 @@ func TestDumpers(t *testing.T) {
 
 }
 
+func TestMatchPreQ(t *testing.T) {
+	t.Logf("%q", strings.Split("server start ", " "))
+	t.Logf("%q", strings.Split("server start  ", " "))
+}
+
+func TestMatch(t *testing.T) {
+
+	cmdr.ResetOptions()
+	cmdr.InternalResetWorker()
+
+	var err error
+	var cmd *cmdr.Command
+	var outX = bytes.NewBufferString("")
+	var errX = bytes.NewBufferString("")
+	var outBuf = bufio.NewWriterSize(outX, 16384)
+	var errBuf = bufio.NewWriterSize(errX, 16384)
+	cmdr.SetInternalOutputStreams(outBuf, errBuf)
+	// cmdr.SetCustomShowVersion(nil)
+	// cmdr.SetCustomShowBuildInfo(nil)
+
+	copyRootCmd = rootCmdForTesting
+
+	defer func() {
+
+		postWorks(t)
+
+		if errX.Len() > 0 {
+			t.Log("--------- stderr")
+			// t.Fatalf("Error!! %v", errX.String())
+			t.Errorf("Error for testing (it might not be failed)!! %v", errX.String())
+		}
+
+		resetOsArgs()
+
+		// x := outX.String()
+		// t.Logf("--------- stdout // %v // %v\n%v", cmdr.GetExecutableDir(), cmdr.GetExcutablePath(), x)
+	}()
+
+	t.Log("xxx: -------- loops for execTestingsMatch")
+	for sss, verifier := range execTestingsMatch {
+		cmdr.InternalResetWorker()
+		resetFlagsAndLog(t)
+
+		// cmdr.ShouldIgnoreWrongEnumValue = true
+
+		println("xxx: ***: ", sss)
+		w := cmdr.Worker3(rootCmdForTesting)
+		w.AddOnAfterXrefBuilt(func(root *cmdr.RootCommand, args []string) {})
+		w.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {})
+		if cmd, err = cmdr.Match(sss); err != nil {
+			if e, ok := err.(*cmdr.ErrorForCmdr); !ok || !e.Ignorable {
+				t.Fatal(err)
+			}
+		}
+
+		// if sss == "consul-tags kv unknown" {
+		// 	errX = bytes.NewBufferString("")
+		// }
+
+		t.Logf("xxx: matched: cmd = %v, err = %v", cmd, err)
+		if err = verifier(t, cmd, err); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+}
+
 func TestHeadLike(t *testing.T) {
 
 	cmdr.ResetOptions()
@@ -94,7 +161,7 @@ func TestHeadLike(t *testing.T) {
 		})
 		w.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
 		})
-		if err = w.InternalExecFor(rootCmdForTesting, strings.Split(sss, " ")); err != nil {
+		if _, err = w.InternalExecFor(rootCmdForTesting, strings.Split(sss, " ")); err != nil {
 			if e, ok := err.(*cmdr.ErrorForCmdr); !ok || !e.Ignorable {
 				t.Fatal(err)
 			}
@@ -112,6 +179,18 @@ func TestHeadLike(t *testing.T) {
 }
 
 var (
+	execTestingsMatch = map[string]func(t *testing.T, c *cmdr.Command, e error) error{
+		"server star": func(t *testing.T, c *cmdr.Command, e error) error {
+			return e
+		},
+		"server start": func(t *testing.T, c *cmdr.Command, e error) error {
+			return e
+		},
+		"server start ": func(t *testing.T, c *cmdr.Command, e error) error {
+			return e
+		},
+	}
+
 	// testing args
 	execTestingsHeadLike = map[string]func(t *testing.T, e error) error{
 		// enum test

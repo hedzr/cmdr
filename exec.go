@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"github.com/hedzr/cmdr/conf"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -87,14 +88,52 @@ func init() {
 
 // Exec is main entry of `cmdr`.
 func Exec(rootCmd *RootCommand, opts ...ExecOption) (err error) {
+	defer func() {
+		// stop fs watcher explicitly
+		stopExitingChannelForFsWatcher()
+	}()
+
 	w := internalGetWorker()
 
 	for _, opt := range opts {
 		opt(w)
 	}
 
-	err = w.InternalExecFor(rootCmd, os.Args)
+	_, err = w.InternalExecFor(rootCmd, os.Args)
 	return
+}
+
+// Match try parsing the input command-line, the result is the last hit *Command.
+func Match(inputCommandlineWithoutArg0 string, opts ...ExecOption) (last *Command, err error) {
+	saved := internalGetWorker()
+	savedUnknownOptionHandler := unknownOptionHandler
+	defer func() {
+		uniqueWorkerLock.Lock()
+		uniqueWorker = saved
+		unknownOptionHandler = savedUnknownOptionHandler
+		uniqueWorkerLock.Unlock()
+	}()
+
+	rootCmd := internalGetWorker().rootCommand
+
+	w := internalResetWorkerNoLock()
+
+	for _, opt := range opts {
+		opt(w)
+	}
+
+	w.noDefaultHelpScreen = true
+	w.noUnknownCmdTip = true
+	w.noCommandAction = true
+	unknownOptionHandler = emptyUnknownOptionHandler
+
+	line := os.Args[0] + " " + inputCommandlineWithoutArg0
+	last, err = w.InternalExecFor(rootCmd, strings.Split(line, " "))
+	return
+}
+
+func emptyUnknownOptionHandler(isFlag bool, title string, cmd *Command, args []string) (fallbackToDefaultDetector bool) {
+	return false
 }
 
 var uniqueWorkerLock sync.RWMutex
@@ -157,7 +196,7 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 }
 
 // InternalExecFor is an internal helper, esp for debugging
-func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (err error) {
+func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last *Command, err error) {
 	var (
 		pkg       = new(ptpkg)
 		goCommand = &rootCmd.Command
@@ -196,6 +235,9 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (err e
 		for pkg.i = 1; pkg.i < len(args); pkg.i++ {
 			pkg.Reset()
 			pkg.a = args[pkg.i]
+			if len(pkg.a) == 0 {
+				continue
+			}
 
 			// --debug: long opt
 			// -D:      short opt
@@ -224,6 +266,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (err e
 			}
 		}
 
+		last = goCommand
 		err = w.afterInternalExec(pkg, rootCmd, goCommand, args)
 	}
 

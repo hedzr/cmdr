@@ -50,10 +50,10 @@ func (pkg *ptpkg) tryToggleGroup() {
 		for _, f := range pkg.flg.owner.Flags {
 			if f.ToggleGroup == tg && (isBool(f.DefaultValue) || isNil1(f.DefaultValue)) {
 				if f != pkg.flg {
-					wkr.rxxtOptions.Set(wkr.backtraceFlagNames(pkg.flg), false)
+					wkr.rxxtOptions.Set(wkr.backtraceFlagNames(f), false)
 					f.DefaultValue = false
 				} else {
-					wkr.rxxtOptions.Set(wkr.backtraceFlagNames(pkg.flg), true)
+					wkr.rxxtOptions.Set(wkr.backtraceFlagNames(f), true)
 					f.DefaultValue = true
 				}
 			}

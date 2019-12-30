@@ -22,7 +22,10 @@ func init() {
 func Parse() {
 	// Ignore errors; CommandLine is set for ExitOnError.
 	// CommandLine.Parse(os.Args[1:])
-	if err := cmdr.Exec(pfRootCmd.RootCommand(), cmdr.WithNoDefaultHelpScreen(true)); err != nil {
+	if err := cmdr.Exec(pfRootCmd.RootCommand(),
+		cmdr.WithNoDefaultHelpScreen(true),
+		cmdr.WithNoCommandAction(true),
+	); err != nil {
 		log.Fatal(err)
 	}
 	parsed = true

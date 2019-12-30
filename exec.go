@@ -178,7 +178,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (err e
 	// initExitingChannelForFsWatcher()
 	defer func() {
 		// stop fs watcher explicitly
-		stopExitingChannelForFsWatcher()
+		// stopExitingChannelForFsWatcher()
 
 		if rootCmd.ow != nil {
 			_ = rootCmd.ow.Flush()

@@ -50,6 +50,13 @@ func TestDumpers(t *testing.T) {
 }
 
 func TestMatchPreQ(t *testing.T) {
+	if len(strings.Split("server start ", " ")) != 3 {
+		t.Fatal("expect 3")
+	}
+	if len(strings.Split("server start  ", " ")) != 4 {
+		t.Fatal("expect 4")
+	}
+
 	t.Logf("%q", strings.Split("server start ", " "))
 	t.Logf("%q", strings.Split("server start  ", " "))
 }

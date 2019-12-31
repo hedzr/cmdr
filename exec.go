@@ -153,13 +153,14 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 		rxxtPrefixes: []string{"app"},
 
 		predefinedLocations: []string{
-			"./ci/etc/%s/%s.yml",       // for developer
-			"/etc/%s/%s.yml",           // regular location
-			"/usr/local/etc/%s/%s.yml", // regular macOS HomeBrew location
-			"$HOME/.config/%s/%s.yml",  // per user
-			"$HOME/.%s/%s.yml",         // ext location per user
-			"$THIS/%s.yml",             // executable's directory
-			"%s.yml",                   // current directory
+			"./ci/etc/%s/%s.yml",         // for developer
+			"/etc/%s/%s.yml",             // regular location
+			"/usr/local/etc/%s/%s.yml",   // regular macOS HomeBrew location
+			"$HOME/.config/%s/%s.yml",    // per user
+			"$HOME/.%s/%s.yml",           // ext location per user
+			// "$XDG_CONFIG_HOME/%s/%s.yml", // ?? seldom defined | generally it's $HOME/.config
+			"$THIS/%s.yml",               // executable's directory
+			"%s.yml",                     // current directory
 			// "./ci/etc/%s/%s.yml",
 			// "/etc/%s/%s.yml",
 			// "/usr/local/etc/%s/%s.yml",

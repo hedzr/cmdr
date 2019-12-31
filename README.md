@@ -23,7 +23,7 @@ hierarchy configuration data too.
 **| [News](#news) | [Features](#features) |
 [Examples](#examples) | 
 [Docs: For Developer](#for-developer) |
-[Docs: Uses Fluent API](#uses-fluent-api) |**
+[Docs: Uses Fluent API](#uses-fluent-api) | [At Playground](#at-playground) |**
 
 
 > [Youtube - 李宗盛2013最新單曲 山丘 官方完整版音檔](https://www.youtube.com/watch?v=_qNpR1Ew5jA) / [Jonathan Lee - Hill *CHT + ENU*](https://www.youtube.com/watch?v=FNlFe8ftBh0)
@@ -412,6 +412,13 @@ cmdr has rich features:
     ```
     
     `~~debug` depends on `--help` present (or invoking a command which have one ore more children)
+
+  - `InDebugging()`, isdelve (refer to [here](https://stackoverflow.com/questions/47879070/how-can-i-see-if-the-goland-debugger-is-running-in-the-program/47890273#47890273)) - To use it, add `-tags=delve`:
+  
+    ```bash
+    go build -tags=delve cli/main.go
+    go run -tags=delve cli/main.go --help
+    ```
   
 - `~~tree`: dump all sub-commands
   
@@ -607,6 +614,14 @@ $ GOPROXY_CUSTOM=https://goproxy.io make gocov
 </details>
 
 
+
+## At Playground
+
+Try its out :
+
+- https://play.golang.org/p/ieExm3V1Pcx
+- wget-demo at playground: https://play.golang.org/p/wpEZgQGzKyt
+- demo with daemon plugin: https://play.golang.org/p/wJUA59uGu2M
 
 
 ## Uses

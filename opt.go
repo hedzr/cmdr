@@ -28,7 +28,7 @@ type (
 		Short(short string) (opt OptFlag)
 		Long(long string) (opt OptFlag)
 		Aliases(ss ...string) (opt OptFlag)
-		Description(oneLine, long string) (opt OptFlag)
+		Description(oneLineDesc string, longDesc ...string) (opt OptFlag)
 		Examples(examples string) (opt OptFlag)
 		Group(group string) (opt OptFlag)
 		Hidden(hidden bool) (opt OptFlag)

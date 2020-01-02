@@ -52,9 +52,11 @@ func (s *optFlagImpl) Aliases(aliases ...string) (opt OptFlag) {
 	return
 }
 
-func (s *optFlagImpl) Description(oneLine, long string) (opt OptFlag) {
-	s.working.Description = oneLine
-	s.working.LongDescription = long
+func (s *optFlagImpl) Description(oneLineDesc string, longDesc ...string) (opt OptFlag) {
+	s.working.Description = oneLineDesc
+	for _, long := range longDesc {
+		s.working.LongDescription = long
+	}
 	opt = s
 	return
 }

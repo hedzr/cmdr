@@ -230,7 +230,7 @@ func (s *Options) visit(path string, f os.FileInfo, e error) (err error) {
 					err = errors.New("error in merging config file '%s': %v", path, err)
 					return
 				}
-				s.configFiles = append(s.configFiles, path)
+				s.configFiles = uniAddStr(s.configFiles, path)
 			} else {
 				err = errors.New("error in merging config file '%s': %v", path, err)
 			}

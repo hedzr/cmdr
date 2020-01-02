@@ -63,7 +63,7 @@ func (w *ExecWorker) loadFromPredefinedLocation(rootCmd *RootCommand) (err error
 // getExpandedPredefinedLocations for internal using
 func (w *ExecWorker) getExpandedPredefinedLocations() (locations []string) {
 	for _, d := range internalGetWorker().predefinedLocations {
-		locations = append(locations, normalizeDir(d))
+		locations = uniAddStr(locations, normalizeDir(d))
 	}
 	return
 }

@@ -19,11 +19,11 @@ func (s *optCommandImpl) ToCommand() *Command {
 }
 
 func (s *optCommandImpl) AddOptFlag(flag OptFlag) {
-	s.working.Flags = append(s.working.Flags, flag.ToFlag())
+	s.working.Flags = uniAddFlg(s.working.Flags, flag.ToFlag())
 }
 
 func (s *optCommandImpl) AddFlag(flag *Flag) {
-	s.working.Flags = append(s.working.Flags, flag)
+	s.working.Flags = uniAddFlg(s.working.Flags, flag)
 }
 
 func (s *optCommandImpl) AddOptCmd(opt OptCmd) {
@@ -31,13 +31,13 @@ func (s *optCommandImpl) AddOptCmd(opt OptCmd) {
 
 	// optCtx.current = cmd
 
-	s.working.SubCommands = append(s.working.SubCommands, cmd)
+	s.working.SubCommands = uniAddCmd(s.working.SubCommands, cmd)
 
 	// opt = &subCmdOpt{optCommandImpl: optCommandImpl{working: cmd, parent: s}}
 }
 
 func (s *optCommandImpl) AddCommand(cmd *Command) {
-	s.working.SubCommands = append(s.working.SubCommands, cmd)
+	s.working.SubCommands = uniAddCmd(s.working.SubCommands, cmd)
 }
 
 func (s *optCommandImpl) AttachTo(opt OptCmd) {
@@ -45,17 +45,17 @@ func (s *optCommandImpl) AttachTo(opt OptCmd) {
 }
 
 func (s *optCommandImpl) AttachToCommand(cmd *Command) {
-	cmd.SubCommands = append(cmd.SubCommands, s.working)
+	cmd.SubCommands = uniAddCmd(cmd.SubCommands, s.working)
 }
 
 func (s *optCommandImpl) AttachToRoot(root *RootCommand) {
-	root.SubCommands = append(root.SubCommands, s.working)
+	root.SubCommands = uniAddCmd(root.SubCommands, s.working)
 }
 
 func (s *optCommandImpl) Titles(short, long string, aliases ...string) (opt OptCmd) {
 	s.working.Short = short
 	s.working.Full = long
-	s.working.Aliases = append(s.working.Aliases, aliases...)
+	s.working.Aliases = uniAddStrs(s.working.Aliases, aliases...)
 	opt = s
 	return
 }
@@ -73,7 +73,7 @@ func (s *optCommandImpl) Long(long string) (opt OptCmd) {
 }
 
 func (s *optCommandImpl) Aliases(aliases ...string) (opt OptCmd) {
-	s.working.Aliases = append(s.working.Aliases, aliases...)
+	s.working.Aliases = uniAddStrs(s.working.Aliases, aliases...)
 	opt = s
 	return
 }
@@ -138,67 +138,67 @@ func (s *optCommandImpl) TailPlaceholder(placeholder string) (opt OptCmd) {
 
 func (s *optCommandImpl) Bool() (opt OptFlag) {
 	flg := &Flag{}
-	s.working.Flags = append(s.working.Flags, flg)
+	s.working.Flags = uniAddFlg(s.working.Flags, flg)
 	return &boolOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) String() (opt OptFlag) {
 	flg := &Flag{}
-	s.working.Flags = append(s.working.Flags, flg)
+	s.working.Flags = uniAddFlg(s.working.Flags, flg)
 	return &stringOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) StringSlice() (opt OptFlag) {
 	flg := &Flag{}
-	s.working.Flags = append(s.working.Flags, flg)
+	s.working.Flags = uniAddFlg(s.working.Flags, flg)
 	return &stringSliceOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) IntSlice() (opt OptFlag) {
 	flg := &Flag{}
-	s.working.Flags = append(s.working.Flags, flg)
+	s.working.Flags = uniAddFlg(s.working.Flags, flg)
 	return &intSliceOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) Int() (opt OptFlag) {
 	flg := &Flag{}
-	s.working.Flags = append(s.working.Flags, flg)
+	s.working.Flags = uniAddFlg(s.working.Flags, flg)
 	return &intOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) Uint() (opt OptFlag) {
 	flg := &Flag{}
-	s.working.Flags = append(s.working.Flags, flg)
+	s.working.Flags = uniAddFlg(s.working.Flags, flg)
 	return &uintOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) Int64() (opt OptFlag) {
 	flg := &Flag{}
-	s.working.Flags = append(s.working.Flags, flg)
+	s.working.Flags = uniAddFlg(s.working.Flags, flg)
 	return &int64Opt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) Uint64() (opt OptFlag) {
 	flg := &Flag{}
-	s.working.Flags = append(s.working.Flags, flg)
+	s.working.Flags = uniAddFlg(s.working.Flags, flg)
 	return &uint64Opt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) Float32() (opt OptFlag) {
 	flg := &Flag{}
-	s.working.Flags = append(s.working.Flags, flg)
+	s.working.Flags = uniAddFlg(s.working.Flags, flg)
 	return &float32Opt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) Float64() (opt OptFlag) {
 	flg := &Flag{}
-	s.working.Flags = append(s.working.Flags, flg)
+	s.working.Flags = uniAddFlg(s.working.Flags, flg)
 	return &float64Opt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
 func (s *optCommandImpl) Duration() (opt OptFlag) {
 	flg := &Flag{}
-	s.working.Flags = append(s.working.Flags, flg)
+	s.working.Flags = uniAddFlg(s.working.Flags, flg)
 	return &durationOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
@@ -290,7 +290,7 @@ func (s *optCommandImpl) NewSubCommand() (opt OptCmd) {
 
 	optCtx.current = cmd
 
-	s.working.SubCommands = append(s.working.SubCommands, cmd)
+	s.working.SubCommands = uniAddCmd(s.working.SubCommands, cmd)
 
 	opt = &subCmdOpt{optCommandImpl: optCommandImpl{working: cmd, parent: s}}
 	return

@@ -96,7 +96,7 @@ func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
 					owner:  &root.Command,
 				},
 			}
-			root.SubCommands = append(root.SubCommands, cx)
+			root.SubCommands = uniAddCmd(root.SubCommands, cx)
 			root.allCmds[SysMgmtGroup]["version"] = cx
 			root.allCmds[SysMgmtGroup]["versions"] = cx
 			root.allCmds[SysMgmtGroup]["ver"] = cx

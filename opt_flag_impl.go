@@ -18,18 +18,18 @@ func (s *optFlagImpl) AttachTo(opt OptCmd) {
 }
 
 func (s *optFlagImpl) AttachToCommand(cmd *Command) {
-	cmd.Flags = append(cmd.Flags, s.ToFlag())
+	cmd.Flags = uniAddFlg(cmd.Flags, s.ToFlag())
 
 }
 
 func (s *optFlagImpl) AttachToRoot(root *RootCommand) {
-	root.Command.Flags = append(root.Command.Flags, s.ToFlag())
+	root.Command.Flags = uniAddFlg(root.Command.Flags, s.ToFlag())
 }
 
 func (s *optFlagImpl) Titles(short, long string, aliases ...string) (opt OptFlag) {
 	s.working.Short = short
 	s.working.Full = long
-	s.working.Aliases = append(s.working.Aliases, aliases...)
+	s.working.Aliases = uniAddStrs(s.working.Aliases, aliases...)
 	opt = s
 	return
 }
@@ -47,7 +47,7 @@ func (s *optFlagImpl) Long(long string) (opt OptFlag) {
 }
 
 func (s *optFlagImpl) Aliases(aliases ...string) (opt OptFlag) {
-	s.working.Aliases = append(s.working.Aliases, aliases...)
+	s.working.Aliases = uniAddStrs(s.working.Aliases, aliases...)
 	opt = s
 	return
 }
@@ -134,7 +134,7 @@ func (s *optFlagImpl) HeadLike(enable bool, min, max int64) (opt OptFlag) {
 }
 
 func (s *optFlagImpl) EnvKeys(keys ...string) (opt OptFlag) {
-	s.working.EnvVars = append(s.working.EnvVars, keys...)
+	s.working.EnvVars = uniAddStrs(s.working.EnvVars, keys...)
 	opt = s
 	return
 }

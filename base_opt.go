@@ -34,12 +34,12 @@ func (s *BaseOpt) GetTitleName() string {
 func (s *BaseOpt) GetTitleNamesArray() []string {
 	var a []string
 	if len(s.Short) != 0 {
-		a = append(a, s.Short)
+		a = uniAddStr(a, s.Short)
 	}
 	if len(s.Full) > 0 {
-		a = append(a, s.Full)
+		a = uniAddStr(a, s.Full)
 	}
-	a = append(a, s.Aliases...)
+	a = uniAddStrs(a, s.Aliases...)
 	return a
 }
 
@@ -47,7 +47,7 @@ func (s *BaseOpt) GetTitleNamesArray() []string {
 func (s *BaseOpt) GetShortTitleNamesArray() []string {
 	var a []string
 	if len(s.Short) != 0 {
-		a = append(a, s.Short)
+		a = uniAddStr(a, s.Short)
 	}
 	return a
 }
@@ -56,9 +56,9 @@ func (s *BaseOpt) GetShortTitleNamesArray() []string {
 func (s *BaseOpt) GetLongTitleNamesArray() []string {
 	var a []string
 	if len(s.Full) > 0 {
-		a = append(a, s.Full)
+		a = uniAddStr(a, s.Full)
 	}
-	a = append(a, s.Aliases...)
+	a = uniAddStrs(a, s.Aliases...)
 	return a
 }
 

@@ -118,23 +118,66 @@ func NewCmd() (opt OptCmd) {
 // NewSubCmd for fluent api
 func NewSubCmd() (opt OptCmd) {
 	cmd := &Command{}
-	optCtx.current.SubCommands = append(optCtx.current.SubCommands, cmd)
+	optCtx.current.SubCommands = uniAddCmd(optCtx.current.SubCommands, cmd)
 	return &subCmdOpt{optCommandImpl: optCommandImpl{working: cmd}}
 }
 
 // NewBool for fluent api
 func NewBool(defaultValue bool) (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
+	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &boolOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
 }
 
+func uniAddCmd(cmds []*Command, cmd *Command) []*Command {
+	for _, f := range cmds {
+		if f == cmd {
+			return cmds
+		}
+	}
+	return append(cmds, cmd)
+}
+
+func uniAddFlg(flags []*Flag, flg *Flag) []*Flag {
+	for _, f := range flags {
+		if f == flg {
+			return flags
+		}
+	}
+	return append(flags, flg)
+}
+
+func uniAddStr(a []string, s string) []string {
+	for _, f := range a {
+		if f == s {
+			return a
+		}
+	}
+	return append(a, s)
+}
+
+func uniAddStrs(a []string, ss ...string) []string {
+	for _, s := range ss {
+		found := false
+		for _, f := range a {
+			if f == s {
+				found = true
+				break
+			}
+		}
+		if !found {
+			a = append(a, s)
+		}
+	}
+	return a
+}
+
 // NewString for fluent api
 func NewString(defaultValue string) (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
+	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &stringOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
@@ -143,7 +186,7 @@ func NewString(defaultValue string) (opt OptFlag) {
 // NewStringSlice for fluent api
 func NewStringSlice(defaultValue []string) (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
+	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &stringSliceOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
@@ -152,7 +195,7 @@ func NewStringSlice(defaultValue []string) (opt OptFlag) {
 // NewIntSlice for fluent api
 func NewIntSlice(defaultValue []int) (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
+	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &intSliceOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
@@ -161,7 +204,7 @@ func NewIntSlice(defaultValue []int) (opt OptFlag) {
 // NewInt for fluent api
 func NewInt(defaultValue int) (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
+	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &intOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
@@ -170,7 +213,7 @@ func NewInt(defaultValue int) (opt OptFlag) {
 // NewUint for fluent api
 func NewUint(defaultValue uint) (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
+	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &uintOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
@@ -179,7 +222,7 @@ func NewUint(defaultValue uint) (opt OptFlag) {
 // NewInt64 for fluent api
 func NewInt64(defaultValue int64) (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
+	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &int64Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
@@ -188,7 +231,7 @@ func NewInt64(defaultValue int64) (opt OptFlag) {
 // NewUint64 for fluent api
 func NewUint64(defaultValue uint64) (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
+	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &uint64Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
@@ -197,7 +240,7 @@ func NewUint64(defaultValue uint64) (opt OptFlag) {
 // NewFloat32 for fluent api
 func NewFloat32(defaultValue float32) (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
+	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &float32Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
@@ -206,7 +249,7 @@ func NewFloat32(defaultValue float32) (opt OptFlag) {
 // NewFloat64 for fluent api
 func NewFloat64(defaultValue float64) (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
+	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &float64Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
@@ -222,6 +265,6 @@ func NewDuration(defaultValue time.Duration) (opt OptFlag) {
 // NewDurationFrom for fluent api
 func NewDurationFrom(flg *Flag) (opt OptFlag) {
 	optCtx.workingFlag = flg
-	optCtx.current.Flags = append(optCtx.current.Flags, optCtx.workingFlag)
+	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	return &durationOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 }

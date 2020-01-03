@@ -369,3 +369,11 @@ func WithNoCommandAction(b bool) ExecOption {
 		w.noCommandAction = b
 	}
 }
+
+// WithSwitchCharHit handle the exact switch-char (such as '-', '/', '~') matched.
+// For example, type `bin/fluent mx -d - --help` will trigger this callback at the 2nd flag '-'.
+func WithSwitchCharHit(fn func(parsed *Command, switchChar string, args []string) (err error)) ExecOption {
+	return func(w *ExecWorker) {
+		w.onSwitchCharHit = fn
+	}
+}

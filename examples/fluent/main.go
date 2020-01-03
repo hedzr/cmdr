@@ -80,9 +80,19 @@ func main() {
 
 		optAddTraceOption,
 		optAddServerExtOption,
+
+		cmdr.WithSwitchCharHit(onSwitchCharHit),
 	); err != nil {
 		logrus.Fatalf("error: %v", err)
 	}
+}
+
+func onSwitchCharHit(parsed *cmdr.Command, switchChar string, args []string) (err error) {
+	if parsed != nil {
+		fmt.Printf("the last parsed command is %q - %q\n", parsed.GetTitleNames(), parsed.Description)
+	}
+	fmt.Printf("switchChar: %v\nremains: %v\n\n", switchChar, args)
+	return cmdr.ErrShouldBeStopException
 }
 
 func onUnhandleErrorHandler(err interface{}) {

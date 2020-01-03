@@ -94,6 +94,10 @@ func TestMatch(t *testing.T) {
 		// t.Logf("--------- stdout // %v // %v\n%v", cmdr.GetExecutableDir(), cmdr.GetExcutablePath(), x)
 	}()
 
+	onUnhandleErrorHandler := func(err interface{}) {
+		t.Fatal(errors.DumpStacksAsString(false))
+	}
+
 	t.Log("xxx: -------- loops for execTestingsMatch")
 	for sss, verifier := range execTestingsMatch {
 		cmdr.InternalResetWorker()
@@ -105,7 +109,13 @@ func TestMatch(t *testing.T) {
 		w := cmdr.Worker3(rootCmdForTesting)
 		w.AddOnAfterXrefBuilt(func(root *cmdr.RootCommand, args []string) {})
 		w.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {})
-		if cmd, err = cmdr.Match(sss); err != nil {
+		if cmd, err = cmdr.Match(sss,
+			cmdr.WithUnhandledErrorHandler(onUnhandleErrorHandler),
+			cmdr.WithNoCommandAction(true),
+			cmdr.WithOnSwitchCharHit(func(parsed *cmdr.Command, switchChar string, args []string) (err error) {
+				return
+			}),
+		); err != nil {
 			if e, ok := err.(*cmdr.ErrorForCmdr); !ok || !e.Ignorable {
 				t.Fatal(err)
 			}
@@ -194,6 +204,9 @@ var (
 			return e
 		},
 		"server start ": func(t *testing.T, c *cmdr.Command, e error) error {
+			return e
+		},
+		"server start -": func(t *testing.T, c *cmdr.Command, e error) error {
 			return e
 		},
 	}

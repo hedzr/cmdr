@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/hedzr/cmdr"
 	"gopkg.in/yaml.v2"
+	"strings"
 	"testing"
 	"time"
 )
@@ -133,154 +134,10 @@ func TestAsXXX(t *testing.T) {
 	}
 }
 
-func TestFluentAPINew(t *testing.T) {
-	cmdr.ResetOptions()
-	cmdr.InternalResetWorker()
-
+func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 	root := cmdr.Root("aa", "1.0.1").
 		Header("aa - test for cmdr - no version - hedzr").
 		Copyright("s", "x")
-	rootCmd1 := root.RootCommand()
-	t.Log(rootCmd1)
-
-	// ms
-
-	co := root.NewSubCommand().
-		Titles("ms", "micro-service").
-		Short("ms").Long("micro-service").Aliases("goms").
-		Examples(``).Hidden(false).Deprecated("").
-		PreAction(nil).PostAction(nil).Action(nil).
-		TailPlaceholder("").
-		Description("", "").
-		Group("")
-
-	co.OwnerCommand()
-	co.SetOwner(root)
-
-	co.NewFlagV(uint(3)).
-		Titles("t", "retry").
-		Short("tt").Long("retry-tt").Aliases("go-tt").
-		Examples(``).Hidden(false).Deprecated("").
-		Action(nil).
-		ExternalTool(cmdr.ExternalToolEditor).
-		ExternalTool(cmdr.ExternalToolPasswordInput).
-		Description("", "").
-		Group("").
-		Placeholder("RETRY").SetOwner(root)
-
-	co.NewFlagV(true).
-		Titles("t1", "retry1").
-		Description("", "").
-		Group("").
-		Placeholder("RETRY").OwnerCommand()
-
-	co.NewFlagV(3).
-		Titles("t2", "retry2").
-		Description("", "").
-		Group("").ToggleGroup("").
-		RootCommand()
-
-	co.NewFlagV(uint64(3)).
-		Titles("t3", "retry3").
-		Description("", "").
-		Group("")
-
-	co.NewFlagV(int64(3)).
-		Titles("t4", "retry4").
-		Description("", "").
-		Group("")
-
-	co.NewFlagV([]string{"a", "b"}).
-		Titles("t5", "retry5").
-		Description("", "")
-
-	co.NewFlagV([]int{1, 2, 3}).
-		Titles("t6", "retry6").
-		Description("", "")
-
-	co.NewFlagV([]uint{1, 2, 3}).
-		Titles("t61", "retry61").
-		Description("", "")
-
-	co.NewFlagV(time.Second).
-		Titles("t7", "retry7")
-
-	co.NewFlagV(float32(3.14)).
-		Titles("t8", "retry8").
-		Description("", "").
-		Group("").
-		Placeholder("PI")
-
-	co.NewFlagV(3.14159265358979323846264338327950288419716939937510582097494459230781640628620899).
-		Titles("t9", "retry9").
-		Description("", "").
-		Group("").
-		Placeholder("PI")
-
-	co.NewFlagV(1).
-		Titles("h", "head").
-		Description("", "").
-		Group("").
-		HeadLike(true, 1, 8000).EnvKeys("AVCX")
-
-	co.NewFlagV("").
-		Titles("i", "ienum").
-		Description("", "").
-		Group("").
-		ValidArgs("apple", "banana", "orange")
-
-	// ms tags
-
-	cTags := co.NewSubCommand().
-		Titles("t", "tags").
-		Description("", "").
-		Group("")
-
-	cTags.NewFlagV("consul.ops.local").
-		Titles("a", "addr").
-		Description("", "").
-		Group("").
-		Placeholder("ADDR")
-
-	// ms tags ls
-
-	cTags.NewSubCommand().
-		Titles("ls", "list").
-		Description("", "").
-		Group("").
-		Action(func(cmd *cmdr.Command, args []string) (err error) {
-			return
-		})
-
-	cTags.NewSubCommand().
-		Titles("a", "add").
-		Description("", "").
-		Group("").
-		Action(func(cmd *cmdr.Command, args []string) (err error) {
-			return
-		})
-
-	if s, err := cmdr.AsYamlExt(); err != nil {
-		t.Fatalf("AsYamlExt error: %v", err)
-	} else {
-		t.Log(s)
-	}
-	if s, err := cmdr.AsTomlExt(); err != nil {
-		t.Fatalf("AsTomlExt error: %v", err)
-	} else {
-		t.Log(s)
-	}
-}
-
-func TestFluentAPI(t *testing.T) {
-	cmdr.ResetOptions()
-	cmdr.InternalResetWorker()
-
-	root := cmdr.Root("aa", "1.0.1").
-		Header("aa - test for cmdr - no version - hedzr").
-		Copyright("s", "x")
-	rootCmd1 := root.RootCommand()
-	t.Log(rootCmd1)
 
 	// ms
 
@@ -406,6 +263,161 @@ func TestFluentAPI(t *testing.T) {
 			return
 		})
 
+	return root
+}
+
+func createRoot() (rootOpt *cmdr.RootCmdOpt) {
+	root := cmdr.Root("aa", "1.0.1").
+		Header("aa - test for cmdr - no version - hedzr").
+		Copyright("s", "x")
+
+	// ms
+
+	co := root.NewSubCommand().
+		Titles("ms", "micro-service").
+		Short("ms").Long("micro-service").Aliases("goms").
+		Examples(``).Hidden(false).Deprecated("").
+		PreAction(nil).PostAction(nil).Action(nil).
+		TailPlaceholder("").
+		Description("", "").
+		Group("")
+
+	co.OwnerCommand()
+	co.SetOwner(root)
+
+	co.NewFlagV(uint(3)).
+		Titles("t", "retry").
+		Short("tt").Long("retry-tt").Aliases("go-tt").
+		Examples(``).Hidden(false).Deprecated("").
+		Action(nil).
+		ExternalTool(cmdr.ExternalToolEditor).
+		ExternalTool(cmdr.ExternalToolPasswordInput).
+		Description("", "").
+		Group("").
+		Placeholder("RETRY").SetOwner(root)
+
+	co.NewFlagV(true).
+		Titles("t1", "retry1").
+		Description("", "").
+		Group("").
+		Placeholder("RETRY").OwnerCommand()
+
+	co.NewFlagV(3).
+		Titles("t2", "retry2").
+		Description("", "").
+		Group("").ToggleGroup("").
+		RootCommand()
+
+	co.NewFlagV(uint64(3)).
+		Titles("t3", "retry3").
+		Description("", "").
+		Group("")
+
+	co.NewFlagV(int64(3)).
+		Titles("t4", "retry4").
+		Description("", "").
+		Group("")
+
+	co.NewFlagV([]string{"a", "b"}).
+		Titles("t5", "retry5").
+		Description("", "")
+
+	co.NewFlagV([]int{1, 2, 3}).
+		Titles("t6", "retry6").
+		Description("", "")
+
+	co.NewFlagV([]uint{1, 2, 3}).
+		Titles("t61", "retry61").
+		Description("", "")
+
+	co.NewFlagV(time.Second).
+		Titles("t7", "retry7")
+
+	co.NewFlagV(float32(3.14)).
+		Titles("t8", "retry8").
+		Description("", "").
+		Group("").
+		Placeholder("PI")
+
+	co.NewFlagV(3.14159265358979323846264338327950288419716939937510582097494459230781640628620899).
+		Titles("t9", "retry9").
+		Description("", "").
+		Group("").
+		Placeholder("PI")
+
+	co.NewFlagV(1).
+		Titles("h", "head").
+		Description("", "").
+		Group("").
+		HeadLike(true, 1, 8000).EnvKeys("AVCX")
+
+	co.NewFlagV("").
+		Titles("i", "ienum").
+		Description("", "").
+		Group("").
+		ValidArgs("apple", "banana", "orange")
+
+	// ms tags
+
+	cTags := co.NewSubCommand().
+		Titles("t", "tags").
+		Description("", "").
+		Group("")
+
+	cTags.NewFlagV("consul.ops.local").
+		Titles("a", "addr").
+		Description("", "").
+		Group("").
+		Placeholder("ADDR")
+
+	// ms tags ls
+
+	cTags.NewSubCommand().
+		Titles("ls", "list").
+		Description("", "").
+		Group("").
+		Action(func(cmd *cmdr.Command, args []string) (err error) {
+			return
+		})
+
+	cTags.NewSubCommand().
+		Titles("a", "add").
+		Description("", "").
+		Group("").
+		Action(func(cmd *cmdr.Command, args []string) (err error) {
+			return
+		})
+
+	return root
+}
+
+func TestFluentAPINew(t *testing.T) {
+	cmdr.ResetOptions()
+	cmdr.InternalResetWorker()
+
+	root := createRoot()
+	rootCmd1 := root.RootCommand()
+	t.Log(rootCmd1)
+
+	if s, err := cmdr.AsYamlExt(); err != nil {
+		t.Fatalf("AsYamlExt error: %v", err)
+	} else {
+		t.Log(s)
+	}
+	if s, err := cmdr.AsTomlExt(); err != nil {
+		t.Fatalf("AsTomlExt error: %v", err)
+	} else {
+		t.Log(s)
+	}
+}
+
+func TestFluentAPIOld(t *testing.T) {
+	cmdr.ResetOptions()
+	cmdr.InternalResetWorker()
+
+	root := createRootOld()
+	rootCmd1 := root.RootCommand()
+	t.Log(rootCmd1)
 }
 
 func TestMergeWith(t *testing.T) {
@@ -456,3 +468,113 @@ func TestDelete(t *testing.T) {
 		t.Fatalf("FAILED, expect key not found, but found: %v", cmdr.Get("app.test.branch.1"))
 	}
 }
+
+func addDupFlags(root *cmdr.RootCmdOpt) {
+	co := root.RootCommand().SubCommands[0]
+
+	co.Flags = append(co.Flags, &cmdr.Flag{
+		BaseOpt: cmdr.BaseOpt{
+			Short:       "tt",
+			Full:        "retry-tt",
+			Aliases:     []string{"retry-tt"},
+			Group:       "",
+			Description: "",
+		},
+		DefaultValue: false,
+	})
+	co.Flags = append(co.Flags, &cmdr.Flag{
+		BaseOpt: cmdr.BaseOpt{
+			Name:        "retry-tt",
+			Group:       "",
+			Description: "",
+		},
+		DefaultValue: false,
+	})
+	co.Flags = append(co.Flags, &cmdr.Flag{
+		BaseOpt: cmdr.BaseOpt{
+			Name:        "retry-tt-not-dup",
+			Group:       "",
+			Description: "",
+		},
+		DefaultValue: false,
+	})
+
+	r := root.RootCommand()
+	r.SubCommands = append(r.SubCommands, &cmdr.Command{
+		BaseOpt: cmdr.BaseOpt{
+			Short:           "ms",
+			Full:            "micro-service",
+			Aliases:         []string{"micro-service"},
+			Group:           "",
+			Description:     "",
+			LongDescription: "",
+		},
+	})
+	r.SubCommands = append(r.SubCommands, &cmdr.Command{
+		BaseOpt: cmdr.BaseOpt{
+			Name:            "micro-service",
+			Short:           "",
+			Full:            "",
+			Group:           "",
+			Description:     "",
+			LongDescription: "",
+		},
+	})
+}
+
+func TestAlreadyUsed(t *testing.T) {
+	cmdr.ResetOptions()
+	cmdr.InternalResetWorker()
+
+	root := createRoot()
+
+	var err error
+	deferFn := prepareConfD(t)
+	outX, errX := prepareStreams()
+	defer func() {
+
+		x := outX.String()
+		t.Logf("--------- stdout // %v // %v\n%v", cmdr.GetExecutableDir(), cmdr.GetExcutablePath(), x)
+
+		if errX.Len() > 0 {
+			t.Log("--------- stderr")
+			t.Logf("Warn for normal err-info!! %v", errX.String())
+		}
+
+		resetOsArgs()
+		deferFn()
+
+	}()
+
+	addDupFlags(root)
+
+	t.Log("xxx: -------- loops for alreadyUsedTestings")
+	for sss, verifier := range alreadyUsedTestings {
+		resetFlagsAndLog(t)
+		cmdr.ResetRootInWorker()
+
+		t.Log("xxx: ***: ", sss)
+
+		if _, err = cmdr.Worker().InternalExecFor(root.RootCommand(), strings.Split(sss, " ")); err != nil {
+			t.Fatal(err, fmt.Sprintf("rootCmd = %p", root.RootCommand()))
+		}
+		if err = verifier(t); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+var (
+	// testing args
+	alreadyUsedTestings = map[string]func(t *testing.T) error{
+		// "consul-tags -qq": func(t *testing.T) error {
+		// 	return nil
+		// },
+		"consul-tags --help": func(t *testing.T) error {
+			return nil
+		},
+		// "consul-tags --help ~~debug": func(t *testing.T) error {
+		// 	return nil
+		// },
+	}
+)

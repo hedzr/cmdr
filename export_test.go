@@ -62,6 +62,10 @@ func ResetRootInWorker() {
 	internalGetWorker().rootCommand = nil
 }
 
+func TestEmptyUnknownOptionHandler(t *testing.T) {
+	emptyUnknownOptionHandler(false, "", nil, nil)
+}
+
 func TestTplApply(t *testing.T) {
 	tplApply("{{ .dkl }}", &struct{ sth bool }{false})
 }
@@ -192,6 +196,9 @@ func TestHandlePanic(t *testing.T) {
 		ResetOptions()
 		if err := Exec(rootCmdX,
 			WithUnhandledErrorHandler(onUnhandleErrorHandler),
+			WithOnSwitchCharHit(func(parsed *Command, switchChar string, args []string) (err error) {
+				return
+			}),
 		); err != nil {
 			t.Log(err) // hi, here is not real error occurs
 		}

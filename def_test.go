@@ -84,6 +84,9 @@ func TestSingleCommandLine1(t *testing.T) {
 Type '-h'/'-?' or '--help' to get command help screen. 
 More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-info', '--no-color', '--strict-mode', '--no-env-overrides'...`),
 		cmdr.WithUnhandledErrorHandler(onUnhandleErrorHandler),
+		cmdr.WithOnSwitchCharHit(func(parsed *cmdr.Command, switchChar string, args []string) (err error) {
+			return
+		}),
 	)
 
 	cmdr.InternalResetWorker()

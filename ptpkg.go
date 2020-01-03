@@ -305,10 +305,10 @@ func (pkg *ptpkg) processTypeString(args []string) (err error) {
 				}
 			}
 			pkg.found = true
-			err = newError(wkr.shouldIgnoreWrongEnumValue, 
+			err = newError(wkr.shouldIgnoreWrongEnumValue,
 				errWrongEnumValue, // .Format(pkg.val, pkg.fn, pkg.flg.owner.GetName()),
 				pkg.val, pkg.flg.GetTitleZshFlagName(), pkg.flg.owner.GetName(),
-				)
+			)
 			return
 		}
 

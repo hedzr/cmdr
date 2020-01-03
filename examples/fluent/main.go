@@ -81,7 +81,7 @@ func main() {
 		optAddTraceOption,
 		optAddServerExtOption,
 
-		cmdr.WithSwitchCharHit(onSwitchCharHit),
+		cmdr.WithOnSwitchCharHit(onSwitchCharHit),
 	); err != nil {
 		logrus.Fatalf("error: %v", err)
 	}

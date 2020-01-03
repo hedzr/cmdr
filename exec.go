@@ -285,7 +285,9 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 			if len(ra) > 0 {
 				ra = ra[1:]
 			}
-			err = w.onSwitchCharHit(*goCommand, pkg.a, ra)
+			if w.onSwitchCharHit != nil {
+				err = w.onSwitchCharHit(*goCommand, pkg.a, ra)
+			}
 			return
 		}
 

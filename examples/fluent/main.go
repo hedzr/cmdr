@@ -11,7 +11,9 @@ import (
 	"github.com/hedzr/cmdr/plugin/daemon"
 	"github.com/hedzr/errors"
 	"github.com/sirupsen/logrus"
+	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 )
 
@@ -211,11 +213,27 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 			fmt.Println()
 			fmt.Printf("*** test text: %s\n", cmdr.GetStringR("mx-test.test"))
 			fmt.Println()
-			fmt.Printf("InTesting: args[0]=%v \n", cmdr.SavedOsArgs[0])
+			fmt.Printf("> InTesting: args[0]=%v \n", cmdr.SavedOsArgs[0])
 			fmt.Println()
-			fmt.Printf("Used config file: %v\n", cmdr.GetUsedConfigFile())
-			fmt.Printf("Used config files: %v\n", cmdr.GetUsingConfigFiles())
-			fmt.Printf("Used config sub-dir: %v\n", cmdr.GetUsedConfigSubDir())
+			fmt.Printf("> Used config file: %v\n", cmdr.GetUsedConfigFile())
+			fmt.Printf("> Used config files: %v\n", cmdr.GetUsingConfigFiles())
+			fmt.Printf("> Used config sub-dir: %v\n", cmdr.GetUsedConfigSubDir())
+
+			fmt.Printf("> STDIN MODE: %v \n", cmdr.GetBoolR("mx-test.stdin"))
+			fmt.Println()
+
+			if cmdr.GetBoolR("mx-test.stdin") {
+				fmt.Println("> Type your contents here, press Ctrl-D to end it:")
+				var data []byte
+				data, err = ioutil.ReadAll(os.Stdin)
+				if err != nil {
+					log.Println("error: %v", err)
+					return
+				}
+				fmt.Println("> The input contents are:")
+				fmt.Print(string(data))
+				fmt.Println()
+			}
 			return
 		})
 	mx.NewFlagV("").
@@ -247,6 +265,10 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 		Group("").
 		Placeholder("LINES").
 		HeadLike(true, 1, 3000)
+	mx.NewFlagV(false).
+		Titles("c", "stdin").
+		Description("read file content from stdin.", "").
+		Group("")
 
 	// kv
 

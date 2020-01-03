@@ -190,7 +190,7 @@ func (pkg *ptpkg) preprocessPkg(args []string) (err error) {
 				if len(pkg.flg.ExternalTool) > 0 {
 					err = pkg.processExternalTool()
 				} else if GetStrictMode() {
-					err = errors.New("unexpect end of command line [i=%v,args=(%v)], need more args for %v", pkg.i, args, pkg)
+					err = errors.New("unexpected end of command line [i=%v,args=(%v)], need more args for %v", pkg.i, args, pkg)
 					return
 				}
 			}
@@ -305,7 +305,10 @@ func (pkg *ptpkg) processTypeString(args []string) (err error) {
 				}
 			}
 			pkg.found = true
-			err = newError(wkr.shouldIgnoreWrongEnumValue, errWrongEnumValue, pkg.val, pkg.fn, pkg.flg.owner.GetName())
+			err = newError(wkr.shouldIgnoreWrongEnumValue, 
+				errWrongEnumValue, // .Format(pkg.val, pkg.fn, pkg.flg.owner.GetName()),
+				pkg.val, pkg.flg.GetTitleZshFlagName(), pkg.flg.owner.GetName(),
+				)
 			return
 		}
 

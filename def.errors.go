@@ -15,7 +15,7 @@ var (
 	// ErrBadArg is a generic error for user
 	ErrBadArg = errors.New("bad argument")
 
-	errWrongEnumValue = newErrTmpl("unexpect enumerable value '%s' for option '%s', under command '%s'")
+	errWrongEnumValue = newErrTmpl("unexpected enumerable value '%s' for option '%s', under command '%s'")
 )
 
 // ErrorForCmdr structure
@@ -28,6 +28,7 @@ type ErrorForCmdr struct {
 
 // newError formats a ErrorForCmdr object
 func newError(ignorable bool, sourceTemplate *ErrorForCmdr, args ...interface{}) *ErrorForCmdr {
+	// log.Printf("--- newError: sourceTemplate args: %v", args)
 	e := sourceTemplate.Format(args...)
 	e.Ignorable = ignorable
 	return e

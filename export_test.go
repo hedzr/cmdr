@@ -376,17 +376,17 @@ func SetPredefinedLocationsForTesting(locations ...string) {
 
 func TestNewError(t *testing.T) {
 
-	errWrongEnumValue := newErrTmpl("unexpect enumerable value '%s' for option '%s', under command '%s'")
+	errWrongEnumValue := newErrTmpl("unexpected enumerable value '%s' for option '%s', under command '%s'")
 
 	err := newError(false, errWrongEnumValue, "ds", "head", "server")
 	println(err)
 
-	err = newError(true, newErr("unexpect enumerable value"))
+	err = newError(true, newErr("unexpected enumerable value"))
 	println(err.Error())
 
-	err = newErrorWithMsg("Holo", errors.New("unexpect enumerable value"))
+	err = newErrorWithMsg("Holo", errors.New("unexpected enumerable value"))
 	println(err.Error())
 
-	errWrongEnumValue = newErrTmpl("unexpect enumerable value '%s' for option '%s', under command '%s'")
+	errWrongEnumValue = newErrTmpl("unexpected enumerable value '%s' for option '%s', under command '%s'")
 	_ = errWrongEnumValue.Template("x").Format().Msg("x %v", 1).Nest(err)
 }

@@ -202,16 +202,16 @@ var (
 	execTestingsHeadLike = map[string]func(t *testing.T, e error) error{
 		// enum test
 		"consul-tags server -e oil": func(t *testing.T, e error) error {
-			if strings.Index(e.Error(), "unexpect enumerable value") >= 0 {
-				println("unexpect enumerable value found. This is a test, not an error.")
+			if strings.Index(e.Error(), "unexpected enumerable value") >= 0 {
+				println("unexpected enumerable value found. This is a test, not an error.")
 				return nil
 			}
 			return e
 		},
 		"consul-tags server -e orange": func(t *testing.T, e error) error {
 			if cmdr.GetStringR("server.enum") != "orange" {
-				println("unexpect enumerable value found. This is an error")
-				return errors.New("unexpect enumerable value '%v' found. This is an error.",
+				println("unexpected enumerable value found. This is an error")
+				return errors.New("unexpected enumerable value '%v' found. This is an error.",
 					cmdr.GetStringR("server.enum"))
 			}
 			return e

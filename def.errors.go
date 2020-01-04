@@ -10,10 +10,10 @@ import (
 
 var (
 	// ErrShouldBeStopException tips `Exec()` cancelled the following actions after `PreAction()`
-	ErrShouldBeStopException = errors.New("stop me right now")
+	ErrShouldBeStopException = newErrorWithMsg("stop me right now")
 
 	// ErrBadArg is a generic error for user
-	ErrBadArg = errors.New("bad argument")
+	ErrBadArg = newErrorWithMsg("bad argument")
 
 	errWrongEnumValue = newErrTmpl("unexpected enumerable value '%s' for option '%s', under command '%s'")
 )
@@ -39,8 +39,8 @@ func newError(ignorable bool, sourceTemplate *ErrorForCmdr, args ...interface{})
 }
 
 // newErrorWithMsg formats a ErrorForCmdr object
-func newErrorWithMsg(msg string, inner error) *ErrorForCmdr {
-	return newErr(msg).Attach(inner)
+func newErrorWithMsg(msg string, inners... error) *ErrorForCmdr {
+	return newErr(msg).Attach(inners...)
 	// return &ErrorForCmdr{Inner: inner, Ignorable: false, Msg: msg}
 }
 

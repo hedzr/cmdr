@@ -4,7 +4,9 @@
 
 
 ### v1.6.18
-
+  - added: `WithOnSwitchCharHit`, `WithOnPassThruCharHit`
+  - bug fixed
+  - reviewing and refactoring
 
 ### v1.6.17
   better supports to `flag` child package and migrating from stdline `flag`.  

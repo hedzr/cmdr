@@ -52,40 +52,11 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- v1.6.17
-  better supports to `flag` child package and migrating from stdline `flag`.  
-  supports to shell prompt mode, see also new release of [`cmdr-http2`](https://github.com/hedzr/cmdr-http2), which demostrates how to integrate cmdr with go-prompt.
-  - `Match(cmdline, opts...)`: match the arguments line (no os.Args[0]).
-  - `WithNoCommandAction(bool)`
-  
-- v1.6.15
-  - patch to fix errors package
-  
-- v1.6.13
-  - bugs
-  - Added [`WithOptionMergeModifying`](https://github.com/hedzr/cmdr/blob/master/exec_with_options.go#L163), [`WithOptionModifying`](https://github.com/hedzr/cmdr/blob/master/exec_with_options.go#L173)
-    Now the changing/merging events could be hooked with a top-level watching point.
-  - Added `WithUnhandledErrorHandler()` to capture panics if necessary
-    
-- v1.6.11
-  - bugs fixed
-    - fixed the group of built-in cmds/flags,
-    - for sequence `-v5 -v`, the valid short option `-v5` will be reported as `can't be found`,
-      - infinite loop for parsing tight short flags
-    - for `GetStringR(keyPath, defaultValue)`, defaultValue can't applied to the key if it has an empty string value.
-    - ...
-  - **apis break**:
-    <details>
-    These apis adds default value as parameter, such as `NewBool(bool)...` now, instead of `NewBool()`:
-    
-    - `NewBool(bool)`, `NewString(string)`,
-    `NewStringSlice([]string)`, `NewIntSlice([]int)`, 
-    `NewInt(int)`, `NewUint(uint)`, `NewInt64(int64)`, `NewUint64(uint64)`, `NewFloat32(float32)`, `NewFloat64(float64)`,
-    `NewDuration(time.Duration)`,
-       
-    </details>
-  - adds `WithHelpTailLine(line)` for the customizable dim tail line
-  
+- v1.6.18
+  - added: `WithOnSwitchCharHit`, `WithOnPassThruCharHit`
+  - bug fixed
+  - reviewing and refactoring
+
 - For more information to refer to [CHANGELOG](./CHANGELOG)
 
 

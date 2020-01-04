@@ -8,7 +8,6 @@ import (
 	"bufio"
 	"github.com/hedzr/cmdr/conf"
 	"os"
-	"strings"
 	"sync"
 	"time"
 )
@@ -70,7 +69,8 @@ type ExecWorker struct {
 
 	helpTailLine string
 
-	onSwitchCharHit func(parsed *Command, switchChar string, args []string) (err error)
+	onSwitchCharHit   func(parsed *Command, switchChar string, args []string) (err error)
+	onPassThruCharHit func(parsed *Command, switchChar string, args []string) (err error)
 }
 
 // ExecOption is the functional option for Exec()
@@ -103,39 +103,6 @@ func Exec(rootCmd *RootCommand, opts ...ExecOption) (err error) {
 
 	_, err = w.InternalExecFor(rootCmd, os.Args)
 	return
-}
-
-// Match try parsing the input command-line, the result is the last hit *Command.
-func Match(inputCommandlineWithoutArg0 string, opts ...ExecOption) (last *Command, err error) {
-	saved := internalGetWorker()
-	savedUnknownOptionHandler := unknownOptionHandler
-	defer func() {
-		uniqueWorkerLock.Lock()
-		uniqueWorker = saved
-		unknownOptionHandler = savedUnknownOptionHandler
-		uniqueWorkerLock.Unlock()
-	}()
-
-	rootCmd := internalGetWorker().rootCommand
-
-	w := internalResetWorkerNoLock()
-
-	for _, opt := range opts {
-		opt(w)
-	}
-
-	w.noDefaultHelpScreen = true
-	w.noUnknownCmdTip = true
-	w.noCommandAction = true
-	unknownOptionHandler = emptyUnknownOptionHandler
-
-	line := os.Args[0] + " " + inputCommandlineWithoutArg0
-	last, err = w.InternalExecFor(rootCmd, strings.Split(line, " "))
-	return
-}
-
-func emptyUnknownOptionHandler(isFlag bool, title string, cmd *Command, args []string) (fallbackToDefaultDetector bool) {
-	return false
 }
 
 var uniqueWorkerLock sync.RWMutex
@@ -185,7 +152,7 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 		defaultStdout: bufio.NewWriterSize(os.Stdout, 16384),
 		defaultStderr: bufio.NewWriterSize(os.Stderr, 16384),
 
-		rxxtOptions: NewOptions(),
+		rxxtOptions: newOptions(),
 
 		similarThreshold:    similarThreshold,
 		noDefaultHelpScreen: false,
@@ -279,14 +246,21 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []string) (matched, stop bool, err error) {
 	if len(pkg.a) > 0 && (pkg.a[0] == '-' || pkg.a[0] == '/' || pkg.a[0] == '~') {
 		if len(pkg.a) == 1 {
-			pkg.needHelp = true
-			pkg.needFlagsHelp = true
+			// pkg.needHelp = true
+			// pkg.needFlagsHelp = true
 			ra := args[pkg.i:]
 			if len(ra) > 0 {
 				ra = ra[1:]
 			}
+			
+			stop = true
+			pkg.lastCommandHeld = false
+			pkg.needHelp = false
+			pkg.needFlagsHelp = false
 			if w.onSwitchCharHit != nil {
 				err = w.onSwitchCharHit(*goCommand, pkg.a, ra)
+			} else {
+				err = defaultOnSwitchCharHit(*goCommand, pkg.a, ra)
 			}
 			return
 		}

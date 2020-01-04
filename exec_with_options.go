@@ -370,10 +370,18 @@ func WithNoCommandAction(b bool) ExecOption {
 	}
 }
 
-// WithOnSwitchCharHit handle the exact switch-char (such as '-', '/', '~') matched.
+// WithOnSwitchCharHit handle the exact single switch-char (such as '-', '/', '~') matched.
 // For example, type `bin/fluent mx -d - --help` will trigger this callback at the 2nd flag '-'.
 func WithOnSwitchCharHit(fn func(parsed *Command, switchChar string, args []string) (err error)) ExecOption {
 	return func(w *ExecWorker) {
 		w.onSwitchCharHit = fn
+	}
+}
+
+// WithOnPassThruCharHit handle the passthrough char(s) (i.e. '--') matched
+// For example, type `bin/fluent mx -d -- --help` will trigger this callback at the 2nd flag '--'.
+func WithOnPassThruCharHit(fn func(parsed *Command, switchChar string, args []string) (err error)) ExecOption {
+	return func(w *ExecWorker) {
+		w.onPassThruCharHit = fn
 	}
 }

@@ -43,8 +43,20 @@ func (w *ExecWorker) cmdMatched(pkg *ptpkg, goCommand *Command, args []string) (
 func (w *ExecWorker) flagsPrepare(pkg *ptpkg, goCommand **Command, args []string) (stop bool, err error) {
 	if len(pkg.a) > 1 && (pkg.a[1] == '-' || pkg.a[1] == '~') {
 		if len(pkg.a) == 2 {
-			// disableParser = true // '--': ignore the following args
+			// disableParser = true // '--': ignore the following args // PassThrough hit!
 			stop = true
+			pkg.lastCommandHeld = false
+			pkg.needHelp = false
+			pkg.needFlagsHelp = false
+			ra := args[pkg.i:]
+			if len(ra) > 0 {
+				ra = ra[1:]
+			}
+			if w.onPassThruCharHit != nil {
+				err = w.onPassThruCharHit(*goCommand, pkg.a, ra)
+			} else {
+				err = defaultOnPasssThruCharHit(*goCommand, pkg.a, ra)
+			}
 			return
 		}
 

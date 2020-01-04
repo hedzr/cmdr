@@ -96,7 +96,7 @@ func onSwitchCharHit(parsed *cmdr.Command, switchChar string, args []string) (er
 	return nil // cmdr.ErrShouldBeStopException
 }
 
-func onPasssThruCharHit(parsed *Command, switchChar string, args []string) (err error) {
+func onPasssThruCharHit(parsed *cmdr.Command, switchChar string, args []string) (err error) {
 	if parsed != nil {
 		fmt.Printf("the last parsed command is %q - %q\n", parsed.GetTitleNames(), parsed.Description)
 	}

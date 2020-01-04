@@ -194,7 +194,7 @@ var (
 	// // rootCommand the root of all commands
 	// rootCommand *RootCommand
 	// // rootOptions *Opt
-	// rxxtOptions = NewOptions()
+	// rxxtOptions = newOptions()
 
 	// usedConfigFile
 	// usedConfigFile            string

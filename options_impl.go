@@ -14,8 +14,8 @@ import (
 	"time"
 )
 
-// NewOptions returns an `Options` structure pointer
-func NewOptions() *Options {
+// newOptions returns an `Options` structure pointer
+func newOptions() *Options {
 	return &Options{
 		entries:   make(map[string]interface{}),
 		hierarchy: make(map[string]interface{}),
@@ -26,8 +26,8 @@ func NewOptions() *Options {
 	}
 }
 
-// NewOptionsWith returns an `Options` structure pointer
-func NewOptionsWith(entries map[string]interface{}) *Options {
+// newOptionsWith returns an `Options` structure pointer
+func newOptionsWith(entries map[string]interface{}) *Options {
 	return &Options{
 		entries:   entries,
 		hierarchy: make(map[string]interface{}),

@@ -82,6 +82,7 @@ func main() {
 		optAddServerExtOption,
 
 		cmdr.WithOnSwitchCharHit(onSwitchCharHit),
+		cmdr.WithOnPassThruCharHit(onPasssThruCharHit),
 	); err != nil {
 		logrus.Fatalf("error: %v", err)
 	}
@@ -91,8 +92,16 @@ func onSwitchCharHit(parsed *cmdr.Command, switchChar string, args []string) (er
 	if parsed != nil {
 		fmt.Printf("the last parsed command is %q - %q\n", parsed.GetTitleNames(), parsed.Description)
 	}
-	fmt.Printf("switchChar: %v\nremains: %v\n\n", switchChar, args)
-	return cmdr.ErrShouldBeStopException
+	fmt.Printf("SwitchChar FOUND: %v\nremains: %v\n\n", switchChar, args)
+	return nil // cmdr.ErrShouldBeStopException
+}
+
+func onPasssThruCharHit(parsed *Command, switchChar string, args []string) (err error) {
+	if parsed != nil {
+		fmt.Printf("the last parsed command is %q - %q\n", parsed.GetTitleNames(), parsed.Description)
+	}
+	fmt.Printf("PassThrough flag FOUND: %v\nremains: %v\n\n", switchChar, args)
+	return nil // ErrShouldBeStopException
 }
 
 func onUnhandleErrorHandler(err interface{}) {

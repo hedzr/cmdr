@@ -120,8 +120,6 @@ func TestFluentAPIDefault(t *testing.T) {
 	cmdr.NewFloat32(0)
 	cmdr.NewFloat64(0)
 
-	cmdr.NewOptions()
-	cmdr.NewOptionsWith(nil)
 }
 
 func TestAsXXX(t *testing.T) {

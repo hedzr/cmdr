@@ -207,6 +207,11 @@ func TestHandlePanic(t *testing.T) {
 	t.Log(GetPredefinedLocations())
 }
 
+func TestNewOptions(t *testing.T) {
+	newOptions()
+	newOptionsWith(nil)
+}
+
 func TestUnknownXXX(t *testing.T) {
 	defer logex.CaptureLog(t).Release()
 

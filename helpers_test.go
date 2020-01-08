@@ -167,6 +167,7 @@ func resetFlagsAndLog(t *testing.T) {
 	tLog(cmdr.GetBoolR("debug", false))
 	tLog(cmdr.GetBoolRP("", "debug", false))
 	tLog(cmdr.GetBoolP("app", "debug", false))
+
 	tLog(cmdr.GetInt("app.retry"))
 	tLog(cmdr.GetIntR("retry"))
 	tLog(cmdr.GetIntRP("", "retry"))
@@ -199,6 +200,16 @@ func resetFlagsAndLog(t *testing.T) {
 	tLog(cmdr.GetUint64R("retry", 1))
 	tLog(cmdr.GetUint64RP("", "retry", 1))
 	tLog(cmdr.GetUint64P("app", "retry", 1))
+
+	tLog(cmdr.GetKibibytes("app.retry", 1))
+	tLog(cmdr.GetKibibytesR("retry", 1))
+	tLog(cmdr.GetKibibytesRP("", "retry", 1))
+	tLog(cmdr.GetKibibytesP("app", "retry", 1))
+	tLog(cmdr.GetKilobytes("app.retry", 1))
+	tLog(cmdr.GetKilobytesR("retry", 1))
+	tLog(cmdr.GetKilobytesRP("", "retry", 1))
+	tLog(cmdr.GetKilobytesP("app", "retry", 1))
+
 	tLog(cmdr.GetFloat32("app.retry"))
 	tLog(cmdr.GetFloat32P("app", "retry"))
 	tLog(cmdr.GetFloat32R("retry"))
@@ -217,6 +228,7 @@ func resetFlagsAndLog(t *testing.T) {
 	tLog(cmdr.GetFloat64R("retry", 1))
 	tLog(cmdr.GetFloat64RP("", "retry", 1))
 	tLog(cmdr.GetFloat64P("app", "retry", 1))
+
 	tLog(cmdr.GetString("app.version"))
 	tLog(cmdr.GetStringR("version"))
 	tLog(cmdr.GetStringRP("", "version"))

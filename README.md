@@ -52,6 +52,9 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
+- WIP: v1.6.19
+  - added: `GetKibibytesXXX`, `GetKilobytesXXX`. with further info, run `go run ./examples/fluent kb --size --help`.
+
 - v1.6.18
   - added: `WithOnSwitchCharHit`, `WithOnPassThruCharHit`
   - bug fixed

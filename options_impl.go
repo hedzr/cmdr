@@ -181,6 +181,176 @@ func (s *Options) GetInt64Ex(key string, defaultVal ...int64) (ir int64) {
 	return
 }
 
+// GetKibibytesEx returns the uint64 value of an `Option` key based kibibyte format.
+//
+// kibibyte format is for human readable. In this format, number presentations
+// are: 2k, 8m, 3g, 5t, 6p, 7e. optional 'b' can be appended, such as: 2kb, 5tb, 7EB.
+// All of them is case-insensitive.
+//
+// kibibyte is based 1024. That means:
+// 1 KiB = 1k = 1024 bytes
+//
+// See also: https://en.wikipedia.org/wiki/Kibibyte
+// Its related word is kilobyte, refer to: https://en.wikipedia.org/wiki/Kilobyte
+//
+// The pure number part can be golang presentation, such as 0x99, 0001b, 0700.
+func (s *Options) GetKibibytesEx(key string, defaultVal ...uint64) (ir64 uint64) {
+	sz := s.GetString(key, "")
+	if sz == "" {
+		for _, v := range defaultVal {
+			ir64 = v
+		}
+		return
+	}
+	return s.FromKibibytes(sz)
+}
+
+// FromKibibytes convert string to the uint64 value based kibibyte format.
+//
+// kibibyte format is for human readable. In this format, number presentations
+// are: 2k, 8m, 3g, 5t, 6p, 7e. optional 'b' can be appended, such as: 2kb, 5tb, 7EB.
+// All of them is case-insensitive.
+//
+// kibibyte is based 1024. That means:
+// 1 KiB = 1k = 1024 bytes
+//
+// See also: https://en.wikipedia.org/wiki/Kibibyte
+// Its related word is kilobyte, refer to: https://en.wikipedia.org/wiki/Kilobyte
+//
+// The pure number part can be golang presentation, such as 0x99, 0001b, 0700.
+func (s *Options) FromKibibytes(sz string) (ir64 uint64) {
+	// var suffixes = []string {"B","KB","MB","GB","TB","PB","EB","ZB","YB"}
+	const suffix = "kmgtpezyKMGTPEZY"
+	sz = strings.TrimSpace(sz)
+	sz = strings.TrimRight(sz, "B")
+	sz = strings.TrimRight(sz, "b")
+	szr := strings.TrimSpace(strings.TrimRightFunc(sz, func(r rune) bool {
+		return strings.ContainsRune(suffix, r)
+	}))
+
+	var if64 float64
+	var err error
+	if strings.ContainsRune(szr, '.') {
+		if if64, err = strconv.ParseFloat(szr, 64); err == nil {
+			r := []rune(sz)[len(sz)-1]
+			ir64 = uint64(if64 * float64(s.fromKibibytes(r)))
+		}
+	} else {
+		ir64, err = strconv.ParseUint(szr, 10, 64)
+		r := []rune(sz)[len(sz)-1]
+		ir64 *= s.fromKibibytes(r)
+	}
+	return
+}
+
+func (s *Options) fromKibibytes(r rune) (times uint64) {
+	switch r {
+	case 'k', 'K':
+		return 1024
+	case 'm', 'M':
+		return 1024 * 1024
+	case 'g', 'G':
+		return 1024 * 1024 * 1024
+	case 't', 'T':
+		return 1024 * 1024 * 1024 * 1024
+	case 'p', 'P':
+		return 1024 * 1024 * 1024 * 1024 * 1024
+	case 'e', 'E':
+		return 1024 * 1024 * 1024 * 1024 * 1024 * 1024
+	// case 'z', 'Z':
+	// 	ir64 *= 1024 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024
+	// case 'y', 'Y':
+	// 	ir64 *= 1024 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024
+	default:
+		return 1
+	}
+}
+
+// GetKilobytesEx returns the uint64 value of an `Option` key with kilobyte format.
+//
+// kilobyte format is for human readable. In this format, number presentations
+// are: 2k, 8m, 3g, 5t, 6p, 7e. optional 'b' can be appended, such as: 2kb, 5tb, 7EB.
+// All of them is case-insensitive.
+//
+// kilobyte is based 1000. That means:
+// 1 KB = 1k = 1000 bytes
+//
+// See also: https://en.wikipedia.org/wiki/Kilobyte
+// Its related word is kibibyte, refer to: https://en.wikipedia.org/wiki/Kibibyte
+//
+// The pure number part can be golang presentation, such as 0x99, 0001b, 0700.
+func (s *Options) GetKilobytesEx(key string, defaultVal ...uint64) (ir64 uint64) {
+	sz := s.GetString(key, "")
+	if sz == "" {
+		for _, v := range defaultVal {
+			ir64 = v
+		}
+		return
+	}
+	return s.FromKilobytes(sz)
+}
+
+// FromKilobytes convert string to the uint64 value based kilobyte format.
+//
+// kilobyte format is for human readable. In this format, number presentations
+// are: 2k, 8m, 3g, 5t, 6p, 7e. optional 'b' can be appended, such as: 2kb, 5tb, 7EB.
+// All of them is case-insensitive.
+//
+// kilobyte is based 1000. That means:
+// 1 KB = 1k = 1000 bytes
+//
+// See also: https://en.wikipedia.org/wiki/Kilobyte
+// Its related word is kibibyte, refer to: https://en.wikipedia.org/wiki/Kibibyte
+//
+// The pure number part can be golang presentation, such as 0x99, 0001b, 0700.
+func (s *Options) FromKilobytes(sz string) (ir64 uint64) {
+	// var suffixes = []string {"B","KB","MB","GB","TB","PB","EB","ZB","YB"}
+	const suffix = "kmgtpezyKMGTPEZY"
+	sz = strings.TrimSpace(sz)
+	sz = strings.TrimRight(sz, "B")
+	sz = strings.TrimRight(sz, "b")
+	szr := strings.TrimSpace(strings.TrimRightFunc(sz, func(r rune) bool {
+		return strings.ContainsRune(suffix, r)
+	}))
+
+	var if64 float64
+	var err error
+	if strings.ContainsRune(szr, '.') {
+		if if64, err = strconv.ParseFloat(szr, 64); err == nil {
+			r := []rune(sz)[len(sz)-1]
+			ir64 = uint64(if64 * float64(s.fromKilobytes(r)))
+		}
+	} else {
+		ir64, err = strconv.ParseUint(szr, 10, 64)
+		r := []rune(sz)[len(sz)-1]
+		ir64 *= s.fromKilobytes(r)
+	}
+	return
+}
+
+func (s *Options) fromKilobytes(r rune) (times uint64) {
+	switch r {
+	case 'k', 'K':
+		return 1000
+	case 'm', 'M':
+		return 1000 * 1000
+	case 'g', 'G':
+		return 1000 * 1000 * 1000
+	case 't', 'T':
+		return 1000 * 1000 * 1000 * 1000
+	case 'p', 'P':
+		return 1000 * 1000 * 1000 * 1000 * 1000
+	case 'e', 'E':
+		return 1000 * 1000 * 1000 * 1000 * 1000 * 1000
+	// case 'z', 'Z':
+	// 	ir64 *= 1000 * 1000 * 1000 * 1000 * 1000 * 1000 * 1000
+	// case 'y', 'Y':
+	// 	ir64 *= 1000 * 1000 * 1000 * 1000 * 1000 * 1000 * 1000 * 1000
+	default:
+		return 1
+	}
+}
+
 // GetUintEx returns the uint64 value of an `Option` key.
 func (s *Options) GetUintEx(key string, defaultVal ...uint) (ir uint) {
 	if ir64, err := strconv.ParseUint(s.GetString(key, ""), 10, 64); err == nil {

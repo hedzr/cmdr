@@ -70,6 +70,8 @@ func TestTplApply(t *testing.T) {
 	tplApply("{{ .dkl }}", &struct{ sth bool }{false})
 }
 
+func tLog(a ...interface{}) {}
+
 func TestFlag(t *testing.T) {
 	ResetOptions()
 	ResetRootInWorker()
@@ -77,6 +79,11 @@ func TestFlag(t *testing.T) {
 	t.Log(wrapWithRxxtPrefix("x"))
 	internalGetWorker().rxxtPrefixes = []string{"app"}
 	InternalResetWorker()
+
+	noResetWorker = false
+	tLog(GetStringR("version"))
+	noResetWorker = true
+	tLog(GetStringR("version"))
 
 	t.Log(IsDebuggerAttached())
 	t.Log(InTesting())

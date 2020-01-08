@@ -81,7 +81,6 @@ func TestFlag(t *testing.T) {
 	t.Log(IsDebuggerAttached())
 	t.Log(InTesting())
 	t.Log(StripPrefix("8.yes", "8."))
-	t.Log(StripQuotes("'8.yes'"))
 	t.Log(IsDigitHeavy("not-digit"))
 	t.Log(IsDigitHeavy("8-is-not-digit"))
 

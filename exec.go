@@ -252,7 +252,7 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 			if len(ra) > 0 {
 				ra = ra[1:]
 			}
-			
+
 			stop = true
 			pkg.lastCommandHeld = false
 			pkg.needHelp = false

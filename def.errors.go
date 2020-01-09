@@ -39,7 +39,7 @@ func newError(ignorable bool, sourceTemplate *ErrorForCmdr, args ...interface{})
 }
 
 // newErrorWithMsg formats a ErrorForCmdr object
-func newErrorWithMsg(msg string, inners... error) *ErrorForCmdr {
+func newErrorWithMsg(msg string, inners ...error) *ErrorForCmdr {
 	return newErr(msg).Attach(inners...)
 	// return &ErrorForCmdr{Inner: inner, Ignorable: false, Msg: msg}
 }

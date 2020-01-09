@@ -1,0 +1,2 @@
+# cmdr Daemon plugin
+

@@ -16,7 +16,9 @@ import (
 func Stop(appName string, ctx *Context) {
 	present, process := FindDaemonProcess(ctx)
 	if present {
+		log.Printf("sending SIGTERM to pid %v", process.Pid)
 		if err := sigSendTERM(process); err != nil {
+			log.Fatal(err)
 			return
 		}
 	} else {
@@ -28,9 +30,26 @@ func Stop(appName string, ctx *Context) {
 func Reload(appName string, ctx *Context) {
 	present, process := FindDaemonProcess(ctx)
 	if present {
+		log.Printf("sending SIGHUP to pid %v", process.Pid)
 		if err := sigSendHUP(process); err != nil {
+			log.Fatal(err)
 			return
 		}
+	} else {
+		fmt.Printf("%v is stopped.\n", appName)
+	}
+}
+
+// HotReload reloads the daemon process if running
+func HotReload(appName string, ctx *Context) {
+	present, process := FindDaemonProcess(ctx)
+	if present {
+		log.Printf("sending SIGUSR2 to pid %v", process.Pid)
+		if err := sigSendUSR2(process); err != nil {
+			log.Fatal(err)
+			return
+		}
+		Stop(appName, ctx)
 	} else {
 		fmt.Printf("%v is stopped.\n", appName)
 	}
@@ -44,11 +63,14 @@ func FindDaemonProcess(ctx *Context) (present bool, process *os.Process) {
 		if err != nil {
 			log.Fatal(err)
 		}
+		log.Printf("cat %v ... pid = %v", ctx.PidFileName, pid)
 
 		process, err = os.FindProcess(int(pid))
 		if err == nil {
 			present = true
 		}
+	} else {
+		log.Printf("cat %v ... app stopped", ctx.PidFileName)
 	}
 	return
 }

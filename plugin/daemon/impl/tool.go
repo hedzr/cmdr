@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/conf"
-	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -28,7 +27,7 @@ func fds(fdin, fdout, fderr uintptr) []uintptr {
 		logErrFile = path.Join(logDir, fmt.Sprintf("%v.err.log", conf.AppName))
 	}
 	log.Printf("logfile: %v", logFile)
-	_ = ioutil.WriteFile("/tmp/11", []byte(fmt.Sprintf("%v\n%v\n%v", logFile, cmdr.NormalizeDir(cmdr.GetStringR("logger.dir")), os.TempDir())), 0644)
+	// _ = ioutil.WriteFile("/tmp/11", []byte(fmt.Sprintf("%v\n%v\n%v", logFile, cmdr.NormalizeDir(cmdr.GetStringR("logger.dir")), os.TempDir())), 0644)
 
 	fDiscard, e := os.OpenFile(nullDev, os.O_RDWR, 0)
 	if e != nil {

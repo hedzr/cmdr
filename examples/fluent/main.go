@@ -96,7 +96,7 @@ func onSwitchCharHit(parsed *cmdr.Command, switchChar string, args []string) (er
 	return nil // cmdr.ErrShouldBeStopException
 }
 
-func onPasssThruCharHit(parsed *Command, switchChar string, args []string) (err error) {
+func onPasssThruCharHit(parsed *cmdr.Command, switchChar string, args []string) (err error) {
 	if parsed != nil {
 		fmt.Printf("the last parsed command is %q - %q\n", parsed.GetTitleNames(), parsed.Description)
 	}
@@ -181,6 +181,30 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 			panic(9)
 			return
 		})
+
+	// kb-print
+
+	kb := root.NewSubCommand().
+		Titles("kb", "kb-print").
+		Description("kilobytes test", "test kibibytes' input,\nverbose long descriptions here.").
+		Group("Test").
+		Examples(`
+$ {{.AppName}} kb --size 5kb
+  5kb = 5,120 bytes
+$ {{.AppName}} kb --size 8T
+  8TB = 8,796,093,022,208 bytes
+$ {{.AppName}} kb --size 1g
+  1GB = 1,073,741,824 bytes
+		`).
+		Action(func(cmd *cmdr.Command, args []string) (err error) {
+			fmt.Printf("Got size: %v (literal: %v)\n\n", cmdr.GetKibibytesR("kb-print.size"), cmdr.GetStringR("kb-print.size"))
+			return
+		})
+
+	kb.NewFlagV("1k").
+		Titles("s", "size").
+		Description("max message size. Valid formats: 2k, 2kb, 2kB, 2KB. Suffixes: k, m, g, t, p, e.", "").
+		Group("")
 
 	// xy-print
 

@@ -153,18 +153,24 @@ const (
 	OptFlagTypeInt64 OptFlagType = iota + 3
 	// OptFlagTypeUint64 to create a new uint64 flag
 	OptFlagTypeUint64 OptFlagType = iota + 4
-	// OptFlagTypeString to create a new string flag
-	OptFlagTypeString OptFlagType = iota + 5
-	// OptFlagTypeStringSlice to create a new string slice flag
-	OptFlagTypeStringSlice OptFlagType = iota + 6
-	// OptFlagTypeIntSlice to create a new int slice flag
-	OptFlagTypeIntSlice OptFlagType = iota + 7
 	// OptFlagTypeFloat32 to create a new int float32 flag
 	OptFlagTypeFloat32 OptFlagType = iota + 8
 	// OptFlagTypeFloat64 to create a new int float64 flag
 	OptFlagTypeFloat64 OptFlagType = iota + 9
+	// OptFlagTypeString to create a new string flag
+	OptFlagTypeString OptFlagType = iota + 10
+	// OptFlagTypeStringSlice to create a new string slice flag
+	OptFlagTypeStringSlice OptFlagType = iota + 11
+	// OptFlagTypeIntSlice to create a new int slice flag
+	OptFlagTypeIntSlice OptFlagType = iota + 12
+	// OptFlagTypeInt64Slice to create a new int slice flag
+	OptFlagTypeInt64Slice OptFlagType = iota + 13
+	// OptFlagTypeUint64Slice to create a new int slice flag
+	OptFlagTypeUint64Slice OptFlagType = iota + 14
 	// OptFlagTypeDuration to create a new duration flag
-	OptFlagTypeDuration OptFlagType = iota + 10
+	OptFlagTypeDuration OptFlagType = iota + 15
+	// OptFlagTypeHumanReadableSize to create a new human readable size flag
+	OptFlagTypeHumanReadableSize OptFlagType = iota + 16
 )
 
 type optContext struct {

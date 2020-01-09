@@ -157,6 +157,142 @@ func GetUint64RP(prefix, key string, defaultVal ...uint64) uint64 {
 	return internalGetWorker().rxxtOptions.GetUint64Ex(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), defaultVal...)
 }
 
+// GetKibibytes returns the uint64 value of an `Option` key.
+//
+// kibibyte format is for human readable. In this format, number presentations
+// are: 2k, 8m, 3g, 5t, 6p, 7e. optional 'b' can be appended, such as: 2kb, 5tb, 7EB.
+// All of them is case-insensitive.
+//
+// kibibyte is based 1024. That means:
+// 1 KiB = 1k = 1024 bytes
+//
+// See also: https://en.wikipedia.org/wiki/Kibibyte
+// Its related word is kilobyte, refer to: https://en.wikipedia.org/wiki/Kilobyte
+//
+// The pure number part can be golang presentation, such as 0x99, 0001b, 0700.
+func GetKibibytes(key string, defaultVal ...uint64) uint64 {
+	return internalGetWorker().rxxtOptions.GetKibibytesEx(key, defaultVal...)
+}
+
+// GetKibibytesP returns the uint64 value of an `Option` key.
+//
+// kibibyte format is for human readable. In this format, number presentations
+// are: 2k, 8m, 3g, 5t, 6p, 7e. optional 'b' can be appended, such as: 2kb, 5tb, 7EB.
+// All of them is case-insensitive.
+//
+// kibibyte is based 1024. That means:
+// 1 KiB = 1k = 1024 bytes
+//
+// See also: https://en.wikipedia.org/wiki/Kibibyte
+// Its related word is kilobyte, refer to: https://en.wikipedia.org/wiki/Kilobyte
+//
+// The pure number part can be golang presentation, such as 0x99, 0001b, 0700.
+func GetKibibytesP(prefix, key string, defaultVal ...uint64) uint64 {
+	return internalGetWorker().rxxtOptions.GetKibibytesEx(fmt.Sprintf("%s.%s", prefix, key), defaultVal...)
+}
+
+// GetKibibytesR returns the uint64 value of an `Option` key with [WrapWithRxxtPrefix].
+//
+// kibibyte format is for human readable. In this format, number presentations
+// are: 2k, 8m, 3g, 5t, 6p, 7e. optional 'b' can be appended, such as: 2kb, 5tb, 7EB.
+// All of them is case-insensitive.
+//
+// kibibyte is based 1024. That means:
+// 1 KiB = 1k = 1024 bytes
+//
+// See also: https://en.wikipedia.org/wiki/Kibibyte
+// Its related word is kilobyte, refer to: https://en.wikipedia.org/wiki/Kilobyte
+//
+// The pure number part can be golang presentation, such as 0x99, 0001b, 0700.
+func GetKibibytesR(key string, defaultVal ...uint64) uint64 {
+	return internalGetWorker().rxxtOptions.GetKibibytesEx(wrapWithRxxtPrefix(key), defaultVal...)
+}
+
+// GetKibibytesRP returns the uint64 value of an `Option` key with [WrapWithRxxtPrefix].
+//
+// kibibyte format is for human readable. In this format, number presentations
+// are: 2k, 8m, 3g, 5t, 6p, 7e. optional 'b' can be appended, such as: 2kb, 5tb, 7EB.
+// All of them is case-insensitive.
+//
+// kibibyte is based 1024. That means:
+// 1 KiB = 1k = 1024 bytes
+//
+// See also: https://en.wikipedia.org/wiki/Kibibyte
+// Its related word is kilobyte, refer to: https://en.wikipedia.org/wiki/Kilobyte
+//
+// The pure number part can be golang presentation, such as 0x99, 0001b, 0700.
+func GetKibibytesRP(prefix, key string, defaultVal ...uint64) uint64 {
+	return internalGetWorker().rxxtOptions.GetKibibytesEx(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), defaultVal...)
+}
+
+// GetKilobytes returns the uint64 value of an `Option` key.
+//
+// kilobyte format is for human readable. In this format, number presentations
+// are: 2k, 8m, 3g, 5t, 6p, 7e. optional 'b' can be appended, such as: 2kb, 5tb, 7EB.
+// All of them is case-insensitive.
+//
+// kilobyte is based 1000. That means:
+// 1 KB = 1k = 1000 bytes
+//
+// See also: https://en.wikipedia.org/wiki/Kilobyte
+// Its related word is kibibyte, refer to: https://en.wikipedia.org/wiki/Kibibyte
+//
+// The pure number part can be golang presentation, such as 0x99, 0001b, 0700.
+func GetKilobytes(key string, defaultVal ...uint64) uint64 {
+	return internalGetWorker().rxxtOptions.GetKilobytesEx(key, defaultVal...)
+}
+
+// GetKilobytesP returns the uint64 value of an `Option` key.
+//
+// kilobyte format is for human readable. In this format, number presentations
+// are: 2k, 8m, 3g, 5t, 6p, 7e. optional 'b' can be appended, such as: 2kb, 5tb, 7EB.
+// All of them is case-insensitive.
+//
+// kilobyte is based 1000. That means:
+// 1 KB = 1k = 1000 bytes
+//
+// See also: https://en.wikipedia.org/wiki/Kilobyte
+// Its related word is kibibyte, refer to: https://en.wikipedia.org/wiki/Kibibyte
+//
+// The pure number part can be golang presentation, such as 0x99, 0001b, 0700.
+func GetKilobytesP(prefix, key string, defaultVal ...uint64) uint64 {
+	return internalGetWorker().rxxtOptions.GetKilobytesEx(fmt.Sprintf("%s.%s", prefix, key), defaultVal...)
+}
+
+// GetKilobytesR returns the uint64 value of an `Option` key with [WrapWithRxxtPrefix].
+//
+// kilobyte format is for human readable. In this format, number presentations
+// are: 2k, 8m, 3g, 5t, 6p, 7e. optional 'b' can be appended, such as: 2kb, 5tb, 7EB.
+// All of them is case-insensitive.
+//
+// kilobyte is based 1000. That means:
+// 1 KB = 1k = 1000 bytes
+//
+// See also: https://en.wikipedia.org/wiki/Kilobyte
+// Its related word is kibibyte, refer to: https://en.wikipedia.org/wiki/Kibibyte
+//
+// The pure number part can be golang presentation, such as 0x99, 0001b, 0700.
+func GetKilobytesR(key string, defaultVal ...uint64) uint64 {
+	return internalGetWorker().rxxtOptions.GetKilobytesEx(wrapWithRxxtPrefix(key), defaultVal...)
+}
+
+// GetKilobytesRP returns the uint64 value of an `Option` key with [WrapWithRxxtPrefix].
+//
+// kilobyte format is for human readable. In this format, number presentations
+// are: 2k, 8m, 3g, 5t, 6p, 7e. optional 'b' can be appended, such as: 2kb, 5tb, 7EB.
+// All of them is case-insensitive.
+//
+// kilobyte is based 1000. That means:
+// 1 KB = 1k = 1000 bytes
+//
+// See also: https://en.wikipedia.org/wiki/Kilobyte
+// Its related word is kibibyte, refer to: https://en.wikipedia.org/wiki/Kibibyte
+//
+// The pure number part can be golang presentation, such as 0x99, 0001b, 0700.
+func GetKilobytesRP(prefix, key string, defaultVal ...uint64) uint64 {
+	return internalGetWorker().rxxtOptions.GetKilobytesEx(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), defaultVal...)
+}
+
 // GetFloat32 returns the float32 value of an `Option` key.
 func GetFloat32(key string, defaultVal ...float32) float32 {
 	return float32(internalGetWorker().rxxtOptions.GetFloat32Ex(key, defaultVal...))

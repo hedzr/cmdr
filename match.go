@@ -35,4 +35,3 @@ func Match(inputCommandlineWithoutArg0 string, opts ...ExecOption) (last *Comman
 	last, err = w.InternalExecFor(rootCmd, strings.Split(line, " "))
 	return
 }
-

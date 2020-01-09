@@ -15,7 +15,11 @@ import (
 func forkDaemon(ctx *Context) (err error) {
 	if isDemonized() {
 		// log.Println("Already a daemon.")
-		detachFromTty(ctx.WorkDir, false, true)
+		if !ctx.Hot {
+			detachFromTty(ctx.WorkDir, false, true)
+		} else {
+			savePID(os.Getpid(), ctx)
+		}
 		return
 	}
 

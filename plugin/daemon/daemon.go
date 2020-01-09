@@ -8,6 +8,7 @@ import (
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/plugin/daemon/impl"
 	"log"
+	"net"
 
 	"os"
 )
@@ -20,9 +21,14 @@ func WithDaemon(daemonImplX Daemon,
 	modifier func(daemonServerCommand *cmdr.Command) *cmdr.Command,
 	preAction func(cmd *cmdr.Command, args []string) (err error),
 	postAction func(cmd *cmdr.Command, args []string),
+	opts ...Opt,
 ) cmdr.ExecOption {
 	return func(w *cmdr.ExecWorker) {
 		daemonImpl = daemonImplX
+
+		for _, opt := range opts {
+			opt()
+		}
 
 		w.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
 
@@ -39,6 +45,16 @@ func WithDaemon(daemonImplX Daemon,
 			attachPostAction(root, postAction)
 
 		})
+	}
+}
+
+// Opt is functional option type
+type Opt func()
+
+// WithOnGetListener returns tcp/http listener for daemon hot-restarting
+func WithOnGetListener(fn func() net.Listener) Opt {
+	return func() {
+		impl.SetOnGetListener(fn)
 	}
 }
 
@@ -121,8 +137,8 @@ func attachPreAction(root *cmdr.RootCommand, preAction func(cmd *cmdr.Command, a
 }
 
 func daemonStart(cmd *cmdr.Command, args []string) (err error) {
-	ctx := impl.GetContext(cmd, args)
-	if cmdr.GetBoolRP(keyPrefix, "foreground") {
+	ctx := impl.GetContext(cmd, args, daemonImpl, onHotReloading)
+	if cmdr.GetBoolRP(cmd.GetOwner().Full, "foreground") {
 		err = run(ctx, cmd, args)
 	} else if cmd.GetHitStr() == "run" {
 		err = run(ctx, cmd, args)
@@ -132,15 +148,27 @@ func daemonStart(cmd *cmdr.Command, args []string) (err error) {
 	return
 }
 
+func onHotReloading(ctx *impl.Context) (err error) {
+	if hr, ok := ctx.DaemonImpl.(HotReloadable); ok {
+		err = hr.OnHotReload(ctx)
+	}
+	return
+}
+
 func runAsDaemon(cmd *cmdr.Command, args []string) (err error) {
-	ctx := impl.GetContext(cmd, args)
+	ctx := impl.GetContext(cmd, args, daemonImpl, onHotReloading)
+
+	if ctx.Hot {
+		log.Println("\n\nhot-restarting ...\n\n")
+	}
+
 	if err := impl.Demonize(ctx); err != nil {
 		log.Printf("Unable to create child process: %+v", err)
 		os.Exit(impl.ErrnoForkAndDaemonFailed)
 	}
 
-	// cxt := getContext(cmd, args)
-	// child, err = cxt.Reborn()
+	// ctx := getContext(cmd, args)
+	// child, err = ctx.Reborn()
 	// if err != nil {
 	// 	log.Fatalln(err)
 	// }
@@ -151,35 +179,10 @@ func runAsDaemon(cmd *cmdr.Command, args []string) (err error) {
 	//
 	// cmdr.Set(DaemonizedKey, true)
 	//
-	// defer cxt.Release()
+	// defer ctx.Release()
 
 	err = run(ctx, cmd, args)
 	return
-}
-
-// IsRunningInDemonizedMode returns true if you are running under demonized mode.
-// false means that you're running in normal console/tty mode.
-func IsRunningInDemonizedMode() bool {
-	// return cmdr.GetBoolR(DaemonizedKey)
-	return impl.IsRunningInDemonizedMode()
-}
-
-// SetTermSignals allows an functor to provide a list of Signals
-func SetTermSignals(sig func() []os.Signal) {
-	// onSetTermHandler = sig
-	impl.SetTermSignals(sig)
-}
-
-// SetSigEmtSignals allows an functor to provide a list of Signals
-func SetSigEmtSignals(sig func() []os.Signal) {
-	// onSetSigEmtHandler = sig
-	impl.SetSigEmtSignals(sig)
-}
-
-// SetReloadSignals allows an functor to provide a list of Signals
-func SetReloadSignals(sig func() []os.Signal) {
-	// onSetReloadHandler = sig
-	impl.SetReloadSignals(sig)
 }
 
 // func setupSignals() {
@@ -231,7 +234,15 @@ func run(ctx *impl.Context, cmd *cmdr.Command, args []string) (err error) {
 
 	if daemonImpl != nil {
 		stop, done := impl.GetChs()
-		if err = daemonImpl.OnRun(cmd, args, stop, done); err != nil {
+		var listener net.Listener
+		if ctx.Hot {
+			f := os.NewFile(3, "")
+			listener, err = net.FileListener(f)
+			if err != nil {
+				return
+			}
+		}
+		if err = daemonImpl.OnRun(cmd, args, stop, done, listener); err != nil {
 			return
 		}
 	}
@@ -265,7 +276,7 @@ func daemonStop(cmd *cmdr.Command, args []string) (err error) {
 	// 	return
 	// }
 
-	ctx := impl.GetContext(cmd, args)
+	ctx := impl.GetContext(cmd, args, daemonImpl, onHotReloading)
 	impl.Stop(cmd.GetRoot().AppName, ctx)
 	return
 }
@@ -282,8 +293,14 @@ func daemonRestart(cmd *cmdr.Command, args []string) (err error) {
 	// 	}
 	// }
 
-	ctx := impl.GetContext(cmd, args)
+	ctx := impl.GetContext(cmd, args, daemonImpl, onHotReloading)
 	impl.Reload(cmd.GetRoot().AppName, ctx)
+	return
+}
+
+func daemonHotRestart(cmd *cmdr.Command, args []string) (err error) {
+	ctx := impl.GetContext(cmd, args, daemonImpl, onHotReloading)
+	impl.HotReload(cmd.GetRoot().AppName, ctx)
 	return
 }
 
@@ -301,7 +318,7 @@ func daemonStatus(cmd *cmdr.Command, args []string) (err error) {
 	// 	err = daemonImpl.OnStatus(&Context{Context: *daemonCtx}, cmd, p)
 	// }
 
-	ctx := impl.GetContext(cmd, args)
+	ctx := impl.GetContext(cmd, args, daemonImpl, onHotReloading)
 	present, process := impl.FindDaemonProcess(ctx)
 	if present && daemonImpl != nil {
 		err = daemonImpl.OnStatus(ctx, cmd, process)
@@ -310,7 +327,7 @@ func daemonStatus(cmd *cmdr.Command, args []string) (err error) {
 }
 
 func daemonInstall(cmd *cmdr.Command, args []string) (err error) {
-	ctx := impl.GetContext(cmd, args)
+	ctx := impl.GetContext(cmd, args, daemonImpl, onHotReloading)
 
 	err = runInstaller(cmd, args)
 	if err != nil {
@@ -323,7 +340,7 @@ func daemonInstall(cmd *cmdr.Command, args []string) (err error) {
 }
 
 func daemonUninstall(cmd *cmdr.Command, args []string) (err error) {
-	ctx := impl.GetContext(cmd, args)
+	ctx := impl.GetContext(cmd, args, daemonImpl, onHotReloading)
 
 	err = runUninstaller(cmd, args)
 	if err != nil {
@@ -345,4 +362,4 @@ func daemonUninstall(cmd *cmdr.Command, args []string) (err error) {
 // var onSetReloadHandler func() []os.Signal
 
 // var prefix string
-const keyPrefix = "server"
+// const keyPrefix = "server"

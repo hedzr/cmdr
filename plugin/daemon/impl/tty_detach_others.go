@@ -17,17 +17,17 @@ func detachFromTty(workDir string, nochdir, noclose bool) {
 	// create a new SID for the child process
 	sRet, sErrno := syscall.Setsid()
 	if sErrno != nil {
-		log.Printf("Error: syscall.Setsid errno: %d", sErrno)
+		log.Printf("Error: syscall.Setsid errno: %v", sErrno)
 		os.Exit(ErrnoForkAndDaemonFailed)
 	}
 	if sRet < 0 {
-		log.Printf("Error: syscall.Setsid sRet: %d", sRet)
+		log.Printf("Error: syscall.Setsid sRet: %v", sRet)
 		os.Exit(ErrnoForkAndDaemonFailed)
 	}
 	if !nochdir {
 		sErrno = os.Chdir(workDir)
-		if sErrno == nil {
-			log.Printf("Error: syscall.Setsid errno: %d", sErrno)
+		if sErrno != nil {
+			log.Printf("Error: syscall.Setsid errno: %v", sErrno)
 		}
 	}
 

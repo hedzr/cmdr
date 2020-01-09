@@ -52,6 +52,9 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
+- v1.6.20
+  - fixed build error
+  
 - v1.6.19
   - added: `GetKibibytesXXX`, `GetKilobytesXXX`. with further info, run `go run ./examples/fluent kb --size --help`.
   - added hot-reload feature for daemon plugin:

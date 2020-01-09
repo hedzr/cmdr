@@ -52,7 +52,7 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- WIP: v1.6.19
+- v1.6.19
   - added: `GetKibibytesXXX`, `GetKilobytesXXX`. with further info, run `go run ./examples/fluent kb --size --help`.
   - added hot-reload feature for daemon plugin:
     `bin/cmdr-http2 server [hot-restart|hot-relaod]` will restart the app, transfer the living listener to the child process without break it.

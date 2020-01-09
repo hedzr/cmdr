@@ -57,7 +57,8 @@ import "github.com/hedzr/cmdr"
   - added hot-reload feature for daemon plugin:
     `bin/cmdr-http2 server [hot-restart|hot-relaod]` will restart the app, transfer the living listener to the child process without break it.
     `SIGUSR2` has the same effect.
-    > `Daemon.OnRun()` broken.
+    > - `Daemon.OnRun()` broken.
+    > - daemon plugin can't be used for non-linux platform.
   - added: `Commnad.GetDottedNamePath`
     
 - v1.6.18

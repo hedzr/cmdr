@@ -75,6 +75,14 @@ func sigSendHUP(process *os.Process) error {
 	return process.Signal(syscall.SIGHUP)
 }
 
+func sigSendUSR1(process *os.Process) error {
+	return process.Signal(syscall.SIGUSR1)
+}
+
+func sigSendUSR2(process *os.Process) error {
+	return process.Signal(syscall.SIGUSR2)
+}
+
 func sigSendTERM(process *os.Process) error {
 	return process.Signal(syscall.SIGTERM)
 }

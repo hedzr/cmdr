@@ -5,6 +5,7 @@
 package impl
 
 import (
+	"net"
 	"os"
 )
 
@@ -28,6 +29,16 @@ func SetSigEmtSignals(sig func() []os.Signal) {
 // SetReloadSignals allows an functor to provide a list of Signals
 func SetReloadSignals(sig func() []os.Signal) {
 	onSetReloadHandler = sig
+}
+
+// SetHotReloadSignals allows an functor to provide a list of Signals
+func SetHotReloadSignals(sig func() []os.Signal) {
+	onSetHotReloadHandler = sig
+}
+
+// SetOnGetListener returns tcp/http listener for daemon hot-restarting
+func SetOnGetListener(fn func() net.Listener) {
+	onGetListener = fn
 }
 
 // SetSigHandler sets handler for the given signals.

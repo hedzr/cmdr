@@ -17,16 +17,22 @@ import (
 // 	setupSignals()
 // }
 
-func setupSignals() {
+func setupSignals(ctx *Context) {
 	// for i := 1; i < 34; i++ {
 	// 	daemon.SetSigHandler(termHandler, syscall.Signal(i))
 	// }
 
-	signals := []os.Signal{syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGABRT, syscall.SIGINT, syscall.SIGKILL, syscall.SIGUSR1, syscall.SIGUSR2}
+	signals := []os.Signal{syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGABRT, syscall.SIGINT, syscall.SIGKILL, syscall.SIGUSR1}
 	if onSetTermHandler != nil {
 		signals = onSetTermHandler()
 	}
 	SetSigHandler(termHandler, signals...)
+
+	signals = []os.Signal{syscall.SIGUSR2}
+	if onSetHotReloadHandler != nil {
+		signals = onSetHotReloadHandler()
+	}
+	SetSigHandler(hotReloadHandler(ctx), signals...)
 
 	signals = []os.Signal{syscall.Signal(0x7)}
 	if onSetSigEmtHandler != nil {
@@ -76,6 +82,14 @@ func nilSigSend(process *os.Process) error {
 
 func sigSendHUP(process *os.Process) error {
 	return process.Signal(syscall.SIGHUP)
+}
+
+func sigSendUSR1(process *os.Process) error {
+	return process.Signal(syscall.SIGUSR1)
+}
+
+func sigSendUSR2(process *os.Process) error {
+	return process.Signal(syscall.SIGUSR2)
 }
 
 func sigSendTERM(process *os.Process) error {

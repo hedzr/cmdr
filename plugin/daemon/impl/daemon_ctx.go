@@ -11,13 +11,16 @@ import (
 // Context of daemon operations
 type Context struct {
 	// daemon.Context
-	PidFileName string
-	PidFilePerm int
-	LogFileName string
-	LogFilePerm int
-	WorkDir     string
-	Umask       int
-	Args        []string
+	PidFileName    string
+	PidFilePerm    int
+	LogFileName    string
+	LogFilePerm    int
+	WorkDir        string
+	Umask          int
+	Args           []string
+	Hot            bool
+	DaemonImpl     interface{}
+	onHotReloading func(ctx *Context) error
 }
 
 // DefaultContext returns a daemon context
@@ -44,7 +47,7 @@ func DefaultContext() *Context {
 // var daemonCtx *daemon.Context
 
 // GetContext returns daemon Context object with ref to cmdr options store
-func GetContext(cmd *cmdr.Command, args []string) *Context {
+func GetContext(cmd *cmdr.Command, args []string, daemonImpl interface{}, onHotReloading func(ctx *Context) error) *Context {
 	var pidpath, logpath, workdir string
 
 	for _, x := range []string{fmt.Sprintf("/var/log/%s/%%s.log", cmd.GetRoot().AppName), "/tmp/%s.log"} {
@@ -70,14 +73,20 @@ func GetContext(cmd *cmdr.Command, args []string) *Context {
 		workdir = "./"
 	}
 
+	hot := cmdr.GetBoolR(cmd.GetDottedNamePath() + ".hot-restart")
+	// log.Printf("hot-restart: %v | key-path: %v", hot, cmd.GetDottedNamePath())
+
 	return &Context{
-		PidFileName: pidpath,
-		PidFilePerm: 0644,
-		LogFileName: logpath,
-		LogFilePerm: 0640,
-		WorkDir:     workdir,
-		Umask:       027,
-		Args:        args,
+		PidFileName:    pidpath,
+		PidFilePerm:    0644,
+		LogFileName:    logpath,
+		LogFilePerm:    0640,
+		WorkDir:        workdir,
+		Umask:          027,
+		Args:           args,
+		Hot:            hot,
+		DaemonImpl:     daemonImpl,
+		onHotReloading: onHotReloading,
 	}
 	// daemonCtx = &daemon.Context{
 	// 	PidFileName: pidpath,

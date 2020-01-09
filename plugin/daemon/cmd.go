@@ -67,6 +67,15 @@ $ {{.AppName}} uninstall
 						},
 						DefaultValue: false,
 					},
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:       "hr",
+							Full:        "hot-restart",
+							Aliases:     []string{"hot-reload"},
+							Description: "hot reload mode.",
+						},
+						DefaultValue: false,
+					},
 				},
 			},
 			{
@@ -117,8 +126,17 @@ $ {{.AppName}} uninstall
 					Short:       "re",
 					Full:        "restart",
 					Aliases:     []string{"reload"},
-					Description: "restart this system service/daemon.",
+					Description: "reload configurations for this system service/daemon.",
 					Action:      daemonRestart,
+				},
+			},
+			{
+				BaseOpt: cmdr.BaseOpt{
+					Short:       "hr",
+					Full:        "hot-restart",
+					Aliases:     []string{"hot-reload"},
+					Description: "hot-restart this system service/daemon.",
+					Action:      daemonHotRestart,
 				},
 			},
 			{

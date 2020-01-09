@@ -7,7 +7,9 @@ package impl
 import (
 	"errors"
 	"log"
+	"net"
 	"os"
+	"os/exec"
 	"os/signal"
 )
 
@@ -15,7 +17,7 @@ import (
 // before invoking ServeSignals(), you should run SetupSignals() at first.
 func ServeSignals(ctx *Context) (err error) {
 	if len(handlers) == 0 {
-		setupSignals()
+		setupSignals(ctx)
 	}
 	if len(handlers) == 0 {
 		return // no handlers, skip the os signal listening
@@ -28,6 +30,7 @@ func ServeSignals(ctx *Context) (err error) {
 		removePID(ctx)
 	}()
 
+	log.Printf("serve signals ... pid: %v in %v", os.Getpid(), ctx.PidFileName)
 	ch := make(chan os.Signal, 8)
 	signal.Notify(ch, signals...)
 
@@ -76,6 +79,42 @@ func reloadHandler(sig os.Signal) error {
 	return nil
 }
 
+func hotReloadHandler(ctx *Context) func(sig os.Signal) error {
+	return func(sig os.Signal) error {
+		log.Println("hot-reloaded")
+
+		if onGetListener != nil {
+			listener := onGetListener()
+
+			tl, ok := listener.(*net.TCPListener)
+			if !ok {
+				return errors.New("listener is not tcp listener")
+			}
+
+			f, err := tl.File()
+			if err != nil {
+				return err
+			}
+
+			log.Printf("f: %v", f.Name())
+			log.Printf("bin: %v", os.Args[0])
+			args := []string{"server", "start", "--hot-restart"}
+			cmd := exec.Command(os.Args[0], args...)
+			cmd.Stdout = os.Stdout         //
+			cmd.Stderr = os.Stderr         //
+			cmd.ExtraFiles = []*os.File{f} //
+			if err = cmd.Start(); err != nil {
+				return err
+			}
+		}
+
+		if ctx.onHotReloading != nil {
+			return ctx.onHotReloading(ctx)
+		}
+		return nil
+	}
+}
+
 var (
 	// ErrStop should be returned signal handler function
 	// for termination of handling signals.
@@ -85,9 +124,11 @@ var (
 
 	// child *os.Process
 
-	onSetTermHandler   func() []os.Signal
-	onSetSigEmtHandler func() []os.Signal
-	onSetReloadHandler func() []os.Signal
+	onSetTermHandler      func() []os.Signal
+	onSetSigEmtHandler    func() []os.Signal
+	onSetReloadHandler    func() []os.Signal
+	onSetHotReloadHandler func() []os.Signal
+	onGetListener         func() net.Listener
 
 	stop = make(chan struct{})
 	done = make(chan struct{})

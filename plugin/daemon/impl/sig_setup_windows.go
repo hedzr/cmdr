@@ -13,7 +13,7 @@ import (
 // 	setupSignals()
 // }
 
-func setupSignals() {
+func setupSignals(ctx *Context) {
 	// for i := 1; i < 34; i++ {
 	// 	daemon.SetSigHandler(termHandler, syscall.Signal(i))
 	// }
@@ -76,11 +76,11 @@ func sigSendHUP(process *os.Process) error {
 }
 
 func sigSendUSR1(process *os.Process) error {
-	return process.Signal(syscall.SIGUSR1)
+	return process.Signal(syscall.Signal(0x1e))
 }
 
 func sigSendUSR2(process *os.Process) error {
-	return process.Signal(syscall.SIGUSR2)
+	return process.Signal(syscall.Signal(0x1f))
 }
 
 func sigSendTERM(process *os.Process) error {

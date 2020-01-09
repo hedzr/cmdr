@@ -14,7 +14,7 @@ import (
 // 	setupSignals()
 // }
 
-func setupSignals() {
+func setupSignals(ctx *Context) {
 	// for i := 1; i < 34; i++ {
 	// 	daemon.SetSigHandler(termHandler, syscall.Signal(i))
 	// }

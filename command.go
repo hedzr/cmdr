@@ -122,6 +122,16 @@ func (c *Command) GetName() string {
 	return c.Name
 }
 
+// GetDottedNamePath return the dotted key path of this command
+// in the options store.
+// For example, the returned string just like: 'server.start'.
+// NOTE that there is no OptiontPrefixes in this key path. For
+// more information about Option Prefix, refer
+// to [WithOptionsPrefix]
+func (c *Command) GetDottedNamePath() string {
+	return internalGetWorker().backtraceCmdNames(c)
+}
+
 // GetQuotedGroupName returns the group name quoted string.
 func (c *Command) GetQuotedGroupName() string {
 	if len(strings.TrimSpace(c.Group)) == 0 {

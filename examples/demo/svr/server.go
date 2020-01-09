@@ -10,6 +10,7 @@ import (
 	"github.com/hedzr/cmdr/plugin/daemon"
 	"github.com/hedzr/cmdr/plugin/daemon/impl"
 	"github.com/sirupsen/logrus"
+	"net"
 	"os"
 	"time"
 )
@@ -22,7 +23,7 @@ func NewDaemon() daemon.Daemon {
 type daemonImpl struct {
 }
 
-func (*daemonImpl) OnRun(cmd *cmdr.Command, args []string, stopCh, doneCh chan struct{}) (err error) {
+func (*daemonImpl) OnRun(cmd *cmdr.Command, args []string, stopCh, doneCh chan struct{}, listener net.Listener) (err error) {
 	logrus.Debugf("demo daemon OnRun, pid = %v, ppid = %v", os.Getpid(), os.Getppid())
 	go worker(stopCh, doneCh)
 	return

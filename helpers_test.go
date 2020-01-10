@@ -210,6 +210,16 @@ func resetFlagsAndLog(t *testing.T) {
 	tLog(cmdr.GetKilobytesRP("", "retry", 1))
 	tLog(cmdr.GetKilobytesP("app", "retry", 1))
 
+	tLog(cmdr.GetComplex64("app.retry"))
+	tLog(cmdr.GetComplex64P("app", "retry"))
+	tLog(cmdr.GetComplex64R("retry"))
+	tLog(cmdr.GetComplex64RP("", "retry"))
+	tLog(cmdr.GetComplex64P("app", "retry"))
+	tLog(cmdr.GetComplex128("app.retry"))
+	tLog(cmdr.GetComplex128R("retry"))
+	tLog(cmdr.GetComplex128RP("", "retry"))
+	tLog(cmdr.GetComplex128P("app", "retry"))
+
 	tLog(cmdr.GetFloat32("app.retry"))
 	tLog(cmdr.GetFloat32P("app", "retry"))
 	tLog(cmdr.GetFloat32R("retry"))

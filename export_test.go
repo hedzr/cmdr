@@ -101,6 +101,14 @@ func TestFlag(t *testing.T) {
 	in = bytes.NewBufferString("\n")
 	t.Log(PressAnyKeyToContinue(in))
 
+	isTypeFloat(reflect.TypeOf(8).Kind())
+	isTypeFloat(reflect.TypeOf(8.9).Kind())
+
+	isTypeComplex(reflect.TypeOf(8).Kind())
+	isTypeComplex(reflect.TypeOf(8.9).Kind())
+	isTypeComplex(reflect.TypeOf(8.9+0i).Kind())
+	isTypeComplex(reflect.TypeOf(8.9-2i).Kind())
+
 	x := SavedOsArgs
 	defer func() {
 		SavedOsArgs = x

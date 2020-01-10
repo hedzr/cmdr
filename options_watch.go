@@ -10,7 +10,7 @@ import (
 	"encoding/json"
 	"github.com/BurntSushi/toml"
 	"github.com/hedzr/errors"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 	"io"
 	"io/ioutil"
 	"os"

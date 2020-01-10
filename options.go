@@ -8,9 +8,10 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/BurntSushi/toml"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
 	"time"
@@ -333,6 +334,46 @@ func GetFloat64RP(prefix, key string, defaultVal ...float64) float64 {
 	return internalGetWorker().rxxtOptions.GetFloat64Ex(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), defaultVal...)
 }
 
+// GetComplex64 returns the complex64 value of an `Option` key.
+func GetComplex64(key string, defaultVal ...complex64) complex64 {
+	return internalGetWorker().rxxtOptions.GetComplex64(key, defaultVal...)
+}
+
+// GetComplex64P returns the complex64 value of an `Option` key.
+func GetComplex64P(prefix, key string, defaultVal ...complex64) complex64 {
+	return internalGetWorker().rxxtOptions.GetComplex64(fmt.Sprintf("%s.%s", prefix, key), defaultVal...)
+}
+
+// GetComplex64R returns the complex64 value of an `Option` key with [WrapWithRxxtPrefix].
+func GetComplex64R(key string, defaultVal ...complex64) complex64 {
+	return internalGetWorker().rxxtOptions.GetComplex64(wrapWithRxxtPrefix(key), defaultVal...)
+}
+
+// GetComplex64RP returns the complex64 value of an `Option` key with [WrapWithRxxtPrefix].
+func GetComplex64RP(prefix, key string, defaultVal ...complex64) complex64 {
+	return internalGetWorker().rxxtOptions.GetComplex64(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), defaultVal...)
+}
+
+// GetComplex128 returns the complex128 value of an `Option` key.
+func GetComplex128(key string, defaultVal ...complex128) complex128 {
+	return internalGetWorker().rxxtOptions.GetComplex128(key, defaultVal...)
+}
+
+// GetComplex128P returns the complex128 value of an `Option` key.
+func GetComplex128P(prefix, key string, defaultVal ...complex128) complex128 {
+	return internalGetWorker().rxxtOptions.GetComplex128(fmt.Sprintf("%s.%s", prefix, key), defaultVal...)
+}
+
+// GetComplex128R returns the complex128 value of an `Option` key with [WrapWithRxxtPrefix].
+func GetComplex128R(key string, defaultVal ...complex128) complex128 {
+	return internalGetWorker().rxxtOptions.GetComplex128(wrapWithRxxtPrefix(key), defaultVal...)
+}
+
+// GetComplex128RP returns the complex128 value of an `Option` key with [WrapWithRxxtPrefix].
+func GetComplex128RP(prefix, key string, defaultVal ...complex128) complex128 {
+	return internalGetWorker().rxxtOptions.GetComplex128(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), defaultVal...)
+}
+
 // GetString returns the string value of an `Option` key.
 func GetString(key string, defaultVal ...string) string {
 	return internalGetWorker().rxxtOptions.GetString(key, defaultVal...)
@@ -421,6 +462,7 @@ func GetMapR(key string) map[string]interface{} {
 func GetSectionFrom(sectionKeyPath string, holder interface{}) (err error) {
 	fObj := GetMapR(sectionKeyPath)
 	if fObj != nil {
+		defer handleSerializeError(&err)
 		var b []byte
 		b, err = yaml.Marshal(fObj)
 		if err == nil {
@@ -615,14 +657,18 @@ func AsYaml() (b []byte) {
 // AsYamlExt returns a yaml string bytes about all options
 func AsYamlExt() (b []byte, err error) {
 	obj := internalGetWorker().rxxtOptions.GetHierarchyList()
+	defer handleSerializeError(&err)
 	b, err = yaml.Marshal(obj)
 	return
 }
 
 // SaveAsYaml to Save all config entries as a yaml file
 func SaveAsYaml(filename string) (err error) {
-	b := AsYaml()
-	err = ioutil.WriteFile(filename, b, 0644)
+	var b []byte
+	b, err = AsYamlExt()
+	if err == nil {
+		err = ioutil.WriteFile(filename, b, 0644)
+	}
 	return
 }
 
@@ -635,6 +681,7 @@ func AsJSON() (b []byte) {
 // AsJSONExt returns a json string bytes about all options
 func AsJSONExt() (b []byte, err error) {
 	obj := internalGetWorker().rxxtOptions.GetHierarchyList()
+	defer handleSerializeError(&err)
 	b, err = json.Marshal(obj)
 	return
 }
@@ -652,11 +699,27 @@ func AsToml() (b []byte) {
 	return
 }
 
+func handleSerializeError(err *error) {
+	if v := recover(); v != nil {
+		if e, ok := v.(error); ok {
+			*err = e
+		} else if s, ok := v.(string); ok {
+			*err = errors.New(s)
+			// if s == "cannot marshal type: complex128" {
+			// 	err = errors.New(s)
+			// }
+		} else {
+			panic(v)
+		}
+	}
+}
+
 // AsTomlExt returns a toml string bytes about all options
 func AsTomlExt() (b []byte, err error) {
 	obj := internalGetWorker().rxxtOptions.GetHierarchyList()
 	buf := bytes.NewBuffer([]byte{})
 	e := toml.NewEncoder(buf)
+	defer handleSerializeError(&err)
 	if err = e.Encode(obj); err == nil {
 		b = buf.Bytes()
 	}
@@ -676,6 +739,7 @@ func SaveObjAsToml(obj interface{}, filename string) (err error) {
 	f, err = os.Create(filename)
 	if err == nil {
 
+		defer handleSerializeError(&err)
 		e := toml.NewEncoder(bufio.NewWriter(f))
 		err = e.Encode(obj)
 

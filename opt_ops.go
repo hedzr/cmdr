@@ -72,6 +72,16 @@ type (
 		optFlagImpl
 	}
 
+	// complex64Opt for fluent api
+	complex64Opt struct {
+		optFlagImpl
+	}
+
+	// complex128Opt for fluent api
+	complex128Opt struct {
+		optFlagImpl
+	}
+
 	// durationOpt for fluent api
 	durationOpt struct {
 		optFlagImpl
@@ -251,6 +261,24 @@ func NewFloat64(defaultValue float64) (opt OptFlag) {
 	optCtx.workingFlag = &Flag{}
 	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &float64Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	opt.DefaultValue(defaultValue, "")
+	return
+}
+
+// NewComplex64 for fluent api
+func NewComplex64(defaultValue complex64) (opt OptFlag) {
+	optCtx.workingFlag = &Flag{}
+	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
+	opt = &complex64Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	opt.DefaultValue(defaultValue, "")
+	return
+}
+
+// NewComplex128 for fluent api
+func NewComplex128(defaultValue complex128) (opt OptFlag) {
+	optCtx.workingFlag = &Flag{}
+	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
+	opt = &complex128Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
 }

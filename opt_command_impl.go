@@ -196,6 +196,18 @@ func (s *optCommandImpl) Float64() (opt OptFlag) {
 	return &float64Opt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
+func (s *optCommandImpl) Complex64() (opt OptFlag) {
+	flg := &Flag{}
+	s.working.Flags = uniAddFlg(s.working.Flags, flg)
+	return &complex64Opt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
+}
+
+func (s *optCommandImpl) Complex128() (opt OptFlag) {
+	flg := &Flag{}
+	s.working.Flags = uniAddFlg(s.working.Flags, flg)
+	return &complex128Opt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
+}
+
 func (s *optCommandImpl) Duration() (opt OptFlag) {
 	flg := &Flag{}
 	s.working.Flags = uniAddFlg(s.working.Flags, flg)
@@ -224,6 +236,10 @@ func (s *optCommandImpl) NewFlag(typ OptFlagType) (opt OptFlag) {
 		flg = s.Float32()
 	case OptFlagTypeFloat64:
 		flg = s.Float64()
+	case OptFlagTypeComplex64:
+		flg = s.Complex64()
+	case OptFlagTypeComplex128:
+		flg = s.Complex128()
 	case OptFlagTypeDuration:
 		flg = s.Duration()
 	default:
@@ -267,6 +283,10 @@ func (s *optCommandImpl) newFlagVC(vv reflect.Type, defaultValue interface{}) (f
 		flg = s.Float32()
 	case reflect.Float64:
 		flg = s.Float64()
+	case reflect.Complex64:
+		flg = s.Complex64()
+	case reflect.Complex128:
+		flg = s.Complex128()
 	default:
 		flg = s.Bool()
 	}

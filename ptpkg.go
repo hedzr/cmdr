@@ -131,6 +131,10 @@ func (pkg *ptpkg) tryExtractingOthers(args []string, kind reflect.Kind) (err err
 		err = pkg.processTypeInt(args)
 	} else if isTypeUint(kind) {
 		err = pkg.processTypeUint(args)
+	} else if isTypeFloat(kind) {
+		err = pkg.processTypeFloat(args)
+	} else if isTypeComplex(kind) {
+		err = pkg.processTypeComplex(args)
 	} else {
 		ferr("Unacceptable default value kind=%v", kind)
 	}
@@ -230,6 +234,18 @@ func (pkg *ptpkg) processExternalTool() (err error) {
 	return
 }
 
+func (pkg *ptpkg) xxSet(keyPath string, v interface{}) {
+	if pkg.a[0] == '~' {
+		internalGetWorker().rxxtOptions.SetNx(keyPath, v)
+	} else {
+		internalGetWorker().rxxtOptions.Set(keyPath, v)
+	}
+	if pkg.flg != nil && pkg.flg.onSet != nil {
+		pkg.flg.onSet(keyPath, v)
+	}
+	pkg.found = true
+}
+
 func (pkg *ptpkg) processTypeInt(args []string) (err error) {
 	if err = pkg.preprocessPkg(args); err == nil {
 		err = pkg.processTypeIntCore(args)
@@ -247,18 +263,6 @@ func (pkg *ptpkg) processTypeDuration(args []string) (err error) {
 		}
 	}
 	return
-}
-
-func (pkg *ptpkg) xxSet(keyPath string, v interface{}) {
-	if pkg.a[0] == '~' {
-		internalGetWorker().rxxtOptions.SetNx(keyPath, v)
-	} else {
-		internalGetWorker().rxxtOptions.Set(keyPath, v)
-	}
-	if pkg.flg != nil && pkg.flg.onSet != nil {
-		pkg.flg.onSet(keyPath, v)
-	}
-	pkg.found = true
 }
 
 func (pkg *ptpkg) processTypeIntCore(args []string) (err error) {
@@ -281,6 +285,38 @@ func (pkg *ptpkg) processTypeUint(args []string) (err error) {
 	if err = pkg.preprocessPkg(args); err == nil {
 		var v uint64
 		v, err = strconv.ParseUint(pkg.val, 0, 64)
+		if err != nil {
+			ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
+			err = errors.New("wrong number: flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
+			return
+		}
+
+		var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
+		pkg.xxSet(keyPath, v)
+	}
+	return
+}
+
+func (pkg *ptpkg) processTypeFloat(args []string) (err error) {
+	if err = pkg.preprocessPkg(args); err == nil {
+		var v float64
+		v, err = strconv.ParseFloat(pkg.val, 64)
+		if err != nil {
+			ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
+			err = errors.New("wrong number: flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
+			return
+		}
+
+		var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
+		pkg.xxSet(keyPath, v)
+	}
+	return
+}
+
+func (pkg *ptpkg) processTypeComplex(args []string) (err error) {
+	if err = pkg.preprocessPkg(args); err == nil {
+		var v complex128
+		v, err = ParseComplexX(pkg.val)
 		if err != nil {
 			ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
 			err = errors.New("wrong number: flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)

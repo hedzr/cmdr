@@ -4,7 +4,7 @@ package cmdr
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 	"os"
 	"reflect"
 	"sort"
@@ -377,7 +377,7 @@ func (s *Options) GetUint64Ex(key string, defaultVal ...uint64) (ir uint64) {
 
 // GetFloat32Ex returns the float32 value of an `Option` key.
 func (s *Options) GetFloat32Ex(key string, defaultVal ...float32) (ir float32) {
-	if ir64, err := strconv.ParseFloat(s.GetString(key, ""), 10); err == nil {
+	if ir64, err := strconv.ParseFloat(s.GetString(key, ""), 32); err == nil {
 		ir = float32(ir64)
 	} else {
 		for _, vv := range defaultVal {
@@ -389,8 +389,32 @@ func (s *Options) GetFloat32Ex(key string, defaultVal ...float32) (ir float32) {
 
 // GetFloat64Ex returns the float64 value of an `Option` key.
 func (s *Options) GetFloat64Ex(key string, defaultVal ...float64) (ir float64) {
-	if ir64, err := strconv.ParseFloat(s.GetString(key, ""), 10); err == nil {
+	if ir64, err := strconv.ParseFloat(s.GetString(key, ""), 64); err == nil {
 		ir = ir64
+	} else {
+		for _, vv := range defaultVal {
+			ir = vv
+		}
+	}
+	return
+}
+
+// GetComplex64 returns the complex64 value of an `Option` key.
+func (s *Options) GetComplex64(key string, defaultVal ...complex64) (ir complex64) {
+	if ir128, err := ParseComplexX(s.GetString(key, "")); err == nil {
+		ir = complex64(ir128)
+	} else {
+		for _, vv := range defaultVal {
+			ir = vv
+		}
+	}
+	return
+}
+
+// GetComplex128 returns the complex128 value of an `Option` key.
+func (s *Options) GetComplex128(key string, defaultVal ...complex128) (ir complex128) {
+	if ir128, err := ParseComplexX(s.GetString(key, "")); err == nil {
+		ir = ir128
 	} else {
 		for _, vv := range defaultVal {
 			ir = vv
@@ -960,7 +984,10 @@ func (s *Options) DumpAsString() (str string) {
 	}
 	str += "---------------------------------\n"
 
-	b, err := yaml.Marshal(s.hierarchy)
+	var err error
+	var b []byte
+	defer handleSerializeError(&err)
+	b, err = yaml.Marshal(s.hierarchy)
 	if err == nil {
 		if s.GetBoolEx("raw") {
 			str += string(b)

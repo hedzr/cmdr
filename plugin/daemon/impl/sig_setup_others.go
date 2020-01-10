@@ -89,3 +89,11 @@ func sigSendTERM(process *os.Process) error {
 	// return process.Signal(syscall.SIGTERM)
 	return nil
 }
+
+func sigSendQUIT(process *os.Process) error {
+	return nil // process.Signal(syscall.SIGQUIT)
+}
+
+func sigSendKILL(process *os.Process) error {
+	return nil // process.Signal(syscall.SIGKILL)
+}

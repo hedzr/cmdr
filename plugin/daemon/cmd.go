@@ -121,7 +121,7 @@ $ {{.AppName}} uninstall
 					},
 					{
 						BaseOpt: cmdr.BaseOpt{
-							Short:       "u2",
+							Short:       "31",
 							Full:        "usr2",
 							Description: "send SIGUSR2 - to hot-restart service gracefully",
 						},

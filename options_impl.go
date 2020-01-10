@@ -159,7 +159,7 @@ func (s *Options) GetBoolEx(key string, defaultVal ...bool) (ret bool) {
 
 // GetIntEx returns the int64 value of an `Option` key.
 func (s *Options) GetIntEx(key string, defaultVal ...int) (ir int) {
-	if ir64, err := strconv.ParseInt(s.GetString(key, ""), 10, 64); err == nil {
+	if ir64, err := strconv.ParseInt(s.GetString(key, ""), 0, 64); err == nil {
 		ir = int(ir64)
 	} else {
 		for _, vv := range defaultVal {
@@ -171,7 +171,7 @@ func (s *Options) GetIntEx(key string, defaultVal ...int) (ir int) {
 
 // GetInt64Ex returns the int64 value of an `Option` key.
 func (s *Options) GetInt64Ex(key string, defaultVal ...int64) (ir int64) {
-	if ir64, err := strconv.ParseInt(s.GetString(key, ""), 10, 64); err == nil {
+	if ir64, err := strconv.ParseInt(s.GetString(key, ""), 0, 64); err == nil {
 		ir = ir64
 	} else {
 		for _, vv := range defaultVal {
@@ -236,7 +236,7 @@ func (s *Options) FromKibibytes(sz string) (ir64 uint64) {
 			ir64 = uint64(if64 * float64(s.fromKibibytes(r)))
 		}
 	} else {
-		ir64, err = strconv.ParseUint(szr, 10, 64)
+		ir64, err = strconv.ParseUint(szr, 0, 64)
 		r := []rune(sz)[len(sz)-1]
 		ir64 *= s.fromKibibytes(r)
 	}
@@ -321,7 +321,7 @@ func (s *Options) FromKilobytes(sz string) (ir64 uint64) {
 			ir64 = uint64(if64 * float64(s.fromKilobytes(r)))
 		}
 	} else {
-		ir64, err = strconv.ParseUint(szr, 10, 64)
+		ir64, err = strconv.ParseUint(szr, 0, 64)
 		r := []rune(sz)[len(sz)-1]
 		ir64 *= s.fromKilobytes(r)
 	}
@@ -353,7 +353,7 @@ func (s *Options) fromKilobytes(r rune) (times uint64) {
 
 // GetUintEx returns the uint64 value of an `Option` key.
 func (s *Options) GetUintEx(key string, defaultVal ...uint) (ir uint) {
-	if ir64, err := strconv.ParseUint(s.GetString(key, ""), 10, 64); err == nil {
+	if ir64, err := strconv.ParseUint(s.GetString(key, ""), 0, 64); err == nil {
 		ir = uint(ir64)
 	} else {
 		for _, vv := range defaultVal {
@@ -365,7 +365,7 @@ func (s *Options) GetUintEx(key string, defaultVal ...uint) (ir uint) {
 
 // GetUint64Ex returns the uint64 value of an `Option` key.
 func (s *Options) GetUint64Ex(key string, defaultVal ...uint64) (ir uint64) {
-	if ir64, err := strconv.ParseUint(s.GetString(key, ""), 10, 64); err == nil {
+	if ir64, err := strconv.ParseUint(s.GetString(key, ""), 0, 64); err == nil {
 		ir = ir64
 	} else {
 		for _, vv := range defaultVal {

@@ -15,7 +15,7 @@ func stringSliceToIntSlice(in []string) (out []int) {
 
 func stringSliceToInt64Slice(in []string) (out []int64) {
 	for _, ii := range in {
-		if i, err := strconv.ParseInt(ii, 10, 64); err == nil {
+		if i, err := strconv.ParseInt(ii, 0, 64); err == nil {
 			out = append(out, i)
 		}
 	}
@@ -24,7 +24,7 @@ func stringSliceToInt64Slice(in []string) (out []int64) {
 
 func stringSliceToUint64Slice(in []string) (out []uint64) {
 	for _, ii := range in {
-		if i, err := strconv.ParseUint(ii, 10, 64); err == nil {
+		if i, err := strconv.ParseUint(ii, 0, 64); err == nil {
 			out = append(out, i)
 		}
 	}

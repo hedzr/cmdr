@@ -262,7 +262,7 @@ func (pkg *ptpkg) xxSet(keyPath string, v interface{}) {
 }
 
 func (pkg *ptpkg) processTypeIntCore(args []string) (err error) {
-	v, err := strconv.ParseInt(pkg.val, 10, 64)
+	v, err := strconv.ParseInt(pkg.val, 0, 64)
 	if err != nil {
 		if _, ok := pkg.flg.DefaultValue.(time.Duration); ok {
 			err = pkg.processTypeDuration(args)
@@ -280,7 +280,7 @@ func (pkg *ptpkg) processTypeIntCore(args []string) (err error) {
 func (pkg *ptpkg) processTypeUint(args []string) (err error) {
 	if err = pkg.preprocessPkg(args); err == nil {
 		var v uint64
-		v, err = strconv.ParseUint(pkg.val, 10, 64)
+		v, err = strconv.ParseUint(pkg.val, 0, 64)
 		if err != nil {
 			ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
 			err = errors.New("wrong number: flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
@@ -340,7 +340,7 @@ func (pkg *ptpkg) processTypeIntSlice(args []string) (err error) {
 	if err = pkg.preprocessPkg(args); err == nil {
 		v := make([]int64, 0)
 		for _, x := range strings.Split(pkg.val, ",") {
-			if xi, err := strconv.ParseInt(x, 10, 64); err == nil {
+			if xi, err := strconv.ParseInt(x, 0, 64); err == nil {
 				v = append(v, xi)
 			}
 		}
@@ -361,7 +361,7 @@ func (pkg *ptpkg) processTypeUintSlice(args []string) (err error) {
 	if err = pkg.preprocessPkg(args); err == nil {
 		v := make([]uint64, 0)
 		for _, x := range strings.Split(pkg.val, ",") {
-			if xi, err := strconv.ParseUint(x, 10, 64); err == nil {
+			if xi, err := strconv.ParseUint(x, 0, 64); err == nil {
 				v = append(v, xi)
 			}
 		}

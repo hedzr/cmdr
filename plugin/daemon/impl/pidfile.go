@@ -80,7 +80,7 @@ func HotReload(appName string, ctx *Context) {
 func FindDaemonProcess(ctx *Context) (present bool, process *os.Process) {
 	if IsPidFileExists(ctx) {
 		s, _ := ioutil.ReadFile(ctx.PidFileName)
-		pid, err := strconv.ParseInt(string(s), 10, 64)
+		pid, err := strconv.ParseInt(string(s), 0, 64)
 		if err != nil {
 			log.Fatal(err)
 		}

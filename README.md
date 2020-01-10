@@ -52,6 +52,13 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
+- WIP: v1.6.21
+  - bugs fixed
+  - added complex option:
+    - `cmdOpt.NewFlagV(3+4i)` to register a complex128 option
+    - `cmdr.GetComplex128XXX(...)` to extract it
+  - use yaml.v3, but it can't encode/decode complex data type
+  
 - v1.6.20
   - fixed build error
   

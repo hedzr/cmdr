@@ -134,11 +134,25 @@ func WithHeadLike(enable bool, min, max int64) (opt Option) {
 	}
 }
 
+// WithEnvKeys binds the environ variable keynames to an option.
+func WithEnvKeys(keys ...string) (opt Option) {
+	return func(flag cmdr.OptFlag) {
+		flag.EnvKeys(keys...)
+	}
+}
+
+// WithOnSet binds the OnSet handler to an option.
+func WithOnSet(f func(keyPath string, value interface{})) (opt Option) {
+	return func(flag cmdr.OptFlag) {
+		flag.OnSet(f)
+	}
+}
+
 //
 // -----------------------
 //
 
-// WithCommand define an Command
+// WithCommand define an (Sub-)Command
 func WithCommand(cmdDefines func(newSubCmd cmdr.OptCmd)) (opt Option) {
 	return func(flag cmdr.OptFlag) {
 		var oo = flag.OwnerCommand().NewSubCommand()
@@ -458,6 +472,8 @@ func Float32(name string, value float32, usage string, options ...Option) *float
 	Float32Var(p, name, value, usage, options...)
 	return p
 }
+
+// TODO: complex64, complex128, []uint, []int64, []uint64, ...
 
 // DurationVar defines a time.Duration flag with specified name, default value, and usage string.
 // The argument p points to a time.Duration variable in which to store the value of the flag.

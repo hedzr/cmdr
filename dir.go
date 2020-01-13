@@ -5,7 +5,7 @@
 package cmdr
 
 import (
-	"github.com/hedzr/errors"
+	"gopkg.in/hedzr/errors.v2"
 	"os"
 	"path"
 	"path/filepath"

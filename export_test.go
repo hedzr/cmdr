@@ -8,9 +8,10 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/hedzr/errors"
 	"github.com/hedzr/logex"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/hedzr/errors.v2"
+	"io"
 	"os"
 	"reflect"
 	"strings"
@@ -106,8 +107,8 @@ func TestFlag(t *testing.T) {
 
 	isTypeComplex(reflect.TypeOf(8).Kind())
 	isTypeComplex(reflect.TypeOf(8.9).Kind())
-	isTypeComplex(reflect.TypeOf(8.9+0i).Kind())
-	isTypeComplex(reflect.TypeOf(8.9-2i).Kind())
+	isTypeComplex(reflect.TypeOf(8.9 + 0i).Kind())
+	isTypeComplex(reflect.TypeOf(8.9 - 2i).Kind())
 
 	x := SavedOsArgs
 	defer func() {
@@ -413,6 +414,22 @@ func TestNewError(t *testing.T) {
 	err = newErrorWithMsg("Holo", errors.New("unexpected enumerable value"))
 	println(err.Error())
 
-	errWrongEnumValue = newErrTmpl("unexpected enumerable value '%s' for option '%s', under command '%s'")
-	_ = errWrongEnumValue.Template("x").Format().Msg("x %v", 1).Nest(err)
+	var perr *os.PathError
+	err = newErrorWithMsg("hooloo", &os.PathError{Err: io.EOF, Op: "find", Path: "/"})
+	if errors.As(err, &perr) {
+		t.Logf("As() ok: %+v", *perr)
+	} else {
+		t.Fatal("As() failed: expect it is a os.PathError{}")
+	}
+
+	if !err.(*errors.WithStackInfo).As(&perr) {
+		t.Fatal("As() failed: expect it is a os.PathError{}")
+	}
+
+	if !err.(*errors.WithStackInfo).Is(perr) {
+		t.Fatal("As() failed: expect it is a os.PathError{}")
+	}
+
+	// errWrongEnumValue = newErrTmpl("unexpected enumerable value '%s' for option '%s', under command '%s'")
+	// _ = errWrongEnumValue.Template("x").Format().Msg("x %v", 1).Nest(err)
 }

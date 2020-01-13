@@ -9,8 +9,8 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/hedzr/cmdr"
-	"github.com/hedzr/errors"
 	"github.com/hedzr/logex"
+	"gopkg.in/hedzr/errors.v2"
 	"os"
 	"strings"
 	"testing"
@@ -180,7 +180,8 @@ func TestHeadLike(t *testing.T) {
 		w.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
 		})
 		if _, err = w.InternalExecFor(rootCmdForTesting, strings.Split(sss, " ")); err != nil {
-			if e, ok := err.(*cmdr.ErrorForCmdr); !ok || !e.Ignorable {
+			var perr *cmdr.ErrorForCmdr
+			if errors.As(err, &perr) && !perr.Ignorable {
 				t.Fatal(err)
 			}
 		}
@@ -245,12 +246,11 @@ func TestComplexOpt(t *testing.T) {
 		os.Args = strings.Split(cc.line, " ")
 		cmdr.SetInternalOutputStreams(nil, nil)
 		cmdr.ResetOptions()
-		if err = cmdr.Exec(rootCmdX,
-			// cmdr.WithUnhandledErrorHandler(onUnhandleErrorHandler),
-			// cmdr.WithOnSwitchCharHit(func(parsed *cmdr.Command, switchChar string, args []string) (err error) {
-			// 	return
-			// }),
-		); err != nil {
+		if err = cmdr.Exec(rootCmdX); // cmdr.WithUnhandledErrorHandler(onUnhandleErrorHandler),
+		// cmdr.WithOnSwitchCharHit(func(parsed *cmdr.Command, switchChar string, args []string) (err error) {
+		// 	return
+		// }),
+		err != nil {
 			t.Log(err) // hi, here is not real error occurs
 		}
 		if cc.validator != nil {
@@ -305,8 +305,7 @@ func TestTlideOptions(t *testing.T) {
 	for _, cc := range commands {
 		os.Args = strings.Split(cc.line, " ")
 		cmdr.ResetOptions()
-		if err = cmdr.Exec(rootCmdX,
-		); err != nil {
+		if err = cmdr.Exec(rootCmdX); err != nil {
 			t.Log(err) // hi, here is not real error occurs
 		}
 		if cc.validator != nil {

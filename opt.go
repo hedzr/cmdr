@@ -157,7 +157,7 @@ const (
 	OptFlagTypeFloat32 OptFlagType = iota + 8
 	// OptFlagTypeFloat64 to create a new int float64 flag
 	OptFlagTypeFloat64 OptFlagType = iota + 9
-	// OptFlagTypeCopmlex64 to create a new int complex64 flag
+	// OptFlagTypeComplex64 to create a new int complex64 flag
 	OptFlagTypeComplex64 OptFlagType = iota + 10
 	// OptFlagTypeComplex128 to create a new int complex128 flag
 	OptFlagTypeComplex128 OptFlagType = iota + 11

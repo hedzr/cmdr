@@ -68,7 +68,7 @@ func a2complex(s string) (v complex128, err error) {
 			if err != nil {
 				return
 			}
-			
+
 			v = complex(ff, fi)
 			return
 		}

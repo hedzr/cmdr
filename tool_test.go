@@ -87,7 +87,7 @@ func TestComplex(t *testing.T) {
 	_, _ = cmdr.ParseComplexX("3x+4t")
 	_, _ = cmdr.ParseComplexX("3+4")
 	_, _ = cmdr.ParseComplexX("3")
-	
+
 	r, theta := cmplx.Polar(2i)
 	fmt.Printf("r: %.2f, θ: %.2f*π\n", r, theta/math.Pi)
 

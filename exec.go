@@ -377,7 +377,9 @@ func (w *ExecWorker) ainvk(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command,
 		if len(ta) > 0 {
 			defer func() {
 				for _, fn := range ta {
-					fn(goCommand, args)
+					if fn != nil {
+                                            fn(goCommand, args)
+                                        }
 				}
 			}()
 		}

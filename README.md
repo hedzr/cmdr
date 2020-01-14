@@ -52,12 +52,16 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- WIP: v1.6.21
+- v1.6.21
   - bugs fixed
-  - added complex option:
+  - added **complex** option:
     - `cmdOpt.NewFlagV(3+4i)` to register a complex128 option
     - `cmdr.GetComplex128XXX(...)` to extract it
+    - `cmdr.ParseComplex(s)`
   - use yaml.v3, but it can't encode/decode complex data type
+  - use errors.v2 and rewrote `ErrorForCmdr`
+  - little chichi for daemon plugin
+  - WithEnvKeys, WithOnSet for `flag` package
   
 - v1.6.20
   - fixed build error

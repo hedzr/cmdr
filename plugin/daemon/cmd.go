@@ -91,7 +91,7 @@ $ {{.AppName}} uninstall
 						BaseOpt: cmdr.BaseOpt{
 							Short:       "1",
 							Full:        "hup",
-							Description: "send SIGHUP - to reload service",
+							Description: "send SIGHUP - to reload service configurations",
 						},
 						DefaultValue: false,
 					},
@@ -119,6 +119,14 @@ $ {{.AppName}} uninstall
 						},
 						DefaultValue: false,
 					},
+					{
+						BaseOpt: cmdr.BaseOpt{
+							Short:       "31",
+							Full:        "usr2",
+							Description: "send SIGUSR2 - to hot-restart service gracefully",
+						},
+						DefaultValue: false,
+					},
 				},
 			},
 			{
@@ -134,9 +142,16 @@ $ {{.AppName}} uninstall
 				BaseOpt: cmdr.BaseOpt{
 					Short:       "hr",
 					Full:        "hot-restart",
-					Aliases:     []string{"hot-reload"},
+					Aliases:     []string{"hot-reload", "live-reload"},
 					Description: "hot-restart this system service/daemon.",
-					Action:      daemonHotRestart,
+					LongDescription: `hot-restart/hot-reload/live-reload: 
+
+This action will start a new child process and transfer all 
+living connections to the child, and shutdown itself 
+gracefully.
+With this action, the service will keep serving without broken.
+`,
+					Action: daemonHotRestart,
 				},
 			},
 			{

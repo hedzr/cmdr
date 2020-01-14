@@ -86,3 +86,11 @@ func sigSendUSR2(process *os.Process) error {
 func sigSendTERM(process *os.Process) error {
 	return process.Signal(syscall.SIGTERM)
 }
+
+func sigSendQUIT(process *os.Process) error {
+	return process.Signal(syscall.SIGQUIT)
+}
+
+func sigSendKILL(process *os.Process) error {
+	return process.Signal(syscall.SIGKILL)
+}

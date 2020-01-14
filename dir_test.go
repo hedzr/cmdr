@@ -9,7 +9,8 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/hedzr/cmdr"
-	"github.com/hedzr/errors"
+	"github.com/hedzr/logex"
+	"gopkg.in/hedzr/errors.v2"
 	"os"
 	"strings"
 	"testing"
@@ -179,7 +180,8 @@ func TestHeadLike(t *testing.T) {
 		w.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
 		})
 		if _, err = w.InternalExecFor(rootCmdForTesting, strings.Split(sss, " ")); err != nil {
-			if e, ok := err.(*cmdr.ErrorForCmdr); !ok || !e.Ignorable {
+			var perr *cmdr.ErrorForCmdr
+			if errors.As(err, &perr) && !perr.Ignorable {
 				t.Fatal(err)
 			}
 		}
@@ -193,6 +195,186 @@ func TestHeadLike(t *testing.T) {
 		}
 	}
 
+}
+
+func TestComplexOpt(t *testing.T) {
+	defer logex.CaptureLog(t).Release()
+	if cmdr.SavedOsArgs == nil {
+		cmdr.SavedOsArgs = os.Args
+	}
+	defer func() {
+		os.Args = cmdr.SavedOsArgs
+	}()
+
+	cmdr.ResetOptions()
+	cmdr.InternalResetWorker()
+
+	var err error
+	// v1, v2 := 11, 0
+	// var cmd *Command
+	var rootCmdX = &cmdr.RootCommand{
+		Command: cmdr.Command{
+			BaseOpt: cmdr.BaseOpt{
+				Name: "consul-tags",
+			},
+			Flags: []*cmdr.Flag{
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Short: "cc", Full: "complex",
+					},
+					DefaultValue: complex128(0),
+				},
+			},
+		},
+	}
+
+	// cmd = &rootCmdX.Command
+	var commands = []struct {
+		line      string
+		validator func(t *testing.T, err error) error
+	}{
+		{"consul-tags -cc 3.14159-2.56i", func(t *testing.T, err error) error {
+			if cmdr.GetComplex128("app.complex") != 3.14159-2.56i {
+				return errors.New("something wrong complex. |expected %v|got %v|", 3.14159-2.56i, cmdr.GetComplex128("app.complex"))
+			}
+			fmt.Println("consul-tags kv b ~ -------- no errors")
+			return nil
+		}},
+		// {"consul-tags pa", func(t *testing.T, err error) error { return nil }},
+	}
+	for _, cc := range commands {
+		os.Args = strings.Split(cc.line, " ")
+		cmdr.SetInternalOutputStreams(nil, nil)
+		cmdr.ResetOptions()
+		if err = cmdr.Exec(rootCmdX); // cmdr.WithUnhandledErrorHandler(onUnhandleErrorHandler),
+		// cmdr.WithOnSwitchCharHit(func(parsed *cmdr.Command, switchChar string, args []string) (err error) {
+		// 	return
+		// }),
+		err != nil {
+			t.Log(err) // hi, here is not real error occurs
+		}
+		if cc.validator != nil {
+			err = cc.validator(t, err)
+			if err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+}
+
+func TestTlideOptions(t *testing.T) {
+	defer logex.CaptureLog(t).Release()
+	if cmdr.SavedOsArgs == nil {
+		cmdr.SavedOsArgs = os.Args
+	}
+	defer func() {
+		os.Args = cmdr.SavedOsArgs
+	}()
+
+	cmdr.InternalResetWorker()
+	cmdr.SetInternalOutputStreams(nil, nil)
+
+	var err error
+	var rootCmdX = &cmdr.RootCommand{
+		Command: cmdr.Command{
+			BaseOpt: cmdr.BaseOpt{
+				Name: "consul-tags",
+			},
+			Flags: []*cmdr.Flag{
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Short: "ff", Full: "float",
+					},
+					DefaultValue: float32(0),
+				},
+			},
+		},
+	}
+
+	// cmd = &rootCmdX.Command
+	var commands = []struct {
+		line      string
+		validator func(t *testing.T, err error) error
+	}{
+		{"consul-tags --help ~~debug", nil},
+		{"consul-tags --help ~~debug ~~env", nil},
+		{"consul-tags --help ~~debug ~~raw", nil},
+		{"consul-tags --help ~~debug ~~more", nil},
+		// {"consul-tags pa", func(t *testing.T, err error) error { return nil }},
+	}
+	for _, cc := range commands {
+		os.Args = strings.Split(cc.line, " ")
+		cmdr.ResetOptions()
+		if err = cmdr.Exec(rootCmdX); err != nil {
+			t.Log(err) // hi, here is not real error occurs
+		}
+		if cc.validator != nil {
+			err = cc.validator(t, err)
+			if err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+}
+
+func TestHandlerPassThru(t *testing.T) {
+	defer logex.CaptureLog(t).Release()
+	if cmdr.SavedOsArgs == nil {
+		cmdr.SavedOsArgs = os.Args
+	}
+	defer func() {
+		os.Args = cmdr.SavedOsArgs
+	}()
+
+	cmdr.InternalResetWorker()
+	cmdr.SetInternalOutputStreams(nil, nil)
+
+	var err error
+	var rootCmdX = &cmdr.RootCommand{
+		Command: cmdr.Command{
+			BaseOpt: cmdr.BaseOpt{
+				Name: "consul-tags",
+			},
+			Flags: []*cmdr.Flag{
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Short: "ff", Full: "float",
+					},
+					DefaultValue: float32(0),
+				},
+			},
+		},
+	}
+
+	// cmd = &rootCmdX.Command
+	var commands = []struct {
+		line      string
+		validator func(t *testing.T, err error) error
+	}{
+		{"consul-tags --help -- ~~debug", nil},
+		// {"consul-tags --help ~~debug ~~env", nil},
+		// {"consul-tags --help ~~debug ~~raw", nil},
+		// {"consul-tags --help ~~debug ~~more", nil},
+		// {"consul-tags pa", func(t *testing.T, err error) error { return nil }},
+	}
+	for _, cc := range commands {
+		os.Args = strings.Split(cc.line, " ")
+		cmdr.ResetOptions()
+		if err = cmdr.Exec(rootCmdX,
+			cmdr.WithOnPassThruCharHit(func(parsed *cmdr.Command, switchChar string, args []string) (err error) {
+				fmt.Println(parsed.GetDottedNamePath())
+				return
+			}),
+		); err != nil {
+			t.Log(err) // hi, here is not real error occurs
+		}
+		if cc.validator != nil {
+			err = cc.validator(t, err)
+			if err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
 }
 
 var (

@@ -4,7 +4,7 @@ package cmdr
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 	"os"
 	"reflect"
 	"sort"
@@ -159,7 +159,7 @@ func (s *Options) GetBoolEx(key string, defaultVal ...bool) (ret bool) {
 
 // GetIntEx returns the int64 value of an `Option` key.
 func (s *Options) GetIntEx(key string, defaultVal ...int) (ir int) {
-	if ir64, err := strconv.ParseInt(s.GetString(key, ""), 10, 64); err == nil {
+	if ir64, err := strconv.ParseInt(s.GetString(key, ""), 0, 64); err == nil {
 		ir = int(ir64)
 	} else {
 		for _, vv := range defaultVal {
@@ -171,7 +171,7 @@ func (s *Options) GetIntEx(key string, defaultVal ...int) (ir int) {
 
 // GetInt64Ex returns the int64 value of an `Option` key.
 func (s *Options) GetInt64Ex(key string, defaultVal ...int64) (ir int64) {
-	if ir64, err := strconv.ParseInt(s.GetString(key, ""), 10, 64); err == nil {
+	if ir64, err := strconv.ParseInt(s.GetString(key, ""), 0, 64); err == nil {
 		ir = ir64
 	} else {
 		for _, vv := range defaultVal {
@@ -236,7 +236,7 @@ func (s *Options) FromKibibytes(sz string) (ir64 uint64) {
 			ir64 = uint64(if64 * float64(s.fromKibibytes(r)))
 		}
 	} else {
-		ir64, err = strconv.ParseUint(szr, 10, 64)
+		ir64, err = strconv.ParseUint(szr, 0, 64)
 		r := []rune(sz)[len(sz)-1]
 		ir64 *= s.fromKibibytes(r)
 	}
@@ -321,7 +321,7 @@ func (s *Options) FromKilobytes(sz string) (ir64 uint64) {
 			ir64 = uint64(if64 * float64(s.fromKilobytes(r)))
 		}
 	} else {
-		ir64, err = strconv.ParseUint(szr, 10, 64)
+		ir64, err = strconv.ParseUint(szr, 0, 64)
 		r := []rune(sz)[len(sz)-1]
 		ir64 *= s.fromKilobytes(r)
 	}
@@ -353,7 +353,7 @@ func (s *Options) fromKilobytes(r rune) (times uint64) {
 
 // GetUintEx returns the uint64 value of an `Option` key.
 func (s *Options) GetUintEx(key string, defaultVal ...uint) (ir uint) {
-	if ir64, err := strconv.ParseUint(s.GetString(key, ""), 10, 64); err == nil {
+	if ir64, err := strconv.ParseUint(s.GetString(key, ""), 0, 64); err == nil {
 		ir = uint(ir64)
 	} else {
 		for _, vv := range defaultVal {
@@ -365,7 +365,7 @@ func (s *Options) GetUintEx(key string, defaultVal ...uint) (ir uint) {
 
 // GetUint64Ex returns the uint64 value of an `Option` key.
 func (s *Options) GetUint64Ex(key string, defaultVal ...uint64) (ir uint64) {
-	if ir64, err := strconv.ParseUint(s.GetString(key, ""), 10, 64); err == nil {
+	if ir64, err := strconv.ParseUint(s.GetString(key, ""), 0, 64); err == nil {
 		ir = ir64
 	} else {
 		for _, vv := range defaultVal {
@@ -377,7 +377,7 @@ func (s *Options) GetUint64Ex(key string, defaultVal ...uint64) (ir uint64) {
 
 // GetFloat32Ex returns the float32 value of an `Option` key.
 func (s *Options) GetFloat32Ex(key string, defaultVal ...float32) (ir float32) {
-	if ir64, err := strconv.ParseFloat(s.GetString(key, ""), 10); err == nil {
+	if ir64, err := strconv.ParseFloat(s.GetString(key, ""), 32); err == nil {
 		ir = float32(ir64)
 	} else {
 		for _, vv := range defaultVal {
@@ -389,8 +389,32 @@ func (s *Options) GetFloat32Ex(key string, defaultVal ...float32) (ir float32) {
 
 // GetFloat64Ex returns the float64 value of an `Option` key.
 func (s *Options) GetFloat64Ex(key string, defaultVal ...float64) (ir float64) {
-	if ir64, err := strconv.ParseFloat(s.GetString(key, ""), 10); err == nil {
+	if ir64, err := strconv.ParseFloat(s.GetString(key, ""), 64); err == nil {
 		ir = ir64
+	} else {
+		for _, vv := range defaultVal {
+			ir = vv
+		}
+	}
+	return
+}
+
+// GetComplex64 returns the complex64 value of an `Option` key.
+func (s *Options) GetComplex64(key string, defaultVal ...complex64) (ir complex64) {
+	if ir128, err := ParseComplexX(s.GetString(key, "")); err == nil {
+		ir = complex64(ir128)
+	} else {
+		for _, vv := range defaultVal {
+			ir = vv
+		}
+	}
+	return
+}
+
+// GetComplex128 returns the complex128 value of an `Option` key.
+func (s *Options) GetComplex128(key string, defaultVal ...complex128) (ir complex128) {
+	if ir128, err := ParseComplexX(s.GetString(key, "")); err == nil {
+		ir = ir128
 	} else {
 		for _, vv := range defaultVal {
 			ir = vv
@@ -960,7 +984,10 @@ func (s *Options) DumpAsString() (str string) {
 	}
 	str += "---------------------------------\n"
 
-	b, err := yaml.Marshal(s.hierarchy)
+	var err error
+	var b []byte
+	defer handleSerializeError(&err)
+	b, err = yaml.Marshal(s.hierarchy)
 	if err == nil {
 		if s.GetBoolEx("raw") {
 			str += string(b)

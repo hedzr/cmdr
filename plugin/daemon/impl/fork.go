@@ -26,7 +26,7 @@ func forkDaemon(ctx *Context) (err error) {
 	if IsPidFileExists(ctx) {
 		log.Printf("Already running or %v file exist.", ctx.PidFileName)
 		s, _ := ioutil.ReadFile(ctx.PidFileName)
-		pid, err := strconv.ParseInt(string(s), 10, 64)
+		pid, err := strconv.ParseInt(string(s), 0, 64)
 		if err != nil {
 			log.Fatal(err)
 		}

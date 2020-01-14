@@ -42,6 +42,24 @@ func isTypeSInt(kind reflect.Kind) bool {
 	}
 }
 
+func isTypeFloat(kind reflect.Kind) bool {
+	switch kind {
+	case reflect.Float32, reflect.Float64:
+		return true
+	default:
+		return false
+	}
+}
+
+func isTypeComplex(kind reflect.Kind) bool {
+	switch kind {
+	case reflect.Complex64, reflect.Complex128:
+		return true
+	default:
+		return false
+	}
+}
+
 func isBool(v interface{}) bool {
 	_, ok := v.(bool)
 	return ok

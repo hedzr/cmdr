@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"bytes"
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"github.com/hedzr/cmdr/plugin/isdelve"
 	"io"
@@ -17,9 +18,74 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"strconv"
 	"strings"
 	"text/template"
 )
+
+// ParseComplex converts a string to complex number.
+//
+// Examples:
+//
+//    c1 := cmdr.ParseComplex("3-4i")
+//    c2 := cmdr.ParseComplex("3.13+4.79i")
+func ParseComplex(s string) (v complex128) {
+	return a2complexShort(s)
+}
+
+// ParseComplexX converts a string to complex number.
+// If the string is not valid complex format, return err not nil.
+//
+// Examples:
+//
+//    c1 := cmdr.ParseComplex("3-4i")
+//    c2 := cmdr.ParseComplex("3.13+4.79i")
+func ParseComplexX(s string) (v complex128, err error) {
+	return a2complex(s)
+}
+
+func a2complexShort(s string) (v complex128) {
+	v, _ = a2complex(s)
+	return
+}
+
+func a2complex(s string) (v complex128, err error) {
+	s = strings.TrimSpace(strings.TrimRightFunc(strings.TrimLeftFunc(s, func(r rune) bool {
+		return r == '('
+	}), func(r rune) bool {
+		return r == ')'
+	}))
+
+	if i := strings.IndexAny(s, "+-"); i >= 0 {
+		rr, ii := s[0:i], s[i:]
+		if j := strings.Index(ii, "i"); j >= 0 {
+			var ff, fi float64
+			ff, err = strconv.ParseFloat(strings.TrimSpace(rr), 64)
+			if err != nil {
+				return
+			}
+			fi, err = strconv.ParseFloat(strings.TrimSpace(ii[0:j]), 64)
+			if err != nil {
+				return
+			}
+
+			v = complex(ff, fi)
+			return
+		}
+		err = errors.New("for a complex number, the imaginary part should end with 'i', such as '3+4i'")
+		return
+
+		// err = errors.New("not valid complex number.")
+	}
+
+	var ff float64
+	ff, err = strconv.ParseFloat(strings.TrimSpace(s), 64)
+	if err != nil {
+		return
+	}
+	v = complex(ff, 0)
+	return
+}
 
 // FindSubCommand find sub-command with `longName` from `cmd`
 // if cmd == nil: finding from root command

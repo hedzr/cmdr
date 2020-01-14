@@ -7,7 +7,7 @@ package cmdr_test
 import (
 	"fmt"
 	"github.com/hedzr/cmdr"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 	"strings"
 	"testing"
 	"time"
@@ -119,6 +119,8 @@ func TestFluentAPIDefault(t *testing.T) {
 	cmdr.NewUint64(0)
 	cmdr.NewFloat32(0)
 	cmdr.NewFloat64(0)
+	cmdr.NewComplex64(0)
+	cmdr.NewComplex128(0)
 
 }
 
@@ -212,6 +214,18 @@ func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 
 	co.NewFlag(cmdr.OptFlagTypeFloat64).
 		Titles("t9", "retry9").
+		Description("", "").
+		Group("").
+		DefaultValue(3.14159265358979323846264338327950288419716939937510582097494459230781640628620899, "PI")
+
+	co.NewFlag(cmdr.OptFlagTypeComplex64).
+		Titles("t10", "retry10").
+		Description("", "").
+		Group("").
+		DefaultValue(3.14, "PI")
+
+	co.NewFlag(cmdr.OptFlagTypeComplex128).
+		Titles("t11", "retry11").
 		Description("", "").
 		Group("").
 		DefaultValue(3.14159265358979323846264338327950288419716939937510582097494459230781640628620899, "PI")
@@ -342,6 +356,16 @@ func createRoot() (rootOpt *cmdr.RootCmdOpt) {
 		Description("", "").
 		Group("").
 		Placeholder("PI")
+
+	co.NewFlagV(complex64(3.14+9i)).
+		Titles("t10", "retry10").
+		Description("", "").
+		Group("")
+
+	co.NewFlagV(complex128(3.14+9i)).
+		Titles("t11", "retry11").
+		Description("", "").
+		Group("")
 
 	co.NewFlagV(1).
 		Titles("h", "head").

@@ -6,6 +6,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/hedzr/cmdr"
 	"io/ioutil"
 	"log"
 	"os"
@@ -16,8 +17,28 @@ import (
 func Stop(appName string, ctx *Context) {
 	present, process := FindDaemonProcess(ctx)
 	if present {
-		log.Printf("sending SIGTERM to pid %v", process.Pid)
-		if err := sigSendTERM(process); err != nil {
+		const prefix = "server.stop"
+		var err error
+		switch {
+		case cmdr.GetBoolRP(prefix, "hup"):
+			log.Printf("sending SIGHUP to pid %v", process.Pid)
+			err = sigSendHUP(process)
+		case cmdr.GetBoolRP(prefix, "quit"):
+			log.Printf("sending SIGQUIT to pid %v", process.Pid)
+			err = sigSendQUIT(process)
+		case cmdr.GetBoolRP(prefix, "kill"):
+			log.Printf("sending SIGKILL to pid %v", process.Pid)
+			err = sigSendKILL(process)
+		case cmdr.GetBoolRP(prefix, "usr2"):
+			log.Printf("sending SIGUSR2 to pid %v", process.Pid)
+			err = sigSendUSR2(process)
+		case cmdr.GetBoolRP(prefix, "term"):
+			fallthrough
+		default:
+			log.Printf("sending SIGTERM to pid %v", process.Pid)
+			err = sigSendTERM(process)
+		}
+		if err != nil {
 			log.Fatal(err)
 			return
 		}
@@ -59,7 +80,7 @@ func HotReload(appName string, ctx *Context) {
 func FindDaemonProcess(ctx *Context) (present bool, process *os.Process) {
 	if IsPidFileExists(ctx) {
 		s, _ := ioutil.ReadFile(ctx.PidFileName)
-		pid, err := strconv.ParseInt(string(s), 10, 64)
+		pid, err := strconv.ParseInt(string(s), 0, 64)
 		if err != nil {
 			log.Fatal(err)
 		}

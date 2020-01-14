@@ -73,7 +73,7 @@ func isDemonized() bool {
 }
 
 func pidExists(pid int) (bool, error) {
-	// pid, err := strconv.ParseInt(p, 10, 64)
+	// pid, err := strconv.ParseInt(p, 0, 64)
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }

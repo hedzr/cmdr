@@ -5,7 +5,9 @@ package cmdr
 import (
 	"bytes"
 	"fmt"
-	"github.com/hedzr/errors"
+	"gopkg.in/hedzr/errors.v2"
+	"io"
+	"reflect"
 )
 
 var (
@@ -23,14 +25,23 @@ type ErrorForCmdr struct {
 	// Inner     error
 	// Msg       string
 	Ignorable bool
-	errors.ExtErr
+	causer    error
+	msg       string
+	livedArgs []interface{}
 }
 
 // newError formats a ErrorForCmdr object
-func newError(ignorable bool, sourceTemplate *ErrorForCmdr, args ...interface{}) *ErrorForCmdr {
-	// log.Printf("--- newError: sourceTemplate args: %v", args)
-	e := sourceTemplate.Format(args...)
-	e.Ignorable = ignorable
+func newError(ignorable bool, srcTemplate error, livedArgs ...interface{}) error {
+	// log.Printf("--- newError: sourceTemplate args: %v", livedArgs)
+	var e error
+	switch v := srcTemplate.(type) {
+	case *ErrorForCmdr:
+		e = v.FormatNew(ignorable, livedArgs...)
+	case *errors.WithStackInfo:
+		if ex, ok := v.Cause().(*ErrorForCmdr); ok {
+			e = ex.FormatNew(ignorable, livedArgs...)
+		}
+	}
 	return e
 	// if len(args) > 0 {
 	// 	return &ErrorForCmdr{Inner: nil, Ignorable: ignorable, Msg: fmt.Sprintf(inner.Error(), args...)}
@@ -39,7 +50,7 @@ func newError(ignorable bool, sourceTemplate *ErrorForCmdr, args ...interface{})
 }
 
 // newErrorWithMsg formats a ErrorForCmdr object
-func newErrorWithMsg(msg string, inners ...error) *ErrorForCmdr {
+func newErrorWithMsg(msg string, inners ...error) error {
 	return newErr(msg).Attach(inners...)
 	// return &ErrorForCmdr{Inner: inner, Ignorable: false, Msg: msg}
 }
@@ -51,57 +62,113 @@ func newErrorWithMsg(msg string, inners ...error) *ErrorForCmdr {
 // 	return s.Msg
 // }
 
-func newErr(msg string, args ...interface{}) *ErrorForCmdr {
-	return &ErrorForCmdr{ExtErr: *errors.New(msg, args...)}
+func newErr(msg string, args ...interface{}) *errors.WithStackInfo {
+	// return &ErrorForCmdr{ExtErr: *errors.New(msg, args...)}
+	return withIgnorable(false, nil, msg, args...).(*errors.WithStackInfo)
 }
 
-func newErrTmpl(tmpl string) *ErrorForCmdr {
-	return &ErrorForCmdr{ExtErr: *errors.NewTemplate(tmpl)}
+func newErrTmpl(tmpl string) *errors.WithStackInfo {
+	return withIgnorable(false, nil, tmpl).(*errors.WithStackInfo)
 }
 
-func (e *ErrorForCmdr) Error() string {
+// withIgnorable formats a wrapped error object with error code.
+func withIgnorable(ignorable bool, err error, message string, args ...interface{}) error {
+	if len(args) > 0 {
+		message = fmt.Sprintf(message, args...)
+	}
+	err = &ErrorForCmdr{
+		Ignorable: ignorable,
+		causer:    err,
+		msg:       message,
+	}
+	n := errors.WithStack(io.EOF).(*errors.WithStackInfo)
+	return n.SetCause(err)
+}
+
+func (w *ErrorForCmdr) Error() string {
 	var buf bytes.Buffer
-	buf.WriteString(fmt.Sprintf("%v|%s", e.Ignorable, e.ExtErr.Error()))
+	buf.WriteString(fmt.Sprint(w.Ignorable))
+	if len(w.msg) > 0 {
+		buf.WriteRune('|')
+		buf.WriteString(w.msg)
+	}
+	if w.causer != nil {
+		buf.WriteRune('|')
+		buf.WriteString(w.causer.Error())
+	}
 	return buf.String()
 }
 
-// Template setup a string format template.
-// Coder could compile the error object with formatting args later.
-//
-// Note that `ExtErr.Template()` had been overrided here
-func (e *ErrorForCmdr) Template(tmpl string) *ErrorForCmdr {
-	_ = e.ExtErr.Template(tmpl)
-	return e
+func (w *ErrorForCmdr) FormatNew(ignorable bool, livedArgs ...interface{}) *errors.WithStackInfo {
+	x := withIgnorable(ignorable, w.causer, w.msg).(*errors.WithStackInfo)
+	x.Cause().(*ErrorForCmdr).livedArgs = livedArgs
+	return x
 }
 
-// Format compiles the final msg with string template and args
-//
-// Note that `ExtErr.Template()` had been overridden here
-func (e *ErrorForCmdr) Format(args ...interface{}) *ErrorForCmdr {
-	_ = e.ExtErr.Format(args...)
-	return e
+func (w *ErrorForCmdr) Attach(errs ...error) {
+	for _, err := range errs {
+		w.causer = err
+	}
 }
 
-// Msg encodes a formattable msg with args into ErrorForCmdr
-//
-// Note that `ExtErr.Template()` had been overridden here
-func (e *ErrorForCmdr) Msg(msg string, args ...interface{}) *ErrorForCmdr {
-	_ = e.ExtErr.Msg(msg, args...)
-	return e
+func (w *ErrorForCmdr) Cause() error {
+	return w.causer
 }
 
-// Attach attaches the nested errors into ErrorForCmdr
-//
-// Note that `ExtErr.Template()` had been overridden here
-func (e *ErrorForCmdr) Attach(errors ...error) *ErrorForCmdr {
-	_ = e.ExtErr.Attach(errors...)
-	return e
+func (w *ErrorForCmdr) Unwrap() error {
+	return w.causer
 }
 
-// Nest attaches the nested errors into ErrorForCmdr
-//
-// Note that `ExtErr.Template()` had been overridden here
-func (e *ErrorForCmdr) Nest(errors ...error) *ErrorForCmdr {
-	_ = e.ExtErr.Nest(errors...)
-	return e
+// As finds the first error in err's chain that matches target, and if so, sets
+// target to that error value and returns true.
+func (w *ErrorForCmdr) As(target interface{}) bool {
+	if target == nil {
+		panic("errors: target cannot be nil")
+	}
+	val := reflect.ValueOf(target)
+	typ := val.Type()
+	if typ.Kind() != reflect.Ptr || val.IsNil() {
+		panic("errors: target must be a non-nil pointer")
+	}
+	if e := typ.Elem(); e.Kind() != reflect.Interface && !e.Implements(errorType) {
+		panic("errors: *target must be interface or implement error")
+	}
+	targetType := typ.Elem()
+	err := w.causer
+	for err != nil {
+		if reflect.TypeOf(err).AssignableTo(targetType) {
+			val.Elem().Set(reflect.ValueOf(err))
+			return true
+		}
+		if x, ok := err.(interface{ As(interface{}) bool }); ok && x.As(target) {
+			return true
+		}
+		err = errors.Unwrap(err)
+	}
+	return false
 }
+
+// Is reports whether any error in err's chain matches target.
+func (w *ErrorForCmdr) Is(target error) bool {
+	if target == nil {
+		return w.causer == target
+	}
+
+	isComparable := reflect.TypeOf(target).Comparable()
+	for {
+		if isComparable && w.causer == target {
+			return true
+		}
+		if x, ok := w.causer.(interface{ Is(error) bool }); ok && x.Is(target) {
+			return true
+		}
+		// TODO: consider supporing target.Is(err). This would allow
+		// user-definable predicates, but also may allow for coping with sloppy
+		// APIs, thereby making it easier to get away with them.
+		if err := errors.Unwrap(w.causer); err == nil {
+			return false
+		}
+	}
+}
+
+var errorType = reflect.TypeOf((*error)(nil)).Elem()

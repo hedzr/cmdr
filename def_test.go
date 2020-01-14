@@ -8,9 +8,9 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/hedzr/cmdr"
-	"github.com/hedzr/errors"
 	"github.com/hedzr/logex"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/hedzr/errors.v2"
 	"os"
 	"strings"
 	"testing"
@@ -95,8 +95,11 @@ More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-
 	cmdr.ResetOptions()
 	_ = cmdr.ExecWith(rootCmdForTesting, nil, nil)
 
+	cmdr.AsYaml()
 	_ = cmdr.SaveAsYaml(".tmp.1.yaml")
+	cmdr.AsJSON()
 	_ = cmdr.SaveAsJSON(".tmp.1.json")
+	cmdr.AsToml()
 	if err = cmdr.SaveAsToml(".tmp.1.toml"); err != nil {
 		// t.Fatal("dump toml failed", err)
 	}
@@ -523,7 +526,7 @@ func TestGetSectionFrom(t *testing.T) {
 	resetFlagsAndLog(t)
 }
 
-func TestTightFlag(t *testing.T) {
+func TestCompactFlag(t *testing.T) {
 	copyRootCmd = rootCmdForTesting
 	var commands = []string{
 		"consul-tags -? -vD kv backup --prefix'' --help ~~debug",
@@ -719,6 +722,20 @@ var (
 			fmt.Println("consul-tags kv b ~ -------- no errors")
 			return nil
 		},
+		"consul-tags -ff 3.14159": func(t *testing.T) error {
+			if cmdr.GetFloat64("app.float") != 3.14159 {
+				return errors.New("something wrong float. |expected %v|got %v|", 3.14159, cmdr.GetFloat64("app.float"))
+			}
+			fmt.Println("consul-tags kv b ~ -------- no errors")
+			return nil
+		},
+		// "consul-tags -cc 3.14159-2.56i": func(t *testing.T) error {
+		// 	if cmdr.GetComplex128("app.complex") != 3.14159-2.56i {
+		// 		return errors.New("something wrong complex. |expected %v|got %v|", 3.14159-2.56i, cmdr.GetComplex128("app.complex"))
+		// 	}
+		// 	fmt.Println("consul-tags kv b ~ -------- no errors")
+		// 	return nil
+		// },
 		"consul-tags kv unknown": func(t *testing.T) error {
 			return nil
 		},
@@ -835,6 +852,29 @@ var (
 					},
 					DefaultValue: uint(1),
 				},
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Short:       "ff",
+						Full:        "float",
+						Description: "",
+					},
+					DefaultValue: float64(0),
+				},
+				// "consul-tags -cc 3.14159-2.56i": func(t *testing.T) error {
+				// 	if cmdr.GetComplex128("app.complex") != 3.14159-2.56i {
+				// 		return errors.New("something wrong complex. |expected %v|got %v|", 3.14159-2.56i, cmdr.GetComplex128("app.complex"))
+				// 	}
+				// 	fmt.Println("consul-tags kv b ~ -------- no errors")
+				// 	return nil
+				// },
+				// {
+				// 	BaseOpt: cmdr.BaseOpt{
+				// 		Short:       "cc",
+				// 		Full:        "complex",
+				// 		Description: "",
+				// 	},
+				// 	DefaultValue: complex128(0),
+				// },
 				{
 					BaseOpt: cmdr.BaseOpt{
 						Short:       "pp",

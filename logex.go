@@ -6,6 +6,7 @@ import (
 	"github.com/hedzr/logex"
 	"github.com/hedzr/logex/formatter"
 	"github.com/sirupsen/logrus"
+	"os"
 	"strings"
 )
 
@@ -44,7 +45,6 @@ func WithLogexPrefix(prefix string) ExecOption {
 
 func (w *ExecWorker) getWithLogexInitializor(lvl logrus.Level, opts ...logex.LogexOption) func(cmd *Command, args []string) (err error) {
 	return func(cmd *Command, args []string) (err error) {
-		logex.EnableWith(lvl, opts...)
 
 		if len(w.logexPrefix) == 0 {
 			w.logexPrefix = "logger"
@@ -54,6 +54,21 @@ func (w *ExecWorker) getWithLogexInitializor(lvl logrus.Level, opts ...logex.Log
 		var lvlStr = GetStringRP(w.logexPrefix, "level", lvl.String())
 		var target = GetStringRP(w.logexPrefix, "target")
 		var format = GetStringRP(w.logexPrefix, "format")
+
+		l := stringToLevel(lvlStr)
+		
+		if InDebugging() || GetDebugMode() {
+			if l < logrus.DebugLevel {
+				l = logrus.DebugLevel
+			}
+		}
+		if GetBoolR("trace") || GetBool("trace") || toBool(os.Getenv("TRACE")) {
+			if l < logrus.TraceLevel {
+				l = logrus.TraceLevel
+			}
+		}
+		
+		logex.EnableWith(l, opts...)
 
 		if len(target) == 0 {
 			target = "default"
@@ -72,11 +87,11 @@ func (w *ExecWorker) getWithLogexInitializor(lvl logrus.Level, opts ...logex.Log
 		}
 
 		// 	can_use_log_file, journal_mode := ij(target, foreground)
-		l := stringToLevel(lvlStr)
+		// l := stringToLevel(lvlStr)
 		// 	if cli_common.Debug && l < logrus.DebugLevel {
 		// 		l = logrus.DebugLevel
 		// 	}
-		logrus.SetLevel(l)
+		// logrus.SetLevel(l)
 		logrus.Tracef("Using logger: format=%v, lvl=%v/%v, target=%v", format, lvlStr, l, target)
 
 		return

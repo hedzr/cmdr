@@ -99,22 +99,38 @@ func (w *ErrorForCmdr) Error() string {
 	return buf.String()
 }
 
+// FormatNew creates a new error object based on this error template 'w'.
+//
+// Example:
+//
+// 	   errTmpl1001 := BUG1001.NewTemplate("something is wrong %v")
+// 	   err4 := errTmpl1001.FormatNew("ok").Attach(errBug1)
+// 	   fmt.Println(err4)
+// 	   fmt.Printf("%+v\n", err4)
+//
 func (w *ErrorForCmdr) FormatNew(ignorable bool, livedArgs ...interface{}) *errors.WithStackInfo {
 	x := withIgnorable(ignorable, w.causer, w.msg).(*errors.WithStackInfo)
 	x.Cause().(*ErrorForCmdr).livedArgs = livedArgs
 	return x
 }
 
+// Attach appends errs.
+// For ErrorForCmdr, only one last error will be kept.
 func (w *ErrorForCmdr) Attach(errs ...error) {
 	for _, err := range errs {
 		w.causer = err
 	}
 }
 
+// Cause returns the underlying cause of the error recursively,
+// if possible.
 func (w *ErrorForCmdr) Cause() error {
 	return w.causer
 }
 
+// Unwrap returns the result of calling the Unwrap method on err, if err's
+// type contains an Unwrap method returning error.
+// Otherwise, Unwrap returns nil.
 func (w *ErrorForCmdr) Unwrap() error {
 	return w.causer
 }

@@ -9,6 +9,13 @@ import (
 	"strings"
 )
 
+// AppendPostActions adds the global post-action to cmdr system
+func (c *RootCommand) AppendPostActions(fns ...func(cmd *Command, args []string)) {
+	for _, fn := range fns {
+		c.PostActions = append(c.PostActions, fn)
+	}
+}
+
 // PrintHelp prints help screen
 func (c *Command) PrintHelp(justFlags bool) {
 	internalGetWorker().printHelp(c, justFlags)

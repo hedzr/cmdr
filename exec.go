@@ -366,11 +366,20 @@ func (w *ExecWorker) ainvk(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command,
 			return
 		}
 
-		// if err = w.beforeInvokeCommand(rootCmd, goCommand, args); err == ErrShouldBeStopException {
-		// 	return nil
+		// // if err = w.beforeInvokeCommand(rootCmd, goCommand, args); err == ErrShouldBeStopException {
+		// // 	return nil
+		// // }
+		// if rootCmd.PostAction != nil {
+		// 	defer rootCmd.PostAction(goCommand, args)
 		// }
-		if rootCmd.PostAction != nil {
-			defer rootCmd.PostAction(goCommand, args)
+
+		ta := append(rootCmd.PostActions, rootCmd.PostAction)
+		if len(ta) > 0 {
+			defer func() {
+				for _, fn := range ta {
+					fn(goCommand, args)
+				}
+			}()
 		}
 
 		if w.logexInitialFunctor != nil {

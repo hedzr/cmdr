@@ -97,6 +97,8 @@ type (
 		Author    string
 		Header    string // using `Header` for header and ignore built with `Copyright` and `Author`, and no usage lines too.
 
+		PostActions []func(cmd *Command, args []string)
+
 		ow   *bufio.Writer
 		oerr *bufio.Writer
 	}

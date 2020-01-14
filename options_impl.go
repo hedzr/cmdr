@@ -146,7 +146,12 @@ func (s *Options) getMap(vp map[string]interface{}, key string, remains ...strin
 
 // GetBoolEx returns the bool value of an `Option` key.
 func (s *Options) GetBoolEx(key string, defaultVal ...bool) (ret bool) {
-	switch strings.ToLower(s.GetString(key, "")) {
+	ret = toBool(s.GetString(key, ""), defaultVal...)
+	return
+}
+
+func toBool(val string, defaultVal ...bool) (ret bool) {
+	switch strings.ToLower(val) {
 	case "1", "y", "t", "yes", "true", "ok", "on":
 		ret = true
 	case "":

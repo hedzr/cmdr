@@ -75,7 +75,7 @@ type (
 		Short(short string) (opt OptCmd)
 		Long(long string) (opt OptCmd)
 		Aliases(ss ...string) (opt OptCmd)
-		Description(oneLine, long string) (opt OptCmd)
+		Description(oneLine string, long ...string) (opt OptCmd)
 		Examples(examples string) (opt OptCmd)
 		Group(group string) (opt OptCmd)
 		Hidden(hidden bool) (opt OptCmd)
@@ -99,8 +99,11 @@ type (
 		// Deprecated since v1.6.9, replace it with FlagV(defaultValue)
 		NewFlag(typ OptFlagType) (opt OptFlag)
 		// NewFlagV create a new flag object and return it for further operations.
-		NewFlagV(defaultValue interface{}) (opt OptFlag)
-		NewSubCommand() (opt OptCmd)
+		// the titles in arguments MUST be: longTitle, [shortTitle, [aliasTitles...]]
+		NewFlagV(defaultValue interface{}, titles ...string) (opt OptFlag)
+		// NewSubCommand make a new sub-command optcmd object with optional titles.
+		// the titles in arguments MUST be: longTitle, [shortTitle, [aliasTitles...]]
+		NewSubCommand(titles ...string) (opt OptCmd)
 
 		OwnerCommand() (opt OptCmd)
 		SetOwner(opt OptCmd)

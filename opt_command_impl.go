@@ -78,9 +78,11 @@ func (s *optCommandImpl) Aliases(aliases ...string) (opt OptCmd) {
 	return
 }
 
-func (s *optCommandImpl) Description(oneLine, long string) (opt OptCmd) {
+func (s *optCommandImpl) Description(oneLine string, long ...string) (opt OptCmd) {
 	s.working.Description = oneLine
-	s.working.LongDescription = long
+	for _, l := range long {
+		s.working.LongDescription = l
+	}
 	opt = s
 	return
 }
@@ -293,7 +295,7 @@ func (s *optCommandImpl) newFlagVC(vv reflect.Type, defaultValue interface{}) (f
 	return
 }
 
-func (s *optCommandImpl) NewFlagV(defaultValue interface{}) (opt OptFlag) {
+func (s *optCommandImpl) NewFlagV(defaultValue interface{}, titles ...string) (opt OptFlag) {
 	var flg OptFlag
 	var vv = reflect.TypeOf(defaultValue)
 	flg = s.newFlagVC(vv, defaultValue)
@@ -302,10 +304,20 @@ func (s *optCommandImpl) NewFlagV(defaultValue interface{}) (opt OptFlag) {
 		flg.SetOwner(s)
 	}
 	opt = flg
+
+	if opt != nil && len(titles) > 0 {
+		opt.Long(titles[0])
+		if len(titles) > 1 {
+			opt.Short(titles[1])
+			if len(titles) > 2 {
+				opt.Aliases(titles[2:]...)
+			}
+		}
+	}
 	return
 }
 
-func (s *optCommandImpl) NewSubCommand() (opt OptCmd) {
+func (s *optCommandImpl) NewSubCommand(titles ...string) (opt OptCmd) {
 	cmd := &Command{root: internalGetWorker().rootCommand}
 
 	optCtx.current = cmd
@@ -313,6 +325,16 @@ func (s *optCommandImpl) NewSubCommand() (opt OptCmd) {
 	s.working.SubCommands = uniAddCmd(s.working.SubCommands, cmd)
 
 	opt = &subCmdOpt{optCommandImpl: optCommandImpl{working: cmd, parent: s}}
+
+	if len(titles) > 0 {
+		opt.Long(titles[0])
+		if len(titles) > 1 {
+			opt.Short(titles[1])
+			if len(titles) > 2 {
+				opt.Aliases(titles[2:]...)
+			}
+		}
+	}
 	return
 }
 

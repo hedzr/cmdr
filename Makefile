@@ -14,10 +14,10 @@ VERSION=$(shell grep -E "Version[ \t]+=[ \t]+" doc.go|grep -Eo "[0-9.]+")
 GOBASE = $(shell pwd)
 ##GOPATH="$(GOBASE)/vendor:$(GOBASE)"
 ##GOPATH=$(GOBASE)/vendor:$(GOBASE):$(shell dirname $(GOBASE))
-#GOPATH2= $(shell dirname $(GOBASE))
-#GOPATH1= $(shell dirname $(GOPATH2))
-#GOPATH0= $(shell dirname $(GOPATH1))
-#GOPATH = $(shell dirname $(GOPATH0))
+GOPATH2= $(shell dirname $(GOBASE))
+GOPATH1= $(shell dirname $(GOPATH2))
+GOPATH0= $(shell dirname $(GOPATH1))
+GOPATH_= $(shell dirname $(GOPATH0))
 GOBIN  = $(GOBASE)/bin
 GOFILES= $(wildcard *.go)
 BIN    = $(GOPATH)/bin
@@ -260,12 +260,20 @@ $(BASE):
 godoc: | $(GOBASE) $(BIN)/godoc
 	@echo "  >  PWD = $(shell pwd)"
 	@echo "  >  started godoc server at :6060: http://localhost:6060/pkg/github.com/hedzr/$(PROJECTNAME1) ..."
-	@echo "  $  GOPATH=$(GOPATH) godoc -http=:6060 -index -notes '(BUG|TODO|DONE|Deprecated)' -play -timestamps"
-	@GOPATH=$(GOPATH) \
-	$(BIN)/godoc -http=:6060 -notes '(BUG|TODO|DONE)' -play -timestamps
-	# -goroot $(GOPATH) -index
+	@echo "  $  cd $(GOPATH_) godoc -http=:6060 -index -notes '(BUG|TODO|DONE|Deprecated)' -play -timestamps"
+	( cd $(GOPATH_) && pwd && godoc -v -index -http=:6060 -notes '(BUG|TODO|DONE|Deprecated)' -play -timestamps -goroot .; )
 	# https://medium.com/@elliotchance/godoc-tips-tricks-cda6571549b
 
+
+## godoc1: run godoc server at "localhost;6060"
+godoc1: # | $(GOBASE) $(BIN)/godoc
+	@echo "  >  PWD = $(shell pwd)"
+	@echo "  >  started godoc server at :6060: http://localhost:6060/pkg/github.com/hedzr/$(PROJECTNAME1) ..."
+	#@echo "  $  GOPATH=$(GOPATH) godoc -http=:6060 -index -notes '(BUG|TODO|DONE|Deprecated)' -play -timestamps"
+	godoc -v -index -http=:6060 -notes '(BUG|TODO|DONE|Deprecated)' -play -timestamps # -goroot $(GOPATH) 
+	# gopkg.in/hedzr/errors.v2.New
+	# -goroot $(GOPATH) -index
+	# https://medium.com/@elliotchance/godoc-tips-tricks-cda6571549b
 
 ## fmt: =`format`, run gofmt tool
 fmt: format

@@ -49,6 +49,8 @@ $ {{.AppName}} stop
 					stop daemonized program.
 $ {{.AppName}} reload
 					send signal to trigger program reload its configurations.
+$ {{.AppName}} hot-reload
+					send signal to make program restart itself without broken any connections.
 $ {{.AppName}} status
 					display the daemonized program running status.
 $ {{.AppName}} install [--systemd]

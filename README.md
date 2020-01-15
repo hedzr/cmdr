@@ -56,6 +56,7 @@ import "github.com/hedzr/cmdr"
   - prototypes changed: `OptCmd.NewSubCommand` and `NewFlagV`, and `Description`
   - fixed logex level parsing.
   - ...
+  - [`cmdr-http2`](https://github.com/hedzr/cmdr-http2) updated with better structure and style.
 
 - v1.6.21
   - bugs fixed

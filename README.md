@@ -52,7 +52,7 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- v1.6.22 WIP
+- v1.6.22
   - added global post-actions chain: `RootCommand.AppendPostActions`
   - prototypes changed: `OptCmd.NewSubCommand` and `NewFlagV`, and `Description`
   - fixed logex level parsing.

@@ -93,7 +93,7 @@ func onSwitchCharHit(parsed *cmdr.Command, switchChar string, args []string) (er
 		fmt.Printf("the last parsed command is %q - %q\n", parsed.GetTitleNames(), parsed.Description)
 	}
 	fmt.Printf("SwitchChar FOUND: %v\nremains: %v\n\n", switchChar, args)
-	return nil // cmdr.ErrShouldBeStopException
+	return // cmdr.ErrShouldBeStopException
 }
 
 func onPasssThruCharHit(parsed *cmdr.Command, switchChar string, args []string) (err error) {
@@ -101,7 +101,7 @@ func onPasssThruCharHit(parsed *cmdr.Command, switchChar string, args []string) 
 		fmt.Printf("the last parsed command is %q - %q\n", parsed.GetTitleNames(), parsed.Description)
 	}
 	fmt.Printf("PassThrough flag FOUND: %v\nremains: %v\n\n", switchChar, args)
-	return nil // ErrShouldBeStopException
+	return // ErrShouldBeStopException
 }
 
 func onUnhandleErrorHandler(err interface{}) {
@@ -142,9 +142,8 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 
 	// soundex
 
-	root.NewSubCommand().
-		Titles("snd", "soundex", "sndx", "sound").
-		Description("", "soundex test").
+	root.NewSubCommand("soundex", "snd", "sndx", "sound").
+		Description("soundex test").
 		Group("Test").
 		TailPlaceholder("[text1, text2, ...]").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
@@ -156,26 +155,23 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 
 	// panic test
 
-	pa := root.NewSubCommand().
-		Titles("pa", "panic-test").
+	pa := root.NewSubCommand("panic-test", "pa").
 		Description("test panic inside cmdr actions", "").
 		Group("Test")
 
 	val := 9
 	zeroVal := zero
 
-	pa.NewSubCommand().
-		Titles("dz", "division-by-zero").
-		Description("", "").
+	pa.NewSubCommand("division-by-zero", "dz").
+		Description("").
 		Group("Test").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			fmt.Println(val / zeroVal)
 			return
 		})
 
-	pa.NewSubCommand().
-		Titles("pa", "panic").
-		Description("", "").
+	pa.NewSubCommand("panic", "pa").
+		Description("").
 		Group("Test").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			panic(9)
@@ -184,8 +180,7 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 
 	// kb-print
 
-	kb := root.NewSubCommand().
-		Titles("kb", "kb-print").
+	kb := root.NewSubCommand("kb-print", "kb").
 		Description("kilobytes test", "test kibibytes' input,\nverbose long descriptions here.").
 		Group("Test").
 		Examples(`
@@ -201,15 +196,13 @@ $ {{.AppName}} kb --size 1g
 			return
 		})
 
-	kb.NewFlagV("1k").
-		Titles("s", "size").
+	kb.NewFlagV("1k", "size", "s").
 		Description("max message size. Valid formats: 2k, 2kb, 2kB, 2KB. Suffixes: k, m, g, t, p, e.", "").
 		Group("")
 
 	// xy-print
 
-	root.NewSubCommand().
-		Titles("xy", "xy-print").
+	root.NewSubCommand("xy-print", "xy").
 		Description("test terminal control sequences", "test terminal control sequences,\nverbose long descriptions here.").
 		Group("Test").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
@@ -230,8 +223,7 @@ $ {{.AppName}} kb --size 1g
 
 	// mx-test
 
-	mx := root.NewSubCommand().
-		Titles("mx", "mx-test").
+	mx := root.NewSubCommand("mx-test", "mx").
 		Description("test new features", "test new features,\nverbose long descriptions here.").
 		Group("Test").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
@@ -270,7 +262,7 @@ $ {{.AppName}} kb --size 1g
 				var data []byte
 				data, err = ioutil.ReadAll(os.Stdin)
 				if err != nil {
-					log.Println("error: %v", err)
+					log.Printf("error: %+v", err)
 					return
 				}
 				fmt.Println("> The input contents are:")
@@ -279,102 +271,84 @@ $ {{.AppName}} kb --size 1g
 			}
 			return
 		})
-	mx.NewFlagV("").
-		Titles("t", "test").
+	mx.NewFlagV("", "test", "t").
 		Description("the test text.", "").
 		EnvKeys("COOLT", "TEST").
 		Group("")
-	mx.NewFlagV("").
-		Titles("pp", "password").
+	mx.NewFlagV("", "password", "pp").
 		Description("the password requesting.", "").
 		Group("").
 		Placeholder("PASSWORD").
 		ExternalTool(cmdr.ExternalToolPasswordInput)
-	mx.NewFlagV("").
-		Titles("m", "message", "msg").
+	mx.NewFlagV("", "message", "m", "msg").
 		Description("the message requesting.", "").
 		Group("").
 		Placeholder("MESG").
 		ExternalTool(cmdr.ExternalToolEditor)
-	mx.NewFlagV("").
-		Titles("fr", "fruit").
+	mx.NewFlagV("", "fruit", "fr").
 		Description("the message.", "").
 		Group("").
 		Placeholder("FRUIT").
 		ValidArgs("apple", "banana", "orange")
-	mx.NewFlagV(1).
-		Titles("hd", "head").
+	mx.NewFlagV(1, "head", "hd").
 		Description("the head lines.", "").
 		Group("").
 		Placeholder("LINES").
 		HeadLike(true, 1, 3000)
-	mx.NewFlagV(false).
-		Titles("c", "stdin").
+	mx.NewFlagV(false, "stdin", "c").
 		Description("read file content from stdin.", "").
 		Group("")
 
 	// kv
 
-	kvCmd := root.NewSubCommand().
-		Titles("kv", "kvstore").
+	kvCmd := root.NewSubCommand("kvstore", "kv").
 		Description("consul kv store operations...", ``)
 
 	attachConsulConnectFlags(kvCmd)
 
-	kvBackupCmd := kvCmd.NewSubCommand().
-		Titles("b", "backup", "bk", "bf", "bkp").
+	kvBackupCmd := kvCmd.NewSubCommand("backup", "b", "bf", "bkp").
 		Description("Dump Consul's KV database to a JSON/YAML file", ``).
 		Action(kvBackup)
-	kvBackupCmd.NewFlag(cmdr.OptFlagTypeString).
-		Titles("o", "output").
+	kvBackupCmd.NewFlagV("consul-backup.json", "output", "o").
 		Description("Write output to a file (*.json / *.yml)", ``).
-		DefaultValue("consul-backup.json", "FILE")
+		Placeholder("FILE")
 
-	kvRestoreCmd := kvCmd.NewSubCommand().
-		Titles("r", "restore").
+	kvRestoreCmd := kvCmd.NewSubCommand("restore", "r").
 		Description("restore to Consul's KV store, from a a JSON/YAML backup file", ``).
 		Action(kvRestore)
-	kvRestoreCmd.NewFlag(cmdr.OptFlagTypeString).
-		Titles("i", "input").
+	kvRestoreCmd.NewFlagV("consul-backup.json", "input", "i").
 		Description("Read the input file (*.json / *.yml)", ``).
-		DefaultValue("consul-backup.json", "FILE")
+		Placeholder("FILE")
 
 	// ms
 
-	msCmd := root.NewSubCommand().
-		Titles("ms", "micro-service", "microservice").
+	msCmd := root.NewSubCommand("micro-service", "ms", "microservice").
 		Description("micro-service operations...", "").
 		Group("")
 
-	msCmd.NewFlag(cmdr.OptFlagTypeBool).
-		Titles("mm", "money").
+	msCmd.NewFlagV(false, "money", "mm").
 		Description("A placeholder flag.", "").
 		Group("").
-		DefaultValue(false, "")
+		Placeholder("")
 
-	msCmd.NewFlag(cmdr.OptFlagTypeString).
-		Titles("n", "name").
+	msCmd.NewFlagV("", "name", "n").
 		Description("name of the service", ``).
-		DefaultValue("", "NAME")
-	msCmd.NewFlag(cmdr.OptFlagTypeString).
-		Titles("i", "id", "ID").
+		Placeholder("NAME")
+	msCmd.NewFlagV("", "id", "i", "ID").
 		Description("unique id of the service", ``).
-		DefaultValue("", "ID")
-	msCmd.NewFlag(cmdr.OptFlagTypeBool).
-		Titles("a", "all").
+		Placeholder("ID")
+	msCmd.NewFlagV(false, "all", "a").
 		Description("all services", ``).
-		DefaultValue(false, "")
+		Placeholder("")
 
-	msCmd.NewFlag(cmdr.OptFlagTypeUint).
-		Titles("t", "retry").
+	msCmd.NewFlagV(3, "retry", "t").
 		Description("", "").
 		Group("").
-		DefaultValue(3, "RETRY")
+		Placeholder("RETRY")
 
 	// ms ls
 
-	msCmd.NewSubCommand().
-		Titles("ls", "list", "l", "lst", "dir").
+	msCmd.NewSubCommand("list", "ls", "l", "lst", "dir").
 		Description("list tags", "").
 		Group("2333.List").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
@@ -383,8 +357,7 @@ $ {{.AppName}} kb --size 1g
 
 	// ms tags
 
-	msTagsCmd := msCmd.NewSubCommand().
-		Titles("t", "tags").
+	msTagsCmd := msCmd.NewSubCommand("tags", "t").
 		Description("tags operations of a micro-service", "").
 		Group("")
 
@@ -410,9 +383,8 @@ $ {{.AppName}} kb --size 1g
 
 	// ms tags ls
 
-	msTagsCmd.NewSubCommand().
-		Titles("ls", "list", "l", "lst", "dir").
-		Description("list tags", "").
+	msTagsCmd.NewSubCommand("list", "ls", "l", "lst", "dir").
+		Description("list tags").
 		Group("2333.List").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			return
@@ -420,76 +392,65 @@ $ {{.AppName}} kb --size 1g
 
 	// ms tags add
 
-	tagsAdd := msTagsCmd.NewSubCommand().
-		Titles("a", "add", "new", "create").
-		Description("add tags", "").
+	tagsAdd := msTagsCmd.NewSubCommand("add", "a", "new", "create").
+		Description("add tags").
 		Deprecated("0.2.1").
 		Group("").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			return
 		})
 
-	tagsAdd.NewFlag(cmdr.OptFlagTypeStringSlice).
-		Titles("ls", "list", "l", "lst", "dir").
-		Description("a comma list to be added", "").
+	tagsAdd.NewFlagV([]string{}, "list", "ls", "l", "lst", "dir").
+		Description("a comma list to be added").
 		Group("").
-		DefaultValue([]string{}, "LIST")
+		Placeholder("LIST")
 
-	c1 := tagsAdd.NewSubCommand().
-		Titles("c", "check", "chk").
-		Description("[sub] check", "").
+	c1 := tagsAdd.NewSubCommand("check", "c", "chk").
+		Description("[sub] check").
 		Group("").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			return
 		})
 
-	c2 := c1.NewSubCommand().
-		Titles("pt", "check-point", "chk-pt").
-		Description("[sub][sub] checkpoint", "").
+	c2 := c1.NewSubCommand("check-point", "pt", "chk-pt").
+		Description("[sub][sub] checkpoint").
 		Group("").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			return
 		})
 
-	c2.NewFlag(cmdr.OptFlagTypeStringSlice).
-		Titles("a", "add", "add-list").
-		Description("a comma list to be added.", ``).
-		DefaultValue([]string{}, "LIST").
+	c2.NewFlagV([]string{}, "add", "a", "add-list").
+		Description("a comma list to be added.").
+		Placeholder("LIST").
 		Group("List")
-	c2.NewFlag(cmdr.OptFlagTypeStringSlice).
-		Titles("r", "remove", "rm-list", "rm", "del", "delete").
+	c2.NewFlagV([]string{}, "remove", "r", "rm-list", "rm", "del", "delete").
 		Description("a comma list to be removed.", ``).
-		DefaultValue([]string{}, "LIST").
+		Placeholder("LIST").
 		Group("List")
 
-	c3 := c1.NewSubCommand().
-		Titles("in", "check-in", "chk-in").
-		Description("[sub][sub] check-in", "").
+	c3 := c1.NewSubCommand("check-in", "in", "chk-in").
+		Description("[sub][sub] check-in").
 		Group("")
 
 	c3.NewFlag(cmdr.OptFlagTypeString).
 		Titles("n", "name").
-		Description("a string to be added.", ``).
+		Description("a string to be added.").
 		DefaultValue("", "")
 
-	c3.NewSubCommand().
-		Titles("d1", "demo-1").
-		Description("[sub][sub] check-in sub", "").
+	c3.NewSubCommand("demo-1", "d1").
+		Description("[sub][sub] check-in sub").
 		Group("")
 
-	c3.NewSubCommand().
-		Titles("d2", "demo-2").
-		Description("[sub][sub] check-in sub", "").
+	c3.NewSubCommand("demo-2", "d2").
+		Description("[sub][sub] check-in sub").
 		Group("")
 
-	c3.NewSubCommand().
-		Titles("d3", "demo-3").
-		Description("[sub][sub] check-in sub", "").
+	c3.NewSubCommand("demo-3", "d3").
+		Description("[sub][sub] check-in sub").
 		Group("")
 
-	c1.NewSubCommand().
-		Titles("out", "check-out", "chk-out").
-		Description("[sub][sub] check-out", "").
+	c1.NewSubCommand("check-out", "out", "chk-out").
+		Description("[sub][sub] check-out").
 		Group("").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			return
@@ -497,45 +458,39 @@ $ {{.AppName}} kb --size 1g
 
 	// ms tags rm
 
-	tagsRm := msTagsCmd.NewSubCommand().
-		Titles("r", "rm", "remove", "delete", "del", "erase").
-		Description("remove tags", "").
+	tagsRm := msTagsCmd.NewSubCommand("rm", "r", "remove", "delete", "del", "erase").
+		Description("remove tags").
 		Group("").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			return
 		})
 
-	tagsRm.NewFlag(cmdr.OptFlagTypeStringSlice).
-		Titles("ls", "list", "l", "lst", "dir").
-		Description("a comma list to be added", "").
+	tagsRm.NewFlagV([]string{}, "list", "ls", "l", "lst", "dir").
+		Description("a comma list to be added").
 		Group("").
-		DefaultValue([]string{}, "LIST")
+		Placeholder("LIST")
 
 	// ms tags modify
 
-	msTagsModifyCmd := msTagsCmd.NewSubCommand().
-		Titles("m", "modify", "mod", "modi", "update", "change").
-		Description("modify tags of a service.", ``).
+	msTagsModifyCmd := msTagsCmd.NewSubCommand("modify", "m", "mod", "modi", "update", "change").
+		Description("modify tags of a service.").
 		Action(msTagsModify)
 
 	attachModifyFlags(msTagsModifyCmd)
 
-	msTagsModifyCmd.NewFlag(cmdr.OptFlagTypeStringSlice).
-		Titles("a", "add", "add-list").
-		Description("a comma list to be added.", ``).
-		DefaultValue([]string{}, "LIST").
+	msTagsModifyCmd.NewFlagV([]string{}, "add", "a", "add-list").
+		Description("a comma list to be added.").
+		Placeholder("LIST").
 		Group("List")
-	msTagsModifyCmd.NewFlag(cmdr.OptFlagTypeStringSlice).
-		Titles("r", "remove", "rm-list", "rm", "del", "delete").
-		Description("a comma list to be removed.", ``).
-		DefaultValue([]string{}, "LIST").
+	msTagsModifyCmd.NewFlagV([]string{}, "remove", "r", "rm-list", "rm", "del", "delete").
+		Description("a comma list to be removed.").
+		Placeholder("LIST").
 		Group("List")
 
 	// ms tags toggle
 
-	tagsTog := msTagsCmd.NewSubCommand().
-		Titles("t", "toggle", "tog", "switch").
-		Description("toggle tags", "").
+	tagsTog := msTagsCmd.NewSubCommand("toggle", "t", "tog", "switch").
+		Description("toggle tags").
 		Group("").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			return
@@ -543,115 +498,97 @@ $ {{.AppName}} kb --size 1g
 
 	attachModifyFlags(tagsTog)
 
-	tagsTog.NewFlag(cmdr.OptFlagTypeStringSlice).
-		Titles("s", "set").
-		Description("a comma list to be set", "").
+	tagsTog.NewFlagV([]string{}, "set", "s").
+		Description("a comma list to be set").
 		Group("").
-		DefaultValue([]string{}, "LIST")
+		Placeholder("LIST")
 
-	tagsTog.NewFlag(cmdr.OptFlagTypeStringSlice).
-		Titles("u", "unset", "un").
-		Description("a comma list to be unset", "").
+	tagsTog.NewFlagV([]string{}, "unset", "un").
+		Description("a comma list to be unset").
 		Group("").
-		DefaultValue([]string{}, "LIST")
+		Placeholder("LIST")
 
-	tagsTog.NewFlag(cmdr.OptFlagTypeStringSlice).
-		Titles("a", "address", "addr").
-		Description("the address of the service (by id or name)", ``).
-		DefaultValue("", "HOST:PORT")
+	tagsTog.NewFlagV("", "address", "a", "addr").
+		Description("the address of the service (by id or name)").
+		Placeholder("HOST:PORT")
 
 	return
 }
 
 func attachModifyFlags(cmd cmdr.OptCmd) {
-	cmd.NewFlag(cmdr.OptFlagTypeString).
-		Titles("d", "delim").
-		Description("delimitor char in `non-plain` mode.", ``).
-		DefaultValue("=", "")
+	cmd.NewFlagV("=", "delim", "d").
+		Description("delimitor char in `non-plain` mode.").
+		Placeholder("")
 
-	cmd.NewFlag(cmdr.OptFlagTypeBool).
-		Titles("c", "clear").
-		Description("clear all tags.", ``).
-		DefaultValue(false, "").
+	cmd.NewFlagV(false, "clear", "c").
+		Description("clear all tags.").
+		Placeholder("").
 		Group("Operate")
 
-	cmd.NewFlag(cmdr.OptFlagTypeBool).
-		Titles("g", "string", "string-mode").
-		Description("In 'String Mode', default will be disabled: default, a tag string will be split by comma(,), and treated as a string list.", ``).
-		DefaultValue(false, "").
+	cmd.NewFlagV(false, "string", "g", "string-mode").
+		Description("In 'String Mode', default will be disabled: default, a tag string will be split by comma(,), and treated as a string list.").
+		Placeholder("").
 		Group("Mode")
 
-	cmd.NewFlag(cmdr.OptFlagTypeBool).
-		Titles("m", "meta", "meta-mode").
-		Description("In 'Meta Mode', service 'NodeMeta' field will be updated instead of 'Tags'. (--plain assumed false).", ``).
-		DefaultValue(false, "").
+	cmd.NewFlagV(false, "meta", "m", "meta-mode").
+		Description("In 'Meta Mode', service 'NodeMeta' field will be updated instead of 'Tags'. (--plain assumed false).").
+		Placeholder("").
 		Group("Mode")
 
-	cmd.NewFlag(cmdr.OptFlagTypeBool).
-		Titles("2", "both", "both-mode").
-		Description("In 'Both Mode', both of 'NodeMeta' and 'Tags' field will be updated.", ``).
-		DefaultValue(false, "").
+	cmd.NewFlagV(false, "both", "2", "both-mode").
+		Description("In 'Both Mode', both of 'NodeMeta' and 'Tags' field will be updated.").
+		Placeholder("").
 		Group("Mode")
 
-	cmd.NewFlag(cmdr.OptFlagTypeBool).
-		Titles("p", "plain", "plain-mode").
-		Description("In 'Plain Mode', a tag be NOT treated as `key=value` or `key:value`, and modify with the `key`.", ``).
-		DefaultValue(false, "").
+	cmd.NewFlagV(false, "plain", "p", "plain-mode").
+		Description("In 'Plain Mode', a tag be NOT treated as `key=value` or `key:value`, and modify with the `key`.").
+		Placeholder("").
 		Group("Mode")
 
-	cmd.NewFlag(cmdr.OptFlagTypeBool).
-		Titles("t", "tag", "tag-mode").
-		Description("In 'Tag Mode', a tag be treated as `key=value` or `key:value`, and modify with the `key`.", ``).
-		DefaultValue(true, "").
+	cmd.NewFlagV(true, "tag", "t", "tag-mode").
+		Description("In 'Tag Mode', a tag be treated as `key=value` or `key:value`, and modify with the `key`.").
+		Placeholder("").
 		Group("Mode")
 
 }
 
 func attachConsulConnectFlags(cmd cmdr.OptCmd) {
-	cmd.NewFlag(cmdr.OptFlagTypeString).
-		Titles("a", "addr").
+
+	cmd.NewFlagV("localhost", "addr", "a").
 		Description("Consul ip/host and port: HOST[:PORT] (No leading 'http(s)://')", ``).
-		DefaultValue("localhost", "HOST[:PORT]").
+		Placeholder("HOST[:PORT]").
 		Group("Consul")
-	cmd.NewFlag(cmdr.OptFlagTypeInt).
-		Titles("p", "port").
+	cmd.NewFlagV(8500, "port", "p").
 		Description("Consul port", ``).
-		DefaultValue(8500, "PORT").
+		Placeholder("PORT").
 		Group("Consul")
-	cmd.NewFlag(cmdr.OptFlagTypeBool).
-		Titles("K", "insecure").
+	cmd.NewFlagV(true, "insecure", "K").
 		Description("Skip TLS host verification", ``).
-		DefaultValue(true, "").
+		Placeholder("").
 		Group("Consul")
-	cmd.NewFlag(cmdr.OptFlagTypeString).
-		Titles("px", "prefix").
+	cmd.NewFlagV("/", "prefix", "px").
 		Description("Root key prefix", ``).
-		DefaultValue("/", "ROOT").
+		Placeholder("ROOT").
 		Group("Consul")
-	cmd.NewFlag(cmdr.OptFlagTypeString).
-		Titles("", "cacert").
+	cmd.NewFlagV("", "cacert").
 		Description("Consul Client CA cert)", ``).
-		DefaultValue("", "FILE").
+		Placeholder("FILE").
 		Group("Consul")
-	cmd.NewFlag(cmdr.OptFlagTypeString).
-		Titles("", "cert").
+	cmd.NewFlagV("", "cert").
 		Description("Consul Client cert", ``).
-		DefaultValue("", "FILE").
+		Placeholder("FILE").
 		Group("Consul")
-	cmd.NewFlag(cmdr.OptFlagTypeString).
-		Titles("", "scheme").
+	cmd.NewFlagV("http", "scheme").
 		Description("Consul connection protocol", ``).
-		DefaultValue("http", "SCHEME").
+		Placeholder("SCHEME").
 		Group("Consul")
-	cmd.NewFlag(cmdr.OptFlagTypeString).
-		Titles("u", "username", "user", "usr", "uid").
+	cmd.NewFlagV("", "username", "u", "user", "usr", "uid").
 		Description("HTTP Basic auth user", ``).
-		DefaultValue("", "USERNAME").
+		Placeholder("USERNAME").
 		Group("Consul")
-	cmd.NewFlag(cmdr.OptFlagTypeString).
-		Titles("pw", "password", "passwd", "pass", "pwd").
+	cmd.NewFlagV("", "password", "pw", "passwd", "pass", "pwd").
 		Description("HTTP Basic auth password", ``).
-		DefaultValue("", "PASSWORD").
+		Placeholder("PASSWORD").
 		Group("Consul").
 		ExternalTool(cmdr.ExternalToolPasswordInput)
 

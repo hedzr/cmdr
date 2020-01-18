@@ -424,7 +424,7 @@ func (w *ExecWorker) attachCmdrCommands(root *RootCommand) {
 			ff := &Flag{
 				BaseOpt: BaseOpt{
 					Full:        "no-env-overrides",
-					Description: "No env var overrrides for `cmdr`.",
+					Description: "No env var overrides for `cmdr`.",
 					Hidden:      true,
 					Group:       SysMgmtGroup,
 					owner:       &root.Command,

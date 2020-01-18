@@ -301,6 +301,7 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 					// },
 				},
 				DefaultValue: false,
+				EnvVars:      []string{"VERBOSE"},
 			}
 			root.Flags = append(root.Flags, ff)
 			root.allFlags[SysMgmtGroup]["verbose"] = ff
@@ -321,6 +322,7 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 					owner: &root.Command,
 				},
 				DefaultValue: false,
+				EnvVars:      []string{"QUITE"},
 			}
 			root.Flags = append(root.Flags, ff)
 			root.allFlags[SysMgmtGroup]["quiet"] = ff
@@ -339,6 +341,7 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 					owner:       &root.Command,
 				},
 				DefaultValue: false,
+				EnvVars:      []string{"DEBUG"},
 			}
 			root.Flags = append(root.Flags, ff)
 			root.allFlags[SysMgmtGroup]["debug"] = ff
@@ -411,6 +414,7 @@ func (w *ExecWorker) attachCmdrCommands(root *RootCommand) {
 					owner:       &root.Command,
 				},
 				DefaultValue: false,
+				EnvVars:      []string{"STRICT"},
 			}
 			root.Flags = append(root.Flags, ff)
 			root.allFlags[SysMgmtGroup]["strict-mode"] = ff
@@ -441,6 +445,7 @@ func (w *ExecWorker) attachCmdrCommands(root *RootCommand) {
 					owner:       &root.Command,
 				},
 				DefaultValue: false,
+				EnvVars:      []string{"NOCOLOR"},
 			}
 			root.Flags = append(root.Flags, ff)
 			root.allFlags[SysMgmtGroup]["no-color"] = ff

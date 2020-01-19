@@ -472,21 +472,21 @@ func (w *ExecWorker) attachGeneratorsCommands(root *RootCommand) {
 func (w *ExecWorker) forFlagNames(flg *Flag, cmd *Command, singleFlagNames, stringFlagNames map[string]bool) {
 	if len(flg.Short) != 0 {
 		if _, ok := singleFlagNames[flg.Short]; ok {
-			ferr("\nNOTE: flag char '%v' was been used. (command: %v)", flg.Short, w.backtraceCmdNames(cmd))
+			ferr("\nNOTE: flag char '%v' has been used. (command: %v)", flg.Short, w.backtraceCmdNames(cmd))
 		} else {
 			singleFlagNames[flg.Short] = true
 		}
 	}
 	if len(flg.Full) != 0 {
 		if _, ok := stringFlagNames[flg.Full]; ok {
-			ferr("\nNOTE: flag '%v' was been used. (command: %v)", flg.Full, w.backtraceCmdNames(cmd))
+			ferr("\nNOTE: flag '%v' has been used. (command: %v)", flg.Full, w.backtraceCmdNames(cmd))
 		} else {
 			stringFlagNames[flg.Full] = true
 		}
 	}
 	if len(flg.Short) == 0 && len(flg.Full) == 0 && len(flg.Name) != 0 {
 		if _, ok := stringFlagNames[flg.Name]; ok {
-			ferr("\nNOTE: flag '%v' was been used. (command: %v)", flg.Name, w.backtraceCmdNames(cmd))
+			ferr("\nNOTE: flag '%v' has been used. (command: %v)", flg.Name, w.backtraceCmdNames(cmd))
 		} else {
 			stringFlagNames[flg.Name] = true
 		}
@@ -498,7 +498,7 @@ func (w *ExecWorker) buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagNa
 
 	for _, sz := range flg.Aliases {
 		if _, ok := stringFlagNames[sz]; ok {
-			ferr("\nNOTE: flag alias name '%v' was been used. (command: %v)", sz, w.backtraceCmdNames(cmd))
+			ferr("\nNOTE: flag alias name '%v' has been used. (command: %v)", sz, w.backtraceCmdNames(cmd))
 		} else {
 			stringFlagNames[sz] = true
 		}
@@ -524,21 +524,21 @@ func (w *ExecWorker) buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagNa
 func (w *ExecWorker) forCommandNames(cx, cmd *Command, singleCmdNames, stringCmdNames map[string]bool) {
 	if len(cx.Short) != 0 {
 		if _, ok := singleCmdNames[cx.Short]; ok {
-			ferr("\nNOTE: command char '%v' was been used. (command: %v)", cx.Short, w.backtraceCmdNames(cmd))
+			ferr("\nNOTE: command char '%v' has been used. (command: %v)", cx.Short, w.backtraceCmdNames(cmd))
 		} else {
 			singleCmdNames[cx.Short] = true
 		}
 	}
 	if len(cx.Full) != 0 {
 		if _, ok := stringCmdNames[cx.Full]; ok {
-			ferr("\nNOTE: command '%v' was been used. (command: %v)", cx.Full, w.backtraceCmdNames(cmd))
+			ferr("\nNOTE: command '%v' has been used. (command: %v)", cx.Full, w.backtraceCmdNames(cmd))
 		} else {
 			stringCmdNames[cx.Full] = true
 		}
 	}
 	if len(cx.Short) == 0 && len(cx.Full) == 0 && len(cx.Name) != 0 {
 		if _, ok := stringCmdNames[cx.Name]; ok {
-			ferr("\nNOTE: command '%v' was been used. (command: %v)", cx.Name, w.backtraceCmdNames(cmd))
+			ferr("\nNOTE: command '%v' has been used. (command: %v)", cx.Name, w.backtraceCmdNames(cmd))
 		} else {
 			stringCmdNames[cx.Name] = true
 		}
@@ -552,7 +552,7 @@ func (w *ExecWorker) buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames, 
 	for _, sz := range cx.Aliases {
 		if len(sz) != 0 {
 			if _, ok := stringCmdNames[sz]; ok {
-				ferr("\nNOTE: command alias name '%v' was been used. (command: %v)", sz, w.backtraceCmdNames(cmd))
+				ferr("\nNOTE: command alias name '%v' has been used. (command: %v)", sz, w.backtraceCmdNames(cmd))
 			} else {
 				stringCmdNames[sz] = true
 			}

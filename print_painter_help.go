@@ -162,22 +162,29 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, defValStr string)
 	if flg.Min >= 0 && flg.Max > 0 {
 		defValStr = fmt.Sprintf("%v, in [%v..%v]", defValStr, flg.Min, flg.Max)
 	}
+	var envKeys string
+	if len(flg.EnvVars) > 0 {
+		envKeys = fmt.Sprint(flg.EnvVars)
+		envKeys = fmt.Sprintf(" [env: %v]", strings.TrimFunc(envKeys, func(r rune) bool {
+			return r == '[' || r == ']'
+		}))
+	}
 	if len(flg.Deprecated) > 0 {
 		if GetNoColorMode() {
 			s.Printf(fmtFlagsDepNC, // "  %-48s%s%s [deprecated since %v]",
-				flg.GetTitleFlagNames(), flg.Description, defValStr, flg.Deprecated)
+				flg.GetTitleFlagNames(), flg.Description, envKeys, defValStr, flg.Deprecated)
 		} else {
 			s.Printf(fmtFlagsDep, // "  \x1b[%dm\x1b[%dm%-48s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]",
 				BgNormal, CurrentDescColor, flg.GetTitleFlagNames(), flg.Description,
-				BgItalic, CurrentDefaultValueColor, defValStr, flg.Deprecated)
+				BgItalic, CurrentDefaultValueColor, envKeys, defValStr, flg.Deprecated)
 		}
 	} else {
 		if GetNoColorMode() {
-			s.Printf(fmtFlagsNC, flg.GetTitleFlagNames(), flg.Description, defValStr)
+			s.Printf(fmtFlagsNC, flg.GetTitleFlagNames(), flg.Description, envKeys, defValStr)
 		} else {
 			s.Printf(fmtFlags, // "  %-48s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%s\x1b[0m",
 				flg.GetTitleFlagNames(), BgNormal, CurrentDescColor, flg.Description,
-				BgItalic, CurrentDefaultValueColor, defValStr)
+				BgItalic, CurrentDefaultValueColor, envKeys, defValStr)
 		}
 	}
 }
@@ -198,10 +205,10 @@ func initTabStop(ts int) {
 	fmtGroupTitle = "  [\x1b[2m\x1b[%dm%s\x1b[0m]"
 	fmtGroupTitleNC = "  [%s]"
 
-	fmtFlagsDep = "  \x1b[%dm\x1b[%dm%-" + s + "s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]"
-	fmtFlags = "  %-" + s + "s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%s\x1b[0m"
-	fmtFlagsDepNC = "  %-" + s + "s%s%s [deprecated since %v]"
-	fmtFlagsNC = "  %-" + s + "s%s%s"
+	fmtFlagsDep = "  \x1b[%dm\x1b[%dm%-" + s + "s%s\x1b[%dm\x1b[%dm%v%s\x1b[0m [deprecated since %v]"
+	fmtFlags = "  %-" + s + "s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%v%s\x1b[0m"
+	fmtFlagsDepNC = "  %-" + s + "s%s%v%s [deprecated since %v]"
+	fmtFlagsNC = "  %-" + s + "s%s%v%s"
 
 	fmtTailLine = "\x1b[2m\x1b[%dm%s\x1b[0m"
 	fmtTailLineNC = "%s"

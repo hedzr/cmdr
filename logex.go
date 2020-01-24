@@ -56,7 +56,7 @@ func (w *ExecWorker) getWithLogexInitializor(lvl logrus.Level, opts ...logex.Log
 		var format = GetStringRP(w.logexPrefix, "format")
 
 		l := stringToLevel(lvlStr)
-		
+
 		if InDebugging() || GetDebugMode() {
 			if l < logrus.DebugLevel {
 				l = logrus.DebugLevel
@@ -67,7 +67,7 @@ func (w *ExecWorker) getWithLogexInitializor(lvl logrus.Level, opts ...logex.Log
 				l = logrus.TraceLevel
 			}
 		}
-		
+
 		logex.EnableWith(l, opts...)
 
 		if len(target) == 0 {
@@ -81,9 +81,18 @@ func (w *ExecWorker) getWithLogexInitializor(lvl logrus.Level, opts ...logex.Log
 		}
 		switch format {
 		case "json":
-			logrus.SetFormatter(&logrus.JSONFormatter{})
+			logrus.SetFormatter(&logrus.JSONFormatter{
+				TimestampFormat:  "2006-01-02 15:04:05.000",
+				DisableTimestamp: false,
+				PrettyPrint:      false,
+			})
 		default:
-			logrus.SetFormatter(&formatter.TextFormatter{ForceColors: true})
+			logrus.SetFormatter(&formatter.TextFormatter{
+				ForceColors:     true,
+				DisableColors:   false,
+				FullTimestamp:   true,
+				TimestampFormat: "2006-01-02 15:04:05.000",
+			})
 		}
 
 		// 	can_use_log_file, journal_mode := ij(target, foreground)

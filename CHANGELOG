@@ -3,6 +3,12 @@
 ## Versions
 
 
+- v1.6.23 Spring Festival Release
+  - added flag EnvVars text to help screen
+  - for the builtin options, the corresponding envvars added
+  - update the examples with new style
+  - ...
+
 - v1.6.22
   - added global post-actions chain: `RootCommand.AppendPostActions`
   - prototypes changed: `OptCmd.NewSubCommand` and `NewFlagV`, and `Description`

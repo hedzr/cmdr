@@ -51,40 +51,11 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- v1.6.22
-  - added global post-actions chain: `RootCommand.AppendPostActions`
-  - prototypes changed: `OptCmd.NewSubCommand` and `NewFlagV`, and `Description`
-  - fixed logex level parsing.
+- v1.6.23 Spring Festival Release
+  - added flag EnvVars text to help screen
+  - for the builtin options, the corresponding envvars added
+  - update the examples with new style
   - ...
-  - [`cmdr-http2`](https://github.com/hedzr/cmdr-http2) updated with better structure and style.
-
-- v1.6.21
-  - bugs fixed
-  - added **complex** option:
-    - `cmdOpt.NewFlagV(3+4i)` to register a complex128 option
-    - `cmdr.GetComplex128XXX(...)` to extract it
-    - `cmdr.ParseComplex(s)`
-  - use yaml.v3, but it can't encode/decode complex data type
-  - use errors.v2 and rewrote `ErrorForCmdr`
-  - little chichi for daemon plugin
-  - WithEnvKeys, WithOnSet for `flag` package
-  
-- v1.6.20
-  - fixed build error
-  
-- v1.6.19
-  - added: `GetKibibytesXXX`, `GetKilobytesXXX`. with further info, run `go run ./examples/fluent kb --size --help`.
-  - added hot-reload feature for daemon plugin:
-    `bin/cmdr-http2 server [hot-restart|hot-relaod]` will restart the app, transfer the living listener to the child process without break it.
-    `SIGUSR2` has the same effect.
-    > - `Daemon.OnRun()` broken.
-    > - daemon plugin can't be used for non-linux platform.
-  - added: `Commnad.GetDottedNamePath`
-    
-- v1.6.18
-  - added: `WithOnSwitchCharHit`, `WithOnPassThruCharHit`
-  - bug fixed
-  - reviewing and refactoring
 
 - For more information to refer to [CHANGELOG](./CHANGELOG)
 

@@ -7,7 +7,7 @@ include .env
   # https://www.gnu.org/savannah-checkouts/gnu/make/manual/html_node/Text-Functions.html
   # https://stackoverflow.com/questions/19571391/remove-prefix-with-make
 
-APPNAME=$(shell grep -E "AppName[ \t]+=[ \t]+" doc.go|grep -Eo "\\\".+\\\"")
+APPNAME=$(patsubst "%",%,$(shell grep -E "AppName[ \t]+=[ \t]+" doc.go|grep -Eo "\\\".+\\\""))
 VERSION=$(shell grep -E "Version[ \t]+=[ \t]+" doc.go|grep -Eo "[0-9.]+")
 
 # Go related variables.

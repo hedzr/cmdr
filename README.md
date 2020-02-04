@@ -51,6 +51,10 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
+- v1.6.25
+  - wrap the logrus Level and expand it
+  - adds `flag.WithEnvKeys`, add `optFlagImpl.EnvKeys`
+
 - v1.6.23 Spring Festival Release
   - added flag EnvVars text to help screen
   - for the builtin options, the corresponding envvars added

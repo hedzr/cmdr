@@ -55,6 +55,7 @@ import "github.com/hedzr/cmdr"
   - wrap the logrus Level and expand it
     - *NOTE that `cmdr.WithLogex(level)` has slight change.*
   - adds `flag.WithEnvKeys`, add `optFlagImpl.EnvKeys`
+  - fixed `NewBool`,...: now you need the explicit `NewBool().AttachXXX()` to connect the new flag with an existed command.
 
 - v1.6.23 Spring Festival Release
   - added flag EnvVars text to help screen

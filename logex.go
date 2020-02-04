@@ -121,37 +121,3 @@ func (w *ExecWorker) getWithLogexInitializor(lvl Level, opts ...logex.LogexOptio
 		return
 	}
 }
-
-// func earlierInitLogger() {
-// 	l := "OFF"
-// 	if !vxconf.IsProd() {
-// 		l = "DEBUG"
-// 	}
-// 	l = vxconf.GetStringR("server.logger.level", l)
-// 	logrus.SetLevel(stringToLevel(l))
-// 	if l == "OFF" {
-// 		logrus.SetOutput(ioutil.Discard)
-// 	}
-// }
-
-// func stringToLevel(s string) logrus.Level {
-// 	s = strings.ToUpper(s)
-// 	switch s {
-// 	case "TRACE":
-// 		return logrus.TraceLevel
-// 	case "DEBUG", "devel", "dev":
-// 		return logrus.DebugLevel
-// 	case "INFO":
-// 		return logrus.InfoLevel
-// 	case "WARN", "WARNING":
-// 		return logrus.WarnLevel
-// 	case "ERROR":
-// 		return logrus.ErrorLevel
-// 	case "FATAL":
-// 		return logrus.FatalLevel
-// 	case "PANIC":
-// 		return logrus.PanicLevel
-// 	default:
-// 		return logrus.WarnLevel
-// 	}
-// }

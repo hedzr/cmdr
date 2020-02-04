@@ -9,7 +9,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/hedzr/logex"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/hedzr/errors.v2"
 	"io"
 	"os"
@@ -317,25 +316,6 @@ func (pkg *ptpkg) setOwner(cmd *Command) {
 	if pkg.flg != nil {
 		pkg.flg.owner = cmd
 	}
-}
-
-func TestLog(t *testing.T) {
-	var rootCmdX = &RootCommand{
-		Command: Command{
-			BaseOpt: BaseOpt{
-				Name: "consul-tags",
-			},
-		},
-	}
-
-	for _, x := range []string{"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "PANIC", "XX"} {
-		Set("logger.level", x)
-		_ = internalGetWorker().getWithLogexInitializor(logrus.DebugLevel)(&rootCmdX.Command, []string{})
-	}
-
-	Set("logger.target", "journal")
-	Set("logger.format", "json")
-	_ = internalGetWorker().getWithLogexInitializor(logrus.DebugLevel)(&rootCmdX.Command, []string{})
 }
 
 // TestPtpkgToggleGroup functions

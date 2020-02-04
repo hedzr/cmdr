@@ -271,16 +271,7 @@ func (s *optCommandImpl) newFlagVC(vv reflect.Type, defaultValue interface{}) (f
 	case reflect.String:
 		flg = s.String()
 	case reflect.Slice:
-		var elt = vv.Elem()
-		switch elt.Kind() {
-		case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64:
-			flg = s.IntSlice()
-		case reflect.Uint, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			// flg = s.UintSlice()
-			flg = s.IntSlice()
-		case reflect.String:
-			flg = s.StringSlice()
-		}
+		flg = s.newFlagVCSlice(vv.Elem(), defaultValue)
 	case reflect.Float32:
 		flg = s.Float32()
 	case reflect.Float64:
@@ -291,6 +282,19 @@ func (s *optCommandImpl) newFlagVC(vv reflect.Type, defaultValue interface{}) (f
 		flg = s.Complex128()
 	default:
 		flg = s.Bool()
+	}
+	return
+}
+
+func (s *optCommandImpl) newFlagVCSlice(elt reflect.Type, defaultValue interface{}) (flg OptFlag) {
+	switch elt.Kind() {
+	case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64:
+		flg = s.IntSlice()
+	case reflect.Uint, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		// flg = s.UintSlice()
+		flg = s.IntSlice()
+	case reflect.String:
+		flg = s.StringSlice()
 	}
 	return
 }

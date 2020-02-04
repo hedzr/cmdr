@@ -6,10 +6,8 @@ package cmdr
 
 import (
 	"bufio"
-	"github.com/hedzr/cmdr/conf"
 	"os"
 	"sync"
-	"time"
 )
 
 //
@@ -176,14 +174,6 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 
 	if w.rootCommand == nil {
 		w.setupRootCommand(rootCmd)
-	}
-
-	if len(conf.AppName) == 0 {
-		conf.AppName = w.rootCommand.AppName
-		conf.Version = w.rootCommand.Version
-	}
-	if len(conf.Buildstamp) == 0 {
-		conf.Buildstamp = time.Now().Format(time.RFC1123)
 	}
 
 	// initExitingChannelForFsWatcher()
@@ -378,8 +368,8 @@ func (w *ExecWorker) ainvk(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command,
 			defer func() {
 				for _, fn := range ta {
 					if fn != nil {
-                                            fn(goCommand, args)
-                                        }
+						fn(goCommand, args)
+					}
 				}
 			}()
 		}

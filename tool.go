@@ -10,6 +10,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"github.com/hedzr/cmdr/conf"
 	"github.com/hedzr/cmdr/plugin/isdelve"
 	"io"
 	"io/ioutil"
@@ -21,6 +22,7 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
+	"time"
 )
 
 // ParseComplex converts a string to complex number.
@@ -551,6 +553,14 @@ func (w *ExecWorker) setupRootCommand(rootCmd *RootCommand) {
 
 	w.rootCommand.ow = w.defaultStdout
 	w.rootCommand.oerr = w.defaultStderr
+
+	if len(conf.AppName) == 0 {
+		conf.AppName = w.rootCommand.AppName
+		conf.Version = w.rootCommand.Version
+	}
+	if len(conf.Buildstamp) == 0 {
+		conf.Buildstamp = time.Now().Format(time.RFC1123)
+	}
 }
 
 func (w *ExecWorker) getPrefix() string {

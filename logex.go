@@ -3,7 +3,6 @@
 package cmdr
 
 import (
-	"github.com/hedzr/cmdr"
 	"github.com/hedzr/logex"
 	"github.com/hedzr/logex/formatter"
 	"github.com/sirupsen/logrus"
@@ -46,7 +45,7 @@ func WithLogexPrefix(prefix string) ExecOption {
 
 // GetLoggerLevel returns the current logger level after parsed.
 func GetLoggerLevel() Level {
-	return cmdr.Level(cmdr.GetUint64R("logger.level"))
+	return Level(GetUint64R("logger.level"))
 }
 
 func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.LogexOption) (err error) {

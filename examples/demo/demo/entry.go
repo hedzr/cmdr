@@ -22,7 +22,7 @@ func Entry() {
 		// cmdr.WithBuiltinCommands(false, false, false, false, false),
 		daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
 
-		cmdr.WithLogex(logrus.DebugLevel),
+		cmdr.WithLogex(cmdr.DebugLevel),
 		cmdr.WithLogexPrefix("logger"),
 
 		cmdr.WithHelpTabStop(40),

@@ -45,7 +45,8 @@ func WithLogexPrefix(prefix string) ExecOption {
 
 // GetLoggerLevel returns the current logger level after parsed.
 func GetLoggerLevel() Level {
-	return Level(GetUint64R("logger.level"))
+	l:=GetIntR("logger-level")
+	return Level(l)
 }
 
 func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.LogexOption) (err error) {
@@ -65,7 +66,7 @@ func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.LogexOption) (err 
 		}
 	}
 
-	Set("logger.level", l)
+	Set("logger-level", int(l))
 
 	if l == OffLevel {
 		logex.EnableWith(logrus.ErrorLevel, opts...)
@@ -73,6 +74,7 @@ func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.LogexOption) (err 
 	} else {
 		logex.EnableWith(logrus.Level(l), opts...)
 	}
+	logrus.Tracef("setup logger: lvl=%v", l)
 	return
 }
 

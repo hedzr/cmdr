@@ -53,6 +53,7 @@ import "github.com/hedzr/cmdr"
 
 - v1.6.25
   - wrap the logrus Level and expand it
+    - *NOTE that `cmdr.WithLogex(level)` has slight change.*
   - adds `flag.WithEnvKeys`, add `optFlagImpl.EnvKeys`
 
 - v1.6.23 Spring Festival Release

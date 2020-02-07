@@ -6,12 +6,12 @@ import (
 	"github.com/hedzr/logex"
 	"github.com/hedzr/logex/formatter"
 	"github.com/sirupsen/logrus"
+	"io/ioutil"
 	"os"
-	"strings"
 )
 
 // WithLogex enables logex integration
-func WithLogex(lvl logrus.Level, opts ...logex.LogexOption) ExecOption {
+func WithLogex(lvl Level, opts ...logex.LogexOption) ExecOption {
 	return func(w *ExecWorker) {
 		w.logexInitialFunctor = w.getWithLogexInitializor(lvl, opts...)
 	}
@@ -23,7 +23,7 @@ func WithLogex(lvl logrus.Level, opts ...logex.LogexOption) ExecOption {
 //
 //    app:
 //      logger:
-//        level:  DEBUG
+//        level:  DEBUG            # panic, fatal, error, warn, info, debug, trace, off
 //        format: text             # text, json, logfmt
 //        target: default          # default, todo: journal
 //
@@ -43,32 +43,53 @@ func WithLogexPrefix(prefix string) ExecOption {
 	}
 }
 
-func (w *ExecWorker) getWithLogexInitializor(lvl logrus.Level, opts ...logex.LogexOption) func(cmd *Command, args []string) (err error) {
+// GetLoggerLevel returns the current logger level after parsed.
+func GetLoggerLevel() Level {
+	l := GetIntR("logger-level")
+	return Level(l)
+}
+
+func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.LogexOption) (err error) {
+	var lvlStr = GetStringRP(w.logexPrefix, "level", lvl.String())
+	var l Level
+
+	l, err = ParseLevel(lvlStr)
+
+	if InDebugging() || GetDebugMode() {
+		if l < DebugLevel {
+			l = DebugLevel
+		}
+	}
+	if GetBoolR("trace") || GetBool("trace") || toBool(os.Getenv("TRACE")) {
+		if l < TraceLevel {
+			l = TraceLevel
+		}
+	}
+
+	Set("logger-level", int(l))
+
+	if l == OffLevel {
+		logex.EnableWith(logrus.ErrorLevel, opts...)
+		logrus.SetOutput(ioutil.Discard)
+	} else {
+		logex.EnableWith(logrus.Level(l), opts...)
+	}
+	logrus.Tracef("setup logger: lvl=%v", l)
+	return
+}
+
+func (w *ExecWorker) getWithLogexInitializor(lvl Level, opts ...logex.LogexOption) func(cmd *Command, args []string) (err error) {
 	return func(cmd *Command, args []string) (err error) {
 
 		if len(w.logexPrefix) == 0 {
 			w.logexPrefix = "logger"
 		}
 
+		err = w.processLevelStr(lvl, opts...)
+
 		// var foreground = GetBoolR("server.foreground")
-		var lvlStr = GetStringRP(w.logexPrefix, "level", lvl.String())
 		var target = GetStringRP(w.logexPrefix, "target")
 		var format = GetStringRP(w.logexPrefix, "format")
-
-		l := stringToLevel(lvlStr)
-
-		if InDebugging() || GetDebugMode() {
-			if l < logrus.DebugLevel {
-				l = logrus.DebugLevel
-			}
-		}
-		if GetBoolR("trace") || GetBool("trace") || toBool(os.Getenv("TRACE")) {
-			if l < logrus.TraceLevel {
-				l = logrus.TraceLevel
-			}
-		}
-
-		logex.EnableWith(l, opts...)
 
 		if len(target) == 0 {
 			target = "default"
@@ -95,48 +116,10 @@ func (w *ExecWorker) getWithLogexInitializor(lvl logrus.Level, opts ...logex.Log
 			})
 		}
 
-		// 	can_use_log_file, journal_mode := ij(target, foreground)
-		// l := stringToLevel(lvlStr)
-		// 	if cli_common.Debug && l < logrus.DebugLevel {
-		// 		l = logrus.DebugLevel
-		// 	}
-		// logrus.SetLevel(l)
-		logrus.Tracef("Using logger: format=%v, lvl=%v/%v, target=%v", format, lvlStr, l, target)
+		// can_use_log_file, journal_mode := ij(target, foreground)
+		l := GetLoggerLevel()
+		logrus.Tracef("Using logger: format=%v, lvl=%v, target=%v", format, l, target)
 
 		return
-	}
-}
-
-// func earlierInitLogger() {
-// 	l := "OFF"
-// 	if !vxconf.IsProd() {
-// 		l = "DEBUG"
-// 	}
-// 	l = vxconf.GetStringR("server.logger.level", l)
-// 	logrus.SetLevel(stringToLevel(l))
-// 	if l == "OFF" {
-// 		logrus.SetOutput(ioutil.Discard)
-// 	}
-// }
-
-func stringToLevel(s string) logrus.Level {
-	s = strings.ToUpper(s)
-	switch s {
-	case "TRACE":
-		return logrus.TraceLevel
-	case "DEBUG", "devel", "dev":
-		return logrus.DebugLevel
-	case "INFO":
-		return logrus.InfoLevel
-	case "WARN", "WARNING":
-		return logrus.WarnLevel
-	case "ERROR":
-		return logrus.ErrorLevel
-	case "FATAL":
-		return logrus.FatalLevel
-	case "PANIC":
-		return logrus.PanicLevel
-	default:
-		return logrus.WarnLevel
 	}
 }

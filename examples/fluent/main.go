@@ -58,7 +58,7 @@ func main() {
 		daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
 
 		// integrate with logex library
-		cmdr.WithLogex(logrus.DebugLevel),
+		cmdr.WithLogex(cmdr.DebugLevel),
 		cmdr.WithLogexPrefix("logger"),
 
 		cmdr.WithHelpTabStop(41),

@@ -49,7 +49,12 @@ func (w *ExecWorker) loadFromPredefinedLocation(rootCmd *RootCommand) (err error
 			fn = fmt.Sprintf(s, rootCmd.AppName)
 		}
 
-		if FileExists(fn) {
+		b := FileExists(fn)
+		if !b {
+			fn = strings.ReplaceAll(fn, ".yml", ".yaml")
+			b = FileExists(fn)
+		}
+		if b {
 			err = w.rxxtOptions.LoadConfigFile(fn)
 			if err == nil {
 				conf.CfgFile = fn

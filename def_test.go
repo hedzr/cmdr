@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/logex"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/hedzr/errors.v2"
 	"os"
 	"strings"
@@ -60,12 +59,12 @@ func TestSingleCommandLine1(t *testing.T) {
 		cmdr.WithHelpPainter(nil),
 		cmdr.WithConfigLoadedListener(nil),
 		cmdr.WithHelpTabStop(70),
-		cmdr.WithSimilarThreshold(0.73),   // since v1.5.5
-		cmdr.WithNoColor(true),            // since v1.6.2
-		cmdr.WithNoEnvOverrides(true),     // since v1.6.2
-		cmdr.WithStrictMode(true),         // since v1.6.2
-		cmdr.WithLogex(logrus.DebugLevel), // since v1.6.5
-		cmdr.WithLogexPrefix(""),          // since v1.6.5
+		cmdr.WithSimilarThreshold(0.73), // since v1.5.5
+		cmdr.WithNoColor(true),          // since v1.6.2
+		cmdr.WithNoEnvOverrides(true),   // since v1.6.2
+		cmdr.WithStrictMode(true),       // since v1.6.2
+		cmdr.WithLogex(cmdr.DebugLevel), // since v1.6.5
+		cmdr.WithLogexPrefix(""),        // since v1.6.5
 		cmdr.WithNoDefaultHelpScreen(true),
 		cmdr.WithEnvVarMap(map[string]func() string{
 			"EXT": func() string {

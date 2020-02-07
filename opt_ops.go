@@ -113,30 +113,30 @@ func (s *RootCmdOpt) Copyright(copyright, author string) *RootCmdOpt {
 // 	return &subCmdOpt{optCommandImpl: optCommandImpl{workingFlag: cmd},}
 // }
 
-// NewCmdFrom for fluent api
+// NewCmdFrom creates a wrapped Command object as OptCmd, and make it as the current working item.
 func NewCmdFrom(cmd *Command) (opt OptCmd) {
 	optCtx.current = cmd
 	return &cmdOpt{optCommandImpl: optCommandImpl{working: optCtx.current}}
 }
 
-// NewCmd for fluent api
+// NewCmd creates a wrapped Command object as OptCmd
 func NewCmd() (opt OptCmd) {
-	optCtx.current = &Command{}
-	return &cmdOpt{optCommandImpl: optCommandImpl{working: optCtx.current}}
+	current := &Command{}
+	return &cmdOpt{optCommandImpl: optCommandImpl{working: current}}
 }
 
-// NewSubCmd for fluent api
+// NewSubCmd creates a wrapped Command object as OptCmd, and append it into the current working item.
 func NewSubCmd() (opt OptCmd) {
 	cmd := &Command{}
 	optCtx.current.SubCommands = uniAddCmd(optCtx.current.SubCommands, cmd)
 	return &subCmdOpt{optCommandImpl: optCommandImpl{working: cmd}}
 }
 
-// NewBool for fluent api
+// NewBool creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
 func NewBool(defaultValue bool) (opt OptFlag) {
-	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
-	opt = &boolOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	workingFlag := &Flag{}
+	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, workingFlag)
+	opt = &boolOpt{optFlagImpl: optFlagImpl{working: workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
 }
@@ -184,113 +184,115 @@ func uniAddStrs(a []string, ss ...string) []string {
 	return a
 }
 
-// NewString for fluent api
+// NewString creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
 func NewString(defaultValue string) (opt OptFlag) {
-	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
-	opt = &stringOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	workingFlag := &Flag{}
+	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
+	opt = &stringOpt{optFlagImpl: optFlagImpl{working: workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
 }
 
-// NewStringSlice for fluent api
+// NewStringSlice creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
 func NewStringSlice(defaultValue []string) (opt OptFlag) {
-	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
-	opt = &stringSliceOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	workingFlag := &Flag{}
+	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
+	opt = &stringSliceOpt{optFlagImpl: optFlagImpl{working: workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
 }
 
-// NewIntSlice for fluent api
+// NewIntSlice creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
 func NewIntSlice(defaultValue []int) (opt OptFlag) {
-	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
-	opt = &intSliceOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	workingFlag := &Flag{}
+	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
+	opt = &intSliceOpt{optFlagImpl: optFlagImpl{working: workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
 }
 
-// NewInt for fluent api
+// NewInt creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
 func NewInt(defaultValue int) (opt OptFlag) {
-	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
-	opt = &intOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	workingFlag := &Flag{}
+	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
+	opt = &intOpt{optFlagImpl: optFlagImpl{working: workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
 }
 
-// NewUint for fluent api
+// NewUint creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
 func NewUint(defaultValue uint) (opt OptFlag) {
-	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
-	opt = &uintOpt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	workingFlag := &Flag{}
+	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
+	opt = &uintOpt{optFlagImpl: optFlagImpl{working: workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
 }
 
-// NewInt64 for fluent api
+// NewInt64 creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
 func NewInt64(defaultValue int64) (opt OptFlag) {
-	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
-	opt = &int64Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	workingFlag := &Flag{}
+	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
+	opt = &int64Opt{optFlagImpl: optFlagImpl{working: workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
 }
 
-// NewUint64 for fluent api
+// NewUint64 creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
 func NewUint64(defaultValue uint64) (opt OptFlag) {
-	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
-	opt = &uint64Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	workingFlag := &Flag{}
+	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
+	opt = &uint64Opt{optFlagImpl: optFlagImpl{working: workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
 }
 
-// NewFloat32 for fluent api
+// NewFloat32 creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
 func NewFloat32(defaultValue float32) (opt OptFlag) {
-	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
-	opt = &float32Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	workingFlag := &Flag{}
+	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
+	opt = &float32Opt{optFlagImpl: optFlagImpl{working: workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
 }
 
-// NewFloat64 for fluent api
+// NewFloat64 creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
 func NewFloat64(defaultValue float64) (opt OptFlag) {
-	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
-	opt = &float64Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	workingFlag := &Flag{}
+	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
+	opt = &float64Opt{optFlagImpl: optFlagImpl{working: workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
 }
 
-// NewComplex64 for fluent api
+// NewComplex64 creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
 func NewComplex64(defaultValue complex64) (opt OptFlag) {
-	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
-	opt = &complex64Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	workingFlag := &Flag{}
+	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
+	opt = &complex64Opt{optFlagImpl: optFlagImpl{working: workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
 }
 
-// NewComplex128 for fluent api
+// NewComplex128 creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
 func NewComplex128(defaultValue complex128) (opt OptFlag) {
-	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
-	opt = &complex128Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	workingFlag := &Flag{}
+	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
+	opt = &complex128Opt{optFlagImpl: optFlagImpl{working: workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
 }
 
-// NewDuration for fluent api
+// NewDuration creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
 func NewDuration(defaultValue time.Duration) (opt OptFlag) {
-	opt = NewDurationFrom(&Flag{})
+	workingFlag := &Flag{}
+	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
+	opt = &durationOpt{optFlagImpl: optFlagImpl{working: workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
 }
 
-// NewDurationFrom for fluent api
+// NewDurationFrom creates a wrapped OptFlag, and append it into the current working item.
 func NewDurationFrom(flg *Flag) (opt OptFlag) {
 	optCtx.workingFlag = flg
 	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)

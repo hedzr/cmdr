@@ -640,6 +640,10 @@ func (s *Options) GetStringNoExpand(key string, defaultVal ...string) (ret strin
 		default:
 			if v != nil {
 				ret = fmt.Sprint(v)
+			} else {
+				for _, vv := range defaultVal {
+					ret = vv
+				}
 			}
 		}
 	} else {

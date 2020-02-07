@@ -45,7 +45,7 @@ func WithLogexPrefix(prefix string) ExecOption {
 
 // GetLoggerLevel returns the current logger level after parsed.
 func GetLoggerLevel() Level {
-	l:=GetIntR("logger-level")
+	l := GetIntR("logger-level")
 	return Level(l)
 }
 

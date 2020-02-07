@@ -256,11 +256,11 @@ func NewFloat32(defaultValue float32) (opt OptFlag) {
 	return
 }
 
-// NewBool creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
+// NewFloat64 creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
 func NewFloat64(defaultValue float64) (opt OptFlag) {
-	optCtx.workingFlag = &Flag{}
-	optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
-	opt = &float64Opt{optFlagImpl: optFlagImpl{working: optCtx.workingFlag}}
+	workingFlag := &Flag{}
+	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
+	opt = &float64Opt{optFlagImpl: optFlagImpl{working: workingFlag}}
 	opt.DefaultValue(defaultValue, "")
 	return
 }

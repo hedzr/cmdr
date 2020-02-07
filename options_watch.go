@@ -135,6 +135,8 @@ func (s *Options) LoadConfigFile(file string) (err error) {
 			filesWatching = append(filesWatching, s.configFiles...)
 			enableWatching = true
 		}
+		// don't bring the minor error for sub-dir walking back to main caller
+		err = nil
 		// log.Fatalf("ERROR: filepath.Walk() returned %v\n", err)
 	}
 

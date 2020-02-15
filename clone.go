@@ -14,6 +14,7 @@ type (
 	// Copier interface
 	// Copier is based on from github.com/jinzhu/copier
 	Copier interface {
+		SetIgnoreNames(ignoreNames ...string) Copier
 		Copy(toValue interface{}, fromValue interface{}, ignoreNames ...string) (err error)
 	}
 
@@ -22,20 +23,33 @@ type (
 		KeepIfFromIsNil  bool // 源字段值为nil指针时，目标字段的值保持不变
 		ZeroIfEqualsFrom bool // 源和目标字段值相同时，目标字段被清除为未初始化的零值
 		KeepIfFromIsZero bool // 源字段值为未初始化的零值时，目标字段的值保持不变 // 此条尚未实现
+		IgnoreNames      []string
+		EachFieldAlways  bool
 	}
 )
 
 var (
 	// GormDefaultCopier used for gorm
-	GormDefaultCopier = &copierImpl{true, true, true}
+	GormDefaultCopier = &copierImpl{KeepIfFromIsNil: true, ZeroIfEqualsFrom: true, KeepIfFromIsZero: true, EachFieldAlways: true}
 	// StandardCopier is a normal copier
-	StandardCopier = &copierImpl{false, false, false}
+	StandardCopier = &copierImpl{}
 )
 
 // Clone deep copy source to target
 func Clone(fromValue, toValue interface{}) interface{} {
 	_ = StandardCopier.Copy(toValue, fromValue)
 	return toValue
+}
+
+// SetIgnoreNames give a group of ignored fieldNames
+func (s *copierImpl) SetIgnoreNames(ignoreNames ...string) Copier {
+	s.IgnoreNames = ignoreNames
+	return s
+}
+
+func (s *copierImpl) SetEachFieldAlways(b bool) Copier {
+	s.EachFieldAlways = b
+	return s
 }
 
 // Copy copy things
@@ -70,13 +84,16 @@ func (s *copierImpl) Copy(toValue interface{}, fromValue interface{}, ignoreName
 		}
 	} else {
 		// Just set it if possible to assign
-		if from.Type().AssignableTo(to.Type()) {
+		if from.Type().AssignableTo(to.Type()) && !s.EachFieldAlways {
 			to.Set(from)
 			return
 		}
+		if to.Kind() == reflect.Struct {
+			amount = 1
+		}
 	}
 
-	err = s.copyAll(amount, isSlice, from, to, fromType, toType, ignoreNames)
+	err = s.copyAll(amount, isSlice, from, to, fromType, toType, append(ignoreNames, s.IgnoreNames...))
 	return
 }
 
@@ -376,12 +393,30 @@ func isNil(to reflect.Value) bool {
 	return false
 }
 
+func (s *copierImpl) setCvt(to, from reflect.Value) {
+	if !(s.KeepIfFromIsNil && isNil(from)) {
+		if !(s.KeepIfFromIsZero && from.IsZero()) {
+			if equal(to, from) && s.ZeroIfEqualsFrom {
+				setDefault(to)
+			} else {
+				to.Set(from.Convert(to.Type()))
+			}
+		}
+	}
+}
+
 func (s *copierImpl) set(to, from reflect.Value) bool {
 	if from.IsValid() {
 		if to.Kind() == reflect.Ptr {
+			// if s.setPtr(to, from) {
+			// 	return true
+			// }
+
 			// set `to` to nil if from is nil
 			if from.Kind() == reflect.Ptr && from.IsNil() {
-				to.Set(reflect.Zero(to.Type()))
+				if !s.KeepIfFromIsNil && !s.KeepIfFromIsZero {
+					to.Set(reflect.Zero(to.Type()))
+				}
 				return true
 			} else if to.IsNil() {
 				to.Set(reflect.New(to.Type().Elem()))
@@ -390,13 +425,7 @@ func (s *copierImpl) set(to, from reflect.Value) bool {
 		}
 
 		if from.Type().ConvertibleTo(to.Type()) {
-			if !(s.KeepIfFromIsNil && isNil(from)) {
-				if equal(to, from) && s.ZeroIfEqualsFrom {
-					setDefault(to)
-				} else {
-					to.Set(from.Convert(to.Type()))
-				}
-			}
+			s.setCvt(to, from)
 			// } else if scanner, ok := to.Addr().Interface().(sql.Scanner); ok {
 			// 	err := scanner.Scan(from.Interface())
 			// 	if err != nil {

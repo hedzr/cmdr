@@ -15,6 +15,7 @@ type (
 	// Copier is based on from github.com/jinzhu/copier
 	Copier interface {
 		SetIgnoreNames(ignoreNames ...string) Copier
+		SetEachFieldAlways(b bool) Copier
 		Copy(toValue interface{}, fromValue interface{}, ignoreNames ...string) (err error)
 	}
 

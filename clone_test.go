@@ -176,6 +176,17 @@ func checkEmployee(employee Employee, user User, t *testing.T, testCase string) 
 	}
 }
 
+func TestCopyTwoStruct(t *testing.T) {
+	user := User{Name: "Real Faked"}
+	userTo := User{Name: "Faked", Role: "NN"}
+
+	cmdr.GormDefaultCopier.Copy(&userTo, &user, "Shit", "Memo")
+
+	if userTo.Name != user.Name || userTo.Role != "NN" {
+		t.Fatal("wrong")
+	}
+}
+
 func TestCopyStruct(t *testing.T) {
 	var fakeAge int32 = 12
 	var born int = 7
@@ -185,7 +196,7 @@ func TestCopyStruct(t *testing.T) {
 	employee := Employee{}
 
 	if err := cmdr.StandardCopier.Copy(employee, &user); err == nil {
-		t.Errorf("Copy to unaddressable value should get error")
+		t.Error("Copy to unaddressable value should get error")
 	}
 
 	cmdr.GormDefaultCopier.Copy(&employee, &user, "Shit", "Memo", "Name")
@@ -198,7 +209,10 @@ func TestCopyStruct(t *testing.T) {
 		Ro: []int{1, 2, 3}, Sptr: &sz, Bool1: true, // Feat: []byte(sz),
 	}
 	employee = Employee{}
-	cmdr.StandardCopier.Copy(&employee, &user)
+	err := cmdr.StandardCopier.Copy(&employee, &user)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
 	checkEmployee(employee, user, t, "Copy From Ptr To Ptr")
 
 	employee2 := Employee{}

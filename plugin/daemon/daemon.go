@@ -236,6 +236,7 @@ func run(ctx *impl.Context, cmd *cmdr.Command, args []string) (err error) {
 		stop, done := impl.GetChs()
 		var listener net.Listener
 		if ctx.Hot {
+			// hot-reload the listener from parent process
 			f := os.NewFile(3, "")
 			listener, err = net.FileListener(f)
 			if err != nil {

@@ -51,6 +51,9 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
+- WIP
+  - improved and fixed deep clone algor..
+
 - v1.6.25
   - wrap the logrus Level and expand it
     - *NOTE that `cmdr.WithLogex(level)` has slight change.*

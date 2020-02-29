@@ -51,7 +51,7 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- WIP
+- v1.6.26
   - improved and fixed deep clone algor..
 
 - v1.6.25

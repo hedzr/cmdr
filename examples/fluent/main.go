@@ -76,13 +76,13 @@ func main() {
 		}),
 
 		cmdr.WithUnknownOptionHandler(onUnknownOptionHandler),
-		cmdr.WithUnhandledErrorHandler(onUnhandleErrorHandler),
+		cmdr.WithUnhandledErrorHandler(onUnhandledErrorHandler),
 
 		optAddTraceOption,
 		optAddServerExtOption,
 
 		cmdr.WithOnSwitchCharHit(onSwitchCharHit),
-		cmdr.WithOnPassThruCharHit(onPasssThruCharHit),
+		cmdr.WithOnPassThruCharHit(onPassThruCharHit),
 	); err != nil {
 		logrus.Fatalf("error: %v", err)
 	}
@@ -96,7 +96,7 @@ func onSwitchCharHit(parsed *cmdr.Command, switchChar string, args []string) (er
 	return // cmdr.ErrShouldBeStopException
 }
 
-func onPasssThruCharHit(parsed *cmdr.Command, switchChar string, args []string) (err error) {
+func onPassThruCharHit(parsed *cmdr.Command, switchChar string, args []string) (err error) {
 	if parsed != nil {
 		fmt.Printf("the last parsed command is %q - %q\n", parsed.GetTitleNames(), parsed.Description)
 	}
@@ -104,7 +104,7 @@ func onPasssThruCharHit(parsed *cmdr.Command, switchChar string, args []string) 
 	return // ErrShouldBeStopException
 }
 
-func onUnhandleErrorHandler(err interface{}) {
+func onUnhandledErrorHandler(err interface{}) {
 	// debug.PrintStack()
 	// pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
 	dumpStacks()

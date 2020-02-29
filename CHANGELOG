@@ -3,6 +3,10 @@
 ## Versions
 
 
+- v1.6.26
+  - improved and fixed deep clone algor..
+
+
 - v1.6.25
   - wrap the logrus Level and expand it
     - *NOTE that `cmdr.WithLogex(level)` has slight change.*

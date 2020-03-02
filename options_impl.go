@@ -241,9 +241,10 @@ func (s *Options) FromKibibytes(sz string) (ir64 uint64) {
 			ir64 = uint64(if64 * float64(s.fromKibibytes(r)))
 		}
 	} else {
-		ir64, err = strconv.ParseUint(szr, 0, 64)
-		r := []rune(sz)[len(sz)-1]
-		ir64 *= s.fromKibibytes(r)
+		if ir64, err = strconv.ParseUint(szr, 0, 64); err == nil {
+			r := []rune(sz)[len(sz)-1]
+			ir64 *= s.fromKibibytes(r)
+		}
 	}
 	return
 }
@@ -326,9 +327,10 @@ func (s *Options) FromKilobytes(sz string) (ir64 uint64) {
 			ir64 = uint64(if64 * float64(s.fromKilobytes(r)))
 		}
 	} else {
-		ir64, err = strconv.ParseUint(szr, 0, 64)
-		r := []rune(sz)[len(sz)-1]
-		ir64 *= s.fromKilobytes(r)
+		if ir64, err = strconv.ParseUint(szr, 0, 64); err == nil {
+			r := []rune(sz)[len(sz)-1]
+			ir64 *= s.fromKilobytes(r)
+		}
 	}
 	return
 }

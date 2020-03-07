@@ -1,8 +1,6 @@
-/*
- * Copyright © 2019 Hedzr Yeh.
- */
+// Copyright © 2020 Hedzr Yeh.
 
-package fluent
+package main
 
 type (
 	// Value is the interface to the dynamic value stored in a flag.

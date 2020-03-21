@@ -60,6 +60,7 @@ type ExecWorker struct {
 
 	logexInitialFunctor func(cmd *Command, args []string) (err error)
 	logexPrefix         string
+	logexSkipFrames     int
 
 	afterArgsParsed func(cmd *Command, args []string) (err error)
 

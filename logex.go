@@ -17,6 +17,13 @@ func WithLogex(lvl Level, opts ...logex.LogexOption) ExecOption {
 	}
 }
 
+// WithLogexSkipFrames specify the skip frames to lookup the caller
+func WithLogexSkipFrames(skipFrames int) ExecOption {
+	return func(w *ExecWorker) {
+		w.logexSkipFrames = skipFrames
+	}
+}
+
 // WithLogexPrefix specify a prefix string PS.
 //
 // In cmdr options store, we will load the logging options under this key path:
@@ -108,11 +115,17 @@ func (w *ExecWorker) getWithLogexInitializor(lvl Level, opts ...logex.LogexOptio
 				PrettyPrint:      false,
 			})
 		default:
+			e := false
+			if w.logexSkipFrames > 0 {
+				e = true
+			}
 			logrus.SetFormatter(&formatter.TextFormatter{
 				ForceColors:     true,
 				DisableColors:   false,
 				FullTimestamp:   true,
 				TimestampFormat: "2006-01-02 15:04:05.000",
+				Skip:            w.logexSkipFrames,
+				EnableSkip:      e,
 			})
 		}
 

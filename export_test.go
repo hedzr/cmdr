@@ -8,14 +8,15 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/hedzr/logex"
-	"gopkg.in/hedzr/errors.v2"
 	"io"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/hedzr/logex"
+	"gopkg.in/hedzr/errors.v2"
 )
 
 // Worker returns unexported worker for testing
@@ -191,7 +192,7 @@ func TestHandlePanic(t *testing.T) {
 						Short: "pa", Full: "panic",
 						Action: func(cmd *Command, args []string) (err error) {
 							panic(8.1)
-							return
+							// return
 						},
 					},
 				},

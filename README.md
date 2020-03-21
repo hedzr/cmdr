@@ -51,6 +51,9 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
+- v1.6.31
+  - routine maintainance: take effects with bug fixed of logex, and so on.
+
 - v1.6.26
   - improved and fixed deep clone algor..
 

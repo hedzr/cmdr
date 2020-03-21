@@ -6,15 +6,17 @@ package main
 
 import (
 	"fmt"
+	"github.com/hedzr/logex"
+	"io/ioutil"
+	"log"
+	"os"
+	"strings"
+
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/examples/demo/svr"
 	"github.com/hedzr/cmdr/plugin/daemon"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/hedzr/errors.v2"
-	"io/ioutil"
-	"log"
-	"os"
-	"strings"
 )
 
 var optAddTraceOption, optAddServerExtOption cmdr.ExecOption
@@ -256,6 +258,11 @@ $ {{.AppName}} kb --size 1g
 
 			fmt.Printf("> STDIN MODE: %v \n", cmdr.GetBoolR("mx-test.stdin"))
 			fmt.Println()
+
+			logrus.Debug("debug")
+			logrus.Info("debug")
+			logrus.Warning("debug")
+			logrus.WithField(logex.SKIP, 1).Warningf("dsdsdsds")
 
 			if cmdr.GetBoolR("mx-test.stdin") {
 				fmt.Println("> Type your contents here, press Ctrl-D to end it:")

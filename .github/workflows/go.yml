@@ -11,11 +11,13 @@ jobs:
   build_and_test:
     name: Build and test
     runs-on: ubuntu-latest
-
     strategy:
       fail-fast: false
       matrix:
         go: ['1.11', '1.12', '1.13', '1.14']
+
+    env:
+      COVERALLS_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
 
     steps:
       - id: go

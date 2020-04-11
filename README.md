@@ -47,6 +47,9 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
+- v1.6.35 - *WIP*
+  - fixed a data racing scene: the fs-watcher and build-auto-env [rarely]
+
 - v1.6.33
   - fixed the wrong prototype for nacl/plan9
 

@@ -100,6 +100,15 @@ CN = hedzr/$(N)
 .PHONY: godoc format fmt lint cov gocov coverage codecov cyclo bench
 
 
+# For the full list of GOARCH/GOOS, take a look at:
+#  https://github.com/golang/go/blob/master/src/go/build/syslist.go
+#
+# A snapshot is:
+#  const goosList = "aix android darwin dragonfly freebsd hurd illumos js linux nacl netbsd openbsd plan9 solaris windows zos "
+#  const goarchList = "386 amd64 amd64p32 arm armbe arm64 arm64be ppc64 ppc64le mips mipsle mips64 mips64le mips64p32 mips64p32le ppc riscv riscv64 s390 s390x sparc sparc64 wasm "
+#©
+
+
 ## build: Compile the binary. Synonym of `compile`
 build: compile
 
@@ -327,6 +336,11 @@ bench:
 	# todo: go install golang.org/x/perf/cmd/benchstat
 
 
+
+## rshz: rsync to my TP470P
+rshz:
+	@echo "  >  sync to hz-pc ..."
+	rsync -avrztopg --delete $(GOBASE) hz-pc:$(HZ_PC_GOBASE)/src/github.com/hedzr/
 
 
 .PHONY: printvars info help all

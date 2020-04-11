@@ -1,6 +1,7 @@
 # cmdr
 
 [![Build Status](https://travis-ci.org/hedzr/cmdr.svg?branch=master)](https://travis-ci.org/hedzr/cmdr)
+![Go](https://github.com/hedzr/cmdr/workflows/Go/badge.svg)
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/hedzr/cmdr.svg?label=release)](https://github.com/hedzr/cmdr/releases)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/hedzr/cmdr) 
 [![Go Report Card](https://goreportcard.com/badge/github.com/hedzr/cmdr)](https://goreportcard.com/report/github.com/hedzr/cmdr)
@@ -45,6 +46,9 @@ import "github.com/hedzr/cmdr"
 
 
 ## News
+
+- v1.6.33
+  - fixed the wrong prototype for nacl/plan9
 
 - v1.6.32
   - routine maintainance

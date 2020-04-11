@@ -51,29 +51,6 @@ import "github.com/hedzr/cmdr"
     - downward compatibility: to go1.11
     - enable github actions
 
-- v1.6.31
-  - routine maintainance: take effects with bug fixed of logex, and so on.
-
-- v1.6.26
-  - improved and fixed deep clone algor..
-
-- v1.6.25
-  - wrap the logrus Level and expand it
-    - *NOTE that `cmdr.WithLogex(level)` has slight change.*
-    - fixed: logger-level extraction not work
-  - adds `flag.WithEnvKeys`, add `optFlagImpl.EnvKeys`
-  - fixed `NewBool`,...: now you need the explicit `NewBool().AttachXXX()` to connect the new flag with an existed command.
-  - fixed: the defaultValue might not take effect sometimes.
-  - fixed: don't bring the minor error for sub-dir walking back to main caller.
-  - fixed: for the main config file, searching .yaml suffix too.
-
-- v1.6.23 Spring Festival Release
-  - added flag EnvVars text to help screen
-  - for the builtin options, the corresponding envvars added
-  - update the examples with new style
-  - [`cmdr-http2`](https://github.com/hedzr/cmdr-http2) updated with better structure and style.
-  - ...
-
 - For more information to refer to [CHANGELOG](./CHANGELOG)
 
 

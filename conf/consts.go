@@ -2,6 +2,7 @@
  * Copyright © 2019 Hedzr Yeh.
  */
 
+// Package conf are used to store the app-level constants (app name/vaersion) for cmdr and your app
 package conf
 
 var (
@@ -18,6 +19,8 @@ var (
 	Buildstamp = ""
 	// Githash app git hash
 	Githash = ""
+	// GitShortVersion from `git describe --long` [NEVER USED]
+	GitShortVersion = ""
 	// GoVersion `go version` string
 	GoVersion = ""
 

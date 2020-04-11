@@ -1,6 +1,6 @@
 // Copyright © 2020 Hedzr Yeh.
 
-// +build go113
+// + // build go113
 
 package cmdr
 

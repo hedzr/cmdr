@@ -28,9 +28,11 @@ docs/
 *.dmg
 *.deb
 *.rpm
+*.log
 coverage.txt
 cover.out
 cover.html
+profile.cov
 .tmp.*
 conf.d/
 *.local

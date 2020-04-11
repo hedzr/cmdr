@@ -47,6 +47,9 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
+- v1.6.33
+  - fixed the wrong prototype for nacl/plan9
+
 - v1.6.32
   - routine maintainance
     - downward compatibility: to go1.11

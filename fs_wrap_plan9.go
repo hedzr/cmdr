@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-func fsWatcherRoutine(s *Options, configDir string, initWG *sync.WaitGroup) {
+func fsWatcherRoutine(s *Options, configDir string, filesWatching []string, initWG *sync.WaitGroup) {
 	initWG.Done() // done initializing the watch in this go routine, so the parent routine can move on...
 }
 

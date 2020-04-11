@@ -36,13 +36,7 @@ hierarchy configuration data too.
 
 ## Import
 
-for non-go-modules user:
-
-```go
-import "gopkg.in/hedzr/cmdr.v1"
-```
-
-with go-modules enabled:
+Need go-modules enabled:
 
 ```go
 import "github.com/hedzr/cmdr"
@@ -51,6 +45,11 @@ import "github.com/hedzr/cmdr"
 
 
 ## News
+
+- v1.6.32
+  - routine maintainance
+    - downward compatibility: to go1.11
+    - enable github actions
 
 - v1.6.31
   - routine maintainance: take effects with bug fixed of logex, and so on.

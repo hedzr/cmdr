@@ -396,7 +396,7 @@ func isNil(to reflect.Value) bool {
 
 func (s *copierImpl) setCvt(to, from reflect.Value) {
 	if !(s.KeepIfFromIsNil && isNil(from)) {
-		if !(s.KeepIfFromIsZero && from.IsZero()) {
+		if !(s.KeepIfFromIsZero && IsZero(from)) {
 			if equal(to, from) && s.ZeroIfEqualsFrom {
 				setDefault(to)
 			} else {

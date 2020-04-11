@@ -369,31 +369,6 @@ func setDefault(to reflect.Value) {
 	}
 }
 
-func isNil(to reflect.Value) bool {
-	switch to.Kind() {
-	case reflect.Uintptr:
-		return to.UnsafeAddr() == 0
-	case reflect.Array:
-	case reflect.Chan:
-		return to.IsNil()
-	case reflect.Func:
-		return to.IsNil()
-	case reflect.Interface:
-		return to.IsNil()
-	case reflect.Map:
-		return to.IsNil()
-	// case reflect.Ptr:
-	// 	return to.IsNil()
-	case reflect.Slice:
-	case reflect.String:
-	case reflect.Struct:
-		return false
-	case reflect.UnsafePointer:
-		return to.IsNil()
-	}
-	return false
-}
-
 func (s *copierImpl) setCvt(to, from reflect.Value) {
 	if !(s.KeepIfFromIsNil && isNil(from)) {
 		if !(s.KeepIfFromIsZero && IsZero(from)) {

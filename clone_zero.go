@@ -27,8 +27,10 @@ func IsZero(v reflect.Value) bool {
 		return math.Float64bits(real(c)) == 0 && math.Float64bits(imag(c)) == 0
 	case reflect.Array:
 		return isZeroArray(v)
-	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice, reflect.UnsafePointer:
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
 		return v.IsNil()
+	case reflect.UnsafePointer:
+		return isNil(v)
 	case reflect.String:
 		return v.Len() == 0
 	case reflect.Struct:

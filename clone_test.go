@@ -134,6 +134,7 @@ func TestCopyCov(t *testing.T) {
 		A: uintptr(unsafe.Pointer(&x0)),
 		H: make(chan int, 5),
 		M: unsafe.Pointer(&x0),
+		// E: []*X0{&x0},
 		N: nn[1:3],
 		O: a,
 		Q: a,

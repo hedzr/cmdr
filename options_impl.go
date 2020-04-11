@@ -734,8 +734,8 @@ func (s *Options) loopForLookupFlag(keys []string, cmd *Command) (flg *Flag) {
 }
 
 func (s *Options) envKey(key string) (envkey string) {
-	key = strings.ReplaceAll(key, ".", "_")
-	key = strings.ReplaceAll(key, "-", "_")
+	key = replaceAll(key, ".", "_")
+	key = replaceAll(key, "-", "_")
 	envkey = strings.Join(append(internalGetWorker().envPrefixes, strings.ToUpper(key)), "_")
 	return
 }

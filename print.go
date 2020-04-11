@@ -145,7 +145,7 @@ func (w *ExecWorker) printHelpUsages(p Painter, command *Command) {
 			}
 		}
 
-		cmds := strings.ReplaceAll(internalGetWorker().backtraceCmdNames(command), ".", " ")
+		cmds := replaceAll(internalGetWorker().backtraceCmdNames(command), ".", " ")
 		if len(cmds) > 0 {
 			cmds += " "
 		}

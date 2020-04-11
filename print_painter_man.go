@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"strings"
 	"time"
 )
 
@@ -46,8 +45,8 @@ func (s *manPainter) Flush() {
 
 func (s *manPainter) Printf(fmtStr string, args ...interface{}) {
 	str := fmt.Sprintf(fmtStr, args...)
-	str = strings.ReplaceAll(str, "-", `\-`)
-	str = strings.ReplaceAll(str, "`cmdr`", `\fBcmdr\fP`)
+	str = replaceAll(str, "-", `\-`)
+	str = replaceAll(str, "`cmdr`", `\fBcmdr\fP`)
 	_, _ = s.writer.Write([]byte(str))
 }
 

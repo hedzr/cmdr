@@ -25,7 +25,7 @@ func (s *Flag) GetDescZsh() (desc string) {
 	if len(desc) == 0 {
 		desc = eraseAnyWSs(s.GetTitleZshFlagName())
 	}
-	// desc = strings.ReplaceAll(desc, " ", "\\ ")
+	// desc = replaceAll(desc, " ", "\\ ")
 	return
 }
 

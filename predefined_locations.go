@@ -51,7 +51,7 @@ func (w *ExecWorker) loadFromPredefinedLocation(rootCmd *RootCommand) (err error
 
 		b := FileExists(fn)
 		if !b {
-			fn = strings.ReplaceAll(fn, ".yml", ".yaml")
+			fn = replaceAll(fn, ".yml", ".yaml")
 			b = FileExists(fn)
 		}
 		if b {

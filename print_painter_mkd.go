@@ -46,8 +46,8 @@ func (s *markdownPainter) Flush() {
 
 func (s *markdownPainter) Printf(fmtStr string, args ...interface{}) {
 	str := fmt.Sprintf(fmtStr, args...)
-	str = strings.ReplaceAll(str, "-", `\-`)
-	str = strings.ReplaceAll(str, "`cmdr`", `\fBcmdr\fP`)
+	str = replaceAll(str, "-", `\-`)
+	str = replaceAll(str, "`cmdr`", `\fBcmdr\fP`)
 	_, _ = s.writer.Write([]byte(str))
 }
 
@@ -110,7 +110,7 @@ func (s *markdownPainter) FpPrintHelpTailLine(command *Command) {
 
 func mkdSubCommands(command *Command) (ret []string) {
 	for _, sc := range command.SubCommands {
-		title := strings.ReplaceAll(internalGetWorker().backtraceCmdNames(sc), ".", "-")
+		title := replaceAll(internalGetWorker().backtraceCmdNames(sc), ".", "-")
 		// if len(title) == 0 {
 		// 	title = command.root.AppName
 		// } else {

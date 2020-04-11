@@ -139,7 +139,7 @@ func manBr(s string) string {
 
 func manWs(fmtStr string, args ...interface{}) string {
 	str := fmt.Sprintf(fmtStr, args...)
-	str = strings.ReplaceAll(strings.TrimSpace(str), " ", `\ `)
+	str = replaceAll(strings.TrimSpace(str), " ", `\ `)
 	return str
 }
 

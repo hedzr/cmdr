@@ -3,18 +3,24 @@
 ## Versions
 
 
+- v1.6.35
+  - routine maintenance: take effects with bug fixed of logex, typo, etc.
+  - typo, doc
+  - fixed a data racing scene: the fs-watcher and build-auto-env [rarely]
+
+
 - v1.6.33
   - fixed the wrong prototype for nacl/plan9
 
 
 - v1.6.32
-  - routine maintainance
+  - routine maintenance
     - downward compatibility: to go1.11
     - enable github actions
 
 
 - v1.6.31
-  - routine maintainance: take effects with bug fixed of logex, and so on.
+  - routine maintenance: take effects with bug fixed of logex, and so on.
 
 
 - v1.6.26

@@ -659,6 +659,9 @@ func (s *Options) GetStringNoExpand(key string, defaultVal ...string) (ret strin
 func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 	// logrus.SetLevel(logrus.DebugLevel)
 
+	s.rwCB.RLock()
+	defer s.rwCB.RUnlock()
+
 	// prefix := strings.Join(EnvPrefix,"_")
 	prefix := internalGetWorker().getPrefix() // strings.Join(RxxtPrefix, ".")
 	for key := range s.entries {

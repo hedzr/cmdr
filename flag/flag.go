@@ -2,6 +2,7 @@
  * Copyright © 2019 Hedzr Yeh.
  */
 
+// Package flag is used to wrap some APIs from go stdlib flag
 package flag
 
 import (

@@ -22,18 +22,34 @@ There is a full `Options Store` (configurations) for your
 hierarchy configuration data too.
 
 
-**| [News](#news) | [Features](#features) |
-[Examples](#examples) | 
-[Docs: For Developer](#for-developer) |
-[Docs: Uses Fluent API](#uses-fluent-api) | [At Playground](#at-playground) |**
+![ee99d078e2f7](https://user-images.githubusercontent.com/12786150/72876202-f49ee500-3d30-11ea-9de0-434bf8decf90.gif)
+<!-- built by https://ezgif.com/ -->
+> To review the image frames, go surfing at <https://github.com/hedzr/cmdr/issues/1#issuecomment-567779978>
+
+
+## Table of Contents
+
+* [cmdr](#cmdr)
+  * [Table of Contents](#table-of-contents)
+  * [Import](#import)
+  * [News](#news)
+  * [Features](#features)
+    * [More](#more)
+  * [Examples](#examples)
+  * [Documentation](#documentation)
+    * [For Developer](#for-developer)
+    * [Build your cli app with cmdr](#build-your-cli-app-with-cmdr)
+    * [Uses Fluent API](#uses-fluent-api)
+  * [At Playground](#at-playground)
+  * [Uses](#uses)
+  * [Contrib](#contrib)
+  * [Thanks to JODL](#thanks)
+  * [License](#license)
 
 
 > [Youtube - 李宗盛2013最新單曲 山丘 官方完整版音檔](https://www.youtube.com/watch?v=_qNpR1Ew5jA) / [Jonathan Lee - Hill *CHT + ENU*](https://www.youtube.com/watch?v=FNlFe8ftBh0)
 
 
-![ee99d078e2f7](https://user-images.githubusercontent.com/12786150/72876202-f49ee500-3d30-11ea-9de0-434bf8decf90.gif)
-<!-- built by https://ezgif.com/ -->
-> To review the image frames, go surfing at <https://github.com/hedzr/cmdr/issues/1#issuecomment-567779978>
 
 ## Import
 
@@ -629,6 +645,13 @@ Try its out :
 
 *Feel free to issue me bug reports and fixes. Many thanks to all contributors.*
 
+
+## Thanks to JODL
+
+[JODL (JetBrains OpenSource Development License)](https://www.jetbrains.com/community/opensource/) is good:
+
+[![goland](https://gist.githubusercontent.com/hedzr/447849cb44138885e75fe46f1e35b4a0/raw/ca8ac2694906f5650d585263dbabfda52072f707/logo-goland.svg)](https://www.jetbrains.com/?from=hedzr/cmdr)
+[![jetbrains](https://gist.githubusercontent.com/hedzr/447849cb44138885e75fe46f1e35b4a0/raw/bedfe6923510405ade4c034c5c5085487532dee4/jetbrains-variant-4.svg)](https://www.jetbrains.com/?from=hedzr/cmdr)
 
 
 ## License

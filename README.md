@@ -64,7 +64,12 @@ import "github.com/hedzr/cmdr"
 ## News
 
 - WIP
-  - assume the empty Group field with ToggleGroup
+  - ToggleGroup:
+    - assume the empty Group field with ToggleGroup
+    - set "command-path.toggleGroupName" to the hit flag full name as flipping a toggle-group.  
+      For example, supposed a toggle-group 'KK' under 'server' command with 3 choices/flags: apple, banana, orange. For the input '--orange', these entries will be set in option store:  
+      `server.orange` <== true;  
+      `server.KK` <== 'orange';  
   
 - v1.6.35
   - routine maintenance: take effects with bug fixed of logex, etc.

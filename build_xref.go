@@ -578,12 +578,16 @@ func (w *ExecWorker) buildCrossRefs(cmd *Command) {
 	stringFlagNames := make(map[string]bool)
 	singleCmdNames := make(map[string]bool)
 	stringCmdNames := make(map[string]bool)
+	tgs := make(map[string]bool)
 
 	for _, flg := range cmd.Flags {
 		flg.owner = cmd
 
-		if len(flg.ToggleGroup) > 0 && len(flg.Group) == 0 {
-			flg.Group = flg.ToggleGroup
+		if len(flg.ToggleGroup) > 0 {
+			if len(flg.Group) == 0 {
+				flg.Group = flg.ToggleGroup
+			}
+			tgs[flg.ToggleGroup] = true
 		}
 
 		w.buildCrossRefsForFlag(flg, cmd, singleFlagNames, stringFlagNames)
@@ -603,6 +607,19 @@ func (w *ExecWorker) buildCrossRefs(cmd *Command) {
 		w.buildCrossRefs(cx)
 	}
 
+	for tg, _ := range tgs {
+		w.buildToggleGroup(tg, cmd)
+	}
+}
+
+func (w *ExecWorker) buildToggleGroup(tg string, cmd *Command) {
+	for _, f := range cmd.Flags {
+		if tg == f.ToggleGroup && f.DefaultValue == true {
+			w.rxxtOptions.Set(w.backtraceFlagNames(f), true)
+			w.rxxtOptions.Set(w.backtraceCmdNames(cmd)+"."+tg, f.Full)
+			break
+		}
+	}
 }
 
 func (w *ExecWorker) backtraceFlagNames(flg *Flag) (str string) {

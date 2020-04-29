@@ -582,6 +582,10 @@ func (w *ExecWorker) buildCrossRefs(cmd *Command) {
 	for _, flg := range cmd.Flags {
 		flg.owner = cmd
 
+		if len(flg.ToggleGroup) > 0 && len(flg.Group) == 0 {
+			flg.Group = flg.ToggleGroup
+		}
+
 		w.buildCrossRefsForFlag(flg, cmd, singleFlagNames, stringFlagNames)
 
 		// opt.Children[flg.Full] = &OptOne{Value: flg.DefaultValue,}

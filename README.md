@@ -63,6 +63,9 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
+- WIP
+  - assume the empty Group field with ToggleGroup
+  
 - v1.6.35
   - routine maintenance: take effects with bug fixed of logex, etc.
   - typo, doc

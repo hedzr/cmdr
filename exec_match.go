@@ -63,9 +63,9 @@ func (w *ExecWorker) flagsPrepare(pkg *ptpkg, goCommand **Command, args []string
 		// long flag
 		pkg.fn = pkg.a[2:]
 		pkg.findValueAttached(&pkg.fn)
-		
+
 	} else {
-		
+
 		// short flag
 		if (*goCommand).headLikeFlag != nil && IsDigitHeavy(pkg.a[1:]) {
 			// println("head-like")

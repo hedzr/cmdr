@@ -444,27 +444,33 @@ func (s *Options) GetStringSlice(key string, defaultVal ...string) (ir []string)
 		vvv := reflect.ValueOf(v)
 		switch vvv.Kind() {
 		case reflect.String:
-			ir = strings.Split(v.(string), ",")
+			ir = strings.Split(os.ExpandEnv(v.(string)), ",")
 		case reflect.Slice:
 			if r, ok := v.([]string); ok {
-				ir = r
+				// ir = r
+				for _, xx := range r {
+					ir = append(ir, os.ExpandEnv(xx))
+				}
 			} else if ri, ok := v.([]int); ok {
 				for _, rii := range ri {
-					ir = append(ir, strconv.Itoa(rii))
+					ir = append(ir, os.ExpandEnv(strconv.Itoa(rii)))
 				}
 			} else if ri, ok := v.([]byte); ok {
-				ir = strings.Split(string(ri), ",")
+				ir = strings.Split(os.ExpandEnv(string(ri)), ",")
 			} else {
 				for i := 0; i < vvv.Len(); i++ {
-					ir = append(ir, fmt.Sprintf("%v", vvv.Index(i).Interface()))
+					ir = append(ir, os.ExpandEnv(fmt.Sprintf("%v", vvv.Index(i).Interface())))
 				}
 			}
 		default:
-			ir = strings.Split(fmt.Sprintf("%v", v), ",")
+			ir = strings.Split(os.ExpandEnv(fmt.Sprintf("%v", v)), ",")
 		}
-	} else {
-		ir = defaultVal
+	} else if len(defaultVal) > 0 {
+		for _, xx := range defaultVal {
+			ir = append(ir, os.ExpandEnv(xx))
+		}
 	}
+	// ret = os.ExpandEnv(ret)
 	return
 }
 

@@ -8,10 +8,10 @@ import (
 	"bufio"
 	"bytes"
 	"crypto/rand"
-	"errors"
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
 	"github.com/hedzr/cmdr/plugin/isdelve"
+	"gopkg.in/hedzr/errors.v2"
 	"io"
 	"io/ioutil"
 	"log"
@@ -557,6 +557,7 @@ func (w *ExecWorker) setupRootCommand(rootCmd *RootCommand) {
 	if len(conf.AppName) == 0 {
 		conf.AppName = w.rootCommand.AppName
 		conf.Version = w.rootCommand.Version
+		_ = os.Setenv("APPNAME", conf.AppName)
 	}
 	if len(conf.Buildstamp) == 0 {
 		conf.Buildstamp = time.Now().Format(time.RFC1123)

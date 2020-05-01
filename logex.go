@@ -120,18 +120,19 @@ func (w *ExecWorker) getWithLogexInitializor(lvl Level, opts ...logex.LogexOptio
 				e = true
 			}
 			logrus.SetFormatter(&formatter.TextFormatter{
-				ForceColors:     true,
-				DisableColors:   false,
-				FullTimestamp:   true,
-				TimestampFormat: "2006-01-02 15:04:05.000",
-				Skip:            w.logexSkipFrames,
-				EnableSkip:      e,
+				ForceColors:               true,
+				DisableColors:             false,
+				FullTimestamp:             true,
+				TimestampFormat:           "2006-01-02 15:04:05.000",
+				Skip:                      w.logexSkipFrames,
+				EnableSkip:                e,
+				EnvironmentOverrideColors: true,
 			})
 		}
 
 		// can_use_log_file, journal_mode := ij(target, foreground)
 		l := GetLoggerLevel()
-		logrus.Tracef("Using logger: format=%v, lvl=%v, target=%v", format, l, target)
+		logrus.Tracef("Using logger: format=%v, lvl=%v, target=%v, formatter=%+v", format, l, target, logrus.StandardLogger().Formatter)
 
 		return
 	}

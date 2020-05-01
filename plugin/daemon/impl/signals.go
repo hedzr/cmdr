@@ -5,7 +5,7 @@
 package impl
 
 import (
-	"errors"
+	"gopkg.in/hedzr/errors.v2"
 	"log"
 	"net"
 	"os"

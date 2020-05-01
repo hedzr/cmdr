@@ -54,6 +54,7 @@ func (pkg *ptpkg) tryToggleGroup() {
 					f.DefaultValue = false
 				} else {
 					wkr.rxxtOptions.Set(wkr.backtraceFlagNames(f), true)
+					wkr.rxxtOptions.Set(wkr.backtraceCmdNames(f.owner)+"."+f.ToggleGroup, f.Full)
 					f.DefaultValue = true
 				}
 			}

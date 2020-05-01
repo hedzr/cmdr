@@ -5,9 +5,9 @@
 package daemon
 
 import (
-	"errors"
 	"fmt"
 	"github.com/hedzr/cmdr"
+	"gopkg.in/hedzr/errors.v2"
 	"io/ioutil"
 	"log"
 	"os"

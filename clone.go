@@ -5,7 +5,7 @@
 package cmdr
 
 import (
-	"errors"
+	"gopkg.in/hedzr/errors.v2"
 	"reflect"
 	"strings"
 )

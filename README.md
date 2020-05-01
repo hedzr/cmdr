@@ -63,7 +63,7 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- WIP
+- v1.6.36
   - `ToggleGroup`:
     - assume the empty Group field with ToggleGroup
     - set "command-path.toggleGroupName" to the hit flag full name as flipping a toggle-group.  
@@ -71,6 +71,8 @@ import "github.com/hedzr/cmdr"
       `server.orange` <== true;  
       `server.KK` <== 'orange';  
   - fixed: `GetStringSliceXxx()` return the value array without expand the envvar.
+  - improved: some supports for plan9
+  - fixed: can't expand envvar correectly at earlier initializing.
   
 - v1.6.35
   - routine maintenance: take effects with bug fixed of logex, etc.

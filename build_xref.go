@@ -607,7 +607,7 @@ func (w *ExecWorker) buildCrossRefs(cmd *Command) {
 		w.buildCrossRefs(cx)
 	}
 
-	for tg, _ := range tgs {
+	for tg := range tgs {
 		w.buildToggleGroup(tg, cmd)
 	}
 }

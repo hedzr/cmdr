@@ -242,6 +242,16 @@ func getSortedKeysFromFlgMap(groups map[string]*Flag) (k3 []string) {
 	return
 }
 
+func findMaxShortLength(groups map[string]*Flag) (maxShort int) {
+	for _, nm := range k3 {
+		flg := groups[nm]
+		if !flg.Hidden && maxShort < len(flg.Short) {
+			maxShort = len(flg.Short)
+		}
+	}
+	return
+}
+
 func printHelpFlagSections(p Painter, command *Command, justFlags bool) {
 	sectionName := "Options"
 
@@ -258,7 +268,9 @@ GO_PRINT_FLAGS:
 			groups := command.allFlags[group]
 			if len(groups) > 0 {
 				p.FpFlagsGroupTitle(group)
-				for _, nm := range getSortedKeysFromFlgMap(groups) {
+				k3 := getSortedKeysFromFlgMap(groups)
+				maxShort := findMaxShortLength(groups)
+				for _, nm := range k3 {
 					flg := groups[nm]
 					if !flg.Hidden {
 						defValStr := ""
@@ -277,7 +289,7 @@ GO_PRINT_FLAGS:
 								}
 							}
 						}
-						p.FpFlagsLine(command, flg, defValStr)
+						p.FpFlagsLine(command, flg, maxShort, defValStr)
 						// fp("  %-48s%v%s", flg.GetTitleFlagNames(), flg.Description, defValStr)
 					}
 				}

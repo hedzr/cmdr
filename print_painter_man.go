@@ -209,7 +209,7 @@ func (s *manPainter) FpFlagsGroupTitle(group string) {
 	}
 }
 
-func (s *manPainter) FpFlagsLine(command *Command, flag *Flag, defValStr string) {
+func (s *manPainter) FpFlagsLine(command *Command, flag *Flag, maxShort int, defValStr string) {
 	s.Printf(".TP\n.BI %s\n%s\n%s\n", manWs(flag.GetTitleFlagNames()), flag.Description, defValStr)
 }
 

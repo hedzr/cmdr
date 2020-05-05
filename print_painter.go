@@ -24,7 +24,7 @@ type (
 		FpCommandsLine(command *Command)
 		FpFlagsTitle(command *Command, flag *Flag, title string)
 		FpFlagsGroupTitle(group string)
-		FpFlagsLine(command *Command, flag *Flag, defValStr string)
+		FpFlagsLine(command *Command, flag *Flag, maxShort int, defValStr string)
 
 		Flush()
 

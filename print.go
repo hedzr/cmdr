@@ -243,8 +243,8 @@ func getSortedKeysFromFlgMap(groups map[string]*Flag) (k3 []string) {
 }
 
 func findMaxShortLength(groups map[string]*Flag) (maxShort int) {
-	for _, nm := range k3 {
-		flg := groups[nm]
+	for _, flg := range groups {
+		// flg := groups[nm]
 		if !flg.Hidden && maxShort < len(flg.Short) {
 			maxShort = len(flg.Short)
 		}

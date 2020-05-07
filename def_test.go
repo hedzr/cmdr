@@ -31,9 +31,10 @@ func TestSingleCommandLine1(t *testing.T) {
 
 	cmdr.InternalResetWorker()
 
-	onUnhandleErrorHandler := func(err interface{}) {
+	onUnhandledErrorHandler := func(err interface{}) {
 		// debug.PrintStack()
 		// pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
+		t.Errorf("%+v", err)
 		t.Fatal(errors.DumpStacksAsString(false))
 	}
 
@@ -82,7 +83,7 @@ func TestSingleCommandLine1(t *testing.T) {
 		cmdr.WithHelpTailLine(`
 Type '-h'/'-?' or '--help' to get command help screen. 
 More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-info', '--no-color', '--strict-mode', '--no-env-overrides'...`),
-		cmdr.WithUnhandledErrorHandler(onUnhandleErrorHandler),
+		cmdr.WithUnhandledErrorHandler(onUnhandledErrorHandler),
 		cmdr.WithOnSwitchCharHit(func(parsed *cmdr.Command, switchChar string, args []string) (err error) {
 			return
 		}),

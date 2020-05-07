@@ -71,7 +71,7 @@ func (s *Flag) GetTitleZshFlagNamesArray() (ary []string) {
 
 // GetTitleFlagNamesBy temp
 func (s *Flag) GetTitleFlagNamesBy(delimChar string) string {
-	return s.GetTitleFlagNamesByMax(delimChar, -1)
+	return s.GetTitleFlagNamesByMax(delimChar, len(s.Short))
 }
 
 // GetTitleFlagNamesByMax temp

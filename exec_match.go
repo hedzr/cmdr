@@ -36,6 +36,7 @@ func (w *ExecWorker) cmdMatched(pkg *ptpkg, goCommand *Command, args []string) (
 	if (*goCommand).Action != nil && len((*goCommand).SubCommands) == 0 {
 		// the args remained are files, not sub-commands.
 		pkg.lastCommandHeld = true
+		stop = true
 	}
 	return
 }

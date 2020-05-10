@@ -194,9 +194,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 
 	if err == nil {
 		for pkg.i = 1; pkg.i < len(args); pkg.i++ {
-			pkg.Reset()
-			pkg.a = args[pkg.i]
-			if len(pkg.a) == 0 {
+			if pkg.ResetAnd(args[pkg.i]) == 0 {
 				continue
 			}
 

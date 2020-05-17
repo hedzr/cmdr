@@ -85,7 +85,7 @@ func (s *optFlagImpl) Deprecated(deprecation string) (opt OptFlag) {
 	return
 }
 
-func (s *optFlagImpl) Action(action func(cmd *Command, args []string) (err error)) (opt OptFlag) {
+func (s *optFlagImpl) Action(action Handler) (opt OptFlag) {
 	s.working.Action = action
 	opt = s
 	return

@@ -331,7 +331,7 @@ func WithStrictMode(b bool) ExecOption {
 // When any wrong/warn arguments found, cmdr will display some tip messages. To customize it
 // see also cmdr.WithUnknownOptionHandler.
 //
-func WithAfterArgsParsed(hookFunc func(cmd *Command, args []string) (err error)) ExecOption {
+func WithAfterArgsParsed(hookFunc Handler) ExecOption {
 	return func(w *ExecWorker) {
 		w.afterArgsParsed = hookFunc
 	}

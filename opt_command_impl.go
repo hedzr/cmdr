@@ -111,20 +111,20 @@ func (s *optCommandImpl) Deprecated(deprecation string) (opt OptCmd) {
 	return
 }
 
-func (s *optCommandImpl) Action(action func(cmd *Command, args []string) (err error)) (opt OptCmd) {
+func (s *optCommandImpl) Action(action Handler) (opt OptCmd) {
 	s.working.Action = action
 	opt = s
 	return
 }
 
-func (s *optCommandImpl) PreAction(pre func(cmd *Command, args []string) (err error)) (opt OptCmd) {
+func (s *optCommandImpl) PreAction(pre Handler) (opt OptCmd) {
 	// s.workingFlag.ExternalTool = envKeyName
 	s.working.PreAction = pre
 	opt = s
 	return
 }
 
-func (s *optCommandImpl) PostAction(post func(cmd *Command, args []string)) (opt OptCmd) {
+func (s *optCommandImpl) PostAction(post Invoker) (opt OptCmd) {
 	// s.workingFlag.ExternalTool = envKeyName
 	s.working.PostAction = post
 	opt = s

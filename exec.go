@@ -58,11 +58,11 @@ type ExecWorker struct {
 	noUnknownCmdTip     bool
 	noCommandAction     bool
 
-	logexInitialFunctor func(cmd *Command, args []string) (err error)
+	logexInitialFunctor Handler
 	logexPrefix         string
 	logexSkipFrames     int
 
-	afterArgsParsed func(cmd *Command, args []string) (err error)
+	afterArgsParsed Handler
 
 	envvarToValueMap map[string]func() string
 

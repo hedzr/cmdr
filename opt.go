@@ -16,7 +16,7 @@ type (
 	// 	Group(group string) (opt Opt)
 	// 	Hidden(hidden bool) (opt Opt)
 	// 	Deprecated(deprecation string) (opt Opt)
-	// 	Action(action func(cmd *Command, args []string) (err error)) (opt Opt)
+	// 	Action(action Handler) (opt Opt)
 	// }
 
 	// OptFlag to support fluent api of cmdr.
@@ -34,7 +34,7 @@ type (
 		Hidden(hidden bool) (opt OptFlag)
 		Deprecated(deprecation string) (opt OptFlag)
 		// Action will be triggered once being parsed ok
-		Action(action func(cmd *Command, args []string) (err error)) (opt OptFlag)
+		Action(action Handler) (opt OptFlag)
 
 		ToggleGroup(group string) (opt OptFlag)
 		// DefaultValue needs an exact typed 'val'.
@@ -81,17 +81,17 @@ type (
 		Hidden(hidden bool) (opt OptCmd)
 		Deprecated(deprecation string) (opt OptCmd)
 		// Action will be triggered after all command-line arguments parsed
-		Action(action func(cmd *Command, args []string) (err error)) (opt OptCmd)
+		Action(action Handler) (opt OptCmd)
 
 		// FlagAdd(flg *Flag) (opt OptCmd)
 		// SubCommand(cmd *Command) (opt OptCmd)
 
 		// PreAction will be invoked before running Action
 		// NOTE that RootCommand.PreAction will be invoked too.
-		PreAction(pre func(cmd *Command, args []string) (err error)) (opt OptCmd)
+		PreAction(pre Handler) (opt OptCmd)
 		// PostAction will be invoked after run Action
 		// NOTE that RootCommand.PostAction will be invoked too.
-		PostAction(post func(cmd *Command, args []string)) (opt OptCmd)
+		PostAction(post Invoker) (opt OptCmd)
 
 		TailPlaceholder(placeholder string) (opt OptCmd)
 

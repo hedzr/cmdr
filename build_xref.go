@@ -7,6 +7,7 @@ package cmdr
 import (
 	"github.com/hedzr/cmdr/conf"
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -588,6 +589,11 @@ func (w *ExecWorker) buildCrossRefs(cmd *Command) {
 				flg.Group = flg.ToggleGroup
 			}
 			tgs[flg.ToggleGroup] = true
+		}
+
+		if b := regexp.MustCompile("`(.+)`").Find([]byte(flg.Description)); len(flg.DefaultValuePlaceholder) == 0 && len(b) > 2 {
+			ph := strings.ToUpper(strings.Trim(string(b), "`"))
+			flg.DefaultValuePlaceholder = ph
 		}
 
 		w.buildCrossRefsForFlag(flg, cmd, singleFlagNames, stringFlagNames)

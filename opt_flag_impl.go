@@ -4,6 +4,11 @@
 
 package cmdr
 
+import (
+	"regexp"
+	"strings"
+)
+
 type optFlagImpl struct {
 	working *Flag
 	parent  OptCmd
@@ -54,9 +59,20 @@ func (s *optFlagImpl) Aliases(aliases ...string) (opt OptFlag) {
 
 func (s *optFlagImpl) Description(oneLineDesc string, longDesc ...string) (opt OptFlag) {
 	s.working.Description = oneLineDesc
+
 	for _, long := range longDesc {
 		s.working.LongDescription = long
+
+		if len(s.working.Description) == 0 {
+			s.working.Description = long
+		}
 	}
+
+	if b := regexp.MustCompile("`(.+)`").Find([]byte(s.working.Description)); len(b) > 2 {
+		ph := strings.ToUpper(strings.Trim(string(b), "`"))
+		s.Placeholder(ph)
+	}
+
 	opt = s
 	return
 }

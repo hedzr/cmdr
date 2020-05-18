@@ -24,7 +24,8 @@ type (
 	//
 	// For an option, its default value must be declared with exact type as is
 	OptFlag interface {
-		Titles(short, long string, aliases ...string) (opt OptFlag)
+		// Titles: broken API since v1.6.39
+		Titles(long, short string, aliases ...string) (opt OptFlag)
 		Short(short string) (opt OptFlag)
 		Long(long string) (opt OptFlag)
 		Aliases(ss ...string) (opt OptFlag)
@@ -71,7 +72,8 @@ type (
 	// OptCmd to support fluent api of cmdr.
 	// see also: cmdr.Root().NewSubCommand()/.NewFlag()
 	OptCmd interface {
-		Titles(short, long string, aliases ...string) (opt OptCmd)
+		// Titles: broken API since v1.6.39
+		Titles(long, short string, aliases ...string) (opt OptCmd)
 		Short(short string) (opt OptCmd)
 		Long(long string) (opt OptCmd)
 		Aliases(ss ...string) (opt OptCmd)

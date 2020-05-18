@@ -52,7 +52,7 @@ func (s *optCommandImpl) AttachToRoot(root *RootCommand) {
 	root.SubCommands = uniAddCmd(root.SubCommands, s.working)
 }
 
-func (s *optCommandImpl) Titles(short, long string, aliases ...string) (opt OptCmd) {
+func (s *optCommandImpl) Titles(long, short string, aliases ...string) (opt OptCmd) {
 	s.working.Short = short
 	s.working.Full = long
 	s.working.Aliases = uniAddStrs(s.working.Aliases, aliases...)

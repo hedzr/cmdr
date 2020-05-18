@@ -63,8 +63,9 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
-- v1.6.37, WIP
+- v1.6.39, WIP
   - improved help screen
+  - BROKEN API: the param order exchanged, now them are `OptFlag.Titles(long, short, aliases)` and `OptCmd.Titles(long, short, alases)`.
 
 - v1.6.36
   - `ToggleGroup`:

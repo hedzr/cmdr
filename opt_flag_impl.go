@@ -31,7 +31,7 @@ func (s *optFlagImpl) AttachToRoot(root *RootCommand) {
 	root.Command.Flags = uniAddFlg(root.Command.Flags, s.ToFlag())
 }
 
-func (s *optFlagImpl) Titles(short, long string, aliases ...string) (opt OptFlag) {
+func (s *optFlagImpl) Titles(long, short string, aliases ...string) (opt OptFlag) {
 	s.working.Short = short
 	s.working.Full = long
 	s.working.Aliases = uniAddStrs(s.working.Aliases, aliases...)

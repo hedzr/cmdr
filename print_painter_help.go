@@ -164,10 +164,16 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, def
 	}
 	var envKeys string
 	if len(flg.EnvVars) > 0 {
-		envKeys = fmt.Sprint(flg.EnvVars)
-		envKeys = fmt.Sprintf(" [env: %v]", strings.TrimFunc(envKeys, func(r rune) bool {
-			return r == '[' || r == ']'
-		}))
+		var sb strings.Builder
+		for _, k := range flg.EnvVars {
+			if len(strings.TrimSpace(k)) > 0 {
+				sb.WriteString(strings.TrimSpace(k))
+				sb.WriteRune(',')
+			}
+		}
+		if sb.Len() > 0 {
+			envKeys = fmt.Sprintf(" [env: %v]", strings.TrimRight(sb.String(), ","))
+		}
 	}
 	if len(flg.Deprecated) > 0 {
 		if GetNoColorMode() {

@@ -164,13 +164,25 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 	return
 }
 
+func (w *ExecWorker) postExecFor(rootCmd *RootCommand) {
+	// stop fs watcher explicitly
+	// stopExitingChannelForFsWatcher()
+
+	if rootCmd.ow != nil {
+		_ = rootCmd.ow.Flush()
+	}
+	if rootCmd.oerr != nil {
+		_ = rootCmd.oerr.Flush()
+	}
+}
+
 // InternalExecFor is an internal helper, esp for debugging
 func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last *Command, err error) {
 	var (
-		pkg       = new(ptpkg)
-		goCommand = &rootCmd.Command
-		stop      bool
-		matched   bool
+		pkg          = new(ptpkg)
+		goCommand    = &rootCmd.Command
+		stopF, stopC bool
+		matched      bool
 	)
 
 	if w.rootCommand == nil {
@@ -178,17 +190,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 	}
 
 	// initExitingChannelForFsWatcher()
-	defer func() {
-		// stop fs watcher explicitly
-		// stopExitingChannelForFsWatcher()
-
-		if rootCmd.ow != nil {
-			_ = rootCmd.ow.Flush()
-		}
-		if rootCmd.oerr != nil {
-			_ = rootCmd.oerr.Flush()
-		}
-	}()
+	defer w.postExecFor(rootCmd)
 
 	err = w.preprocess(rootCmd, args)
 
@@ -210,29 +212,29 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 			//  - -nconsul is not good format, but it could get somewhat works.
 			//  - -n'consul', -n"consul" could works too.
 			// -t3: opt with an argument.
-			matched, stop, err = w.xxTestCmd(pkg, &goCommand, rootCmd, args)
+			matched, stopC, stopF, err = w.xxTestCmd(pkg, &goCommand, rootCmd, args)
 			if e, ok := err.(*ErrorForCmdr); ok {
 				ferr("%v", e)
 				if !e.Ignorable {
 					return
 				}
 			}
-			if stop {
+			if stopF {
 				if pkg.lastCommandHeld || (matched && pkg.flg == nil) {
-					err = w.afterInternalExec(pkg, rootCmd, goCommand, args)
+					err = w.afterInternalExec(pkg, rootCmd, goCommand, args, stopC || pkg.lastCommandHeld)
 				}
 				return
 			}
 		}
 
 		last = goCommand
-		err = w.afterInternalExec(pkg, rootCmd, goCommand, args)
+		err = w.afterInternalExec(pkg, rootCmd, goCommand, args, stopC || pkg.lastCommandHeld)
 	}
 
 	return
 }
 
-func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []string) (matched, stop bool, err error) {
+func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []string) (matched, stopC, stopF bool, err error) {
 	if len(pkg.a) > 0 && (pkg.a[0] == '-' || pkg.a[0] == '/' || pkg.a[0] == '~') {
 		if len(pkg.a) == 1 {
 			// pkg.needHelp = true
@@ -242,7 +244,7 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 				ra = ra[1:]
 			}
 
-			stop = true
+			stopF = true
 			pkg.lastCommandHeld = false
 			pkg.needHelp = false
 			pkg.needFlagsHelp = false
@@ -255,7 +257,7 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 		}
 
 		// flag
-		if stop, err = w.flagsPrepare(pkg, goCommand, args); stop || err != nil {
+		if stopF, err = w.flagsPrepare(pkg, goCommand, args); stopF || err != nil {
 			return
 		}
 		if pkg.flg != nil && pkg.found {
@@ -275,13 +277,13 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 		// if matched, stop, err = flagsMatching(pkg, cc, goCommand, args); stop || err != nil {
 		// 	return
 		// }
-		matched, stop, err = w.flagsMatching(pkg, cc, goCommand, args)
+		matched, stopF, err = w.flagsMatching(pkg, cc, goCommand, args)
 
 	} else {
 		// testing the next command, but the last one has already been the end of command series.
 		if pkg.lastCommandHeld {
 			pkg.i--
-			stop = true
+			stopC = true
 			return
 		}
 
@@ -289,7 +291,7 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 		// if matched, stop, err = cmdMatching(pkg, goCommand, args); stop || err != nil {
 		// 	return
 		// }
-		matched, stop, err = w.cmdMatching(pkg, goCommand, args)
+		matched, stopC, err = w.cmdMatching(pkg, goCommand, args)
 	}
 	return
 }
@@ -315,7 +317,7 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 	return
 }
 
-func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string) (err error) {
+func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string, stopC bool) (err error) {
 	w.checkState(pkg)
 
 	if !pkg.needHelp && len(pkg.unknownCmds) == 0 && len(pkg.unknownFlags) == 0 {

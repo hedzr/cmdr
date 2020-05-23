@@ -992,7 +992,7 @@ func (s *Options) loopIxMap(kdot string, m map[interface{}]interface{}) (err err
 }
 
 // DumpAsString for debugging.
-func (s *Options) DumpAsString() (str string) {
+func (s *Options) DumpAsString(showType bool) (str string) {
 	k3 := make([]string, 0)
 	for k := range s.entries {
 		k3 = append(k3, k)
@@ -1000,7 +1000,11 @@ func (s *Options) DumpAsString() (str string) {
 	sort.Strings(k3)
 
 	for _, k := range k3 {
-		str = str + fmt.Sprintf("%-48v => %v\n", k, s.entries[k])
+		if showType {
+			str = str + fmt.Sprintf("%-48v => %v (%T)\n", k, s.entries[k], s.entries[k])
+		} else {
+			str = str + fmt.Sprintf("%-48v => %v\n", k, s.entries[k])
+		}
 	}
 	str += "---------------------------------\n"
 

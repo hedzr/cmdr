@@ -52,7 +52,7 @@ func (s *optCommandImpl) AttachToRoot(root *RootCommand) {
 	root.SubCommands = uniAddCmd(root.SubCommands, s.working)
 }
 
-func (s *optCommandImpl) Titles(short, long string, aliases ...string) (opt OptCmd) {
+func (s *optCommandImpl) Titles(long, short string, aliases ...string) (opt OptCmd) {
 	s.working.Short = short
 	s.working.Full = long
 	s.working.Aliases = uniAddStrs(s.working.Aliases, aliases...)
@@ -111,20 +111,20 @@ func (s *optCommandImpl) Deprecated(deprecation string) (opt OptCmd) {
 	return
 }
 
-func (s *optCommandImpl) Action(action func(cmd *Command, args []string) (err error)) (opt OptCmd) {
+func (s *optCommandImpl) Action(action Handler) (opt OptCmd) {
 	s.working.Action = action
 	opt = s
 	return
 }
 
-func (s *optCommandImpl) PreAction(pre func(cmd *Command, args []string) (err error)) (opt OptCmd) {
+func (s *optCommandImpl) PreAction(pre Handler) (opt OptCmd) {
 	// s.workingFlag.ExternalTool = envKeyName
 	s.working.PreAction = pre
 	opt = s
 	return
 }
 
-func (s *optCommandImpl) PostAction(post func(cmd *Command, args []string)) (opt OptCmd) {
+func (s *optCommandImpl) PostAction(post Invoker) (opt OptCmd) {
 	// s.workingFlag.ExternalTool = envKeyName
 	s.working.PostAction = post
 	opt = s

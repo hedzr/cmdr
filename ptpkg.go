@@ -32,6 +32,12 @@ type ptpkg struct {
 	unknownFlags      []string
 }
 
+func (pkg *ptpkg) ResetAnd(n string) (length int) {
+	pkg.Reset()
+	pkg.a = n
+	return len(n)
+}
+
 func (pkg *ptpkg) Reset() {
 	pkg.assigned = false
 	pkg.found = false

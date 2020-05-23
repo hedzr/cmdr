@@ -16,7 +16,7 @@ type (
 	// 	Group(group string) (opt Opt)
 	// 	Hidden(hidden bool) (opt Opt)
 	// 	Deprecated(deprecation string) (opt Opt)
-	// 	Action(action func(cmd *Command, args []string) (err error)) (opt Opt)
+	// 	Action(action Handler) (opt Opt)
 	// }
 
 	// OptFlag to support fluent api of cmdr.
@@ -24,7 +24,8 @@ type (
 	//
 	// For an option, its default value must be declared with exact type as is
 	OptFlag interface {
-		Titles(short, long string, aliases ...string) (opt OptFlag)
+		// Titles: broken API since v1.6.39
+		Titles(long, short string, aliases ...string) (opt OptFlag)
 		Short(short string) (opt OptFlag)
 		Long(long string) (opt OptFlag)
 		Aliases(ss ...string) (opt OptFlag)
@@ -34,7 +35,7 @@ type (
 		Hidden(hidden bool) (opt OptFlag)
 		Deprecated(deprecation string) (opt OptFlag)
 		// Action will be triggered once being parsed ok
-		Action(action func(cmd *Command, args []string) (err error)) (opt OptFlag)
+		Action(action Handler) (opt OptFlag)
 
 		ToggleGroup(group string) (opt OptFlag)
 		// DefaultValue needs an exact typed 'val'.
@@ -71,7 +72,8 @@ type (
 	// OptCmd to support fluent api of cmdr.
 	// see also: cmdr.Root().NewSubCommand()/.NewFlag()
 	OptCmd interface {
-		Titles(short, long string, aliases ...string) (opt OptCmd)
+		// Titles: broken API since v1.6.39
+		Titles(long, short string, aliases ...string) (opt OptCmd)
 		Short(short string) (opt OptCmd)
 		Long(long string) (opt OptCmd)
 		Aliases(ss ...string) (opt OptCmd)
@@ -81,17 +83,17 @@ type (
 		Hidden(hidden bool) (opt OptCmd)
 		Deprecated(deprecation string) (opt OptCmd)
 		// Action will be triggered after all command-line arguments parsed
-		Action(action func(cmd *Command, args []string) (err error)) (opt OptCmd)
+		Action(action Handler) (opt OptCmd)
 
 		// FlagAdd(flg *Flag) (opt OptCmd)
 		// SubCommand(cmd *Command) (opt OptCmd)
 
 		// PreAction will be invoked before running Action
 		// NOTE that RootCommand.PreAction will be invoked too.
-		PreAction(pre func(cmd *Command, args []string) (err error)) (opt OptCmd)
+		PreAction(pre Handler) (opt OptCmd)
 		// PostAction will be invoked after run Action
 		// NOTE that RootCommand.PostAction will be invoked too.
-		PostAction(post func(cmd *Command, args []string)) (opt OptCmd)
+		PostAction(post Invoker) (opt OptCmd)
 
 		TailPlaceholder(placeholder string) (opt OptCmd)
 

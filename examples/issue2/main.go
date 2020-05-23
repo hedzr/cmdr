@@ -43,7 +43,7 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 		Action(myBizLogic)
 
 	// root.NewSubCommand().
-	// 	Titles("h", "help").
+	// 	Titles("help", "h").
 	// 	Description("show help screen", "").
 	// 	Action(func(cmd *cmdr.Command, args []string) (err error) {
 	// 		fmt.Println("this is help text")
@@ -52,7 +52,7 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 	// 	})
 
 	// root.NewFlag(cmdr.OptFlagTypeBool).
-	// 	Titles("h", "help").
+	// 	Titles("help", "h").
 	// 	Description("show help screen", "").
 	// 	DefaultValue(false, "").
 	// 	OnSet(func(keyPath string, value interface{}) {
@@ -62,7 +62,7 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 	// 	})
 
 	root.NewFlagV("").
-		Titles("o", "output-file").
+		Titles("output-file", "o").
 		Description("output file", "").
 		Placeholder("").
 		OnSet(func(keyPath string, value interface{}) {

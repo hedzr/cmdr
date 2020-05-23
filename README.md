@@ -63,6 +63,14 @@ import "github.com/hedzr/cmdr"
 
 ## News
 
+- v1.6.39, WIP
+  - **BROKEN API**: the params order exchanged, their new prototypes are `OptFlag.Titles(long, short, aliases)` and `OptCmd.Titles(long, short, alases)`.
+  - improved help screen
+  - bug fixed:
+    - the value of remained args could be wrong sometimes
+    - stop flag split in parsing
+    - some coverage test errors
+
 - v1.6.36
   - `ToggleGroup`:
     - assume the empty Group field with ToggleGroup
@@ -73,19 +81,6 @@ import "github.com/hedzr/cmdr"
   - fixed: `GetStringSliceXxx()` return the value array without expand the envvar.
   - improved: some supports for plan9
   - fixed: can't expand envvar correectly at earlier initializing.
-  
-- v1.6.35
-  - routine maintenance: take effects with bug fixed of logex, etc.
-  - typo, doc
-  - fixed a data racing scene: the fs-watcher and build-auto-env [rarely]
-
-- v1.6.33
-  - fixed the wrong prototype for nacl/plan9
-
-- v1.6.32
-  - routine maintainance
-    - downward compatibility: to go1.11
-    - enable github actions
 
 - For more information to refer to [CHANGELOG](./CHANGELOG)
 

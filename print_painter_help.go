@@ -155,7 +155,7 @@ func (s *helpPainter) FpFlagsGroupTitle(group string) {
 	}
 }
 
-func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, defValStr string) {
+func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, defValStr string) {
 	if len(flg.ValidArgs) > 0 {
 		defValStr = fmt.Sprintf("%v, in %v", defValStr, flg.ValidArgs)
 	}
@@ -164,26 +164,32 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, defValStr string)
 	}
 	var envKeys string
 	if len(flg.EnvVars) > 0 {
-		envKeys = fmt.Sprint(flg.EnvVars)
-		envKeys = fmt.Sprintf(" [env: %v]", strings.TrimFunc(envKeys, func(r rune) bool {
-			return r == '[' || r == ']'
-		}))
+		var sb strings.Builder
+		for _, k := range flg.EnvVars {
+			if len(strings.TrimSpace(k)) > 0 {
+				sb.WriteString(strings.TrimSpace(k))
+				sb.WriteRune(',')
+			}
+		}
+		if sb.Len() > 0 {
+			envKeys = fmt.Sprintf(" [env: %v]", strings.TrimRight(sb.String(), ","))
+		}
 	}
 	if len(flg.Deprecated) > 0 {
 		if GetNoColorMode() {
 			s.Printf(fmtFlagsDepNC, // "  %-48s%s%s [deprecated since %v]",
-				flg.GetTitleFlagNames(), flg.Description, envKeys, defValStr, flg.Deprecated)
+				flg.GetTitleFlagNamesByMax(",", maxShort), flg.Description, envKeys, defValStr, flg.Deprecated)
 		} else {
 			s.Printf(fmtFlagsDep, // "  \x1b[%dm\x1b[%dm%-48s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]",
-				BgNormal, CurrentDescColor, flg.GetTitleFlagNames(), flg.Description,
+				BgNormal, CurrentDescColor, flg.GetTitleFlagNamesByMax(",", maxShort), flg.Description,
 				BgItalic, CurrentDefaultValueColor, envKeys, defValStr, flg.Deprecated)
 		}
 	} else {
 		if GetNoColorMode() {
-			s.Printf(fmtFlagsNC, flg.GetTitleFlagNames(), flg.Description, envKeys, defValStr)
+			s.Printf(fmtFlagsNC, flg.GetTitleFlagNamesByMax(",", maxShort), flg.Description, envKeys, defValStr)
 		} else {
 			s.Printf(fmtFlags, // "  %-48s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%s\x1b[0m",
-				flg.GetTitleFlagNames(), BgNormal, CurrentDescColor, flg.Description,
+				flg.GetTitleFlagNamesByMax(",", maxShort), BgNormal, CurrentDescColor, flg.Description,
 				BgItalic, CurrentDefaultValueColor, envKeys, defValStr)
 		}
 	}

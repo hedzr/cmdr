@@ -7,6 +7,7 @@ package cmdr
 import (
 	"github.com/hedzr/cmdr/conf"
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -371,7 +372,7 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 					Short:       "",
 					Full:        "raw",
 					Aliases:     []string{},
-					Description: "Dump the option value in raw mode (with golang data structure).",
+					Description: "Dump the option value in raw mode (with golang data structure, without envvar expanding).",
 					Hidden:      true,
 					Group:       SysMgmtGroup,
 					owner:       &root.Command,
@@ -381,6 +382,23 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 			root.Flags = append(root.Flags, ff)
 			root.allFlags[SysMgmtGroup]["raw"] = ff
 			root.plainLongFlags["raw"] = root.allFlags[SysMgmtGroup]["raw"]
+		}
+		if _, ok := root.allFlags[SysMgmtGroup]["value-type"]; !ok {
+			ff := &Flag{
+				BaseOpt: BaseOpt{
+					Short:       "",
+					Full:        "value-type",
+					Aliases:     []string{},
+					Description: "Dump the option value type.",
+					Hidden:      true,
+					Group:       SysMgmtGroup,
+					owner:       &root.Command,
+				},
+				DefaultValue: false,
+			}
+			root.Flags = append(root.Flags, ff)
+			root.allFlags[SysMgmtGroup]["value-type"] = ff
+			root.plainLongFlags["value-type"] = root.allFlags[SysMgmtGroup]["value-type"]
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["more"]; !ok {
 			ff := &Flag{
@@ -588,6 +606,11 @@ func (w *ExecWorker) buildCrossRefs(cmd *Command) {
 				flg.Group = flg.ToggleGroup
 			}
 			tgs[flg.ToggleGroup] = true
+		}
+
+		if b := regexp.MustCompile("`(.+)`").Find([]byte(flg.Description)); len(flg.DefaultValuePlaceholder) == 0 && len(b) > 2 {
+			ph := strings.ToUpper(strings.Trim(string(b), "`"))
+			flg.DefaultValuePlaceholder = ph
 		}
 
 		w.buildCrossRefsForFlag(flg, cmd, singleFlagNames, stringFlagNames)

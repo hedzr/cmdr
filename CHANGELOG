@@ -3,6 +3,15 @@
 ## Versions
 
 
+- v1.6.39
+  - **BROKEN API**: the params order exchanged, their new prototypes are `OptFlag.Titles(long, short, aliases)` and `OptCmd.Titles(long, short, alases)`.
+  - improved help screen
+  - bug fixed:
+    - the value of remained args could be wrong sometimes
+    - stop flag split in parsing
+    - some coverage test errors
+
+
 - v1.6.36
   - `ToggleGroup`:
     - assume the empty Group field with ToggleGroup

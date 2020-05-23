@@ -56,8 +56,13 @@ type (
 		// Action is callback for the last recognized command/sub-command.
 		// return: ErrShouldBeStopException will break the following flow and exit right now
 		// cmd 是 flag 被识别时已经得到的子命令
-		Action func(cmd *Command, args []string) (err error)
+		Action Handler
 	}
+
+	// Handler handles the event on a subcommand matched
+	Handler func(cmd *Command, args []string) (err error)
+	// Invoker is a Handler but without error returns
+	Invoker func(cmd *Command, args []string)
 
 	// Command holds the structure of commands and sub-commands
 	Command struct {
@@ -67,9 +72,9 @@ type (
 
 		SubCommands []*Command
 		// return: ErrShouldBeStopException will break the following flow and exit right now
-		PreAction func(cmd *Command, args []string) (err error)
+		PreAction Handler
 		// PostAction will be run after Action() invoked.
-		PostAction func(cmd *Command, args []string)
+		PostAction Invoker
 		// be shown at tail of command usages line. Such as for TailPlaceHolder="<host-fqdn> <ipv4/6>":
 		// austr dns add <host-fqdn> <ipv4/6> [Options] [Parent/Global Options]
 		TailPlaceHolder string
@@ -97,7 +102,7 @@ type (
 		Author    string
 		Header    string // using `Header` for header and ignore built with `Copyright` and `Author`, and no usage lines too.
 
-		PostActions []func(cmd *Command, args []string)
+		PostActions []Invoker
 
 		ow   *bufio.Writer
 		oerr *bufio.Writer
@@ -150,7 +155,7 @@ type (
 		times int
 
 		// PostAction treat this flag as a command!
-		// PostAction func(cmd *Command, args []string) (err error)
+		// PostAction Handler
 
 		// by default, a flag is always `optional`.
 	}

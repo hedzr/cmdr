@@ -34,7 +34,7 @@ func (w *ExecWorker) printHelp(command *Command, justFlags bool) {
 
 	// NOTE: checking `~~debug`
 	if w.rxxtOptions.GetBoolEx("debug", false) {
-		w.paintTildeDebugCommand()
+		w.paintTildeDebugCommand(w.rxxtOptions.GetBoolEx("value-type"))
 	}
 	if w.currentHelpPainter != nil {
 		w.currentHelpPainter.Results()
@@ -45,12 +45,12 @@ func (w *ExecWorker) printHelp(command *Command, justFlags bool) {
 }
 
 // paintTildeDebugCommand for `~~debug`
-func (w *ExecWorker) paintTildeDebugCommand() {
+func (w *ExecWorker) paintTildeDebugCommand(showType bool) {
 	if GetNoColorMode() {
-		fp("\nDUMP:\n\n%v\n", w.rxxtOptions.DumpAsString())
+		fp("\nDUMP:\n\n%v\n", w.rxxtOptions.DumpAsString(showType))
 	} else {
 		// "  [\x1b[2m\x1b[%dm%s\x1b[0m]"
-		fp("\n\x1b[2m\x1b[%dmDUMP:\n\n%v\x1b[0m\n", DarkColor, w.rxxtOptions.DumpAsString())
+		fp("\n\x1b[2m\x1b[%dmDUMP:\n\n%v\x1b[0m\n", DarkColor, w.rxxtOptions.DumpAsString(showType))
 
 		if w.rxxtOptions.GetBoolEx("env") {
 			fp("---- ENV: ")
@@ -242,6 +242,16 @@ func getSortedKeysFromFlgMap(groups map[string]*Flag) (k3 []string) {
 	return
 }
 
+func findMaxShortLength(groups map[string]*Flag) (maxShort int) {
+	for _, flg := range groups {
+		// flg := groups[nm]
+		if !flg.Hidden && maxShort < len(flg.Short) {
+			maxShort = len(flg.Short)
+		}
+	}
+	return
+}
+
 func printHelpFlagSections(p Painter, command *Command, justFlags bool) {
 	sectionName := "Options"
 
@@ -258,7 +268,9 @@ GO_PRINT_FLAGS:
 			groups := command.allFlags[group]
 			if len(groups) > 0 {
 				p.FpFlagsGroupTitle(group)
-				for _, nm := range getSortedKeysFromFlgMap(groups) {
+				k3 := getSortedKeysFromFlgMap(groups)
+				maxShort := findMaxShortLength(groups)
+				for _, nm := range k3 {
 					flg := groups[nm]
 					if !flg.Hidden {
 						defValStr := ""
@@ -277,7 +289,7 @@ GO_PRINT_FLAGS:
 								}
 							}
 						}
-						p.FpFlagsLine(command, flg, defValStr)
+						p.FpFlagsLine(command, flg, maxShort, defValStr)
 						// fp("  %-48s%v%s", flg.GetTitleFlagNames(), flg.Description, defValStr)
 					}
 				}

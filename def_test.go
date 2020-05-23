@@ -31,9 +31,10 @@ func TestSingleCommandLine1(t *testing.T) {
 
 	cmdr.InternalResetWorker()
 
-	onUnhandleErrorHandler := func(err interface{}) {
+	onUnhandledErrorHandler := func(err interface{}) {
 		// debug.PrintStack()
 		// pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
+		t.Errorf("%+v", err)
 		t.Fatal(errors.DumpStacksAsString(false))
 	}
 
@@ -82,7 +83,7 @@ func TestSingleCommandLine1(t *testing.T) {
 		cmdr.WithHelpTailLine(`
 Type '-h'/'-?' or '--help' to get command help screen. 
 More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-info', '--no-color', '--strict-mode', '--no-env-overrides'...`),
-		cmdr.WithUnhandledErrorHandler(onUnhandleErrorHandler),
+		cmdr.WithUnhandledErrorHandler(onUnhandledErrorHandler),
 		cmdr.WithOnSwitchCharHit(func(parsed *cmdr.Command, switchChar string, args []string) (err error) {
 			return
 		}),
@@ -621,6 +622,7 @@ func TestExec(t *testing.T) {
 
 	t.Log("xxx: -------- loops for execTestings")
 	for sss, verifier := range execTestings {
+		cmdr.ResetOptions()
 		resetFlagsAndLog(t)
 		cmdr.ResetRootInWorker()
 
@@ -634,7 +636,7 @@ func TestExec(t *testing.T) {
 			// cmdr.SetCustomShowBuildInfo(func() {
 			// })
 		}
-		if sss == "consul-tags ms tags modify -h ~~debug --port8509 --prefix/" {
+		if sss == "consul-tags -? -vD kv backup --prefix'4' -h ~~debug" {
 			fmt.Println("xx*: ***: ", sss)
 		}
 
@@ -642,7 +644,7 @@ func TestExec(t *testing.T) {
 			t.Fatal(err, fmt.Sprintf("rootCmd = %p", rootCmdForTesting))
 		}
 		if sss == "consul-tags kv unknown" {
-			errX = bytes.NewBufferString("")
+			errX = bytes.NewBufferString("") // ignore the error outputs 'Unknown command: unknown'
 		}
 		if err = verifier(t); err != nil {
 			t.Fatal(err)
@@ -747,10 +749,10 @@ var (
 			}
 			return nil
 		},
-		"consul-tags -? -vD kv backup --prefix'' -h ~~debug": func(t *testing.T) error {
+		"consul-tags -? -vD kv backup --prefix'4' -h ~~debug": func(t *testing.T) error {
 			fmt.Println(cmdr.FindFlag("verbose", nil).GetTriggeredTimes())
 
-			if cmdr.GetInt("app.kv.port") != 8500 || cmdr.GetString("app.kv.prefix") != "" ||
+			if cmdr.GetInt("app.kv.port") != 8500 || cmdr.GetString("app.kv.prefix") != "4" ||
 				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") ||
 				!cmdr.GetVerboseMode() || !cmdr.GetDebugMode() {
 				return fmt.Errorf("something wrong 2. |%v|%v|%v|%v|%v|%v",
@@ -760,8 +762,8 @@ var (
 			}
 			return nil
 		},
-		"consul-tags -vD ms tags modify --prefix'' --help ~~debug --prefix\"\" --prefix'cmdr' --prefix\"app\" --prefix=/ --prefix/ --prefix /": func(t *testing.T) error {
-			if cmdr.GetInt("app.ms.tags.port") != 8500 || cmdr.GetString("app.ms.tags.prefix") != "/" ||
+		"consul-tags -vD ms tags modify --prefix'' --help ~~debug --prefix\"\" --prefix'cmdr' --prefix\"app\" --prefix=1 --prefix2 --prefix 3": func(t *testing.T) error {
+			if cmdr.GetInt("app.ms.tags.port") != 8500 || cmdr.GetString("app.ms.tags.prefix") != "3" ||
 				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") ||
 				!cmdr.GetVerboseMode() || !cmdr.GetDebugMode() {
 				return errors.New("something wrong 3. |%v|%v|%v|%v|%v|%v",

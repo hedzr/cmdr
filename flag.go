@@ -71,46 +71,41 @@ func (s *Flag) GetTitleZshFlagNamesArray() (ary []string) {
 
 // GetTitleFlagNamesBy temp
 func (s *Flag) GetTitleFlagNamesBy(delimChar string) string {
-	return s.GetTitleFlagNamesByMax(delimChar, -1)
+	return s.GetTitleFlagNamesByMax(delimChar, len(s.Short))
 }
 
 // GetTitleFlagNamesByMax temp
-func (s *Flag) GetTitleFlagNamesByMax(delimChar string, maxCount int) string {
-	var a = s.GetTitleNamesArray()
-	var str string
+func (s *Flag) GetTitleFlagNamesByMax(delimChar string, maxShort int) string {
+	var sb strings.Builder
 
 	if len(s.Short) == 0 {
 		// if no flag.Short,
-		a = append([]string{""}, a...)
-	}
-
-	for ix, sz := range a {
-		if ix == 0 {
-			if len(sz) == 0 {
-				// if no flag.Short,
-				str += "  "
-			} else {
-				str += "-" + sz
-			}
-		} else if ix == 1 {
-			if len(strings.TrimSpace(str)) == 0 {
-				// if no flag.Short,
-				str += " "
-			} else {
-				str += delimChar
-			}
-			if len(str) < 4 {
-				// align between -nv and -v
-				str += " "
-			}
-			str += " --" + sz
-			if len(s.DefaultValuePlaceholder) > 0 {
-				// str += fmt.Sprintf("=\x1b[2m\x1b[%dm%s\x1b[0m", DarkColor, s.DefaultValuePlaceholder)
-				str += fmt.Sprintf("=%s", s.DefaultValuePlaceholder)
-			}
-		} else {
-			str += delimChar + " --" + sz
+		sb.WriteString(strings.Repeat(" ", maxShort))
+	} else {
+		sb.WriteRune('-')
+		sb.WriteString(s.Short)
+		sb.WriteString(delimChar)
+		if len(s.Short) < maxShort {
+			sb.WriteString(strings.Repeat(" ", maxShort-len(s.Short)))
 		}
 	}
-	return str
+
+	if len(s.Short) == 0 {
+		sb.WriteRune(' ')
+		sb.WriteRune(' ')
+	}
+	sb.WriteRune(' ')
+	sb.WriteString("--")
+	sb.WriteString(s.Full)
+	if len(s.DefaultValuePlaceholder) > 0 {
+		// str += fmt.Sprintf("=\x1b[2m\x1b[%dm%s\x1b[0m", DarkColor, s.DefaultValuePlaceholder)
+		sb.WriteString(fmt.Sprintf("=%s", s.DefaultValuePlaceholder))
+	}
+
+	for _, sz := range s.Aliases {
+		sb.WriteString(delimChar)
+		sb.WriteString("--")
+		sb.WriteString(sz)
+	}
+	return sb.String()
 }

@@ -85,7 +85,7 @@ func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.LogexOption) (err 
 	return
 }
 
-func (w *ExecWorker) getWithLogexInitializor(lvl Level, opts ...logex.LogexOption) func(cmd *Command, args []string) (err error) {
+func (w *ExecWorker) getWithLogexInitializor(lvl Level, opts ...logex.LogexOption) Handler {
 	return func(cmd *Command, args []string) (err error) {
 
 		if len(w.logexPrefix) == 0 {

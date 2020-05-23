@@ -4,6 +4,11 @@
 
 package cmdr
 
+import (
+	"regexp"
+	"strings"
+)
+
 type optFlagImpl struct {
 	working *Flag
 	parent  OptCmd
@@ -26,7 +31,7 @@ func (s *optFlagImpl) AttachToRoot(root *RootCommand) {
 	root.Command.Flags = uniAddFlg(root.Command.Flags, s.ToFlag())
 }
 
-func (s *optFlagImpl) Titles(short, long string, aliases ...string) (opt OptFlag) {
+func (s *optFlagImpl) Titles(long, short string, aliases ...string) (opt OptFlag) {
 	s.working.Short = short
 	s.working.Full = long
 	s.working.Aliases = uniAddStrs(s.working.Aliases, aliases...)
@@ -54,9 +59,20 @@ func (s *optFlagImpl) Aliases(aliases ...string) (opt OptFlag) {
 
 func (s *optFlagImpl) Description(oneLineDesc string, longDesc ...string) (opt OptFlag) {
 	s.working.Description = oneLineDesc
+
 	for _, long := range longDesc {
 		s.working.LongDescription = long
+
+		if len(s.working.Description) == 0 {
+			s.working.Description = long
+		}
 	}
+
+	if b := regexp.MustCompile("`(.+)`").Find([]byte(s.working.Description)); len(b) > 2 {
+		ph := strings.ToUpper(strings.Trim(string(b), "`"))
+		s.Placeholder(ph)
+	}
+
 	opt = s
 	return
 }
@@ -85,7 +101,7 @@ func (s *optFlagImpl) Deprecated(deprecation string) (opt OptFlag) {
 	return
 }
 
-func (s *optFlagImpl) Action(action func(cmd *Command, args []string) (err error)) (opt OptFlag) {
+func (s *optFlagImpl) Action(action Handler) (opt OptFlag) {
 	s.working.Action = action
 	opt = s
 	return

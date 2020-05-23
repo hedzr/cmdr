@@ -645,7 +645,7 @@ func ResetOptions() {
 
 // DumpAsString for debugging.
 func DumpAsString() (str string) {
-	return internalGetWorker().rxxtOptions.DumpAsString()
+	return internalGetWorker().rxxtOptions.DumpAsString(false)
 }
 
 // AsYaml returns a yaml string bytes about all options

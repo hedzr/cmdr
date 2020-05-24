@@ -59,11 +59,16 @@ Need go-modules enabled:
 import "github.com/hedzr/cmdr"
 ```
 
+See our extras:
+
+- [cmdr-addons](https://github.com/hedzr/cmdr-addons): a new daemon plugin `dex` for linux/macOS/windows.
+- [cmdr-examples](https://github.com/hedzr/cmdr-examples)
+
 
 
 ## News
 
-- v1.6.39, WIP
+- v1.6.39
   - **BROKEN API**: the params order exchanged, their new prototypes are `OptFlag.Titles(long, short, aliases)` and `OptCmd.Titles(long, short, alases)`.
   - improved help screen
   - bug fixed:

@@ -43,7 +43,7 @@ hierarchy configuration data too.
   * [At Playground](#at-playground)
   * [Uses](#uses)
   * [Contrib](#contrib)
-  * [Thanks to JODL](#thanks)
+  * [Thanks to JODL](#thanks-to-jodl)
   * [License](#license)
 
 
@@ -667,7 +667,7 @@ Try its out :
 
 ## License
 
-MIT.
+MIT
 
 
 

@@ -68,6 +68,9 @@ See our extras:
 
 ## News
 
+- v1.6.41, WIP
+  - `WithPagerEnabled()`: enables OS pager for help screen output
+
 - v1.6.39
   - **BROKEN API**: the params order exchanged, their new prototypes are `OptFlag.Titles(long, short, aliases)` and `OptCmd.Titles(long, short, alases)`.
   - improved help screen

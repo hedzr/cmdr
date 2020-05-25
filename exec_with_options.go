@@ -7,8 +7,12 @@ package cmdr
 import (
 	"bufio"
 	"github.com/hedzr/cmdr/conf"
+	"io"
+	"log"
 	"os"
+	"os/exec"
 	"path"
+	"runtime"
 )
 
 // WithXrefBuildingHooks sets the hook before and after building xref indices.
@@ -224,6 +228,52 @@ func WithInternalOutputStreams(out, err *bufio.Writer) ExecOption {
 			w.defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
 		}
 	}
+}
+
+// WithPagerEnabled transfer cmdr stdout to OS pager.
+// The environment variable `PAGER` will be checkout, otherwise `less`.
+//
+// NOTICE ONLY the outputs of cmdr (such as help screen) will be paged.
+func WithPagerEnabled() ExecOption {
+	return func(w *ExecWorker) {
+		w.closers = append(w.closers, openPager(w))
+	}
+}
+
+func closePager(cmd *exec.Cmd, pager io.WriteCloser) func() {
+	return func() {
+		pager.Close()
+		cmd.Wait()
+		// log.Println("pager closed.")
+	}
+}
+
+func openPager(w *ExecWorker) (closer func()) {
+	var err error
+	var cmd *exec.Cmd
+	var pager io.WriteCloser
+	pagerApp := os.Getenv("PAGER")
+	if pagerApp == "" {
+		pagerApp = "less"
+	}
+	cmd = exec.Command(pagerApp)
+	pager, err = cmd.StdinPipe()
+	if err != nil {
+		log.Fatal(err)
+	}
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if pagerApp == "less" {
+		cmd.Args = []string{pagerApp, "-SEX"}
+	} else if runtime.GOOS == "darwin" {
+		cmd.Args = []string{pagerApp, "-SEX", "-R-"}
+	}
+	if err = cmd.Start(); err != nil {
+		log.Fatal(err)
+	}
+	// log.Printf("run %q %v....", pagerApp, cmd.Args)
+	w.defaultStdout = bufio.NewWriterSize(pager, 32768)
+	return closePager(cmd, pager)
 }
 
 // WithCustomShowVersion supports your `ShowVersion()` instead of internal `showVersion()`

@@ -255,6 +255,9 @@ func openPager(w *ExecWorker) (closer func()) {
 	pagerApp := os.Getenv("PAGER")
 	if pagerApp == "" {
 		pagerApp = "less"
+		
+		// NOTE: here is another pager with column mode supports:
+		// https://github.com/noborus/ov
 	}
 	cmd = exec.Command(pagerApp)
 	pager, err = cmd.StdinPipe()

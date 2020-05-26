@@ -42,6 +42,7 @@ type ExecWorker struct {
 
 	defaultStdout *bufio.Writer
 	defaultStderr *bufio.Writer
+	closers       []func()
 
 	// rootCommand the root of all commands
 	rootCommand *RootCommand
@@ -92,6 +93,10 @@ func Exec(rootCmd *RootCommand, opts ...ExecOption) (err error) {
 	defer func() {
 		// stop fs watcher explicitly
 		stopExitingChannelForFsWatcher()
+
+		for _, c := range internalGetWorker().closers {
+			c()
+		}
 	}()
 
 	w := internalGetWorker()
@@ -162,18 +167,6 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 
 	uniqueWorker = w
 	return
-}
-
-func (w *ExecWorker) postExecFor(rootCmd *RootCommand) {
-	// stop fs watcher explicitly
-	// stopExitingChannelForFsWatcher()
-
-	if rootCmd.ow != nil {
-		_ = rootCmd.ow.Flush()
-	}
-	if rootCmd.oerr != nil {
-		_ = rootCmd.oerr.Flush()
-	}
 }
 
 // InternalExecFor is an internal helper, esp for debugging
@@ -315,6 +308,18 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 		}
 	}
 	return
+}
+
+func (w *ExecWorker) postExecFor(rootCmd *RootCommand) {
+	// stop fs watcher explicitly
+	// stopExitingChannelForFsWatcher()
+
+	if rootCmd.ow != nil {
+		_ = rootCmd.ow.Flush()
+	}
+	if rootCmd.oerr != nil {
+		_ = rootCmd.oerr.Flush()
+	}
 }
 
 func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string, stopC bool) (err error) {

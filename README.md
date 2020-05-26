@@ -43,7 +43,7 @@ hierarchy configuration data too.
   * [At Playground](#at-playground)
   * [Uses](#uses)
   * [Contrib](#contrib)
-  * [Thanks to JODL](#thanks)
+  * [Thanks to JODL](#thanks-to-jodl)
   * [License](#license)
 
 
@@ -67,6 +67,9 @@ See our extras:
 
 
 ## News
+
+- v1.6.41
+  - `WithPagerEnabled()`: enables OS pager for help screen output
 
 - v1.6.39
   - **BROKEN API**: the params order exchanged, their new prototypes are `OptFlag.Titles(long, short, aliases)` and `OptCmd.Titles(long, short, alases)`.
@@ -667,7 +670,7 @@ Try its out :
 
 ## License
 
-MIT.
+MIT
 
 
 

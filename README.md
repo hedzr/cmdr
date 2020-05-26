@@ -68,7 +68,7 @@ See our extras:
 
 ## News
 
-- v1.6.41, WIP
+- v1.6.41
   - `WithPagerEnabled()`: enables OS pager for help screen output
 
 - v1.6.39

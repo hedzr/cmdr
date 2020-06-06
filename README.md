@@ -68,8 +68,13 @@ See our extras:
 
 ## News
 
+- v1.6.45
+  - fixed/improved: `ToBool(value, defval...) bool`
+  - fixed: flag.OnSet trigger for envvar hit
+  - fixed/improved: friendly error msg
+
 - v1.6.43
-  - fixed/improved: matching algorithm and remained args
+  - fixed/improved: the matching algorithm and remained args
 
 - v1.6.41
   - `WithPagerEnabled()`: enables OS pager for help screen output

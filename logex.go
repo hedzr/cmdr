@@ -67,10 +67,11 @@ func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.LogexOption) (err 
 			l = DebugLevel
 		}
 	}
-	if GetBoolR("trace") || GetBool("trace") || toBool(os.Getenv("TRACE")) {
+	if GetBoolR("trace") || GetBool("trace") || ToBool(os.Getenv("TRACE")) {
 		if l < TraceLevel {
 			l = TraceLevel
 		}
+		flog("trace mode enabled")
 	}
 
 	Set("logger-level", int(l))

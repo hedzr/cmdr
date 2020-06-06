@@ -146,7 +146,24 @@ func (s *Options) getMap(vp map[string]interface{}, key string, remains ...strin
 
 // GetBoolEx returns the bool value of an `Option` key.
 func (s *Options) GetBoolEx(key string, defaultVal ...bool) (ret bool) {
-	ret = toBool(s.GetString(key, ""), defaultVal...)
+	ret = ToBool(s.GetString(key, ""), defaultVal...)
+	return
+}
+
+// ToBool translate a value to boolean
+func ToBool(val interface{}, defaultVal ...bool) (ret bool) {
+	if v, ok := val.(bool); ok {
+		return v
+	}
+	if v, ok := val.(int); ok {
+		return v != 0
+	}
+	if v, ok := val.(string); ok {
+		return toBool(v, defaultVal...)
+	}
+	for _, vv := range defaultVal {
+		ret = vv
+	}
 	return
 }
 
@@ -681,14 +698,14 @@ func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 		}
 		// logrus.Printf("buildAutomaticEnv: %v", key)
 		if flg := s.lookupFlag(key, rootCmd); flg != nil {
-			// // logrus.Debugf("buildAutomaticEnv: %v matched", key)
+			// flog("    [cmdr] lookupFlag for %q: %v", key, flg.GetTitleName())
+			//
 			// if key == "app.mx-test.test" {
 			// 	logrus.Debugf("                 : flag=%+v", flg)
 			// }
 			for _, ek := range flg.EnvVars {
 				if v, ok := os.LookupEnv(ek); ok {
-					// logrus.Debugf("buildAutomaticEnv: envvar %v found", ek)
-					// logrus.Debugf("                 : flag=%+v", flg)
+					// flog("    [cmdr][buildAutomaticEnv] envvar %q found (flg=%v): %v", ek, flg.GetTitleName(), v)
 					if strings.HasPrefix(key, prefix) {
 						// logrus.Printf("setnx: %v <-- %v", key, v)
 						s.SetNx(key, v)
@@ -696,6 +713,9 @@ func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 					} else {
 						// logrus.Printf("set: %v <-- %v", key, v)
 						s.Set(key, v)
+					}
+					if flg.onSet != nil {
+						flg.onSet(key, v)
 					}
 				}
 			}

@@ -193,7 +193,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 			// 	continue
 			// }
 			lr := pkg.ResetAnd(args[pkg.i])
-			flog("--> parsing %q (idx=%v, len=%v)", pkg.a, pkg.i, lr)
+			flog("--> parsing %q (idx=%v, len=%v) | pkg.lastCommandHeld=%v", pkg.a, pkg.i, lr, pkg.lastCommandHeld)
 
 			// --debug: long opt
 			// -D:      short opt
@@ -273,6 +273,7 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 		// if matched, stop, err = flagsMatching(pkg, cc, goCommand, args); stop || err != nil {
 		// 	return
 		// }
+		flog("    -> matching flag for %q", pkg.a)
 		matched, stopF, err = w.flagsMatching(pkg, cc, goCommand, args)
 
 	} else {
@@ -282,6 +283,7 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 			// 	pkg.i--
 			// }
 			stopC = true
+			pkg.remainArgs = append(pkg.remainArgs, pkg.a)
 			return
 		}
 
@@ -332,7 +334,7 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 
 	if !pkg.needHelp && len(pkg.unknownCmds) == 0 && len(pkg.unknownFlags) == 0 {
 		if goCommand.Action != nil {
-			args := w.getArgs(pkg, args)
+			args := w.getRemainArgs(pkg, args)
 
 			// if goCommand != &rootCmd.Command {
 			// 	if err = w.beforeInvokeCommand(rootCmd, goCommand, args); err == ErrShouldBeStopException {
@@ -361,17 +363,17 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 	return
 }
 
-func (w *ExecWorker) ainvk(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string) (err error) {
+func (w *ExecWorker) ainvk(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
 	if goCommand != &rootCmd.Command {
 		if w.noCommandAction {
 			return
 		}
 
-		// // if err = w.beforeInvokeCommand(rootCmd, goCommand, args); err == ErrShouldBeStopException {
+		// // if err = w.beforeInvokeCommand(rootCmd, goCommand, remainArgs); err == ErrShouldBeStopException {
 		// // 	return nil
 		// // }
 		// if rootCmd.PostAction != nil {
-		// 	defer rootCmd.PostAction(goCommand, args)
+		// 	defer rootCmd.PostAction(goCommand, remainArgs)
 		// }
 
 		ta := append(rootCmd.PostActions, rootCmd.PostAction)
@@ -379,32 +381,32 @@ func (w *ExecWorker) ainvk(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command,
 			defer func() {
 				for _, fn := range ta {
 					if fn != nil {
-						fn(goCommand, args)
+						fn(goCommand, remainArgs)
 					}
 				}
 			}()
 		}
 
 		if w.logexInitialFunctor != nil {
-			if err = w.logexInitialFunctor(goCommand, args); err == ErrShouldBeStopException {
+			if err = w.logexInitialFunctor(goCommand, remainArgs); err == ErrShouldBeStopException {
 				return
 			}
 		}
 
 		if w.afterArgsParsed != nil {
-			if err = w.afterArgsParsed(goCommand, args); err == ErrShouldBeStopException {
+			if err = w.afterArgsParsed(goCommand, remainArgs); err == ErrShouldBeStopException {
 				return
 			}
 		}
 
 		if rootCmd.PreAction != nil {
-			if err = rootCmd.PreAction(goCommand, args); err == ErrShouldBeStopException {
+			if err = rootCmd.PreAction(goCommand, remainArgs); err == ErrShouldBeStopException {
 				return
 			}
 		}
 	}
 
-	if err = w.invokeCommand(rootCmd, goCommand, args); err == ErrShouldBeStopException {
+	if err = w.invokeCommand(rootCmd, goCommand, remainArgs); err == ErrShouldBeStopException {
 		return nil
 	}
 
@@ -454,7 +456,7 @@ func (w *ExecWorker) checkState(pkg *ptpkg) {
 // 	return
 // }
 
-func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, goCommand *Command, args []string) (err error) {
+func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
 	if unhandleErrorHandler != nil {
 		defer func() {
 			// fmt.Println("defer caller")
@@ -477,12 +479,16 @@ func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, goCommand *Command, arg
 	}
 
 	if goCommand.PostAction != nil {
-		defer goCommand.PostAction(goCommand, args)
+		defer goCommand.PostAction(goCommand, remainArgs)
 	}
 
-	if err = goCommand.Action(goCommand, args); err == ErrShouldBeStopException {
-		return
+	if goCommand.PreAction != nil {
+		if err = goCommand.PreAction(goCommand, remainArgs); err != ErrShouldBeStopException && err != nil {
+			return
+		}
 	}
+
+	err = goCommand.Action(goCommand, remainArgs)
 	return
 }
 

@@ -10,37 +10,34 @@ func (w *ExecWorker) cmdMatching(pkg *ptpkg, goCommand **Command, args []string)
 		cmd.strHit = pkg.a
 		*goCommand = cmd
 		matched = true
-		// logrus.Debugf("-- command '%v' hit, go ahead...", cmd.GetTitleName())
+		flog("    -> command %q hit (a=%q, idx=%v)...", cmd.GetTitleName(), pkg.a, pkg.i)
 		stop, err = w.cmdMatched(pkg, *goCommand, args)
-	} else {
-		if len((*goCommand).SubCommands) == 0 { // (*goCommand).Action != nil &&
-			// the args remained are files, not sub-commands.
-			pkg.lastCommandHeld = true
-			pkg.iLastCommand = pkg.i
-			pkg.i--
-			return
-		}
-
-		pkg.unknownCmds = append(pkg.unknownCmds, pkg.a)
-		unknownCommand(pkg, *goCommand, args)
+		return
 	}
+
+	if len((*goCommand).SubCommands) == 0 { // (*goCommand).Action != nil &&
+		// the args remained are files, not sub-commands.
+		pkg.i--
+		pkg.lastCommandHeld = true
+		pkg.iLastCommand = pkg.i
+		return
+	}
+
+	flog("    . adding unknown command %q", pkg.a)
+	pkg.unknownCmds = append(pkg.unknownCmds, pkg.a)
+	unknownCommand(pkg, *goCommand, args)
 	return
 }
 
 func (w *ExecWorker) cmdMatched(pkg *ptpkg, goCommand *Command, args []string) (stop bool, err error) {
 	pkg.iLastCommand = pkg.i
 
-	if goCommand.PreAction != nil {
-		if err = goCommand.PreAction(goCommand, w.getArgs(pkg, args)); err == ErrShouldBeStopException {
-			return false, nil
-		}
-	}
-
-	if (*goCommand).Action != nil && len((*goCommand).SubCommands) == 0 {
+	if len((*goCommand).SubCommands) == 0 { // (*goCommand).Action != nil && 
 		// the args remained are files, not sub-commands.
 		pkg.lastCommandHeld = true
 		stop = true
 	}
+
 	return
 }
 
@@ -108,12 +105,14 @@ GO_UP:
 	pkg.found = false
 	if pkg.short {
 		a := "-" + pkg.fn + pkg.savedFn
+		flog("    .  . matching short flag for %q", a)
 		if i := pkg.matchShortFlag(cc, a); i >= 0 {
 			pkg.fn = a[1:i]
 			pkg.savedFn = a[i:]
 			pkg.flg, matched = cc.plainShortFlags[pkg.fn]
 		}
 	} else {
+		flog("    .  . matching long flag for --%v", pkg.fn)
 		matched = w.matchForLongFlags(pkg.fn, cc, pkg)
 	}
 
@@ -162,7 +161,7 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 		// 	logrus.Debugf("-- flag '%v' hit, go ahead...", pkg.flg.GetTitleName())
 		// }
 		if pkg.flg.Action != nil {
-			if err = pkg.flg.Action(goCommand, w.getArgs(pkg, args)); err == ErrShouldBeStopException {
+			if err = pkg.flg.Action(goCommand, w.getRemainArgs(pkg, args)); err == ErrShouldBeStopException {
 				stop = true
 				err = nil
 				return

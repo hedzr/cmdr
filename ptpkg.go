@@ -31,6 +31,7 @@ type ptpkg struct {
 	suffix            uint8
 	unknownCmds       []string
 	unknownFlags      []string
+	remainArgs        []string
 }
 
 func (pkg *ptpkg) ResetAnd(n string) (length int) {

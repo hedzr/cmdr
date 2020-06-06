@@ -570,8 +570,9 @@ func (w *ExecWorker) getPrefix() string {
 
 func (w *ExecWorker) getArgs(pkg *ptpkg, args []string) []string {
 	var a []string
-	if pkg.i+1 < len(args) {
-		a = args[pkg.i+1:]
+	idx := pkg.iLastCommand + 1
+	if idx < len(args) {
+		a = args[idx:]
 	}
 	return a
 }

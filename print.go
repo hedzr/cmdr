@@ -20,6 +20,12 @@ func ferr(fmtStr string, args ...interface{}) {
 	_, _ = fmt.Fprintf(internalGetWorker().rootCommand.oerr, fmtStr+"\n", args...)
 }
 
+func flog(fmtStr string, args ...interface{}) {
+	if InDebugging() {
+		_, _ = fmt.Fprintf(os.Stderr, "\u001B[2m\u001B[2m"+fmtStr+"\u001B[0m\n", args...)
+	}
+}
+
 func (w *ExecWorker) printHelp(command *Command, justFlags bool) {
 	initTabStop(defaultTabStop)
 

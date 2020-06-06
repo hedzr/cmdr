@@ -189,9 +189,11 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 
 	if err == nil {
 		for pkg.i = 1; pkg.i < len(args); pkg.i++ {
-			if pkg.ResetAnd(args[pkg.i]) == 0 {
-				continue
-			}
+			// if pkg.ResetAnd(args[pkg.i]) == 0 {
+			// 	continue
+			// }
+			lr := pkg.ResetAnd(args[pkg.i])
+			flog("--> parsing %q (idx=%v, len=%v)", pkg.a, pkg.i, lr)
 
 			// --debug: long opt
 			// -D:      short opt
@@ -205,6 +207,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 			//  - -nconsul is not good format, but it could get somewhat works.
 			//  - -n'consul', -n"consul" could works too.
 			// -t3: opt with an argument.
+
 			matched, stopC, stopF, err = w.xxTestCmd(pkg, &goCommand, rootCmd, args)
 			if e, ok := err.(*ErrorForCmdr); ok {
 				ferr("%v", e)
@@ -275,7 +278,9 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 	} else {
 		// testing the next command, but the last one has already been the end of command series.
 		if pkg.lastCommandHeld {
-			pkg.i--
+			// if pkg.i == len(args) {
+			// 	pkg.i--
+			// }
 			stopC = true
 			return
 		}

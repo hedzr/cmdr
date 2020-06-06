@@ -22,6 +22,7 @@ type ptpkg struct {
 	fn, val           string
 	savedFn, savedVal string
 	i                 int
+	iLastCommand      int
 	a                 string
 	flg               *Flag
 	savedGoCommand    *Command

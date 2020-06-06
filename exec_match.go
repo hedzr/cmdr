@@ -13,10 +13,11 @@ func (w *ExecWorker) cmdMatching(pkg *ptpkg, goCommand **Command, args []string)
 		// logrus.Debugf("-- command '%v' hit, go ahead...", cmd.GetTitleName())
 		stop, err = w.cmdMatched(pkg, *goCommand, args)
 	} else {
-		if (*goCommand).Action != nil && len((*goCommand).SubCommands) == 0 {
+		if len((*goCommand).SubCommands) == 0 { // (*goCommand).Action != nil && 
 			// the args remained are files, not sub-commands.
-			pkg.i--
 			pkg.lastCommandHeld = true
+			pkg.iLastCommand = pkg.i
+			pkg.i--
 			return
 		}
 
@@ -27,6 +28,8 @@ func (w *ExecWorker) cmdMatching(pkg *ptpkg, goCommand **Command, args []string)
 }
 
 func (w *ExecWorker) cmdMatched(pkg *ptpkg, goCommand *Command, args []string) (stop bool, err error) {
+	pkg.iLastCommand = pkg.i
+	
 	if goCommand.PreAction != nil {
 		if err = goCommand.PreAction(goCommand, w.getArgs(pkg, args)); err == ErrShouldBeStopException {
 			return false, nil

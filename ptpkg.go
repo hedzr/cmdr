@@ -275,14 +275,15 @@ func (pkg *ptpkg) processTypeDuration(args []string) (err error) {
 }
 
 func (pkg *ptpkg) processTypeIntCore(args []string) (err error) {
-	v, err := strconv.ParseInt(pkg.val, 0, 64)
+	var v int64
+	v, err = strconv.ParseInt(pkg.val, 0, 0)
 	if err != nil {
 		if _, ok := pkg.flg.DefaultValue.(time.Duration); ok {
 			err = pkg.processTypeDuration(args)
 			return
 		}
-		ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
-		err = errors.New("wrong number: flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
+		ferr("wrong number (int): flag=%v, number=%v, err: %v", pkg.fn, pkg.val, err)
+		err = errors.New("wrong number (int): flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
 	}
 
 	var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
@@ -293,10 +294,10 @@ func (pkg *ptpkg) processTypeIntCore(args []string) (err error) {
 func (pkg *ptpkg) processTypeUint(args []string) (err error) {
 	if err = pkg.preprocessPkg(args); err == nil {
 		var v uint64
-		v, err = strconv.ParseUint(pkg.val, 0, 64)
+		v, err = strconv.ParseUint(pkg.val, 0, 0)
 		if err != nil {
-			ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
-			err = errors.New("wrong number: flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
+			ferr("wrong number (uint): flag=%v, number=%v, err: %v", pkg.fn, pkg.val, err)
+			err = errors.New("wrong number (uint): flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
 			return
 		}
 
@@ -309,10 +310,10 @@ func (pkg *ptpkg) processTypeUint(args []string) (err error) {
 func (pkg *ptpkg) processTypeFloat(args []string) (err error) {
 	if err = pkg.preprocessPkg(args); err == nil {
 		var v float64
-		v, err = strconv.ParseFloat(pkg.val, 64)
+		v, err = strconv.ParseFloat(pkg.val, 0)
 		if err != nil {
-			ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
-			err = errors.New("wrong number: flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
+			ferr("wrong number (float): flag=%v, number=%v, err: %v", pkg.fn, pkg.val, err)
+			err = errors.New("wrong number (float): flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
 			return
 		}
 
@@ -327,8 +328,8 @@ func (pkg *ptpkg) processTypeComplex(args []string) (err error) {
 		var v complex128
 		v, err = ParseComplexX(pkg.val)
 		if err != nil {
-			ferr("wrong number: flag=%v, number=%v", pkg.fn, pkg.val)
-			err = errors.New("wrong number: flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
+			ferr("wrong number (complex): flag=%v, number=%v, err: %v", pkg.fn, pkg.val, err)
+			err = errors.New("wrong number (complex): flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
 			return
 		}
 

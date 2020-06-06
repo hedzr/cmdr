@@ -68,6 +68,9 @@ See our extras:
 
 ## News
 
+- v1.6.43
+  - fixed/improved: matching algorithm and remained args
+
 - v1.6.41
   - `WithPagerEnabled()`: enables OS pager for help screen output
 

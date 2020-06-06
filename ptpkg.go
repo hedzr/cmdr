@@ -22,6 +22,7 @@ type ptpkg struct {
 	fn, val           string
 	savedFn, savedVal string
 	i                 int
+	iLastCommand      int
 	a                 string
 	flg               *Flag
 	savedGoCommand    *Command
@@ -30,6 +31,7 @@ type ptpkg struct {
 	suffix            uint8
 	unknownCmds       []string
 	unknownFlags      []string
+	remainArgs        []string
 }
 
 func (pkg *ptpkg) ResetAnd(n string) (length int) {

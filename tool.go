@@ -568,12 +568,8 @@ func (w *ExecWorker) getPrefix() string {
 	return strings.Join(w.rxxtPrefixes, ".")
 }
 
-func (w *ExecWorker) getArgs(pkg *ptpkg, args []string) []string {
-	var a []string
-	if pkg.i+1 < len(args) {
-		a = args[pkg.i+1:]
-	}
-	return a
+func (w *ExecWorker) getRemainArgs(pkg *ptpkg, args []string) []string {
+	return pkg.remainArgs
 }
 
 // PressEnterToContinue lets program pause and wait for user's ENTER key press in console/terminal

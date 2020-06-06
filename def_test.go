@@ -87,7 +87,7 @@ More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-
 		cmdr.WithOnSwitchCharHit(func(parsed *cmdr.Command, switchChar string, args []string) (err error) {
 			return
 		}),
-		
+
 		cmdr.WithPagerEnabled(),
 	)
 

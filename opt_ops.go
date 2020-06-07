@@ -132,15 +132,6 @@ func NewSubCmd() (opt OptCmd) {
 	return &subCmdOpt{optCommandImpl: optCommandImpl{working: cmd}}
 }
 
-// NewBool creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
-func NewBool(defaultValue bool) (opt OptFlag) {
-	workingFlag := &Flag{}
-	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, workingFlag)
-	opt = &boolOpt{optFlagImpl: optFlagImpl{working: workingFlag}}
-	opt.DefaultValue(defaultValue, "")
-	return
-}
-
 func uniAddCmd(cmds []*Command, cmd *Command) []*Command {
 	for _, f := range cmds {
 		if f == cmd {
@@ -184,17 +175,39 @@ func uniAddStrs(a []string, ss ...string) []string {
 	return a
 }
 
+// NewBool creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
+func NewBool(defaultValue ...bool) (opt OptFlag) {
+	workingFlag := &Flag{}
+	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, workingFlag)
+	opt = &boolOpt{optFlagImpl: optFlagImpl{working: workingFlag}}
+	var dv bool
+	for _, v := range defaultValue {
+		dv = v
+	}
+	opt.DefaultValue(dv, "")
+	return
+}
+
 // NewString creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
-func NewString(defaultValue string) (opt OptFlag) {
+func NewString(defaultValue ...string) (opt OptFlag) {
 	workingFlag := &Flag{}
 	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &stringOpt{optFlagImpl: optFlagImpl{working: workingFlag}}
-	opt.DefaultValue(defaultValue, "")
+	var dv string
+	for _, v := range defaultValue {
+		dv = v
+	}
+	opt.DefaultValue(dv, "")
 	return
 }
 
 // NewStringSlice creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
-func NewStringSlice(defaultValue []string) (opt OptFlag) {
+//
+// Sample:
+//
+//    cmdr.NewStringSlice("quick", "fox", "jumps").Titles("int-slice", "is").Group("").
+//        AttachTo(parentCmdOpt)
+func NewStringSlice(defaultValue ...string) (opt OptFlag) {
 	workingFlag := &Flag{}
 	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &stringSliceOpt{optFlagImpl: optFlagImpl{working: workingFlag}}
@@ -203,7 +216,12 @@ func NewStringSlice(defaultValue []string) (opt OptFlag) {
 }
 
 // NewIntSlice creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
-func NewIntSlice(defaultValue []int) (opt OptFlag) {
+//
+// Sample:
+//
+//    cmdr.NewIntSlice(1, 2, 3).Titles("int-slice", "is").Group("").
+//        AttachTo(parentCmdOpt)
+func NewIntSlice(defaultValue ...int) (opt OptFlag) {
 	workingFlag := &Flag{}
 	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &intSliceOpt{optFlagImpl: optFlagImpl{working: workingFlag}}
@@ -212,83 +230,119 @@ func NewIntSlice(defaultValue []int) (opt OptFlag) {
 }
 
 // NewInt creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
-func NewInt(defaultValue int) (opt OptFlag) {
+func NewInt(defaultValue ...int) (opt OptFlag) {
 	workingFlag := &Flag{}
 	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &intOpt{optFlagImpl: optFlagImpl{working: workingFlag}}
-	opt.DefaultValue(defaultValue, "")
+	var dv int
+	for _, v := range defaultValue {
+		dv = v
+	}
+	opt.DefaultValue(dv, "")
 	return
 }
 
 // NewUint creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
-func NewUint(defaultValue uint) (opt OptFlag) {
+func NewUint(defaultValue ...uint) (opt OptFlag) {
 	workingFlag := &Flag{}
 	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &uintOpt{optFlagImpl: optFlagImpl{working: workingFlag}}
-	opt.DefaultValue(defaultValue, "")
+	var dv uint
+	for _, v := range defaultValue {
+		dv = v
+	}
+	opt.DefaultValue(dv, "")
 	return
 }
 
 // NewInt64 creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
-func NewInt64(defaultValue int64) (opt OptFlag) {
+func NewInt64(defaultValue ...int64) (opt OptFlag) {
 	workingFlag := &Flag{}
 	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &int64Opt{optFlagImpl: optFlagImpl{working: workingFlag}}
-	opt.DefaultValue(defaultValue, "")
+	var dv int64
+	for _, v := range defaultValue {
+		dv = v
+	}
+	opt.DefaultValue(dv, "")
 	return
 }
 
 // NewUint64 creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
-func NewUint64(defaultValue uint64) (opt OptFlag) {
+func NewUint64(defaultValue ...uint64) (opt OptFlag) {
 	workingFlag := &Flag{}
 	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &uint64Opt{optFlagImpl: optFlagImpl{working: workingFlag}}
-	opt.DefaultValue(defaultValue, "")
+	var dv uint64
+	for _, v := range defaultValue {
+		dv = v
+	}
+	opt.DefaultValue(dv, "")
 	return
 }
 
 // NewFloat32 creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
-func NewFloat32(defaultValue float32) (opt OptFlag) {
+func NewFloat32(defaultValue ...float32) (opt OptFlag) {
 	workingFlag := &Flag{}
 	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &float32Opt{optFlagImpl: optFlagImpl{working: workingFlag}}
-	opt.DefaultValue(defaultValue, "")
+	var dv float32
+	for _, v := range defaultValue {
+		dv = v
+	}
+	opt.DefaultValue(dv, "")
 	return
 }
 
 // NewFloat64 creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
-func NewFloat64(defaultValue float64) (opt OptFlag) {
+func NewFloat64(defaultValue ...float64) (opt OptFlag) {
 	workingFlag := &Flag{}
 	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &float64Opt{optFlagImpl: optFlagImpl{working: workingFlag}}
-	opt.DefaultValue(defaultValue, "")
+	var dv float64
+	for _, v := range defaultValue {
+		dv = v
+	}
+	opt.DefaultValue(dv, "")
 	return
 }
 
 // NewComplex64 creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
-func NewComplex64(defaultValue complex64) (opt OptFlag) {
+func NewComplex64(defaultValue ...complex64) (opt OptFlag) {
 	workingFlag := &Flag{}
 	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &complex64Opt{optFlagImpl: optFlagImpl{working: workingFlag}}
-	opt.DefaultValue(defaultValue, "")
+	var dv complex64
+	for _, v := range defaultValue {
+		dv = v
+	}
+	opt.DefaultValue(dv, "")
 	return
 }
 
 // NewComplex128 creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
-func NewComplex128(defaultValue complex128) (opt OptFlag) {
+func NewComplex128(defaultValue ...complex128) (opt OptFlag) {
 	workingFlag := &Flag{}
 	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &complex128Opt{optFlagImpl: optFlagImpl{working: workingFlag}}
-	opt.DefaultValue(defaultValue, "")
+	var dv complex128
+	for _, v := range defaultValue {
+		dv = v
+	}
+	opt.DefaultValue(dv, "")
 	return
 }
 
 // NewDuration creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
-func NewDuration(defaultValue time.Duration) (opt OptFlag) {
+func NewDuration(defaultValue ...time.Duration) (opt OptFlag) {
 	workingFlag := &Flag{}
 	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
 	opt = &durationOpt{optFlagImpl: optFlagImpl{working: workingFlag}}
-	opt.DefaultValue(defaultValue, "")
+	var dv time.Duration
+	for _, v := range defaultValue {
+		dv = v
+	}
+	opt.DefaultValue(dv, "")
 	return
 }
 

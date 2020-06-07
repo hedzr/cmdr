@@ -790,31 +790,22 @@ func (s *Options) setNx(key string, val interface{}) (oldval interface{}, modi b
 	defer s.rw.Unlock()
 	s.rw.Lock()
 
-	if val == nil {
-		if s.getMapNoLock(key) != nil {
-			// don't set a branch node to nil if it have children.
-			return
-		}
+	if val == nil && s.getMapNoLock(key) != nil {
+		// don't set a branch node to nil if it have children.
+		return
 	}
 
 	oldval = s.entries[key]
-	var leaf bool
-	if _, ok := oldval.(map[string]interface{}); !ok {
-		if _, ok := val.(map[string]interface{}); !ok {
-			leaf = true
-		}
-	}
+	leaf := isLeaf(oldval, val)
 	if leaf {
 		comparable := (oldval == nil || oldval != nil && reflect.TypeOf(oldval).Comparable()) && (val == nil || (val != nil && reflect.TypeOf(val).Comparable()))
-		if comparable {
-			if oldval != val {
-				s.entries[key] = val
-				a := strings.Split(key, ".")
-				s.mergeMap(s.hierarchy, a[0], "", et(a, 1, val))
-				s.sfs(key, val, oldval)
-				modi = true
-				return
-			}
+		if comparable && oldval != val {
+			s.entries[key] = val
+			a := strings.Split(key, ".")
+			s.mergeMap(s.hierarchy, a[0], "", et(a, 1, val))
+			s.sfs(key, val, oldval)
+			modi = true
+			return
 		} else if isEmptySlice(val) && isSlice(oldval) {
 			s.entries[key] = val
 			s.sfs(key, val, oldval)
@@ -823,6 +814,15 @@ func (s *Options) setNx(key string, val interface{}) (oldval interface{}, modi b
 		}
 	}
 	s.entries[key] = val
+	return
+}
+
+func isLeaf(oldval, val interface{}) (leaf bool) {
+	if _, ok := oldval.(map[string]interface{}); !ok {
+		if _, ok := val.(map[string]interface{}); !ok {
+			leaf = true
+		}
+	}
 	return
 }
 

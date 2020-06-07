@@ -168,6 +168,7 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 			}
 		}
 		if isBool(pkg.flg.DefaultValue) || isNil1(pkg.flg.DefaultValue) {
+			flog("    .  . [tryToggleGroup] %q = %v", pkg.fn, pkg.val)
 			pkg.tryToggleGroup()
 		}
 
@@ -178,6 +179,8 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 				// goto GO_UP
 				upLevel = true
 			}
+		} else {
+			flog("    .  . [value assigned] %q = %v", pkg.fn, pkg.val)
 		}
 	}
 	return

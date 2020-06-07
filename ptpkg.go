@@ -96,10 +96,30 @@ func (pkg *ptpkg) splitQuotedValueIfNecessary(fn *string) {
 }
 
 func (pkg *ptpkg) matchShortFlag(goCommand *Command, a string) (i int) {
+	type MS struct {
+		index int
+		fn    string
+	}
+	matched := []MS{}
+	longest := -1
 	for i = len(a); i > 1; i-- {
 		fn := a[1:i]
 		if _, ok := goCommand.plainShortFlags[fn]; ok {
-			return
+			matched = append(matched, struct {
+				index int
+				fn    string
+			}{index: i, fn: fn})
+			if longest < i {
+				longest = i
+			}
+		}
+	}
+
+	if longest > 0 {
+		for _, ms := range matched {
+			if ms.index == longest {
+				return longest
+			}
 		}
 	}
 	return -1
@@ -267,6 +287,7 @@ func (pkg *ptpkg) processTypeDuration(args []string) (err error) {
 		var v time.Duration
 		v, err = time.ParseDuration(pkg.val)
 		if err == nil {
+			// flog("    .  . [duration] %q => %v", pkg.val, v)
 			var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
 			pkg.xxSet(keyPath, v)
 		}
@@ -374,7 +395,7 @@ func (pkg *ptpkg) processTypeStringSlice(args []string) (err error) {
 		var wkr = internalGetWorker()
 		var keyPath = wkr.backtraceFlagNames(pkg.flg)
 		var existedVal = wkr.rxxtOptions.GetStringSlice(wrapWithRxxtPrefix(keyPath))
-		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
+		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) || pkg.flg.times == 1 { // if first matching
 			existedVal = nil
 		}
 		pkg.xxSet(keyPath, append(existedVal, v...))
@@ -395,7 +416,7 @@ func (pkg *ptpkg) processTypeIntSlice(args []string) (err error) {
 		var keyPath = wkr.backtraceFlagNames(pkg.flg)
 		// pkg.xxSet(keyPath, v)
 		var existedVal = wkr.rxxtOptions.GetInt64Slice(wrapWithRxxtPrefix(keyPath))
-		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
+		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) || pkg.flg.times == 1 { // if first matching
 			existedVal = nil
 		}
 		pkg.xxSet(keyPath, append(existedVal, v...))
@@ -416,7 +437,7 @@ func (pkg *ptpkg) processTypeUintSlice(args []string) (err error) {
 		var keyPath = wkr.backtraceFlagNames(pkg.flg)
 		// pkg.xxSet(keyPath, v)
 		var existedVal = wkr.rxxtOptions.GetUint64Slice(wrapWithRxxtPrefix(keyPath))
-		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
+		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) || pkg.flg.times == 1 { // if first matching
 			existedVal = nil
 		}
 		pkg.xxSet(keyPath, append(existedVal, v...))

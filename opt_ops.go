@@ -37,6 +37,11 @@ type (
 		optFlagImpl
 	}
 
+	// uintSliceOpt for fluent api
+	uintSliceOpt struct {
+		optFlagImpl
+	}
+
 	// boolOpt for fluent api
 	boolOpt struct {
 		optFlagImpl
@@ -239,6 +244,20 @@ func NewInt(defaultValue ...int) (opt OptFlag) {
 		dv = v
 	}
 	opt.DefaultValue(dv, "")
+	return
+}
+
+// NewUintSlice creates a wrapped OptFlag, you can connect it to a OptCmd via OptFlag.AttachXXX later.
+//
+// Sample:
+//
+//    cmdr.NewUintSlice(1, 2, 3).Titles("uint-slice", "us").Group("").
+//        AttachTo(parentCmdOpt)
+func NewUintSlice(defaultValue ...uint) (opt OptFlag) {
+	workingFlag := &Flag{}
+	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
+	opt = &uintSliceOpt{optFlagImpl: optFlagImpl{working: workingFlag}}
+	opt.DefaultValue(defaultValue, "")
 	return
 }
 

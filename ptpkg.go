@@ -395,7 +395,7 @@ func (pkg *ptpkg) processTypeStringSlice(args []string) (err error) {
 		var wkr = internalGetWorker()
 		var keyPath = wkr.backtraceFlagNames(pkg.flg)
 		var existedVal = wkr.rxxtOptions.GetStringSlice(wrapWithRxxtPrefix(keyPath))
-		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
+		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) || pkg.flg.times == 1 { // if first matching
 			existedVal = nil
 		}
 		pkg.xxSet(keyPath, append(existedVal, v...))
@@ -416,7 +416,7 @@ func (pkg *ptpkg) processTypeIntSlice(args []string) (err error) {
 		var keyPath = wkr.backtraceFlagNames(pkg.flg)
 		// pkg.xxSet(keyPath, v)
 		var existedVal = wkr.rxxtOptions.GetInt64Slice(wrapWithRxxtPrefix(keyPath))
-		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
+		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) || pkg.flg.times == 1 { // if first matching
 			existedVal = nil
 		}
 		pkg.xxSet(keyPath, append(existedVal, v...))
@@ -437,7 +437,7 @@ func (pkg *ptpkg) processTypeUintSlice(args []string) (err error) {
 		var keyPath = wkr.backtraceFlagNames(pkg.flg)
 		// pkg.xxSet(keyPath, v)
 		var existedVal = wkr.rxxtOptions.GetUint64Slice(wrapWithRxxtPrefix(keyPath))
-		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) {
+		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) || pkg.flg.times == 1 { // if first matching
 			existedVal = nil
 		}
 		pkg.xxSet(keyPath, append(existedVal, v...))

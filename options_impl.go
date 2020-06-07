@@ -815,10 +815,28 @@ func (s *Options) setNx(key string, val interface{}) (oldval interface{}, modi b
 				modi = true
 				return
 			}
+		} else if isEmptySlice(val) && isSlice(oldval) {
+			s.entries[key] = val
+			s.sfs(key, val, oldval)
+			modi = true
+			return
 		}
 	}
 	s.entries[key] = val
 	return
+}
+
+func isSlice(v interface{}) bool {
+	x := reflect.ValueOf(v)
+	return x.Kind() == reflect.Slice
+}
+
+func isEmptySlice(v interface{}) bool {
+	x := reflect.ValueOf(v)
+	if x.Kind() == reflect.Slice {
+		return x.Len() == 0
+	}
+	return false
 }
 
 // MergeWith will merge a map recursive.

@@ -278,3 +278,16 @@ $ go run ./examples/simple soundex quick fox
   - Interactive prompt: [`interactive-prompt`](https://github.com/hedzr/cmdr-examples/tree/master/examples/interactive-prompt)
 
 
+
+## Option Store
+
+
+
+- Kibibytes:
+
+  Extracting `Kibibyte` with `cmdr.GetKibibytesR()`: [`kilo-bytes`](https://github.com/hedzr/cmdr-examples/tree/master/examples/kilo-bytes)
+
+
+
+
+

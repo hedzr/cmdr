@@ -77,11 +77,6 @@ CN = hedzr/$(N)
 
 
 
-MAIN_APPS = fluent demo ffdemo short wget-demo
-MAIN_BUILD_PKG = ./examples
-# MAIN_APPS = cli
-# MAIN_BUILD_PKG = .
-
 
 
  
@@ -149,92 +144,48 @@ build: compile
 
 ## build-win: build to windows executable, for LAN deploy manually.
 build-win:
-	@echo "  >  Building linux binary..."
-	@echo "  >  LDFLAGS = $(LDFLAGS)"
-	$(foreach an, $(MAIN_APPS), \
-	  echo "  >  APP NAMEs = appname:$(APPNAME)|projname:$(PROJECTNAME)|an:$(an)"; \
-	  $(foreach os, windows, \
-	    echo "     Building $(GOBIN)/$(an)_$(os)_$(goarch)...$(os)"; \
-	    $(GO) build -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(an)_$(os)_$(goarch).exe $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
-	    chmod +x $(GOBIN)/$(an)_$(os)_$(goarch)*; \
-	    ls -la $(LS_OPT) $(GOBIN)/$(an)_$(os)_$(goarch)*; \
-	  ) \
-	)
-	#@ls -la $(LS_OPT) $(GOBIN)/*linux*
-	# -X '$(W_PKG).AppName=$(an)'
+	@-$(MAKE) -s go-build-task os=windows goarchset=amd64
 
 ## build-linux: build to linux executable, for LAN deploy manually.
 build-linux:
-	@echo "  >  Building linux binary..."
-	@echo "  >  LDFLAGS = $(LDFLAGS)"
-	$(foreach an, $(MAIN_APPS), \
-	  echo "  >  APP NAMEs = appname:$(APPNAME)|projname:$(PROJECTNAME)|an:$(an)"; \
-	  $(foreach os, linux, \
-	    echo "     Building $(GOBIN)/$(an)_$(os)_$(goarch)...$(os)"; \
-	    $(GO) build -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(an)_$(os)_$(goarch) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
-	    chmod +x $(GOBIN)/$(an)_$(os)_$(goarch)*; \
-	    ls -la $(LS_OPT) $(GOBIN)/$(an)_$(os)_$(goarch)*; \
-	  ) \
-	)
-	#@ls -la $(LS_OPT) $(GOBIN)/*linux*
+	@-$(MAKE) -s go-build-task os=linux goarchset=amd64
 
 ## build-nacl: build to nacl executable, for LAN deploy manually.
 build-nacl:
 	# NOTE: can't build to nacl with golang 1.14 and darwin
-	@echo "  >  Building linux binary..."
-	@echo "  >  LDFLAGS = $(LDFLAGS)"
-	# unsupported GOOS/GOARCH pair nacl/386 ??
-	$(foreach an, $(MAIN_APPS), \
-	  echo "  >  APP NAMEs = appname:$(APPNAME)|projname:$(PROJECTNAME)|an:$(an)"; \
-	  $(foreach os, nacl, \
-	  $(foreach goarch, 386 arm amd64p32, \
-	    echo "     >> Building $(GOBIN)/$(an)_$(os)_$(goarch)...$(os)" >/dev/null; \
-	    $(GO) build -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(an)_$(os)_$(goarch) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
-	    chmod +x $(GOBIN)/$(an)_$(os)_$(goarch)*; \
-	    ls -la $(LS_OPT) $(GOBIN)/$(an)_$(os)_$(goarch)*; \
-	    gzip -f $(GOBIN)/$(an)_$(os)_$(goarch); \
-	    ls -la $(LS_OPT) $(GOBIN)/$(an)_$(os)_$(goarch)*; \
-	) \
-	) \
-	)
-	#  @ls -la $(LS_OPT) $(GOBIN)/*linux*
-	#  -X '$(W_PKG).AppName=$(an)'
+	#    chmod +x $(GOBIN)/$(an)_$(os)_$(goarch)*;
+	#    ls -la $(LS_OPT) $(GOBIN)/$(an)_$(os)_$(goarch)*;
+	#    gzip -f $(GOBIN)/$(an)_$(os)_$(goarch);
+	#    ls -la $(LS_OPT) $(GOBIN)/$(an)_$(os)_$(goarch)*;
+	@-$(MAKE) -s go-build-task os=nacl goarchset="386 arm amd64p32"
 	@echo "  < All Done."
 	@ls -la $(LS_OPT) $(GOBIN)/*
 
 
 ## build-plan9: build to plan9 executable, for LAN deploy manually.
+build-plan9: goarchset = "386 amd64"
 build-plan9:
-	@echo "  >  Building linux binary..."
-	@echo "  >  LDFLAGS = $(LDFLAGS)"
-	# unsupported GOOS/GOARCH pair nacl/386 ??
-	$(foreach an, $(MAIN_APPS), \
-	  echo "  >  APP NAMEs = appname:$(APPNAME)|projname:$(PROJECTNAME)|an:$(an)"; \
-	  $(foreach os, plan9, \
-	  $(foreach goarch, amd64, \
-	    echo "     >> Building $(GOBIN)/$(an)_$(os)_$(goarch)...$(os)" >/dev/null; \
-	    $(GO) build -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(an)_$(os)_$(goarch) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
-	    chmod +x $(GOBIN)/$(an)_$(os)_$(goarch)*; \
-	    ls -la $(LS_OPT) $(GOBIN)/$(an)_$(os)_$(goarch)*; \
-	) \
-	) \
-	)
-	#@ls -la $(LS_OPT) $(GOBIN)/*linux*
+	@-$(MAKE) -s go-build-task os=plan9 goarchset=$(goarchset)
 
 ## build-freebsd: build to freebsd executable, for LAN deploy manually.
 build-freebsd:
-	@echo "  >  Building linux binary..."
-	@echo "  >  LDFLAGS = $(LDFLAGS)"
+	@-$(MAKE) -s go-build-task os=freebsd goarchset=amd64
+
+## build-riscv: build to riscv64 executable, for LAN deploy manually.
+build-riscv:
+	@-$(MAKE) -s go-build-task os=linux goarchset=riscv64
+
+go-build-task:
+	@echo "  >  Building $(os)/$(goarchset) binary..."
+	@#echo "  >  LDFLAGS = $(LDFLAGS)"
 	# unsupported GOOS/GOARCH pair nacl/386 ??
 	$(foreach an, $(MAIN_APPS), \
 	  echo "  >  APP NAMEs = appname:$(APPNAME)|projname:$(PROJECTNAME)|an:$(an)"; \
-	  $(foreach os, freebsd, \
-	  $(foreach goarch, amd64, \
+	  $(foreach goarch, $(goarchset), \
 	    echo "     >> Building $(GOBIN)/$(an)_$(os)_$(goarch)...$(os)" >/dev/null; \
 	    $(GO) build -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(an)_$(os)_$(goarch) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
 	    chmod +x $(GOBIN)/$(an)_$(os)_$(goarch)*; \
 	    ls -la $(LS_OPT) $(GOBIN)/$(an)_$(os)_$(goarch)*; \
-	) \
 	) \
 	)
 	#@ls -la $(LS_OPT) $(GOBIN)/*linux*
@@ -242,35 +193,9 @@ build-freebsd:
 ## build-ci: run build-ci task. just for CI tools
 build-ci:
 	@echo "  >  Building binaries in CI flow..."
-	@echo "  >  LDFLAGS = $(LDFLAGS)"
-	$(foreach an, $(MAIN_APPS), \
-	  echo "  >  APP NAMEs = appname:$(APPNAME)|projname:$(PROJECTNAME)|an:$(an)"; \
-	  $(foreach os, linux darwin, \
-	  $(foreach goarch, amd64, \
-	    echo "     >> Building $(GOBIN)/$(an)_$(os)_$(goarch)...$(os)" >/dev/null; \
-	    $(GO) build -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(an)_$(os)_$(goarch) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
-	    chmod +x $(GOBIN)/$(an)_$(os)_$(goarch); \
-	    ls -la $(LS_OPT) $(GOBIN)/$(an)_$(os)_$(goarch); \
-	    gzip -f $(GOBIN)/$(an)_$(os)_$(goarch); \
-	    ls -la $(LS_OPT) $(GOBIN)/$(an)_$(os)_$(goarch)*; \
-	) \
-	) \
+	$(foreach os, linux darwin windows, \
+	  @-$(MAKE) -s go-build-task os=$(os) goarchset="386 amd64" \
 	)
-
-	$(foreach an, $(MAIN_APPS), \
-	  echo "  >  APP NAMEs = appname:$(APPNAME)|projname:$(PROJECTNAME)|an:$(an)"; \
-	  $(foreach os, windows, \
-	  $(foreach goarch, amd64, \
-	    echo "     >> Building $(GOBIN)/$(an)_$(os)_$(goarch)...$(os)" >/dev/null; \
-	    $(GO) build -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(an)_$(os)_$(goarch).exe $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
-	    chmod +x $(GOBIN)/$(an)_$(os)_$(goarch).exe; \
-	    ls -la $(LS_OPT) $(GOBIN)/$(an)_$(os)_$(goarch).exe; \
-	    gzip -f $(GOBIN)/$(an)_$(os)_$(goarch).exe; \
-	    ls -la $(LS_OPT) $(GOBIN)/$(an)_$(os)_$(goarch)*; \
-	) \
-	) \
-	)
-
 	@echo "  < All Done."
 	@ls -la $(LS_OPT) $(GOBIN)/*
 
@@ -307,7 +232,7 @@ go-build:
 	@echo "  >  Building binary '$(GOBIN)/$(APPNAME)'..."
 	# demo short wget-demo 
 	$(foreach an, $(MAIN_APPS), \
-	  echo "  >  +race. APPNAME = $(APPNAME)|$(an), LDFLAGS = $(LDFLAGS)"; \
+	  echo "     +race. APPNAME = $(APPNAME)|$(an), LDFLAGS = $(LDFLAGS)"; \
 	  $(GO) build -v -race -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(an) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
 	  ls -la $(LS_OPT) $(GOBIN)/$(an); \
 	)
@@ -316,7 +241,7 @@ go-build:
 	# chmod +x $(GOBIN)/*
 
 go-generate:
-	@echo "  >  Generating dependency files ($(generate)) ..."
+	@echo "  >  Generating dependency files ('$(generate)') ..."
 	@$(GO) generate $(generate) ./...
 	# @echo "     done"
 
@@ -409,7 +334,14 @@ gocov: coverage
 ## coverage: run go coverage test
 coverage: | $(GOBASE)
 	@echo "  >  gocov ..."
-	@$(GO) test -v -race -coverprofile=coverage.txt -covermode=atomic | tee coverage.log
+	@$(GO) test ./... -v -race -coverprofile=coverage.txt -covermode=atomic -timeout=20m -test.short | tee coverage.log
+	@$(GO) tool cover -html=coverage.txt -o cover.html
+	@open cover.html
+
+## coverage-full: run go coverage test (with the long tests)
+coverage-full: | $(GOBASE)
+	@echo "  >  gocov ..."
+	@$(GO) test ./... -v -race -coverprofile=coverage.txt -covermode=atomic -timeout=20m | tee coverage.log
 	@$(GO) tool cover -html=coverage.txt -o cover.html
 	@open cover.html
 
@@ -425,12 +357,19 @@ cyclo: | $(GOBASE) $(GOCYCLO)
 	@GOPATH=$(GOPATH) GO111MODULE=$(GO111MODULE) GOPROXY=$(GOPROXY) \
 	$(GOCYCLO) -top 20 .
 
-## bench: benchmark test
-bench:
+## bench-std: benchmark test
+bench-std:
 	@echo "  >  benchmark testing ..."
 	@$(GO) test -bench="." -run=^$ -benchtime=10s ./...
 	# go test -bench "." -run=none -test.benchtime 10s
 	# todo: go install golang.org/x/perf/cmd/benchstat
+
+
+## bench: benchmark test
+bench:
+	@echo "  >  benchmark testing (manually) ..."
+	@$(GO) test ./fast -v -race -run 'TestQueuePutGetLong' -timeout=20m
+
 
 ## linux-test: call ci/linux_test/Makefile
 linux-test:
@@ -459,16 +398,21 @@ print-%:
 	@echo $* = $($*)
 
 info:
-	@echo "     GOBASE: $(GOBASE)"
-	@echo "      GOBIN: $(GOBIN)"
-	@echo "     GOROOT: $(GOROOT)"
-	@echo "     GOPATH: $(GOPATH)"
-	@echo "GO111MODULE: $(GO111MODULE)"
-	@echo "    GOPROXY: $(GOPROXY)"
-	@echo "PROJECTNAME: $(PROJECTNAME)"
-	@echo "    APPNAME: $(APPNAME)"
-	@echo "    VERSION: $(VERSION)"
-	@echo "  BUILDTIME: $(BUILDTIME)"
+	@echo "       GOBASE: $(GOBASE)"
+	@echo "        GOBIN: $(GOBIN)"
+	@echo "       GOROOT: $(GOROOT)"
+	@echo "       GOPATH: $(GOPATH)"
+	@echo "  GO111MODULE: $(GO111MODULE)"
+	@echo "      GOPROXY: $(GOPROXY)"
+	@echo "  PROJECTNAME: $(PROJECTNAME)"
+	@echo "      APPNAME: $(APPNAME)"
+	@echo "      VERSION: $(VERSION)"
+	@echo "    BUILDTIME: $(BUILDTIME)"
+	@echo
+	@echo "  GIT_VERSION: $(GIT_VERSION)"
+	@echo " GIT_REVISION: $(GIT_REVISION)"
+	@echo
+	@echo "   GO_VERSION: $(GOVERSION)"
 	@echo
 	@echo "export GO111MODULE=on"
 	@echo "export GOPROXY=$(GOPROXY)"

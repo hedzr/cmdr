@@ -304,6 +304,7 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 	err = w.buildXref(rootCmd)
 
 	if err == nil {
+		flog("--> rxxtOptions.buildAutomaticEnv()")
 		err = w.rxxtOptions.buildAutomaticEnv(rootCmd)
 	}
 

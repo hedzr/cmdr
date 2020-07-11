@@ -41,6 +41,8 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 	w.setupFromEnvvarMap()
 
 	if !w.doNotLoadingConfigFiles {
+		flog("--> buildXref: loadFromPredefinedLocation()")
+
 		// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
 		if err = w.parsePredefinedLocation(); err != nil {
 			return

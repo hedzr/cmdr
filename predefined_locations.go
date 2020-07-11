@@ -58,6 +58,7 @@ func (w *ExecWorker) loadFromPredefinedLocation(rootCmd *RootCommand) (err error
 			err = w.rxxtOptions.LoadConfigFile(fn)
 			if err == nil {
 				conf.CfgFile = fn
+				flog("--> loadFromPredefinedLocation(): %q loaded", fn)
 			}
 			break
 		}

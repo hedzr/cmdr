@@ -7,7 +7,7 @@ package daemon
 import (
 	"bytes"
 	"github.com/hedzr/cmdr/plugin/daemon/impl"
-	"github.com/sirupsen/logrus"
+	"log"
 	"os"
 	"os/exec"
 	"text/template"
@@ -17,7 +17,7 @@ func tplApply(tmpl string, data interface{}) string {
 	var w = new(bytes.Buffer)
 	var tpl = template.Must(template.New("y").Parse(tmpl))
 	if err := tpl.Execute(w, data); err != nil {
-		logrus.Errorf("tpl execute error: %v", err)
+		log.Fatalf("tpl execute error: %v", err)
 	}
 	return w.String()
 }
@@ -29,7 +29,7 @@ func isRoot() bool {
 func shellRunAuto(name string, arg ...string) error {
 	output, err := shellRun(name, arg...)
 	if err != nil {
-		logrus.Fatalf("shellRunAuto err: %v\n\noutput:\n%v", err, output.String())
+		log.Fatalf("shellRunAuto err: %v\n\noutput:\n%v", err, output.String())
 	}
 	return err
 }

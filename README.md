@@ -64,6 +64,12 @@ See our extras:
 
 ## News
 
+- v1.6.48
+  - code reviewed
+  - maintained
+  - unnecessary deps removed.
+  - small fixes
+
 - v1.6.47
   - fixed/improved: reset slice value if an empty slice was been setting
   - improved: add logging output in delve debugging mode

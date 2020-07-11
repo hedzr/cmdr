@@ -8,7 +8,7 @@ import (
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/examples/demo/svr"
 	"github.com/hedzr/cmdr/plugin/daemon"
-	"github.com/sirupsen/logrus"
+	"log"
 )
 
 // Entry is app main entry
@@ -27,7 +27,7 @@ func Entry() {
 
 		cmdr.WithHelpTabStop(40),
 	); err != nil {
-		logrus.Errorf("Error: %+v", err)
+		log.Fatalf("error: %+v", err)
 	}
 
 }

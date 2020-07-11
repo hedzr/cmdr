@@ -216,21 +216,44 @@ func Launch(cmd string, args ...string) (err error) {
 // 	return exec.LookPath(DefaultEditor)
 // }
 
-// InDebugging return the status if in debug mode
+// InDebugging return the status if cmdr was built with debug mode / or the app running under a debugger attached.
+//
+// To enable the debugger attached mode for cmdr, run `go build` with `-tags=delve` options. eg:
+//
+//     go run -tags=delve ./cli
+//     go build -tags=delve -o my-app ./cli
+//
+// For Goland, you can enable this under 'Run/Debug Configurations', by adding the following into 'Go tool arguments:'
+//
+//     -tags=delve
+//
+// InDebugging() is a synonym to IsDebuggerAttached().
+//
+// NOTE that `isdelve` algor is from https://stackoverflow.com/questions/47879070/how-can-i-see-if-the-goland-debugger-is-running-in-the-program
+//
 //noinspection GoBoolExpressions
 func InDebugging() bool {
 	return isdelve.Enabled
 }
 
-// IsDebuggerAttached return the status if in debug mode
+// IsDebuggerAttached return the status if cmdr was built with debug mode / or the app running under a debugger attached.
+//
+// To enable the debugger attached mode for cmdr, run `go build` with `-tags=delve` options. eg:
+//
+//     go run -tags=delve ./cli
+//     go build -tags=delve -o my-app ./cli
+//
+// For Goland, you can enable this under 'Run/Debug Configurations', by adding the following into 'Go tool arguments:'
+//
+//     -tags=delve
+//
+// IsDebuggerAttached() is a synonym to InDebugging().
+//
+// NOTE that `isdelve` algor is from https://stackoverflow.com/questions/47879070/how-can-i-see-if-the-goland-debugger-is-running-in-the-program
+//
 //noinspection GoBoolExpressions
 func IsDebuggerAttached() bool {
 	return isdelve.Enabled
-	// NOTE that `isdelve` algor is from https://stackoverflow.com/questions/47879070/how-can-i-see-if-the-goland-debugger-is-running-in-the-program
-	//
-	// In Goland, you can enable this under 'Run/Debug Configurations', by adding the following into 'Go tool arguments:'
-	//
-	// -tags=delve
 }
 
 // InTesting detects whether is running under go test mode

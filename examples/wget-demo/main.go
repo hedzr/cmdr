@@ -6,7 +6,7 @@ package main
 
 import (
 	"github.com/hedzr/cmdr"
-	"github.com/sirupsen/logrus"
+	"log"
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
 		// cmdr.WithHelpTabStop(40),
 		// cmdr.WithNoColor(true),
 	); err != nil {
-		logrus.Errorf("Error: %v", err)
+		log.Fatalf("Error: %v", err)
 	}
 }
 

@@ -216,11 +216,12 @@ func Launch(cmd string, args ...string) (err error) {
 // 	return exec.LookPath(DefaultEditor)
 // }
 
-// InDebugging return the status if in debug mode.
+// InDebugging return the status if cmdr was built with debug mode / or the app running under a debugger attached.
 //
-// To enable the debugger attached mode for cmdr, run `go run` with `-tags=delve` options. eg:
+// To enable the debugger attached mode for cmdr, run `go build` with `-tags=delve` options. eg:
 //
 //     go run -tags=delve ./cli
+//     go build -tags=delve -o my-app ./cli
 // 
 // For Goland, you can enable this under 'Run/Debug Configurations', by adding the following into 'Go tool arguments:'
 //
@@ -235,11 +236,12 @@ func InDebugging() bool {
 	return isdelve.Enabled
 }
 
-// IsDebuggerAttached return the status if in debug mode
+// IsDebuggerAttached return the status if cmdr was built with debug mode / or the app running under a debugger attached.
 //
-// To enable the debugger attached mode for cmdr, run `go run` with `-tags=delve` options. eg:
+// To enable the debugger attached mode for cmdr, run `go build` with `-tags=delve` options. eg:
 //
 //     go run -tags=delve ./cli
+//     go build -tags=delve -o my-app ./cli
 // 
 // For Goland, you can enable this under 'Run/Debug Configurations', by adding the following into 'Go tool arguments:'
 //

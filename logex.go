@@ -4,14 +4,11 @@ package cmdr
 
 import (
 	"github.com/hedzr/logex"
-	"github.com/hedzr/logex/formatter"
-	"github.com/sirupsen/logrus"
-	"io/ioutil"
 	"os"
 )
 
 // WithLogex enables logex integration
-func WithLogex(lvl Level, opts ...logex.LogexOption) ExecOption {
+func WithLogex(lvl Level, opts ...logex.Option) ExecOption {
 	return func(w *ExecWorker) {
 		w.logexInitialFunctor = w.getWithLogexInitializor(lvl, opts...)
 	}
@@ -56,7 +53,7 @@ func GetLoggerLevel() Level {
 	return Level(l)
 }
 
-func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.LogexOption) (err error) {
+func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.Option) (err error) {
 	var lvlStr = GetStringRP(w.logexPrefix, "level", lvl.String())
 	var l Level
 
@@ -76,17 +73,12 @@ func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.LogexOption) (err 
 
 	Set("logger-level", int(l))
 
-	if l == OffLevel {
-		logex.EnableWith(logrus.ErrorLevel, opts...)
-		logrus.SetOutput(ioutil.Discard)
-	} else {
-		logex.EnableWith(logrus.Level(l), opts...)
-	}
-	logrus.Tracef("setup logger: lvl=%v", l)
+	logex.EnableWith(logex.Level(l), opts...)
+	// logrus.Tracef("setup logger: lvl=%v", l)
 	return
 }
 
-func (w *ExecWorker) getWithLogexInitializor(lvl Level, opts ...logex.LogexOption) Handler {
+func (w *ExecWorker) getWithLogexInitializor(lvl Level, opts ...logex.Option) Handler {
 	return func(cmd *Command, args []string) (err error) {
 
 		if len(w.logexPrefix) == 0 {
@@ -108,32 +100,33 @@ func (w *ExecWorker) getWithLogexInitializor(lvl Level, opts ...logex.LogexOptio
 		if target == "journal" {
 			format = "text"
 		}
-		switch format {
-		case "json":
-			logrus.SetFormatter(&logrus.JSONFormatter{
-				TimestampFormat:  "2006-01-02 15:04:05.000",
-				DisableTimestamp: false,
-				PrettyPrint:      false,
-			})
-		default:
-			e := false
-			if w.logexSkipFrames > 0 {
-				e = true
-			}
-			logrus.SetFormatter(&formatter.TextFormatter{
-				ForceColors:               true,
-				DisableColors:             false,
-				FullTimestamp:             true,
-				TimestampFormat:           "2006-01-02 15:04:05.000",
-				Skip:                      w.logexSkipFrames,
-				EnableSkip:                e,
-				EnvironmentOverrideColors: true,
-			})
-		}
+		logex.SetupLoggingFormat(format, w.logexSkipFrames)
+		//switch format {
+		//case "json":
+		//	logrus.SetFormatter(&logrus.JSONFormatter{
+		//		TimestampFormat:  "2006-01-02 15:04:05.000",
+		//		DisableTimestamp: false,
+		//		PrettyPrint:      false,
+		//	})
+		//default:
+		//	e := false
+		//	if w.logexSkipFrames > 0 {
+		//		e = true
+		//	}
+		//	logrus.SetFormatter(&formatter.TextFormatter{
+		//		ForceColors:               true,
+		//		DisableColors:             false,
+		//		FullTimestamp:             true,
+		//		TimestampFormat:           "2006-01-02 15:04:05.000",
+		//		Skip:                      w.logexSkipFrames,
+		//		EnableSkip:                e,
+		//		EnvironmentOverrideColors: true,
+		//	})
+		//}
 
 		// can_use_log_file, journal_mode := ij(target, foreground)
-		l := GetLoggerLevel()
-		logrus.Tracef("Using logger: format=%v, lvl=%v, target=%v, formatter=%+v", format, l, target, logrus.StandardLogger().Formatter)
+		// l := GetLoggerLevel()
+		// logrus.Tracef("Using logger: format=%v, lvl=%v, target=%v, formatter=%+v", format, l, target, logrus.StandardLogger().Formatter)
 
 		return
 	}

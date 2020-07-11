@@ -6,7 +6,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/hedzr/logex"
 	"io/ioutil"
 	"log"
 	"os"
@@ -15,7 +14,6 @@ import (
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/examples/demo/svr"
 	"github.com/hedzr/cmdr/plugin/daemon"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/hedzr/errors.v2"
 )
 
@@ -68,7 +66,7 @@ func main() {
 		cmdr.WithWatchMainConfigFileToo(true),
 		cmdr.WithNoWatchConfigFiles(false),
 		cmdr.WithOptionMergeModifying(func(keyPath string, value, oldVal interface{}) {
-			logrus.Debugf("%%-> -> %q: %v -> %v", keyPath, oldVal, value)
+			log.Printf("%%-> -> %q: %v -> %v", keyPath, oldVal, value)
 			if strings.HasSuffix(keyPath, ".mqtt.server.stats.enabled") {
 				// mqttlib.FindServer().EnableSysStats(!vxconf.ToBool(value))
 			}
@@ -86,7 +84,7 @@ func main() {
 		cmdr.WithOnSwitchCharHit(onSwitchCharHit),
 		cmdr.WithOnPassThruCharHit(onPassThruCharHit),
 	); err != nil {
-		logrus.Fatalf("error: %v", err)
+		log.Fatalf("error: %v", err)
 	}
 }
 
@@ -259,10 +257,10 @@ $ {{.AppName}} kb --size 1g
 			fmt.Printf("> STDIN MODE: %v \n", cmdr.GetBoolR("mx-test.stdin"))
 			fmt.Println()
 
-			logrus.Debug("debug")
-			logrus.Info("debug")
-			logrus.Warning("debug")
-			logrus.WithField(logex.SKIP, 1).Warningf("dsdsdsds")
+			//logrus.Debug("debug")
+			//logrus.Info("debug")
+			//logrus.Warning("debug")
+			//logrus.WithField(logex.SKIP, 1).Warningf("dsdsdsds")
 
 			if cmdr.GetBoolR("mx-test.stdin") {
 				fmt.Println("> Type your contents here, press Ctrl-D to end it:")

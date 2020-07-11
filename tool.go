@@ -222,7 +222,7 @@ func Launch(cmd string, args ...string) (err error) {
 //
 //     go run -tags=delve ./cli
 //     go build -tags=delve -o my-app ./cli
-// 
+//
 // For Goland, you can enable this under 'Run/Debug Configurations', by adding the following into 'Go tool arguments:'
 //
 //     -tags=delve
@@ -242,7 +242,7 @@ func InDebugging() bool {
 //
 //     go run -tags=delve ./cli
 //     go build -tags=delve -o my-app ./cli
-// 
+//
 // For Goland, you can enable this under 'Run/Debug Configurations', by adding the following into 'Go tool arguments:'
 //
 //     -tags=delve

@@ -92,7 +92,7 @@ func TrapSignalsEnh(done chan bool, onTrapped func(s os.Signal), signals ...os.S
 				if byManual {
 					done <- true // stop os signals for-select looper
 				}
-				return // os.Exit(1) // logrus.Infof("done got.")
+				return // os.Exit(1) // log.Infof("done got.")
 			}
 		}
 	}

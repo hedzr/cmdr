@@ -9,7 +9,7 @@ import (
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/plugin/daemon"
 	"github.com/hedzr/cmdr/plugin/daemon/impl"
-	"github.com/sirupsen/logrus"
+	"log"
 	"net"
 	"os"
 	"time"
@@ -24,7 +24,7 @@ type daemonImpl struct {
 }
 
 func (*daemonImpl) OnRun(cmd *cmdr.Command, args []string, stopCh, doneCh chan struct{}, listener net.Listener) (err error) {
-	logrus.Debugf("demo daemon OnRun, pid = %v, ppid = %v", os.Getpid(), os.Getppid())
+	log.Printf("demo daemon OnRun, pid = %v, ppid = %v", os.Getpid(), os.Getppid())
 	go worker(stopCh, doneCh)
 	return
 }
@@ -37,19 +37,19 @@ LOOP:
 		case <-stopCh:
 			break LOOP
 		default:
-			logrus.Debugf("demo running at %d", os.Getpid())
+			log.Printf("demo running at %d", os.Getpid())
 		}
 	}
 	doneCh <- struct{}{}
 }
 
 func (*daemonImpl) OnStop(cmd *cmdr.Command, args []string) (err error) {
-	logrus.Debugf("demo daemon OnStop")
+	log.Printf("demo daemon OnStop")
 	return
 }
 
 func (*daemonImpl) OnReload() {
-	logrus.Debugf("demo daemon OnReload")
+	log.Printf("demo daemon OnReload")
 }
 
 func (*daemonImpl) OnStatus(cxt *impl.Context, cmd *cmdr.Command, p *os.Process) (err error) {
@@ -59,13 +59,13 @@ func (*daemonImpl) OnStatus(cxt *impl.Context, cmd *cmdr.Command, p *os.Process)
 }
 
 func (*daemonImpl) OnInstall(cxt *impl.Context, cmd *cmdr.Command, args []string) (err error) {
-	logrus.Debugf("demo daemon OnInstall")
+	log.Printf("demo daemon OnInstall")
 	return
 	// panic("implement me")
 }
 
 func (*daemonImpl) OnUninstall(cxt *impl.Context, cmd *cmdr.Command, args []string) (err error) {
-	logrus.Debugf("demo daemon OnUninstall")
+	log.Printf("demo daemon OnUninstall")
 	return
 	// panic("implement me")
 }

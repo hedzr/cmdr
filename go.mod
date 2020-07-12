@@ -16,8 +16,8 @@ go 1.13
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/fsnotify/fsnotify v1.4.9
-	github.com/hedzr/logex v1.1.9
-	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37
+	github.com/hedzr/logex v1.1.10
+	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
 	gopkg.in/hedzr/errors.v2 v2.0.12
 	gopkg.in/yaml.v3 v3.0.0-20200504145624-a81ed60d5f3a
 )

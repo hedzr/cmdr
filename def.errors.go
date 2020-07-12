@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"fmt"
 	"gopkg.in/hedzr/errors.v2"
-	"io"
 	"reflect"
 )
 
@@ -83,8 +82,9 @@ func withIgnorable(ignorable bool, err error, message string, args ...interface{
 		causer:    err,
 		msg:       message,
 	}
-	n := errors.WithStack(io.EOF).(*errors.WithStackInfo)
-	return n.SetCause(err)
+	//n := errors.WithStack(err).(*errors.WithStackInfo)
+	//return n.SetCause(err)
+	return errors.WithStack(err)
 }
 
 func (w *ErrorForCmdr) Error() string {

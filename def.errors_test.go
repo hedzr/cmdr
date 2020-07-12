@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestErrorForCmdr_As(t *testing.T) {
+func TestErrorForCmdr(t *testing.T) {
 	a := &ErrorForCmdr{
 		Ignorable: false,
 		causer:    nil,
@@ -26,13 +26,13 @@ func TestErrorForCmdr_As(t *testing.T) {
 	//	t.Fatal(e1)
 	//}
 
-	var et *errors.WithStackInfo
-	if errors.Is(e, et) {
+	if _, ok := e.(*errors.WithStackInfo); ok {
+		var et *errors.WithStackInfo
 		if !errors.As(e, &et) {
 			t.Fatal("cannot errors.As(e, -> *errors.WithStackInfo)")
 		}
 	} else {
-		t.Fatal("Is detection failed")
+		t.Fatalf("Is detection failed: e = %+v", e)
 	}
 
 	errors.Is(e, nil)

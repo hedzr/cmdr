@@ -62,11 +62,13 @@ func newErrorWithMsg(msg string, inners ...error) error {
 // 	return s.Msg
 // }
 
+// newErr creates a *errors.WithStackInfo object
 func newErr(msg string, args ...interface{}) *errors.WithStackInfo {
 	// return &ErrorForCmdr{ExtErr: *errors.New(msg, args...)}
 	return withIgnorable(false, nil, msg, args...).(*errors.WithStackInfo)
 }
 
+// newErrTmpl creates a *errors.WithStackInfo object
 func newErrTmpl(tmpl string) *errors.WithStackInfo {
 	return withIgnorable(false, nil, tmpl).(*errors.WithStackInfo)
 }

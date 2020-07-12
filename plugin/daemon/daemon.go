@@ -159,7 +159,8 @@ func runAsDaemon(cmd *cmdr.Command, args []string) (err error) {
 	ctx := impl.GetContext(cmd, args, daemonImpl, onHotReloading)
 
 	if ctx.Hot {
-		log.Println("\n\nhot-restarting ...\n\n")
+		//noinspection GoPrintFunctions
+		log.Println("\n\nhot-restarting ...\n")
 	}
 
 	if err := impl.Demonize(ctx); err != nil {

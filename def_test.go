@@ -65,6 +65,7 @@ func TestSingleCommandLine1(t *testing.T) {
 		cmdr.WithNoEnvOverrides(true),   // since v1.6.2
 		cmdr.WithStrictMode(true),       // since v1.6.2
 		cmdr.WithLogex(cmdr.DebugLevel), // since v1.6.5
+		cmdr.WithLogexSkipFrames(1),     // since v1.6.5
 		cmdr.WithLogexPrefix(""),        // since v1.6.5
 		cmdr.WithNoDefaultHelpScreen(true),
 		cmdr.WithEnvVarMap(map[string]func() string{

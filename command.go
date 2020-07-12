@@ -120,13 +120,13 @@ func (c *Command) FindFlagRecursive(longName string) (res *Flag) {
 
 // GetName returns the name of a `Command`.
 func (c *Command) GetName() string {
+	if len(c.Name) > 0 {
+		return c.Name
+	}
 	if len(c.Full) > 0 {
 		return c.Full
 	}
-	if len(c.Short) > 0 {
-		return c.Short
-	}
-	return c.Name
+	panic("The `Full` or `Name` must be non-empty for a command or flag")
 }
 
 // GetDottedNamePath return the dotted key path of this command
@@ -177,15 +177,14 @@ func (c *Command) GetExpandableNames() string {
 // GetParentName returns the owner command name
 func (c *Command) GetParentName() string {
 	if c.owner != nil {
-		if len(c.owner.Full) > 0 {
-			return c.owner.Full
-		}
-		if len(c.owner.Short) > 0 {
-			return c.owner.Short
-		}
+		//return c.owner.GetName()
 		if len(c.owner.Name) > 0 {
 			return c.owner.Name
 		}
+		if len(c.owner.Full) > 0 {
+			return c.owner.Full
+		}
+		// panic("The `Full` or `Name` must be non-empty for a command or flag")
 	}
 	return c.GetRoot().AppName
 }

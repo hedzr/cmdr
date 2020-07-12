@@ -279,9 +279,7 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 	} else {
 		// testing the next command, but the last one has already been the end of command series.
 		if pkg.lastCommandHeld {
-			// if pkg.i == len(args) {
-			// 	pkg.i--
-			// }
+			// if pkg.i == len(args) {	pkg.i-- }
 			stopC = true
 			pkg.remainArgs = append(pkg.remainArgs, pkg.a)
 			return

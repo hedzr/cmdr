@@ -44,9 +44,10 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 		flog("--> buildXref: loadFromPredefinedLocation()")
 
 		// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
-		if err = w.parsePredefinedLocation(); err != nil {
-			return
-		}
+		//if err = w.parsePredefinedLocation(); err != nil {
+		//	return
+		//}
+		err = w.parsePredefinedLocation()
 
 		// and now, loading the external configuration files
 		err = w.loadFromPredefinedLocation(rootCmd)

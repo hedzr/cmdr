@@ -78,6 +78,16 @@ func TestMatch(t *testing.T) {
 	// cmdr.SetCustomShowBuildInfo(nil)
 
 	copyRootCmd = rootCmdForTesting
+	copyRootCmd.AppendPostActions(func(cmd *cmdr.Command, args []string) {
+		//
+	})
+	if !copyRootCmd.IsRoot() {
+		t.Fatal("IsRoot() test failed")
+	}
+	if copyRootCmd.GetRoot() != nil {
+		t.Fatal("GetRoot() test failed")
+	}
+	t.Logf("root.Name")
 
 	defer func() {
 
@@ -95,7 +105,7 @@ func TestMatch(t *testing.T) {
 		// t.Logf("--------- stdout // %v // %v\n%v", cmdr.GetExecutableDir(), cmdr.GetExcutablePath(), x)
 	}()
 
-	onUnhandleErrorHandler := func(err interface{}) {
+	onUnhandledErrorHandler := func(err interface{}) {
 		t.Fatal(errors.DumpStacksAsString(false))
 	}
 
@@ -111,7 +121,7 @@ func TestMatch(t *testing.T) {
 		w.AddOnAfterXrefBuilt(func(root *cmdr.RootCommand, args []string) {})
 		w.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {})
 		if cmd, err = cmdr.Match(sss,
-			cmdr.WithUnhandledErrorHandler(onUnhandleErrorHandler),
+			cmdr.WithUnhandledErrorHandler(onUnhandledErrorHandler),
 			cmdr.WithNoCommandAction(true),
 			cmdr.WithOnSwitchCharHit(func(parsed *cmdr.Command, switchChar string, args []string) (err error) {
 				return
@@ -262,7 +272,7 @@ func TestComplexOpt(t *testing.T) {
 	}
 }
 
-func TestTlideOptions(t *testing.T) {
+func TestTlideOptionsAndToggleGroupBranch(t *testing.T) {
 	defer logex.CaptureLog(t).Release()
 	if cmdr.SavedOsArgs == nil {
 		cmdr.SavedOsArgs = os.Args
@@ -287,6 +297,25 @@ func TestTlideOptions(t *testing.T) {
 					},
 					DefaultValue: float32(0),
 				},
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Short: "tg1", Full: "tg1",
+					},
+					ToggleGroup: "ToggleGroup",
+				},
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Short: "tg2", Full: "tg2",
+					},
+					ToggleGroup: "ToggleGroup",
+				},
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Short: "tg3", Full: "tg3",
+					},
+					DefaultValue: true,
+					ToggleGroup:  "ToggleGroup",
+				},
 			},
 		},
 	}
@@ -296,6 +325,8 @@ func TestTlideOptions(t *testing.T) {
 		line      string
 		validator func(t *testing.T, err error) error
 	}{
+		{"consul-tags -", nil},
+		{"consul-tags --", nil},
 		{"consul-tags --help ~~debug", nil},
 		{"consul-tags --help ~~debug ~~env", nil},
 		{"consul-tags --help ~~debug ~~raw", nil},
@@ -305,7 +336,11 @@ func TestTlideOptions(t *testing.T) {
 	for _, cc := range commands {
 		os.Args = strings.Split(cc.line, " ")
 		cmdr.ResetOptions()
-		if err = cmdr.Exec(rootCmdX); err != nil {
+		if err = cmdr.Exec(rootCmdX,
+			cmdr.WithOnSwitchCharHit(func(parsed *cmdr.Command, switchChar string, args []string) (err error) {
+				return
+			}),
+		); err != nil {
 			t.Log(err) // hi, here is not real error occurs
 		}
 		if cc.validator != nil {
@@ -343,6 +378,30 @@ func TestHandlerPassThru(t *testing.T) {
 					DefaultValue: float32(0),
 				},
 			},
+			SubCommands: []*cmdr.Command{
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Full: "c1", Short: "c1",
+					},
+					SubCommands: []*cmdr.Command{
+						{
+							BaseOpt: cmdr.BaseOpt{
+								Full: "c1", Short: "c1",
+							},
+						},
+						{
+							BaseOpt: cmdr.BaseOpt{
+								Full: "c2", Short: "c2",
+							},
+						},
+					},
+				},
+				{
+					BaseOpt: cmdr.BaseOpt{
+						Full: "c2", Short: "c2",
+					},
+				},
+			},
 		},
 	}
 
@@ -352,6 +411,10 @@ func TestHandlerPassThru(t *testing.T) {
 		validator func(t *testing.T, err error) error
 	}{
 		{"consul-tags --help -- ~~debug", nil},
+		{"consul-tags c1 --help", nil},
+		{"consul-tags c1 c2 --help", nil},
+		{"consul-tags c1 c3 --help", nil},
+		{"consul-tags c2 --help", nil},
 		// {"consul-tags --help ~~debug ~~env", nil},
 		// {"consul-tags --help ~~debug ~~raw", nil},
 		// {"consul-tags --help ~~debug ~~more", nil},
@@ -368,6 +431,15 @@ func TestHandlerPassThru(t *testing.T) {
 		); err != nil {
 			t.Log(err) // hi, here is not real error occurs
 		}
+
+		if lastCommand, e := cmdr.Match(cc.line,
+			cmdr.WithAfterArgsParsed(func(cmd *cmdr.Command, args []string) (err error) {
+				return
+			}),
+		); lastCommand != nil || e != nil {
+			t.Logf("lastCommand = %v, e = %v", lastCommand, e)
+		}
+
 		if cc.validator != nil {
 			err = cc.validator(t, err)
 			if err != nil {

@@ -51,6 +51,12 @@ func (s *optFlagImpl) Long(long string) (opt OptFlag) {
 	return
 }
 
+func (s *optFlagImpl) Name(name string) (opt OptFlag) {
+	s.working.Name = name
+	opt = s
+	return
+}
+
 func (s *optFlagImpl) Aliases(aliases ...string) (opt OptFlag) {
 	s.working.Aliases = uniAddStrs(s.working.Aliases, aliases...)
 	opt = s

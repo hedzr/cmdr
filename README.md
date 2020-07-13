@@ -67,6 +67,9 @@ See our extras:
 
 ## News
 
+- v1.6.49
+  - added: Name() for command & flag defining
+
 - v1.6.48
   - code reviewed
   - maintained

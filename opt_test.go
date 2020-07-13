@@ -18,7 +18,7 @@ func TestCommandMethods(t *testing.T) {
 		Header("sds")
 
 	msCmd := root.NewSubCommand().
-		Titles("microservice", "ms").
+		Titles("microservice", "ms").Name("ms").
 		Description("", "").
 		Group("").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
@@ -108,7 +108,7 @@ func TestFluentAPIDefault(t *testing.T) {
 	cmdr.NewCmdFrom(&rootCmd1.Command)
 	cmdr.NewCmd()
 	cmdr.NewSubCmd()
-	cmdr.NewBool(false)
+	cmdr.NewBool(false).Name("e")
 	cmdr.NewDuration(0)
 	cmdr.NewInt(0)
 	cmdr.NewInt64(0)

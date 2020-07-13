@@ -72,6 +72,12 @@ func (s *optCommandImpl) Long(long string) (opt OptCmd) {
 	return
 }
 
+func (s *optCommandImpl) Name(name string) (opt OptCmd) {
+	s.working.Name = name
+	opt = s
+	return
+}
+
 func (s *optCommandImpl) Aliases(aliases ...string) (opt OptCmd) {
 	s.working.Aliases = uniAddStrs(s.working.Aliases, aliases...)
 	opt = s

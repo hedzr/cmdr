@@ -24,10 +24,19 @@ type (
 	//
 	// For an option, its default value must be declared with exact type as is
 	OptFlag interface {
-		// Titles: broken API since v1.6.39
+		// Titles: broken API since v1.6.39.
+		// 
+		// If necessary, an order prefix can be attached to the long title.
+		// The title with prefix will be set to Name field and striped to Long field.
+		//
+		// An order prefix is a dotted string with multiple alphabet and digit. Such as:
+		// "zzzz.", "0001.", "700.", "A1." ...
 		Titles(long, short string, aliases ...string) (opt OptFlag)
 		Short(short string) (opt OptFlag)
 		Long(long string) (opt OptFlag)
+		// Name is an internal identity, and an order prefix is optional
+		// An order prefix is a dotted string with multiple alphabet and digit. Such as:
+		// "zzzz.", "0001.", "700.", "A1." ...
 		Name(name string) (opt OptFlag)
 		Aliases(ss ...string) (opt OptFlag)
 		Description(oneLineDesc string, longDesc ...string) (opt OptFlag)
@@ -74,9 +83,18 @@ type (
 	// see also: cmdr.Root().NewSubCommand()/.NewFlag()
 	OptCmd interface {
 		// Titles: broken API since v1.6.39
+		// 
+		// If necessary, an order prefix can be attached to the long title.
+		// The title with prefix will be set to Name field and striped to Long field.
+		//
+		// An order prefix is a dotted string with multiple alphabet and digit. Such as:
+		// "zzzz.", "0001.", "700.", "A1." ...
 		Titles(long, short string, aliases ...string) (opt OptCmd)
 		Short(short string) (opt OptCmd)
 		Long(long string) (opt OptCmd)
+		// Name is an internal identity, and an order prefix is optional
+		// An order prefix is a dotted string with multiple alphabet and digit. Such as:
+		// "zzzz.", "0001.", "700.", "A1." ...
 		Name(name string) (opt OptCmd)
 		Aliases(ss ...string) (opt OptCmd)
 		Description(oneLine string, long ...string) (opt OptCmd)

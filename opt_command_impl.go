@@ -55,6 +55,10 @@ func (s *optCommandImpl) AttachToRoot(root *RootCommand) {
 func (s *optCommandImpl) Titles(long, short string, aliases ...string) (opt OptCmd) {
 	s.working.Short = short
 	s.working.Full = long
+	if HasOrderPrefix(long) {
+		s.working.Full = StripOrderPrefix(long)
+		s.working.Name = long
+	}
 	s.working.Aliases = uniAddStrs(s.working.Aliases, aliases...)
 	opt = s
 	return
@@ -68,6 +72,10 @@ func (s *optCommandImpl) Short(short string) (opt OptCmd) {
 
 func (s *optCommandImpl) Long(long string) (opt OptCmd) {
 	s.working.Full = long
+	if HasOrderPrefix(long) {
+		s.working.Full = StripOrderPrefix(long)
+		s.working.Name = long
+	}
 	opt = s
 	return
 }

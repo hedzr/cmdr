@@ -4,7 +4,7 @@
 
 /*
 
-Package cmdr interprets command-line arguments with POSIX style.
+Package cmdr is a golang library to interpret/parse the command-line input with POSIX-compliant mode
 
 */
 package cmdr

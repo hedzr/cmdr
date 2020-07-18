@@ -52,7 +52,7 @@ hierarchy configuration data too.
 
 ## Import
 
-Need go-modules enabled:
+The better choice is importing with go-modules enabled:
 
 ```go
 import "github.com/hedzr/cmdr"
@@ -60,13 +60,18 @@ import "github.com/hedzr/cmdr"
 
 See our extras:
 
+- [cmdr-docs](https://github.com/hedzr/cmdr-addons): documentations (Working)
 - [cmdr-addons](https://github.com/hedzr/cmdr-addons): a new daemon plugin `dex` for linux/macOS/windows.
-- [cmdr-examples](https://github.com/hedzr/cmdr-examples)
+- [cmdr-examples](https://github.com/hedzr/cmdr-examples): collects the samples for cmdr
 
 
 
 ## News
 
+- v1.6.50 (WIP)
+  - better `Titles(long, ...)` and `Name(name)`  
+    Now you can compose the order prefix easily: with `.Titles("001.start")`, we can recognize the prefix and move it to `Name` field automatically.
+  
 - v1.6.49
   - added: Name() for command & flag defining
 

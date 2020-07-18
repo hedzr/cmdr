@@ -551,11 +551,20 @@ func stripPrefix(s, p string) string {
 
 // StripOrderPrefix strips the prefix string fragment for sorting order.
 // see also: Command.Group, Flag.Group, ...
+// An order prefix is a dotted string with multiple alphabet and digit. Such as:
+// "zzzz.", "0001.", "700.", "A1." ...
 func StripOrderPrefix(s string) string {
 	if xre.MatchString(s) {
 		s = s[strings.Index(s, ".")+1:]
 	}
 	return s
+}
+
+// HasOrderPrefix tests whether an order prefix is present or not.
+// An order prefix is a dotted string with multiple alphabet and digit. Such as:
+// "zzzz.", "0001.", "700.", "A1." ...
+func HasOrderPrefix(s string) bool {
+	return xre.MatchString(s)
 }
 
 var (

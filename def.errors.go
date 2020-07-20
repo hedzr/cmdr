@@ -111,7 +111,7 @@ func (w *ErrorForCmdr) Error() string {
 // 	   fmt.Printf("%+v\n", err4)
 //
 func (w *ErrorForCmdr) FormatNew(ignorable bool, livedArgs ...interface{}) *errors.WithStackInfo {
-	x := withIgnorable(ignorable, w.causer, w.msg).(*errors.WithStackInfo)
+	x := withIgnorable(ignorable, w.causer, w.msg, livedArgs...).(*errors.WithStackInfo)
 	x.Cause().(*ErrorForCmdr).livedArgs = livedArgs
 	return x
 }

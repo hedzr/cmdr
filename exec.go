@@ -6,6 +6,7 @@ package cmdr
 
 import (
 	"bufio"
+	"gopkg.in/hedzr/errors.v2"
 	"os"
 	"sync"
 )
@@ -209,12 +210,21 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 			// -t3: opt with an argument.
 
 			matched, stopC, stopF, err = w.xxTestCmd(pkg, &goCommand, rootCmd, args)
-			if e, ok := err.(*ErrorForCmdr); ok {
-				ferr("%v", e)
-				if !e.Ignorable {
-					return
+			if err != nil {
+				var e *ErrorForCmdr
+				if errors.As(err, &e) {
+					ferr("%v", e)
+					if !e.Ignorable {
+						return
+					}
 				}
 			}
+			//if e, ok := err.(*ErrorForCmdr); ok {
+			//	ferr("%v", e)
+			//	if !e.Ignorable {
+			//		return
+			//	}
+			//}
 			if stopF {
 				if pkg.lastCommandHeld || (matched && pkg.flg == nil) {
 					err = w.afterInternalExec(pkg, rootCmd, goCommand, args, stopC || pkg.lastCommandHeld)

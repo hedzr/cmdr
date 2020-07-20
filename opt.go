@@ -25,7 +25,7 @@ type (
 	// For an option, its default value must be declared with exact type as is
 	OptFlag interface {
 		// Titles: broken API since v1.6.39.
-		// 
+		//
 		// If necessary, an order prefix can be attached to the long title.
 		// The title with prefix will be set to Name field and striped to Long field.
 		//
@@ -83,7 +83,7 @@ type (
 	// see also: cmdr.Root().NewSubCommand()/.NewFlag()
 	OptCmd interface {
 		// Titles: broken API since v1.6.39
-		// 
+		//
 		// If necessary, an order prefix can be attached to the long title.
 		// The title with prefix will be set to Name field and striped to Long field.
 		//
@@ -119,9 +119,15 @@ type (
 
 		// NewFlag create a new flag object and return it for further operations.
 		// Deprecated since v1.6.9, replace it with FlagV(defaultValue)
+		//
+		// Deprecated since v1.6.50, we recommend the new form:
+		//    cmdr.NewBool(false).Titles(...)...AttachTo(ownerCmd)
 		NewFlag(typ OptFlagType) (opt OptFlag)
 		// NewFlagV create a new flag object and return it for further operations.
 		// the titles in arguments MUST be: longTitle, [shortTitle, [aliasTitles...]]
+		//
+		// Deprecated since v1.6.50, we recommend the new form:
+		//    cmdr.NewBool(false).Titles(...)...AttachTo(ownerCmd)
 		NewFlagV(defaultValue interface{}, titles ...string) (opt OptFlag)
 		// NewSubCommand make a new sub-command optcmd object with optional titles.
 		// the titles in arguments MUST be: longTitle, [shortTitle, [aliasTitles...]]

@@ -383,6 +383,7 @@ func (pkg *ptpkg) processTypeString(args []string) (err error) {
 		var v = pkg.val
 		var keyPath = wkr.backtraceFlagNames(pkg.flg)
 		pkg.xxSet(keyPath, v)
+		pkg.found = true
 
 	}
 	return

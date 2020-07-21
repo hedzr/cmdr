@@ -68,14 +68,18 @@ See our extras:
 
 ## News
 
+- v1.6.51 (WIP)
+  - deprecated: daemon plugin
+
 - v1.6.50
-  - fixed: correct the error printing while wrong args got (23 seconds ago) <Hedzr Yeh>
-  - fixed: valid-args - ensure the `found` flag as a value matched (2 minutes ago) <Hedzr Yeh>
-  - fixed: withIgnoredMessage - format with liveArgs (3 minutes ago) <Hedzr Yeh>
-  - cmd.NewFlagV will be deprecated since v1.6.50, we recommend the new form: `cmdr.NewBool(false).Titles(...)...AttachTo(ownerCmd)` (17 hours ago) <Hedzr Yeh>
+  - fixed: correct the error printing while wrong args got 
+  - fixed: valid-args - ensure the `found` flag as a value matched
+  - fixed: withIgnoredMessage - format with liveArgs
+  - cmd.NewFlagV was deprecated since v1.6.50, we recommend the new form: `cmdr.NewBool(false).Titles(...)...AttachTo(ownerCmd)`
   - better `Titles(long, ...)` and `Name(name)`  
     Now you can compose the order prefix easily: with `.Titles("001.start")`, we can recognize the prefix and move it to `Name` field automatically.
-  
+  > We will remove the deprecated api at next minor version (v1.7)
+
 - v1.6.49
   - added: Name() for command & flag defining
 

@@ -17,6 +17,8 @@ import (
 // - add daemon commands and sub-commands: start/run, stop, restart/reload, status, install/uninstall
 // - pidfile
 // -
+//
+// Deprecated since v1.0.51, will be removed at v1.7.x. please using `cmdr-addons: dex` as the replacement.
 func WithDaemon(daemonImplX Daemon,
 	modifier func(daemonServerCommand *cmdr.Command) *cmdr.Command,
 	preAction func(cmd *cmdr.Command, args []string) (err error),

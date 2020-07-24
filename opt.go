@@ -61,6 +61,12 @@ type (
 
 		// EnvKeys is a list of env-var names of binding on this flag
 		EnvKeys(keys ...string) (opt OptFlag)
+		// Required flag.
+		//
+		// NOTE
+		//
+		//   Required() set the required flag to true while it's invoked with empty params.
+		Required(required ...bool) (opt OptFlag)
 
 		OwnerCommand() (opt OptCmd)
 		SetOwner(opt OptCmd)

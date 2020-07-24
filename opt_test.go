@@ -372,7 +372,10 @@ func createRoot() (rootOpt *cmdr.RootCmdOpt) {
 		Titles("head", "h").
 		Description("", "").
 		Group("").
-		HeadLike(true, 1, 8000).EnvKeys("AVCX")
+		HeadLike(true, 1, 8000).
+		EnvKeys("AVCX").
+		Required().
+		Required(false, false, true, false)
 
 	co.NewFlagV("").
 		Titles("ienum", "i").

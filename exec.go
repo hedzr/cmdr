@@ -396,10 +396,8 @@ func (w *ExecWorker) ainvk(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command,
 			}()
 		}
 
-		if w.logexInitialFunctor != nil {
-			if err = w.logexInitialFunctor(goCommand, remainArgs); err == ErrShouldBeStopException {
-				return
-			}
+		if err = w.checkArgs(pkg, rootCmd, goCommand, remainArgs); err != nil {
+			return
 		}
 
 		if w.afterArgsParsed != nil {
@@ -419,6 +417,49 @@ func (w *ExecWorker) ainvk(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command,
 		return nil
 	}
 
+	return
+}
+
+func (w *ExecWorker) checkArgs(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
+	if w.logexInitialFunctor != nil {
+		if err = w.logexInitialFunctor(goCommand, remainArgs); err == ErrShouldBeStopException {
+			return
+		}
+	}
+
+	if err = w.checkRequiredArgs(goCommand, remainArgs); err != nil {
+		return
+	}
+
+	if w.afterArgsParsed != nil {
+		if err = w.afterArgsParsed(goCommand, remainArgs); err == ErrShouldBeStopException {
+			return
+		}
+	}
+
+	return
+}
+
+func (w *ExecWorker) checkRequiredArgs(goCommand *Command, remainArgs []string) (err error) {
+	c := errors.NewContainer("required flag missed")
+
+	cmd := goCommand
+UP:
+	for gn, gv := range cmd.allFlags {
+		for fn, fv := range gv {
+			if fv.Required && fv.times < 1 {
+				c.Attach(errors.New("\n    The required flag %q in group %q missed", fn, gn))
+			}
+		}
+	}
+	if cmd.HasParent() {
+		cmd = cmd.owner
+		goto UP
+	}
+
+	if !c.IsEmpty() {
+		err = c.Error()
+	}
 	return
 }
 

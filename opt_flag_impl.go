@@ -169,6 +169,16 @@ func (s *optFlagImpl) EnvKeys(keys ...string) (opt OptFlag) {
 	return
 }
 
+func (s *optFlagImpl) Required(required ...bool) (opt OptFlag) {
+	var b bool = true
+	for _, bb := range required {
+		b = bb
+	}
+	s.working.Required = b
+	opt = s
+	return
+}
+
 func (s *optFlagImpl) OnSet(f func(keyPath string, value interface{})) (opt OptFlag) {
 	s.working.onSet = f
 	opt = s

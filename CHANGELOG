@@ -3,6 +3,12 @@
 ## Versions
 
 
+- v1.6.51
+  - deprecated: daemon plugin
+  - implements the required flag logic
+
+
+
 - v1.6.50
   - fixed: correct the error printing while wrong args got 
   - fixed: valid-args - ensure the `found` flag as a value matched
@@ -15,6 +21,7 @@
 
 - v1.6.49
   - added: Name() for command & flag defining
+
 
 
 - v1.6.48

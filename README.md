@@ -68,8 +68,9 @@ See our extras:
 
 ## News
 
-- v1.6.51 (WIP)
+- v1.6.51
   - deprecated: daemon plugin
+  - implements the required flag logic
 
 - v1.6.50
   - fixed: correct the error printing while wrong args got 

@@ -355,7 +355,7 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 			// 	return nil
 			// }
 
-			err = w.ainvk(pkg, rootCmd, goCommand, args)
+			err = w.doInvokeCommand(pkg, rootCmd, goCommand, args)
 			return
 		}
 	}
@@ -372,7 +372,7 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 	return
 }
 
-func (w *ExecWorker) ainvk(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
+func (w *ExecWorker) doInvokeCommand(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
 	if goCommand != &rootCmd.Command {
 		if w.noCommandAction {
 			return

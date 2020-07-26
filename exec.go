@@ -385,10 +385,10 @@ func (w *ExecWorker) doInvokeCommand(pkg *ptpkg, rootCmd *RootCommand, goCommand
 		// 	defer rootCmd.PostAction(goCommand, remainArgs)
 		// }
 
-		ta := append(rootCmd.PostActions, rootCmd.PostAction)
-		if len(ta) > 0 {
+		postActions := append(rootCmd.PostActions, rootCmd.PostAction)
+		if len(postActions) > 0 {
 			defer func() {
-				for _, fn := range ta {
+				for _, fn := range postActions {
 					if fn != nil {
 						fn(goCommand, remainArgs)
 					}
@@ -400,17 +400,36 @@ func (w *ExecWorker) doInvokeCommand(pkg *ptpkg, rootCmd *RootCommand, goCommand
 			return
 		}
 
-		if w.afterArgsParsed != nil {
-			if err = w.afterArgsParsed(goCommand, remainArgs); err == ErrShouldBeStopException {
-				return
+		//if w.afterArgsParsed != nil {
+		//	if err = w.afterArgsParsed(goCommand, remainArgs); err == ErrShouldBeStopException {
+		//		return
+		//	}
+		//}
+
+		var preActions []Handler
+		preActions = append(preActions, w.afterArgsParsed, rootCmd.PreAction)
+		preActions = append(preActions, rootCmd.PreActions...)
+		c := errors.NewContainer("cannot invoke preActions")
+		for _, fn := range preActions {
+			if fn != nil {
+				switch e := fn(goCommand, remainArgs); {
+				case e == ErrShouldBeStopException:
+					return e
+				case err != nil:
+					c.Attach(e)
+				}
 			}
+		}
+		if !c.IsEmpty() {
+			err = c.Error()
+			return
 		}
 
-		if rootCmd.PreAction != nil {
-			if err = rootCmd.PreAction(goCommand, remainArgs); err == ErrShouldBeStopException {
-				return
-			}
-		}
+		//if rootCmd.PreAction != nil {
+		//	if err = rootCmd.PreAction(goCommand, remainArgs); err == ErrShouldBeStopException {
+		//		return
+		//	}
+		//}
 	}
 
 	if err = w.invokeCommand(rootCmd, goCommand, remainArgs); err == ErrShouldBeStopException {

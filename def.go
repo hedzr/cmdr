@@ -102,6 +102,7 @@ type (
 		Author    string
 		Header    string // using `Header` for header and ignore built with `Copyright` and `Author`, and no usage lines too.
 
+		PreActions  []Handler
 		PostActions []Invoker
 
 		ow   *bufio.Writer

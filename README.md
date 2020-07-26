@@ -68,6 +68,9 @@ See our extras:
 
 ## News
 
+- v1.6.52, WIP
+  - adds `AddGlobalPreAction(pre)`, `AddGlobalPostAction(post)`
+
 - v1.6.51
   - deprecated: daemon plugin
   - implements the required flag logic

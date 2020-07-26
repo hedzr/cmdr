@@ -420,8 +420,7 @@ func (w *ExecWorker) doInvokeCommand(pkg *ptpkg, rootCmd *RootCommand, goCommand
 				}
 			}
 		}
-		if !c.IsEmpty() {
-			err = c.Error()
+		if err = c.Error(); err != nil {
 			return
 		}
 

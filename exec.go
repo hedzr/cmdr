@@ -339,7 +339,7 @@ func (w *ExecWorker) postExecFor(rootCmd *RootCommand) {
 }
 
 func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string, stopC bool) (err error) {
-	w.checkState(pkg)
+	w.checkStates(pkg)
 
 	if !pkg.needHelp && len(pkg.unknownCmds) == 0 && len(pkg.unknownFlags) == 0 {
 		if goCommand.Action != nil {
@@ -463,7 +463,7 @@ UP:
 	return
 }
 
-func (w *ExecWorker) checkState(pkg *ptpkg) {
+func (w *ExecWorker) checkStates(pkg *ptpkg) {
 	if !pkg.needHelp {
 		pkg.needHelp = GetBoolP(w.getPrefix(), "help")
 	}

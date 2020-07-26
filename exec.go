@@ -415,7 +415,7 @@ func (w *ExecWorker) doInvokeCommand(pkg *ptpkg, rootCmd *RootCommand, goCommand
 				switch e := fn(goCommand, remainArgs); {
 				case e == ErrShouldBeStopException:
 					return e
-				case err != nil:
+				case e != nil:
 					c.Attach(e)
 				}
 			}

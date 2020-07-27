@@ -106,6 +106,18 @@ func (s *RootCmdOpt) Copyright(copyright, author string) *RootCmdOpt {
 	return s
 }
 
+// AddGlobalPreAction attaches your pre handler to the global Pre-Actions list
+func (s *RootCmdOpt) AddGlobalPreAction(pre Handler) *RootCmdOpt {
+	optCtx.root.PreActions = append(optCtx.root.PreActions, pre)
+	return s
+}
+
+// AddGlobalPostAction attaches your post handler to the global Post-Actions list
+func (s *RootCmdOpt) AddGlobalPostAction(post Invoker) *RootCmdOpt {
+	optCtx.root.PostActions = append(optCtx.root.PostActions, post)
+	return s
+}
+
 // func (s *RootCmdOpt) Command(cmdOpt *cmdOpt) *RootCmdOpt {
 // 	optCtx.root.Command = *cmdOpt.workingFlag
 // 	return s

@@ -3,6 +3,15 @@
 ## Versions
 
 
+- v1.7.0
+  - adds `AddGlobalPreAction(pre)`, `AddGlobalPostAction(post)`
+  - using logex v1.2.0 and new logging switching framework
+  - added more logging output in trace mode enabled
+    see also: GetTraceMode(), GetDebugMode(), InDebugging(), and logex.GetTraceMode().
+  - more...
+
+
+
 - v1.6.51
   - deprecated: daemon plugin
   - implements the required flag logic

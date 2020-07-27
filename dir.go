@@ -5,7 +5,7 @@
 package cmdr
 
 import (
-	"gopkg.in/hedzr/errors.v2"
+	"github.com/hedzr/logex/exec"
 	"os"
 	"path"
 	"path/filepath"
@@ -72,20 +72,17 @@ func FileExists(name string) bool {
 
 // EnsureDir checks and creates the directory.
 func EnsureDir(dir string) (err error) {
-	if len(dir) == 0 {
-		return errors.New("empty directory")
-	}
-	if !FileExists(dir) {
-		err = os.MkdirAll(dir, 0755)
-	}
-	return
+	return exec.EnsureDir(dir)
+}
+
+// EnsureDirEnh checks and creates the directory, via sudo if necessary.
+func EnsureDirEnh(dir string) (err error) {
+	return exec.EnsureDirEnh(dir)
 }
 
 // RemoveDirRecursive removes a directory and any children it contains.
 func RemoveDirRecursive(dir string) (err error) {
-	// RemoveContentsInDir(dir)
-	err = os.RemoveAll(dir)
-	return
+	return exec.RemoveDirRecursive(dir)
 }
 
 // // RemoveContentsInDir removes all file and sub-directory in a directory

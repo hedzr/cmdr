@@ -137,6 +137,10 @@ func TestAsXXX(t *testing.T) {
 
 func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 	root := cmdr.Root("aa", "1.0.1").
+		AddGlobalPreAction(func(cmd *cmdr.Command, args []string) (err error) {
+			return
+		}).AddGlobalPostAction(func(cmd *cmdr.Command, args []string) {
+	}).
 		Header("aa - test for cmdr - no version - hedzr").
 		Copyright("s", "x")
 

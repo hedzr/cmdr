@@ -68,6 +68,13 @@ See our extras:
 
 ## News
 
+- v1.7.0
+  - adds `AddGlobalPreAction(pre)`, `AddGlobalPostAction(post)`
+  - using logex v1.2.0 and new logging switching framework
+  - added more logging output in trace mode enabled
+    see also: GetTraceMode(), GetDebugMode(), InDebugging(), and logex.GetTraceMode().
+  - more...
+  
 - v1.6.51
   - deprecated: daemon plugin
   - implements the required flag logic
@@ -82,8 +89,9 @@ See our extras:
   > We will remove the deprecated api at next minor version (v1.7)
 
 - v1.6.49
-  - added: Name() for command & flag defining
-
+  
+- added: Name() for command & flag defining
+  
 - v1.6.48
   - code reviewed
   - maintained
@@ -103,11 +111,13 @@ See our extras:
   - fixed/improved: friendly error msg
 
 - v1.6.43
-  - fixed/improved: the matching algorithm and remained args
-
+  
+- fixed/improved: the matching algorithm and remained args
+  
 - v1.6.41
-  - `WithPagerEnabled()`: enables OS pager for help screen output
-
+  
+- `WithPagerEnabled()`: enables OS pager for help screen output
+  
 - v1.6.39
   - **BROKEN API**: the params order exchanged, their new prototypes are `OptFlag.Titles(long, short, aliases)` and `OptCmd.Titles(long, short, alases)`.
   - improved help screen

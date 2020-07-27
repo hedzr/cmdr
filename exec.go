@@ -6,6 +6,7 @@ package cmdr
 
 import (
 	"bufio"
+	"github.com/hedzr/logex"
 	"gopkg.in/hedzr/errors.v2"
 	"os"
 	"sync"
@@ -80,7 +81,7 @@ type ExecOption func(w *ExecWorker)
 //
 
 func init() {
-	internalResetWorkerNoLock()
+	_ = internalResetWorkerNoLock()
 }
 
 //
@@ -305,6 +306,7 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 }
 
 func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error) {
+	flog("--> preprocess")
 	for _, x := range w.beforeXrefBuilding {
 		x(rootCmd, args)
 	}
@@ -312,7 +314,7 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 	err = w.buildXref(rootCmd)
 
 	if err == nil {
-		flog("--> rxxtOptions.buildAutomaticEnv()")
+		flog("--> preprocess / rxxtOptions.buildAutomaticEnv()")
 		err = w.rxxtOptions.buildAutomaticEnv(rootCmd)
 	}
 
@@ -323,6 +325,10 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 			x(rootCmd, args)
 		}
 	}
+
+	flog("--> preprocess / END: trace=%v/logex:%v, debug=%v/logex:%v, indebugging:%v",
+		GetTraceMode(), logex.GetTraceMode(), GetDebugMode(), logex.GetDebugMode(),
+		logex.InDebugging())
 	return
 }
 
@@ -339,7 +345,12 @@ func (w *ExecWorker) postExecFor(rootCmd *RootCommand) {
 }
 
 func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string, stopC bool) (err error) {
-	w.checkState(pkg)
+
+	flog("--> afterInternalExec: trace=%v/logex:%v, debug=%v/logex:%v, indebugging:%v",
+		GetTraceMode(), logex.GetTraceMode(), GetDebugMode(), logex.GetDebugMode(),
+		logex.InDebugging())
+
+	w.checkStates(pkg)
 
 	if !pkg.needHelp && len(pkg.unknownCmds) == 0 && len(pkg.unknownFlags) == 0 {
 		if goCommand.Action != nil {
@@ -355,7 +366,7 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 			// 	return nil
 			// }
 
-			err = w.ainvk(pkg, rootCmd, goCommand, args)
+			err = w.doInvokeCommand(pkg, rootCmd, goCommand, args)
 			return
 		}
 	}
@@ -372,7 +383,7 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 	return
 }
 
-func (w *ExecWorker) ainvk(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
+func (w *ExecWorker) doInvokeCommand(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
 	if goCommand != &rootCmd.Command {
 		if w.noCommandAction {
 			return
@@ -385,10 +396,10 @@ func (w *ExecWorker) ainvk(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command,
 		// 	defer rootCmd.PostAction(goCommand, remainArgs)
 		// }
 
-		ta := append(rootCmd.PostActions, rootCmd.PostAction)
-		if len(ta) > 0 {
+		postActions := append(rootCmd.PostActions, rootCmd.PostAction)
+		if len(postActions) > 0 {
 			defer func() {
-				for _, fn := range ta {
+				for _, fn := range postActions {
 					if fn != nil {
 						fn(goCommand, remainArgs)
 					}
@@ -400,17 +411,35 @@ func (w *ExecWorker) ainvk(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command,
 			return
 		}
 
-		if w.afterArgsParsed != nil {
-			if err = w.afterArgsParsed(goCommand, remainArgs); err == ErrShouldBeStopException {
-				return
+		//if w.afterArgsParsed != nil {
+		//	if err = w.afterArgsParsed(goCommand, remainArgs); err == ErrShouldBeStopException {
+		//		return
+		//	}
+		//}
+
+		var preActions []Handler
+		preActions = append(preActions, w.afterArgsParsed, rootCmd.PreAction)
+		preActions = append(preActions, rootCmd.PreActions...)
+		c := errors.NewContainer("cannot invoke preActions")
+		for _, fn := range preActions {
+			if fn != nil {
+				switch e := fn(goCommand, remainArgs); {
+				case e == ErrShouldBeStopException:
+					return e
+				case e != nil:
+					c.Attach(e)
+				}
 			}
+		}
+		if err = c.Error(); err != nil {
+			return
 		}
 
-		if rootCmd.PreAction != nil {
-			if err = rootCmd.PreAction(goCommand, remainArgs); err == ErrShouldBeStopException {
-				return
-			}
-		}
+		//if rootCmd.PreAction != nil {
+		//	if err = rootCmd.PreAction(goCommand, remainArgs); err == ErrShouldBeStopException {
+		//		return
+		//	}
+		//}
 	}
 
 	if err = w.invokeCommand(rootCmd, goCommand, remainArgs); err == ErrShouldBeStopException {
@@ -463,7 +492,7 @@ UP:
 	return
 }
 
-func (w *ExecWorker) checkState(pkg *ptpkg) {
+func (w *ExecWorker) checkStates(pkg *ptpkg) {
 	if !pkg.needHelp {
 		pkg.needHelp = GetBoolP(w.getPrefix(), "help")
 	}

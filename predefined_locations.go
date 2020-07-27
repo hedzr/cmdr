@@ -22,6 +22,7 @@ func (w *ExecWorker) parsePredefinedLocation() (err error) {
 		}
 
 		location = trimQuotes(location)
+		flog("--> preprocess / buildXref / parsePredefinedLocation: %q", location)
 
 		if len(location) > 0 && FileExists(location) {
 			if yes, err = IsDirectory(location); yes {
@@ -58,7 +59,8 @@ func (w *ExecWorker) loadFromPredefinedLocation(rootCmd *RootCommand) (err error
 			err = w.rxxtOptions.LoadConfigFile(fn)
 			if err == nil {
 				conf.CfgFile = fn
-				flog("--> loadFromPredefinedLocation(): %q loaded", fn)
+				flog("--> preprocess / buildXref / loadFromPredefinedLocation: %q loaded", fn)
+				//flog("--> loadFromPredefinedLocation(): %q loaded", fn)
 			}
 			break
 		}

@@ -334,7 +334,7 @@ gocov: coverage
 ## coverage: run go coverage test
 coverage: | $(GOBASE)
 	@echo "  >  gocov ..."
-	@$(GO) test ./... -v -race -coverprofile=coverage.txt -covermode=atomic -timeout=20m -test.short | tee coverage.log
+	@$(GO) test . -v -race -coverprofile=coverage.txt -covermode=atomic -timeout=20m -test.short | tee coverage.log
 	@$(GO) tool cover -html=coverage.txt -o cover.html
 	@open cover.html
 
@@ -348,7 +348,7 @@ coverage-full: | $(GOBASE)
 ## codecov: run go test for codecov; (codecov.io)
 codecov: | $(GOBASE)
 	@echo "  >  codecov ..."
-	@$(GO) test -v -race -coverprofile=coverage.txt -covermode=atomic
+	@$(GO) test . -v -race -coverprofile=coverage.txt -covermode=atomic
 	@bash <(curl -s https://codecov.io/bash) -t $(CODECOV_TOKEN)
 
 ## cyclo: run gocyclo tool

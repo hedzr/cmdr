@@ -35,7 +35,7 @@ func (w *ExecWorker) setupFromEnvvarMap() {
 
 func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 	flog("--> preprocess / buildXref")
-	
+
 	// build xref for root command and its all sub-commands and flags
 	// and build the default values
 	w.buildRootCrossRefs(rootCmd)

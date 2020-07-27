@@ -325,7 +325,7 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 			x(rootCmd, args)
 		}
 	}
-	
+
 	flog("--> preprocess / END: trace=%v/logex:%v, debug=%v/logex:%v, indebugging:%v",
 		GetTraceMode(), logex.GetTraceMode(), GetDebugMode(), logex.GetDebugMode(),
 		logex.InDebugging())
@@ -349,7 +349,7 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 	flog("--> afterInternalExec: trace=%v/logex:%v, debug=%v/logex:%v, indebugging:%v",
 		GetTraceMode(), logex.GetTraceMode(), GetDebugMode(), logex.GetDebugMode(),
 		logex.InDebugging())
-	
+
 	w.checkStates(pkg)
 
 	if !pkg.needHelp && len(pkg.unknownCmds) == 0 && len(pkg.unknownFlags) == 0 {

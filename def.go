@@ -261,7 +261,7 @@ func GetStrictMode() bool {
 //
 // NOTE
 //     logex.GetTraceMode()/SetTraceMode() have higher universality
-//   
+//
 func GetTraceMode() bool {
 	return GetBoolR("trace")
 }
@@ -270,7 +270,7 @@ func GetTraceMode() bool {
 //
 // NOTE
 //     logex.GetDebugMode()/SetDebugMode() have higher universality
-//   
+//
 func GetDebugMode() bool {
 	return GetBoolR("debug")
 }

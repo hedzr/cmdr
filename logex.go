@@ -72,7 +72,7 @@ func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.Option) (err error
 			}
 		}
 	}
-	
+
 	Set("logger-level", int(l))
 
 	logex.EnableWith(logex.Level(l), opts...)

@@ -34,6 +34,8 @@ func (w *ExecWorker) setupFromEnvvarMap() {
 }
 
 func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
+	flog("--> preprocess / buildXref")
+	
 	// build xref for root command and its all sub-commands and flags
 	// and build the default values
 	w.buildRootCrossRefs(rootCmd)
@@ -41,13 +43,13 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 	w.setupFromEnvvarMap()
 
 	if !w.doNotLoadingConfigFiles {
-		flog("--> buildXref: loadFromPredefinedLocation()")
+		// flog("--> buildXref: loadFromPredefinedLocation()")
 
 		// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
 		//if err = w.parsePredefinedLocation(); err != nil {
 		//	return
 		//}
-		err = w.parsePredefinedLocation()
+		_ = w.parsePredefinedLocation()
 
 		// and now, loading the external configuration files
 		err = w.loadFromPredefinedLocation(rootCmd)
@@ -56,9 +58,16 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 		// 	EnvPrefix = w.envPrefixes
 		// }
 		// w.envPrefixes = EnvPrefix
-		envPrefix := strings.Split(GetStringR("env-prefix"), ".")
+		var envPrefix []string
+		eps := GetString("env-prefix", "")
+		if eps != "" && strings.Trim(eps, "[]") == eps {
+			envPrefix = strings.Split(eps, ".")
+		} else {
+			envPrefix = GetStringSlice("env-prefix")
+		}
 		if len(envPrefix) > 0 {
 			w.envPrefixes = envPrefix
+			flog("--> preprocess / buildXref: env-prefix %v loaded", envPrefix)
 		}
 	}
 	return

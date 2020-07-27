@@ -6,6 +6,7 @@ package cmdr
 
 import (
 	"bufio"
+	"github.com/hedzr/logex"
 	"gopkg.in/hedzr/errors.v2"
 	"os"
 	"sync"
@@ -80,7 +81,7 @@ type ExecOption func(w *ExecWorker)
 //
 
 func init() {
-	internalResetWorkerNoLock()
+	_ = internalResetWorkerNoLock()
 }
 
 //
@@ -305,6 +306,7 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 }
 
 func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error) {
+	flog("--> preprocess")
 	for _, x := range w.beforeXrefBuilding {
 		x(rootCmd, args)
 	}
@@ -312,7 +314,7 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 	err = w.buildXref(rootCmd)
 
 	if err == nil {
-		flog("--> rxxtOptions.buildAutomaticEnv()")
+		flog("--> preprocess / rxxtOptions.buildAutomaticEnv()")
 		err = w.rxxtOptions.buildAutomaticEnv(rootCmd)
 	}
 
@@ -323,6 +325,10 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 			x(rootCmd, args)
 		}
 	}
+	
+	flog("--> preprocess / END: trace=%v/logex:%v, debug=%v/logex:%v, indebugging:%v",
+		GetTraceMode(), logex.GetTraceMode(), GetDebugMode(), logex.GetDebugMode(),
+		logex.InDebugging())
 	return
 }
 
@@ -339,6 +345,11 @@ func (w *ExecWorker) postExecFor(rootCmd *RootCommand) {
 }
 
 func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string, stopC bool) (err error) {
+
+	flog("--> afterInternalExec: trace=%v/logex:%v, debug=%v/logex:%v, indebugging:%v",
+		GetTraceMode(), logex.GetTraceMode(), GetDebugMode(), logex.GetDebugMode(),
+		logex.InDebugging())
+	
 	w.checkStates(pkg)
 
 	if !pkg.needHelp && len(pkg.unknownCmds) == 0 && len(pkg.unknownFlags) == 0 {

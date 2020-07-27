@@ -257,7 +257,20 @@ func GetStrictMode() bool {
 	return GetBoolR("strict-mode")
 }
 
+// GetTraceMode returns the flag value of `--trace`/`-tr`
+//
+// NOTE
+//     logex.GetTraceMode()/SetTraceMode() have higher universality
+//   
+func GetTraceMode() bool {
+	return GetBoolR("trace")
+}
+
 // GetDebugMode returns the flag value of `--debug`/`-D`
+//
+// NOTE
+//     logex.GetDebugMode()/SetDebugMode() have higher universality
+//   
 func GetDebugMode() bool {
 	return GetBoolR("debug")
 }

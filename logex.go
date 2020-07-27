@@ -59,18 +59,20 @@ func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.Option) (err error
 
 	l, err = ParseLevel(lvlStr)
 
-	if InDebugging() || GetDebugMode() {
-		if l < DebugLevel {
-			l = DebugLevel
+	if l != OffLevel {
+		if InDebugging() || GetDebugMode() {
+			if l < DebugLevel {
+				l = DebugLevel
+			}
+		}
+		if GetBoolR("trace") || GetBool("trace") || ToBool(os.Getenv("TRACE")) {
+			if l < TraceLevel {
+				l = TraceLevel
+				flog("--> processLevelStr: trace mode switched")
+			}
 		}
 	}
-	if GetBoolR("trace") || GetBool("trace") || ToBool(os.Getenv("TRACE")) {
-		if l < TraceLevel {
-			l = TraceLevel
-		}
-		flog("trace mode enabled")
-	}
-
+	
 	Set("logger-level", int(l))
 
 	logex.EnableWith(logex.Level(l), opts...)

@@ -5,7 +5,7 @@
 package cmdr
 
 import (
-	"github.com/hedzr/logex/exec"
+	"github.com/hedzr/log/exec"
 	"os"
 	"path"
 	"path/filepath"

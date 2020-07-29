@@ -3,6 +3,7 @@
 package cmdr
 
 import (
+	"github.com/hedzr/log"
 	"github.com/hedzr/logex"
 	"os"
 )
@@ -75,7 +76,7 @@ func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.Option) (err error
 
 	Set("logger-level", int(l))
 
-	logex.EnableWith(logex.Level(l), opts...)
+	logex.EnableWith(log.Level(l), opts...)
 	// logrus.Tracef("setup logger: lvl=%v", l)
 	return
 }

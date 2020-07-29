@@ -73,6 +73,9 @@ See our extras:
   - english documentation not completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.3
+  - update dependencies to new logger packages
+
 - v1.7.2
   - update dependencies to new logger packages
 

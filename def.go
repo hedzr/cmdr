@@ -6,6 +6,7 @@ package cmdr
 
 import (
 	"bufio"
+	"github.com/hedzr/log"
 	"sync"
 )
 
@@ -260,19 +261,28 @@ func GetStrictMode() bool {
 // GetTraceMode returns the flag value of `--trace`/`-tr`
 //
 // NOTE
-//     logex.GetTraceMode()/SetTraceMode() have higher universality
+//     log.GetTraceMode()/SetTraceMode() have higher universality
 //
 func GetTraceMode() bool {
-	return GetBoolR("trace")
+	return GetBoolR("trace") || log.GetTraceMode()
 }
 
 // GetDebugMode returns the flag value of `--debug`/`-D`
 //
 // NOTE
-//     logex.GetDebugMode()/SetDebugMode() have higher universality
+//     log.GetDebugMode()/SetDebugMode() have higher universality
 //
 func GetDebugMode() bool {
-	return GetBoolR("debug")
+	return GetBoolR("debug") || log.GetDebugMode()
+}
+
+// NewLoggerConfig returns a default LoggerConfig
+func NewLoggerConfig() *log.LoggerConfig {
+	log.SetTraceMode(GetTraceMode())
+	log.SetDebugMode(GetDebugMode())
+	lc := log.NewLoggerConfig()
+	_ = GetSectionFrom("logger", &lc)
+	return lc
 }
 
 // GetVerboseMode returns the flag value of `--verbose`/`-v`

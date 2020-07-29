@@ -10,11 +10,11 @@ import (
 	"crypto/rand"
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
-	"github.com/hedzr/cmdr/plugin/isdelve"
+	"github.com/hedzr/log"
 	"gopkg.in/hedzr/errors.v2"
 	"io"
 	"io/ioutil"
-	"log"
+	log2 "log"
 	"math"
 	"os"
 	"os/exec"
@@ -173,7 +173,7 @@ func tplApply(tmpl string, data interface{}) string {
 	var w = new(bytes.Buffer)
 	var tpl = template.Must(template.New("x").Parse(tmpl))
 	if err := tpl.Execute(w, data); err != nil {
-		log.Printf("tpl execute error: %v", err)
+		log2.Printf("tpl execute error: %v", err)
 		return ""
 	}
 	return w.String()
@@ -233,7 +233,7 @@ func Launch(cmd string, args ...string) (err error) {
 //
 //noinspection GoBoolExpressions
 func InDebugging() bool {
-	return isdelve.Enabled
+	return log.InDebugging() // isdelve.Enabled
 }
 
 // IsDebuggerAttached return the status if cmdr was built with debug mode / or the app running under a debugger attached.
@@ -253,7 +253,7 @@ func InDebugging() bool {
 //
 //noinspection GoBoolExpressions
 func IsDebuggerAttached() bool {
-	return isdelve.Enabled
+	return log.InDebugging() // isdelve.Enabled
 }
 
 // InTesting detects whether is running under go test mode

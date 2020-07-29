@@ -68,6 +68,9 @@ See our extras:
 
 ## News
 
+- v1.7.1
+  - update dependencies to new logger packages
+
 - v1.7.0
   - adds `AddGlobalPreAction(pre)`, `AddGlobalPostAction(post)`
   - using logex v1.2.0 and new logging switching framework

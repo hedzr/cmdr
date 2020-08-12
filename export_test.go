@@ -87,8 +87,8 @@ func TestFlag(t *testing.T) {
 	noResetWorker = true
 	tLog(GetStringR("version"))
 
-	t.Log(tool.IsDebuggerAttached())
-	t.Log(tool.InTesting())
+	t.Log(IsDebuggerAttached())
+	t.Log(InTesting())
 	t.Log(tool.StripPrefix("8.yes", "8."))
 	t.Log(tool.IsDigitHeavy("not-digit"))
 	t.Log(tool.IsDigitHeavy("8-is-not-digit"))
@@ -116,11 +116,11 @@ func TestFlag(t *testing.T) {
 		tool.SavedOsArgs = x
 	}()
 	tool.SavedOsArgs = []string{"xx.test"}
-	t.Log(tool.InTesting())
+	t.Log(InTesting())
 	tool.SavedOsArgs = []string{"xx.runtime"}
-	t.Log(tool.InTesting())
+	t.Log(InTesting())
 	tool.SavedOsArgs = []string{"xx.runtime", "-test.v"}
-	t.Log(tool.InTesting())
+	t.Log(InTesting())
 
 	var rootCmdX = &RootCommand{
 		Command: Command{

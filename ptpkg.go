@@ -238,7 +238,7 @@ func (pkg *ptpkg) processExternalTool() (err error) {
 	switch pkg.flg.ExternalTool {
 	case ExternalToolPasswordInput:
 		var password string
-		if tool.InTesting() {
+		if InTesting() {
 			fmt.Printf("go-demo")
 			password = "demo"
 		} else {
@@ -254,7 +254,7 @@ func (pkg *ptpkg) processExternalTool() (err error) {
 			editor = DefaultEditor
 		}
 		var content []byte
-		if tool.InTesting() {
+		if InTesting() {
 			content = []byte("demo for testing")
 		} else {
 			content, err = tool.LaunchEditor(editor)

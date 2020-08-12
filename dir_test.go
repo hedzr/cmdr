@@ -24,8 +24,8 @@ import (
 //
 func TestIsDirectory(t *testing.T) {
 	t.Logf("osargs[0] = %v", os.Args[0])
-	t.Logf("InTesting: %v", tool.InTesting())
-	t.Logf("InDebugging: %v", tool.InDebugging())
+	t.Logf("InTesting: %v", cmdr.InTesting())
+	t.Logf("InDebugging: %v", cmdr.InDebugging())
 
 	cmdr.NormalizeDir("")
 

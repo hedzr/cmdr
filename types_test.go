@@ -70,7 +70,7 @@ func tAssert(t *testing.T, cond bool) {
 
 func TestFindsX(t *testing.T) {
 	t.Log("finds",
-		tool.InTesting(),
+		InTesting(),
 		tool.RandomStringPure(5),
 		tool.Min(3, 5),
 		tool.Min(13, 5),

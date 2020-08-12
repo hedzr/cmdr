@@ -7,7 +7,6 @@ package cmdr
 import (
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
-	"github.com/hedzr/cmdr/tool"
 	"os"
 	"sort"
 	"strings"
@@ -22,7 +21,7 @@ func ferr(fmtStr string, args ...interface{}) {
 }
 
 func flog(fmtStr string, args ...interface{}) {
-	if tool.InDebugging() /* || logex.GetTraceMode() */ {
+	if InDebugging() /* || logex.GetTraceMode() */ {
 		_, _ = fmt.Fprintf(os.Stderr, "\u001B[2m\u001B[2m"+fmtStr+"\u001B[0m\n", args...)
 	}
 }

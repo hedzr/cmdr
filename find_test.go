@@ -4,7 +4,6 @@ package cmdr_test
 
 import (
 	"github.com/hedzr/cmdr"
-	"github.com/hedzr/cmdr/tool"
 	"os"
 	"strings"
 	"testing"
@@ -39,7 +38,7 @@ func TestFinds(t *testing.T) {
 		}
 	}
 
-	if tool.InTesting() {
+	if cmdr.InTesting() {
 		cmdr.FindSubCommand("generate", nil)
 		cmdr.FindFlag("generate", nil)
 		cmdr.FindSubCommandRecursive("generate", nil)

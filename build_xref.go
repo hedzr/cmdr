@@ -195,7 +195,7 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 					Group:       SysMgmtGroup,
 					owner:       &root.Command,
 					Action: func(cmd *Command, args []string) (err error) {
-						// logrus.Debugf("-- helpCommand hit. printHelp and stop.")
+						// cmdr.Logger.Debugf("-- helpCommand hit. printHelp and stop.")
 						// printHelp(cmd)
 						// return ErrShouldBeStopException
 						return nil
@@ -262,7 +262,7 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 					Aliases:     []string{},
 					Description: "load config files from where you specified",
 					Action: func(cmd *Command, args []string) (err error) {
-						// logrus.Debugf("-- --config hit. printHelp and stop.")
+						// cmdr.Logger.Debugf("-- --config hit. printHelp and stop.")
 						// return ErrShouldBeStopException
 						return nil
 					},

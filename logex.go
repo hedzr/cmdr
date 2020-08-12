@@ -10,10 +10,29 @@ import (
 	"strings"
 )
 
-// WithLogex enables logex integration
+// WithLogx enables github.com/hedzr/logex/logx integration
+//
+// Samplle:
+//
+//    WithLogx(log.NewDummyLogger()),	// import "github.com/hedzr/log"
+//    WithLogx(log.NewStdLogger()),	// import "github.com/hedzr/log"
+//    WithLogx(logrus.New()),		// import "github.com/hedzr/logex/logx/logrus"
+//    WithLogx(sugar.New()),		// import "github.com/hedzr/logex/logx/zap/sugar"
+//    WithLogx(zap.New()),			// import "github.com/hedzr/logex/logx/zap"
+//
+func WithLogx(logger log.Logger) ExecOption {
+	return func(w *ExecWorker) {
+		Logger = logger
+	}
+}
+
+// Logger for cmdr
+var Logger log.Logger = log.NewDummyLogger()
+
+// WithLogex enables github.com/hedzr/logex integration
 func WithLogex(lvl Level, opts ...logex.Option) ExecOption {
 	return func(w *ExecWorker) {
-		w.logexInitialFunctor = w.getWithLogexInitializor(lvl, opts...)
+		w.logexInitialFunctor = w.getWithLogexInitializer(lvl, opts...)
 	}
 }
 
@@ -79,11 +98,11 @@ func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.Option) (err error
 	Set("logger-level", int(l))
 
 	logex.EnableWith(log.Level(l), opts...)
-	// logrus.Tracef("setup logger: lvl=%v", l)
+	// cmdr.Logger.Tracef("setup logger: lvl=%v", l)
 	return
 }
 
-func (w *ExecWorker) getWithLogexInitializor(lvl Level, opts ...logex.Option) Handler {
+func (w *ExecWorker) getWithLogexInitializer(lvl Level, opts ...logex.Option) Handler {
 	return func(cmd *Command, args []string) (err error) {
 
 		if len(w.logexPrefix) == 0 {

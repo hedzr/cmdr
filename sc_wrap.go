@@ -8,7 +8,6 @@
 package cmdr
 
 import (
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -20,7 +19,7 @@ import (
 //
 //  func enteringLoop() {
 // 	  waiter := cmdr.TrapSignals(func(s os.Signal) {
-// 	    logrus.Debugf("receive signal '%v' in onTrapped()", s)
+// 	    cmdr.Logger.Debugf("receive signal '%v' in onTrapped()", s)
 // 	  })
 // 	  go waiter()
 //  }
@@ -44,7 +43,7 @@ func TrapSignals(onTrapped func(s os.Signal), signals ...os.Signal) (waiter func
 //       done <- true   // to end the TrapSignalsEnh waiter by manually, instead of os signals caught.
 //    }(done)
 // 	  waiter := cmdr.TrapSignalsEnh(done, func(s os.Signal) {
-// 	    logrus.Debugf("receive signal '%v' in onTrapped()", s)
+// 	    cmdr.Logger.Debugf("receive signal '%v' in onTrapped()", s)
 // 	  })
 // 	  go waiter()
 //  }
@@ -65,7 +64,7 @@ func TrapSignalsEnh(done chan bool, onTrapped func(s os.Signal), signals ...os.S
 			select {
 			case s := <-sigs:
 				if !silent() {
-					log.Printf("receive signal '%v'", s)
+					Logger.Printf("receive signal '%v'", s)
 				}
 
 				onTrapped(s)
@@ -73,12 +72,12 @@ func TrapSignalsEnh(done chan bool, onTrapped func(s os.Signal), signals ...os.S
 				// for _, s := range servers {
 				// 	s.Stop()
 				// }
-				// logrus.Infof("done")
+				// Logger.Infof("done")
 				done <- false
 				return
 			case <-done:
 				if !silent() {
-					log.Println("receive done sig and return for-select go-routine")
+					Logger.Printf("receive done sig and return for-select go-routine")
 				}
 				return
 			}
@@ -104,7 +103,7 @@ func TrapSignalsEnh(done chan bool, onTrapped func(s os.Signal), signals ...os.S
 func SignalToSelf(sig os.Signal) (err error) {
 	var p *os.Process
 	if p, err = os.FindProcess(os.Getpid()); err != nil {
-		log.Printf("error: can't find process with pid=%v: %v", os.Getpid(), err)
+		Logger.Printf("error: can't find process with pid=%v: %v", os.Getpid(), err)
 	}
 	err = p.Signal(sig)
 	return

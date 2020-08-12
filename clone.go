@@ -265,13 +265,13 @@ func equal(to, from reflect.Value) bool {
 		return equalArray(to, from)
 
 	// case reflect.Chan:
-	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+	// 	// cmdr.Logger.Warnf("unrecognized type: %v", to.Kind())
 	// case reflect.Func:
-	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+	// 	// cmdr.Logger.Warnf("unrecognized type: %v", to.Kind())
 	// case reflect.Interface:
-	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+	// 	// cmdr.Logger.Warnf("unrecognized type: %v", to.Kind())
 	// case reflect.Map:
-	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+	// 	// cmdr.Logger.Warnf("unrecognized type: %v", to.Kind())
 	// case reflect.Ptr:
 	// 	return from.Pointer() == to.Pointer()
 	case reflect.Slice:
@@ -281,9 +281,9 @@ func equal(to, from reflect.Value) bool {
 		return strings.EqualFold(from.String(), to.String())
 
 		// case reflect.Struct:
-		// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+		// 	// cmdr.Logger.Warnf("unrecognized type: %v", to.Kind())
 		// case reflect.UnsafePointer:
-		// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+		// 	// cmdr.Logger.Warnf("unrecognized type: %v", to.Kind())
 	}
 
 	// if to.IsNil() && from.IsNil() {
@@ -349,13 +349,13 @@ func setDefault(to reflect.Value) {
 			setDefault(to.Index(i))
 		}
 	// case reflect.Chan:
-	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+	// 	// cmdr.Logger.Warnf("unrecognized type: %v", to.Kind())
 	// case reflect.Func:
-	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+	// 	// cmdr.Logger.Warnf("unrecognized type: %v", to.Kind())
 	// case reflect.Interface:
-	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+	// 	// cmdr.Logger.Warnf("unrecognized type: %v", to.Kind())
 	// case reflect.Map:
-	// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+	// 	// cmdr.Logger.Warnf("unrecognized type: %v", to.Kind())
 	// case reflect.Ptr:
 	// 	to.SetPointer(nil)
 	case reflect.Slice:
@@ -363,9 +363,9 @@ func setDefault(to reflect.Value) {
 	case reflect.String:
 		to.SetString("")
 		// case reflect.Struct:
-		// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+		// 	// cmdr.Logger.Warnf("unrecognized type: %v", to.Kind())
 		// case reflect.UnsafePointer:
-		// 	// logrus.Warnf("unrecognized type: %v", to.Kind())
+		// 	// cmdr.Logger.Warnf("unrecognized type: %v", to.Kind())
 	}
 }
 

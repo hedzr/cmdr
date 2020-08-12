@@ -682,7 +682,7 @@ func (s *Options) GetStringNoExpand(key string, defaultVal ...string) (ret strin
 }
 
 func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
-	// logrus.SetLevel(logrus.DebugLevel)
+	// Logger.SetLevel(logrus.DebugLevel)
 
 	s.rwCB.RLock()
 	defer s.rwCB.RUnlock()
@@ -698,22 +698,22 @@ func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 				s.Set(key, v)
 			}
 		}
-		// logrus.Printf("buildAutomaticEnv: %v", key)
+		// Logger.Printf("buildAutomaticEnv: %v", key)
 		if flg := s.lookupFlag(key, rootCmd); flg != nil {
 			// flog("    [cmdr] lookupFlag for %q: %v", key, flg.GetTitleName())
 			//
 			// if key == "app.mx-test.test" {
-			// 	logrus.Debugf("                 : flag=%+v", flg)
+			// 	Logger.Debugf("                 : flag=%+v", flg)
 			// }
 			for _, ek := range flg.EnvVars {
 				if v, ok := os.LookupEnv(ek); ok {
 					// flog("    [cmdr][buildAutomaticEnv] envvar %q found (flg=%v): %v", ek, flg.GetTitleName(), v)
 					if strings.HasPrefix(key, prefix) {
-						// logrus.Printf("setnx: %v <-- %v", key, v)
+						// Logger.Printf("setnx: %v <-- %v", key, v)
 						s.SetNx(key, v)
-						// logrus.Printf("setnx: %v", s.GetString(key))
+						// Logger.Printf("setnx: %v", s.GetString(key))
 					} else {
-						// logrus.Printf("set: %v <-- %v", key, v)
+						// Logger.Printf("set: %v <-- %v", key, v)
 						s.Set(key, v)
 					}
 					if flg.onSet != nil {
@@ -914,7 +914,7 @@ func (s *Options) mmset(m map[string]interface{}, key, path string, val interfac
 				m[key] = val
 
 				s.sfms(path, val, oldval)
-				// logrus.Debugf("%%-> s.entries[%q] = m[%q] = %v", path, key, val)
+				// Logger.Debugf("%%-> s.entries[%q] = m[%q] = %v", path, key, val)
 				return
 			}
 		}

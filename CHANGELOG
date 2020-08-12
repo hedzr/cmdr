@@ -3,6 +3,12 @@
 ## Versions
 
 
+- v1.7.6:
+  - using hedzr/log and remove other logging dependencies.
+  - added `WithLogx(logger)`
+
+
+
 - v1.7.5:
   - move some helper function to `tool` sub-package
 

@@ -43,10 +43,10 @@ func TestLog(t *testing.T) {
 
 	for _, x := range []string{"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "PANIC", "OFF", "XX"} {
 		Set("logger.level", x)
-		_ = internalGetWorker().getWithLogexInitializor(DebugLevel)(&rootCmdX.Command, []string{})
+		_ = internalGetWorker().getWithLogexInitializer(DebugLevel)(&rootCmdX.Command, []string{})
 	}
 
 	Set("logger.target", "journal")
 	Set("logger.format", "json")
-	_ = internalGetWorker().getWithLogexInitializor(DebugLevel)(&rootCmdX.Command, []string{})
+	_ = internalGetWorker().getWithLogexInitializer(DebugLevel)(&rootCmdX.Command, []string{})
 }

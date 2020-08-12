@@ -19,7 +19,7 @@ func GetExecutableDir() string {
 
 	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
 	// if err != nil {
-	// 	logrus.Fatal(err)
+	// 	cmdr.Logger.Fatal(err)
 	// }
 	// fmt.Println(dir)
 	return dir
@@ -36,7 +36,7 @@ func GetExcutablePath() string {
 func GetCurrentDir() string {
 	dir, _ := os.Getwd()
 	// if err != nil {
-	// 	logrus.Fatal(err)
+	// 	cmdr.Logger.Fatal(err)
 	// }
 	// fmt.Println(dir)
 	return dir

@@ -18,14 +18,14 @@ func TrapSignals(onTrapped func(s os.Signal)) (waiter func()) {
 	//
 	// go func() {
 	// 	s := <-sigs
-	// 	logrus.Debugf("receive signal '%v'", s)
+	// 	cmdr.Logger.Debugf("receive signal '%v'", s)
 	//
 	// 	onTrapped(s)
 	//
 	// 	// for _, s := range servers {
 	// 	// 	s.Stop()
 	// 	// }
-	// 	// logrus.Infof("done")
+	// 	// cmdr.Logger.Infof("done")
 	// 	done <- struct{}{}
 	// }()
 
@@ -34,7 +34,7 @@ func TrapSignals(onTrapped func(s os.Signal)) (waiter func()) {
 			select {
 			case <-done:
 				// os.Exit(1)
-				// logrus.Infof("done got.")
+				// cmdr.Logger.Infof("done got.")
 				return
 			}
 		}

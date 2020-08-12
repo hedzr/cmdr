@@ -5,6 +5,7 @@
 package cmdr
 
 import (
+	"github.com/hedzr/cmdr/tool"
 	"reflect"
 	"testing"
 )
@@ -68,7 +69,14 @@ func tAssert(t *testing.T, cond bool) {
 }
 
 func TestFindsX(t *testing.T) {
-	t.Log("finds", InTesting(), randomStringPure(5), min(3, 5), min(13, 5), stripPrefix("sss", "a"), IsDigitHeavy("ds"), IsDigitHeavy("3521"))
+	t.Log("finds",
+		InTesting(),
+		tool.RandomStringPure(5),
+		tool.Min(3, 5),
+		tool.Min(13, 5),
+		tool.StripPrefix("sss", "a"),
+		tool.IsDigitHeavy("ds"),
+		tool.IsDigitHeavy("3521"))
 }
 
 func TestSoundeX(t *testing.T) {
@@ -83,6 +91,6 @@ func TestSoundeX(t *testing.T) {
 		"nurde",
 		"worker",
 	} {
-		t.Logf("soundex of '%v' = %v", str, Soundex(str))
+		t.Logf("soundex of '%v' = %v", str, tool.Soundex(str))
 	}
 }

@@ -3,6 +3,11 @@
 ## Versions
 
 
+- v1.7.5:
+  - move some helper function to `tool` sub-package
+
+
+
 - v1.7.3
   - update dependencies to new logger packages
 

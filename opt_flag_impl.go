@@ -5,6 +5,7 @@
 package cmdr
 
 import (
+	"github.com/hedzr/cmdr/tool"
 	"regexp"
 	"strings"
 )
@@ -34,8 +35,8 @@ func (s *optFlagImpl) AttachToRoot(root *RootCommand) {
 func (s *optFlagImpl) Titles(long, short string, aliases ...string) (opt OptFlag) {
 	s.working.Short = short
 	s.working.Full = long
-	if HasOrderPrefix(long) {
-		s.working.Full = StripOrderPrefix(long)
+	if tool.HasOrderPrefix(long) {
+		s.working.Full = tool.StripOrderPrefix(long)
 		s.working.Name = long
 	}
 	s.working.Aliases = uniAddStrs(s.working.Aliases, aliases...)
@@ -51,8 +52,8 @@ func (s *optFlagImpl) Short(short string) (opt OptFlag) {
 
 func (s *optFlagImpl) Long(long string) (opt OptFlag) {
 	s.working.Full = long
-	if HasOrderPrefix(long) {
-		s.working.Full = StripOrderPrefix(long)
+	if tool.HasOrderPrefix(long) {
+		s.working.Full = tool.StripOrderPrefix(long)
 		s.working.Name = long
 	}
 	opt = s

@@ -4,6 +4,7 @@ package cmdr
 
 import (
 	"fmt"
+	"github.com/hedzr/cmdr/tool"
 	"gopkg.in/yaml.v3"
 	"os"
 	"reflect"
@@ -426,7 +427,7 @@ func (s *Options) GetFloat64Ex(key string, defaultVal ...float64) (ir float64) {
 
 // GetComplex64 returns the complex64 value of an `Option` key.
 func (s *Options) GetComplex64(key string, defaultVal ...complex64) (ir complex64) {
-	if ir128, err := ParseComplexX(s.GetString(key, "")); err == nil {
+	if ir128, err := tool.ParseComplexX(s.GetString(key, "")); err == nil {
 		ir = complex64(ir128)
 	} else {
 		for _, vv := range defaultVal {
@@ -438,7 +439,7 @@ func (s *Options) GetComplex64(key string, defaultVal ...complex64) (ir complex6
 
 // GetComplex128 returns the complex128 value of an `Option` key.
 func (s *Options) GetComplex128(key string, defaultVal ...complex128) (ir complex128) {
-	if ir128, err := ParseComplexX(s.GetString(key, "")); err == nil {
+	if ir128, err := tool.ParseComplexX(s.GetString(key, "")); err == nil {
 		ir = ir128
 	} else {
 		for _, vv := range defaultVal {

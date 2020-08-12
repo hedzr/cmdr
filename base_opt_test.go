@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/tool"
 	"io/ioutil"
 	"os"
 	"path"
@@ -357,22 +358,22 @@ debug=true
 }
 
 func TestLaunchEditor2(t *testing.T) {
-	if b, err := cmdr.LaunchEditorWith("cat", "/etc/passwd"); err != nil {
+	if b, err := tool.LaunchEditorWith("cat", "/etc/passwd"); err != nil {
 		t.Fatal(err)
 	} else {
 		t.Log(string(b))
 	}
 
-	if _, err := cmdr.LaunchEditorWith("cat", "/etc/not-exists"); err != nil {
+	if _, err := tool.LaunchEditorWith("cat", "/etc/not-exists"); err != nil {
 		// t.Fatal("should have an error return for non-exist file")
 		t.Fatalf(`cmdr.LaunchEditorWith("cat", "/etc/not-exists") failed: %v`, err)
 	}
 }
 
 func TestLaunch(t *testing.T) {
-	_ = cmdr.Launch("ls")
+	_ = tool.Launch("ls")
 	_ = os.Setenv("EDITOR", "ls")
-	_, _ = cmdr.LaunchEditor("EDITOR")
+	_, _ = tool.LaunchEditor("EDITOR")
 }
 
 func TestNormalizeDir(t *testing.T) {
@@ -389,9 +390,9 @@ func TestNormalizeDir(t *testing.T) {
 		t.Failed()
 	}
 	_ = os.Setenv("EDITOR", "ls")
-	_, _ = cmdr.LaunchEditor("EDITOR")
+	_, _ = tool.LaunchEditor("EDITOR")
 
-	_ = cmdr.Launch("ls", "/not-exists")
+	_ = tool.Launch("ls", "/not-exists")
 
 	// _ = cmdr.LaunchSudo("ls", "/not-exists")
 }

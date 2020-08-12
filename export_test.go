@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/hedzr/cmdr/tool"
 	"io"
 	"os"
 	"reflect"
@@ -88,19 +89,19 @@ func TestFlag(t *testing.T) {
 
 	t.Log(IsDebuggerAttached())
 	t.Log(InTesting())
-	t.Log(StripPrefix("8.yes", "8."))
-	t.Log(IsDigitHeavy("not-digit"))
-	t.Log(IsDigitHeavy("8-is-not-digit"))
+	t.Log(tool.StripPrefix("8.yes", "8."))
+	t.Log(tool.IsDigitHeavy("not-digit"))
+	t.Log(tool.IsDigitHeavy("8-is-not-digit"))
 
 	in := bytes.NewBufferString("\n")
-	PressEnterToContinue(in, "ok...")
+	tool.PressEnterToContinue(in, "ok...")
 	in = bytes.NewBufferString("\n")
-	PressEnterToContinue(in)
+	tool.PressEnterToContinue(in)
 
 	in = bytes.NewBufferString("\n")
-	t.Log(PressAnyKeyToContinue(in, "ok..."))
+	t.Log(tool.PressAnyKeyToContinue(in, "ok..."))
 	in = bytes.NewBufferString("\n")
-	t.Log(PressAnyKeyToContinue(in))
+	t.Log(tool.PressAnyKeyToContinue(in))
 
 	isTypeFloat(reflect.TypeOf(8).Kind())
 	isTypeFloat(reflect.TypeOf(8.9).Kind())
@@ -110,15 +111,15 @@ func TestFlag(t *testing.T) {
 	isTypeComplex(reflect.TypeOf(8.9 + 0i).Kind())
 	isTypeComplex(reflect.TypeOf(8.9 - 2i).Kind())
 
-	x := SavedOsArgs
+	x := tool.SavedOsArgs
 	defer func() {
-		SavedOsArgs = x
+		tool.SavedOsArgs = x
 	}()
-	SavedOsArgs = []string{"xx.test"}
+	tool.SavedOsArgs = []string{"xx.test"}
 	t.Log(InTesting())
-	SavedOsArgs = []string{"xx.runtime"}
+	tool.SavedOsArgs = []string{"xx.runtime"}
 	t.Log(InTesting())
-	SavedOsArgs = []string{"xx.runtime", "-test.v"}
+	tool.SavedOsArgs = []string{"xx.runtime", "-test.v"}
 	t.Log(InTesting())
 
 	var rootCmdX = &RootCommand{
@@ -154,11 +155,11 @@ func dumpStacks() {
 
 func TestHandlePanic(t *testing.T) {
 	defer logex.CaptureLog(t).Release()
-	if SavedOsArgs == nil {
-		SavedOsArgs = os.Args
+	if tool.SavedOsArgs == nil {
+		tool.SavedOsArgs = os.Args
 	}
 	defer func() {
-		os.Args = SavedOsArgs
+		os.Args = tool.SavedOsArgs
 	}()
 
 	ResetOptions()
@@ -236,11 +237,11 @@ func TestUnknownXXX(t *testing.T) {
 	// 	SignalTermSignal()
 	// }()
 
-	if SavedOsArgs == nil {
-		SavedOsArgs = os.Args
+	if tool.SavedOsArgs == nil {
+		tool.SavedOsArgs = os.Args
 	}
 	defer func() {
-		os.Args = SavedOsArgs
+		os.Args = tool.SavedOsArgs
 	}()
 
 	var pkg *ptpkg

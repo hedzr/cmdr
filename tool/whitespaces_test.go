@@ -1,6 +1,6 @@
 // Copyright © 2020 Hedzr Yeh.
 
-package cmdr
+package tool
 
 import "testing"
 

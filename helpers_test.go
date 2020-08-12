@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/tool"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -18,7 +19,7 @@ import (
 
 func resetOsArgs() {
 	os.Args = []string{}
-	for _, s := range cmdr.SavedOsArgs {
+	for _, s := range tool.SavedOsArgs {
 		os.Args = append(os.Args, s)
 	}
 }
@@ -35,8 +36,8 @@ func prepareStreams() (outX, errX *bytes.Buffer) {
 func prepareConfD(t *testing.T) func() {
 	cmdr.SetPredefinedLocationsForTesting("./.tmp.yaml")
 
-	if cmdr.SavedOsArgs == nil {
-		cmdr.SavedOsArgs = os.Args
+	if tool.SavedOsArgs == nil {
+		tool.SavedOsArgs = os.Args
 	}
 
 	var clcl = &cfgLoaded{}

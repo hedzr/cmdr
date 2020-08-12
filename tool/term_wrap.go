@@ -1,11 +1,9 @@
 // +build darwin dragonfly freebsd linux netbsd openbsd windows aix arm_linux plan9 solaris
 // +build !nacl
 
-/*
- * Copyright © 2019 Hedzr Yeh.
- */
+// Copyright © 2020 Hedzr Yeh.
 
-package cmdr
+package tool
 
 import (
 	"fmt"
@@ -13,7 +11,8 @@ import (
 	"syscall"
 )
 
-func readPassword() (text string, err error) {
+// ReadPassword reads the password from stdin with safe protection
+func ReadPassword() (text string, err error) {
 	var bytePassword []byte
 	if bytePassword, err = terminal.ReadPassword(int(syscall.Stdin)); err == nil {
 		fmt.Println() // it's necessary to add a new line after user's input

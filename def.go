@@ -6,6 +6,7 @@ package cmdr
 
 import (
 	"bufio"
+	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log"
 	"sync"
 )
@@ -241,7 +242,7 @@ var (
 	// getEditor sets callback to get editor program
 	// getEditor func() (string, error)
 
-	defaultStringMetric = JaroWinklerDistance(JWWithThreshold(similarThreshold))
+	defaultStringMetric = tool.JaroWinklerDistance(tool.JWWithThreshold(similarThreshold))
 )
 
 const similarThreshold = 0.6666666666666666

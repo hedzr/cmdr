@@ -6,6 +6,7 @@ package cmdr
 
 import (
 	"fmt"
+	"github.com/hedzr/cmdr/tool"
 	"gopkg.in/hedzr/errors.v2"
 	"os"
 	"reflect"
@@ -74,7 +75,7 @@ func (pkg *ptpkg) findValueAttached(fn *string) {
 	if strings.Contains(*fn, "=") {
 		aa := strings.Split(*fn, "=")
 		*fn = aa[0]
-		pkg.val = trimQuotes(aa[1])
+		pkg.val = tool.StripQuotes(aa[1])
 		pkg.assigned = true
 	} else {
 		pkg.splitQuotedValueIfNecessary(fn)
@@ -83,11 +84,11 @@ func (pkg *ptpkg) findValueAttached(fn *string) {
 
 func (pkg *ptpkg) splitQuotedValueIfNecessary(fn *string) {
 	if pos := strings.Index(*fn, "'"); pos >= 0 {
-		pkg.val = trimQuotes((*fn)[pos:])
+		pkg.val = tool.StripQuotes((*fn)[pos:])
 		*fn = (*fn)[0:pos]
 		pkg.assigned = true
 	} else if pos := strings.Index(*fn, "\""); pos >= 0 {
-		pkg.val = trimQuotes((*fn)[pos:])
+		pkg.val = tool.StripQuotes((*fn)[pos:])
 		*fn = (*fn)[0:pos]
 		pkg.assigned = true
 		// } else {
@@ -243,7 +244,7 @@ func (pkg *ptpkg) processExternalTool() (err error) {
 		} else {
 			// fmt.Printf("InTesting = false,,,\n")
 			fmt.Print("Password: ")
-			password, err = readPassword()
+			password, err = tool.ReadPassword()
 		}
 		pkg.val = password
 
@@ -256,7 +257,7 @@ func (pkg *ptpkg) processExternalTool() (err error) {
 		if InTesting() {
 			content = []byte("demo for testing")
 		} else {
-			content, err = LaunchEditor(editor)
+			content, err = tool.LaunchEditor(editor)
 		}
 		pkg.val = string(content)
 	}
@@ -347,7 +348,7 @@ func (pkg *ptpkg) processTypeFloat(args []string) (err error) {
 func (pkg *ptpkg) processTypeComplex(args []string) (err error) {
 	if err = pkg.preprocessPkg(args); err == nil {
 		var v complex128
-		v, err = ParseComplexX(pkg.val)
+		v, err = tool.ParseComplexX(pkg.val)
 		if err != nil {
 			ferr("wrong number (complex): flag=%v, number=%v, err: %v", pkg.fn, pkg.val, err)
 			err = errors.New("wrong number (complex): flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)

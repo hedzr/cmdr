@@ -5,6 +5,7 @@ package cmdr
 import (
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
+	"github.com/hedzr/cmdr/tool"
 	"os"
 	"strings"
 )
@@ -21,7 +22,7 @@ func (w *ExecWorker) parsePredefinedLocation() (err error) {
 			location = os.Args[ix+1]
 		}
 
-		location = trimQuotes(location)
+		location = tool.StripQuotes(location)
 		flog("--> preprocess / buildXref / parsePredefinedLocation: %q", location)
 
 		if len(location) > 0 && FileExists(location) {

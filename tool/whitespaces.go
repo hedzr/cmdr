@@ -1,8 +1,6 @@
-/*
- * Copyright © 2019 Hedzr Yeh.
- */
+// Copyright © 2020 Hedzr Yeh.
 
-package cmdr
+package tool
 
 import "regexp"
 
@@ -36,7 +34,8 @@ func trimQuotes(s string) string {
 // 	return reSimp.ReplaceAllString(s, " ")
 // }
 
-func eraseAnyWSs(s string) string {
+// EraseAnyWSs eats any whitespaces inside the giving string s.
+func EraseAnyWSs(s string) string {
 	return reSimpSimp.ReplaceAllString(s, "")
 }
 

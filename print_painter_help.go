@@ -6,6 +6,7 @@ package cmdr
 
 import (
 	"fmt"
+	"github.com/hedzr/cmdr/tool"
 	"strconv"
 	"strings"
 )
@@ -99,9 +100,9 @@ func (s *helpPainter) FpCommandsTitle(command *Command) {
 func (s *helpPainter) FpCommandsGroupTitle(group string) {
 	if group != UnsortedGroup {
 		if GetNoColorMode() {
-			s.Printf(fmtCmdGroupTitleNC, StripOrderPrefix(group))
+			s.Printf(fmtCmdGroupTitleNC, tool.StripOrderPrefix(group))
 		} else {
-			s.Printf(fmtCmdGroupTitle, CurrentGroupTitleColor, StripOrderPrefix(group))
+			s.Printf(fmtCmdGroupTitle, CurrentGroupTitleColor, tool.StripOrderPrefix(group))
 		}
 	}
 }
@@ -144,13 +145,13 @@ func (s *helpPainter) FpFlagsTitle(command *Command, flag *Flag, title string) {
 func (s *helpPainter) FpFlagsGroupTitle(group string) {
 	if group != UnsortedGroup {
 		if GetNoColorMode() {
-			s.Printf(fmtGroupTitleNC, StripOrderPrefix(group))
+			s.Printf(fmtGroupTitleNC, tool.StripOrderPrefix(group))
 		} else {
 			// fp("  [%s]:", StripOrderPrefix(group))
 			// // echo -e "Normal \e[2mDim"
 			// _, _ = fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m\x1b[2m\x1b[%dm[%04d]\x1b[0m%-48s \x1b[2m\x1b[%dm%s\x1b[0m ",
 			// 	levelColor, levelText, DarkColor, int(entry.Time.Sub(baseTimestamp)/time.Second), entry.Message, DarkColor, caller)
-			s.Printf(fmtGroupTitle, CurrentGroupTitleColor, StripOrderPrefix(group))
+			s.Printf(fmtGroupTitle, CurrentGroupTitleColor, tool.StripOrderPrefix(group))
 		}
 	}
 }

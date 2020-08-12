@@ -1,8 +1,6 @@
-/*
- * Copyright © 2019 Hedzr Yeh.
- */
+// Copyright © 2020 Hedzr Yeh.
 
-package cmdr
+package tool
 
 import (
 	"math"
@@ -35,7 +33,7 @@ func TestJaroWinkler(t *testing.T) {
 		t.Logf("%5d. distance of '%v' and '%v': %d",
 			ix, vt.first, vt.second, d,
 		)
-		if d != int(math.Round(vt.wanted*stringMetricFactor)) {
+		if d != int(math.Round(vt.wanted*StringMetricFactor)) {
 			t.Errorf("wrong distance: for '%v' and '%v', expected distance is %v, but got %v",
 				vt.first, vt.second, vt.wanted, d)
 		}

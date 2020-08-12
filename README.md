@@ -69,9 +69,12 @@ See our extras:
 ## News
 
 
-- WIP:
+- docs (WIP):
   - english documentation not completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
+
+- v1.7.5:
+  - move some helper function to `tool` sub-package
 
 - v1.7.3
   - update dependencies to new logger packages

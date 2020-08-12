@@ -3,9 +3,11 @@
 package cmdr
 
 import (
+	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log"
 	"github.com/hedzr/logex"
 	"os"
+	"strings"
 )
 
 // WithLogex enables logex integration
@@ -133,4 +135,63 @@ func (w *ExecWorker) getWithLogexInitializor(lvl Level, opts ...logex.Option) Ha
 
 		return
 	}
+}
+
+// InDebugging return the status if cmdr was built with debug mode / or the app running under a debugger attached.
+//
+// To enable the debugger attached mode for cmdr, run `go build` with `-tags=delve` options. eg:
+//
+//     go run -tags=delve ./cli
+//     go build -tags=delve -o my-app ./cli
+//
+// For Goland, you can enable this under 'Run/Debug Configurations', by adding the following into 'Go tool arguments:'
+//
+//     -tags=delve
+//
+// InDebugging() is a synonym to IsDebuggerAttached().
+//
+// NOTE that `isdelve` algor is from https://stackoverflow.com/questions/47879070/how-can-i-see-if-the-goland-debugger-is-running-in-the-program
+//
+//noinspection GoBoolExpressions
+func InDebugging() bool {
+	return log.InDebugging() // isdelve.Enabled
+}
+
+// IsDebuggerAttached return the status if cmdr was built with debug mode / or the app running under a debugger attached.
+//
+// To enable the debugger attached mode for cmdr, run `go build` with `-tags=delve` options. eg:
+//
+//     go run -tags=delve ./cli
+//     go build -tags=delve -o my-app ./cli
+//
+// For Goland, you can enable this under 'Run/Debug Configurations', by adding the following into 'Go tool arguments:'
+//
+//     -tags=delve
+//
+// IsDebuggerAttached() is a synonym to InDebugging().
+//
+// NOTE that `isdelve` algor is from https://stackoverflow.com/questions/47879070/how-can-i-see-if-the-goland-debugger-is-running-in-the-program
+//
+//noinspection GoBoolExpressions
+func IsDebuggerAttached() bool {
+	return log.InDebugging() // isdelve.Enabled
+}
+
+// InTesting detects whether is running under go test mode
+func InTesting() bool {
+	if !strings.HasSuffix(tool.SavedOsArgs[0], ".test") &&
+		!strings.Contains(tool.SavedOsArgs[0], "/T/___Test") {
+
+		// [0] = /var/folders/td/2475l44j4n3dcjhqbmf3p5l40000gq/T/go-build328292371/b001/exe/main
+		// !strings.Contains(SavedOsArgs[0], "/T/go-build")
+
+		for _, s := range tool.SavedOsArgs {
+			if s == "-test.v" || s == "-test.run" {
+				return true
+			}
+		}
+		return false
+
+	}
+	return true
 }

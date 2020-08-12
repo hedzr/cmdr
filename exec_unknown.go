@@ -4,6 +4,8 @@
 
 package cmdr
 
+import "github.com/hedzr/cmdr/tool"
+
 type (
 	// UnknownOptionHandler for WithSimilarThreshold/SetUnknownOptionHandler
 	UnknownOptionHandler func(isFlag bool, title string, cmd *Command, args []string) (fallbackToDefaultDetector bool)
@@ -52,7 +54,7 @@ func unknownFlag(pkg *ptpkg, cmd *Command, args []string) {
 func unknownCommandDetector(pkg *ptpkg, cmd *Command, args []string) {
 	ever := false
 	for k := range cmd.plainCmds {
-		distance := float64(defaultStringMetric.Calc(pkg.a, k)) / stringMetricFactor
+		distance := float64(defaultStringMetric.Calc(pkg.a, k)) / tool.StringMetricFactor
 		if distance >= internalGetWorker().similarThreshold {
 			ferr("  - do you mean: %v", k)
 			ever = true
@@ -79,9 +81,9 @@ func unknownCommandDetector(pkg *ptpkg, cmd *Command, args []string) {
 func unknownFlagDetector(pkg *ptpkg, cmd *Command, args []string) {
 	if !pkg.short {
 		ever := false
-		str := stripPrefix(pkg.a, "--")
+		str := tool.StripPrefix(pkg.a, "--")
 		for k := range cmd.plainLongFlags {
-			distance := float64(defaultStringMetric.Calc(str, k)) / stringMetricFactor
+			distance := float64(defaultStringMetric.Calc(str, k)) / tool.StringMetricFactor
 			if distance >= internalGetWorker().similarThreshold {
 				ferr("  - do you mean: --%v", k)
 				ever = true

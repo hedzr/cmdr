@@ -73,6 +73,10 @@ See our extras:
   - english documentation not completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.6:
+  - using hedzr/log and remove other logging dependencies.
+  - added [`WithLogx(logger)`](https://pkg.go.dev/github.com/hedzr/cmdr?tab-doc#WithLogx): integrating with your logger (via [`log.Logger`](https://pkg.go.dev/github.com/hedzr/log?tab-doc#Logger) interface)
+
 - v1.7.5:
   - move some helper function to `tool` sub-package
 

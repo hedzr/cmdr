@@ -7,6 +7,7 @@ package cmdr
 import (
 	"bytes"
 	"fmt"
+	"github.com/hedzr/cmdr/tool"
 	"io"
 	"time"
 )
@@ -182,7 +183,7 @@ func (s *manPainter) FpCommandsTitle(command *Command) {
 func (s *manPainter) FpCommandsGroupTitle(group string) {
 	if group != UnsortedGroup {
 		// fp("  [%s]:", normalize(group))
-		s.Printf(".SS \"%s\"\n", StripOrderPrefix(group))
+		s.Printf(".SS \"%s\"\n", tool.StripOrderPrefix(group))
 	} else {
 		s.Printf(".SS \"%s\"\n", "General")
 	}
@@ -203,7 +204,7 @@ func (s *manPainter) FpFlagsTitle(command *Command, flag *Flag, title string) {
 
 func (s *manPainter) FpFlagsGroupTitle(group string) {
 	if group != UnsortedGroup {
-		s.Printf(".SS \"%s\"\n", StripOrderPrefix(group))
+		s.Printf(".SS \"%s\"\n", tool.StripOrderPrefix(group))
 	} else {
 		s.Printf(".SS \"%s\"\n", "General")
 	}

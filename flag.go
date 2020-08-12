@@ -6,6 +6,7 @@ package cmdr
 
 import (
 	"fmt"
+	"github.com/hedzr/cmdr/tool"
 	"strings"
 )
 
@@ -23,7 +24,7 @@ func (s *Flag) GetTitleFlagNames() string {
 func (s *Flag) GetDescZsh() (desc string) {
 	desc = s.Description
 	if len(desc) == 0 {
-		desc = eraseAnyWSs(s.GetTitleZshFlagName())
+		desc = tool.EraseAnyWSs(s.GetTitleZshFlagName())
 	}
 	// desc = replaceAll(desc, " ", "\\ ")
 	return

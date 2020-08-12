@@ -4,6 +4,8 @@
 
 package cmdr
 
+import "github.com/hedzr/cmdr/tool"
+
 func (w *ExecWorker) cmdMatching(pkg *ptpkg, goCommand **Command, args []string) (matched, stop bool, err error) {
 	// command, files
 	if cmd, ok := (*goCommand).plainCmds[pkg.a]; ok {
@@ -68,7 +70,7 @@ func (w *ExecWorker) flagsPrepare(pkg *ptpkg, goCommand **Command, args []string
 	} else {
 
 		// short flag
-		if (*goCommand).headLikeFlag != nil && IsDigitHeavy(pkg.a[1:]) {
+		if (*goCommand).headLikeFlag != nil && tool.IsDigitHeavy(pkg.a[1:]) {
 			// println("head-like")
 			pkg.short = true
 			pkg.flg = (*goCommand).headLikeFlag

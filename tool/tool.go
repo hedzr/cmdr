@@ -1,28 +1,21 @@
-/*
- * Copyright © 2019 Hedzr Yeh.
- */
+// Copyright © 2020 Hedzr Yeh.
 
-package cmdr
+package tool
 
 import (
 	"bufio"
-	"bytes"
 	"crypto/rand"
 	"fmt"
-	"github.com/hedzr/cmdr/conf"
 	"github.com/hedzr/log"
 	"gopkg.in/hedzr/errors.v2"
 	"io"
 	"io/ioutil"
-	log2 "log"
 	"math"
 	"os"
 	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
-	"text/template"
-	"time"
 )
 
 // ParseComplex converts a string to complex number.
@@ -87,96 +80,6 @@ func a2complex(s string) (v complex128, err error) {
 	}
 	v = complex(ff, 0)
 	return
-}
-
-// FindSubCommand find sub-command with `longName` from `cmd`
-// if cmd == nil: finding from root command
-func FindSubCommand(longName string, cmd *Command) (res *Command) {
-	if cmd == nil {
-		cmd = &internalGetWorker().rootCommand.Command
-	}
-	res = cmd.FindSubCommand(longName)
-	return
-}
-
-// FindFlag find flag with `longName` from `cmd`
-// if cmd == nil: finding from root command
-func FindFlag(longName string, cmd *Command) (res *Flag) {
-	if cmd == nil {
-		cmd = &internalGetWorker().rootCommand.Command
-	}
-	res = cmd.FindFlag(longName)
-	return
-}
-
-// FindSubCommandRecursive find sub-command with `longName` from `cmd` recursively
-// if cmd == nil: finding from root command
-func FindSubCommandRecursive(longName string, cmd *Command) (res *Command) {
-	if cmd == nil {
-		cmd = &internalGetWorker().rootCommand.Command
-	}
-	res = cmd.FindSubCommandRecursive(longName)
-	return
-}
-
-// FindFlagRecursive find flag with `longName` from `cmd` recursively
-// if cmd == nil: finding from root command
-func FindFlagRecursive(longName string, cmd *Command) (res *Flag) {
-	if cmd == nil {
-		cmd = &internalGetWorker().rootCommand.Command
-	}
-	res = cmd.FindFlagRecursive(longName)
-	return
-}
-
-func manBr(s string) string {
-	var lines []string
-	for _, l := range strings.Split(s, "\n") {
-		lines = append(lines, l+"\n.br")
-	}
-	return strings.Join(lines, "\n")
-}
-
-func manWs(fmtStr string, args ...interface{}) string {
-	str := fmt.Sprintf(fmtStr, args...)
-	str = replaceAll(strings.TrimSpace(str), " ", `\ `)
-	return str
-}
-
-func manExamples(s string, data interface{}) string {
-	var (
-		sources  = strings.Split(s, "\n")
-		lines    []string
-		lastLine string
-	)
-	for _, l := range sources {
-		if strings.HasPrefix(l, "$ {{.AppName}}") {
-			lines = append(lines, `.TP \w'{{.AppName}}\ 'u
-.BI {{.AppName}} \ `+manWs(l[14:]))
-		} else {
-			if len(lastLine) == 0 {
-				lastLine = strings.TrimSpace(l)
-				// ignore multiple empty lines, compat them as one line.
-				if len(lastLine) != 0 {
-					lines = append(lines, lastLine+"\n.br")
-				}
-			} else {
-				lastLine = strings.TrimSpace(l)
-				lines = append(lines, lastLine+"\n.br")
-			}
-		}
-	}
-	return tplApply(strings.Join(lines, "\n"), data)
-}
-
-func tplApply(tmpl string, data interface{}) string {
-	var w = new(bytes.Buffer)
-	var tpl = template.Must(template.New("x").Parse(tmpl))
-	if err := tpl.Execute(w, data); err != nil {
-		log2.Printf("tpl execute error: %v", err)
-		return ""
-	}
-	return w.String()
 }
 
 //
@@ -286,7 +189,8 @@ func randomFilename() (fn string) {
 
 // const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-func randomStringPure(length int) (result string) {
+// RandomStringPure generate a random string with length specified.
+func RandomStringPure(length int) (result string) {
 	buf := make([]byte, length)
 	if _, err := rand.Read(buf); err == nil {
 		result = string(buf)
@@ -375,7 +279,8 @@ func soundex(s string) (snd4 string) {
 	return
 }
 
-const stringMetricFactor = 100000000000
+// StringMetricFactor for JaroWinklerDistance algorithm
+const StringMetricFactor = 100000000000
 
 type (
 	// StringDistance is an interface for string metric.
@@ -394,7 +299,7 @@ type (
 
 // JaroWinklerDistance returns an calculator for two strings distance metric, with Jaro-Winkler algorithm.
 func JaroWinklerDistance(opts ...DistanceOption) StringDistance {
-	x := &jaroWinklerDistance{threshold: 0.7, factor: stringMetricFactor}
+	x := &jaroWinklerDistance{threshold: 0.7, factor: StringMetricFactor}
 	for _, c := range opts {
 		c(x)
 	}
@@ -465,7 +370,7 @@ func (s *jaroWinklerDistance) Calc(src1, src2 string, opts ...DistanceOption) (d
 }
 
 func (s *jaroWinklerDistance) match(sMax, sMin []rune, lenMax, lenMin int) (iMatchIndexes []int, matchFlags []bool) {
-	iRange := max(lenMax/2-1, 0)
+	iRange := Max(lenMax/2-1, 0)
 	iMatchIndexes = make([]int, lenMin)
 	for i := 0; i < lenMin; i++ {
 		iMatchIndexes[i] = -1
@@ -485,7 +390,7 @@ func (s *jaroWinklerDistance) match(sMax, sMin []rune, lenMax, lenMin int) (iMat
 
 	for mi := s.prefix; mi < lenMin; mi++ {
 		c1 := sMin[mi]
-		xi, xn := max(mi-iRange, s.prefix), lenMax // min(mi+iRange-1, lenMax)
+		xi, xn := Max(mi-iRange, s.prefix), lenMax // min(mi+iRange-1, lenMax)
 		for ; xi < xn; xi++ {
 			if !matchFlags[xi] && c1 == sMax[xi] {
 				iMatchIndexes[mi] = xi
@@ -523,14 +428,16 @@ func (s *jaroWinklerDistance) findTranspositions(sMax, sMin []rune, lenMax, lenM
 	}
 }
 
-func max(a, b int) int {
+// Max return the larger one of int
+func Max(a, b int) int {
 	if a > b {
 		return a
 	}
 	return b
 }
 
-func min(a, b int) int {
+// Min return the less one of int
+func Min(a, b int) int {
 	if a < b {
 		return a
 	}
@@ -578,30 +485,6 @@ func IsDigitHeavy(s string) bool {
 	// 	return false
 	// }
 	return m
-}
-
-func (w *ExecWorker) setupRootCommand(rootCmd *RootCommand) {
-	w.rootCommand = rootCmd
-
-	w.rootCommand.ow = w.defaultStdout
-	w.rootCommand.oerr = w.defaultStderr
-
-	if len(conf.AppName) == 0 {
-		conf.AppName = w.rootCommand.AppName
-		conf.Version = w.rootCommand.Version
-		_ = os.Setenv("APPNAME", conf.AppName)
-	}
-	if len(conf.Buildstamp) == 0 {
-		conf.Buildstamp = time.Now().Format(time.RFC1123)
-	}
-}
-
-func (w *ExecWorker) getPrefix() string {
-	return strings.Join(w.rxxtPrefixes, ".")
-}
-
-func (w *ExecWorker) getRemainArgs(pkg *ptpkg, args []string) []string {
-	return pkg.remainArgs
 }
 
 // PressEnterToContinue lets program pause and wait for user's ENTER key press in console/terminal

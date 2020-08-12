@@ -6,6 +6,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/hedzr/cmdr/tool"
 	"io/ioutil"
 	"log"
 	"os"
@@ -148,7 +149,7 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 		TailPlaceholder("[text1, text2, ...]").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			for ix, s := range args {
-				fmt.Printf("%5d. %s => %s\n", ix, s, cmdr.Soundex(s))
+				fmt.Printf("%5d. %s => %s\n", ix, s, tool.Soundex(s))
 			}
 			return
 		})
@@ -248,7 +249,7 @@ $ {{.AppName}} kb --size 1g
 			fmt.Println()
 			fmt.Printf("*** test text: %s\n", cmdr.GetStringR("mx-test.test"))
 			fmt.Println()
-			fmt.Printf("> InTesting: args[0]=%v \n", cmdr.SavedOsArgs[0])
+			fmt.Printf("> InTesting: args[0]=%v \n", tool.SavedOsArgs[0])
 			fmt.Println()
 			fmt.Printf("> Used config file: %v\n", cmdr.GetUsedConfigFile())
 			fmt.Printf("> Used config files: %v\n", cmdr.GetUsingConfigFiles())

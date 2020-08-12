@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/logex"
 	"gopkg.in/hedzr/errors.v2"
 	"os"
@@ -371,7 +372,7 @@ func TestPP(t *testing.T) {
 	cmdr.ResetOptions()
 	cmdr.Set("no-watch-conf-dir", true)
 
-	fmt.Printf("InTesting = %v\n", cmdr.InTesting())
+	fmt.Printf("InTesting = %v\n", tool.InTesting())
 	// fmt.Printf("Save: %v\n", cmdr.SavedOsArgs)
 
 	os.Args = []string{"consul-tags", "-pp"}

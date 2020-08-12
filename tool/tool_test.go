@@ -1,17 +1,14 @@
-/*
- * Copyright © 2019 Hedzr Yeh.
- */
+// Copyright © 2020 Hedzr Yeh.
 
-package cmdr_test
+package tool_test
 
 import (
 	"fmt"
 	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/tool"
 	"math"
 	"math/cmplx"
-	"os"
 	"strconv"
-	"strings"
 	"testing"
 )
 
@@ -68,25 +65,25 @@ func TestHumanReadableSizes(t *testing.T) {
 
 func TestComplex(t *testing.T) {
 	// see also: https://golang.org/pkg/fmt/
-	fmt.Printf("%v\n", (3 + 4i))
-	fmt.Printf("%g\n", (3 + 4i))
-	fmt.Printf("%.3g\n", (3.14 + 4.73i))
-	fmt.Printf("%.3g\n", (3.14 - 4.73i))
+	fmt.Printf("%v\n", 3+4i)
+	fmt.Printf("%g\n", 3+4i)
+	fmt.Printf("%.3g\n", 3.14+4.73i)
+	fmt.Printf("%.3g\n", 3.14-4.73i)
 	fmt.Printf("%.2f\n", cmplx.Abs(3+4i))
 	fmt.Printf("%.2f\n", cmplx.Exp(1i*math.Pi)+1)
 
-	fmt.Printf("> %g\n", complex64(cmdr.ParseComplex("3 + 4i")))
-	fmt.Printf("> %g\n", cmdr.ParseComplex("3+4i"))
-	fmt.Printf("> %g\n", complex64(cmdr.ParseComplex("3.14-4.73i")))
-	fmt.Printf("> %g\n", cmdr.ParseComplex("3.14+4.73i"))
+	fmt.Printf("> %g\n", complex64(tool.ParseComplex("3 + 4i")))
+	fmt.Printf("> %g\n", tool.ParseComplex("3+4i"))
+	fmt.Printf("> %g\n", complex64(tool.ParseComplex("3.14-4.73i")))
+	fmt.Printf("> %g\n", tool.ParseComplex("3.14+4.73i"))
 
-	_, _ = cmdr.ParseComplexX("3+4i")
-	_, _ = cmdr.ParseComplexX("3.14+4.73i")
-	_, _ = cmdr.ParseComplexX("3+4qi")
-	_, _ = cmdr.ParseComplexX("3z+4qi")
-	_, _ = cmdr.ParseComplexX("3x+4t")
-	_, _ = cmdr.ParseComplexX("3+4")
-	_, _ = cmdr.ParseComplexX("3")
+	_, _ = tool.ParseComplexX("3+4i")
+	_, _ = tool.ParseComplexX("3.14+4.73i")
+	_, _ = tool.ParseComplexX("3+4qi")
+	_, _ = tool.ParseComplexX("3z+4qi")
+	_, _ = tool.ParseComplexX("3x+4t")
+	_, _ = tool.ParseComplexX("3+4")
+	_, _ = tool.ParseComplexX("3")
 
 	r, theta := cmplx.Polar(2i)
 	fmt.Printf("r: %.2f, θ: %.2f*π\n", r, theta/math.Pi)
@@ -191,44 +188,4 @@ func TestNumberParsing(t *testing.T) {
 	if s, err := strconv.ParseFloat("+0", 32); err == nil {
 		fmt.Printf("%T, %v\n", s, s)
 	}
-}
-
-func TestFinds(t *testing.T) {
-	t.Log("finds")
-	cmdr.InternalResetWorker()
-	cmdr.ResetOptions()
-
-	cmdr.Set("no-watch-conf-dir", true)
-
-	// copyRootCmd = rootCmdForTesting
-	var rootCmdX = &cmdr.RootCommand{
-		Command: cmdr.Command{
-			BaseOpt: cmdr.BaseOpt{
-				Name: "consul-tags",
-			},
-		},
-	}
-	t.Log("rootCmdForTesting", rootCmdX)
-
-	var commands = []string{
-		"consul-tags --help -q",
-	}
-	for _, cc := range commands {
-		os.Args = strings.Split(cc, " ")
-		cmdr.SetInternalOutputStreams(nil, nil)
-
-		if err := cmdr.Exec(rootCmdX); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if cmdr.InTesting() {
-		cmdr.FindSubCommand("generate", nil)
-		cmdr.FindFlag("generate", nil)
-		cmdr.FindSubCommandRecursive("generate", nil)
-		cmdr.FindFlagRecursive("generate", nil)
-	} else {
-		t.Log("noted")
-	}
-	resetOsArgs()
 }

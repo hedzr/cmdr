@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/logex"
 	"gopkg.in/hedzr/errors.v2"
 	"os"
@@ -23,8 +24,8 @@ import (
 //
 func TestIsDirectory(t *testing.T) {
 	t.Logf("osargs[0] = %v", os.Args[0])
-	t.Logf("InTesting: %v", cmdr.InTesting())
-	t.Logf("InDebugging: %v", cmdr.InDebugging())
+	t.Logf("InTesting: %v", tool.InTesting())
+	t.Logf("InDebugging: %v", tool.InDebugging())
 
 	cmdr.NormalizeDir("")
 
@@ -209,11 +210,11 @@ func TestHeadLike(t *testing.T) {
 
 func TestComplexOpt(t *testing.T) {
 	defer logex.CaptureLog(t).Release()
-	if cmdr.SavedOsArgs == nil {
-		cmdr.SavedOsArgs = os.Args
+	if tool.SavedOsArgs == nil {
+		tool.SavedOsArgs = os.Args
 	}
 	defer func() {
-		os.Args = cmdr.SavedOsArgs
+		os.Args = tool.SavedOsArgs
 	}()
 
 	cmdr.ResetOptions()
@@ -274,11 +275,11 @@ func TestComplexOpt(t *testing.T) {
 
 func TestTlideOptionsAndToggleGroupBranch(t *testing.T) {
 	defer logex.CaptureLog(t).Release()
-	if cmdr.SavedOsArgs == nil {
-		cmdr.SavedOsArgs = os.Args
+	if tool.SavedOsArgs == nil {
+		tool.SavedOsArgs = os.Args
 	}
 	defer func() {
-		os.Args = cmdr.SavedOsArgs
+		os.Args = tool.SavedOsArgs
 	}()
 
 	cmdr.InternalResetWorker()
@@ -354,11 +355,11 @@ func TestTlideOptionsAndToggleGroupBranch(t *testing.T) {
 
 func TestHandlerPassThru(t *testing.T) {
 	defer logex.CaptureLog(t).Release()
-	if cmdr.SavedOsArgs == nil {
-		cmdr.SavedOsArgs = os.Args
+	if tool.SavedOsArgs == nil {
+		tool.SavedOsArgs = os.Args
 	}
 	defer func() {
-		os.Args = cmdr.SavedOsArgs
+		os.Args = tool.SavedOsArgs
 	}()
 
 	cmdr.InternalResetWorker()

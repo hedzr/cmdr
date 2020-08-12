@@ -3,6 +3,7 @@
 package cmdr
 
 import (
+	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log"
 	"github.com/hedzr/logex"
 	"os"
@@ -61,7 +62,7 @@ func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.Option) (err error
 	l, err = ParseLevel(lvlStr)
 
 	if l != OffLevel {
-		if InDebugging() || GetDebugMode() {
+		if tool.InDebugging() || GetDebugMode() {
 			if l < DebugLevel {
 				l = DebugLevel
 			}

@@ -30,6 +30,8 @@ func WithLogx(logger log.Logger) ExecOption {
 var Logger log.Logger = log.NewDummyLogger()
 
 // WithLogex enables github.com/hedzr/logex integration
+//
+// Deprecated since v1.7.7, replace with WithLogx().
 func WithLogex(lvl Level, opts ...logex.Option) ExecOption {
 	return func(w *ExecWorker) {
 		w.logexInitialFunctor = w.getWithLogexInitializer(lvl, opts...)
@@ -37,6 +39,8 @@ func WithLogex(lvl Level, opts ...logex.Option) ExecOption {
 }
 
 // WithLogexSkipFrames specify the skip frames to lookup the caller
+//
+// Deprecated since v1.7.6, replace with WithLogx().
 func WithLogexSkipFrames(skipFrames int) ExecOption {
 	return func(w *ExecWorker) {
 		w.logexSkipFrames = skipFrames
@@ -63,6 +67,8 @@ func WithLogexSkipFrames(skipFrames int) ExecOption {
 //        format:
 //        target:
 //
+//
+// Deprecated since v1.7.6, replace with WithLogx().
 func WithLogexPrefix(prefix string) ExecOption {
 	return func(w *ExecWorker) {
 		w.logexPrefix = prefix

@@ -564,7 +564,7 @@ func TestAlreadyUsed(t *testing.T) {
 	defer func() {
 
 		x := outX.String()
-		t.Logf("--------- stdout // %v // %v\n%v", cmdr.GetExecutableDir(), cmdr.GetExcutablePath(), x)
+		t.Logf("--------- stdout // %v // %v\n%v", cmdr.GetExecutableDir(), cmdr.GetExecutablePath(), x)
 
 		if errX.Len() > 0 {
 			t.Log("--------- stderr")

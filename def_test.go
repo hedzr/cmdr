@@ -589,7 +589,7 @@ func TestExec(t *testing.T) {
 		postWorks(t)
 
 		x := outX.String()
-		t.Logf("--------- stdout // %v // %v\n%v", cmdr.GetExecutableDir(), cmdr.GetExcutablePath(), x)
+		t.Logf("--------- stdout // %v // %v\n%v", cmdr.GetExecutableDir(), cmdr.GetExecutablePath(), x)
 
 		_ = cmdr.EnsureDir("ci")
 		if err = cmdr.EnsureDir(""); err == nil {

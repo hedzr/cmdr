@@ -2,6 +2,12 @@
 
 ## Versions
 
+- v1.7.7
+  - update deps to improve logging supports
+  - deprecated: WithLogex(), as its replacement, WithLogx() has a better generic logging interface (hedzr/log.Logger)
+ 
+
+
 
 - v1.7.6:
   - using hedzr/log and remove other logging dependencies.

@@ -27,7 +27,7 @@ func runInstaller(cmd *cmdr.Command, args []string) (err error) {
 	if cmdr.FileExists(systemdDir) {
 		data = &tplData{
 			*cmd.GetRoot(),
-			cmdr.GetExcutablePath(),
+			cmdr.GetExecutablePath(),
 		}
 
 		fileName = fmt.Sprintf("%s/%s@.service", systemdDir, data.AppName)
@@ -70,7 +70,7 @@ func runUninstaller(cmd *cmdr.Command, args []string) (err error) {
 	if cmdr.FileExists(systemdDir) {
 		data = &tplData{
 			*cmd.GetRoot(),
-			cmdr.GetExcutablePath(),
+			cmdr.GetExecutablePath(),
 		}
 
 		fileName = fmt.Sprintf("%s/%s@.service", systemdDir, data.AppName)

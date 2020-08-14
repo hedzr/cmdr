@@ -25,8 +25,8 @@ func GetExecutableDir() string {
 	return dir
 }
 
-// GetExcutablePath returns the executable file path
-func GetExcutablePath() string {
+// GetExecutablePath returns the executable file path
+func GetExecutablePath() string {
 	p, _ := filepath.Abs(os.Args[0])
 	return p
 }

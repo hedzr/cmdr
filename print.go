@@ -67,7 +67,7 @@ func (w *ExecWorker) paintTildeDebugCommand(showType bool) {
 		}
 		if w.rxxtOptions.GetBoolEx("more") {
 			fp("---- INFO: ")
-			fp("Exec: \x1b[2m\x1b[%dm%s\x1b[0m, %s", DarkColor, GetExcutablePath(), GetExecutableDir())
+			fp("Exec: \x1b[2m\x1b[%dm%s\x1b[0m, %s", DarkColor, GetExecutablePath(), GetExecutableDir())
 		}
 	}
 }

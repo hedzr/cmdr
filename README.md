@@ -73,6 +73,9 @@ See our extras:
   - english documentation not completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.8
+  - tabStop in help screen will be autosize now
+
 - v1.7.7
   - update deps to improve logging supports
   - deprecated: WithLogex(), as its replacement, WithLogx() has a better generic logging interface (hedzr/log.Logger)

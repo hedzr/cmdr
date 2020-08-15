@@ -4,10 +4,15 @@
 
 package cmdr
 
+import (
+	"bytes"
+)
+
 type (
 	// Painter to support the genManual, genMarkdown, printHelpScreen.
 	Painter interface {
 		Printf(fmtStr string, args ...interface{})
+		Print(fmtStr string, args ...interface{})
 
 		FpPrintHeader(command *Command)
 		FpPrintHelpTailLine(command *Command)
@@ -21,10 +26,10 @@ type (
 
 		FpCommandsTitle(command *Command)
 		FpCommandsGroupTitle(group string)
-		FpCommandsLine(command *Command)
+		FpCommandsLine(command *Command) (bufL, bufR bytes.Buffer)
 		FpFlagsTitle(command *Command, flag *Flag, title string)
 		FpFlagsGroupTitle(group string)
-		FpFlagsLine(command *Command, flag *Flag, maxShort int, defValStr string)
+		FpFlagsLine(command *Command, flag *Flag, maxShort int, defValStr string) (bufL, bufR bytes.Buffer)
 
 		Flush()
 

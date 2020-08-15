@@ -5,6 +5,7 @@
 package cmdr
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
 	"os"
@@ -177,10 +178,52 @@ func (w *ExecWorker) printHelpExamples(p Painter, command *Command) {
 }
 
 func (w *ExecWorker) printHelpSection(p Painter, command *Command, justFlags bool) {
+	var s1 []aSection
+	var s2 []aGroupedSections
 	if !justFlags {
-		printHelpCommandSection(p, command, justFlags)
+		s1 = printHelpCommandSection(p, command, justFlags)
 	}
-	printHelpFlagSections(p, command, justFlags)
+	s2 = printHelpFlagSections(p, command, justFlags)
+
+	var maxL int
+	for _, s := range s1 {
+		if s.maxL > maxL {
+			maxL = s.maxL
+		}
+	}
+	for _, s1 := range s2 {
+		for _, s := range s1.sections {
+			if s.maxL > maxL {
+				maxL = s.maxL
+			}
+		}
+	}
+
+	if len(s1) > 0 {
+		p.FpCommandsTitle(command)
+		for _, s := range s1 {
+			p.FpCommandsGroupTitle(s.title)
+			fmtStr := fmt.Sprintf("%%-%dv%%v\n", maxL+2)
+			for i, l := range s.bufLL {
+				p.Print(fmtStr, l.String(), s.bufLR[i].String())
+			}
+		}
+	}
+
+	for _, s1 := range s2 {
+		if len(s1.sections) > 0 {
+			p.FpFlagsTitle(command, nil, s1.title)
+			for _, s := range s1.sections {
+				//p.FpCommandsGroupTitle(s.title)
+				p.FpFlagsGroupTitle(s.title)
+				fmtStr := fmt.Sprintf("%%-%dv%%v\n", maxL+2)
+				for i, l := range s.bufLL {
+					p.Print(fmtStr, l.String(), s.bufLR[i].String())
+				}
+			}
+		}
+	}
+	return
 }
 
 func getSortedKeysFromCmdGroupedMap(m map[string]map[string]*Command) (k0 []string) {
@@ -205,26 +248,61 @@ func getSortedKeysFromCmdMap(groups map[string]*Command) (k1 []string) {
 	return
 }
 
-func printHelpCommandSection(p Painter, command *Command, justFlags bool) {
+type aSection struct {
+	title        string
+	bufLL, bufLR []bytes.Buffer
+	maxL, maxR   int
+}
+
+type aGroupedSections struct {
+	title    string
+	sections []aSection
+}
+
+func printHelpCommandSection(p Painter, command *Command, justFlags bool) (sections []aSection) {
 	count := 0
 	for _, items := range command.allCmds {
-		count += len(items)
-	}
-
-	if count > 0 {
-		p.FpCommandsTitle(command)
-
-		k0 := getSortedKeysFromCmdGroupedMap(command.allCmds)
-		for _, group := range k0 {
-			groups := command.allCmds[group]
-			if len(groups) > 0 {
-				p.FpCommandsGroupTitle(group)
-				for _, nm := range getSortedKeysFromCmdMap(groups) {
-					p.FpCommandsLine(groups[nm])
-				}
+		for _, c := range items {
+			if !c.Hidden {
+				count++
 			}
 		}
 	}
+
+	if count > 0 {
+		//p.FpCommandsTitle(command)
+
+		k0 := getSortedKeysFromCmdGroupedMap(command.allCmds)
+		for _, group := range k0 {
+			g := command.allCmds[group]
+			if len(g) > 0 {
+				var section aSection
+				section.title = group //[nm].GetTitleName()
+				for _, nm := range getSortedKeysFromCmdMap(g) {
+					bufL, bufR := p.FpCommandsLine(g[nm])
+					section.bufLL, section.bufLR = append(section.bufLL, bufL), append(section.bufLR, bufR)
+					if section.maxL < bufL.Len() {
+						section.maxL = bufL.Len()
+					}
+					if section.maxR < bufR.Len() {
+						section.maxR = bufR.Len()
+					}
+				}
+				if section.maxL > 0 {
+					sections = append(sections, section)
+				}
+				//if maxL > 0 {
+				//	p.FpCommandsGroupTitle(group)
+				//	fmtStr := fmt.Sprintf("%%-%dv%%v\n", maxL+2)
+				//	for i, l := range bufLL {
+				//		//goland:noinspection ALL
+				//		p.Print(fmtStr, l.String(), bufLR[i].String())
+				//	}
+				//}
+			}
+		}
+	}
+	return
 }
 
 func getSortedKeysFromFlgGroupedMap(m map[string]map[string]*Flag) (k2 []string) {
@@ -258,48 +336,83 @@ func findMaxShortLength(groups map[string]*Flag) (maxShort int) {
 	return
 }
 
-func printHelpFlagSections(p Painter, command *Command, justFlags bool) {
-	sectionName := "Options"
-
-GO_PRINT_FLAGS:
-	count := 0
+func calcflags(p Painter, command *Command, justFlags bool) (count int) {
 	for _, items := range command.allFlags {
-		count += len(items)
+		for _, c := range items {
+			if !c.Hidden {
+				count++
+			}
+		}
 	}
+	return
+}
 
-	if count > 0 {
-		p.FpFlagsTitle(command, nil, sectionName)
-		k2 := getSortedKeysFromFlgGroupedMap(command.allFlags)
-		for _, group := range k2 {
-			groups := command.allFlags[group]
-			if len(groups) > 0 {
-				p.FpFlagsGroupTitle(group)
-				k3 := getSortedKeysFromFlgMap(groups)
-				maxShort := findMaxShortLength(groups)
-				for _, nm := range k3 {
-					flg := groups[nm]
-					if !flg.Hidden {
-						defValStr := ""
-						if flg.DefaultValue != nil {
-							if ss, ok := flg.DefaultValue.(string); ok && len(ss) > 0 {
-								if len(flg.DefaultValuePlaceholder) > 0 {
-									defValStr = fmt.Sprintf(" (default %v='%s')", flg.DefaultValuePlaceholder, ss)
-								} else {
-									defValStr = fmt.Sprintf(" (default='%s')", ss)
-								}
-							} else {
-								if len(flg.DefaultValuePlaceholder) > 0 {
-									defValStr = fmt.Sprintf(" (default %v=%v)", flg.DefaultValuePlaceholder, flg.DefaultValue)
-								} else {
-									defValStr = fmt.Sprintf(" (default=%v)", flg.DefaultValue)
-								}
-							}
-						}
-						p.FpFlagsLine(command, flg, maxShort, defValStr)
-						// fp("  %-48s%v%s", flg.GetTitleFlagNames(), flg.Description, defValStr)
+func printHelpFlagSectionsChild(p Painter, command *Command, groups map[string]*Flag, groupTitle string) (section aSection) {
+	// p.FpFlagsGroupTitle(group)
+	section.title = groupTitle
+	k3 := getSortedKeysFromFlgMap(groups)
+	maxShort := findMaxShortLength(groups)
+	for _, nm := range k3 {
+		flg := groups[nm]
+		if !flg.Hidden {
+			defValStr := ""
+			if flg.DefaultValue != nil {
+				if ss, ok := flg.DefaultValue.(string); ok && len(ss) > 0 {
+					if len(flg.DefaultValuePlaceholder) > 0 {
+						defValStr = fmt.Sprintf(" (default %v='%s')", flg.DefaultValuePlaceholder, ss)
+					} else {
+						defValStr = fmt.Sprintf(" (default='%s')", ss)
+					}
+				} else {
+					if len(flg.DefaultValuePlaceholder) > 0 {
+						defValStr = fmt.Sprintf(" (default %v=%v)", flg.DefaultValuePlaceholder, flg.DefaultValue)
+					} else {
+						defValStr = fmt.Sprintf(" (default=%v)", flg.DefaultValue)
 					}
 				}
 			}
+			bufL, bufR := p.FpFlagsLine(command, flg, maxShort, defValStr)
+			section.bufLL, section.bufLR = append(section.bufLL, bufL), append(section.bufLR, bufR)
+			if section.maxL < bufL.Len() {
+				section.maxL = bufL.Len()
+			}
+			if section.maxR < bufR.Len() {
+				section.maxR = bufR.Len()
+			}
+			// fp("  %-48s%v%s", flg.GetTitleFlagNames(), flg.Description, defValStr)
+		}
+	}
+	return
+}
+
+func printHelpFlagSections(p Painter, command *Command, justFlags bool) (aGroupedSectionsList []aGroupedSections) {
+	sectionName := "Options"
+
+GoPrintFlags:
+	count := calcflags(p, command, justFlags)
+	if count > 0 {
+		var gs aGroupedSections
+		//p.FpFlagsTitle(command, nil, sectionName)
+		k2 := getSortedKeysFromFlgGroupedMap(command.allFlags)
+		for _, group := range k2 {
+			groups := command.allFlags[group]
+			//var bufLL, bufLR []bytes.Buffer
+			//var maxL, maxR int
+			if len(groups) > 0 {
+				var section = printHelpFlagSectionsChild(p, command, groups, group)
+				if section.maxL > 0 {
+					gs.sections = append(gs.sections, section)
+				}
+			}
+			//if maxL > 0 {
+			//	for i, l := range bufLL {
+			//		p.Print("%v%v\n", l.String(), bufLR[i].String())
+			//	}
+			//}
+		}
+		if len(gs.sections) > 0 {
+			gs.title = sectionName
+			aGroupedSectionsList = append(aGroupedSectionsList, gs)
 		}
 	}
 
@@ -311,9 +424,10 @@ GO_PRINT_FLAGS:
 		} else {
 			sectionName = fmt.Sprintf("Parent (`%v`) Options", command.GetTitleName())
 		}
-		goto GO_PRINT_FLAGS
+		goto GoPrintFlags
 	}
 
+	return
 }
 
 func (w *ExecWorker) showVersion() {

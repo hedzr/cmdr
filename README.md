@@ -75,10 +75,11 @@ See our extras:
 
 - v1.7.8
   - tabStop in help screen will be autosize now
+  - *deprecated* at next minor release (v1.8+): `WithHelpTabStop()`
 
 - v1.7.7
   - update deps to improve logging supports
-  - deprecated: WithLogex(), as its replacement, WithLogx() has a better generic logging interface (hedzr/log.Logger)
+  - *deprecated*: `WithLogex()`, as its replacement, `WithLogx()` has a better generic logging interface (hedzr/log.Logger)
 
 - v1.7.6:
   - using hedzr/log and remove other logging dependencies.

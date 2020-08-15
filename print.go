@@ -264,7 +264,7 @@ func (w *ExecWorker) prCommands(p Painter, command *Command, s1 []aSection, maxL
 				// if len(str) > cols {
 				ww := maxL + 2
 				s2w := cols - ww
-				if s2w < len(str) {
+				if s2w < len(str) && !InTesting() {
 					firstPiece := getTextPiece(str, 0, s2w)
 					p.Print(fmtStrR, firstPiece)
 					for ix := len(firstPiece); ix < len(str); {
@@ -301,7 +301,7 @@ func (w *ExecWorker) prFlags(p Painter, command *Command, s2 []aGroupedSections,
 					// if len(str) > cols {
 					ww := maxL + 2
 					s2w := cols - ww
-					if s2w < len(str) {
+					if s2w < len(str) && !InTesting() {
 						firstPiece := getTextPiece(str, 0, s2w)
 						p.Print(fmtStrR, firstPiece)
 						for ix := len(firstPiece); ix < len(str); {

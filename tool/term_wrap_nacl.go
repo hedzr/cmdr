@@ -18,8 +18,7 @@ func GetTtySize() (cols, rows int) {
 	_, _, _ = syscall.Syscall(syscall.SYS_IOCTL,
 		uintptr(syscall.Stdout),
 		uintptr(syscall.TIOCGWINSZ),
-		uintptr(unsafe.Pointer(&sz),
-		))
+		uintptr(unsafe.Pointer(&sz)))
 	cols, rows = int(sz.cols), int(sz.rows)
 	return
 }

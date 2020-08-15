@@ -27,6 +27,6 @@ func ReadPassword() (text string, err error) {
 // The return value of this function is in the order of cols, rows.
 func GetTtySize() (cols, rows int) {
 	// return 0, 0
-	cols, rows, _ = terminal.GetSize(0)
+	cols, rows, _ = terminal.GetSize(0) // https://stackoverflow.com/a/45422726/6375060
 	return
 }

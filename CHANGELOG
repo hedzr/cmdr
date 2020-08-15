@@ -2,6 +2,12 @@
 
 ## Versions
 
+- v1.7.9
+  - right align multi-lines desc string in help screen
+  - added new envvars: HELP, NO_COLOR (`HELP=1 app some sub cmd` == `app some sub cmd --help`)
+
+
+
 - v1.7.8
   - tabStop in help screen will be autosize now
   - *deprecated* at next minor release (v1.8+): `WithHelpTabStop()`

@@ -26,5 +26,7 @@ func ReadPassword() (text string, err error) {
 // GetTtySize returns the window size in columns and rows in the active console window.
 // The return value of this function is in the order of cols, rows.
 func GetTtySize() (cols, rows int) {
-	return 0, 0
+	// return 0, 0
+	cols, rows, _ = terminal.GetSize(0)
+	return
 }

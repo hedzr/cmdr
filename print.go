@@ -336,11 +336,7 @@ func findMaxShortLength(groups map[string]*Flag) (maxShort int) {
 	return
 }
 
-func printHelpFlagSections(p Painter, command *Command, justFlags bool) (aGroupedSectionsList []aGroupedSections) {
-	sectionName := "Options"
-
-GoPrintFlags:
-	count := 0
+func calcflags(p Painter, command *Command, justFlags bool) (count int) {
 	for _, items := range command.allFlags {
 		for _, c := range items {
 			if !c.Hidden {
@@ -348,7 +344,52 @@ GoPrintFlags:
 			}
 		}
 	}
+	return
+}
 
+func printHelpFlagSectionsChild(p Painter, command *Command, groups map[string]*Flag, groupTitle string) (section aSection) {
+	// p.FpFlagsGroupTitle(group)
+	section.title = groupTitle
+	k3 := getSortedKeysFromFlgMap(groups)
+	maxShort := findMaxShortLength(groups)
+	for _, nm := range k3 {
+		flg := groups[nm]
+		if !flg.Hidden {
+			defValStr := ""
+			if flg.DefaultValue != nil {
+				if ss, ok := flg.DefaultValue.(string); ok && len(ss) > 0 {
+					if len(flg.DefaultValuePlaceholder) > 0 {
+						defValStr = fmt.Sprintf(" (default %v='%s')", flg.DefaultValuePlaceholder, ss)
+					} else {
+						defValStr = fmt.Sprintf(" (default='%s')", ss)
+					}
+				} else {
+					if len(flg.DefaultValuePlaceholder) > 0 {
+						defValStr = fmt.Sprintf(" (default %v=%v)", flg.DefaultValuePlaceholder, flg.DefaultValue)
+					} else {
+						defValStr = fmt.Sprintf(" (default=%v)", flg.DefaultValue)
+					}
+				}
+			}
+			bufL, bufR := p.FpFlagsLine(command, flg, maxShort, defValStr)
+			section.bufLL, section.bufLR = append(section.bufLL, bufL), append(section.bufLR, bufR)
+			if section.maxL < bufL.Len() {
+				section.maxL = bufL.Len()
+			}
+			if section.maxR < bufR.Len() {
+				section.maxR = bufR.Len()
+			}
+			// fp("  %-48s%v%s", flg.GetTitleFlagNames(), flg.Description, defValStr)
+		}
+	}
+	return
+}
+
+func printHelpFlagSections(p Painter, command *Command, justFlags bool) (aGroupedSectionsList []aGroupedSections) {
+	sectionName := "Options"
+
+GoPrintFlags:
+	count := calcflags(p, command, justFlags)
 	if count > 0 {
 		var gs aGroupedSections
 		//p.FpFlagsTitle(command, nil, sectionName)
@@ -358,41 +399,7 @@ GoPrintFlags:
 			//var bufLL, bufLR []bytes.Buffer
 			//var maxL, maxR int
 			if len(groups) > 0 {
-				var section aSection
-				// p.FpFlagsGroupTitle(group)
-				section.title = group
-				k3 := getSortedKeysFromFlgMap(groups)
-				maxShort := findMaxShortLength(groups)
-				for _, nm := range k3 {
-					flg := groups[nm]
-					if !flg.Hidden {
-						defValStr := ""
-						if flg.DefaultValue != nil {
-							if ss, ok := flg.DefaultValue.(string); ok && len(ss) > 0 {
-								if len(flg.DefaultValuePlaceholder) > 0 {
-									defValStr = fmt.Sprintf(" (default %v='%s')", flg.DefaultValuePlaceholder, ss)
-								} else {
-									defValStr = fmt.Sprintf(" (default='%s')", ss)
-								}
-							} else {
-								if len(flg.DefaultValuePlaceholder) > 0 {
-									defValStr = fmt.Sprintf(" (default %v=%v)", flg.DefaultValuePlaceholder, flg.DefaultValue)
-								} else {
-									defValStr = fmt.Sprintf(" (default=%v)", flg.DefaultValue)
-								}
-							}
-						}
-						bufL, bufR := p.FpFlagsLine(command, flg, maxShort, defValStr)
-						section.bufLL, section.bufLR = append(section.bufLL, bufL), append(section.bufLR, bufR)
-						if section.maxL < bufL.Len() {
-							section.maxL = bufL.Len()
-						}
-						if section.maxR < bufR.Len() {
-							section.maxR = bufR.Len()
-						}
-						// fp("  %-48s%v%s", flg.GetTitleFlagNames(), flg.Description, defValStr)
-					}
-				}
+				var section = printHelpFlagSectionsChild(p, command, groups, group)
 				if section.maxL > 0 {
 					gs.sections = append(gs.sections, section)
 				}

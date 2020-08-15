@@ -76,6 +76,8 @@ See our extras:
 - v1.7.8
   - tabStop in help screen will be autosize now
   - *deprecated* at next minor release (v1.8+): `WithHelpTabStop()`
+  - *deprecated* at next minor release (v1.8+): plugins/daemon
+  - **BREAK**: some two methods in the interface `Painter` has been changed.
 
 - v1.7.7
   - update deps to improve logging supports

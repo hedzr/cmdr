@@ -8,9 +8,11 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
+	"github.com/hedzr/cmdr/tool"
 	"os"
 	"sort"
 	"strings"
+	"unicode"
 )
 
 func fp(fmtStr string, args ...interface{}) {
@@ -177,20 +179,16 @@ func (w *ExecWorker) printHelpExamples(p Painter, command *Command) {
 	}
 }
 
-func (w *ExecWorker) printHelpSection(p Painter, command *Command, justFlags bool) {
-	var s1 []aSection
-	var s2 []aGroupedSections
-	if !justFlags {
-		s1 = printHelpCommandSection(p, command, justFlags)
-	}
-	s2 = printHelpFlagSections(p, command, justFlags)
-
-	var maxL int
+func findMaxL(s1 []aSection, maxL int) int {
 	for _, s := range s1 {
 		if s.maxL > maxL {
 			maxL = s.maxL
 		}
 	}
+	return maxL
+}
+
+func findMaxL2(s2 []aGroupedSections, maxL int) int {
 	for _, s1 := range s2 {
 		for _, s := range s1.sections {
 			if s.maxL > maxL {
@@ -198,31 +196,147 @@ func (w *ExecWorker) printHelpSection(p Painter, command *Command, justFlags boo
 			}
 		}
 	}
+	return maxL
+}
 
+func getTextPiece(str string, start, want int) string {
+	var sb, tried strings.Builder
+	var src = []rune(str[start:])
+	var tryEscape, tryAnsiColor bool
+	var tryPos int
+	type controls struct {
+		pos int
+		seq string
+	}
+	var escapeSeqs []controls
+	for _, c := range src {
+		if c == '\x1b' {
+			tryEscape, tryAnsiColor = true, false
+			tryPos = sb.Len()
+			tried.Reset()
+			tried.WriteRune(c)
+			continue
+		}
+		if tryEscape {
+			if tryAnsiColor {
+				if unicode.IsDigit(c) {
+					tried.WriteRune(c)
+					continue
+				}
+				if c == 'm' {
+					tried.WriteRune(c)
+					tryEscape, escapeSeqs = false, append(escapeSeqs, controls{pos: tryPos, seq: tried.String()})
+					continue
+				}
+			} else if c == '[' {
+				tried.WriteRune(c)
+				tryAnsiColor = true
+				continue
+			}
+			sb.WriteString(tried.String())
+		}
+		if sb.Len() >= want {
+			break
+		}
+		sb.WriteRune(c)
+	}
+	var out strings.Builder
+	var outs = []rune(sb.String())
+	var last int
+	for _, cc := range escapeSeqs {
+		out.WriteString(string(outs[last:cc.pos]))
+		out.WriteString(cc.seq)
+		last = cc.pos
+	}
+	out.WriteString(string(outs[last:]))
+	return out.String()
+}
+
+func (w *ExecWorker) prCommands(p Painter, command *Command, s1 []aSection, maxL, cols int) {
 	if len(s1) > 0 {
 		p.FpCommandsTitle(command)
 		for _, s := range s1 {
 			p.FpCommandsGroupTitle(s.title)
-			fmtStr := fmt.Sprintf("%%-%dv%%v\n", maxL+2)
+			fmtStrL, fmtStrR, fmtStrMR := fmt.Sprintf("%%-%dv", maxL+2), "%v\n", fmt.Sprintf("%%%dv%%v\n", maxL+2)
 			for i, l := range s.bufLL {
-				p.Print(fmtStr, l.String(), s.bufLR[i].String())
+				p.Print(fmtStrL, l.String())
+				str := s.bufLR[i].String()
+				// if len(str) > cols {
+				ww := maxL + 2
+				s2w := cols - ww
+				if s2w < len(str) && !InTesting() {
+					firstPiece := getTextPiece(str, 0, s2w)
+					p.Print(fmtStrR, firstPiece)
+					for ix := len(firstPiece); ix < len(str); {
+						rs := getTextPiece(str, ix, s2w)
+						p.Print(fmtStrMR, " ", rs)
+						ix += len(rs)
+					}
+					// p.Print("ww, s2w, cols = %v, %v, %v\n", ww, s2w, cols)
+				} else {
+					p.Print(fmtStrR, str)
+				}
 			}
 		}
 	}
+}
 
+func (w *ExecWorker) prFlags(p Painter, command *Command, s2 []aGroupedSections, maxL, cols int) {
 	for _, s1 := range s2 {
 		if len(s1.sections) > 0 {
 			p.FpFlagsTitle(command, nil, s1.title)
 			for _, s := range s1.sections {
 				//p.FpCommandsGroupTitle(s.title)
 				p.FpFlagsGroupTitle(s.title)
-				fmtStr := fmt.Sprintf("%%-%dv%%v\n", maxL+2)
+
+				//fmtStr := fmt.Sprintf("%%-%dv%%v\n", maxL+2)
+				//for i, l := range s.bufLL {
+				//	p.Print(fmtStr, l.String(), s.bufLR[i].String())
+				//}
+
+				fmtStrL, fmtStrR, fmtStrMR := fmt.Sprintf("%%-%dv", maxL+2), "%v\n", fmt.Sprintf("%%%dv%%v\n", maxL+2)
 				for i, l := range s.bufLL {
-					p.Print(fmtStr, l.String(), s.bufLR[i].String())
+					p.Print(fmtStrL, l.String())
+					str := s.bufLR[i].String()
+					// if len(str) > cols {
+					ww := maxL + 2
+					s2w := cols - ww
+					if s2w < len(str) && !InTesting() {
+						firstPiece := getTextPiece(str, 0, s2w)
+						p.Print(fmtStrR, firstPiece)
+						for ix := len(firstPiece); ix < len(str); {
+							rs := getTextPiece(str, ix, s2w)
+							p.Print(fmtStrMR, " ", rs)
+							ix += len(rs)
+						}
+						// p.Print("ww, s2w, cols = %v, %v, %v\n", ww, s2w, cols)
+					} else {
+						p.Print(fmtStrR, str)
+					}
 				}
 			}
 		}
 	}
+}
+
+func (w *ExecWorker) printHelpSection(p Painter, command *Command, justFlags bool) {
+	var (
+		s1   []aSection
+		s2   []aGroupedSections
+		maxL int
+	)
+
+	if !justFlags {
+		s1 = printHelpCommandSection(p, command, justFlags)
+	}
+	s2 = printHelpFlagSections(p, command, justFlags)
+
+	maxL = findMaxL2(s2, findMaxL(s1, 0))
+
+	cols, _ := tool.GetTtySize()
+	w.prCommands(p, command, s1, maxL, cols)
+	w.prFlags(p, command, s2, maxL, cols)
+
 	return
 }
 
@@ -270,8 +384,6 @@ func printHelpCommandSection(p Painter, command *Command, justFlags bool) (secti
 	}
 
 	if count > 0 {
-		//p.FpCommandsTitle(command)
-
 		k0 := getSortedKeysFromCmdGroupedMap(command.allCmds)
 		for _, group := range k0 {
 			g := command.allCmds[group]
@@ -291,14 +403,6 @@ func printHelpCommandSection(p Painter, command *Command, justFlags bool) (secti
 				if section.maxL > 0 {
 					sections = append(sections, section)
 				}
-				//if maxL > 0 {
-				//	p.FpCommandsGroupTitle(group)
-				//	fmtStr := fmt.Sprintf("%%-%dv%%v\n", maxL+2)
-				//	for i, l := range bufLL {
-				//		//goland:noinspection ALL
-				//		p.Print(fmtStr, l.String(), bufLR[i].String())
-				//	}
-				//}
 			}
 		}
 	}
@@ -336,7 +440,7 @@ func findMaxShortLength(groups map[string]*Flag) (maxShort int) {
 	return
 }
 
-func calcflags(p Painter, command *Command, justFlags bool) (count int) {
+func countOfItems(p Painter, command *Command, justFlags bool) (count int) {
 	for _, items := range command.allFlags {
 		for _, c := range items {
 			if !c.Hidden {
@@ -389,26 +493,18 @@ func printHelpFlagSections(p Painter, command *Command, justFlags bool) (aGroupe
 	sectionName := "Options"
 
 GoPrintFlags:
-	count := calcflags(p, command, justFlags)
+	count := countOfItems(p, command, justFlags)
 	if count > 0 {
 		var gs aGroupedSections
-		//p.FpFlagsTitle(command, nil, sectionName)
 		k2 := getSortedKeysFromFlgGroupedMap(command.allFlags)
 		for _, group := range k2 {
 			groups := command.allFlags[group]
-			//var bufLL, bufLR []bytes.Buffer
-			//var maxL, maxR int
 			if len(groups) > 0 {
 				var section = printHelpFlagSectionsChild(p, command, groups, group)
 				if section.maxL > 0 {
 					gs.sections = append(gs.sections, section)
 				}
 			}
-			//if maxL > 0 {
-			//	for i, l := range bufLL {
-			//		p.Print("%v%v\n", l.String(), bufLR[i].String())
-			//	}
-			//}
 		}
 		if len(gs.sections) > 0 {
 			gs.title = sectionName

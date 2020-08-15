@@ -202,6 +202,7 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 					},
 				},
 				DefaultValue: false,
+				EnvVars:      []string{"HELP"},
 			}
 			root.Flags = append(root.Flags, ff)
 			root.allFlags[SysMgmtGroup]["help"] = ff
@@ -475,7 +476,7 @@ func (w *ExecWorker) attachCmdrCommands(root *RootCommand) {
 					owner:       &root.Command,
 				},
 				DefaultValue: false,
-				EnvVars:      []string{"NOCOLOR"},
+				EnvVars:      []string{"NOCOLOR", "NO_COLOR"},
 			}
 			root.Flags = append(root.Flags, ff)
 			root.allFlags[SysMgmtGroup]["no-color"] = ff

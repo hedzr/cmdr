@@ -52,6 +52,20 @@ func (s *markdownPainter) Printf(fmtStr string, args ...interface{}) {
 	_, _ = s.writer.Write([]byte(str))
 }
 
+func (s *markdownPainter) Print(fmtStr string, args ...interface{}) {
+	str := fmt.Sprintf(fmtStr, args...)
+	str = replaceAll(str, "-", `\-`)
+	str = replaceAll(str, "`cmdr`", `\fBcmdr\fP`)
+	_, _ = s.writer.Write([]byte(str))
+}
+
+func (s *markdownPainter) bufPrintf(buf *bytes.Buffer, fmtStr string, args ...interface{}) {
+	str := fmt.Sprintf(fmtStr, args...)
+	str = replaceAll(str, "-", `\-`)
+	str = replaceAll(str, "`cmdr`", `\fBcmdr\fP`)
+	_, _ = buf.Write([]byte(str))
+}
+
 type mkdHdrData struct {
 	RootCommand
 	TimeMY      string
@@ -203,7 +217,7 @@ func (s *markdownPainter) FpCommandsGroupTitle(group string) {
 	}
 }
 
-func (s *markdownPainter) FpCommandsLine(command *Command) {
+func (s *markdownPainter) FpCommandsLine(command *Command) (bufL, bufR bytes.Buffer) {
 	if !command.Hidden {
 		// s.Printf("  %-48s%v", command.GetTitleNames(), command.Description)
 		// s.Printf("\n\x1b[%dm\x1b[%dm%s\x1b[0m", bgNormal, darkColor, title)
@@ -220,25 +234,26 @@ func (s *markdownPainter) FpCommandsLine(command *Command) {
 			tail = fmt.Sprintf("> deprecated since %v", command.Deprecated)
 		}
 
-		s.Printf("##### %s%s%s", wrapChars, title, wrapChars)
+		s.bufPrintf(&bufL, "##### %s%s%s", wrapChars, title, wrapChars)
 		if len(command.Short) > 0 && len(command.Full) > 0 {
-			s.Printf(" (**Short**: %v) ", command.Short)
+			s.bufPrintf(&bufL, " (**Short**: %v) ", command.Short)
 		}
 		if len(command.Aliases) > 0 {
-			s.Printf(" (**Aliases**: %v) ", command.Aliases)
+			s.bufPrintf(&bufL, " (**Aliases**: %v) ", command.Aliases)
 		}
-		s.Printf("\n\n%v\n\n", tail)
+		s.bufPrintf(&bufL, "\n\n%v\n\n", tail)
 
 		if len(command.Description) > 0 {
-			s.Printf("%v\n\n", command.Description)
+			s.bufPrintf(&bufR, "%v\n\n", command.Description)
 		}
 		if len(command.LongDescription) > 0 {
-			s.Printf("%v\n\n", command.LongDescription)
+			s.bufPrintf(&bufR, "%v\n\n", command.LongDescription)
 		}
 		if len(command.Examples) > 0 {
-			s.Printf("```bash\n%v\n```\n", tplApply(command.Examples, command.root))
+			s.bufPrintf(&bufR, "```bash\n%v\n```\n", tplApply(command.Examples, command.root))
 		}
 	}
+	return
 }
 
 func (s *markdownPainter) FpFlagsTitle(command *Command, flag *Flag, title string) {
@@ -253,7 +268,7 @@ func (s *markdownPainter) FpFlagsGroupTitle(group string) {
 	}
 }
 
-func (s *markdownPainter) FpFlagsLine(command *Command, flag *Flag, maxShort int, defValStr string) {
+func (s *markdownPainter) FpFlagsLine(command *Command, flag *Flag, maxShort int, defValStr string) (bufL, bufR bytes.Buffer) {
 	// s.Printf(".TP\n.BI %s\n%s\n%s\n", manWs(flag.GetTitleFlagNames()), flag.Description, defValStr)
 
 	title := "--" + flag.Full
@@ -267,28 +282,29 @@ func (s *markdownPainter) FpFlagsLine(command *Command, flag *Flag, maxShort int
 		tail = fmt.Sprintf("> deprecated since %v", flag.Deprecated)
 	}
 
-	s.Printf("##### %s%s%s %s ", wrapChars, title, wrapChars, flag.DefaultValuePlaceholder)
+	s.bufPrintf(&bufL, "##### %s%s%s %s ", wrapChars, title, wrapChars, flag.DefaultValuePlaceholder)
 	if len(flag.Short) > 0 && len(flag.Full) > 0 {
-		s.Printf(" (**Short**: -%v) ", flag.Short)
+		s.bufPrintf(&bufL, " (**Short**: -%v) ", flag.Short)
 	}
 	if len(flag.Aliases) > 0 {
 		tt := strings.Join(flag.Aliases, ", --")
 		if len(tt) > 0 {
 			tt = "--" + tt
 		}
-		s.Printf(" (**Aliases**: %v) ", tt)
+		s.bufPrintf(&bufL, " (**Aliases**: %v) ", tt)
 	}
-	s.Printf("\n\n%v\n\n%v\n\n", defValStr, tail)
+	s.bufPrintf(&bufL, "\n\n%v\n\n%v\n\n", defValStr, tail)
 
 	if len(flag.Description) > 0 {
-		s.Printf("%v\n\n", flag.Description)
+		s.bufPrintf(&bufR, "%v\n\n", flag.Description)
 	}
 	if len(flag.LongDescription) > 0 {
-		s.Printf("%v\n\n", flag.LongDescription)
+		s.bufPrintf(&bufR, "%v\n\n", flag.LongDescription)
 	}
 	if len(flag.Examples) > 0 {
-		s.Printf("```bash\n%v\n```\n", tplApply(flag.Examples, command.root))
+		s.bufPrintf(&bufR, "```bash\n%v\n```\n", tplApply(flag.Examples, command.root))
 	}
+	return
 }
 
 //

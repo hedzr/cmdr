@@ -51,6 +51,20 @@ func (s *manPainter) Printf(fmtStr string, args ...interface{}) {
 	_, _ = s.writer.Write([]byte(str))
 }
 
+func (s *manPainter) Print(fmtStr string, args ...interface{}) {
+	str := fmt.Sprintf(fmtStr, args...)
+	str = replaceAll(str, "-", `\-`)
+	str = replaceAll(str, "`cmdr`", `\fBcmdr\fP`)
+	_, _ = s.writer.Write([]byte(str))
+}
+
+func (s *manPainter) bufPrintf(buf *bytes.Buffer, fmtStr string, args ...interface{}) {
+	str := fmt.Sprintf(fmtStr, args...)
+	str = replaceAll(str, "-", `\-`)
+	str = replaceAll(str, "`cmdr`", `\fBcmdr\fP`)
+	_, _ = buf.Write([]byte(str))
+}
+
 type manHdrData struct {
 	RootCommand
 	TimeMY      string
@@ -189,13 +203,15 @@ func (s *manPainter) FpCommandsGroupTitle(group string) {
 	}
 }
 
-func (s *manPainter) FpCommandsLine(command *Command) {
+func (s *manPainter) FpCommandsLine(command *Command) (bufL, bufR bytes.Buffer) {
 	if !command.Hidden {
 		// s.Printf("  %-48s%v", command.GetTitleNames(), command.Description)
 		// s.Printf("\n\x1b[%dm\x1b[%dm%s\x1b[0m", bgNormal, darkColor, title)
 		// s.Printf("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", bgDim, darkColor, normalize(group))
-		s.Printf(".TP\n.BI %s\n%s\n", manWs(command.GetTitleNames()), command.Description)
+		s.bufPrintf(&bufL,".TP\n.BI %s", manWs(command.GetTitleNames()))
+		s.bufPrintf(&bufR,"\n%s\n", command.Description)
 	}
+	return
 }
 
 func (s *manPainter) FpFlagsTitle(command *Command, flag *Flag, title string) {
@@ -210,8 +226,11 @@ func (s *manPainter) FpFlagsGroupTitle(group string) {
 	}
 }
 
-func (s *manPainter) FpFlagsLine(command *Command, flag *Flag, maxShort int, defValStr string) {
-	s.Printf(".TP\n.BI %s\n%s\n%s\n", manWs(flag.GetTitleFlagNames()), flag.Description, defValStr)
+func (s *manPainter) FpFlagsLine(command *Command, flag *Flag, maxShort int, defValStr string) (bufL, bufR bytes.Buffer) {
+	//s.Printf(".TP\n.BI %s\n%s\n%s\n", manWs(flag.GetTitleFlagNames()), flag.Description, defValStr)
+	s.bufPrintf(&bufL, ".TP\n.BI %s", manWs(flag.GetTitleFlagNames()))
+	s.bufPrintf(&bufR, "\n%s\n%s\n", flag.Description, defValStr)
+	return
 }
 
 //

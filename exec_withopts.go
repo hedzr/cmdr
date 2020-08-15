@@ -309,6 +309,8 @@ func WithHelpPainter(painter Painter) ExecOption {
 
 // WithHelpTabStop sets the tab-stop position in the help screen
 // Default tabstop is 48
+//
+// Deprecated since v1.7.8 because the tab-stop position will be autosize from then on.
 func WithHelpTabStop(tabStop int) ExecOption {
 	return func(w *ExecWorker) {
 		initTabStop(tabStop)

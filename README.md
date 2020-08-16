@@ -73,6 +73,9 @@ See our extras:
   - english documentation not completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.10
+  - fixed: too much empty lines in help screen
+
 - v1.7.9
   - right align multi-lines desc string in help screen
   - added new envvars: HELP, NO_COLOR (`HELP=1 app some sub cmd` == `app some sub cmd --help`)

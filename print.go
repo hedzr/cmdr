@@ -373,8 +373,7 @@ type aGroupedSections struct {
 	sections []aSection
 }
 
-func printHelpCommandSection(p Painter, command *Command, justFlags bool) (sections []aSection) {
-	count := 0
+func countOfCommandsItems(p Painter, command *Command, justFlags bool) (count int) {
 	for _, items := range command.allCmds {
 		for _, c := range items {
 			if !c.Hidden {
@@ -382,7 +381,11 @@ func printHelpCommandSection(p Painter, command *Command, justFlags bool) (secti
 			}
 		}
 	}
+	return
+}
 
+func printHelpCommandSection(p Painter, command *Command, justFlags bool) (sections []aSection) {
+	count := countOfCommandsItems(p, command, justFlags)
 	if count > 0 {
 		k0 := getSortedKeysFromCmdGroupedMap(command.allCmds)
 		for _, group := range k0 {
@@ -392,12 +395,14 @@ func printHelpCommandSection(p Painter, command *Command, justFlags bool) (secti
 				section.title = group //[nm].GetTitleName()
 				for _, nm := range getSortedKeysFromCmdMap(g) {
 					bufL, bufR := p.FpCommandsLine(g[nm])
-					section.bufLL, section.bufLR = append(section.bufLL, bufL), append(section.bufLR, bufR)
-					if section.maxL < bufL.Len() {
-						section.maxL = bufL.Len()
-					}
-					if section.maxR < bufR.Len() {
-						section.maxR = bufR.Len()
+					if bufL.Len() > 0 && bufR.Len() > 0 {
+						section.bufLL, section.bufLR = append(section.bufLL, bufL), append(section.bufLR, bufR)
+						if section.maxL < bufL.Len() {
+							section.maxL = bufL.Len()
+						}
+						if section.maxR < bufR.Len() {
+							section.maxR = bufR.Len()
+						}
 					}
 				}
 				if section.maxL > 0 {
@@ -440,7 +445,7 @@ func findMaxShortLength(groups map[string]*Flag) (maxShort int) {
 	return
 }
 
-func countOfItems(p Painter, command *Command, justFlags bool) (count int) {
+func countOfFlagsItems(p Painter, command *Command, justFlags bool) (count int) {
 	for _, items := range command.allFlags {
 		for _, c := range items {
 			if !c.Hidden {
@@ -493,7 +498,7 @@ func printHelpFlagSections(p Painter, command *Command, justFlags bool) (aGroupe
 	sectionName := "Options"
 
 GoPrintFlags:
-	count := countOfItems(p, command, justFlags)
+	count := countOfFlagsItems(p, command, justFlags)
 	if count > 0 {
 		var gs aGroupedSections
 		k2 := getSortedKeysFromFlgGroupedMap(command.allFlags)

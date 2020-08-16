@@ -12,13 +12,17 @@ import (
 
 // WithLogx enables github.com/hedzr/logex/logx integration
 //
-// Samplle:
+// Sample:
 //
 //    WithLogx(log.NewDummyLogger()),	// import "github.com/hedzr/log"
 //    WithLogx(log.NewStdLogger()),	// import "github.com/hedzr/log"
 //    WithLogx(logrus.New()),		// import "github.com/hedzr/logex/logx/logrus"
 //    WithLogx(sugar.New()),		// import "github.com/hedzr/logex/logx/zap/sugar"
 //    WithLogx(zap.New()),			// import "github.com/hedzr/logex/logx/zap"
+//
+// Sample:
+//
+//    WithLogx(build.New(loggerConfig)),	// import "github.com/hedzr/logex/build"
 //
 func WithLogx(logger log.Logger) ExecOption {
 	return func(w *ExecWorker) {

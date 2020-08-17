@@ -805,12 +805,12 @@ func (s *Options) setNx(key string, val interface{}) (oldval interface{}, modi b
 			s.entries[key] = val
 			a := strings.Split(key, ".")
 			s.mergeMap(s.hierarchy, a[0], "", et(a, 1, val))
-			s.sfs(key, val, oldval)
+			s.internalRaiseOnSetCB(key, val, oldval)
 			modi = true
 			return
 		} else if isEmptySlice(val) && isSlice(oldval) {
 			s.entries[key] = val
-			s.sfs(key, val, oldval)
+			s.internalRaiseOnSetCB(key, val, oldval)
 			modi = true
 			return
 		}
@@ -913,7 +913,7 @@ func (s *Options) mmset(m map[string]interface{}, key, path string, val interfac
 				s.entries[path] = val
 				m[key] = val
 
-				s.sfms(path, val, oldval)
+				s.internalRaiseOnMergingSetCB(path, val, oldval)
 				// Logger.Debugf("%%-> s.entries[%q] = m[%q] = %v", path, key, val)
 				return
 			}
@@ -930,7 +930,7 @@ func (s *Options) setCB(onMergingSet, onSet func(keyPath string, value, oldVal i
 	s.onSet = onSet
 }
 
-func (s *Options) sfms(path string, val, oldval interface{}) {
+func (s *Options) internalRaiseOnMergingSetCB(path string, val, oldval interface{}) {
 	s.rwCB.RLock()
 	defer s.rwCB.RUnlock()
 	if s.onMergingSet != nil {
@@ -938,7 +938,7 @@ func (s *Options) sfms(path string, val, oldval interface{}) {
 	}
 }
 
-func (s *Options) sfs(path string, val, oldval interface{}) {
+func (s *Options) internalRaiseOnSetCB(path string, val, oldval interface{}) {
 	s.rwCB.RLock()
 	defer s.rwCB.RUnlock()
 	if s.onSet != nil {
@@ -1003,7 +1003,7 @@ func (s *Options) loopMap(kdot string, m map[string]interface{}) (err error) {
 			// s.SetNx(mx(kdot, k), v)
 			key := mxIx(kdot, k)
 			if oldval, modi := s.setNx(key, v); modi {
-				s.sfms(k, v, oldval)
+				s.internalRaiseOnMergingSetCB(k, v, oldval)
 			}
 		}
 	}
@@ -1024,7 +1024,7 @@ func (s *Options) loopIxMap(kdot string, m map[interface{}]interface{}) (err err
 			// s.SetNx(mx(kdot, k), v)
 			key := mxIx(kdot, k)
 			if oldval, modi := s.setNx(key, v); modi {
-				s.sfms(key, v, oldval)
+				s.internalRaiseOnMergingSetCB(key, v, oldval)
 			}
 		}
 	}

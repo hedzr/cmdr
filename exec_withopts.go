@@ -172,7 +172,7 @@ func WithOptionMergeModifying(onMergingSet func(keyPath string, value, oldVal in
 
 // WithOptionModifying adds a callback which invoked at each time
 // any option was modified.
-// It will be enabled after any external config files first loaded
+// It will be triggered after any external config files first loaded
 // and the env variables had been merged.
 func WithOptionModifying(onOptionSet func(keyPath string, value, oldVal interface{})) ExecOption {
 	return func(w *ExecWorker) {
@@ -405,7 +405,7 @@ func WithHelpTailLine(line string) ExecOption {
 // WithUnhandledErrorHandler handle the panics or exceptions generally
 func WithUnhandledErrorHandler(handler UnhandledErrorHandler) ExecOption {
 	return func(w *ExecWorker) {
-		unhandleErrorHandler = handler
+		unhandledErrorHandler = handler
 	}
 }
 
@@ -415,7 +415,7 @@ type (
 )
 
 var (
-	unhandleErrorHandler UnhandledErrorHandler
+	unhandledErrorHandler UnhandledErrorHandler
 )
 
 // WithNoCommandAction do NOT run the action of the matched command.

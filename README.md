@@ -73,6 +73,10 @@ See our extras:
   - english documentation not completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.11
+  - update: new log.Logger instance in log.GetLogger
+  - fixed: ReadPassword in windows
+
 - v1.7.10
   - fixed: too much empty lines in help screen
 

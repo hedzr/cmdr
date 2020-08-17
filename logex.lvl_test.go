@@ -12,6 +12,7 @@ func TestLevels(t *testing.T) {
 	}
 
 	GetLoggerLevel()
+	SetLogger(Logger)
 	if Level(uint32(1000)).String() != "unknown" {
 		t.Fail()
 	}

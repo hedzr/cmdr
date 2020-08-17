@@ -26,12 +26,18 @@ import (
 //
 func WithLogx(logger log.Logger) ExecOption {
 	return func(w *ExecWorker) {
-		Logger = logger
+		SetLogger(logger)
 	}
 }
 
 // Logger for cmdr
 var Logger log.Logger = log.NewDummyLogger()
+
+// SetLogger transfer an instance into log package-level value
+func SetLogger(l log.Logger) {
+	Logger = l
+	log.SetLogger(l)
+}
 
 // WithLogex enables github.com/hedzr/logex integration
 //

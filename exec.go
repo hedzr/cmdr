@@ -536,7 +536,7 @@ func (w *ExecWorker) checkStates(pkg *ptpkg) {
 // }
 
 func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
-	if unhandleErrorHandler != nil {
+	if unhandledErrorHandler != nil {
 		defer func() {
 			// fmt.Println("defer caller")
 			if ex := recover(); ex != nil {
@@ -549,7 +549,7 @@ func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, goCommand *Command, rem
 				// fmt.Println("stacktrace from panic: \n" + string(debug.Stack()))
 
 				// fmt.Printf("recover success. error: %v", ex)
-				unhandleErrorHandler(ex)
+				unhandledErrorHandler(ex)
 				if e, ok := ex.(error); ok {
 					err = e
 				}

@@ -60,7 +60,7 @@ import "github.com/hedzr/cmdr"
 
 See our extras:
 
-- [cmdr-docs](https://github.com/hedzr/cmdr-addons): documentations (Working)
+- [cmdr-docs](https://github.com/hedzr/cmdr-docs): documentations (Working)
 - [cmdr-addons](https://github.com/hedzr/cmdr-addons): a new daemon plugin `dex` for linux/macOS/windows.
 - [cmdr-examples](https://github.com/hedzr/cmdr-examples): collects the samples for cmdr
 

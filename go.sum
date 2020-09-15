@@ -63,8 +63,8 @@ gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8
 gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 h1:qIbj1fsPNlZgppZ+VLlY7N33q108Sa+fhmuc+sWQYwY=
 gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/errgo.v2 v2.1.0/go.mod h1:hNsd1EY+bozCKY1Ytp96fpM3vjJbqLJn88ws8XvfDNI=
-gopkg.in/hedzr/errors.v2 v2.0.12 h1:CunABbGXj/XPEQoIPIM+YBb5ZCG3TMiTMgievWGbfa0=
-gopkg.in/hedzr/errors.v2 v2.0.12/go.mod h1:viZ9QrV2on1TT44I0iGYJ9qwwVyafgNYqxOWODrixo4=
+gopkg.in/hedzr/errors.v2 v2.1.0 h1:JL2i6J5y/sI2zt84YcGYoktOu51WEvQCQwodbECRGD4=
+gopkg.in/hedzr/errors.v2 v2.1.0/go.mod h1:viZ9QrV2on1TT44I0iGYJ9qwwVyafgNYqxOWODrixo4=
 gopkg.in/natefinch/lumberjack.v2 v2.0.0/go.mod h1:l0ndWWf7gzL7RNwBG7wST/UCcT4T24xpD6X8LsfU/+k=
 gopkg.in/yaml.v2 v2.2.2 h1:ZCJp+EgiOT7lHqUV2J862kp8Qj64Jo6az82+3Td9dZw=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=

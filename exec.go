@@ -197,12 +197,12 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 			lr := pkg.ResetAnd(args[pkg.i])
 			flog("--> parsing %q (idx=%v, len=%v) | pkg.lastCommandHeld=%v", pkg.a, pkg.i, lr, pkg.lastCommandHeld)
 
-			// --debug: long opt
-			// -D:      short opt
-			// -nv:     double chars short opt, more chars are supported
-			// ~~debug: long opt without opt-entry prefix.
-			// ~D:      short opt without opt-entry prefix.
-			// -abc:    the combined short opts
+			// --debug:        long opt
+			// -D:             short opt
+			// -nv:            double chars short opt, more chars are supported
+			// ~~debug:        long opt without opt-entry prefix.
+			// ~D:             short opt without opt-entry prefix.
+			// -abc:           the combined short opts
 			// -nvabc, -abnvc: a,b,c,nv the four short opts, if no -n & -v defined.
 			// --name=consul, --name consul, --nameconsul: opt with a string, int, string slice argument
 			// -nconsul, -n consul, -n=consul: opt with an argument.
@@ -241,6 +241,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 	return
 }
 
+//goland:noinspection ALL
 func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []string) (matched, stopC, stopF bool, err error) {
 	if len(pkg.a) > 0 && (pkg.a[0] == '-' || pkg.a[0] == '/' || pkg.a[0] == '~') {
 		if len(pkg.a) == 1 {
@@ -326,7 +327,7 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 		}
 	}
 
-	flog("--> preprocess / END: trace=%v/logex:%v, debug=%v/logex:%v, indebugging:%v",
+	flog("--> preprocess / END: trace=%v/logex:%v, debug=%v/logex:%v, inDebugging:%v",
 		GetTraceMode(), logex.GetTraceMode(), GetDebugMode(), logex.GetDebugMode(),
 		logex.InDebugging())
 	return
@@ -344,6 +345,7 @@ func (w *ExecWorker) postExecFor(rootCmd *RootCommand) {
 	}
 }
 
+//goland:noinspection ALL
 func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string, stopC bool) (err error) {
 
 	flog("--> afterInternalExec: trace=%v/logex:%v, debug=%v/logex:%v, indebugging:%v",
@@ -449,6 +451,7 @@ func (w *ExecWorker) doInvokeCommand(pkg *ptpkg, rootCmd *RootCommand, goCommand
 	return
 }
 
+//goland:noinspection ALL
 func (w *ExecWorker) checkArgs(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
 	if w.logexInitialFunctor != nil {
 		if err = w.logexInitialFunctor(goCommand, remainArgs); err == ErrShouldBeStopException {
@@ -469,6 +472,7 @@ func (w *ExecWorker) checkArgs(pkg *ptpkg, rootCmd *RootCommand, goCommand *Comm
 	return
 }
 
+//goland:noinspection ALL
 func (w *ExecWorker) checkRequiredArgs(goCommand *Command, remainArgs []string) (err error) {
 	c := errors.NewContainer("required flag missed")
 
@@ -535,6 +539,7 @@ func (w *ExecWorker) checkStates(pkg *ptpkg) {
 // 	return
 // }
 
+//goland:noinspection ALL
 func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
 	if unhandledErrorHandler != nil {
 		defer func() {

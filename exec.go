@@ -24,6 +24,8 @@ type ExecWorker struct {
 	envPrefixes         []string
 	rxxtPrefixes        []string
 	predefinedLocations []string
+	addonsLocations     []string
+	extensionsLocations []string
 
 	shouldIgnoreWrongEnumValue bool
 
@@ -53,13 +55,15 @@ type ExecWorker struct {
 	onOptionMergingSet func(keyPath string, value, oldVal interface{})
 	onOptionSet        func(keyPath string, value, oldVal interface{})
 
-	similarThreshold    float64
-	noDefaultHelpScreen bool
-	noColor             bool
-	noEnvOverrides      bool
-	strictMode          bool
-	noUnknownCmdTip     bool
-	noCommandAction     bool
+	similarThreshold      float64
+	noDefaultHelpScreen   bool
+	noColor               bool
+	noEnvOverrides        bool
+	strictMode            bool
+	noUnknownCmdTip       bool
+	noCommandAction       bool
+	noPluggableAddons     bool
+	noPluggableExtensions bool
 
 	logexInitialFunctor Handler
 	logexPrefix         string
@@ -141,6 +145,13 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 			// "/usr/local/etc/%s/%s.yml",
 			// "$HOME/.%s/%s.yml",
 			// "$HOME/.config/%s/%s.yml",
+		},
+
+		addonsLocations: []string{
+			"$HOME/.%s/addons",
+		},
+		extensionsLocations: []string{
+			"$HOME/.%s/ext",
 		},
 
 		shouldIgnoreWrongEnumValue: true,
@@ -241,7 +252,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 	return
 }
 
-//goland:noinspection ALL
+//goland:noinspection GoUnusedParameter
 func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []string) (matched, stopC, stopF bool, err error) {
 	if len(pkg.a) > 0 && (pkg.a[0] == '-' || pkg.a[0] == '/' || pkg.a[0] == '~') {
 		if len(pkg.a) == 1 {
@@ -345,7 +356,7 @@ func (w *ExecWorker) postExecFor(rootCmd *RootCommand) {
 	}
 }
 
-//goland:noinspection ALL
+//goland:noinspection GoUnusedParameter
 func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string, stopC bool) (err error) {
 
 	flog("--> afterInternalExec: trace=%v/logex:%v, debug=%v/logex:%v, indebugging:%v",
@@ -451,7 +462,7 @@ func (w *ExecWorker) doInvokeCommand(pkg *ptpkg, rootCmd *RootCommand, goCommand
 	return
 }
 
-//goland:noinspection ALL
+//goland:noinspection GoUnusedParameter
 func (w *ExecWorker) checkArgs(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
 	if w.logexInitialFunctor != nil {
 		if err = w.logexInitialFunctor(goCommand, remainArgs); err == ErrShouldBeStopException {
@@ -472,7 +483,7 @@ func (w *ExecWorker) checkArgs(pkg *ptpkg, rootCmd *RootCommand, goCommand *Comm
 	return
 }
 
-//goland:noinspection ALL
+//goland:noinspection GoUnusedParameter
 func (w *ExecWorker) checkRequiredArgs(goCommand *Command, remainArgs []string) (err error) {
 	c := errors.NewContainer("required flag missed")
 
@@ -539,7 +550,7 @@ func (w *ExecWorker) checkStates(pkg *ptpkg) {
 // 	return
 // }
 
-//goland:noinspection ALL
+//goland:noinspection GoUnusedParameter
 func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
 	if unhandledErrorHandler != nil {
 		defer func() {

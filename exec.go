@@ -67,7 +67,7 @@ type ExecWorker struct {
 
 	afterArgsParsed Handler
 
-	envvarToValueMap map[string]func() string
+	envVarToValueMap map[string]func() string
 
 	helpTailLine string
 

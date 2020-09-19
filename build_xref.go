@@ -28,7 +28,7 @@ func (w *ExecWorker) AddOnAfterXrefBuilt(cb HookFunc) {
 }
 
 func (w *ExecWorker) setupFromEnvvarMap() {
-	for k, v := range w.envvarToValueMap {
+	for k, v := range w.envVarToValueMap {
 		_ = os.Setenv(k, v())
 	}
 }

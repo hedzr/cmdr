@@ -5,8 +5,11 @@
 package cmdr
 
 import (
+	"fmt"
 	"github.com/hedzr/cmdr/conf"
+	"github.com/hedzr/log/exec"
 	"os"
+	"path"
 	"regexp"
 	"strings"
 )
@@ -28,7 +31,7 @@ func (w *ExecWorker) AddOnAfterXrefBuilt(cb HookFunc) {
 }
 
 func (w *ExecWorker) setupFromEnvvarMap() {
-	for k, v := range w.envvarToValueMap {
+	for k, v := range w.envVarToValueMap {
 		_ = os.Setenv(k, v())
 	}
 }
@@ -39,6 +42,8 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 	// build xref for root command and its all sub-commands and flags
 	// and build the default values
 	w.buildRootCrossRefs(rootCmd)
+	w.buildAddonsCrossRefs(rootCmd)
+	w.buildExtensionsCrossRefs(rootCmd)
 
 	w.setupFromEnvvarMap()
 
@@ -73,7 +78,79 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 	return
 }
 
+//goland:noinspection GoUnusedParameter
+func (w *ExecWorker) buildAddonsCrossRefs(root *RootCommand) {
+	flog("    - preprocess / buildXref / buildAddonsCrossRefs...")
+}
+
+//goland:noinspection ALL
+func (w *ExecWorker) buildExtensionsCrossRefs(root *RootCommand) {
+	flog("    - preprocess / buildXref / buildExtensionsCrossRefs...")
+	// prefix := conf.AppName
+	for _, dir := range w.extensionsLocations {
+		dirExpanded := os.ExpandEnv(dir)
+		// Logger.Debugf("      -> ext.dir: %v", dirExpanded)
+		if exec.FileExists(dirExpanded) {
+			err := exec.ForDirMax(dirExpanded, 0, 1, func(depth int, cwd string, fi os.FileInfo) (stop bool, err error) {
+				if fi.IsDir() {
+					return
+				}
+				var ok bool // = strings.HasPrefix(fi.Name(), prefix)
+				ok = true
+				// Logger.Debugf("      -> ext.dir: %v, file: %v", dirExpanded, fi.Name())
+				if ok && fi.Mode().IsRegular() && exec.IsExecAny(fi.Mode()) {
+					//name := fi.Name()[:len(prefix)]
+					name := fi.Name()
+					exe := path.Join(cwd, fi.Name())
+					//if strings.HasPrefix(name, "-") || strings.HasPrefix(name, "_") {
+					//	name = name[1:]
+					//	Logger.Debugf("      -> ext.dir: %v, file: %v", dirExpanded, fi.Name())
+					w._addAsSubCmd(root, name, exe)
+					//}
+				}
+				return
+			})
+			if err != nil {
+				Logger.Warnf("  warn - error in buildExtensionsCrossRefs.ForDir(): %v", err)
+			}
+		}
+	}
+}
+
+func (w *ExecWorker) _addAsSubCmd(root *RootCommand, cmdName, cmdPath string) {
+	var desc string
+	desc = fmt.Sprintf("execute %q", cmdPath)
+	if _, ok := root.allCmds[ExtGroup]; !ok {
+		root.allCmds[ExtGroup] = make(map[string]*Command)
+	}
+	if _, ok := root.allCmds[ExtGroup][cmdName]; !ok {
+		cx := &Command{
+			BaseOpt: BaseOpt{
+				Full:        cmdName,
+				Short:       cmdName,
+				Description: desc,
+				Action: func(cmd *Command, args []string) (err error) {
+					var out string
+					_, out, err = exec.RunWithOutput(cmdPath)
+					fmt.Print(out)
+					return
+				},
+				Hidden: false,
+				Group:  ExtGroup,
+				owner:  &root.Command,
+			},
+		}
+		root.SubCommands = uniAddCmd(root.SubCommands, cx)
+		root.allCmds[ExtGroup][cmdName] = cx
+		root.plainCmds[cmdName] = cx
+	}
+
+}
+
+//goland:noinspection GoUnusedParameter
 func (w *ExecWorker) buildRootCrossRefs(root *RootCommand) {
+	flog("    - preprocess / buildXref / buildRootCrossRefs...")
+
 	// initializes the internal variables/members
 	w.ensureCmdMembers(&root.Command)
 
@@ -89,7 +166,7 @@ func (w *ExecWorker) buildRootCrossRefs(root *RootCommand) {
 	w.attachGeneratorsCommands(root)
 	w.attachCmdrCommands(root)
 
-	w.buildCrossRefs(&root.Command)
+	w._buildCrossRefs(&root.Command)
 }
 
 func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
@@ -113,6 +190,9 @@ func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
 			root.allCmds[SysMgmtGroup]["version"] = cx
 			root.allCmds[SysMgmtGroup]["versions"] = cx
 			root.allCmds[SysMgmtGroup]["ver"] = cx
+			root.plainCmds["version"] = cx
+			root.plainCmds["versions"] = cx
+			root.plainCmds["ver"] = cx
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["version"]; !ok {
 			ff := &Flag{
@@ -500,31 +580,53 @@ func (w *ExecWorker) attachGeneratorsCommands(root *RootCommand) {
 	}
 }
 
-func (w *ExecWorker) forFlagNames(flg *Flag, cmd *Command, singleFlagNames, stringFlagNames map[string]bool) {
-	if len(flg.Short) != 0 {
-		if _, ok := singleFlagNames[flg.Short]; ok {
-			ferr("\nNOTE: flag char '%v' has been used. (command: %v)", flg.Short, w.backtraceCmdNames(cmd))
-		} else {
-			singleFlagNames[flg.Short] = true
+func (w *ExecWorker) _buildCrossRefs(cmd *Command) {
+	w.ensureCmdMembers(cmd)
+
+	singleFlagNames := make(map[string]bool)
+	stringFlagNames := make(map[string]bool)
+	singleCmdNames := make(map[string]bool)
+	stringCmdNames := make(map[string]bool)
+	tgs := make(map[string]bool)
+
+	for _, flg := range cmd.Flags {
+		flg.owner = cmd
+
+		if len(flg.ToggleGroup) > 0 {
+			if len(flg.Group) == 0 {
+				flg.Group = flg.ToggleGroup
+			}
+			tgs[flg.ToggleGroup] = true
 		}
+
+		if b := regexp.MustCompile("`(.+)`").Find([]byte(flg.Description)); len(flg.DefaultValuePlaceholder) == 0 && len(b) > 2 {
+			ph := strings.ToUpper(strings.Trim(string(b), "`"))
+			flg.DefaultValuePlaceholder = ph
+		}
+
+		w._buildCrossRefsForFlag(flg, cmd, singleFlagNames, stringFlagNames)
+
+		// opt.Children[flg.Full] = &OptOne{Value: flg.DefaultValue,}
+		w.rxxtOptions.Set(w.backtraceFlagNames(flg), flg.DefaultValue)
 	}
-	if len(flg.Full) != 0 {
-		if _, ok := stringFlagNames[flg.Full]; ok {
-			ferr("\nNOTE: flag '%v' has been used. (command: %v)", flg.Full, w.backtraceCmdNames(cmd))
-		} else {
-			stringFlagNames[flg.Full] = true
-		}
+
+	for _, cx := range cmd.SubCommands {
+		cx.owner = cmd
+
+		w._buildCrossRefsForCommand(cx, cmd, singleCmdNames, stringCmdNames)
+		// opt.Children[cx.Full] = newOpt()
+
+		w.rxxtOptions.Set(w.backtraceCmdNames(cx), nil)
+		// buildCrossRefs(cx, opt.Children[cx.Full])
+		w._buildCrossRefs(cx)
 	}
-	if len(flg.Short) == 0 && len(flg.Full) == 0 && len(flg.Name) != 0 {
-		if _, ok := stringFlagNames[flg.Name]; ok {
-			ferr("\nNOTE: flag '%v' has been used. (command: %v)", flg.Name, w.backtraceCmdNames(cmd))
-		} else {
-			stringFlagNames[flg.Name] = true
-		}
+
+	for tg := range tgs {
+		w.buildToggleGroup(tg, cmd)
 	}
 }
 
-func (w *ExecWorker) buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagNames, stringFlagNames map[string]bool) {
+func (w *ExecWorker) _buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagNames, stringFlagNames map[string]bool) {
 	w.forFlagNames(flg, cmd, singleFlagNames, stringFlagNames)
 
 	for _, sz := range flg.Aliases {
@@ -552,32 +654,31 @@ func (w *ExecWorker) buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagNa
 	cmd.allFlags[flg.Group][flg.GetTitleName()] = flg
 }
 
-func (w *ExecWorker) forCommandNames(cx, cmd *Command, singleCmdNames, stringCmdNames map[string]bool) {
-	if len(cx.Short) != 0 {
-		if _, ok := singleCmdNames[cx.Short]; ok {
-			ferr("\nNOTE: command char '%v' has been used. (command: %v)", cx.Short, w.backtraceCmdNames(cmd))
+func (w *ExecWorker) forFlagNames(flg *Flag, cmd *Command, singleFlagNames, stringFlagNames map[string]bool) {
+	if len(flg.Short) != 0 {
+		if _, ok := singleFlagNames[flg.Short]; ok {
+			ferr("\nNOTE: flag char '%v' has been used. (command: %v)", flg.Short, w.backtraceCmdNames(cmd))
 		} else {
-			singleCmdNames[cx.Short] = true
+			singleFlagNames[flg.Short] = true
 		}
 	}
-	if len(cx.Full) != 0 {
-		if _, ok := stringCmdNames[cx.Full]; ok {
-			ferr("\nNOTE: command '%v' has been used. (command: %v)", cx.Full, w.backtraceCmdNames(cmd))
+	if len(flg.Full) != 0 {
+		if _, ok := stringFlagNames[flg.Full]; ok {
+			ferr("\nNOTE: flag '%v' has been used. (command: %v)", flg.Full, w.backtraceCmdNames(cmd))
 		} else {
-			stringCmdNames[cx.Full] = true
+			stringFlagNames[flg.Full] = true
 		}
 	}
-	if len(cx.Short) == 0 && len(cx.Full) == 0 && len(cx.Name) != 0 {
-		if _, ok := stringCmdNames[cx.Name]; ok {
-			ferr("\nNOTE: command '%v' has been used. (command: %v)", cx.Name, w.backtraceCmdNames(cmd))
+	if len(flg.Short) == 0 && len(flg.Full) == 0 && len(flg.Name) != 0 {
+		if _, ok := stringFlagNames[flg.Name]; ok {
+			ferr("\nNOTE: flag '%v' has been used. (command: %v)", flg.Name, w.backtraceCmdNames(cmd))
 		} else {
-			stringCmdNames[cx.Name] = true
+			stringFlagNames[flg.Name] = true
 		}
-		cmd.plainCmds[cx.Name] = cx
 	}
 }
 
-func (w *ExecWorker) buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames, stringCmdNames map[string]bool) {
+func (w *ExecWorker) _buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames, stringCmdNames map[string]bool) {
 	w.forCommandNames(cx, cmd, singleCmdNames, stringCmdNames)
 
 	for _, sz := range cx.Aliases {
@@ -602,49 +703,28 @@ func (w *ExecWorker) buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames, 
 	cmd.allCmds[cx.Group][cx.GetTitleName()] = cx
 }
 
-func (w *ExecWorker) buildCrossRefs(cmd *Command) {
-	w.ensureCmdMembers(cmd)
-
-	singleFlagNames := make(map[string]bool)
-	stringFlagNames := make(map[string]bool)
-	singleCmdNames := make(map[string]bool)
-	stringCmdNames := make(map[string]bool)
-	tgs := make(map[string]bool)
-
-	for _, flg := range cmd.Flags {
-		flg.owner = cmd
-
-		if len(flg.ToggleGroup) > 0 {
-			if len(flg.Group) == 0 {
-				flg.Group = flg.ToggleGroup
-			}
-			tgs[flg.ToggleGroup] = true
+func (w *ExecWorker) forCommandNames(cx, cmd *Command, singleCmdNames, stringCmdNames map[string]bool) {
+	if len(cx.Short) != 0 {
+		if _, ok := singleCmdNames[cx.Short]; ok {
+			ferr("\nNOTE: command char '%v' has been used. (command: %v)", cx.Short, w.backtraceCmdNames(cmd))
+		} else {
+			singleCmdNames[cx.Short] = true
 		}
-
-		if b := regexp.MustCompile("`(.+)`").Find([]byte(flg.Description)); len(flg.DefaultValuePlaceholder) == 0 && len(b) > 2 {
-			ph := strings.ToUpper(strings.Trim(string(b), "`"))
-			flg.DefaultValuePlaceholder = ph
+	}
+	if len(cx.Full) != 0 {
+		if _, ok := stringCmdNames[cx.Full]; ok {
+			ferr("\nNOTE: command '%v' has been used. (command: %v)", cx.Full, w.backtraceCmdNames(cmd))
+		} else {
+			stringCmdNames[cx.Full] = true
 		}
-
-		w.buildCrossRefsForFlag(flg, cmd, singleFlagNames, stringFlagNames)
-
-		// opt.Children[flg.Full] = &OptOne{Value: flg.DefaultValue,}
-		w.rxxtOptions.Set(w.backtraceFlagNames(flg), flg.DefaultValue)
 	}
-
-	for _, cx := range cmd.SubCommands {
-		cx.owner = cmd
-
-		w.buildCrossRefsForCommand(cx, cmd, singleCmdNames, stringCmdNames)
-		// opt.Children[cx.Full] = newOpt()
-
-		w.rxxtOptions.Set(w.backtraceCmdNames(cx), nil)
-		// buildCrossRefs(cx, opt.Children[cx.Full])
-		w.buildCrossRefs(cx)
-	}
-
-	for tg := range tgs {
-		w.buildToggleGroup(tg, cmd)
+	if len(cx.Short) == 0 && len(cx.Full) == 0 && len(cx.Name) != 0 {
+		if _, ok := stringCmdNames[cx.Name]; ok {
+			ferr("\nNOTE: command '%v' has been used. (command: %v)", cx.Name, w.backtraceCmdNames(cmd))
+		} else {
+			stringCmdNames[cx.Name] = true
+		}
+		cmd.plainCmds[cx.Name] = cx
 	}
 }
 

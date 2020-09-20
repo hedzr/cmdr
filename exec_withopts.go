@@ -57,10 +57,10 @@ func WithEnvVarMap(varToValue map[string]func() string) ExecOption {
 		if varToValue == nil {
 			varToValue = make(map[string]func() string)
 		}
-		w.envvarToValueMap = varToValue
-		testAndSetMap(w.envvarToValueMap, "THIS", func() string { return GetExecutableDir() })
-		testAndSetMap(w.envvarToValueMap, "APPNAME", func() string { return conf.AppName })
-		testAndSetMap(w.envvarToValueMap, "CFG_DIR", func() string { return path.Dir(GetUsedConfigFile()) })
+		w.envVarToValueMap = varToValue
+		testAndSetMap(w.envVarToValueMap, "THIS", func() string { return GetExecutableDir() })
+		testAndSetMap(w.envVarToValueMap, "APPNAME", func() string { return conf.AppName })
+		testAndSetMap(w.envVarToValueMap, "CFG_DIR", func() string { return path.Dir(GetUsedConfigFile()) })
 	}
 }
 

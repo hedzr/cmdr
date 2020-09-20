@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/logex"
+	"github.com/hedzr/logex/build"
 	"gopkg.in/hedzr/errors.v2"
 	"os"
 	"strings"
@@ -18,6 +19,8 @@ import (
 
 func TestSingleCommandLine1(t *testing.T) {
 	defer logex.CaptureLog(t).Release()
+
+	lc := cmdr.NewLoggerConfig()
 
 	copyRootCmd = rootCmdForTesting
 	var err error
@@ -39,6 +42,7 @@ func TestSingleCommandLine1(t *testing.T) {
 	}
 
 	_ = cmdr.Exec(rootCmdForTesting,
+		cmdr.WithLogx(build.New(lc)),
 		cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {}, func(root *cmdr.RootCommand, args []string) {}),
 		cmdr.WithAutomaticEnvHooks(func(root *cmdr.RootCommand, opts *cmdr.Options) {}),
 		cmdr.WithAfterArgsParsed(func(cmd *cmdr.Command, args []string) (err error) {

@@ -475,20 +475,34 @@ func (w *ExecWorker) doInvokeCommand(pkg *ptpkg, rootCmd *RootCommand, goCommand
 
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) checkArgs(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
+	//if w.logexInitialFunctor != nil {
+	//	if err = w.logexInitialFunctor(goCommand, remainArgs); err == ErrShouldBeStopException {
+	//		return
+	//	}
+	//}
+	//
+	//if err = w.checkRequiredArgs(goCommand, remainArgs); err != nil {
+	//	return
+	//}
+	//
+	//if w.afterArgsParsed != nil {
+	//	if err = w.afterArgsParsed(goCommand, remainArgs); err == ErrShouldBeStopException {
+	//		return
+	//	}
+	//}
+
 	if w.logexInitialFunctor != nil {
-		if err = w.logexInitialFunctor(goCommand, remainArgs); err == ErrShouldBeStopException {
-			return
-		}
+		err = w.logexInitialFunctor(goCommand, remainArgs)
+		// ; err == ErrShouldBeStopException {
 	}
 
-	if err = w.checkRequiredArgs(goCommand, remainArgs); err != nil {
-		return
+	if err == nil {
+		err = w.checkRequiredArgs(goCommand, remainArgs)
 	}
 
-	if w.afterArgsParsed != nil {
-		if err = w.afterArgsParsed(goCommand, remainArgs); err == ErrShouldBeStopException {
-			return
-		}
+	if err == nil && w.afterArgsParsed != nil {
+		err = w.afterArgsParsed(goCommand, remainArgs)
+		//; err == ErrShouldBeStopException {
 	}
 
 	return
@@ -512,9 +526,7 @@ UP:
 		goto UP
 	}
 
-	if !c.IsEmpty() {
-		err = c.Error()
-	}
+	err = c.Error()
 	return
 }
 
@@ -589,12 +601,13 @@ func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, goCommand *Command, rem
 	}
 
 	if goCommand.PreAction != nil {
-		if err = goCommand.PreAction(goCommand, remainArgs); err != ErrShouldBeStopException && err != nil {
-			return
-		}
+		err = goCommand.PreAction(goCommand, remainArgs)
+		// err != ErrShouldBeStopException
 	}
 
-	err = goCommand.Action(goCommand, remainArgs)
+	if err == nil {
+		err = goCommand.Action(goCommand, remainArgs)
+	}
 	return
 }
 

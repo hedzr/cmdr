@@ -34,7 +34,9 @@ jobs:
         run: go build -v .
 
       - name: Test
-        run: go test -v -coverprofile=profile.cov .
+        run: |
+          [ -d $HOME/.config/123 ] || mkdir $HOME/.config/123
+          go test -v -coverprofile=profile.cov .
 
       - name: Send coverage
         uses: shogo82148/actions-goveralls@v1

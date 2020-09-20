@@ -5,8 +5,11 @@
 package cmdr
 
 import (
+	"fmt"
 	"github.com/hedzr/cmdr/conf"
+	"github.com/hedzr/log/exec"
 	"os"
+	"path"
 	"regexp"
 	"strings"
 )
@@ -83,6 +86,65 @@ func (w *ExecWorker) buildAddonsCrossRefs(root *RootCommand) {
 //goland:noinspection ALL
 func (w *ExecWorker) buildExtensionsCrossRefs(root *RootCommand) {
 	flog("    - preprocess / buildXref / buildExtensionsCrossRefs...")
+	// prefix := conf.AppName
+	for _, dir := range w.extensionsLocations {
+		dirExpanded := os.ExpandEnv(dir)
+		// Logger.Debugf("      -> ext.dir: %v", dirExpanded)
+		if exec.FileExists(dirExpanded) {
+			err := exec.ForDirMax(dirExpanded, 0, 1, func(depth int, cwd string, fi os.FileInfo) (stop bool, err error) {
+				if fi.IsDir() {
+					return
+				}
+				var ok bool // = strings.HasPrefix(fi.Name(), prefix)
+				ok = true
+				// Logger.Debugf("      -> ext.dir: %v, file: %v", dirExpanded, fi.Name())
+				if ok && fi.Mode().IsRegular() && exec.IsExecAny(fi.Mode()) {
+					//name := fi.Name()[:len(prefix)]
+					name := fi.Name()
+					exe := path.Join(cwd, fi.Name())
+					//if strings.HasPrefix(name, "-") || strings.HasPrefix(name, "_") {
+					//	name = name[1:]
+					//	Logger.Debugf("      -> ext.dir: %v, file: %v", dirExpanded, fi.Name())
+					w._addAsSubCmd(root, name, exe)
+					//}
+				}
+				return
+			})
+			if err != nil {
+				Logger.Warnf("  warn - error in buildExtensionsCrossRefs.ForDir(): %v", err)
+			}
+		}
+	}
+}
+
+func (w *ExecWorker) _addAsSubCmd(root *RootCommand, cmdName, cmdPath string) {
+	var desc string
+	desc = fmt.Sprintf("execute %q", cmdPath)
+	if _, ok := root.allCmds[ExtGroup]; !ok {
+		root.allCmds[ExtGroup] = make(map[string]*Command)
+	}
+	if _, ok := root.allCmds[ExtGroup][cmdName]; !ok {
+		cx := &Command{
+			BaseOpt: BaseOpt{
+				Full:        cmdName,
+				Short:       cmdName,
+				Description: desc,
+				Action: func(cmd *Command, args []string) (err error) {
+					var out string
+					_, out, err = exec.RunWithOutput(cmdPath)
+					fmt.Print(out)
+					return
+				},
+				Hidden: false,
+				Group:  ExtGroup,
+				owner:  &root.Command,
+			},
+		}
+		root.SubCommands = uniAddCmd(root.SubCommands, cx)
+		root.allCmds[ExtGroup][cmdName] = cx
+		root.plainCmds[cmdName] = cx
+	}
+
 }
 
 //goland:noinspection GoUnusedParameter
@@ -104,7 +166,7 @@ func (w *ExecWorker) buildRootCrossRefs(root *RootCommand) {
 	w.attachGeneratorsCommands(root)
 	w.attachCmdrCommands(root)
 
-	w.buildCrossRefs(&root.Command)
+	w._buildCrossRefs(&root.Command)
 }
 
 func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
@@ -128,6 +190,9 @@ func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
 			root.allCmds[SysMgmtGroup]["version"] = cx
 			root.allCmds[SysMgmtGroup]["versions"] = cx
 			root.allCmds[SysMgmtGroup]["ver"] = cx
+			root.plainCmds["version"] = cx
+			root.plainCmds["versions"] = cx
+			root.plainCmds["ver"] = cx
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["version"]; !ok {
 			ff := &Flag{
@@ -515,7 +580,7 @@ func (w *ExecWorker) attachGeneratorsCommands(root *RootCommand) {
 	}
 }
 
-func (w *ExecWorker) buildCrossRefs(cmd *Command) {
+func (w *ExecWorker) _buildCrossRefs(cmd *Command) {
 	w.ensureCmdMembers(cmd)
 
 	singleFlagNames := make(map[string]bool)
@@ -539,7 +604,7 @@ func (w *ExecWorker) buildCrossRefs(cmd *Command) {
 			flg.DefaultValuePlaceholder = ph
 		}
 
-		w.buildCrossRefsForFlag(flg, cmd, singleFlagNames, stringFlagNames)
+		w._buildCrossRefsForFlag(flg, cmd, singleFlagNames, stringFlagNames)
 
 		// opt.Children[flg.Full] = &OptOne{Value: flg.DefaultValue,}
 		w.rxxtOptions.Set(w.backtraceFlagNames(flg), flg.DefaultValue)
@@ -548,12 +613,12 @@ func (w *ExecWorker) buildCrossRefs(cmd *Command) {
 	for _, cx := range cmd.SubCommands {
 		cx.owner = cmd
 
-		w.buildCrossRefsForCommand(cx, cmd, singleCmdNames, stringCmdNames)
+		w._buildCrossRefsForCommand(cx, cmd, singleCmdNames, stringCmdNames)
 		// opt.Children[cx.Full] = newOpt()
 
 		w.rxxtOptions.Set(w.backtraceCmdNames(cx), nil)
 		// buildCrossRefs(cx, opt.Children[cx.Full])
-		w.buildCrossRefs(cx)
+		w._buildCrossRefs(cx)
 	}
 
 	for tg := range tgs {
@@ -561,7 +626,7 @@ func (w *ExecWorker) buildCrossRefs(cmd *Command) {
 	}
 }
 
-func (w *ExecWorker) buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagNames, stringFlagNames map[string]bool) {
+func (w *ExecWorker) _buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagNames, stringFlagNames map[string]bool) {
 	w.forFlagNames(flg, cmd, singleFlagNames, stringFlagNames)
 
 	for _, sz := range flg.Aliases {
@@ -613,7 +678,7 @@ func (w *ExecWorker) forFlagNames(flg *Flag, cmd *Command, singleFlagNames, stri
 	}
 }
 
-func (w *ExecWorker) buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames, stringCmdNames map[string]bool) {
+func (w *ExecWorker) _buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames, stringCmdNames map[string]bool) {
 	w.forCommandNames(cx, cmd, singleCmdNames, stringCmdNames)
 
 	for _, sz := range cx.Aliases {

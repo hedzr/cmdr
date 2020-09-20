@@ -148,10 +148,18 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 		},
 
 		addonsLocations: []string{
-			"$HOME/.%s/addons",
+			"./ci/local/share/$APPNAME/addons",
+			"$HOME/.local/share/$APPNAME/addons",
+			"$HOME/.$APPNAME/addons",
+			"/usr/local/share/$APPNAME/addons",
+			"/usr/share/$APPNAME/addons",
 		},
 		extensionsLocations: []string{
-			"$HOME/.%s/ext",
+			"./ci/local/share/$APPNAME/ext",
+			"$HOME/.local/share/$APPNAME/ext",
+			"$HOME/.$APPNAME/ext",
+			"/usr/local/share/$APPNAME/ext",
+			"/usr/share/$APPNAME/ext",
 		},
 
 		shouldIgnoreWrongEnumValue: true,
@@ -201,6 +209,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 	err = w.preprocess(rootCmd, args)
 
 	if err == nil {
+		flog("--> process...")
 		for pkg.i = 1; pkg.i < len(args); pkg.i++ {
 			// if pkg.ResetAnd(args[pkg.i]) == 0 {
 			// 	continue
@@ -330,9 +339,11 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 		err = w.rxxtOptions.buildAutomaticEnv(rootCmd)
 	}
 
+	flog("--> preprocess / rxxtOptions.setCB(onOptionMergingSet)")
 	w.rxxtOptions.setCB(w.onOptionMergingSet, w.onOptionSet)
 
 	if err == nil {
+		flog("--> preprocess / afterXrefBuilt()")
 		for _, x := range w.afterXrefBuilt {
 			x(rootCmd, args)
 		}

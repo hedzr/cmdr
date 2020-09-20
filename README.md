@@ -60,9 +60,9 @@ import "github.com/hedzr/cmdr"
 
 See our extras:
 
-- [cmdr-docs](https://github.com/hedzr/cmdr-docs): documentations (Working)
-- [cmdr-addons](https://github.com/hedzr/cmdr-addons): a new daemon plugin `dex` for linux/macOS/windows.
-- [cmdr-examples](https://github.com/hedzr/cmdr-examples): collects the samples for cmdr
+- [**cmdr-docs**](https://github.com/hedzr/cmdr-docs): documentations (Working)
+- [**cmdr-addons**](https://github.com/hedzr/cmdr-addons): a new daemon plugin `dex` for linux/macOS/windows.
+- [**cmdr-examples**](https://github.com/hedzr/cmdr-examples): collects the samples for cmdr
 
 
 
@@ -73,6 +73,9 @@ See our extras:
   - english documentation not completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.21
+  - new feature: the builtin pluggable extensions (see also: [cmdr-examples/flags](https://github.com/hedzr/cmdr-examples/blob/master/examples/flags/README.md#pluggable-extensions) )
+  
 - v1.7.11
   - update: new log.Logger instance in log.GetLogger
   - fixed: ReadPassword in windows

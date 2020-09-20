@@ -33,6 +33,13 @@ func TestSingleCommandLine1(t *testing.T) {
 	os.Args = []string{"consul-tags", "kv", "b"}
 
 	cmdr.InternalResetWorker()
+	t.Logf("trace: %v, debug: %v, verbose: %v, quiet: %v, no-color: %v",
+		cmdr.GetTraceMode(),
+		cmdr.GetDebugMode(),
+		cmdr.GetVerboseMode(),
+		cmdr.GetQuietMode(),
+		cmdr.GetNoColorMode(),
+	)
 
 	onUnhandledErrorHandler := func(err interface{}) {
 		// debug.PrintStack()

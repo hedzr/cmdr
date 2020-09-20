@@ -595,7 +595,7 @@ func TestExec(t *testing.T) {
 		if err = cmdr.EnsureDir(""); err == nil {
 			t.Failed()
 		}
-		if err = cmdr.EnsureDir(".tmp"); err == nil {
+		if err = cmdr.EnsureDirEnh(".tmp"); err == nil {
 			_ = os.Remove(".tmp")
 		}
 

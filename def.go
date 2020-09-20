@@ -16,6 +16,10 @@ const (
 
 	// UnsortedGroup for commands and flags
 	UnsortedGroup = "zzzz.unsorted"
+	// AddonsGroup for commands and flags
+	AddonsGroup = "zzzz.Addons"
+	// ExtGroup for commands and flags
+	ExtGroup = "zzzz.Extensions"
 	// SysMgmtGroup for commands and flags
 	SysMgmtGroup = "zzz9.Misc"
 

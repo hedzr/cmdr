@@ -6,10 +6,10 @@ github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/fsnotify/fsnotify v1.4.9 h1:hsms1Qyu0jgnwNXIxa+/V/PDsU6CfLf6CNO8H7IWoS4=
 github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4IgpuI1SZQ=
 github.com/google/renameio v0.1.0/go.mod h1:KWCgfxg9yswjAJkECMjeO8J8rahYeXnNhOm40UhjYkI=
-github.com/hedzr/log v0.1.17 h1:j5CJLBXKm7fcEF2o/EetqDv4ksNlOgn9smW+ZFQKOVE=
-github.com/hedzr/log v0.1.17/go.mod h1:OR8/vbnxpEJ7pIp6N12zSfNFBtseFlkFoVYmGyYlkns=
-github.com/hedzr/logex v1.2.9 h1:bNVyJ3b8m2iryDHvIVZXJTb//KFD9+z4jHJAMJj7QhU=
-github.com/hedzr/logex v1.2.9/go.mod h1:tXGuKVrCAJ1cnaoEW87j2ZM77wrW5TUOwziJedmGkHE=
+github.com/hedzr/log v0.2.0 h1:p3ox/JzbL8+9aKNr9Y1tSDbJkFpdNC1s3xhVryu1W4E=
+github.com/hedzr/log v0.2.0/go.mod h1:bEiMe2u2XSBW5AjwDLPRUEcVHc9YmjLwtPhef21gnR0=
+github.com/hedzr/logex v1.2.12 h1:VHvKYodVu+l0wPFRH93/1DZux+rhO1bzlgvl8q8MU+c=
+github.com/hedzr/logex v1.2.12/go.mod h1:EsHC0UzRlTvISvCinioQ/mizkWwbvdEyKFAfVxijzfQ=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
 github.com/konsorten/go-windows-terminal-sequences v1.0.3 h1:CE8S1cTafDpPvMhIxNJKvHsGVBgn1xWYf1NbHQhywc8=
 github.com/konsorten/go-windows-terminal-sequences v1.0.3/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=

@@ -65,7 +65,7 @@ func TestCommand_GetName(t *testing.T) {
 	if child.GetParentName() != "aa" {
 		t.Fatal("want 'aa'")
 	}
-	
+
 	child = &Command{
 		BaseOpt: BaseOpt{
 			Name:            "u",

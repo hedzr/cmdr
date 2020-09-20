@@ -24,6 +24,8 @@ type ExecWorker struct {
 	envPrefixes         []string
 	rxxtPrefixes        []string
 	predefinedLocations []string
+	addonsLocations     []string
+	extensionsLocations []string
 
 	shouldIgnoreWrongEnumValue bool
 
@@ -53,13 +55,15 @@ type ExecWorker struct {
 	onOptionMergingSet func(keyPath string, value, oldVal interface{})
 	onOptionSet        func(keyPath string, value, oldVal interface{})
 
-	similarThreshold    float64
-	noDefaultHelpScreen bool
-	noColor             bool
-	noEnvOverrides      bool
-	strictMode          bool
-	noUnknownCmdTip     bool
-	noCommandAction     bool
+	similarThreshold      float64
+	noDefaultHelpScreen   bool
+	noColor               bool
+	noEnvOverrides        bool
+	strictMode            bool
+	noUnknownCmdTip       bool
+	noCommandAction       bool
+	noPluggableAddons     bool
+	noPluggableExtensions bool
 
 	logexInitialFunctor Handler
 	logexPrefix         string
@@ -67,7 +71,7 @@ type ExecWorker struct {
 
 	afterArgsParsed Handler
 
-	envvarToValueMap map[string]func() string
+	envVarToValueMap map[string]func() string
 
 	helpTailLine string
 
@@ -143,6 +147,21 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 			// "$HOME/.config/%s/%s.yml",
 		},
 
+		addonsLocations: []string{
+			"./ci/local/share/$APPNAME/addons",
+			"$HOME/.local/share/$APPNAME/addons",
+			"$HOME/.$APPNAME/addons",
+			"/usr/local/share/$APPNAME/addons",
+			"/usr/share/$APPNAME/addons",
+		},
+		extensionsLocations: []string{
+			"./ci/local/share/$APPNAME/ext",
+			"$HOME/.local/share/$APPNAME/ext",
+			"$HOME/.$APPNAME/ext",
+			"/usr/local/share/$APPNAME/ext",
+			"/usr/share/$APPNAME/ext",
+		},
+
 		shouldIgnoreWrongEnumValue: true,
 
 		enableVersionCommands:  true,
@@ -190,6 +209,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 	err = w.preprocess(rootCmd, args)
 
 	if err == nil {
+		flog("--> process...")
 		for pkg.i = 1; pkg.i < len(args); pkg.i++ {
 			// if pkg.ResetAnd(args[pkg.i]) == 0 {
 			// 	continue
@@ -197,12 +217,12 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 			lr := pkg.ResetAnd(args[pkg.i])
 			flog("--> parsing %q (idx=%v, len=%v) | pkg.lastCommandHeld=%v", pkg.a, pkg.i, lr, pkg.lastCommandHeld)
 
-			// --debug: long opt
-			// -D:      short opt
-			// -nv:     double chars short opt, more chars are supported
-			// ~~debug: long opt without opt-entry prefix.
-			// ~D:      short opt without opt-entry prefix.
-			// -abc:    the combined short opts
+			// --debug:        long opt
+			// -D:             short opt
+			// -nv:            double chars short opt, more chars are supported
+			// ~~debug:        long opt without opt-entry prefix.
+			// ~D:             short opt without opt-entry prefix.
+			// -abc:           the combined short opts
 			// -nvabc, -abnvc: a,b,c,nv the four short opts, if no -n & -v defined.
 			// --name=consul, --name consul, --nameconsul: opt with a string, int, string slice argument
 			// -nconsul, -n consul, -n=consul: opt with an argument.
@@ -241,6 +261,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 	return
 }
 
+//goland:noinspection GoUnusedParameter
 func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []string) (matched, stopC, stopF bool, err error) {
 	if len(pkg.a) > 0 && (pkg.a[0] == '-' || pkg.a[0] == '/' || pkg.a[0] == '~') {
 		if len(pkg.a) == 1 {
@@ -318,15 +339,17 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 		err = w.rxxtOptions.buildAutomaticEnv(rootCmd)
 	}
 
+	flog("--> preprocess / rxxtOptions.setCB(onOptionMergingSet)")
 	w.rxxtOptions.setCB(w.onOptionMergingSet, w.onOptionSet)
 
 	if err == nil {
+		flog("--> preprocess / afterXrefBuilt()")
 		for _, x := range w.afterXrefBuilt {
 			x(rootCmd, args)
 		}
 	}
 
-	flog("--> preprocess / END: trace=%v/logex:%v, debug=%v/logex:%v, indebugging:%v",
+	flog("--> preprocess / END: trace=%v/logex:%v, debug=%v/logex:%v, inDebugging:%v",
 		GetTraceMode(), logex.GetTraceMode(), GetDebugMode(), logex.GetDebugMode(),
 		logex.InDebugging())
 	return
@@ -344,6 +367,7 @@ func (w *ExecWorker) postExecFor(rootCmd *RootCommand) {
 	}
 }
 
+//goland:noinspection GoUnusedParameter
 func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string, stopC bool) (err error) {
 
 	flog("--> afterInternalExec: trace=%v/logex:%v, debug=%v/logex:%v, indebugging:%v",
@@ -449,6 +473,7 @@ func (w *ExecWorker) doInvokeCommand(pkg *ptpkg, rootCmd *RootCommand, goCommand
 	return
 }
 
+//goland:noinspection GoUnusedParameter
 func (w *ExecWorker) checkArgs(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
 	if w.logexInitialFunctor != nil {
 		if err = w.logexInitialFunctor(goCommand, remainArgs); err == ErrShouldBeStopException {
@@ -469,6 +494,7 @@ func (w *ExecWorker) checkArgs(pkg *ptpkg, rootCmd *RootCommand, goCommand *Comm
 	return
 }
 
+//goland:noinspection GoUnusedParameter
 func (w *ExecWorker) checkRequiredArgs(goCommand *Command, remainArgs []string) (err error) {
 	c := errors.NewContainer("required flag missed")
 
@@ -535,6 +561,7 @@ func (w *ExecWorker) checkStates(pkg *ptpkg) {
 // 	return
 // }
 
+//goland:noinspection GoUnusedParameter
 func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
 	if unhandledErrorHandler != nil {
 		defer func() {

@@ -273,7 +273,7 @@ func TestComplexOpt(t *testing.T) {
 	}
 }
 
-func TestTlideOptionsAndToggleGroupBranch(t *testing.T) {
+func TestTildeOptionsAndToggleGroupBranch(t *testing.T) {
 	defer logex.CaptureLog(t).Release()
 	if tool.SavedOsArgs == nil {
 		tool.SavedOsArgs = os.Args

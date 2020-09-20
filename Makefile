@@ -36,7 +36,7 @@ GOYOLO       =  $(BIN)/yolo
 
 
 # GO111MODULE = on
-GOPROXY     = $(or $(GOPROXY_CUSTOM),https://athens.azurefd.net)
+GOPROXY     = $(or $(GOPROXY_CUSTOM),direct)
 
 # Redirect error output to a file, so we can show it in development mode.
 STDERR      = $(or $(STDERR_CUSTOM),/tmp/.$(PROJECTNAME)-stderr.txt)

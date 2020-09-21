@@ -7,8 +7,9 @@ package main
 import (
 	"fmt"
 	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log"
+	"github.com/hedzr/logex/build"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 
@@ -59,10 +60,11 @@ func main() {
 		daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
 
 		// integrate with logex library
-		cmdr.WithLogex(cmdr.DebugLevel),
-		cmdr.WithLogexPrefix("logger"),
+		//cmdr.WithLogex(cmdr.DebugLevel),
+		//cmdr.WithLogexPrefix("logger"),
+		cmdr.WithLogx(build.New(log.NewLoggerConfigWith(true, "logrus", "debug"))),
 
-		cmdr.WithHelpTabStop(41),
+		//cmdr.WithHelpTabStop(41),
 
 		cmdr.WithWatchMainConfigFileToo(true),
 		cmdr.WithNoWatchConfigFiles(false),
@@ -84,6 +86,7 @@ func main() {
 
 		cmdr.WithOnSwitchCharHit(onSwitchCharHit),
 		cmdr.WithOnPassThruCharHit(onPassThruCharHit),
+		
 	); err != nil {
 		log.Fatalf("error: %v", err)
 	}

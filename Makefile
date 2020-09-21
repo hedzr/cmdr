@@ -237,6 +237,9 @@ go-build:
 	  ls -la $(LS_OPT) $(GOBIN)/$(an); \
 	)
 	ls -la $(LS_OPT) $(GOBIN)/
+	$(GO) build -v -race -buildmode=plugin -o ./ci/local/share/fluent/addons/demo.so ./plugin/demo
+	chmod +x ./ci/local/share/fluent/addons/demo.so
+	ls -la $(LS_OPT) ./ci/local/share/fluent/addons/demo.so
 	# go build -o $(GOBIN)/$(APPNAME) $(GOFILES)
 	# chmod +x $(GOBIN)/*
 

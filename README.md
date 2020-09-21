@@ -73,8 +73,11 @@ See our extras:
   - english documentation not completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.31 (WIP)
+  - A new feature: the builtin pluggable cmdr-addon/plugin.
+
 - v1.7.21
-  - new feature: the builtin pluggable extensions (see also: [cmdr-examples/flags](https://github.com/hedzr/cmdr-examples/blob/master/examples/flags/README.md#pluggable-extensions) )
+  - A new feature: the builtin pluggable extensions (see also: [cmdr-examples/flags](https://github.com/hedzr/cmdr-examples/blob/master/examples/flags/README.md#pluggable-extensions) )
   
 - v1.7.11
   - update: new log.Logger instance in log.GetLogger

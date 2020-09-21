@@ -6,10 +6,12 @@ package cmdr
 
 import (
 	"fmt"
+	cmdrbase "github.com/hedzr/cmdr-base"
 	"github.com/hedzr/cmdr/conf"
 	"github.com/hedzr/log/exec"
 	"os"
 	"path"
+	"plugin"
 	"regexp"
 	"strings"
 )
@@ -78,9 +80,165 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 	return
 }
 
+// buildAddonsCrossRefs for cmdr addons.
+//
+// A cmdr addon, which is a golang plugin, can be integrated into host-app better than an extension.
+//
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) buildAddonsCrossRefs(root *RootCommand) {
 	flog("    - preprocess / buildXref / buildAddonsCrossRefs...")
+	for _, dir := range w.pluginsLocations {
+		dirExpanded := os.ExpandEnv(dir)
+		// Logger.Debugf("      -> addons.dir: %v", dirExpanded)
+		if exec.FileExists(dirExpanded) {
+			err := exec.ForDirMax(dirExpanded, 0, 1, func(depth int, cwd string, fi os.FileInfo) (stop bool, err error) {
+				if fi.IsDir() {
+					return
+				}
+				var ok bool // = strings.HasPrefix(fi.Name(), prefix)
+				ok = true
+				// Logger.Debugf("      -> addons.dir: %v, file: %v", dirExpanded, fi.Name())
+				if ok && fi.Mode().IsRegular() && exec.IsExecAny(fi.Mode()) {
+					//name := fi.Name()[:len(prefix)]
+					name := fi.Name()
+					exe := path.Join(cwd, fi.Name())
+					//if strings.HasPrefix(name, "-") || strings.HasPrefix(name, "_") {
+					//	name = name[1:]
+					//	Logger.Debugf("      -> addons.dir: %v, file: %v", dirExpanded, fi.Name())
+					err = w._addonAsSubCmd(root, name, exe)
+					//}
+				}
+				return
+			})
+			if err != nil {
+				Logger.Warnf("  warn - error in buildExtensionsCrossRefs.ForDir(): %v", err)
+			}
+		}
+	}
+}
+
+func (w *ExecWorker) _addonAsSubCmd(root *RootCommand, cmdName, cmdPath string) (err error) {
+	var desc string
+	desc = fmt.Sprintf("execute %q", cmdPath)
+
+	var p *plugin.Plugin
+	p, err = plugin.Open(cmdPath)
+	if err != nil {
+		return
+	}
+
+	var newAddonSymbol plugin.Symbol
+	newAddonSymbol, err = p.Lookup("NewAddon")
+	if err != nil {
+		return
+	}
+
+	newAddonEntryFunc := newAddonSymbol.(func() cmdrbase.PluginEntry)
+	newAddon := newAddonEntryFunc()
+	w.addons = append(w.addons, newAddon)
+
+	// add command into .
+	err = w._addonAddCmd(&root.Command, cmdName, desc, newAddon, newAddon)
+	return
+}
+
+func (w *ExecWorker) _addonAddCmd(parent *Command, cmdName, desc string, addon cmdrbase.PluginEntry, cmd cmdrbase.PluginCmd) (err error) {
+	if cmd.Name() != "" {
+		cmdName = cmd.Name()
+	}
+	if cmd.Description() != "" {
+		desc = cmd.Description()
+	}
+
+	if _, ok := parent.allCmds[AddonsGroup]; !ok {
+		parent.allCmds[AddonsGroup] = make(map[string]*Command)
+	}
+	if _, ok := parent.allCmds[AddonsGroup][cmdName]; !ok {
+		cx := &Command{
+			BaseOpt: BaseOpt{
+				Full:        cmdName,
+				Short:       cmd.ShortName(),
+				Aliases:     cmd.Aliases(),
+				Description: desc,
+				Action: func(cmdMatched *Command, args []string) (err error) {
+					Logger.Infof("pre - hello, args: %v", args)
+					err = cmd.Action(args)
+					return
+				},
+				Hidden: false,
+				Group:  AddonsGroup,
+				owner:  parent,
+			},
+		}
+		parent.SubCommands = uniAddCmd(parent.SubCommands, cx)
+		parent.allCmds[AddonsGroup][cmdName] = cx
+		parent.plainCmds[cmdName] = cx
+		if cmd.ShortName() != "" && cmd.ShortName() != cmdName {
+			if _, ok := parent.plainCmds[cmd.ShortName()]; !ok {
+				parent.plainCmds[cmd.ShortName()] = cx
+			}
+		}
+		for _, n := range cmd.Aliases() {
+			if _, ok := parent.plainCmds[n]; !ok {
+				parent.plainCmds[n] = cx
+			}
+		}
+
+		// add flags
+		for _, ff := range cmd.Flags() {
+			err = w._addonAddFlg(cx, addon, ff)
+		}
+
+		// children: sub-commands
+		for _, cc := range cmd.SubCommands() {
+			err = w._addonAddCmd(cx, "", "", addon, cc)
+		}
+	}
+	return
+}
+
+//goland:noinspection GoUnusedParameter
+func (w *ExecWorker) _addonAddFlg(parent *Command, addon cmdrbase.PluginEntry, flg cmdrbase.PluginFlag) (err error) {
+	name, short := flg.Name(), flg.ShortName()
+	cx := &Flag{
+		BaseOpt: BaseOpt{
+			Full:        name,
+			Short:       short,
+			Aliases:     flg.Aliases(),
+			Description: flg.Description(),
+			Action: func(cmd *Command, args []string) (err error) {
+				err = flg.Action()
+				return
+			},
+			Hidden: false,
+			Group:  AddonsGroup,
+			owner:  parent,
+		},
+		DefaultValue:            flg.DefaultValue(),
+		DefaultValuePlaceholder: flg.PlaceHolder(),
+	}
+	if parent.allFlags == nil {
+		parent.allFlags = make(map[string]map[string]*Flag)
+	}
+	if parent.plainLongFlags == nil {
+		parent.plainLongFlags = make(map[string]*Flag)
+	}
+	if parent.plainShortFlags == nil {
+		parent.plainShortFlags = make(map[string]*Flag)
+	}
+	if _, ok := parent.allFlags[AddonsGroup]; !ok {
+		parent.allFlags[AddonsGroup] = make(map[string]*Flag)
+	}
+	parent.Flags = uniAddFlg(parent.Flags, cx)
+	parent.allFlags[AddonsGroup][name] = cx
+	parent.plainLongFlags[name] = cx
+	for _, as := range cx.Aliases {
+		parent.plainLongFlags[as] = cx
+	}
+	if short != "" {
+		parent.plainShortFlags[short] = cx
+	}
+	return
 }
 
 //goland:noinspection ALL
@@ -105,7 +263,7 @@ func (w *ExecWorker) buildExtensionsCrossRefs(root *RootCommand) {
 					//if strings.HasPrefix(name, "-") || strings.HasPrefix(name, "_") {
 					//	name = name[1:]
 					//	Logger.Debugf("      -> ext.dir: %v, file: %v", dirExpanded, fi.Name())
-					w._addAsSubCmd(root, name, exe)
+					w._addAsSubCmd(&root.Command, name, exe)
 					//}
 				}
 				return
@@ -117,13 +275,13 @@ func (w *ExecWorker) buildExtensionsCrossRefs(root *RootCommand) {
 	}
 }
 
-func (w *ExecWorker) _addAsSubCmd(root *RootCommand, cmdName, cmdPath string) {
+func (w *ExecWorker) _addAsSubCmd(parent *Command, cmdName, cmdPath string) {
 	var desc string
 	desc = fmt.Sprintf("execute %q", cmdPath)
-	if _, ok := root.allCmds[ExtGroup]; !ok {
-		root.allCmds[ExtGroup] = make(map[string]*Command)
+	if _, ok := parent.allCmds[ExtGroup]; !ok {
+		parent.allCmds[ExtGroup] = make(map[string]*Command)
 	}
-	if _, ok := root.allCmds[ExtGroup][cmdName]; !ok {
+	if _, ok := parent.allCmds[ExtGroup][cmdName]; !ok {
 		cx := &Command{
 			BaseOpt: BaseOpt{
 				Full:        cmdName,
@@ -137,14 +295,13 @@ func (w *ExecWorker) _addAsSubCmd(root *RootCommand, cmdName, cmdPath string) {
 				},
 				Hidden: false,
 				Group:  ExtGroup,
-				owner:  &root.Command,
+				owner:  parent,
 			},
 		}
-		root.SubCommands = uniAddCmd(root.SubCommands, cx)
-		root.allCmds[ExtGroup][cmdName] = cx
-		root.plainCmds[cmdName] = cx
+		parent.SubCommands = uniAddCmd(parent.SubCommands, cx)
+		parent.allCmds[ExtGroup][cmdName] = cx
+		parent.plainCmds[cmdName] = cx
 	}
-
 }
 
 //goland:noinspection GoUnusedParameter

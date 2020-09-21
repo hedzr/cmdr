@@ -6,6 +6,7 @@ package cmdr
 
 import (
 	"bufio"
+	cmdrbase "github.com/hedzr/cmdr-base"
 	"github.com/hedzr/logex"
 	"gopkg.in/hedzr/errors.v2"
 	"os"
@@ -24,7 +25,7 @@ type ExecWorker struct {
 	envPrefixes         []string
 	rxxtPrefixes        []string
 	predefinedLocations []string
-	addonsLocations     []string
+	pluginsLocations    []string
 	extensionsLocations []string
 
 	shouldIgnoreWrongEnumValue bool
@@ -77,6 +78,8 @@ type ExecWorker struct {
 
 	onSwitchCharHit   func(parsed *Command, switchChar string, args []string) (err error)
 	onPassThruCharHit func(parsed *Command, switchChar string, args []string) (err error)
+
+	addons []cmdrbase.PluginEntry
 }
 
 // ExecOption is the functional option for Exec()
@@ -147,7 +150,7 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 			// "$HOME/.config/%s/%s.yml",
 		},
 
-		addonsLocations: []string{
+		pluginsLocations: []string{
 			"./ci/local/share/$APPNAME/addons",
 			"$HOME/.local/share/$APPNAME/addons",
 			"$HOME/.$APPNAME/addons",

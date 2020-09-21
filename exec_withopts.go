@@ -97,8 +97,8 @@ func WithRxxtPrefix(prefix ...string) ExecOption {
 	}
 }
 
-// WithPredefinedLocations sets the environment variable text prefixes.
-// cmdr will lookup envvars for a key.
+// WithPredefinedLocations sets the main config file locations.
+//
 // Default locations are:
 //
 //     []string{
@@ -111,10 +111,52 @@ func WithRxxtPrefix(prefix ...string) ExecOption {
 //       "%s.yml",                   // current directory
 //     },
 //
-// See also InternalResetWorker
+// See also internalResetWorkerNoLock()
 func WithPredefinedLocations(locations ...string) ExecOption {
 	return func(w *ExecWorker) {
 		w.predefinedLocations = locations
+	}
+}
+
+// WithPluginLocations sets the addon locations.
+//
+// An addon is a golang plugin for cmdr.
+//
+// Default locations are:
+//
+//     []string{
+//		   "./ci/local/share/$APPNAME/addons",
+//		   "$HOME/.local/share/$APPNAME/addons",
+//		   "$HOME/.$APPNAME/addons",
+//		   "/usr/local/share/$APPNAME/addons",
+//		   "/usr/share/$APPNAME/addons",
+//     },
+//
+// See also internalResetWorkerNoLock()
+func WithPluginLocations(locations ...string) ExecOption {
+	return func(w *ExecWorker) {
+		w.pluginsLocations = locations
+	}
+}
+
+// WithExtensionsLocations sets the extension locations.
+//
+// A extension is an executable (shell scripts, binary executable, ,,,).
+//
+// Default locations are:
+//
+//     []string{
+//		   "./ci/local/share/$APPNAME/ext",
+//		   "$HOME/.local/share/$APPNAME/ext",
+//		   "$HOME/.$APPNAME/ext",
+//		   "/usr/local/share/$APPNAME/ext",
+//		   "/usr/share/$APPNAME/ext",
+//     },
+//
+// See also internalResetWorkerNoLock()
+func WithExtensionsLocations(locations ...string) ExecOption {
+	return func(w *ExecWorker) {
+		w.extensionsLocations = locations
 	}
 }
 

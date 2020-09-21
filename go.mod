@@ -5,6 +5,8 @@ go 1.13
 // exclude github.com/sirupsen/logrus v1.4.1
 // exclude github.com/sirupsen/logrus v1.4.2
 
+//replace github.com/hedzr/cmdr-base => ../cmdr-base
+
 // replace github.com/hedzr/log => ../log
 
 // replace github.com/hedzr/logex => ../logex
@@ -18,6 +20,7 @@ go 1.13
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/fsnotify/fsnotify v1.4.9
+	github.com/hedzr/cmdr-base v0.1.3
 	github.com/hedzr/log v0.2.0
 	github.com/hedzr/logex v1.2.12
 	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de

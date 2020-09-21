@@ -86,6 +86,8 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 //
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) buildAddonsCrossRefs(root *RootCommand) {
+	// var cwd = exec.GetCurrentDir()
+	// flog("    - preprocess / buildXref / buildAddonsCrossRefs...%q, %q", cwd, conf.AppName)
 	flog("    - preprocess / buildXref / buildAddonsCrossRefs...")
 	for _, dir := range w.pluginsLocations {
 		dirExpanded := os.ExpandEnv(dir)

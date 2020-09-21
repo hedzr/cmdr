@@ -86,7 +86,6 @@ func main() {
 
 		cmdr.WithOnSwitchCharHit(onSwitchCharHit),
 		cmdr.WithOnPassThruCharHit(onPassThruCharHit),
-		
 	); err != nil {
 		log.Fatalf("error: %v", err)
 	}

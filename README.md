@@ -73,8 +73,10 @@ See our extras:
   - english documentation not completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.7.31 (WIP)
+- v1.7.23
   - A new feature: the builtin pluggable cmdr-addon/plugin.
+    `make build && bin/fluent --help && bin/fluent dx`
+  - added: `WithPluginLocations(locations...)`, `WithExtensionsLocations(locations...)`
 
 - v1.7.21
   - A new feature: the builtin pluggable extensions (see also: [cmdr-examples/flags](https://github.com/hedzr/cmdr-examples/blob/master/examples/flags/README.md#pluggable-extensions) )
@@ -188,14 +190,14 @@ See our extras:
 
 ## Features
 
-[Features.md](./Features.md)
+[Features.md](old/Features.md)
 
-> Old README.md: [README.old.md](./README.old.md)
+> Old README.md: [README.old.md](old/README.old.md)
 
 
 ## For Developer
 
-[For Developer](Developer.md)
+[For Developer](old/Developer.md)
 
 
 
@@ -225,7 +227,7 @@ See our extras:
    
 
 
-**See Also the examples index: [Examples.md](./Examples.md)** *(zh-cn TODO: [Examples.zh-cn.md](./Examples.zh-cn.md))*
+**See Also the examples index: [Examples.md](old/Examples.md)** *(zh-cn TODO: [Examples.zh-cn.md](old/Examples.zh-cn.md))*
 
 
 

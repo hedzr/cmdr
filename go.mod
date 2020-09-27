@@ -21,9 +21,9 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/hedzr/cmdr-base v0.1.3
-	github.com/hedzr/log v0.2.0
-	github.com/hedzr/logex v1.2.12
-	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de
-	gopkg.in/hedzr/errors.v2 v2.1.0
+	github.com/hedzr/log v0.2.1
+	github.com/hedzr/logex v1.2.13
+	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
+	gopkg.in/hedzr/errors.v2 v2.1.1
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
 )

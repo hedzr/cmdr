@@ -105,7 +105,7 @@ See our extras:
   - improved: some supports for plan9
   - fixed: can't expand envvar correectly at earlier initializing.
 
-- For more information to refer to [CHANGELOG](./CHANGELOG)
+- For more information to refer to [CHANGELOG](../CHANGELOG)
 
 
 
@@ -536,16 +536,16 @@ cmdr has rich features:
 
 ## Examples
 
-1. [**short**](./examples/short/README.md)  
+1. [**short**](../examples/short/README.md)  
    simple codes with structured data style.
 
-2. [demo](./examples/demo/README.md)  
+2. [demo](../examples/demo/README.md)  
    normal demo with external config files.
 
-3. [wget-demo](./examples/wget-demo/README.md)  
+3. [wget-demo](../examples/wget-demo/README.md)  
    partial-covered for GNU `wget`.
 
-4. [fluent](./examples/fluent)  
+4. [fluent](../examples/fluent)  
    demostrates how to define your command-ui with the fluent api style.
 
 5. [ffmain](./examples/ffmain)

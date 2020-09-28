@@ -6,6 +6,26 @@ package cmdr
 
 import "github.com/hedzr/cmdr/tool"
 
+func (w *ExecWorker) helpOptMatching(pkg *ptpkg, goCommand **Command, args []string) (matched, stop bool, err error) {
+	// pkg.needHelp = true
+	// pkg.needFlagsHelp = true
+	ra := (args)[pkg.i:]
+	if len(ra) > 0 {
+		ra = ra[1:]
+	}
+
+	stop = true
+	pkg.lastCommandHeld = false
+	pkg.needHelp = false
+	pkg.needFlagsHelp = false
+	if w.onSwitchCharHit != nil {
+		err = w.onSwitchCharHit(*goCommand, pkg.a, ra)
+	} else {
+		err = defaultOnSwitchCharHit(*goCommand, pkg.a, ra)
+	}
+	return
+}
+
 func (w *ExecWorker) cmdMatching(pkg *ptpkg, goCommand **Command, args []string) (matched, stop bool, err error) {
 	// command, files
 	if cmd, ok := (*goCommand).plainCmds[pkg.a]; ok {
@@ -103,7 +123,7 @@ func (w *ExecWorker) flagsPrepare(pkg *ptpkg, goCommand **Command, args []string
 
 func (w *ExecWorker) flagsMatching(pkg *ptpkg, cc *Command, goCommand **Command, args []string) (matched, stop bool, err error) {
 	var upLevel bool
-GO_UP:
+goUp:
 	pkg.found = false
 	if pkg.short {
 		a := "-" + pkg.fn + pkg.savedFn
@@ -123,13 +143,13 @@ GO_UP:
 			return
 		}
 		if upLevel {
-			goto GO_UP
+			goto goUp
 		}
 	} else {
 		if cc.owner != nil {
 			// match the flag within parent's flags set.
 			cc = cc.owner
-			goto GO_UP
+			goto goUp
 		}
 		if !pkg.assigned && pkg.short {
 			// try matching 2-chars short opt
@@ -139,7 +159,7 @@ GO_UP:
 				pkg.savedFn = fnf[2:]
 				*goCommand = pkg.savedGoCommand
 				if (*goCommand).owner != nil {
-					goto GO_UP
+					goto goUp
 				}
 			}
 		}

@@ -71,7 +71,7 @@ func TestAddonPlugin(t *testing.T) {
 		// cmdr.WithOnSwitchCharHit(func(parsed *cmdr.Command, switchChar string, args []string) (err error) {
 		// 	return
 		// }),
-			err != nil {
+		err != nil {
 			t.Log(err) // hi, here is not real error occurs
 		}
 		if cc.validator != nil {

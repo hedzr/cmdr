@@ -10,6 +10,7 @@ import (
 	"github.com/hedzr/logex"
 	"gopkg.in/hedzr/errors.v2"
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -233,7 +234,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 			//  - -n'consul', -n"consul" could works too.
 			// -t3: opt with an argument.
 
-			matched, stopC, stopF, err = w.xxTestCmd(pkg, &goCommand, rootCmd, args)
+			matched, stopC, stopF, err = w.xxTestCmd(pkg, &goCommand, rootCmd, &args)
 			if err != nil {
 				var e *ErrorForCmdr
 				if errors.As(err, &e) {
@@ -243,12 +244,6 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 					}
 				}
 			}
-			//if e, ok := err.(*ErrorForCmdr); ok {
-			//	ferr("%v", e)
-			//	if !e.Ignorable {
-			//		return
-			//	}
-			//}
 			if stopF {
 				if pkg.lastCommandHeld || (matched && pkg.flg == nil) {
 					err = w.afterInternalExec(pkg, rootCmd, goCommand, args, stopC || pkg.lastCommandHeld)
@@ -265,30 +260,15 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 }
 
 //goland:noinspection GoUnusedParameter
-func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args []string) (matched, stopC, stopF bool, err error) {
+func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args *[]string) (matched, stopC, stopF bool, err error) {
 	if len(pkg.a) > 0 && (pkg.a[0] == '-' || pkg.a[0] == '/' || pkg.a[0] == '~') {
 		if len(pkg.a) == 1 {
-			// pkg.needHelp = true
-			// pkg.needFlagsHelp = true
-			ra := args[pkg.i:]
-			if len(ra) > 0 {
-				ra = ra[1:]
-			}
-
-			stopF = true
-			pkg.lastCommandHeld = false
-			pkg.needHelp = false
-			pkg.needFlagsHelp = false
-			if w.onSwitchCharHit != nil {
-				err = w.onSwitchCharHit(*goCommand, pkg.a, ra)
-			} else {
-				err = defaultOnSwitchCharHit(*goCommand, pkg.a, ra)
-			}
+			matched, stopF, err = w.helpOptMatching(pkg, goCommand, *args)
 			return
 		}
 
 		// flag
-		if stopF, err = w.flagsPrepare(pkg, goCommand, args); stopF || err != nil {
+		if stopF, err = w.flagsPrepare(pkg, goCommand, *args); stopF || err != nil {
 			return
 		}
 		if pkg.flg != nil && pkg.found {
@@ -309,7 +289,7 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 		// 	return
 		// }
 		flog("    -> matching flag for %q", pkg.a)
-		matched, stopF, err = w.flagsMatching(pkg, cc, goCommand, args)
+		matched, stopF, err = w.flagsMatching(pkg, cc, goCommand, *args)
 
 	} else {
 		// testing the next command, but the last one has already been the end of command series.
@@ -324,9 +304,23 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 		// if matched, stop, err = cmdMatching(pkg, goCommand, args); stop || err != nil {
 		// 	return
 		// }
-		matched, stopC, err = w.cmdMatching(pkg, goCommand, args)
+		matched, stopC, err = w.cmdMatching(pkg, goCommand, *args)
+		if matched && len((*goCommand).presetCmdLines) > 0 && (*goCommand).Invoke != "" {
+			w.updateArgs(pkg, goCommand, rootCmd, args)
+		}
 	}
 	return
+}
+
+func (w *ExecWorker) updateArgs(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args *[]string) {
+	*args = append((*args)[0:pkg.i+1], append((*goCommand).presetCmdLines, (*args)[pkg.i+1:]...)...)
+	cmdPathParts := strings.Split((*goCommand).Invoke, " ")
+	if len(cmdPathParts) > 1 {
+		cmdPath := cmdPathParts[0]
+		if cmd, matched := w.locateCommand(cmdPath, *goCommand); matched {
+			*goCommand = cmd
+		}
+	}
 }
 
 func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error) {

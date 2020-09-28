@@ -96,6 +96,13 @@ func LoadConfigFile(file string) (err error) {
 // into `rxxtOptions`
 // and load files in the `conf.d` child directory too.
 func (s *Options) LoadConfigFile(file string) (err error) {
+
+	defer func() {
+		s.batchMerging = false
+		s.mapOrphans()
+	}()
+	s.batchMerging = true
+
 	if !FileExists(file) {
 		// log.Warnf("%v NOT EXISTS. PWD=%v", file, GetCurrentDir())
 		return // not error, just ignore loading
@@ -112,7 +119,7 @@ func (s *Options) LoadConfigFile(file string) (err error) {
 
 	enableWatching := internalGetWorker().watchMainConfigFileToo
 	dirWatch := dir
-	filesWatching := []string{}
+	var filesWatching []string
 	if internalGetWorker().watchMainConfigFileToo {
 		filesWatching = append(filesWatching, s.usedConfigFile)
 	}
@@ -216,6 +223,7 @@ func (s *Options) mergeConfigFile(fr io.Reader, ext string) (err error) {
 
 func (s *Options) visit(path string, f os.FileInfo, e error) (err error) {
 	// fmt.Printf("Visited: %s, e: %v\n", path, e)
+	err = e
 	if f != nil && !f.IsDir() && e == nil {
 		// log.Infof("    path: %v, ext: %v", path, filepath.Ext(path))
 		ext := filepath.Ext(path)
@@ -237,8 +245,6 @@ func (s *Options) visit(path string, f os.FileInfo, e error) (err error) {
 				err = errors.New("error in merging config file '%s': %v", path, err)
 			}
 		}
-	} else {
-		err = e
 	}
 	return
 }

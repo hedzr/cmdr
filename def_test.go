@@ -101,6 +101,16 @@ More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-
 		}),
 
 		cmdr.WithPagerEnabled(),
+		cmdr.WithPluginLocations("./ci/local/share/$APPNAME/addons",
+			"$HOME/.local/share/$APPNAME/addons",
+			"$HOME/.$APPNAME/addons",
+			"/usr/local/share/$APPNAME/addons",
+			"/usr/share/$APPNAME/addons"),
+		cmdr.WithExtensionsLocations("./ci/local/share/$APPNAME/ext",
+			"$HOME/.local/share/$APPNAME/ext",
+			"$HOME/.$APPNAME/ext",
+			"/usr/local/share/$APPNAME/ext",
+			"/usr/share/$APPNAME/ext"),
 	)
 
 	cmdr.InternalResetWorker()
@@ -636,8 +646,8 @@ func TestExec(t *testing.T) {
 
 	t.Log("xxx: -------- loops for execTestings")
 	for sss, verifier := range execTestings {
-		cmdr.ResetOptions()
 		resetFlagsAndLog(t)
+		cmdr.ResetOptions()
 		cmdr.ResetRootInWorker()
 
 		t.Log("xxx: ***: ", sss)
@@ -651,6 +661,8 @@ func TestExec(t *testing.T) {
 			// })
 		}
 		if sss == "consul-tags -? -vD kv backup --prefix'4' -h ~~debug" {
+			fmt.Println("xx*: ***: ", sss)
+		} else if sss == "consul-tags services kx1" {
 			fmt.Println("xx*: ***: ", sss)
 		}
 
@@ -680,6 +692,21 @@ var (
 		// "consul-tags -qq": func(t *testing.T) error {
 		// 	return nil
 		// },
+		"consul-tags ls": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags services kx1": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags services kx2": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags services kx3": func(t *testing.T) error {
+			return nil
+		},
+		"consul-tags pwd": func(t *testing.T) error {
+			return nil
+		},
 		"consul-tags --help --help-zsh 1": func(t *testing.T) error {
 			return nil
 		},

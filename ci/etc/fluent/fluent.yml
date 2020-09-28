@@ -29,6 +29,10 @@ app:
   test-dir-2: $APPNAME
   test-dir-3: $CFG_DIR
 
+  #
+  aliases:
+    group:
+    commands: []
 
 
 

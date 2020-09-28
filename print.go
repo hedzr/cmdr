@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
 	"github.com/hedzr/cmdr/tool"
+	"io"
 	"os"
 	"sort"
 	"strings"
@@ -17,6 +18,19 @@ import (
 
 func fp(fmtStr string, args ...interface{}) {
 	_, _ = fmt.Fprintf(internalGetWorker().rootCommand.ow, fmtStr+"\n", args...)
+}
+
+func ffp(of io.Writer, fmtStr string, args ...interface{}) {
+	_, _ = fmt.Fprintf(internalGetWorker().rootCommand.ow, fmtStr+"\n", args...)
+	if of != nil {
+		_, _ = fmt.Fprintf(of, fmtStr+"\n", args...)
+	}
+}
+
+func fwrn(fmtStr string, args ...interface{}) {
+	if InDebugging() /* || logex.GetTraceMode() */ {
+		_, _ = fmt.Fprintf(internalGetWorker().rootCommand.oerr, fmtStr+"\n", args...)
+	}
 }
 
 func ferr(fmtStr string, args ...interface{}) {
@@ -55,22 +69,28 @@ func (w *ExecWorker) printHelp(command *Command, justFlags bool) {
 
 // paintTildeDebugCommand for `~~debug`
 func (w *ExecWorker) paintTildeDebugCommand(showType bool) {
+	of, _ := os.Create(GetStringR("debug-output"))
+	defer func() {
+		if of != nil {
+			_ = of.Close()
+		}
+	}()
 	if GetNoColorMode() {
-		fp("\nDUMP:\n\n%v\n", w.rxxtOptions.DumpAsString(showType))
+		ffp(of, "\nDUMP:\n\n%v\n", w.rxxtOptions.DumpAsString(showType))
 	} else {
 		// "  [\x1b[2m\x1b[%dm%s\x1b[0m]"
-		fp("\n\x1b[2m\x1b[%dmDUMP:\n\n%v\x1b[0m\n", DarkColor, w.rxxtOptions.DumpAsString(showType))
+		ffp(of, "\n\x1b[2m\x1b[%dmDUMP:\n\n%v\x1b[0m\n", DarkColor, w.rxxtOptions.DumpAsString(showType))
 
 		if w.rxxtOptions.GetBoolEx("env") {
-			fp("---- ENV: ")
+			ffp(of, "---- ENV: ")
 			for _, s := range os.Environ() {
 				s2 := strings.Split(s, "=")
-				fp("  - %s = \x1b[2m\x1b[%dm%s\x1b[0m", s2[0], DarkColor, s2[1])
+				ffp(of, "  - %s = \x1b[2m\x1b[%dm%s\x1b[0m", s2[0], DarkColor, s2[1])
 			}
 		}
 		if w.rxxtOptions.GetBoolEx("more") {
-			fp("---- INFO: ")
-			fp("Exec: \x1b[2m\x1b[%dm%s\x1b[0m, %s", DarkColor, GetExecutablePath(), GetExecutableDir())
+			ffp(of, "---- INFO: ")
+			ffp(of, "Exec: \x1b[2m\x1b[%dm%s\x1b[0m, %s", DarkColor, GetExecutablePath(), GetExecutableDir())
 		}
 	}
 }

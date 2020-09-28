@@ -119,6 +119,13 @@ func (s *Options) GetMap(key string) map[string]interface{} {
 }
 
 func (s *Options) getMapNoLock(key string) (m map[string]interface{}) {
+	if v, ok := s.entries[key]; ok {
+		if vv, ok := v.(map[string]interface{}); ok {
+			return vv
+		}
+		fwrn("need attention")
+	}
+
 	a := strings.Split(key, ".")
 	if len(a) > 0 {
 		m = s.getMap(s.hierarchy, a[0], a[1:]...)
@@ -764,10 +771,10 @@ func (s *Options) loopForLookupFlag(keys []string, cmd *Command) (flg *Flag) {
 	return
 }
 
-func (s *Options) envKey(key string) (envkey string) {
+func (s *Options) envKey(key string) (envKey string) {
 	key = replaceAll(key, ".", "_")
 	key = replaceAll(key, "-", "_")
-	envkey = strings.Join(append(internalGetWorker().envPrefixes, strings.ToUpper(key)), "_")
+	envKey = strings.Join(append(internalGetWorker().envPrefixes, strings.ToUpper(key)), "_")
 	return
 }
 
@@ -788,7 +795,7 @@ func (s *Options) SetNx(key string, val interface{}) {
 	s.setNx(key, val)
 }
 
-func (s *Options) setNx(key string, val interface{}) (oldval interface{}, modi bool) {
+func (s *Options) setNx(key string, val interface{}) (oldVal interface{}, modi bool) {
 	defer s.rw.Unlock()
 	s.rw.Lock()
 
@@ -797,20 +804,20 @@ func (s *Options) setNx(key string, val interface{}) (oldval interface{}, modi b
 		return
 	}
 
-	oldval = s.entries[key]
-	leaf := isLeaf(oldval, val)
+	oldVal = s.entries[key]
+	leaf := isLeaf(oldVal, val)
 	if leaf {
-		comparable := (oldval == nil || oldval != nil && reflect.TypeOf(oldval).Comparable()) && (val == nil || (val != nil && reflect.TypeOf(val).Comparable()))
-		if comparable && oldval != val {
+		comparable := (oldVal == nil || oldVal != nil && reflect.TypeOf(oldVal).Comparable()) && (val == nil || (val != nil && reflect.TypeOf(val).Comparable()))
+		if comparable && oldVal != val {
 			s.entries[key] = val
 			a := strings.Split(key, ".")
 			s.mergeMap(s.hierarchy, a[0], "", et(a, 1, val))
-			s.internalRaiseOnSetCB(key, val, oldval)
+			s.internalRaiseOnSetCB(key, val, oldVal)
 			modi = true
 			return
-		} else if isEmptySlice(val) && isSlice(oldval) {
+		} else if isEmptySlice(val) && isSlice(oldVal) {
 			s.entries[key] = val
-			s.internalRaiseOnSetCB(key, val, oldval)
+			s.internalRaiseOnSetCB(key, val, oldVal)
 			modi = true
 			return
 		}
@@ -980,34 +987,82 @@ func mxIx(pre string, k interface{}) string {
 	return fmt.Sprintf("%v.%v", pre, k)
 }
 
-func (s *Options) loopMapMap(kdot string, m map[string]map[string]interface{}) (err error) {
+func (s *Options) loopMapMap(kDot string, m map[string]map[string]interface{}) (err error) {
 	for k, v := range m {
-		if err = s.loopMap(mx(kdot, k), v); err != nil {
+		if err = s.loopMap(mx(kDot, k), v); err != nil {
 			return
 		}
 	}
 	return
 }
 
-func (s *Options) loopMap(kdot string, m map[string]interface{}) (err error) {
+func (s *Options) loopMap(kDot string, m map[string]interface{}) (err error) {
+	defer s.mapOrphans()
 	for k, v := range m {
 		if vm, ok := v.(map[interface{}]interface{}); ok {
-			if err = s.loopIxMap(mx(kdot, k), vm); err != nil {
+			if err = s.loopIxMap(mx(kDot, k), vm); err != nil {
 				return
 			}
 		} else if vm, ok := v.(map[string]interface{}); ok {
-			if err = s.loopMap(mx(kdot, k), vm); err != nil {
+			if err = s.loopMap(mx(kDot, k), vm); err != nil {
 				return
 			}
 		} else {
-			// s.SetNx(mx(kdot, k), v)
-			key := mxIx(kdot, k)
-			if oldval, modi := s.setNx(key, v); modi {
-				s.internalRaiseOnMergingSetCB(k, v, oldval)
+			// s.SetNx(mx(kDot, k), v)
+			key := mxIx(kDot, k)
+			if oldVal, modified := s.setNx(key, v); modified {
+				s.internalRaiseOnMergingSetCB(k, v, oldVal)
 			}
 		}
 	}
 	return
+}
+
+func (s *Options) mapOrphans() {
+	// flog("mapOrphans")
+	if s.batchMerging {
+		return
+	}
+
+	defer s.rw.Unlock()
+	s.rw.Lock()
+
+retryChecking:
+	var kSorted []string
+	for k := range s.entries {
+		kSorted = append(kSorted, k)
+	}
+	tool.SortAsDottedSliceReverse(kSorted)
+
+	for _, k := range kSorted {
+		//flog("mapOrphans: %v => %v", k, v)
+		keys := strings.Split(k, ".")
+		for i := 1; i < len(keys); i++ {
+			ks := strings.Join(keys[:i], ".")
+			if vz, ok := s.entries[ks]; !ok || vz == nil {
+				flog("mapOrphans: %v: %q not exists!!", k, ks)
+
+				vv := make(map[string]interface{})
+				for kk, v := range s.entries {
+					kks := strings.Split(kk, ".")
+					if strings.Contains(kk, ks) && len(kks) == i+1 {
+						vv[kks[len(kks)-1]] = v
+					}
+				}
+				s.entries[ks] = vv
+				goto retryChecking
+			}
+		}
+	}
+
+	if InDebugging() {
+		kSorted = nil
+		for k := range s.entries {
+			kSorted = append(kSorted, k)
+		}
+		tool.SortAsDottedSliceReverse(kSorted)
+		flog("mapOrphans: END")
+	}
 }
 
 func (s *Options) loopIxMap(kdot string, m map[interface{}]interface{}) (err error) {

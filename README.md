@@ -70,8 +70,12 @@ See our extras:
 
 
 - docs (WIP):
-  - english documentation not completed yet
+  - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
+
+- v1.7.25
+  - New feature: loading command definition from config file
+  - fixed bugs
 
 - v1.7.23
   - A new feature: the builtin pluggable cmdr-addon/plugin.
@@ -108,81 +112,6 @@ See our extras:
 
 - v1.7.5:
   - move some helper function to `tool` sub-package
-
-- v1.7.3
-  - update dependencies to new logger packages
-
-- v1.7.2
-  - update dependencies to new logger packages
-
-- v1.7.1
-  - update dependencies to new logger packages
-
-- v1.7.0
-  - adds `AddGlobalPreAction(pre)`, `AddGlobalPostAction(post)`
-  - using logex v1.2.0 and new logging switching framework
-  - added more logging output in trace mode enabled
-    see also: GetTraceMode(), GetDebugMode(), InDebugging(), and logex.GetTraceMode().
-  - more...
-  
-- v1.6.51
-  - deprecated: daemon plugin
-  - implements the required flag logic
-
-- v1.6.50
-  - fixed: correct the error printing while wrong args got 
-  - fixed: valid-args - ensure the `found` flag as a value matched
-  - fixed: withIgnoredMessage - format with liveArgs
-  - cmd.NewFlagV was deprecated since v1.6.50, we recommend the new form: `cmdr.NewBool(false).Titles(...)...AttachTo(ownerCmd)`
-  - better `Titles(long, ...)` and `Name(name)`  
-    Now you can compose the order prefix easily: with `.Titles("001.start")`, we can recognize the prefix and move it to `Name` field automatically.
-  > We will remove the deprecated api at next minor version (v1.7)
-
-- v1.6.49
-  - added: Name() for command & flag defining
-  
-- v1.6.48
-  - code reviewed
-  - maintained
-  - unnecessary deps removed.
-  - small fixes
-
-- v1.6.47
-  - fixed/improved: reset slice value if an empty slice was been setting
-  - improved: add logging output in delve debugging mode
-  - fixed: matching the longest short flag for combining flags
-  - **BROKEN API**: the param `defaultValue` is optional now: cmdr.NewBool(), cmdr.NewInt(), ...
-  - added `cmdr.NewUintSlice()`
-
-- v1.6.45
-  - fixed/improved: `ToBool(value, defval...) bool`
-  - fixed: flag.OnSet trigger for envvar hit
-  - fixed/improved: friendly error msg
-
-- v1.6.43
-  - fixed/improved: the matching algorithm and remained args
-  
-- v1.6.41
-  - `WithPagerEnabled()`: enables OS pager for help screen output
-  
-- v1.6.39
-  - **BROKEN API**: the params order exchanged, their new prototypes are `OptFlag.Titles(long, short, aliases)` and `OptCmd.Titles(long, short, alases)`.
-  - improved help screen
-  - bug fixed:
-    - the value of remained args could be wrong sometimes
-    - stop flag split in parsing
-    - some coverage test errors
-
-- v1.6.36
-  - `ToggleGroup`:
-    - assume the empty Group field with ToggleGroup
-    - set "command-path.toggleGroupName" to the hit flag full name as flipping a toggle-group.  
-      For example, supposed a toggle-group 'KK' under 'server' command with 3 choices/flags: apple, banana, orange. For the input '--orange', these entries will be set in option store:  
-      `server.orange` <== true;  
-      `server.KK` <== 'orange';  
-  - fixed: `GetStringSliceXxx()` return the value array without expand the envvar.
-  - improved: some supports for plan9
-  - fixed: can't expand envvar correectly at earlier initializing.
 
 - For more information to refer to [CHANGELOG](./CHANGELOG)
 

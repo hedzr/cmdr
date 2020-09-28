@@ -222,7 +222,7 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, def
 
 func initTabStop(ts int) {
 	// defaultTabStop = ts
-	defaultTabStop = 41
+	defaultTabStop = ts
 
 	var s = strconv.Itoa(defaultTabStop)
 
@@ -255,7 +255,7 @@ func initTabStop(ts int) {
 }
 
 var (
-	defaultTabStop                       = 48
+	defaultTabStop                       = 33
 	fmtCmdGroupTitle, fmtCmdGroupTitleNC string
 	fmtCmdlineL, fmtCmdlineR             string
 	fmtCmdlineDepL, fmtCmdlineDepR       string

@@ -76,8 +76,154 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 			w.envPrefixes = envPrefix
 			flog("--> preprocess / buildXref: env-prefix %v loaded", envPrefix)
 		}
+
+		w.buildAliasesCrossRefs(rootCmd)
 	}
 	return
+}
+
+type aliasesCommands struct {
+	Group    string
+	Commands []*Command
+}
+
+//goland:noinspection GoUnusedParameter
+func (w *ExecWorker) buildAliasesCrossRefs(root *RootCommand) {
+	var (
+		aliases *aliasesCommands = new(aliasesCommands)
+		err     error
+	)
+	err = GetSectionFrom("aliases", &aliases)
+	if err == nil {
+		err = w._addCommandsForAliasesGroup(root, aliases)
+	}
+	if err != nil {
+		Logger.Errorf("buildAliasesCrossRefs error: %v", err)
+	}
+}
+
+//goland:noinspection GoUnusedParameter
+func (w *ExecWorker) _addCommandsForAliasesGroup(root *RootCommand, aliases *aliasesCommands) (err error) {
+	flog("aliases:\n%v\n", aliases)
+	if aliases.Group == "" {
+		aliases.Group = AliasesGroup
+	}
+
+	for _, cmd := range aliases.Commands {
+		w.ensureCmdMembers(cmd)
+		err = w._toolAddCmd(&root.Command, aliases.Group, cmd)
+	}
+	w._buildCrossRefs(&root.Command)
+	return
+}
+
+func (w *ExecWorker) _toolAddCmd(parent *Command, groupName string, cc *Command) (err error) {
+	if _, ok := parent.allCmds[groupName]; !ok {
+		parent.allCmds[groupName] = make(map[string]*Command)
+	}
+	cmdName := cc.GetTitleName()
+	if _, ok := parent.allCmds[groupName][cmdName]; !ok {
+		parent.SubCommands = uniAddCmd(parent.SubCommands, cc)
+		parent.allCmds[groupName][cmdName] = cc
+		parent.plainCmds[cmdName] = cc
+		if cc.Short != "" && cc.Short != cmdName {
+			if _, ok := parent.plainCmds[cc.Short]; !ok {
+				parent.plainCmds[cc.Short] = cc
+			}
+		}
+		for _, n := range cc.Aliases {
+			if _, ok := parent.plainCmds[n]; !ok {
+				parent.plainCmds[n] = cc
+			}
+		}
+
+		for _, c := range cc.SubCommands {
+			if c.owner == nil {
+				c.owner = cc
+			}
+			if len(c.SubCommands) > 0 {
+				err = w._toolAddCmd(c, groupName, c)
+			} else if c.Action == nil {
+				w.bindInvokeToAction(c)
+			}
+		}
+	}
+	return
+}
+
+func (w *ExecWorker) bindInvokeToAction(c *Command) {
+	if c.Invoke != "" {
+		cmdPathParts := strings.Split(c.Invoke, " ")
+		if len(cmdPathParts) > 1 {
+			c.presetCmdLines = cmdPathParts[1:]
+		}
+		c.Action = w.getInvokeAction(c)
+	}
+	if c.InvokeProc != "" {
+		c.Action = w.getInvokeProcAction(c)
+	}
+	if c.InvokeShell != "" {
+		c.Action = w.getInvokeShellAction(c)
+	}
+}
+
+func (w *ExecWorker) locateCommand(cmdPath string, from *Command) (cmd *Command, matched bool) {
+	if from == nil {
+		from = &w.rootCommand.Command
+	}
+	cmdPathParts := strings.Split(cmdPath, " ")
+	if len(cmdPathParts) == 0 {
+		return
+	}
+	parts := strings.Split(cmdPathParts[0], "/")
+	for i, pp := range parts {
+		if pp == "." {
+			continue
+		}
+		if pp == ".." {
+			from = from.GetOwner()
+			continue
+		}
+		if pp == "" {
+			if i == 0 {
+				from = &w.rootCommand.Command
+			}
+			continue
+		}
+		if cmd, matched = from.plainCmds[pp]; matched {
+			from = cmd
+		}
+	}
+	return
+}
+
+func (w *ExecWorker) getInvokeAction(from *Command) Handler {
+	return func(cmd *Command, args []string) (err error) {
+		if cx, matched := w.locateCommand(from.Invoke, cmd); matched {
+			if cx.Action != nil {
+				err = cx.Action(cmd, args)
+			}
+		}
+		return
+	}
+}
+
+func (w *ExecWorker) getInvokeProcAction(from *Command) Handler {
+	return func(cmd *Command, args []string) (err error) {
+		cmdParts := strings.Split(from.InvokeProc, " ")
+		c, args := cmdParts[0], cmdParts[1:]
+		err = exec.Run(c, args...)
+		return
+	}
+}
+
+func (w *ExecWorker) getInvokeShellAction(from *Command) Handler {
+	return func(cmd *Command, args []string) (err error) {
+		cmdParts := strings.Split(from.InvokeShell, " ")
+		c, args := cmdParts[0], cmdParts[1:]
+		err = exec.Run(c, args...)
+		return
+	}
 }
 
 // buildAddonsCrossRefs for cmdr addons.
@@ -600,6 +746,24 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 			root.allFlags[SysMgmtGroup]["debug"] = ff
 			root.plainLongFlags["debug"] = root.allFlags[SysMgmtGroup]["debug"]
 			root.plainShortFlags["D"] = root.allFlags[SysMgmtGroup]["debug"]
+		}
+		if _, ok := root.allFlags[SysMgmtGroup]["debug-output"]; !ok {
+			ff := &Flag{
+				BaseOpt: BaseOpt{
+					Short:       "",
+					Full:        "debug-output",
+					Aliases:     []string{},
+					Description: "store the ~~debug outputs into file.",
+					Hidden:      true,
+					Group:       SysMgmtGroup,
+					owner:       &root.Command,
+				},
+				DefaultValue: "dbg.log",
+				EnvVars:      []string{"DEBUG_OUTPUT"},
+			}
+			root.Flags = append(root.Flags, ff)
+			root.allFlags[SysMgmtGroup]["debug-output"] = ff
+			root.plainLongFlags["debug-output"] = root.allFlags[SysMgmtGroup]["debug-output"]
 		}
 		if _, ok := root.allFlags[SysMgmtGroup]["env"]; !ok {
 			ff := &Flag{

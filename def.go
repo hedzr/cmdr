@@ -15,11 +15,13 @@ const (
 	appNameDefault = "cmdr"
 
 	// UnsortedGroup for commands and flags
-	UnsortedGroup = "zzzz.unsorted"
+	UnsortedGroup = "zzzg.unsorted"
 	// AddonsGroup for commands and flags
-	AddonsGroup = "zzzz.Addons"
+	AddonsGroup = "zzzh.Addons"
 	// ExtGroup for commands and flags
-	ExtGroup = "zzzz.Extensions"
+	ExtGroup = "zzzi.Extensions"
+	// AliasesGroup for commands and flags
+	AliasesGroup = "zzzj.Aliases"
 	// SysMgmtGroup for commands and flags
 	SysMgmtGroup = "zzz9.Misc"
 
@@ -36,33 +38,34 @@ const (
 type (
 	// BaseOpt is base of `Command`, `Flag`
 	BaseOpt struct {
-		Name string
+		Name string `yaml:"name,omitempty" json:"name,omitempty"`
 		// Short rune. short option/command name.
 		// single char. example for flag: "a" -> "-a"
-		Short string
+		Short string `yaml:"short-name,omitempty" json:"short-name,omitempty"`
 		// Full full/long option/command name.
 		// word string. example for flag: "addr" -> "--addr"
-		Full string
+		Full string `yaml:"title,omitempty" json:"title,omitempty"`
 		// Aliases are the more synonyms
-		Aliases []string
+		Aliases []string `yaml:"aliases,flow,omitempty" json:"aliases,flow,omitempty"`
 		// Group group name
-		Group string
+		Group string `yaml:"group,omitempty" json:"group,omitempty"`
 
-		owner  *Command
+		owner *Command
+		// strHit keeps the matched title string from user input in command line
 		strHit string
 
-		Description     string
-		LongDescription string
-		Examples        string
-		Hidden          bool
+		Description     string `yaml:"desc,omitempty" json:"desc,omitempty"`
+		LongDescription string `yaml:"long-desc,omitempty" json:"long-desc,omitempty"`
+		Examples        string `yaml:"examples,omitempty" json:"examples,omitempty"`
+		Hidden          bool   `yaml:"hidden,omitempty" json:"hidden,omitempty"`
 
 		// Deprecated is a version string just like '0.5.9' or 'v0.5.9', that means this command/flag was/will be deprecated since `v0.5.9`.
-		Deprecated string
+		Deprecated string `yaml:"deprecated,omitempty" json:"deprecated,omitempty"`
 
 		// Action is callback for the last recognized command/sub-command.
 		// return: ErrShouldBeStopException will break the following flow and exit right now
 		// cmd 是 flag 被识别时已经得到的子命令
-		Action Handler
+		Action Handler `yaml:"-" json:"-"`
 	}
 
 	// Handler handles the event on a subcommand matched
@@ -72,18 +75,19 @@ type (
 
 	// Command holds the structure of commands and sub-commands
 	Command struct {
-		BaseOpt
+		BaseOpt `yaml:",inline"`
 
-		Flags []*Flag
+		Flags []*Flag `yaml:"flags,omitempty" json:"flags,omitempty"`
 
-		SubCommands []*Command
+		SubCommands []*Command `yaml:"subcmds,omitempty" json:"subcmds,omitempty"`
+
 		// return: ErrShouldBeStopException will break the following flow and exit right now
-		PreAction Handler
+		PreAction Handler `yaml:"-" json:"-"`
 		// PostAction will be run after Action() invoked.
-		PostAction Invoker
+		PostAction Invoker `yaml:"-" json:"-"`
 		// be shown at tail of command usages line. Such as for TailPlaceHolder="<host-fqdn> <ipv4/6>":
 		// austr dns add <host-fqdn> <ipv4/6> [Options] [Parent/Global Options]
-		TailPlaceHolder string
+		TailPlaceHolder string `yaml:"tail-placeholder,omitempty" json:"tail-placeholder,omitempty"`
 		// TailArgsText string
 		// TailArgsDesc string
 
@@ -94,22 +98,36 @@ type (
 		plainShortFlags map[string]*Flag
 		plainLongFlags  map[string]*Flag
 		headLikeFlag    *Flag
+
+		presetCmdLines []string
+		// Invoke is just for importing from a file.
+		// invoke a command from the command tree in this app
+		Invoke string `yaml:"invoke,omitempty" json:"invoke,omitempty"`
+		// InvokeProc is just for importing from a file.
+		// invoke the external commands (via: executable)
+		InvokeProc string `yaml:"invoke-proc,omitempty" json:"invoke-proc,omitempty"`
+		// InvokeShell is just for importing from a file.
+		// invoke the external commands (via: shell)
+		InvokeShell string `yaml:"invoke-sh,omitempty" json:"invoke-sh,omitempty"`
+		// Shell is just for importing from a file.
+		// invoke a command under this shell, or /usr/bin/env bash|zsh|...
+		Shell string `yaml:"shell,omitempty" json:"shell,omitempty"`
 	}
 
 	// RootCommand holds some application information
 	RootCommand struct {
-		Command
+		Command `yaml:",inline"`
 
-		AppName    string
-		Version    string
-		VersionInt uint32
+		AppName    string `yaml:"appname,omitempty" json:"appname,omitempty"`
+		Version    string `yaml:"version,omitempty" json:"version,omitempty"`
+		VersionInt uint32 `yaml:"version-int,omitempty" json:"version-int,omitempty"`
 
-		Copyright string
-		Author    string
-		Header    string // using `Header` for header and ignore built with `Copyright` and `Author`, and no usage lines too.
+		Copyright string `yaml:"copyright,omitempty" json:"copyright,omitempty"`
+		Author    string `yaml:"author,omitempty" json:"author,omitempty"`
+		Header    string `yaml:"header,omitempty" json:"header,omitempty"` // using `Header` for header and ignore built with `Copyright` and `Author`, and no usage lines too.
 
-		PreActions  []Handler
-		PostActions []Invoker
+		PreActions  []Handler `yaml:"-" json:"-"`
+		PostActions []Invoker `yaml:"-" json:"-"`
 
 		ow   *bufio.Writer
 		oerr *bufio.Writer
@@ -117,26 +135,30 @@ type (
 
 	// Flag means a flag, a option, or a opt.
 	Flag struct {
-		BaseOpt
+		BaseOpt `yaml:",inline"`
 
 		// ToggleGroup for Toggle Group
-		ToggleGroup string
+		ToggleGroup string `yaml:"toggle-group,omitempty" json:"toggle-group,omitempty"`
 		// DefaultValuePlaceholder for flag
-		DefaultValuePlaceholder string
+		DefaultValuePlaceholder string `yaml:"default-placeholder,omitempty" json:"default-placeholder,omitempty"`
 		// DefaultValue default value for flag
-		DefaultValue interface{}
+		DefaultValue interface{} `yaml:"default,omitempty" json:"default,omitempty"`
+		// DefaultValueType is a string to indicate the data-type of DefaultValue.
+		// It's only available in loading flag definition from a config-file (yaml/json/...).
+		// Never used in writing your codes manually.
+		DefaultValueType string `yaml:"type,omitempty" json:"type,omitempty"`
 		// ValidArgs for enum flag
-		ValidArgs []string
+		ValidArgs []string `yaml:"valid-args,omitempty" json:"valid-args,omitempty"`
 		// Required to-do
-		Required bool
+		Required bool `yaml:"required,omitempty" json:"required,omitempty"`
 
 		// ExternalTool to get the value text by invoking external tool.
 		// It's an environment variable name, such as: "EDITOR" (or cmdr.ExternalToolEditor)
-		ExternalTool string
+		ExternalTool string `yaml:"external-tool,omitempty" json:"external-tool,omitempty"`
 
 		// EnvVars give a list to bind to environment variables manually
 		// it'll take effects since v1.6.9
-		EnvVars []string
+		EnvVars []string `yaml:"envvars,flow,omitempty" json:"envvars,flow,omitempty"`
 
 		// HeadLike enables a free-hand option like `head -3`.
 		//
@@ -148,12 +170,12 @@ type (
 		//
 		// HeadLike assumed an named option with an integer value, that means, Min and Max can be applied on it too.
 		// NOTE: Only one head-like option can be defined in a command/sub-command chain.
-		HeadLike bool
+		HeadLike bool `yaml:"head-like,omitempty" json:"head-like,omitempty"`
 
 		// Min minimal value of a range.
-		Min int64
+		Min int64 `yaml:"min,omitempty" json:"min,omitempty"`
 		// Max maximal value of a range.
-		Max int64
+		Max int64 `yaml:"max,omitempty" json:"max,omitempty"`
 
 		onSet func(keyPath string, value interface{})
 
@@ -176,6 +198,7 @@ type (
 		usedConfigFile   string
 		usedConfigSubDir string
 		configFiles      []string
+		batchMerging     bool
 
 		onConfigReloadedFunctions map[ConfigReloaded]bool
 		rwlCfgReload              *sync.RWMutex

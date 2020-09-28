@@ -72,6 +72,59 @@ app:
     tags:
       modify:
         wed: [3, 4]
+
+  aliases:
+    group:
+    commands:
+      - title: ls
+        invoke-sh: ls -la -G                # for macOS, -G = --color; for linux: -G = --no-group
+        desc: list the current directory
+      - title: pwd
+        invoke-sh: pwd
+        desc: print the current directory
+      - title: services
+        desc: "the service commands and options"
+        subcmds:
+          - title: ls
+            invoke: /server/list            # invoke a command from the command tree in this app
+            invoke-proc:                    # invoke the external commands (via: executable)
+            invoke-sh:                      # invoke the external commands (via: shell)
+            shell: /bin/bash                # or /usr/bin/env bash|zsh|...
+            desc: list the services
+          - title: start
+            flags: []
+            desc: start a service
+          - title: stop
+            flags: []
+            desc: stop a service
+          - title: git-version
+            invoke-proc: git describe --tags --abbrev=0
+            desc: print the git version
+            group: Proc
+          - title: git-revision
+            invoke-proc: git rev-parse --short HEAD
+            desc: print the git revision
+            group: Proc
+          - title: kx1
+            invoke: /ms/tags/ls
+            desc: invoke /ms/tags command
+            group: Internal
+          - title: kx2
+            invoke: ../.././//ms/tags --size 32mb
+            desc: invoke /ms/tags command
+            group: Internal
+          - title: kx3
+            invoke: /ms/tags --size 2kb
+            desc: invoke /ms/tags command
+            group: Internal
+        flags:
+          - title: name
+            default: noname
+            type: string          # bool, string, duration, int, uint, ...
+            group:
+            toggle-group:
+            desc: specify the name of a service
+
 `), 0644)
 	_ = cmdr.EnsureDir("conf.d")
 

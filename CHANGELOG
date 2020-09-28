@@ -3,6 +3,11 @@
 ## Versions
 
 
+- v1.7.25
+  - New feature: loading command definition from config file
+  - fixed bugs
+
+
 - v1.7.23
   - A new feature: the builtin pluggable cmdr-addon/plugin.
     `make build && bin/fluent --help && bin/fluent dx`

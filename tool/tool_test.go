@@ -55,7 +55,7 @@ func TestHumanReadableSizes(t *testing.T) {
 		{"8pB", 8 * 1024 * 1024 * 1024 * 1024 * 1024},
 		{"8EB", 8 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024},
 	} {
-		tgt := s.FromKibibytes(tc.src)
+		tgt := s.FromKibiBytes(tc.src)
 		if tgt != tc.expected {
 			t.Fatalf("StripQuotes(%q): expect %v, but got %v", tc.src, tc.expected, tgt)
 		}

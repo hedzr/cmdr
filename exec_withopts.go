@@ -7,6 +7,7 @@ package cmdr
 import (
 	"bufio"
 	"github.com/hedzr/cmdr/conf"
+	"gopkg.in/hedzr/errors.v2"
 	"io"
 	"log"
 	"os"
@@ -268,6 +269,18 @@ func WithInternalOutputStreams(out, err *bufio.Writer) ExecOption {
 		}
 		if w.defaultStderr == nil {
 			w.defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
+		}
+	}
+}
+
+// WithHelpScreenHooks adds the hook function to the front and back of printing help screen
+func WithHelpScreenHooks(before, after HookHelpScreenFunc) ExecOption {
+	return func(w *ExecWorker) {
+		if before != nil {
+			w.beforeHelpScreen = append(w.beforeHelpScreen, before)
+		}
+		if after != nil {
+			w.afterHelpScreen = append(w.afterHelpScreen, after)
 		}
 	}
 }

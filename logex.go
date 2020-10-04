@@ -37,6 +37,7 @@ var Logger log.Logger = log.NewDummyLogger()
 func SetLogger(l log.Logger) {
 	Logger = l
 	log.SetLogger(l)
+	Set("logger-level", int(l.GetLevel()))
 }
 
 // WithLogex enables github.com/hedzr/logex integration

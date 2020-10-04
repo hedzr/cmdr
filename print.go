@@ -44,6 +44,17 @@ func flog(fmtStr string, args ...interface{}) {
 }
 
 func (w *ExecWorker) printHelp(command *Command, justFlags bool) {
+	if len(w.afterHelpScreen) > 0 {
+		defer func() {
+			for _, c := range w.afterHelpScreen {
+				c(w, w.currentHelpPainter, command, justFlags)
+			}
+		}()
+	}
+	for _, c := range w.beforeHelpScreen {
+		c(w, w.currentHelpPainter, command, justFlags)
+	}
+
 	initTabStop(defaultTabStop)
 
 	if GetIntR("help-zsh") > 0 {

@@ -276,17 +276,52 @@ func WithInternalOutputStreams(out, err *bufio.Writer) ExecOption {
 // The environment variable `PAGER` will be checkout, otherwise `less`.
 //
 // NOTICE ONLY the outputs of cmdr (such as help screen) will be paged.
-func WithPagerEnabled() ExecOption {
+func WithPagerEnabled(enabled ...bool) ExecOption {
 	return func(w *ExecWorker) {
-		w.closers = append(w.closers, openPager(w))
+		for _, b := range enabled {
+			enableShellPager(w, b)
+			return
+		}
+		enableShellPager(w, true) // if params `enabled` are missed
 	}
 }
 
-func closePager(cmd *exec.Cmd, pager io.WriteCloser) func() {
+// EnableShellPager transfer cmdr stdout to OS pager.
+// The environment variable `PAGER` will be checkout, otherwise `less`.
+//
+func EnableShellPager(enabled bool) {
+	w := internalGetWorker()
+	enableShellPager(w, enabled)
+}
+
+func enableShellPager(w *ExecWorker, enabled bool) {
+	if enabled {
+		w.closers = append(w.closers, openPager(w))
+		return
+	}
+
+	for _, c := range w.closers {
+		if c != nil {
+			c()
+		}
+	}
+	w.closers = nil
+}
+
+func closePager(w *ExecWorker, cmd *exec.Cmd, pager io.WriteCloser) func() {
 	return func() {
-		pager.Close()
-		cmd.Wait()
+		var err = errors.NewContainer("closePager errors")
+		err.Attach(pager.Close())
+		err.Attach(cmd.Wait())
+		if !err.IsEmpty() {
+			Logger.Errorf("Close pager errors: %v", err.Error())
+		}
 		// log.Println("pager closed.")
+
+		w.defaultStdout = bufio.NewWriterSize(os.Stdout, 16384)
+		w.defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
+		w.rootCommand.ow = w.defaultStdout
+		w.rootCommand.oerr = w.defaultStderr
 	}
 }
 
@@ -318,7 +353,7 @@ func openPager(w *ExecWorker) (closer func()) {
 	}
 	// log.Printf("run %q %v....", pagerApp, cmd.Args)
 	w.defaultStdout = bufio.NewWriterSize(pager, 32768)
-	return closePager(cmd, pager)
+	return closePager(w, cmd, pager)
 }
 
 // WithCustomShowVersion supports your `ShowVersion()` instead of internal `showVersion()`

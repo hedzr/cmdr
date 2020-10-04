@@ -296,22 +296,22 @@ func GetKilobytesRP(prefix, key string, defaultVal ...uint64) uint64 {
 
 // GetFloat32 returns the float32 value of an `Option` key.
 func GetFloat32(key string, defaultVal ...float32) float32 {
-	return float32(internalGetWorker().rxxtOptions.GetFloat32Ex(key, defaultVal...))
+	return internalGetWorker().rxxtOptions.GetFloat32Ex(key, defaultVal...)
 }
 
 // GetFloat32P returns the float32 value of an `Option` key.
 func GetFloat32P(prefix, key string, defaultVal ...float32) float32 {
-	return float32(internalGetWorker().rxxtOptions.GetFloat32Ex(fmt.Sprintf("%s.%s", prefix, key), defaultVal...))
+	return internalGetWorker().rxxtOptions.GetFloat32Ex(fmt.Sprintf("%s.%s", prefix, key), defaultVal...)
 }
 
 // GetFloat32R returns the float32 value of an `Option` key with [WrapWithRxxtPrefix].
 func GetFloat32R(key string, defaultVal ...float32) float32 {
-	return float32(internalGetWorker().rxxtOptions.GetFloat32Ex(wrapWithRxxtPrefix(key), defaultVal...))
+	return internalGetWorker().rxxtOptions.GetFloat32Ex(wrapWithRxxtPrefix(key), defaultVal...)
 }
 
 // GetFloat32RP returns the float32 value of an `Option` key with [WrapWithRxxtPrefix].
 func GetFloat32RP(prefix, key string, defaultVal ...float32) float32 {
-	return float32(internalGetWorker().rxxtOptions.GetFloat32Ex(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), defaultVal...))
+	return internalGetWorker().rxxtOptions.GetFloat32Ex(wrapWithRxxtPrefix(fmt.Sprintf("%s.%s", prefix, key)), defaultVal...)
 }
 
 // GetFloat64 returns the float64 value of an `Option` key.

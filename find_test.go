@@ -46,5 +46,9 @@ func TestFinds(t *testing.T) {
 	} else {
 		t.Log("noted")
 	}
+
+	cmdr.GetRemainArgs()
+	cmdr.EnableShellPager(true)
+	cmdr.EnableShellPager(false)
 	resetOsArgs()
 }

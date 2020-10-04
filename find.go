@@ -132,3 +132,8 @@ func (w *ExecWorker) getPrefix() string {
 func (w *ExecWorker) getRemainArgs(pkg *ptpkg, args []string) []string {
 	return pkg.remainArgs
 }
+
+// GetRemainArgs returns the remain arguments after command line parsed
+func GetRemainArgs() []string {
+	return internalGetWorker().lastPkg.remainArgs
+}

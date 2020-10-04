@@ -233,10 +233,10 @@ func (s *Options) GetKibibytesEx(key string, defaultVal ...uint64) (ir64 uint64)
 		}
 		return
 	}
-	return s.FromKibibytes(sz)
+	return s.FromKibiBytes(sz)
 }
 
-// FromKibibytes convert string to the uint64 value based kibibyte format.
+// FromKibiBytes convert string to the uint64 value based kibibyte format.
 //
 // kibibyte format is for human readable. In this format, number presentations
 // are: 2k, 8m, 3g, 5t, 6p, 7e. optional 'b' can be appended, such as: 2kb, 5tb, 7EB.
@@ -249,7 +249,7 @@ func (s *Options) GetKibibytesEx(key string, defaultVal ...uint64) (ir64 uint64)
 // Its related word is kilobyte, refer to: https://en.wikipedia.org/wiki/Kilobyte
 //
 // The pure number part can be golang presentation, such as 0x99, 0001b, 0700.
-func (s *Options) FromKibibytes(sz string) (ir64 uint64) {
+func (s *Options) FromKibiBytes(sz string) (ir64 uint64) {
 	// var suffixes = []string {"B","KB","MB","GB","TB","PB","EB","ZB","YB"}
 	const suffix = "kmgtpezyKMGTPEZY"
 	sz = strings.TrimSpace(sz)
@@ -264,18 +264,18 @@ func (s *Options) FromKibibytes(sz string) (ir64 uint64) {
 	if strings.ContainsRune(szr, '.') {
 		if if64, err = strconv.ParseFloat(szr, 64); err == nil {
 			r := []rune(sz)[len(sz)-1]
-			ir64 = uint64(if64 * float64(s.fromKibibytes(r)))
+			ir64 = uint64(if64 * float64(s.fromKibiBytes(r)))
 		}
 	} else {
 		if ir64, err = strconv.ParseUint(szr, 0, 64); err == nil {
 			r := []rune(sz)[len(sz)-1]
-			ir64 *= s.fromKibibytes(r)
+			ir64 *= s.fromKibiBytes(r)
 		}
 	}
 	return
 }
 
-func (s *Options) fromKibibytes(r rune) (times uint64) {
+func (s *Options) fromKibiBytes(r rune) (times uint64) {
 	switch r {
 	case 'k', 'K':
 		return 1024

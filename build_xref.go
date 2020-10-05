@@ -246,7 +246,7 @@ func (w *ExecWorker) buildAddonsCrossRefs(root *RootCommand) {
 				var ok bool // = strings.HasPrefix(fi.Name(), prefix)
 				ok = true
 				// Logger.Debugf("      -> addons.dir: %v, file: %v", dirExpanded, fi.Name())
-				if ok && fi.Mode().IsRegular() && exec.IsExecAny(fi.Mode()) {
+				if ok && fi.Mode().IsRegular() && exec.IsModeExecAny(fi.Mode()) {
 					//name := fi.Name()[:len(prefix)]
 					name := fi.Name()
 					exe := path.Join(cwd, fi.Name())
@@ -404,7 +404,7 @@ func (w *ExecWorker) buildExtensionsCrossRefs(root *RootCommand) {
 				var ok bool // = strings.HasPrefix(fi.Name(), prefix)
 				ok = true
 				// Logger.Debugf("      -> ext.dir: %v, file: %v", dirExpanded, fi.Name())
-				if ok && fi.Mode().IsRegular() && exec.IsExecAny(fi.Mode()) {
+				if ok && fi.Mode().IsRegular() && exec.IsModeExecAny(fi.Mode()) {
 					//name := fi.Name()[:len(prefix)]
 					name := fi.Name()
 					exe := path.Join(cwd, fi.Name())

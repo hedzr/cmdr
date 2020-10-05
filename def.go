@@ -230,6 +230,7 @@ type (
 	// HookOptsFunc the hook function prototype
 	HookOptsFunc func(root *RootCommand, opts *Options)
 
+	// HookHelpScreenFunc the hook function prototype
 	HookHelpScreenFunc func(w *ExecWorker, p Painter, cmd *Command, justFlags bool)
 )
 

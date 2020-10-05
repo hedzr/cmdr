@@ -3,6 +3,13 @@
 ## Versions
 
 
+- v1.7.27
+  - added: `WithHelpScreenHooks`, `GetRemainArgs`, ...
+  - improved: `WithPagerEnabled`, `InTesting`, ...
+  - fixed: missed initializing for `logger-level` in `Option Store` sometimes.
+  - tests
+
+
 - v1.7.25
   - New feature: loading command definition from config file
   - fixed bugs
@@ -18,22 +25,18 @@
   - new feature: the builtin pluggable extensions (see also: [cmdr-examples/flags](https://github.com/hedzr/cmdr-examples/blob/master/examples/flags/README.md#pluggable-extensions) )
 
 
-
 - v1.7.11
   - update: new log.Logger instance in log.GetLogger
   - fixed: ReadPassword in windows
-
 
 
 - v1.7.10
   - fixed: too much empty lines in help screen
 
 
-
 - v1.7.9
   - right align multi-lines desc string in help screen
   - added new envvars: HELP, NO_COLOR (`HELP=1 app some sub cmd` == `app some sub cmd --help`)
-
 
 
 - v1.7.8
@@ -43,37 +46,30 @@
   - **BREAK**: some two methods in the interface `Painter` has been changed.
 
 
-
 - v1.7.7
   - update deps to improve logging supports
   - *deprecated*: `WithLogex()``, as its replacement, `WithLogx()` has a better generic logging interface (hedzr/log.Logger)
  
-
 
 - v1.7.6:
   - using hedzr/log and remove other logging dependencies.
   - added `WithLogx(logger)`
 
 
-
 - v1.7.5:
   - move some helper function to `tool` sub-package
-
 
 
 - v1.7.3
   - update dependencies to new logger packages
 
 
-
 - v1.7.2
   - update dependencies to new logger packages
 
 
-
 - v1.7.1
   - update dependencies to new logger packages
-
 
 
 - v1.7.0
@@ -84,11 +80,9 @@
   - more...
 
 
-
 - v1.6.51
   - deprecated: daemon plugin
   - implements the required flag logic
-
 
 
 - v1.6.50
@@ -100,10 +94,8 @@
     Now you can compose the order prefix easily: with `.Titles("001.start")`, we can recognize the prefix and move it to `Name` field automatically.
 
 
-
 - v1.6.49
   - added: Name() for command & flag defining
-
 
 
 - v1.6.48
@@ -190,17 +182,20 @@
   - fixed: don't bring the minor error for sub-dir walking back to main caller.
   - fixed: for the main config file, searching .yaml suffix too.
 
+
 - v1.6.23 Spring Festival Release
   - added flag EnvVars text to help screen
   - for the builtin options, the corresponding envvars added
   - update the examples with new style
   - ...
 
+
 - v1.6.22
   - added global post-actions chain: `RootCommand.AppendPostActions`
   - prototypes changed: `OptCmd.NewSubCommand` and `NewFlagV`, and `Description`
   - fixed logex level parsing.
   - ...
+
 
 - v1.6.21
   - bugs fixed
@@ -213,6 +208,7 @@
   - little chichi for daemon plugin
   - WithEnvKeys, WithOnSet for `flag` package
   
+
 - v1.6.20
   - fixed build error
   
@@ -230,21 +226,25 @@
   - bug fixed
   - reviewing and refactoring
 
+
 ### v1.6.17
   better supports to `flag` child package and migrating from stdline `flag`.  
   supports to shell prompt mode, see also new release of [`cmdr-http2`](https://github.com/hedzr/cmdr-http2), which demostrates how to integrate cmdr with go-prompt.
   - `Match(cmdline, opts...)`: match the arguments line (no os.Args[0]).
   - `WithNoCommandAction(bool)`
   
+  
 ### v1.6.15
   - patch to fix errors package
+  
   
 ### v1.6.13
   - bugs
   - Added [`WithOptionMergeModifying`](https://github.com/hedzr/cmdr/blob/master/exec_with_options.go#L163), [`WithOptionModifying`](https://github.com/hedzr/cmdr/blob/master/exec_with_options.go#L173)
     Now the changing/merging events could be hooked with a top-level watching point.
   - Added `WithUnhandledErrorHandler()` to capture panics if necessary
-    
+
+
 ### v1.6.11
   - bugs fixed
     - fixed the group of built-in cmds/flags,
@@ -263,7 +263,8 @@
        
     </details>
   - adds `WithHelpTailLine(line)` for the customizable dim tail line
-  
+
+
 ### v1.6.9
   - Adds `WithWatchMainConfigFileToo(bool)`
   - v1.6.8 for a nacl bug

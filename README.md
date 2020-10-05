@@ -73,6 +73,12 @@ See our extras:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.27
+  - added: `WithHelpScreenHooks`, `GetRemainArgs`, ...
+  - improved: `WithPagerEnabled`, `InTesting`, ...
+  - fixed: missed initializing for `logger-level` in `Option Store` sometimes.
+  - tests
+
 - v1.7.25
   - New feature: loading command definition from config file
   - fixed bugs

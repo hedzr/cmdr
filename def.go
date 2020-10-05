@@ -203,8 +203,8 @@ type (
 		onConfigReloadedFunctions map[ConfigReloaded]bool
 		rwlCfgReload              *sync.RWMutex
 		rwCB                      sync.RWMutex
-		onMergingSet              func(keyPath string, value, oldVal interface{})
-		onSet                     func(keyPath string, value, oldVal interface{})
+		onMergingSet              OnOptionSetCB
+		onSet                     OnOptionSetCB
 	}
 
 	// OptOne struct {
@@ -217,11 +217,20 @@ type (
 		OnConfigReloaded()
 	}
 
+	// OnOptionSetCB is a callback function while an option is being set (or merged)
+	OnOptionSetCB func(keyPath string, value, oldVal interface{})
+	// OnSwitchCharHitCB is a callback function ...
+	OnSwitchCharHitCB func(parsed *Command, switchChar string, args []string) (err error)
+	// OnPassThruCharHitCB is a callback function ...
+	OnPassThruCharHitCB func(parsed *Command, switchChar string, args []string) (err error)
+
 	// HookFunc the hook function prototype for SetBeforeXrefBuilding and SetAfterXrefBuilt
 	HookFunc func(root *RootCommand, args []string)
 
 	// HookOptsFunc the hook function prototype
 	HookOptsFunc func(root *RootCommand, opts *Options)
+
+	HookHelpScreenFunc func(w *ExecWorker, p Painter, cmd *Command, justFlags bool)
 )
 
 var (

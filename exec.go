@@ -22,6 +22,8 @@ type ExecWorker struct {
 	beforeXrefBuilding []HookFunc
 	afterXrefBuilt     []HookFunc
 	afterAutomaticEnv  []HookOptsFunc
+	beforeHelpScreen   []HookHelpScreenFunc
+	afterHelpScreen    []HookHelpScreenFunc
 
 	envPrefixes         []string
 	rxxtPrefixes        []string
@@ -54,8 +56,8 @@ type ExecWorker struct {
 	rootCommand *RootCommand
 	// rootOptions *Opt
 	rxxtOptions        *Options
-	onOptionMergingSet func(keyPath string, value, oldVal interface{})
-	onOptionSet        func(keyPath string, value, oldVal interface{})
+	onOptionMergingSet OnOptionSetCB
+	onOptionSet        OnOptionSetCB
 
 	similarThreshold      float64
 	noDefaultHelpScreen   bool
@@ -77,10 +79,12 @@ type ExecWorker struct {
 
 	helpTailLine string
 
-	onSwitchCharHit   func(parsed *Command, switchChar string, args []string) (err error)
-	onPassThruCharHit func(parsed *Command, switchChar string, args []string) (err error)
+	onSwitchCharHit   OnSwitchCharHitCB
+	onPassThruCharHit OnPassThruCharHitCB
 
 	addons []cmdrbase.PluginEntry
+
+	lastPkg *ptpkg
 }
 
 // ExecOption is the functional option for Exec()
@@ -208,7 +212,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 	}
 
 	// initExitingChannelForFsWatcher()
-	defer w.postExecFor(rootCmd)
+	defer w.postExecFor(rootCmd, pkg)
 
 	err = w.preprocess(rootCmd, args)
 
@@ -352,7 +356,7 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 	return
 }
 
-func (w *ExecWorker) postExecFor(rootCmd *RootCommand) {
+func (w *ExecWorker) postExecFor(rootCmd *RootCommand, pkg *ptpkg) {
 	// stop fs watcher explicitly
 	// stopExitingChannelForFsWatcher()
 
@@ -362,6 +366,8 @@ func (w *ExecWorker) postExecFor(rootCmd *RootCommand) {
 	if rootCmd.oerr != nil {
 		_ = rootCmd.oerr.Flush()
 	}
+
+	w.lastPkg = pkg
 }
 
 //goland:noinspection GoUnusedParameter

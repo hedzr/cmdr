@@ -7,7 +7,6 @@ import (
 	"github.com/hedzr/log"
 	"github.com/hedzr/logex"
 	"os"
-	"strings"
 )
 
 // WithLogx enables github.com/hedzr/logex/logx integration
@@ -215,19 +214,20 @@ func IsDebuggerAttached() bool {
 
 // InTesting detects whether is running under go test mode
 func InTesting() bool {
-	if !strings.HasSuffix(tool.SavedOsArgs[0], ".test") &&
-		!strings.Contains(tool.SavedOsArgs[0], "/T/___Test") {
-
-		// [0] = /var/folders/td/2475l44j4n3dcjhqbmf3p5l40000gq/T/go-build328292371/b001/exe/main
-		// !strings.Contains(SavedOsArgs[0], "/T/go-build")
-
-		for _, s := range tool.SavedOsArgs {
-			if s == "-test.v" || s == "-test.run" {
-				return true
-			}
-		}
-		return false
-
-	}
-	return true
+	return log.InTestingT(tool.SavedOsArgs)
+	//if !strings.HasSuffix(tool.SavedOsArgs[0], ".test") &&
+	//	!strings.Contains(tool.SavedOsArgs[0], "/T/___Test") {
+	//
+	//	// [0] = /var/folders/td/2475l44j4n3dcjhqbmf3p5l40000gq/T/go-build328292371/b001/exe/main
+	//	// !strings.Contains(SavedOsArgs[0], "/T/go-build")
+	//
+	//	for _, s := range tool.SavedOsArgs {
+	//		if s == "-test.v" || s == "-test.run" {
+	//			return true
+	//		}
+	//	}
+	//	return false
+	//
+	//}
+	//return true
 }

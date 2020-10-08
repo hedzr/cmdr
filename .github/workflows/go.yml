@@ -36,7 +36,7 @@ jobs:
             ${{ runner.os }}-go-
       - name: Test
         run: |
-          go build -v -ldflags "$LDFLAGS" -o main ./cli
+          go build -v -ldflags "$LDFLAGS" -o main ./examples/short
           rm main
           go test ./...
 

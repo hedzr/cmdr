@@ -92,7 +92,8 @@ jobs:
             ${{ runner.os }}-go-
 
       - name: Docker Build
-        if: startsWith(github.ref, 'refs/tags/v') || contains(github.ref, '/master')
+        #if: startsWith(github.ref, 'refs/tags/v') || contains(github.ref, '/master')
+        if: startsWith(github.ref, 'refs/tags/v')
         env:
           HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

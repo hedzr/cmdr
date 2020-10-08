@@ -73,6 +73,9 @@ See our extras:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.30
+  - added docker hub image for examples/fluent
+
 - v1.7.29
   - added docker image for examples/fluent
   - added cmdr.InDockerEnv

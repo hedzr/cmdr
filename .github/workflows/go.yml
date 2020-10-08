@@ -106,6 +106,8 @@ jobs:
           docker build \
             -t docker.pkg.github.com/hedzr/cmdr/$IMAGE_NAME:$IMAGE_TAG \
             -t docker.pkg.github.com/hedzr/cmdr/$IMAGE_NAME:latest \
+            -t hedzr/cmdr/$IMAGE_NAME:$IMAGE_TAG \
+            -t hedzr/cmdr/$IMAGE_NAME:latest \
             .
           echo $GH_TOKEN | docker login docker.pkg.github.com -u hedzr --password-stdin
           # docker tag IMAGE_ID docker.pkg.github.com/hedzr/cmdr/$IMAGE_NAME:$VERSION
@@ -113,8 +115,10 @@ jobs:
           docker push docker.pkg.github.com/hedzr/cmdr/$IMAGE_NAME:latest
           #
           echo $HUB_TOKEN | docker login -u hedzr --password-stdin
-          docker push hedzr/$IMAGE_NAME:$IMAGE_TAG
-          docker push hedzr/$IMAGE_NAME:latest
+          # docker tag docker.pkg.github.com/hedzr/cmdr/$IMAGE_NAME:latest hedzr/cmdr/$IMAGE_NAME:$IMAGE_TAG
+          # docker tag docker.pkg.github.com/hedzr/cmdr/$IMAGE_NAME:latest hedzr/cmdr/$IMAGE_NAME:latest
+          docker push hedzr/cmdr/$IMAGE_NAME:$IMAGE_TAG
+          docker push hedzr/cmdr/$IMAGE_NAME:latest
 
       - name: Build
         run: |

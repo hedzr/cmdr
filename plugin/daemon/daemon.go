@@ -162,7 +162,7 @@ func runAsDaemon(cmd *cmdr.Command, args []string) (err error) {
 
 	if ctx.Hot {
 		//noinspection GoPrintFunctions
-		log.Println("\n\nhot-restarting ...\n")
+		log.Println("\n\nhot-restarting ...")
 	}
 
 	if err := impl.Demonize(ctx); err != nil {

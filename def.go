@@ -316,9 +316,15 @@ func GetDebugMode() bool {
 
 // NewLoggerConfig returns a default LoggerConfig
 func NewLoggerConfig() *log.LoggerConfig {
+	lc := NewLoggerConfigWith(false, "sugar", "error")
+	return lc
+}
+
+// NewLoggerConfigWith returns a default LoggerConfig
+func NewLoggerConfigWith(enabled bool, backend, level string) *log.LoggerConfig {
 	log.SetTraceMode(GetTraceMode())
 	log.SetDebugMode(GetDebugMode())
-	lc := log.NewLoggerConfig()
+	lc := log.NewLoggerConfigWith(enabled, backend, level)
 	_ = GetSectionFrom("logger", &lc)
 	return lc
 }

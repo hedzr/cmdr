@@ -62,7 +62,7 @@ func main() {
 		// integrate with logex library
 		//cmdr.WithLogex(cmdr.DebugLevel),
 		//cmdr.WithLogexPrefix("logger"),
-		cmdr.WithLogx(build.New(log.NewLoggerConfigWith(true, "logrus", "debug"))),
+		cmdr.WithLogx(build.New(cmdr.NewLoggerConfigWith(true, "logrus", "debug"))),
 
 		//cmdr.WithHelpTabStop(41),
 

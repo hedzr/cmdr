@@ -8,7 +8,7 @@ import (
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/examples/demo/svr"
 	"github.com/hedzr/cmdr/plugin/daemon"
-	"log"
+	"github.com/hedzr/log"
 )
 
 // Entry is app main entry
@@ -22,8 +22,7 @@ func Entry() {
 		// cmdr.WithBuiltinCommands(false, false, false, false, false),
 		daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
 
-		cmdr.WithLogex(cmdr.DebugLevel),
-		cmdr.WithLogexPrefix("logger"),
+		cmdr.WithLogx(log.NewStdLoggerWith(log.DebugLevel)),
 
 		cmdr.WithHelpTabStop(40),
 	); err != nil {

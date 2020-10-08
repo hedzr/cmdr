@@ -6,7 +6,7 @@ package main
 
 import (
 	"github.com/hedzr/cmdr"
-	"log"
+	"github.com/hedzr/log"
 )
 
 func main() {
@@ -17,8 +17,7 @@ func main() {
 		// To disable internal commands and flags, uncomment the following codes
 		cmdr.WithBuiltinCommands(false, false, false, false, true),
 		// daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
-		cmdr.WithLogex(cmdr.DebugLevel),
-		cmdr.WithLogexPrefix("logger"),
+		cmdr.WithLogx(log.NewStdLoggerWith(log.DebugLevel)),
 		// cmdr.WithHelpTabStop(40),
 		// cmdr.WithNoColor(true),
 	); err != nil {

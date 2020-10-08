@@ -101,6 +101,7 @@ func TestFlag(t *testing.T) {
 	t.Log(GetTraceMode())
 	SetTraceMode(true)
 	t.Log(GetTraceMode())
+	t.Log(InDockerEnv())
 	t.Log(tool.StripPrefix("8.yes", "8."))
 	t.Log(tool.IsDigitHeavy("not-digit"))
 	t.Log(tool.IsDigitHeavy("8-is-not-digit"))

@@ -13,28 +13,68 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"time"
 	"unicode"
 )
 
+//func fp00(args ...interface{}) {
+//	if w := internalGetWorker().rootCommand.ow; w != nil {
+//		_, _ = fmt.Fprint(w, args...)
+//	} else {
+//		_, _ = fmt.Printf(args...)
+//	}
+//}
+
+func fp0(fmtStr string, args ...interface{}) {
+	if w := internalGetWorker().rootCommand.ow; w != nil {
+		_, _ = fmt.Fprintf(w, fmtStr, args...)
+	} else {
+		_, _ = fmt.Printf(fmtStr, args...)
+	}
+}
+
 func fp(fmtStr string, args ...interface{}) {
-	_, _ = fmt.Fprintf(internalGetWorker().rootCommand.ow, fmtStr+"\n", args...)
+	if w := internalGetWorker().rootCommand.ow; w != nil {
+		_, _ = fmt.Fprintf(w, fmtStr, args...)
+		if !strings.HasSuffix(fmtStr, "\n") {
+			_, _ = fmt.Fprintln(w)
+		}
+	} else {
+		_, _ = fmt.Printf(fmtStr, args...)
+		if !strings.HasSuffix(fmtStr, "\n") {
+			fmt.Println()
+		}
+	}
 }
 
 func ffp(of io.Writer, fmtStr string, args ...interface{}) {
-	_, _ = fmt.Fprintf(internalGetWorker().rootCommand.ow, fmtStr+"\n", args...)
+	fp(fmtStr, args...)
 	if of != nil {
-		_, _ = fmt.Fprintf(of, fmtStr+"\n", args...)
+		_, _ = fmt.Fprintf(of, fmtStr, args...)
+		if !strings.HasSuffix(fmtStr, "\n") {
+			_, _ = fmt.Fprintln(of)
+		}
 	}
 }
 
 func ferr(fmtStr string, args ...interface{}) {
-	_, _ = fmt.Fprintf(internalGetWorker().rootCommand.oerr, fmtStr+"\n", args...)
+	if w := internalGetWorker().rootCommand.oerr; w != nil {
+		_, _ = fmt.Fprintf(w, fmtStr, args...)
+		if !strings.HasSuffix(fmtStr, "\n") {
+			_, _ = fmt.Fprintln(w)
+		}
+	} else {
+		_, _ = fmt.Printf(fmtStr, args...)
+		if !strings.HasSuffix(fmtStr, "\n") {
+			fmt.Println()
+		}
+	}
 }
 
 // fwrn print the warning message if InDebugging() is true
 func fwrn(fmtStr string, args ...interface{}) {
 	if InDebugging() /* || logex.GetTraceMode() */ {
-		_, _ = fmt.Fprintf(internalGetWorker().rootCommand.oerr, fmtStr+"\n", args...)
+		ferr(fmtStr, args...)
 	}
 }
 
@@ -244,6 +284,26 @@ func findMaxL2(s2 []aGroupedSections, maxL int) int {
 	return maxL
 }
 
+func findMaxR(s1 []aSection, maxR int) int {
+	for _, s := range s1 {
+		if s.maxR > maxR {
+			maxR = s.maxR
+		}
+	}
+	return maxR
+}
+
+func findMaxR2(s2 []aGroupedSections, maxR int) int {
+	for _, s1 := range s2 {
+		for _, s := range s1.sections {
+			if s.maxR > maxR {
+				maxR = s.maxR
+			}
+		}
+	}
+	return maxR
+}
+
 func getTextPiece(str string, start, want int) string {
 	var sb, tried strings.Builder
 	var src = []rune(str[start:])
@@ -366,9 +426,9 @@ func (w *ExecWorker) prFlags(p Painter, command *Command, s2 []aGroupedSections,
 
 func (w *ExecWorker) printHelpSection(p Painter, command *Command, justFlags bool) {
 	var (
-		s1   []aSection
-		s2   []aGroupedSections
-		maxL int
+		s1         []aSection
+		s2         []aGroupedSections
+		maxL, maxR int
 	)
 
 	if !justFlags {
@@ -379,6 +439,15 @@ func (w *ExecWorker) printHelpSection(p Painter, command *Command, justFlags boo
 	maxL = findMaxL2(s2, findMaxL(s1, 0))
 
 	cols, _ := tool.GetTtySize()
+	if cols <= 0 || cols > 512 {
+		//fmt.Printf("\n\ncols = %v, maxL = %v\n\n\n", cols, maxL)
+		maxR = findMaxR2(s2, findMaxR(s1, 0))
+		cols = maxL + maxR + 2
+		if cols < 80 {
+			cols = 80
+		}
+		//fmt.Printf("\n\ncols = %v, maxL = %v\n\n\n", cols, maxL)
+	}
 	w.prCommands(p, command, s1, maxL, cols)
 	w.prFlags(p, command, s2, maxL, cols)
 
@@ -596,9 +665,18 @@ func (w *ExecWorker) showBuildInfo() {
 	}
 
 	w.printHeader(w.currentHelpPainter, &w.rootCommand.Command)
+
+	var ts = conf.Buildstamp
+	if ts == "" {
+		ts = time.Now().UTC().Format("")
+	}
+	dt, err := time.Parse("", ts)
+	if err == nil {
+		ts = dt.Format("")
+	}
 	// buildTime
 	fp(`
        Built by: %v
 Build Timestamp: %v
-        Githash: %v`, conf.GoVersion, conf.Buildstamp, conf.Githash)
+        Githash: %v`, conf.GoVersion, ts, conf.Githash)
 }

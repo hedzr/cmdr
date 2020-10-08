@@ -18,11 +18,15 @@ type (
 )
 
 func (s *helpPainter) Reset() {
-	internalGetWorker().rootCommand.ow.Flush()
+	if w := internalGetWorker().rootCommand.ow; w != nil {
+		_ = w.Flush()
+	}
 }
 
 func (s *helpPainter) Flush() {
-	internalGetWorker().rootCommand.ow.Flush()
+	if w := internalGetWorker().rootCommand.ow; w != nil {
+		_ = w.Flush()
+	}
 }
 
 func (s *helpPainter) Results() (res []byte) {
@@ -34,11 +38,11 @@ func (s *helpPainter) bufPrintf(sb *bytes.Buffer, fmtStr string, args ...interfa
 }
 
 func (s *helpPainter) Printf(fmtStr string, args ...interface{}) {
-	_, _ = fmt.Fprintf(internalGetWorker().rootCommand.ow, fmtStr+"\n", args...)
+	fp(fmtStr, args...)
 }
 
 func (s *helpPainter) Print(fmtStr string, args ...interface{}) {
-	_, _ = fmt.Fprintf(internalGetWorker().rootCommand.ow, fmtStr, args...)
+	fp0(fmtStr, args...)
 }
 
 func (s *helpPainter) FpPrintHeader(command *Command) {

@@ -333,8 +333,13 @@ func closePager(w *ExecWorker, cmd *exec.Cmd, pager io.WriteCloser) func() {
 
 		w.defaultStdout = bufio.NewWriterSize(os.Stdout, 16384)
 		w.defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
-		w.rootCommand.ow = w.defaultStdout
-		w.rootCommand.oerr = w.defaultStderr
+		if w.bufferedStdio {
+			w.rootCommand.ow = w.defaultStdout
+			w.rootCommand.oerr = w.defaultStderr
+		} else {
+			w.rootCommand.ow = nil
+			w.rootCommand.oerr = nil
+		}
 	}
 }
 

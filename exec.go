@@ -48,6 +48,7 @@ type ExecWorker struct {
 
 	currentHelpPainter Painter
 
+	bufferedStdio bool
 	defaultStdout *bufio.Writer
 	defaultStderr *bufio.Writer
 	closers       []func()
@@ -330,7 +331,9 @@ func (w *ExecWorker) updateArgs(pkg *ptpkg, goCommand **Command, rootCmd *RootCo
 func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error) {
 	flog("--> preprocess")
 	for _, x := range w.beforeXrefBuilding {
-		x(rootCmd, args)
+		if x != nil {
+			x(rootCmd, args)
+		}
 	}
 
 	err = w.buildXref(rootCmd)

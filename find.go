@@ -112,8 +112,8 @@ func tplApply(tmpl string, data interface{}) string {
 func (w *ExecWorker) setupRootCommand(rootCmd *RootCommand) {
 	w.rootCommand = rootCmd
 
-	w.rootCommand.ow = w.defaultStdout
-	w.rootCommand.oerr = w.defaultStderr
+	w.rootCommand.ow = nil   // w.defaultStdout
+	w.rootCommand.oerr = nil // w.defaultStderr
 
 	if len(conf.AppName) == 0 {
 		conf.AppName = w.rootCommand.AppName

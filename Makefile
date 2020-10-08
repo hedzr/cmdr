@@ -385,6 +385,13 @@ linux-test:
 	$(MAKE) -f ./ci/linux_test/Makefile all  2> $(STDERR)
 	@cat $(STDERR) | sed -e '1s/.*/\nError:\n/' 1>&2
 
+
+## docker: docker build
+docker:
+	@echo "  >  docker build ..."
+	docker build --build-arg CN=1 --build-arg GOPROXY="https://gocenter.io,direct" -t cmdr-fluent:latest -t cmdr-fluent:$(VERSION) .
+
+
 ## rshz: rsync to my TP470P
 rshz:
 	@echo "  >  sync to hz-pc ..."

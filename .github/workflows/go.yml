@@ -92,8 +92,9 @@ jobs:
             ${{ runner.os }}-go-
 
       - name: Docker Build
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/v') || contains(github.ref, '/master')
         env:
+          HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           IMAGE_NAME: cmdr-fluent
           IMAGE_TAG:
@@ -110,6 +111,10 @@ jobs:
           # docker tag IMAGE_ID docker.pkg.github.com/hedzr/cmdr/$IMAGE_NAME:$VERSION
           docker push docker.pkg.github.com/hedzr/cmdr/$IMAGE_NAME:$IMAGE_TAG
           docker push docker.pkg.github.com/hedzr/cmdr/$IMAGE_NAME:latest
+          #
+          echo $HUB_TOKEN | docker login -u hedzr --password-stdin
+          docker push hedzr/cmdr/$IMAGE_NAME:$IMAGE_TAG
+          docker push hedzr/cmdr/$IMAGE_NAME:latest
 
       - name: Build
         run: |

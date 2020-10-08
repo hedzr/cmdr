@@ -20,37 +20,51 @@ func (s *optCommandImpl) ToCommand() *Command {
 }
 
 func (s *optCommandImpl) AddOptFlag(flag OptFlag) {
-	s.working.Flags = uniAddFlg(s.working.Flags, flag.ToFlag())
+	if flag != nil && s != nil && s.working != nil {
+		s.working.Flags = uniAddFlg(s.working.Flags, flag.ToFlag())
+	}
 }
 
 func (s *optCommandImpl) AddFlag(flag *Flag) {
-	s.working.Flags = uniAddFlg(s.working.Flags, flag)
+	if flag != nil {
+		s.working.Flags = uniAddFlg(s.working.Flags, flag)
+	}
 }
 
 func (s *optCommandImpl) AddOptCmd(opt OptCmd) {
-	cmd := opt.ToCommand()
+	if opt != nil {
+		cmd := opt.ToCommand()
 
-	// optCtx.current = cmd
+		// optCtx.current = cmd
 
-	s.working.SubCommands = uniAddCmd(s.working.SubCommands, cmd)
+		s.working.SubCommands = uniAddCmd(s.working.SubCommands, cmd)
 
-	// opt = &subCmdOpt{optCommandImpl: optCommandImpl{working: cmd, parent: s}}
+		// opt = &subCmdOpt{optCommandImpl: optCommandImpl{working: cmd, parent: s}}
+	}
 }
 
 func (s *optCommandImpl) AddCommand(cmd *Command) {
-	s.working.SubCommands = uniAddCmd(s.working.SubCommands, cmd)
+	if cmd != nil {
+		s.working.SubCommands = uniAddCmd(s.working.SubCommands, cmd)
+	}
 }
 
 func (s *optCommandImpl) AttachTo(opt OptCmd) {
-	opt.AddOptCmd(s)
+	if opt != nil {
+		opt.AddOptCmd(s)
+	}
 }
 
 func (s *optCommandImpl) AttachToCommand(cmd *Command) {
-	cmd.SubCommands = uniAddCmd(cmd.SubCommands, s.working)
+	if cmd != nil {
+		cmd.SubCommands = uniAddCmd(cmd.SubCommands, s.working)
+	}
 }
 
 func (s *optCommandImpl) AttachToRoot(root *RootCommand) {
-	root.SubCommands = uniAddCmd(root.SubCommands, s.working)
+	if root != nil {
+		root.SubCommands = uniAddCmd(root.SubCommands, s.working)
+	}
 }
 
 func (s *optCommandImpl) Titles(long, short string, aliases ...string) (opt OptCmd) {

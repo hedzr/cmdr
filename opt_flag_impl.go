@@ -20,16 +20,21 @@ func (s *optFlagImpl) ToFlag() *Flag {
 }
 
 func (s *optFlagImpl) AttachTo(opt OptCmd) {
-	opt.AddOptFlag(s)
+	if s != nil && s.working != nil && opt != nil {
+		opt.AddOptFlag(s)
+	}
 }
 
 func (s *optFlagImpl) AttachToCommand(cmd *Command) {
-	cmd.Flags = uniAddFlg(cmd.Flags, s.ToFlag())
-
+	if cmd != nil {
+		cmd.Flags = uniAddFlg(cmd.Flags, s.ToFlag())
+	}
 }
 
 func (s *optFlagImpl) AttachToRoot(root *RootCommand) {
-	root.Command.Flags = uniAddFlg(root.Command.Flags, s.ToFlag())
+	if root != nil {
+		root.Command.Flags = uniAddFlg(root.Command.Flags, s.ToFlag())
+	}
 }
 
 func (s *optFlagImpl) Titles(long, short string, aliases ...string) (opt OptFlag) {

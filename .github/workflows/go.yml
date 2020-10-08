@@ -113,8 +113,8 @@ jobs:
           docker push docker.pkg.github.com/hedzr/cmdr/$IMAGE_NAME:latest
           #
           echo $HUB_TOKEN | docker login -u hedzr --password-stdin
-          docker push hedzr/cmdr/$IMAGE_NAME:$IMAGE_TAG
-          docker push hedzr/cmdr/$IMAGE_NAME:latest
+          docker push hedzr/$IMAGE_NAME:$IMAGE_TAG
+          docker push hedzr/$IMAGE_NAME:latest
 
       - name: Build
         run: |

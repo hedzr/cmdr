@@ -7,6 +7,7 @@ import (
 	"github.com/hedzr/log"
 	"github.com/hedzr/logex"
 	"os"
+	"strings"
 )
 
 // WithLogx enables github.com/hedzr/logex/logx integration
@@ -230,4 +231,24 @@ func InTesting() bool {
 	//
 	//}
 	//return true
+}
+
+// InDevelopingTime detects whether is in developing time.
+//
+// If the main program has been built as a executable binary, we
+// would assumed which is not in developing time.
+// If GetDebugMode() is true, that's in developing time too.
+//
+func InDevelopingTime() (status bool) {
+	return inDevelopingTime()
+}
+
+func inDevelopingTime() (status bool) {
+	if GetDebugMode() {
+		return true
+	}
+	if strings.Contains(tool.SavedOsArgs[0], "/T/") {
+		status = true
+	}
+	return
 }

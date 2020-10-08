@@ -27,19 +27,33 @@ func ffp(of io.Writer, fmtStr string, args ...interface{}) {
 	}
 }
 
+func ferr(fmtStr string, args ...interface{}) {
+	_, _ = fmt.Fprintf(internalGetWorker().rootCommand.oerr, fmtStr+"\n", args...)
+}
+
+// fwrn print the warning message if InDebugging() is true
 func fwrn(fmtStr string, args ...interface{}) {
 	if InDebugging() /* || logex.GetTraceMode() */ {
 		_, _ = fmt.Fprintf(internalGetWorker().rootCommand.oerr, fmtStr+"\n", args...)
 	}
 }
 
-func ferr(fmtStr string, args ...interface{}) {
-	_, _ = fmt.Fprintf(internalGetWorker().rootCommand.oerr, fmtStr+"\n", args...)
-}
-
+// flog prints information if InDebugging() is true
 func flog(fmtStr string, args ...interface{}) {
 	if InDebugging() /* || logex.GetTraceMode() */ {
 		_, _ = fmt.Fprintf(os.Stderr, "\u001B[2m\u001B[2m"+fmtStr+"\u001B[0m\n", args...)
+	}
+}
+
+// printInDevMode prints information only in developing time.
+//
+// If the main program has been built as a executable binary, we
+// would assumed which is not in developing time.
+// If GetDebugMode() is true, that's in developing time too.
+//
+func printInDevMode(fmtStr string, args ...interface{}) {
+	if inDevelopingTime() {
+		_, _ = fmt.Fprintf(os.Stdout, "\u001B[2m\u001B[2m"+fmtStr+"\u001B[0m\n", args...)
 	}
 }
 

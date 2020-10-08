@@ -2,21 +2,19 @@
 
 package cmdr
 
-import "fmt"
-
 func defaultOnSwitchCharHit(parsed *Command, switchChar string, args []string) (err error) {
 	if parsed != nil {
-		fmt.Printf("the last parsed command is %q - %q\n", parsed.GetTitleNames(), parsed.Description)
+		printInDevMode("the last parsed command is %q - %q\n", parsed.GetTitleNames(), parsed.Description)
 	}
-	fmt.Printf("SwitchChar FOUND: %v\nremains: %v\n\n", switchChar, args)
+	printInDevMode("SwitchChar FOUND: %v\nremains: %v\n\n", switchChar, args)
 	return nil // ErrShouldBeStopException
 }
 
-func defaultOnPasssThruCharHit(parsed *Command, switchChar string, args []string) (err error) {
+func defaultOnPassThruCharHit(parsed *Command, switchChar string, args []string) (err error) {
 	if parsed != nil {
-		fmt.Printf("the last parsed command is %q - %q\n", parsed.GetTitleNames(), parsed.Description)
+		printInDevMode("the last parsed command is %q - %q\n", parsed.GetTitleNames(), parsed.Description)
 	}
-	fmt.Printf("PassThrough flag FOUND: %v\nremains: %v\n\n", switchChar, args)
+	printInDevMode("PassThrough flag FOUND: %v\nremains: %v\n\n", switchChar, args)
 	return nil // ErrShouldBeStopException
 }
 

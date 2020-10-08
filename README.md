@@ -144,6 +144,21 @@ See our extras:
 > Old README.md: [README.old.md](old/README.old.md)
 
 
+## About the Docker build
+
+Here is a docker build for cmdr/examples/fluent so that you can run it without go building or downloading the release files:
+
+```bash
+# from Docker Hub:
+$ docker run -it --rm hedzr/cmdr-fluent
+$ docker run -it --rm hedzr/cmdr-fluent --help
+
+# from Github Packages (please following the guide of GitHub Packages Site):
+$ docker run -it --rm docker.pkg.github.com/hedzr/cmdr/cmdr-fluent
+$ docker run -it --rm docker.pkg.github.com/hedzr/cmdr/cmdr-fluent --help
+```
+
+
 ## For Developer
 
 [For Developer](old/Developer.md)

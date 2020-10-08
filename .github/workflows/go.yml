@@ -145,7 +145,7 @@ jobs:
               for GOARCH in amd64; do
                 suf=; if [[ $GOOS == "windows" ]]; then suf=".exe"; fi
                 go build -v -ldflags "$LDFLAGS" -o ./bin/$app-$GOOS-$GOARCH$suf ./$dir/$app/
-                gzip ./bin/$app-$GOOS-$GOARCH$suf
+                gzip -f ./bin/$app-$GOOS-$GOARCH$suf
               done
             done
           done

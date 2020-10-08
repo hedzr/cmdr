@@ -2,18 +2,11 @@ module github.com/hedzr/cmdr
 
 go 1.13
 
-// exclude github.com/sirupsen/logrus v1.4.1
-// exclude github.com/sirupsen/logrus v1.4.2
-
 //replace github.com/hedzr/cmdr-base => ../cmdr-base
 
 // replace github.com/hedzr/log => ../log
 
 // replace github.com/hedzr/logex => ../logex
-
-// replace github.com/hedzr/pools => ../pools
-
-// replace github.com/hedzr/errors => ../errors
 
 // replace gopkg.in/hedzr/errors.v2 => ../errors
 

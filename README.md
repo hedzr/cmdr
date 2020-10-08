@@ -73,6 +73,11 @@ See our extras:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.29
+  - added docker image for examples/fluent
+  - added cmdr.InDockerEnv
+  - small fixes
+
 - v1.7.28
   - added cmdr.NewLoggerConfigWith for better smoothing transfer cmdr internal status to log/logex.
   - added cmdr.InDevelopingTime

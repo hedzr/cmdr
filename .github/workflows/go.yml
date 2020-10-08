@@ -92,6 +92,7 @@ jobs:
             ${{ runner.os }}-go-
 
       - name: Docker Build
+        if: startsWith(github.ref, 'refs/tags/v')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           IMAGE_NAME: cmdr-fluent
@@ -128,7 +129,7 @@ jobs:
               GOVERSION: $GOVERSION
               BUILDTIME: $BUILDTIME
           EOF
-          for app in short demo fluent ffdemo wget; do
+          for app in short demo fluent ffdemo wget-demo; do
           for dir in ./examples; do
             for GOOS in windows linux darwin; do
               for GOARCH in amd64; do

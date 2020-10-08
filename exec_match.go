@@ -78,7 +78,7 @@ func (w *ExecWorker) flagsPrepare(pkg *ptpkg, goCommand **Command, args []string
 			if w.onPassThruCharHit != nil {
 				err = w.onPassThruCharHit(*goCommand, pkg.a, ra)
 			} else {
-				err = defaultOnPasssThruCharHit(*goCommand, pkg.a, ra)
+				err = defaultOnPassThruCharHit(*goCommand, pkg.a, ra)
 			}
 			return
 		}

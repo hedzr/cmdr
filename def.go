@@ -301,8 +301,25 @@ func GetStrictMode() bool {
 // NOTE
 //     log.GetTraceMode()/SetTraceMode() have higher universality
 //
+// the flag value of `--trace` or `-tr` is always stored
+// in cmdr Option Store, so you can retrieved it by
+// GetBoolR("trace") and set it by Set("trace", true).
+// You could also set it with SetTraceMode(b bool).
+//
+// The `--trace` is not enabled in default, so you have to
+// add it manually:
+//
+//     import "github.com/hedzr/cmdr-addons/pkg/plugins/trace"
+//     cmdr.Exec(buildRootCmd(),
+//         trace.WithTraceEnable(true),
+//     )
 func GetTraceMode() bool {
 	return GetBoolR("trace") || log.GetTraceMode()
+}
+
+// SetTraceMode setup the tracing mode status in Option Store
+func SetTraceMode(b bool) {
+	Set("trace", b)
 }
 
 // GetDebugMode returns the flag value of `--debug`/`-D`
@@ -310,8 +327,17 @@ func GetTraceMode() bool {
 // NOTE
 //     log.GetDebugMode()/SetDebugMode() have higher universality
 //
+// the flag value of `--debug` or `-D` is always stored
+// in cmdr Option Store, so you can retrieved it by
+// GetBoolR("debug") and set it by Set("debug", true).
+// You could also set it with SetDebugMode(b bool).
 func GetDebugMode() bool {
 	return GetBoolR("debug") || log.GetDebugMode()
+}
+
+// SetDebugMode setup the debug mode status in Option Store
+func SetDebugMode(b bool) {
+	Set("debug", b)
 }
 
 // NewLoggerConfig returns a default LoggerConfig

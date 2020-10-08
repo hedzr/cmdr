@@ -73,6 +73,12 @@ See our extras:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.28
+  - added cmdr.NewLoggerConfigWith for better smoothing transfer cmdr internal status to log/logex.
+  - added cmdr.InDevelopingTime
+  - better output in PassThruChar(--) detected
+  - doc and added SetTraceMode/SetDebugMode
+
 - v1.7.27
   - added: `WithHelpScreenHooks`, `GetRemainArgs`, ...
   - improved: `WithPagerEnabled`, `InTesting`, ...

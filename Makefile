@@ -189,12 +189,8 @@ go-build-task:
 	@#echo "  >  LDFLAGS = $(LDFLAGS)"
 	# unsupported GOOS/GOARCH pair nacl/386 ??
 	$(foreach an, $(MAIN_APPS), \
-	  echo "  >  APP NAMEs = appname:$(APPNAME)|projname:$(PROJECTNAME)|an:$(an)"; \
-	  $(eval ANAME := $(shell for an in $(MAIN_APPS); do \
-	    if [ $$an == cli ]; then echo $(APPNAME); \
-	    else echo $$an; \
-	    fi; \
-	  done)) \
+	  $(eval ANAME := $(shell if [ "$(an)" == "cli" ]; then echo $(APPNAME); else echo $(an); fi; )) \
+	  echo "  >  APP NAMEs = appname:$(APPNAME)|projname:$(PROJECTNAME)|an:$(an)|ANAME:$(ANAME)"; \
 	  $(foreach goarch, $(goarchset), \
 	    echo "     >> Building (-trimpath) $(GOBIN)/$(ANAME)_$(os)_$(goarch)...$(os)" >/dev/null; \
 	    $(GO) build -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(ANAME)_$(os)_$(goarch) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
@@ -247,11 +243,7 @@ go-build:
 	@echo "  >  Building binary '$(GOBIN)/$(APPNAME)'..."
 	# demo short wget-demo 
 	$(foreach an, $(MAIN_APPS), \
-		$(eval ANAME := $(shell for an in $(MAIN_APPS); do \
-			if [ $$an == cli ]; then echo $(APPNAME); \
-			else echo $$an; \
-			fi; \
-		done)) \
+	  $(eval ANAME := $(shell if [ "$(an)" == "cli" ]; then echo $(APPNAME); else echo $(an); fi; )) \
 	  echo "     +race. -trimpath. APPNAME = $(APPNAME)|$(an) -> $(ANAME), LDFLAGS = $(LDFLAGS)"; \
 	  $(GO) build -v -race -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(ANAME) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
 	  ls -la $(LS_OPT) $(GOBIN)/$(ANAME); \

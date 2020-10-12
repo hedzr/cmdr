@@ -191,7 +191,7 @@ go-build-task:
 	$(foreach an, $(MAIN_APPS), \
 	  echo "  >  APP NAMEs = appname:$(APPNAME)|projname:$(PROJECTNAME)|an:$(an)"; \
 	  $(eval ANAME := $(shell for an in $(MAIN_APPS); do \
-	    if [[ $$an == cli ]]; then echo $(APPNAME); \
+	    if [ $$an == cli ]; then echo $(APPNAME); \
 	    else echo $$an; \
 	    fi; \
 	  done)) \
@@ -248,7 +248,7 @@ go-build:
 	# demo short wget-demo 
 	$(foreach an, $(MAIN_APPS), \
 		$(eval ANAME := $(shell for an in $(MAIN_APPS); do \
-			if [[ $$an == cli ]]; then echo $(APPNAME); \
+			if [ $$an == cli ]; then echo $(APPNAME); \
 			else echo $$an; \
 			fi; \
 		done)) \

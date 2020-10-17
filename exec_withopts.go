@@ -98,27 +98,6 @@ func WithRxxtPrefix(prefix ...string) ExecOption {
 	}
 }
 
-// WithPredefinedLocations sets the main config file locations.
-//
-// Default locations are:
-//
-//     []string{
-//       "./ci/etc/%s/%s.yml",       // for developer
-//       "/etc/%s/%s.yml",           // regular location
-//       "/usr/local/etc/%s/%s.yml", // regular macOS HomeBrew location
-//       "$HOME/.config/%s/%s.yml",  // per user
-//       "$HOME/.%s/%s.yml",         // ext location per user
-//       "$THIS/%s.yml",             // executable's directory
-//       "%s.yml",                   // current directory
-//     },
-//
-// See also internalResetWorkerNoLock()
-func WithPredefinedLocations(locations ...string) ExecOption {
-	return func(w *ExecWorker) {
-		w.predefinedLocations = locations
-	}
-}
-
 // WithPluginLocations sets the addon locations.
 //
 // An addon is a golang plugin for cmdr.
@@ -161,7 +140,29 @@ func WithExtensionsLocations(locations ...string) ExecOption {
 	}
 }
 
+// WithPredefinedLocations sets the main config file locations.
+//
+// Default locations are:
+//
+//     []string{
+//       "./ci/etc/%s/%s.yml",       // for developer
+//       "/etc/%s/%s.yml",           // regular location
+//       "/usr/local/etc/%s/%s.yml", // regular macOS HomeBrew location
+//       "$HOME/.config/%s/%s.yml",  // per user
+//       "$HOME/.%s/%s.yml",         // ext location per user
+//       "$THIS/%s.yml",             // executable's directory
+//       "%s.yml",                   // current directory
+//     },
+//
+// See also internalResetWorkerNoLock()
+func WithPredefinedLocations(locations ...string) ExecOption {
+	return func(w *ExecWorker) {
+		w.predefinedLocations = locations
+	}
+}
+
 // WithWatchMainConfigFileToo enables the watcher on main config file.
+//
 // By default, cmdr watches all files in the sub-directory `conf.d` of
 // which folder contains the main config file. But as a feature,
 // cmdr ignore the changes in main config file.

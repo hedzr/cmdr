@@ -45,6 +45,11 @@ func GetUsingConfigFiles() []string {
 	return internalGetWorker().rxxtOptions.configFiles
 }
 
+// GetWatchingConfigFiles returns all config files being watched.
+func GetWatchingConfigFiles() []string {
+	return internalGetWorker().rxxtOptions.filesWatching
+}
+
 // var rwlCfgReload = new(sync.RWMutex)
 
 // AddOnConfigLoadedListener adds an functor on config loaded
@@ -146,6 +151,21 @@ func (s *Options) LoadConfigFile(file string) (err error) {
 		// don't bring the minor error for sub-dir walking back to main caller
 		err = nil
 		// log.Fatalf("ERROR: filepath.Walk() returned %v\n", err)
+	}
+
+	if internalGetWorker().watchAlterConfigFiles {
+		var dir string
+		confDFolderName = os.ExpandEnv(".$APPNAME")
+		dir, err = filepath.Abs(confDFolderName)
+		if err == nil && FileExists(dir) {
+			err = filepath.Walk(dir, s.visit)
+			if err == nil {
+				filesWatching = append(filesWatching, s.configFiles...)
+				enableWatching = true
+			}
+			// don't bring the minor error for sub-dir walking back to main caller
+			err = nil
+		}
 	}
 
 	if enableWatching {
@@ -271,6 +291,7 @@ func (s *Options) watchConfigDir(configDir string, filesWatching []string) {
 	initWG := &sync.WaitGroup{}
 	initWG.Add(1)
 	// initExitingChannelForFsWatcher()
+	s.filesWatching = filesWatching
 	go fsWatcherRoutine(s, configDir, filesWatching, initWG)
 	initWG.Wait() // make sure that the go routine above fully ended before returning
 	s.SetNx("watching", true)

@@ -198,6 +198,7 @@ type (
 		usedConfigFile   string
 		usedConfigSubDir string
 		configFiles      []string
+		filesWatching    []string
 		batchMerging     bool
 
 		onConfigReloadedFunctions map[ConfigReloaded]bool

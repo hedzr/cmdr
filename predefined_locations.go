@@ -7,6 +7,7 @@ import (
 	"github.com/hedzr/cmdr/conf"
 	"github.com/hedzr/cmdr/tool"
 	"os"
+	"path"
 	"strings"
 )
 
@@ -40,7 +41,24 @@ func (w *ExecWorker) parsePredefinedLocation() (err error) {
 	return
 }
 
+func (w *ExecWorker) checkAlterLocations(rootCmd *RootCommand) (err error) {
+	if w.watchAlterConfigFiles {
+		a1, a2 := ".$APPNAME.yml", ".$APPNAME/*.yml"
+		a3, a4 := os.ExpandEnv(a1), os.ExpandEnv(a2)
+		b := FileExists(a3)
+		if b {
+			w.predefinedLocations = append(w.predefinedLocations, a3)
+		}
+		b = FileExists(a4)
+		if b {
+			//
+		}
+	}
+	return
+}
+
 func (w *ExecWorker) loadFromPredefinedLocation(rootCmd *RootCommand) (err error) {
+	err = w.checkAlterLocations(w.rootCommand)
 	// and now, loading the external configuration files
 	for _, s := range w.getExpandedPredefinedLocations() {
 		fn := s

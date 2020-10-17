@@ -7,14 +7,17 @@ import (
 	"time"
 )
 
+// New return a tool for randomizer
 func New() Randomizer { return &randomizer{} }
 
+// Randomizer enables normal resolution randomizer
 type Randomizer interface {
 	Next() int
 	NextIn(max int) int
 	NextInRange(min, max int) int
 }
 
+// HiresRandomizer enables high resolution randomizer
 type HiresRandomizer interface {
 	HiresNext() uint64
 	HiresNextIn(max uint64) uint64
@@ -27,11 +30,16 @@ type randomizer struct {
 
 // var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 const (
-	Alphabets        = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	Digits           = "0123456789"
+	// Alphabets gets the a to z and A to Z
+	Alphabets = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	// Digits gets 0 to 9
+	Digits = "0123456789"
+	// AlphabetNumerics gets Alphabets and Digits
 	AlphabetNumerics = Alphabets + Digits
-	Symbols          = "~!@#$%^&*()-_+={}[]\\|<,>.?/\"';:`"
-	Ascii            = AlphabetNumerics + Symbols
+	// Symbols gets the ascii symbols
+	Symbols = "~!@#$%^&*()-_+={}[]\\|<,>.?/\"';:`"
+	// ASCII gets the ascii characters
+	ASCII = AlphabetNumerics + Symbols
 )
 
 var hundred = big.NewInt(100)

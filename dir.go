@@ -52,12 +52,13 @@ func IsDirectory(path string) (bool, error) {
 }
 
 // IsRegularFile tests whether `path` is a normal regular file or not
-func IsRegularFile(path string) (bool, error) {
-	fileInfo, err := os.Stat(path)
-	if err != nil {
-		return false, err
+func IsRegularFile(path string) (yes bool, err error) {
+	var fileInfo os.FileInfo
+	fileInfo, err = os.Stat(path)
+	if err == nil {
+		yes = fileInfo.Mode().IsRegular()
 	}
-	return fileInfo.Mode().IsRegular(), err
+	return
 }
 
 // FileExists returns the existence of an directory or file

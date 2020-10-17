@@ -27,7 +27,7 @@ func (w *ExecWorker) parsePredefinedLocation() (err error) {
 
 		if len(location) > 0 && FileExists(location) {
 			if yes, err = IsDirectory(location); yes {
-				if FileExists(location + "/conf.d") {
+				if FileExists(path.Join(location, w.confDFolderName)) {
 					setPredefinedLocations(location + "/%s.yml")
 				} else {
 					setPredefinedLocations(location + "/%s/%s.yml")

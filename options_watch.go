@@ -117,6 +117,7 @@ func (s *Options) LoadConfigFile(file string) (err error) {
 	dir := path.Dir(s.usedConfigFile)
 	_ = os.Setenv("CFG_DIR", dir)
 
+	confDFolderName := internalGetWorker().confDFolderName
 	enableWatching := internalGetWorker().watchMainConfigFileToo
 	dirWatch := dir
 	var filesWatching []string
@@ -124,7 +125,7 @@ func (s *Options) LoadConfigFile(file string) (err error) {
 		filesWatching = append(filesWatching, s.usedConfigFile)
 	}
 
-	s.usedConfigSubDir = path.Join(dir, "conf.d")
+	s.usedConfigSubDir = path.Join(dir, confDFolderName)
 	if !FileExists(s.usedConfigSubDir) {
 		s.usedConfigSubDir = ""
 		if len(filesWatching) == 0 {

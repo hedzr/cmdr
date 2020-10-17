@@ -42,6 +42,8 @@ type ExecWorker struct {
 	watchMainConfigFileToo   bool
 	doNotLoadingConfigFiles  bool
 	doNotWatchingConfigFiles bool
+	confDFolderName          string
+	watchAlterConfigFiles    bool
 
 	globalShowVersion   func()
 	globalShowBuildInfo func()
@@ -192,12 +194,16 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 		noDefaultHelpScreen: false,
 
 		helpTailLine: defaultTailLine,
+
+		confDFolderName: confDFolderNameConst,
 	}
 	WithEnvVarMap(nil)(w)
 
 	uniqueWorker = w
 	return
 }
+
+const confDFolderNameConst = "conf.d"
 
 // InternalExecFor is an internal helper, esp for debugging
 func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last *Command, err error) {

@@ -200,6 +200,25 @@ func WithConfigLoadedListener(c ConfigReloaded) ExecOption {
 	}
 }
 
+// WithConfigSubDirAutoName specify an alternate folder name instead `conf.d`.
+//
+// By default, cmdr watches all files in the sub-directory `conf.d` of
+// which folder contains the main config file.
+//
+func WithConfigSubDirAutoName(folderName string) ExecOption {
+	return func(w *ExecWorker) {
+		w.confDFolderName = folderName
+	}
+}
+
+// WithSearchAlterConfigFiles adds CURRDIR/.<appname>.yml and CURRDIR/.<appname>/*.yml
+// to the assumed config files and folders
+func WithSearchAlterConfigFiles(b bool) ExecOption {
+	return func(w *ExecWorker) {
+		w.watchAlterConfigFiles = b
+	}
+}
+
 // WithOptionMergeModifying adds a callback which invoked on new
 // configurations was merging into, typically on loading the
 // modified external config file(s).

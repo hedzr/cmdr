@@ -123,7 +123,7 @@ func (s *Options) getMapNoLock(key string) (m map[string]interface{}) {
 		if vv, ok := v.(map[string]interface{}); ok {
 			return vv
 		}
-		fwrn("need attention")
+		fwrn("need attention: getMapNoLock(%q) not found.")
 	}
 
 	a := strings.Split(key, ".")

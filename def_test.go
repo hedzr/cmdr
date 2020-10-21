@@ -796,7 +796,7 @@ var (
 			if cmdr.GetInt("app.kv.port") != 8500 || cmdr.GetString("app.kv.prefix") != "4" ||
 				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") ||
 				!cmdr.GetVerboseMode() || !cmdr.GetDebugMode() {
-				return fmt.Errorf("something wrong 2. |%v|%v|%v|%v|%v|%v",
+				return fmt.Errorf("something wrong 2 (4). |%v|%v|%v|%v|%v|%v",
 					cmdr.GetInt("app.kv.port"), cmdr.GetString("app.kv.prefix"),
 					cmdr.GetBool("app.help"), cmdr.GetBool("debug"),
 					cmdr.GetVerboseMode(), cmdr.GetDebugMode())

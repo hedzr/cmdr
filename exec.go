@@ -270,7 +270,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 				}
 				return
 			}
-			if stopC {
+			if stopC && !matched {
 				break
 			}
 		}

@@ -10,6 +10,7 @@ import (
 	"github.com/hedzr/logex"
 	"gopkg.in/hedzr/errors.v2"
 	"os"
+	"runtime"
 	"strings"
 	"sync"
 )
@@ -18,6 +19,8 @@ import (
 
 // ExecWorker is a core logic worker and holder
 type ExecWorker struct {
+	switchCharset string
+
 	// beforeXrefBuildingX, afterXrefBuiltX HookFunc
 	beforeXrefBuilding []HookFunc
 	afterXrefBuilt     []HookFunc
@@ -33,11 +36,12 @@ type ExecWorker struct {
 
 	shouldIgnoreWrongEnumValue bool
 
-	enableVersionCommands  bool
-	enableHelpCommands     bool
-	enableVerboseCommands  bool
-	enableCmdrCommands     bool
-	enableGenerateCommands bool
+	enableVersionCommands     bool
+	enableHelpCommands        bool
+	enableVerboseCommands     bool
+	enableCmdrCommands        bool
+	enableGenerateCommands    bool
+	treatUnknownCommandAsArgs bool
 
 	watchMainConfigFileToo   bool
 	doNotLoadingConfigFiles  bool
@@ -139,6 +143,8 @@ func internalGetWorker() (w *ExecWorker) {
 
 func internalResetWorkerNoLock() (w *ExecWorker) {
 	w = &ExecWorker{
+		switchCharset: "-~",
+
 		envPrefixes:  []string{"CMDR"},
 		rxxtPrefixes: []string{"app"},
 
@@ -175,11 +181,12 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 
 		shouldIgnoreWrongEnumValue: true,
 
-		enableVersionCommands:  true,
-		enableHelpCommands:     true,
-		enableVerboseCommands:  true,
-		enableCmdrCommands:     true,
-		enableGenerateCommands: true,
+		enableVersionCommands:     true,
+		enableHelpCommands:        true,
+		enableVerboseCommands:     true,
+		enableCmdrCommands:        true,
+		enableGenerateCommands:    true,
+		treatUnknownCommandAsArgs: true,
 
 		doNotLoadingConfigFiles: false,
 
@@ -198,7 +205,9 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 		confDFolderName: confDFolderNameConst,
 	}
 	WithEnvVarMap(nil)(w)
-
+	if runtime.GOOS == "windows" {
+		w.switchCharset = "-/~"
+	}
 	uniqueWorker = w
 	return
 }
@@ -261,6 +270,9 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 				}
 				return
 			}
+			if stopC {
+				break
+			}
 		}
 
 		last = goCommand
@@ -272,7 +284,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args *[]string) (matched, stopC, stopF bool, err error) {
-	if len(pkg.a) > 0 && (pkg.a[0] == '-' || pkg.a[0] == '/' || pkg.a[0] == '~') {
+	if len(pkg.a) > 0 && strings.Contains(w.switchCharset, pkg.a[0:1]) { // pkg.a[0] == '/' ||
 		if len(pkg.a) == 1 {
 			matched, stopF, err = w.helpOptMatching(pkg, goCommand, *args)
 			return
@@ -390,7 +402,7 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 
 	if !pkg.needHelp && len(pkg.unknownCmds) == 0 && len(pkg.unknownFlags) == 0 {
 		if goCommand.Action != nil {
-			args := w.getRemainArgs(pkg, args)
+			rArgs := w.getRemainArgs(pkg, args)
 
 			// if goCommand != &rootCmd.Command {
 			// 	if err = w.beforeInvokeCommand(rootCmd, goCommand, args); err == ErrShouldBeStopException {
@@ -402,7 +414,7 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 			// 	return nil
 			// }
 
-			err = w.doInvokeCommand(pkg, rootCmd, goCommand, args)
+			err = w.doInvokeCommand(pkg, rootCmd, goCommand, rArgs)
 			return
 		}
 	}

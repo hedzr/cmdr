@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
+	"github.com/hedzr/cmdr/tool"
 	log2 "log"
 	"os"
 	"strings"
@@ -130,10 +131,14 @@ func (w *ExecWorker) getPrefix() string {
 }
 
 func (w *ExecWorker) getRemainArgs(pkg *ptpkg, args []string) []string {
+	if pkg.remainArgs == nil {
+		return args[pkg.i:]
+	}
 	return pkg.remainArgs
 }
 
 // GetRemainArgs returns the remain arguments after command line parsed
 func GetRemainArgs() []string {
-	return internalGetWorker().lastPkg.remainArgs
+	w := internalGetWorker()
+	return w.getRemainArgs(w.lastPkg, tool.SavedOsArgs)
 }

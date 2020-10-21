@@ -45,6 +45,11 @@ func (w *ExecWorker) cmdMatching(pkg *ptpkg, goCommand **Command, args []string)
 		return
 	}
 
+	if w.treatUnknownCommandAsArgs {
+		stop = true
+		return
+	}
+
 	flog("    . adding unknown command %q", pkg.a)
 	pkg.unknownCmds = append(pkg.unknownCmds, pkg.a)
 	unknownCommand(pkg, *goCommand, args)

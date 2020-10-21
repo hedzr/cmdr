@@ -260,6 +260,17 @@ func WithIgnoreWrongEnumValue(ignored bool) ExecOption {
 	}
 }
 
+// WithWarnForUnknownCommand warns the end user if unknown command found.
+//
+// By default, cmdr ignore the first unknown command and treat them as
+// remained arguments.
+//
+func WithWarnForUnknownCommand(b bool) ExecOption {
+	return func(w *ExecWorker) {
+		w.treatUnknownCommandAsArgs = !b
+	}
+}
+
 // WithBuiltinCommands enables/disables those builtin predefined commands. Such as:
 //
 //  - versionsCmds / EnableVersionCommands supports injecting the default `--version` flags and commands

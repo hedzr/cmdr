@@ -73,6 +73,10 @@ See our extras:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.32
+  - added WithWarnForUnknownCommand
+  - fixed bugs
+
 - v1.7.31
   - added alternative config file and folder: `$CURRDIR/.<appname>.yml` & `$CURRDIR/.<appname>/*.yml` - Using `WithSearchAlterConfigFiles(true)`
   - configurable auto-sub-folder-name `conf.d`: `WithConfigSubDirAutoName(string)` 

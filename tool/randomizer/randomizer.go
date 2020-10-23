@@ -15,6 +15,8 @@ type Randomizer interface {
 	Next() int
 	NextIn(max int) int
 	NextInRange(min, max int) int
+	AsHires() HiresRandomizer
+	AsStrings() StringsRandomizer
 }
 
 // HiresRandomizer enables high resolution randomizer
@@ -22,6 +24,21 @@ type HiresRandomizer interface {
 	HiresNext() uint64
 	HiresNextIn(max uint64) uint64
 	HiresNextInRange(min, max uint64) uint64
+}
+
+// StringsRandomizer
+type StringsRandomizer interface {
+	// NextStringSimple returns a random string with specified length 'n', just in A..Z
+	NextStringSimple(n int) string
+	// NextString returns a random string with specified length 'n'
+	NextString(n int) string
+
+	NextStringByCharset(n int, charset []rune) string
+
+	NextStringWithVariantLength() string
+	NextStringWithVariantLengthRange(min, max int) string
+
+	NextStringWithVariantLengthByCharset(min, max int, charset []rune) string
 }
 
 type randomizer struct {
@@ -49,6 +66,8 @@ func (r *randomizer) Next() int                    { return seededRand.Int() }
 func (r *randomizer) NextIn(max int) int           { return seededRand.Intn(max) }
 func (r *randomizer) inRange(min, max int) int     { return seededRand.Intn(max-min) + min }
 func (r *randomizer) NextInRange(min, max int) int { return r.inRange(min, max) }
+func (r *randomizer) AsHires() HiresRandomizer     { return r }
+func (r *randomizer) AsStrings() StringsRandomizer { return r }
 
 func (r *randomizer) HiresNext() uint64 {
 	return r.hiresNextIn(hundred)
@@ -78,9 +97,14 @@ func (r *randomizer) hiresInRange(min, max uint64) uint64 {
 
 func (r *randomizer) HiresNextInRange(min, max uint64) uint64 { return r.hiresInRange(min, max) }
 
-func (r *randomizer) NextStringSimple(l int) string {
-	bytes := make([]byte, l)
-	for i := 0; i < l; i++ {
+//
+//
+//
+
+// NextStringSimple returns a random string with specified length 'n', just in A..Z
+func (r *randomizer) NextStringSimple(n int) string {
+	bytes := make([]byte, n)
+	for i := 0; i < n; i++ {
 		bytes[i] = byte(r.inRange(65, 90)) // 'a' .. 'z'
 	}
 	return string(bytes)
@@ -99,8 +123,8 @@ func (r *randomizer) randStringBaseImpl(n int, charset []rune) string {
 	return string(b)
 }
 
-func (r *randomizer) NextStringByCharset(l int, charset []rune) string {
-	return r.randStringBaseImpl(l, charset)
+func (r *randomizer) NextStringByCharset(n int, charset []rune) string {
+	return r.randStringBaseImpl(n, charset)
 }
 
 // NextStringWithVariantLength returns a random string with random length (1..127)

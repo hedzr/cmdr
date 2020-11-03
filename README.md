@@ -73,6 +73,10 @@ See our extras:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.33
+  - added project-level files
+  - update deps
+
 - v1.7.32
   - added WithWarnForUnknownCommand
   - fixed bugs

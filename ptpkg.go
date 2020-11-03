@@ -332,7 +332,7 @@ func (pkg *ptpkg) processTypeUint(args []string) (err error) {
 func (pkg *ptpkg) processTypeFloat(args []string) (err error) {
 	if err = pkg.preprocessPkg(args); err == nil {
 		var v float64
-		v, err = strconv.ParseFloat(pkg.val, 0)
+		v, err = strconv.ParseFloat(pkg.val, 64)
 		if err != nil {
 			ferr("wrong number (float): flag=%v, number=%v, err: %v", pkg.fn, pkg.val, err)
 			err = errors.New("wrong number (float): flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)

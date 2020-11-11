@@ -2,6 +2,10 @@
 
 ## Versions
 
+- v1.7.35
+  - update deps with log/logex fixed
+
+
 - v1.7.33
   - added project-level files
   - update deps

@@ -73,6 +73,9 @@ See our extras:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.35
+  - update deps with log/logex fixed
+
 - v1.7.33
   - added project-level files
   - update deps

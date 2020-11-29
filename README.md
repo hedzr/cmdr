@@ -73,6 +73,17 @@ See our extras:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.36
+  - fixed `GetSectionFrom()` now work for []interface{}. such as:
+	```yaml
+	inform:
+	 - name: xx
+	   url: xx
+	 - name: yy
+	   url: yy
+	```
+  - print error detail while loading and merging child config file failed
+
 - v1.7.35
   - update deps with log/logex fixed
 

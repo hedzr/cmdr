@@ -471,6 +471,19 @@ func GetSectionFrom(sectionKeyPath string, holder interface{}) (err error) {
 			// 	logrus.Debugf("configuration section got: %v", configHolder)
 			// }
 		}
+	} else {
+		fObj := GetR(sectionKeyPath)
+		if fObj != nil {
+			defer handleSerializeError(&err)
+			var b []byte
+			b, err = yaml.Marshal(fObj)
+			if err == nil {
+				err = yaml.Unmarshal(b, holder)
+				// if err == nil {
+				// 	logrus.Debugf("configuration section got: %v", configHolder)
+				// }
+			}
+		}
 	}
 	return
 }

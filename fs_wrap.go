@@ -76,7 +76,7 @@ func fsWatchRunner(s *Options, configDir string, filesWatching []string, watcher
 							if err != nil {
 								log.Printf("ERROR: os.Open() returned %v\n", err)
 							} else {
-								err = s.mergeConfigFile(bufio.NewReader(file), path.Ext(event.Name))
+								err = s.mergeConfigFile(bufio.NewReader(file), event.Name, path.Ext(event.Name))
 								if err != nil {
 									log.Printf("ERROR: os.Open() returned %v\n", err)
 								}

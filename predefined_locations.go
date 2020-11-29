@@ -78,7 +78,7 @@ func (w *ExecWorker) loadFromPredefinedLocation(rootCmd *RootCommand) (err error
 			err = w.rxxtOptions.LoadConfigFile(fn)
 			if err == nil {
 				conf.CfgFile = fn
-				flog("--> preprocess / buildXref / loadFromPredefinedLocation: %q loaded", fn)
+				flog("--> preprocess / buildXref / loadFromPredefinedLocation: %q loaded (CFG_DIR=%v)", fn, w.rxxtOptions.usedConfigSubDir)
 				//flog("--> loadFromPredefinedLocation(): %q loaded", fn)
 			}
 			break

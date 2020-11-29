@@ -213,7 +213,7 @@ func (s *Options) loadConfigFile(file string) (err error) {
 	return
 }
 
-func (s *Options) mergeConfigFile(fr io.Reader, ext string) (err error) {
+func (s *Options) mergeConfigFile(fr io.Reader, src string, ext string) (err error) {
 	var (
 		m   map[string]interface{}
 		buf *bytes.Buffer
@@ -236,6 +236,7 @@ func (s *Options) mergeConfigFile(fr io.Reader, ext string) (err error) {
 		err = s.loopMap("", m)
 	}
 	if err != nil {
+		ferr("unsatisfied config file `%s` while importing: %v", src, err)
 		return
 	}
 
@@ -244,6 +245,7 @@ func (s *Options) mergeConfigFile(fr io.Reader, ext string) (err error) {
 
 func (s *Options) visit(path string, f os.FileInfo, e error) (err error) {
 	// fmt.Printf("Visited: %s, e: %v\n", path, e)
+	flog("    visiting: %v, e: %v", path, e)
 	err = e
 	if f != nil && !f.IsDir() && e == nil {
 		// log.Infof("    path: %v, ext: %v", path, filepath.Ext(path))
@@ -257,7 +259,8 @@ func (s *Options) visit(path string, f os.FileInfo, e error) (err error) {
 			// } else {
 			if err == nil {
 				defer file.Close()
-				if err = s.mergeConfigFile(bufio.NewReader(file), ext); err != nil {
+				flog("    visited and merging: %v", file.Name())
+				if err = s.mergeConfigFile(bufio.NewReader(file), file.Name(), ext); err != nil {
 					err = errors.New("error in merging config file '%s': %v", path, err)
 					return
 				}

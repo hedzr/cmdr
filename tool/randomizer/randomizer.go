@@ -26,7 +26,7 @@ type HiresRandomizer interface {
 	HiresNextInRange(min, max uint64) uint64
 }
 
-// StringsRandomizer
+// StringsRandomizer interface
 type StringsRandomizer interface {
 	// NextStringSimple returns a random string with specified length 'n', just in A..Z
 	NextStringSimple(n int) string

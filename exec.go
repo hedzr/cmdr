@@ -5,109 +5,11 @@
 package cmdr
 
 import (
-	"bufio"
-	cmdrbase "github.com/hedzr/cmdr-base"
 	"github.com/hedzr/logex"
 	"gopkg.in/hedzr/errors.v2"
 	"os"
-	"runtime"
 	"strings"
-	"sync"
 )
-
-//
-
-// ExecWorker is a core logic worker and holder
-type ExecWorker struct {
-	switchCharset string
-
-	// beforeXrefBuildingX, afterXrefBuiltX HookFunc
-	beforeXrefBuilding []HookFunc
-	afterXrefBuilt     []HookFunc
-	afterAutomaticEnv  []HookOptsFunc
-	beforeHelpScreen   []HookHelpScreenFunc
-	afterHelpScreen    []HookHelpScreenFunc
-
-	envPrefixes         []string
-	rxxtPrefixes        []string
-	predefinedLocations []string
-	pluginsLocations    []string
-	extensionsLocations []string
-
-	shouldIgnoreWrongEnumValue bool
-
-	enableVersionCommands     bool
-	enableHelpCommands        bool
-	enableVerboseCommands     bool
-	enableCmdrCommands        bool
-	enableGenerateCommands    bool
-	treatUnknownCommandAsArgs bool
-
-	watchMainConfigFileToo   bool
-	doNotLoadingConfigFiles  bool
-	doNotWatchingConfigFiles bool
-	confDFolderName          string
-	watchAlterConfigFiles    bool
-
-	globalShowVersion   func()
-	globalShowBuildInfo func()
-
-	currentHelpPainter Painter
-
-	bufferedStdio bool
-	defaultStdout *bufio.Writer
-	defaultStderr *bufio.Writer
-	closers       []func()
-
-	// rootCommand the root of all commands
-	rootCommand *RootCommand
-	// rootOptions *Opt
-	rxxtOptions        *Options
-	onOptionMergingSet OnOptionSetCB
-	onOptionSet        OnOptionSetCB
-
-	similarThreshold      float64
-	noDefaultHelpScreen   bool
-	noColor               bool
-	noEnvOverrides        bool
-	strictMode            bool
-	noUnknownCmdTip       bool
-	noCommandAction       bool
-	noPluggableAddons     bool
-	noPluggableExtensions bool
-
-	logexInitialFunctor Handler
-	logexPrefix         string
-	logexSkipFrames     int
-
-	afterArgsParsed Handler
-
-	envVarToValueMap map[string]func() string
-
-	helpTailLine string
-
-	onSwitchCharHit   OnSwitchCharHitCB
-	onPassThruCharHit OnPassThruCharHitCB
-
-	addons []cmdrbase.PluginEntry
-
-	lastPkg *ptpkg
-}
-
-// ExecOption is the functional option for Exec()
-type ExecOption func(w *ExecWorker)
-
-//
-
-func init() {
-	_ = internalResetWorkerNoLock()
-}
-
-//
-//
-// *******************************************
-//
-//
 
 // Exec is main entry of `cmdr`.
 func Exec(rootCmd *RootCommand, opts ...ExecOption) (err error) {
@@ -130,98 +32,9 @@ func Exec(rootCmd *RootCommand, opts ...ExecOption) (err error) {
 	return
 }
 
-var uniqueWorkerLock sync.RWMutex
-var uniqueWorker *ExecWorker
-var noResetWorker = true
-
-func internalGetWorker() (w *ExecWorker) {
-	uniqueWorkerLock.RLock()
-	w = uniqueWorker
-	uniqueWorkerLock.RUnlock()
-	return
-}
-
-func internalResetWorkerNoLock() (w *ExecWorker) {
-	w = &ExecWorker{
-		switchCharset: "-~",
-
-		envPrefixes:  []string{"CMDR"},
-		rxxtPrefixes: []string{"app"},
-
-		predefinedLocations: []string{
-			"./ci/etc/$APPNAME/$APPNAME.yml",       // for developer
-			"/etc/$APPNAME/$APPNAME.yml",           // regular location
-			"/usr/local/etc/$APPNAME/$APPNAME.yml", // regular macOS HomeBrew location
-			"$HOME/.config/$APPNAME/$APPNAME.yml",  // per user
-			"$HOME/.$APPNAME/$APPNAME.yml",         // ext location per user
-			// "$XDG_CONFIG_HOME/$APPNAME/$APPNAME.yml", // ?? seldom defined | generally it's $HOME/.config
-			"$THIS/$APPNAME.yml", // executable's directory
-			"$APPNAME.yml",       // current directory
-			// "./ci/etc/%s/%s.yml",
-			// "/etc/%s/%s.yml",
-			// "/usr/local/etc/%s/%s.yml",
-			// "$HOME/.%s/%s.yml",
-			// "$HOME/.config/%s/%s.yml",
-		},
-
-		pluginsLocations: []string{
-			"./ci/local/share/$APPNAME/addons",
-			"$HOME/.local/share/$APPNAME/addons",
-			"$HOME/.$APPNAME/addons",
-			"/usr/local/share/$APPNAME/addons",
-			"/usr/share/$APPNAME/addons",
-		},
-		extensionsLocations: []string{
-			"./ci/local/share/$APPNAME/ext",
-			"$HOME/.local/share/$APPNAME/ext",
-			"$HOME/.$APPNAME/ext",
-			"/usr/local/share/$APPNAME/ext",
-			"/usr/share/$APPNAME/ext",
-		},
-
-		shouldIgnoreWrongEnumValue: true,
-
-		enableVersionCommands:     true,
-		enableHelpCommands:        true,
-		enableVerboseCommands:     true,
-		enableCmdrCommands:        true,
-		enableGenerateCommands:    true,
-		treatUnknownCommandAsArgs: true,
-
-		doNotLoadingConfigFiles: false,
-
-		currentHelpPainter: new(helpPainter),
-
-		defaultStdout: bufio.NewWriterSize(os.Stdout, 16384),
-		defaultStderr: bufio.NewWriterSize(os.Stderr, 16384),
-
-		rxxtOptions: newOptions(),
-
-		similarThreshold:    similarThreshold,
-		noDefaultHelpScreen: false,
-
-		helpTailLine: defaultTailLine,
-
-		confDFolderName: confDFolderNameConst,
-	}
-	WithEnvVarMap(nil)(w)
-	if runtime.GOOS == "windows" {
-		w.switchCharset = "-/~"
-	}
-	uniqueWorker = w
-	return
-}
-
-const confDFolderNameConst = "conf.d"
-
 // InternalExecFor is an internal helper, esp for debugging
 func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last *Command, err error) {
-	var (
-		pkg          = new(ptpkg)
-		goCommand    = &rootCmd.Command
-		stopF, stopC bool
-		matched      bool
-	)
+	var pkg = new(ptpkg)
 
 	if w.rootCommand == nil {
 		w.setupRootCommand(rootCmd)
@@ -231,53 +44,63 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 	defer w.postExecFor(rootCmd, pkg)
 
 	err = w.preprocess(rootCmd, args)
-
 	if err == nil {
-		flog("--> process...")
-		for pkg.i = 1; pkg.i < len(args); pkg.i++ {
-			// if pkg.ResetAnd(args[pkg.i]) == 0 {
-			// 	continue
-			// }
-			lr := pkg.ResetAnd(args[pkg.i])
-			flog("--> parsing %q (idx=%v, len=%v) | pkg.lastCommandHeld=%v", pkg.a, pkg.i, lr, pkg.lastCommandHeld)
+		last, err = w.internalExecFor(pkg, rootCmd, args)
+	}
+	return
+}
 
-			// --debug:        long opt
-			// -D:             short opt
-			// -nv:            double chars short opt, more chars are supported
-			// ~~debug:        long opt without opt-entry prefix.
-			// ~D:             short opt without opt-entry prefix.
-			// -abc:           the combined short opts
-			// -nvabc, -abnvc: a,b,c,nv the four short opts, if no -n & -v defined.
-			// --name=consul, --name consul, --nameconsul: opt with a string, int, string slice argument
-			// -nconsul, -n consul, -n=consul: opt with an argument.
-			//  - -nconsul is not good format, but it could get somewhat works.
-			//  - -n'consul', -n"consul" could works too.
-			// -t3: opt with an argument.
+func (w *ExecWorker) internalExecFor(pkg *ptpkg, rootCmd *RootCommand, args []string) (last *Command, err error) {
+	var (
+		goCommand    = &rootCmd.Command
+		stopF, stopC bool
+		matched      bool
+	)
 
-			matched, stopC, stopF, err = w.xxTestCmd(pkg, &goCommand, rootCmd, &args)
-			if err != nil {
-				var e *ErrorForCmdr
-				if errors.As(err, &e) {
-					ferr("%v", e)
-					if !e.Ignorable {
-						return
-					}
+	flog("--> process...")
+	for pkg.i = 1; pkg.i < len(args); pkg.i++ {
+		// if pkg.ResetAnd(args[pkg.i]) == 0 {
+		// 	continue
+		// }
+		lr := pkg.ResetAnd(args[pkg.i])
+		flog("--> parsing %q (idx=%v, len=%v) | pkg.lastCommandHeld=%v", pkg.a, pkg.i, lr, pkg.lastCommandHeld)
+
+		// --debug:        long opt
+		// -D:             short opt
+		// -nv:            double chars short opt, more chars are supported
+		// ~~debug:        long opt without opt-entry prefix.
+		// ~D:             short opt without opt-entry prefix.
+		// -abc:           the combined short opts
+		// -nvabc, -abnvc: a,b,c,nv the four short opts, if no -n & -v defined.
+		// --name=consul, --name consul, --nameconsul: opt with a string, int, string slice argument
+		// -nconsul, -n consul, -n=consul: opt with an argument.
+		//  - -nconsul is not good format, but it could get somewhat works.
+		//  - -n'consul', -n"consul" could works too.
+		// -t3: opt with an argument.
+
+		matched, stopC, stopF, err = w.xxTestCmd(pkg, &goCommand, rootCmd, &args)
+		if err != nil {
+			var e *ErrorForCmdr
+			if errors.As(err, &e) {
+				ferr("%v", e)
+				if !e.Ignorable {
+					return
 				}
-			}
-			if stopF {
-				if pkg.lastCommandHeld || (matched && pkg.flg == nil) {
-					err = w.afterInternalExec(pkg, rootCmd, goCommand, args, stopC || pkg.lastCommandHeld)
-				}
-				return
-			}
-			if stopC && !matched {
-				break
 			}
 		}
-
-		last = goCommand
-		err = w.afterInternalExec(pkg, rootCmd, goCommand, args, stopC || pkg.lastCommandHeld)
+		if stopF {
+			if pkg.lastCommandHeld || (matched && pkg.flg == nil) {
+				err = w.afterInternalExec(pkg, rootCmd, goCommand, args, stopC || pkg.lastCommandHeld)
+			}
+			return
+		}
+		if stopC && !matched {
+			break
+		}
 	}
+
+	last = goCommand
+	err = w.afterInternalExec(pkg, rootCmd, goCommand, args, stopC || pkg.lastCommandHeld)
 
 	return
 }
@@ -389,6 +212,10 @@ func (w *ExecWorker) postExecFor(rootCmd *RootCommand, pkg *ptpkg) {
 	}
 
 	w.lastPkg = pkg
+
+	if true {
+		w.rxxtOptions.Flush()
+	}
 }
 
 //goland:noinspection GoUnusedParameter

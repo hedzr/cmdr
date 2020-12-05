@@ -50,7 +50,7 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 	w.setupFromEnvvarMap()
 
 	if !w.doNotLoadingConfigFiles {
-		// flog("--> buildXref: loadFromPredefinedLocation()")
+		// flog("--> buildXref: loadFromPredefinedLocations()")
 
 		// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
 		//if err = w.parsePredefinedLocation(); err != nil {
@@ -59,7 +59,9 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 		_ = w.parsePredefinedLocation()
 
 		// and now, loading the external configuration files
-		err = w.loadFromPredefinedLocation(rootCmd)
+		err = w.loadFromPredefinedLocations(rootCmd)
+
+		err = w.loadFromAlterLocations(rootCmd)
 
 		// if len(w.envPrefixes) > 0 {
 		// 	EnvPrefix = w.envPrefixes

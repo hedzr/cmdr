@@ -142,22 +142,39 @@ func WithExtensionsLocations(locations ...string) ExecOption {
 
 // WithPredefinedLocations sets the main config file locations.
 //
-// Default locations are:
+// Default is:
 //
 //     []string{
-//       "./ci/etc/%s/%s.yml",       // for developer
-//       "/etc/%s/%s.yml",           // regular location
-//       "/usr/local/etc/%s/%s.yml", // regular macOS HomeBrew location
-//       "$HOME/.config/%s/%s.yml",  // per user
-//       "$HOME/.%s/%s.yml",         // ext location per user
-//       "$THIS/%s.yml",             // executable's directory
-//       "%s.yml",                   // current directory
+//			"./ci/etc/$APPNAME/$APPNAME.yml",       // for developer
+//			"/etc/$APPNAME/$APPNAME.yml",           // regular location
+//			"/usr/local/etc/$APPNAME/$APPNAME.yml", // regular macOS HomeBrew location
+//			"/opt/etc/$APPNAME/$APPNAME.yml",       // regular location
+//			"$HOME/.config/$APPNAME/$APPNAME.yml",  // per user
+//			"$HOME/.$APPNAME/$APPNAME.yml",         // ext location per user
+//			"$THIS/$APPNAME.yml", // executable's directory
+//			"$APPNAME.yml",       // current directory
 //     },
 //
 // See also internalResetWorkerNoLock()
 func WithPredefinedLocations(locations ...string) ExecOption {
 	return func(w *ExecWorker) {
 		w.predefinedLocations = locations
+	}
+}
+
+// WithAlterLocations sets the alter config file locations.
+//
+// Default is:
+//
+//     alterLocations: []string{
+//         "./bin/$APPNAME.yml", // for developer, current bin directory
+//         "/var/lib/$APPNAME",
+//         "$THIS/$APPNAME.yml", // executable's directory
+//     },
+//
+func WithAlterLocations(locations ...string) ExecOption {
+	return func(w *ExecWorker) {
+		w.alterLocations = locations
 	}
 }
 
@@ -216,7 +233,7 @@ func WithConfigSubDirAutoName(folderName string) ExecOption {
 // to the assumed config files and folders
 func WithSearchAlterConfigFiles(b bool) ExecOption {
 	return func(w *ExecWorker) {
-		w.watchAlterConfigFiles = b
+		w.watchChildConfigFiles = b
 	}
 }
 

@@ -41,8 +41,8 @@ func (w *ExecWorker) parsePredefinedLocation() (err error) {
 	return
 }
 
-func (w *ExecWorker) checkAlterLocations(rootCmd *RootCommand) (err error) {
-	if w.watchAlterConfigFiles {
+func (w *ExecWorker) checkMoreLocations(rootCmd *RootCommand) (err error) {
+	if w.watchChildConfigFiles {
 		a1, a2 := ".$APPNAME.yml", ".$APPNAME/*.yml"
 		a3, a4 := os.ExpandEnv(a1), os.ExpandEnv(a2)
 		b := FileExists(a3)
@@ -57,10 +57,31 @@ func (w *ExecWorker) checkAlterLocations(rootCmd *RootCommand) (err error) {
 	return
 }
 
-func (w *ExecWorker) loadFromPredefinedLocation(rootCmd *RootCommand) (err error) {
-	err = w.checkAlterLocations(w.rootCommand)
+func (w *ExecWorker) loadFromPredefinedLocations(rootCmd *RootCommand) (err error) {
+	err = w.checkMoreLocations(w.rootCommand)
+	var mainFile, subDir string
+	mainFile, subDir, err = w.loadFromLocations(rootCmd, w.getExpandedPredefinedLocations(), true)
+	if err == nil {
+		conf.CfgFile = mainFile
+		flog("--> preprocess / buildXref / loadFromPredefinedLocations: %q loaded (CFG_DIR=%v)", mainFile, subDir)
+		//flog("--> loadFromPredefinedLocations(): %q loaded", fn)
+	}
+	return
+}
+
+func (w *ExecWorker) loadFromAlterLocations(rootCmd *RootCommand) (err error) {
+	err = w.checkMoreLocations(w.rootCommand)
+	var mainFile, subDir string
+	mainFile, subDir, err = w.loadFromLocations(rootCmd, w.getExpandedAlterLocations(), false)
+	if err == nil {
+		flog("--> preprocess / buildXref / loadFromAlterLocations: %q loaded (CFG_DIR=%v)", mainFile, subDir)
+	}
+	return
+}
+
+func (w *ExecWorker) loadFromLocations(rootCmd *RootCommand, locations []string, main bool) (mainFile, subDir string, err error) {
 	// and now, loading the external configuration files
-	for _, s := range w.getExpandedPredefinedLocations() {
+	for _, s := range locations {
 		fn := s
 		switch strings.Count(fn, "%s") {
 		case 2:
@@ -75,16 +96,23 @@ func (w *ExecWorker) loadFromPredefinedLocation(rootCmd *RootCommand) (err error
 			b = FileExists(fn)
 		}
 		if b {
-			err = w.rxxtOptions.LoadConfigFile(fn)
-			if err == nil {
-				conf.CfgFile = fn
-				flog("--> preprocess / buildXref / loadFromPredefinedLocation: %q loaded (CFG_DIR=%v)", fn, w.rxxtOptions.usedConfigSubDir)
-				//flog("--> loadFromPredefinedLocation(): %q loaded", fn)
-			}
+			mainFile, subDir, err = w.rxxtOptions.LoadConfigFile(fn, main)
 			break
 		}
 	}
 	return
+}
+
+// getExpandedAlterLocations for internal using
+func (w *ExecWorker) getExpandedAlterLocations() (locations []string) {
+	for _, d := range internalGetWorker().alterLocations {
+		locations = uniAddStr(locations, normalizeDir(d))
+	}
+	return
+}
+
+func setAlterLocations(locations ...string) {
+	internalGetWorker().alterLocations = locations
 }
 
 // getExpandedPredefinedLocations for internal using

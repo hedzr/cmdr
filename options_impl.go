@@ -5,7 +5,10 @@ package cmdr
 import (
 	"fmt"
 	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log"
+	"github.com/hedzr/log/exec"
 	"gopkg.in/yaml.v3"
+	"io/ioutil"
 	"os"
 	"reflect"
 	"sort"
@@ -965,6 +968,75 @@ func et(keys []string, ix int, val interface{}) interface{} {
 		return p
 	}
 	return val
+}
+
+// Flush writes all changes back to the alter config file
+func (s *Options) Flush() {
+	if len(s.usedAlterConfigFile) > 0 {
+		if fi, err := os.Stat(os.ExpandEnv(s.usedAlterConfigFile)); err == nil && exec.IsModeWriteOwner(fi.Mode()) {
+
+			//// str := AsYaml() // s.DumpAsString(false)
+			//var b []byte
+			//var err error
+			//obj := s.GetHierarchyList()
+			//defer handleSerializeError(&err)
+			//b, err = yaml.Marshal(obj)
+
+			var updated bool
+			var m map[string]interface{}
+			//var mc map[string]interface{}
+			m, err = s.loadConfigFileAsMap(s.usedAlterConfigFile)
+			updated, _, err = s.updateMap("", m)
+			if updated && err == nil {
+				var b []byte
+				defer handleSerializeError(&err)
+				b, err = yaml.Marshal(m)
+
+				err = ioutil.WriteFile(s.usedAlterConfigFile, b, 0644)
+				if err != nil {
+					log.Errorf("err: %v", err)
+				} else {
+					flog("config file %q updated.", s.usedAlterConfigFile)
+				}
+			}
+		}
+	}
+}
+
+func (s *Options) updateMap(kDot string, m map[string]interface{}) (updated bool, mc map[string]interface{}, err error) {
+	for k, v := range m {
+		key := mxIx(kDot, k)
+		if vm, ok := v.(map[interface{}]interface{}); ok {
+			if err = s.updateIxMap(key, vm); err != nil {
+				return
+			}
+		} else if vm, ok := v.(map[string]interface{}); ok {
+			if updated, mc, err = s.updateMap(key, vm); err != nil {
+				return
+			}
+		} else {
+			if sv, ok := s.entries[key]; ok {
+				tsv, tv := reflect.TypeOf(sv), reflect.TypeOf(v)
+				ne := !tsv.Comparable() || !tv.Comparable()
+				if tsv.Comparable() && tv.Comparable() && sv != v {
+					ne = true
+				}
+				if ne {
+					updated = true
+					if mc == nil {
+						mc = make(map[string]interface{})
+					}
+					mc[k], m[k] = sv, sv
+				}
+			}
+		}
+	}
+	return
+}
+
+func (s *Options) updateIxMap(key string, vm map[interface{}]interface{}) (err error) {
+	// TODO for k, v in map[interface{}]interface{}
+	return
 }
 
 // Reset the exists `Options`, so that you could follow a `LoadConfigFile()` with it.

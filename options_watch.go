@@ -93,19 +93,20 @@ func SetOnConfigLoadedListener(c ConfigReloaded, enabled bool) {
 // LoadConfigFile loads a yaml config file and merge the settings
 // into `rxxtOptions`
 // and load files in the `conf.d` child directory too.
-func LoadConfigFile(file string) (err error) {
-	return internalGetWorker().rxxtOptions.LoadConfigFile(file)
+func LoadConfigFile(file string) (mainFile, subDir string, err error) {
+	return internalGetWorker().rxxtOptions.LoadConfigFile(file, true)
 }
 
 // LoadConfigFile loads a yaml config file and merge the settings
 // into `rxxtOptions`
 // and load files in the `conf.d` child directory too.
-func (s *Options) LoadConfigFile(file string) (err error) {
+func (s *Options) LoadConfigFile(file string, main bool) (mainFile, subDir string, err error) {
 
 	defer func() {
 		s.batchMerging = false
 		s.mapOrphans()
 	}()
+
 	s.batchMerging = true
 
 	if !FileExists(file) {
@@ -117,43 +118,53 @@ func (s *Options) LoadConfigFile(file string) (err error) {
 		return
 	}
 
-	s.usedConfigFile = file
-
-	dir := path.Dir(s.usedConfigFile)
-	_ = os.Setenv("CFG_DIR", dir)
-
-	confDFolderName := internalGetWorker().confDFolderName
+	mainFile = file
+	dirWatch := path.Dir(mainFile)
 	enableWatching := internalGetWorker().watchMainConfigFileToo
-	dirWatch := dir
+	confDFolderName := internalGetWorker().confDFolderName
 	var filesWatching []string
-	if internalGetWorker().watchMainConfigFileToo {
-		filesWatching = append(filesWatching, s.usedConfigFile)
-	}
+	if main {
+		dir := dirWatch
+		s.usedConfigFile = mainFile
+		_ = os.Setenv("CFG_DIR", dir)
 
-	s.usedConfigSubDir = path.Join(dir, confDFolderName)
-	if !FileExists(s.usedConfigSubDir) {
-		s.usedConfigSubDir = ""
-		if len(filesWatching) == 0 {
-			return
+		if internalGetWorker().watchMainConfigFileToo {
+			filesWatching = append(filesWatching, s.usedConfigFile)
 		}
-	}
 
-	s.usedConfigSubDir, err = filepath.Abs(s.usedConfigSubDir)
-	if err == nil {
-		err = filepath.Walk(s.usedConfigSubDir, s.visit)
-		if err == nil {
-			if !internalGetWorker().watchMainConfigFileToo {
-				dirWatch = s.usedConfigSubDir
+		subDir = path.Join(dir, confDFolderName)
+		if !FileExists(subDir) {
+			subDir = ""
+			if len(filesWatching) == 0 {
+				return
 			}
-			filesWatching = append(filesWatching, s.configFiles...)
-			enableWatching = true
 		}
-		// don't bring the minor error for sub-dir walking back to main caller
-		err = nil
-		// log.Fatalf("ERROR: filepath.Walk() returned %v\n", err)
-	}
 
-	if internalGetWorker().watchAlterConfigFiles {
+		subDir, err = filepath.Abs(subDir)
+		if err == nil {
+			err = filepath.Walk(subDir, s.visit)
+			if err == nil {
+				if !internalGetWorker().watchMainConfigFileToo {
+					dirWatch = subDir
+				}
+				filesWatching = append(filesWatching, s.configFiles...)
+				enableWatching = true
+			}
+			// don't bring the minor error for sub-dir walking back to main caller
+			err = nil
+			// log.Fatalf("ERROR: filepath.Walk() returned %v\n", err)
+		}
+
+		s.usedConfigSubDir = subDir
+	} else {
+		s.usedAlterConfigFile = mainFile
+	}
+	err = s.doWatchConfigFile(enableWatching, confDFolderName, dirWatch, filesWatching)
+	return
+}
+
+func (s *Options) doWatchConfigFile(enableWatching bool, confDFolderName, dirWatch string, filesWatching []string) (err error) {
+	if internalGetWorker().watchChildConfigFiles {
 		var dir string
 		confDFolderName = os.ExpandEnv(".$APPNAME")
 		dir, err = filepath.Abs(confDFolderName)
@@ -171,14 +182,27 @@ func (s *Options) LoadConfigFile(file string) (err error) {
 	if enableWatching {
 		s.watchConfigDir(dirWatch, filesWatching)
 	}
+	flog("the watching config files: %v", s.filesWatching)
+	flog("the loaded config files: %v", s.configFiles)
 	return
 }
 
 // Load a yaml config file and merge the settings into `Options`
 func (s *Options) loadConfigFile(file string) (err error) {
+	var m map[string]interface{}
+	m, err = s.loadConfigFileAsMap(file)
+	if err == nil {
+		err = s.loopMap("", m)
+	}
+	//if err != nil {
+	//	return
+	//}
+	return
+}
+
+func (s *Options) loadConfigFileAsMap(file string) (m map[string]interface{}, err error) {
 	var (
 		b  []byte
-		m  map[string]interface{}
 		mm map[string]map[string]interface{}
 	)
 
@@ -202,14 +226,6 @@ func (s *Options) loadConfigFile(file string) (err error) {
 	default:
 		err = yaml.Unmarshal(b, &m)
 	}
-
-	if err == nil {
-		err = s.loopMap("", m)
-	}
-	if err != nil {
-		return
-	}
-
 	return
 }
 
@@ -288,6 +304,10 @@ func (s *Options) reloadConfig() {
 
 func (s *Options) watchConfigDir(configDir string, filesWatching []string) {
 	if internalGetWorker().doNotWatchingConfigFiles || GetBoolR("no-watch-conf-dir") {
+		return
+	}
+
+	if len(configDir) == 0 || len(filesWatching) == 0 {
 		return
 	}
 

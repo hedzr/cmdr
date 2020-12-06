@@ -138,7 +138,7 @@ app:
 `), 0644)
 	// _ = cmdr.LoadConfigFile(".tmp.json")
 	// _ = cmdr.LoadConfigFile(".tmp.toml")
-	if err := cmdr.LoadConfigFile(".tmp.yaml"); err != nil {
+	if _, _, err := cmdr.LoadConfigFile(".tmp.yaml"); err != nil {
 		t.Fatal(err)
 	}
 

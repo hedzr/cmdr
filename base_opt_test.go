@@ -304,13 +304,13 @@ func TestConfigFiles(t *testing.T) {
 	}()
 
 	// try loading cfg again for gocov
-	if err = cmdr.LoadConfigFile(".tmp.yaml"); err != nil {
+	if _, _, err = cmdr.LoadConfigFile(".tmp.yaml"); err != nil {
 		t.Fatal(err)
 	}
 	_ = os.Remove(".tmp.yaml")
 
 	// try loading cfg again for gocov
-	if err = cmdr.LoadConfigFile(".tmp.yaml"); err != nil {
+	if _, _, err = cmdr.LoadConfigFile(".tmp.yaml"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -319,19 +319,19 @@ app'x':"
 `), 0644)
 
 	// try loading cfg again for gocov
-	if err = cmdr.LoadConfigFile(".tmp.yaml"); err == nil {
+	if _, _, err = cmdr.LoadConfigFile(".tmp.yaml"); err == nil {
 		t.Fatal("loading cfg file should be failed (err != nil), but it returns nil as err.")
 	}
 	_ = os.Remove(".tmp.yaml")
 
 	_ = ioutil.WriteFile(".tmp.json", []byte(`{"app":{"debug":errrrr}}`), 0644)
-	if err = cmdr.LoadConfigFile(".tmp.json"); err == nil {
+	if _, _, err = cmdr.LoadConfigFile(".tmp.json"); err == nil {
 		t.Fatal(err)
 	}
 
 	_ = ioutil.WriteFile(".tmp.json", []byte(`{"app":{"debug":false}}`), 0644)
 	// try loading cfg again for gocov
-	if err = cmdr.LoadConfigFile(".tmp.json"); err != nil {
+	if _, _, err = cmdr.LoadConfigFile(".tmp.json"); err != nil {
 		t.Fatal(err)
 	}
 	_ = os.Remove(".tmp.json")
@@ -339,11 +339,11 @@ app'x':"
 	_ = ioutil.WriteFile(".tmp.toml", []byte(`
 runmode=devel
 `), 0644)
-	if err = cmdr.LoadConfigFile(".tmp.toml"); err == nil {
+	if _, _, err = cmdr.LoadConfigFile(".tmp.toml"); err == nil {
 		t.Fatal(err)
 	}
 
-	_ = cmdr.LoadConfigFile(".tmp.x.toml")
+	_, _, _ = cmdr.LoadConfigFile(".tmp.x.toml")
 
 	_ = ioutil.WriteFile(".tmp.toml", []byte(`
 runmode="devel"
@@ -351,7 +351,7 @@ runmode="devel"
 debug=true
 `), 0644)
 	// try loading cfg again for gocov
-	if err = cmdr.LoadConfigFile(".tmp.toml"); err != nil {
+	if _, _, err = cmdr.LoadConfigFile(".tmp.toml"); err != nil {
 		t.Fatal(err)
 	}
 	_ = os.Remove(".tmp.toml")

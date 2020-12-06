@@ -75,6 +75,7 @@ See our extras:
 
 - v1.7.37
 	- added `WithAlterLocations(...)`
+	- broken: LoadConfigFiles returns 3 values now
 
 - v1.7.36
   - fixed `GetSectionFrom()` now work for []interface{}. such as:

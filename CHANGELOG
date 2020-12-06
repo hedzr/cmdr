@@ -10,6 +10,7 @@
 	      "/var/lib/$APPNAME",
 	      "$THIS/$APPNAME.yml", // executable's directory
 	  ```
+	- broken: LoadConfigFiles returns 3 values now
 
 
 - v1.7.36

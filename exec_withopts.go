@@ -172,6 +172,10 @@ func WithPredefinedLocations(locations ...string) ExecOption {
 //         "$THIS/$APPNAME.yml", // executable's directory
 //     },
 //
+// NOTE that just one config file will be loaded, the child `conf.d` folder not supports.
+//
+// cmdr will SAVE the changes in this alter config file automatically once loaded.
+//
 func WithAlterLocations(locations ...string) ExecOption {
 	return func(w *ExecWorker) {
 		w.alterLocations = locations

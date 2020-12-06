@@ -73,6 +73,9 @@ See our extras:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.37
+	- added `WithAlterLocations(...)`
+
 - v1.7.36
   - fixed `GetSectionFrom()` now work for []interface{}. such as:
 	```yaml

@@ -2,6 +2,16 @@
 
 ## Versions
 
+- v1.7.37
+	- added `WithAlterLocations(...)`. The config files in the alternative locations have the topest priorities on loading and merging, and the first of them can be written back if the changes made programmatically.
+	  The typical alternative locations are:
+	  ```
+	      "./bin/$APPNAME.yml", // for developer, current bin directory
+	      "/var/lib/$APPNAME",
+	      "$THIS/$APPNAME.yml", // executable's directory
+	  ```
+
+
 - v1.7.36
   - fixed `GetSectionFrom()` now work for []interface{}. such as:
 		```yaml

@@ -189,8 +189,12 @@ go-build-task:
 	@#echo "  >  LDFLAGS = $(LDFLAGS)"
 	# unsupported GOOS/GOARCH pair nacl/386 ??
 	$(foreach an, $(MAIN_APPS), \
-	  $(eval ANAME := $(shell if [ "$(an)" == "cli" ]; then echo $(APPNAME); else echo $(an); fi; )) \
-	  echo "  >  APP NAMEs = appname:$(APPNAME)|projname:$(PROJECTNAME)|an:$(an)|ANAME:$(ANAME)"; \
+	  echo "  >  APP NAMEs = appname:$(APPNAME)|projname:$(PROJECTNAME)|an:$(an)"; \
+	  $(eval ANAME := $(shell for an in $(MAIN_APPS); do \
+	    if [[ $$an == cli ]]; then echo $(APPNAME); \
+	    else echo $$an; \
+	    fi; \
+	  done)) \
 	  $(foreach goarch, $(goarchset), \
 	    echo "     >> Building (-trimpath) $(GOBIN)/$(ANAME)_$(os)_$(goarch)...$(os)" >/dev/null; \
 	    $(GO) build -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(ANAME)_$(os)_$(goarch) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
@@ -198,6 +202,16 @@ go-build-task:
 	    ls -la $(LS_OPT) $(GOBIN)/$(ANAME)_$(os)_$(goarch)*; \
 	) \
 	)
+	#	$(foreach an, $(MAIN_APPS), \
+	#	  $(eval ANAME := $(shell if [ "$(an)" == "cli" ]; then echo $(APPNAME); else echo $(an); fi; )) \
+	#	  echo "  >  APP NAMEs = appname:$(APPNAME)|projname:$(PROJECTNAME)|an:$(an)|ANAME:$(ANAME)"; \
+	#	  $(foreach goarch, $(goarchset), \
+	#	    echo "     >> Building (-trimpath) $(GOBIN)/$(ANAME)_$(os)_$(goarch)...$(os)" >/dev/null; \
+	#	    $(GO) build -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(ANAME)_$(os)_$(goarch) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
+	#	    chmod +x $(GOBIN)/$(ANAME)_$(os)_$(goarch)*; \
+	#	    ls -la $(LS_OPT) $(GOBIN)/$(ANAME)_$(os)_$(goarch)*; \
+	#	) \
+	#	)
 	#@ls -la $(LS_OPT) $(GOBIN)/*linux*
 
 
@@ -243,15 +257,26 @@ go-build:
 	@echo "  >  Building binary '$(GOBIN)/$(APPNAME)'..."
 	# demo short wget-demo 
 	$(foreach an, $(MAIN_APPS), \
-	  $(eval ANAME := $(shell if [ "$(an)" == "cli" ]; then echo $(APPNAME); else echo $(an); fi; )) \
+		$(eval ANAME := $(shell for an in $(MAIN_APPS); do \
+			if [[ $$an == cli ]]; then echo $(APPNAME); \
+			else echo $$an; \
+			fi; \
+		done)) \
 	  echo "     +race. -trimpath. APPNAME = $(APPNAME)|$(an) -> $(ANAME), LDFLAGS = $(LDFLAGS)"; \
 	  $(GO) build -v -race -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(ANAME) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
 	  ls -la $(LS_OPT) $(GOBIN)/$(ANAME); \
 	)
+	#	$(foreach an, $(MAIN_APPS), \
+	#	  $(eval ANAME := $(shell if [ "$(an)" == "cli" ]; then echo $(APPNAME); else echo $(an); fi; )) \
+	#	  echo "     +race. -trimpath. APPNAME = $(APPNAME)|$(an) -> $(ANAME), LDFLAGS = $(LDFLAGS)"; \
+	#	  $(GO) build -v -race -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(ANAME) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
+	#	  ls -la $(LS_OPT) $(GOBIN)/$(ANAME); \
+	#	)
 	ls -la $(LS_OPT) $(GOBIN)/
-	$(GO) build -v -race -buildmode=plugin -o ./ci/local/share/fluent/addons/demo.so ./plugin/demo
-	chmod +x ./ci/local/share/fluent/addons/demo.so
-	ls -la $(LS_OPT) ./ci/local/share/fluent/addons/demo.so
+	if [[ -d ./plugin/demo ]]; then \
+	  $(GO) build -v -race -buildmode=plugin -o ./ci/local/share/fluent/addons/demo.so ./plugin/demo && \
+	  chmod +x ./ci/local/share/fluent/addons/demo.so && \
+	  ls -la $(LS_OPT) ./ci/local/share/fluent/addons/demo.so; fi
 	# go build -o $(GOBIN)/$(APPNAME) $(GOFILES)
 	# chmod +x $(GOBIN)/*
 

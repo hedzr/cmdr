@@ -73,6 +73,9 @@ See our extras:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.38
+  - improved the usage line in help screen
+
 - v1.7.37
 	- added `WithAlterLocations(...)`
 	- broken: LoadConfigFiles returns 3 values now

@@ -2,6 +2,10 @@
 
 ## Versions
 
+- v1.7.38
+  - improved the usage line in help screen
+
+
 - v1.7.37
 	- added `WithAlterLocations(...)`. The config files in the alternative locations have the topest priorities on loading and merging, and the first of them can be written back if the changes made programmatically.
 	  The typical alternative locations are:

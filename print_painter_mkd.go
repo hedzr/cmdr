@@ -125,7 +125,7 @@ func (s *markdownPainter) FpPrintHelpTailLine(command *Command) {
 
 func mkdSubCommands(command *Command) (ret []string) {
 	for _, sc := range command.SubCommands {
-		title := replaceAll(internalGetWorker().backtraceCmdNames(sc), ".", "-")
+		title := replaceAll(internalGetWorker().backtraceCmdNames(sc, false), ".", "-")
 		// if len(title) == 0 {
 		// 	title = command.root.AppName
 		// } else {

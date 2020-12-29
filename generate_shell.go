@@ -310,7 +310,7 @@ func genManual(command *Command, args []string) (err error) {
 
 		fn := cmd.root.AppName
 		if !cmd.IsRoot() {
-			cmds := replaceAll(w.backtraceCmdNames(cmd), ".", "-")
+			cmds := replaceAll(w.backtraceCmdNames(cmd, false), ".", "-")
 			// if cmds == "generate" {
 			// 	cmds += ""
 			// }
@@ -375,7 +375,7 @@ func genDoc(command *Command, args []string) (err error) {
 
 		fn := cmd.root.AppName
 		if !cmd.IsRoot() {
-			cmds := replaceAll(w.backtraceCmdNames(cmd), ".", "-")
+			cmds := replaceAll(w.backtraceCmdNames(cmd, false), ".", "-")
 			if len(cmds) > 0 {
 				fn += "-" + cmds
 			}

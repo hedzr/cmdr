@@ -136,7 +136,7 @@ func (c *Command) GetName() string {
 // more information about Option Prefix, refer
 // to [WithOptionsPrefix]
 func (c *Command) GetDottedNamePath() string {
-	return internalGetWorker().backtraceCmdNames(c)
+	return internalGetWorker().backtraceCmdNames(c, false)
 }
 
 // GetQuotedGroupName returns the group name quoted string.

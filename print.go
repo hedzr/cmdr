@@ -239,7 +239,7 @@ func (w *ExecWorker) printHelpUsages(p Painter, command *Command) {
 			}
 		}
 
-		cmds := replaceAll(internalGetWorker().backtraceCmdNames(command), ".", " ")
+		cmds := replaceAll(w.backtraceCmdNames(command, true), ".", " ")
 		if len(cmds) > 0 {
 			cmds += " "
 		}

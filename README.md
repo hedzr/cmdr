@@ -73,6 +73,9 @@ See our extras:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.39
+  - update log/logex to fix the wrong caller skips for zap/sugar, and ensure debug mode work
+
 - v1.7.38
   - improved the usage line in help screen
 

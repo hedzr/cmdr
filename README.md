@@ -73,6 +73,9 @@ See our extras:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.40
+  - update log/logex to fix the wrong caller skips for logrus
+
 - v1.7.39
   - update log/logex to fix the wrong caller skips for zap/sugar, and ensure debug mode work
 
@@ -80,8 +83,8 @@ See our extras:
   - improved the usage line in help screen
 
 - v1.7.37
-	- added `WithAlterLocations(...)`
-	- broken: LoadConfigFiles returns 3 values now
+  - added `WithAlterLocations(...)`
+  - broken: LoadConfigFiles returns 3 values now
 
 - v1.7.36
   - fixed `GetSectionFrom()` now work for []interface{}. such as:

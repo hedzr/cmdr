@@ -78,7 +78,11 @@ func fwrn(fmtStr string, args ...interface{}) {
 	}
 }
 
-// flog prints information if InDebugging() is true
+// flog prints information if InDebugging() is true.
+//
+// To enable it, building your project with '-tags=delve'.
+//
+// See also: https://hedzr.github.io/cmdr-docs/zh/cmdr/guide/Z81.helpers.html#func-indebugging
 func flog(fmtStr string, args ...interface{}) {
 	if InDebugging() /* || logex.GetTraceMode() */ {
 		_, _ = fmt.Fprintf(os.Stderr, "\u001B[2m\u001B[2m"+fmtStr+"\u001B[0m\n", args...)

@@ -16,7 +16,7 @@ require (
 	github.com/hedzr/cmdr-base v0.1.3
 	github.com/hedzr/log v0.3.9
 	github.com/hedzr/logex v1.3.9
-	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0
+	golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529
 	gopkg.in/hedzr/errors.v2 v2.1.3
-	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
+	gopkg.in/yaml.v3 v3.0.0-20210106172901-c476de37821d
 )

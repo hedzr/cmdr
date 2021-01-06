@@ -73,6 +73,11 @@ See our extras:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.41
+	- fixed: flags after tail-args might not be recognized.
+	  NOTE: in `app cmd1 cmd2 --a file1 file2 --c`, `--c` might be ignored.
+	- updated: log+logex
+
 - v1.7.40
   - update log/logex to fix the wrong caller skips for logrus
 

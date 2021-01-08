@@ -58,16 +58,19 @@ func ffp(of io.Writer, fmtStr string, args ...interface{}) {
 }
 
 func ferr(fmtStr string, args ...interface{}) {
-	if w := internalGetWorker().rootCommand.oerr; w != nil {
-		_, _ = fmt.Fprintf(w, fmtStr, args...)
-		if !strings.HasSuffix(fmtStr, "\n") {
-			_, _ = fmt.Fprintln(w)
+	if wkr := internalGetWorker(); wkr != nil && wkr.rootCommand != nil {
+		if w := wkr.rootCommand.oerr; w != nil {
+			_, _ = fmt.Fprintf(w, fmtStr, args...)
+			if !strings.HasSuffix(fmtStr, "\n") {
+				_, _ = fmt.Fprintln(w)
+			}
+			return
 		}
-	} else {
-		_, _ = fmt.Printf(fmtStr, args...)
-		if !strings.HasSuffix(fmtStr, "\n") {
-			fmt.Println()
-		}
+	}
+
+	_, _ = fmt.Printf(fmtStr, args...)
+	if !strings.HasSuffix(fmtStr, "\n") {
+		fmt.Println()
 	}
 }
 

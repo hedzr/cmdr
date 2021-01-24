@@ -3,16 +3,18 @@
 package cmdr
 
 import (
+	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log"
 	"github.com/hedzr/logex"
+	"github.com/hedzr/logex/build"
 	"os"
 	"strings"
 )
 
 // WithLogx enables github.com/hedzr/logex/logx integration
 //
-// Sample:
+// Sample 1:
 //
 //    WithLogx(log.NewDummyLogger()),	// import "github.com/hedzr/log"
 //    WithLogx(log.NewStdLogger()),	// import "github.com/hedzr/log"
@@ -20,13 +22,21 @@ import (
 //    WithLogx(sugar.New()),		// import "github.com/hedzr/logex/logx/zap/sugar"
 //    WithLogx(zap.New()),			// import "github.com/hedzr/logex/logx/zap"
 //
-// Sample:
+// Sample 2:
 //
 //    WithLogx(build.New(loggerConfig)),	// import "github.com/hedzr/logex/build"
+//    WithLogx(build.New(build.NewLoggerConfigWith(true, "zap", "debug")),
 //
 func WithLogx(logger log.Logger) ExecOption {
 	return func(w *ExecWorker) {
 		SetLogger(logger)
+	}
+}
+
+// WithLogxShort enables github.com/hedzr/logex/logx integration
+func WithLogxShort(enabled bool, backend, level string) ExecOption {
+	return func(w *ExecWorker) {
+		SetLogger(build.New(cmdr.NewLoggerConfigWith(enabled, backend, level)))
 	}
 }
 

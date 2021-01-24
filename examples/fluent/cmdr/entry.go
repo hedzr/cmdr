@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/tool"
-	"github.com/hedzr/logex/build"
 	"golang.org/x/crypto/ssh/terminal"
 	"io/ioutil"
 	"os"
@@ -34,7 +33,8 @@ func Entry() {
 		// integrate with logex library
 		//cmdr.WithLogex(cmdr.DebugLevel),
 		//cmdr.WithLogexPrefix("logger"),
-		cmdr.WithLogx(build.New(cmdr.NewLoggerConfigWith(true, "logrus", "debug"))),
+		//cmdr.WithLogx(build.New(cmdr.NewLoggerConfigWith(true, "logrus", "debug"))),
+		cmdr.WithLogxShort(true, "logrus", "debug"),
 
 		cmdr.WithWatchMainConfigFileToo(true),
 		// cmdr.WithNoWatchConfigFiles(false),

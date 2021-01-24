@@ -11,18 +11,18 @@
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go#command-line)
 <!-- https://gowalker.org/github.com/hedzr/cmdr -->
 
-`cmdr` is a POSIX/GNU style,  command-line UI (CLI) Go library.
+`cmdr` is a POSIX-compliant,  command-line UI (CLI) library in Golang.
 It is a getopt-like parser of command-line options, 
 be compatible with the [getopt_long](http://www.gnu.org/s/libc/manual/html_node/Argument-Syntax.html#Argument-Syntax) 
 command line UI, which is an extension of the syntax recommended
 by POSIX.
 
-There are couples of enhancements beyond the standard 
-library `flag`.
+We made many enhancements beyond the standard library `flag`.
 
 There is a full `Options Store` (configurations) for your
-hierarchy configuration data too.
+hierarchical configuration dataset too.
 
+The .netCore version [Cmdr.Core](/hedzr/Cmdr.Core) is available now. And, a cxx version `cmdr-cxx` is comming soon.
 
 ![ee99d078e2f7](https://user-images.githubusercontent.com/12786150/72876202-f49ee500-3d30-11ea-9de0-434bf8decf90.gif)
 <!-- built by https://ezgif.com/ -->

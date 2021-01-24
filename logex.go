@@ -3,7 +3,6 @@
 package cmdr
 
 import (
-	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log"
 	"github.com/hedzr/logex"
@@ -36,7 +35,7 @@ func WithLogx(logger log.Logger) ExecOption {
 // WithLogxShort enables github.com/hedzr/logex/logx integration
 func WithLogxShort(enabled bool, backend, level string) ExecOption {
 	return func(w *ExecWorker) {
-		SetLogger(build.New(cmdr.NewLoggerConfigWith(enabled, backend, level)))
+		SetLogger(build.New(NewLoggerConfigWith(enabled, backend, level)))
 	}
 }
 

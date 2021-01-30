@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// WithLogx enables github.com/hedzr/logex/logx integration
+// WithLogx enables github.com/hedzr/logex,log integration
 //
 // Sample 1:
 //
@@ -32,7 +32,7 @@ func WithLogx(logger log.Logger) ExecOption {
 	}
 }
 
-// WithLogxShort enables github.com/hedzr/logex/logx integration
+// WithLogxShort enables github.com/hedzr/logex,log integration
 func WithLogxShort(enabled bool, backend, level string) ExecOption {
 	return func(w *ExecWorker) {
 		SetLogger(build.New(NewLoggerConfigWith(enabled, backend, level)))

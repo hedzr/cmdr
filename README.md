@@ -14,15 +14,15 @@
 `cmdr` is a POSIX-compliant,  command-line UI (CLI) library in Golang.
 It is a getopt-like parser of command-line options, 
 be compatible with the [getopt_long](http://www.gnu.org/s/libc/manual/html_node/Argument-Syntax.html#Argument-Syntax) 
-command line UI, which is an extension of the syntax recommended
-by POSIX.
+command line UI, which is an extension of the syntax recommended by POSIX.
 
 We made many enhancements beyond the standard library `flag`.
 
-There is a full `Options Store` (configurations) for your
+There is a fully-functional `Options Store` (configurations) for your
 hierarchical configuration dataset too.
 
-The .netCore version [Cmdr.Core](/hedzr/Cmdr.Core) is available now. And, a cxx version `cmdr-cxx` is comming soon.
+The .netCore version [Cmdr.Core](https
+://github.com/hedzr/Cmdr.Core) is available now. And, a cxx version [`cmdr-cxx`](https://github.com/hedzr/cmdr-cxx) was pre-released just now (Happy Spring Festival 2021).
 
 ![ee99d078e2f7](https://user-images.githubusercontent.com/12786150/72876202-f49ee500-3d30-11ea-9de0-434bf8decf90.gif)
 <!-- built by https://ezgif.com/ -->
@@ -226,7 +226,7 @@ $ docker run -it --rm docker.pkg.github.com/hedzr/cmdr/cmdr-fluent --help
 4. [fluent](./examples/fluent)  
    demostrates how to define your command-ui with the fluent api style.
 
-5. [ffmain](./examples/ffmain)
+5. [ffdemo](./examples/ffdemo)
 
    a demo to show you how to migrate from go `flag` smoothly.
 

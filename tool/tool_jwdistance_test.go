@@ -12,6 +12,10 @@ var distanceTestsJW = []struct {
 	second string
 	wanted float64
 }{
+	{"CRATE", "TRACE", 0.74166666667},
+	{"DwAyNE", "DuANE", 0.84000000000},
+	{"developer", "developers", 0.99666666667},
+	{"developer", "seveloper", 0.92592592593},
 	{"mame", "name", 0.7222222222222222},
 	{"mv", "mx", 0.6666666666666666},
 	{"mv", "mx-test", 0.5476190476190476},

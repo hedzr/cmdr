@@ -64,6 +64,10 @@ See our extras:
 - [**cmdr-addons**](https://github.com/hedzr/cmdr-addons): a new daemon plugin `dex` for linux/macOS/windows.
 - [**cmdr-examples**](https://github.com/hedzr/cmdr-examples): collects the samples for cmdr
 
+and Bonus of #cmdr Series:
+
+- dotnetCore: [Cmdr.Core](https://github.com/hedzr/Cmdr.Core)
+- C++17 or higher: [cmdr-cxx](https:..github.com/hedzr/cmdr-cxx)
 
 
 ## News

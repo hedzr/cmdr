@@ -67,7 +67,7 @@ See our extras:
 and Bonus of #cmdr Series:
 
 - dotnetCore: [Cmdr.Core](https://github.com/hedzr/Cmdr.Core)
-- C++17 or higher: [cmdr-cxx](https:..github.com/hedzr/cmdr-cxx)
+- C++17 or higher: [cmdr-cxx](https://github.com/hedzr/cmdr-cxx)
 
 
 ## News

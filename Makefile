@@ -70,16 +70,7 @@ GO_OFF := GOARCH="$(goarch)" GOOS="$(os)" \
 #LDFLAGS=
 M = $(shell printf "\033[34;1m▶\033[0m")
 ADDR = ":5q5q"
-SERVER_START_ARG=server run
-SERVER_STOP_ARG=server stop
 CN = hedzr/$(N)
-
-
-
-
-
-
- 
 
 
 
@@ -123,10 +114,13 @@ endif
 
 
 
+
+
 .PHONY: build compile exec clean
 .PHONY: run build-linux build-ci
 .PHONY: go-build go-generate go-mod-download go-get go-install go-clean
 .PHONY: godoc format fmt lint cov gocov coverage codecov cyclo bench
+
 
 
 # For the full list of GOARCH/GOOS, take a look at:
@@ -139,7 +133,7 @@ endif
 
 
 ## build: Compile the binary. Synonym of `compile`
-build: compile
+build: directories compile
 
 
 ## build-win: build to windows executable, for LAN deploy manually.
@@ -184,20 +178,20 @@ build-ci:
 	@echo "  < All Done."
 	@ls -la $(LS_OPT) $(GOBIN)/*
 
-go-build-task:
+go-build-task: directories
 	@echo "  >  Building $(os)/$(goarchset) binary..."
 	@#echo "  >  LDFLAGS = $(LDFLAGS)"
 	# unsupported GOOS/GOARCH pair nacl/386 ??
 	$(foreach an, $(MAIN_APPS), \
 	  echo "  >  APP NAMEs = appname:$(APPNAME)|projname:$(PROJECTNAME)|an:$(an)"; \
 		$(eval ANAME := $(shell for an1 in $(MAIN_APPS); do \
-			if [[ $$an == $$an1 ]]; then \
+			if [[ $(an) == $$an1 ]]; then \
 			  if [[ $$an1 == cli ]]; then echo $(APPNAME); else echo $$an1; fi; \
 			fi; \
 		done)) \
 	  $(foreach goarch, $(goarchset), \
 	    echo "     >> Building (-trimpath) $(GOBIN)/$(ANAME)_$(os)_$(goarch)...$(os)" >/dev/null; \
-	    $(GO) build -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(ANAME)_$(os)_$(goarch) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
+	    $(GO) build -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(ANAME)_$(os)_$(goarch) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an)/$(MAIN_ENTRY_FILE); \
 	    chmod +x $(GOBIN)/$(ANAME)_$(os)_$(goarch)*; \
 	    ls -la $(LS_OPT) $(GOBIN)/$(ANAME)_$(os)_$(goarch)*; \
 	) \
@@ -218,14 +212,14 @@ go-build-task:
 
 
 ## compile: Compile the binary.
-compile: go-clean go-generate
+compile: directories go-clean go-generate
 	@-touch $(STDERR)
 	@-rm $(STDERR)
-	# @-$(MAKE) info
 	@-$(MAKE) -s go-build 2> $(STDERR)
-	# @cat $(STDERR) | sed -e '1s/.*/\nError:\n/'  | sed 's/make\[.*/ /' | sed "/^/s/^/     /" 1>&2
-	#
 	@cat $(STDERR) | sed -e '1s/.*/\nError:\n/' 1>&2
+
+# @cat $(STDERR) | sed -e '1s/.*/\nError:\n/'  | sed 's/make\[.*/ /' | sed "/^/s/^/     /" 1>&2
+#@if [[ -z "$(STDERR)" ]]; then echo; else echo -e "\n\nError:\n\n"; cat $(STDERR)  1>&2; fi
 
 ## exec: Run given cmd, wrapped with custom GOPATH. eg; make exec run="go test ./..."
 exec:
@@ -254,24 +248,18 @@ run:
 	@$(GO) run -ldflags "$(LDFLAGS)" $(GOBASE)/cli/main.go 
 
 go-build:
-	@echo "  >  Building binary '$(GOBIN)/$(APPNAME)'..."
-	# demo short wget-demo 
+	@echo "  >  Building apps: $(MAIN_APPS)..."
 	$(foreach an, $(MAIN_APPS), \
 		$(eval ANAME := $(shell for an1 in $(MAIN_APPS); do \
-			if [[ $$an == $$an1 ]]; then \
+			if [[ "$(an)" == $$an1 ]]; then \
 			  if [[ $$an1 == cli ]]; then echo $(APPNAME); else echo $$an1; fi; \
 			fi; \
 		done)) \
-	  echo "     +race. -trimpath. APPNAME = $(APPNAME)|$(an) -> $(ANAME), LDFLAGS = $(LDFLAGS)"; \
-	  $(GO) build -v -race -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(ANAME) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
+	  echo "  >  >  Building $(MAIN_BUILD_PKG)/$(an) -> $(ANAME) ..."; \
+	  echo "        +race. -trimpath. APPNAME = $(APPNAME), LDFLAGS = $(LDFLAGS)"; \
+	  $(GO) build -v -race -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(ANAME) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an)/$(MAIN_ENTRY_FILE); \
 	  ls -la $(LS_OPT) $(GOBIN)/$(ANAME); \
 	)
-	#	$(foreach an, $(MAIN_APPS), \
-	#	  $(eval ANAME := $(shell if [ "$(an)" == "cli" ]; then echo $(APPNAME); else echo $(an); fi; )) \
-	#	  echo "     +race. -trimpath. APPNAME = $(APPNAME)|$(an) -> $(ANAME), LDFLAGS = $(LDFLAGS)"; \
-	#	  $(GO) build -v -race -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(ANAME) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
-	#	  ls -la $(LS_OPT) $(GOBIN)/$(ANAME); \
-	#	)
 	ls -la $(LS_OPT) $(GOBIN)/
 	if [[ -d ./plugin/demo ]]; then \
 	  $(GO) build -v -race -buildmode=plugin -o ./ci/local/share/fluent/addons/demo.so ./plugin/demo && \
@@ -283,7 +271,6 @@ go-build:
 go-generate:
 	@echo "  >  Generating dependency files ('$(generate)') ..."
 	@$(GO) generate $(generate) ./...
-	# @echo "     done"
 
 go-mod-download:
 	@$(GO) mod download
@@ -299,7 +286,6 @@ go-install:
 go-clean:
 	@echo "  >  Cleaning build cache"
 	@$(GO) clean
-	# @echo "     Clean done"
 
 
 
@@ -374,21 +360,21 @@ gocov: coverage
 ## coverage: run go coverage test
 coverage: | $(GOBASE)
 	@echo "  >  gocov ..."
-	@$(GO) test . -v -race -coverprofile=coverage.txt -covermode=atomic -timeout=20m -test.short | tee coverage.log
+	@$(GO) test $(COVER_TEST_TARGETS) -v -race -coverprofile=coverage.txt -covermode=atomic -timeout=20m -test.short | tee coverage.log
 	@$(GO) tool cover -html=coverage.txt -o cover.html
 	@open cover.html
 
 ## coverage-full: run go coverage test (with the long tests)
 coverage-full: | $(GOBASE)
 	@echo "  >  gocov ..."
-	@$(GO) test ./... -v -race -coverprofile=coverage.txt -covermode=atomic -timeout=20m | tee coverage.log
+	@$(GO) test $(COVER_TEST_TARGETS) -v -race -coverprofile=coverage.txt -covermode=atomic -timeout=20m | tee coverage.log
 	@$(GO) tool cover -html=coverage.txt -o cover.html
 	@open cover.html
 
 ## codecov: run go test for codecov; (codecov.io)
 codecov: | $(GOBASE)
 	@echo "  >  codecov ..."
-	@$(GO) test . -v -race -coverprofile=coverage.txt -covermode=atomic
+	@$(GO) test $(COVER_TEST_TARGETS) -v -race -coverprofile=coverage.txt -covermode=atomic
 	@bash <(curl -s https://codecov.io/bash) -t $(CODECOV_TOKEN)
 
 ## cyclo: run gocyclo tool
@@ -400,7 +386,7 @@ cyclo: | $(GOBASE) $(GOCYCLO)
 ## bench-std: benchmark test
 bench-std:
 	@echo "  >  benchmark testing ..."
-	@$(GO) test -bench="." -run=^$ -benchtime=10s ./...
+	@$(GO) test -bench="." -run=^$ -benchtime=10s $(COVER_TEST_TARGETS)
 	# go test -bench "." -run=none -test.benchtime 10s
 	# todo: go install golang.org/x/perf/cmd/benchstat
 
@@ -425,14 +411,33 @@ linux-test:
 
 ## docker: docker build
 docker:
-	@echo "  >  docker build ..."
-	docker build --build-arg CN=1 --build-arg GOPROXY="https://gocenter.io,direct" -t cmdr-fluent:latest -t cmdr-fluent:$(VERSION) .
+	@if [ -n "$(DOCKER_APP_NAME)" ]; then \
+	  echo "  >  docker build $(DOCKER_APP_NAME):$(VERSION)..."; \
+	  docker build --build-arg CN=1 --build-arg GOPROXY="https://gocenter.io,direct" -t $(DOCKER_APP_NAME):latest -t $(DOCKER_APP_NAME):$(VERSION) . ; \
+	else \
+	  echo "  >  docker build not available since DOCKER_APP_NAME is empty"; \
+	fi
 
 
 ## rshz: rsync to my TP470P
 rshz:
 	@echo "  >  sync to hz-pc ..."
 	rsync -arztopg --delete $(GOBASE) hz-pc:$(HZ_PC_GOBASE)/src/github.com/hedzr/
+
+
+
+
+
+.PHONY: directories
+
+MKDIR_P = mkdir -p
+
+directories: $(GOBIN)
+
+$(GOBIN):
+	$(MKDIR_P) $(GOBIN)
+
+
 
 
 .PHONY: printvars info help all
@@ -445,25 +450,26 @@ print-%:
 	@echo $* = $($*)
 
 info:
-	@echo "       GOBASE: $(GOBASE)"
-	@echo "        GOBIN: $(GOBIN)"
-	@echo "       GOROOT: $(GOROOT)"
-	@echo "       GOPATH: $(GOPATH)"
-	@echo "  GO111MODULE: $(GO111MODULE)"
-	@echo "      GOPROXY: $(GOPROXY)"
-	@echo "  PROJECTNAME: $(PROJECTNAME)"
-	@echo "      APPNAME: $(APPNAME)"
-	@echo "      VERSION: $(VERSION)"
-	@echo "    BUILDTIME: $(BUILDTIME)"
+	@echo "     GO_VERSION: $(GOVERSION)"
+	@echo "        GOPROXY: $(GOPROXY)"
+	@echo "         GOROOT: $(GOROOT) | GOPATH: $(GOPATH)"
+	#@echo "    GO111MODULE: $(GO111MODULE)"
 	@echo
-	@echo "  GIT_VERSION: $(GIT_VERSION)"
-	@echo " GIT_REVISION: $(GIT_REVISION)"
+	@echo "         GOBASE: $(GOBASE)"
+	@echo "          GOBIN: $(GOBIN)"
+	@echo "    PROJECTNAME: $(PROJECTNAME)"
+	@echo "        APPNAME: $(APPNAME)"
+	@echo "        VERSION: $(VERSION)"
+	@echo "      BUILDTIME: $(BUILDTIME)"
+	@echo "    GIT_VERSION: $(GIT_VERSION)"
+	@echo "   GIT_REVISION: $(GIT_REVISION)"
 	@echo
-	@echo "   GO_VERSION: $(GOVERSION)"
+	@echo " MAIN_BUILD_PKG: $(MAIN_BUILD_PKG)"
+	@echo "      MAIN_APPS: $(MAIN_APPS)"
 	@echo
-	@echo "export GO111MODULE=on"
+	#@echo "export GO111MODULE=on"
 	@echo "export GOPROXY=$(GOPROXY)"
-	@echo "export GOPATH=$(GOPATH)"
+	#@echo "export GOPATH=$(GOPATH)"
 
 all: help
 help: Makefile

@@ -2,6 +2,12 @@
 
 ## Versions
 
+- v1.7.43
+  - added `WithConfigFileLoadingHooks(before, after)`
+  - added `WithLogxShort(enabled, backend, level)`
+  - some internal fixes
+
+
 - v1.7.42
   - routine maintenance
 

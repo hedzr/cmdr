@@ -177,7 +177,7 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 		}
 	}
 
-	err = w.buildXref(rootCmd)
+	err = w.buildXref(rootCmd, args)
 
 	if err == nil {
 		flog("--> preprocess / rxxtOptions.buildAutomaticEnv()")

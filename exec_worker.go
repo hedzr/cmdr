@@ -13,11 +13,13 @@ type ExecWorker struct {
 	switchCharset string
 
 	// beforeXrefBuildingX, afterXrefBuiltX HookFunc
-	beforeXrefBuilding []HookFunc
-	afterXrefBuilt     []HookFunc
-	afterAutomaticEnv  []HookOptsFunc
-	beforeHelpScreen   []HookHelpScreenFunc
-	afterHelpScreen    []HookHelpScreenFunc
+	beforeXrefBuilding      []HookFunc
+	beforeConfigFileLoading []HookFunc
+	afterConfigFileLoading  []HookFunc
+	afterXrefBuilt          []HookFunc
+	afterAutomaticEnv       []HookOptsFunc
+	beforeHelpScreen        []HookHelpScreenFunc
+	afterHelpScreen         []HookHelpScreenFunc
 
 	envPrefixes         []string
 	rxxtPrefixes        []string

@@ -325,6 +325,21 @@ func WithInternalOutputStreams(out, err *bufio.Writer) ExecOption {
 	}
 }
 
+// WithConfigFileLoadingHooks adds the hook function to the front and back of trying to load config files.
+//
+// These two hooks always are triggered whatever WithNoLoadConfigFiles is enabled or not.
+//
+func WithConfigFileLoadingHooks(before, after HookFunc) ExecOption {
+	return func(w *ExecWorker) {
+		if before != nil {
+			w.beforeConfigFileLoading = append(w.beforeConfigFileLoading, before)
+		}
+		if after != nil {
+			w.afterConfigFileLoading = append(w.afterConfigFileLoading, after)
+		}
+	}
+}
+
 // WithHelpScreenHooks adds the hook function to the front and back of printing help screen
 func WithHelpScreenHooks(before, after HookHelpScreenFunc) ExecOption {
 	return func(w *ExecWorker) {

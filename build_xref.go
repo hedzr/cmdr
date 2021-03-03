@@ -38,7 +38,7 @@ func (w *ExecWorker) setupFromEnvvarMap() {
 	}
 }
 
-func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
+func (w *ExecWorker) buildXref(rootCmd *RootCommand, args []string) (err error) {
 	flog("--> preprocess / buildXref")
 
 	// build xref for root command and its all sub-commands and flags
@@ -48,6 +48,13 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 	w.buildExtensionsCrossRefs(rootCmd)
 
 	w.setupFromEnvvarMap()
+
+	flog("--> before-config-file-loading")
+	for _, x := range w.beforeConfigFileLoading {
+		if x != nil {
+			x(rootCmd, args)
+		}
+	}
 
 	if !w.doNotLoadingConfigFiles {
 		// flog("--> buildXref: loadFromPredefinedLocations()")
@@ -80,6 +87,14 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand) (err error) {
 		}
 
 		w.buildAliasesCrossRefs(rootCmd)
+
+	}
+
+	flog("--> after-config-file-loading")
+	for _, x := range w.afterConfigFileLoading {
+		if x != nil {
+			x(rootCmd, args)
+		}
 	}
 	return
 }

@@ -77,6 +77,9 @@ and Bonus of #cmdr Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.45
+  - upgrade hedzr/log to 0.3.12 for api upgrade and additions.
+
 - v1.7.43
   - added `WithConfigFileLoadingHooks(before, after)`
   - added `WithLogxShort(enabled, backend, level)`

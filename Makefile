@@ -175,10 +175,15 @@ build-ci:
 	$(foreach os, linux darwin windows, \
 	  @-$(MAKE) -s go-build-task os=$(os) goarchset="386 amd64" \
 	)
+	@-$(MAKE) -s go-build-task os="darwin" goarchset="arm64"
 	@echo "  < All Done."
 	@ls -la $(LS_OPT) $(GOBIN)/*
 
-go-build-task: directories
+## build-m1: run build-ci task. just for CI tools
+build-m1:
+	@-$(MAKE) -s go-build-task os="darwin" goarchset="arm64"
+
+go-build-task: directories go-generate
 	@echo "  >  Building $(os)/$(goarchset) binary..."
 	@#echo "  >  LDFLAGS = $(LDFLAGS)"
 	# unsupported GOOS/GOARCH pair nacl/386 ??

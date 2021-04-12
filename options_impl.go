@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log"
-	"github.com/hedzr/log/exec"
+	"github.com/hedzr/log/dir"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
@@ -973,7 +973,7 @@ func et(keys []string, ix int, val interface{}) interface{} {
 // Flush writes all changes back to the alter config file
 func (s *Options) Flush() {
 	if len(s.usedAlterConfigFile) > 0 {
-		if fi, err := os.Stat(os.ExpandEnv(s.usedAlterConfigFile)); err == nil && exec.IsModeWriteOwner(fi.Mode()) {
+		if fi, err := os.Stat(os.ExpandEnv(s.usedAlterConfigFile)); err == nil && dir.IsModeWriteOwner(fi.Mode()) {
 
 			//// str := AsYaml() // s.DumpAsString(false)
 			//var b []byte

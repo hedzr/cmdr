@@ -8,6 +8,7 @@ import (
 	"fmt"
 	cmdrbase "github.com/hedzr/cmdr-base"
 	"github.com/hedzr/cmdr/conf"
+	"github.com/hedzr/log/dir"
 	"github.com/hedzr/log/exec"
 	"os"
 	"path"
@@ -249,21 +250,21 @@ func (w *ExecWorker) getInvokeShellAction(from *Command) Handler {
 //
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) buildAddonsCrossRefs(root *RootCommand) {
-	// var cwd = exec.GetCurrentDir()
+	// var cwd = dir.GetCurrentDir()
 	// flog("    - preprocess / buildXref / buildAddonsCrossRefs...%q, %q", cwd, conf.AppName)
 	flog("    - preprocess / buildXref / buildAddonsCrossRefs...")
-	for _, dir := range w.pluginsLocations {
-		dirExpanded := os.ExpandEnv(dir)
+	for _, d := range w.pluginsLocations {
+		dirExpanded := os.ExpandEnv(d)
 		// Logger.Debugf("      -> addons.dir: %v", dirExpanded)
-		if exec.FileExists(dirExpanded) {
-			err := exec.ForDirMax(dirExpanded, 0, 1, func(depth int, cwd string, fi os.FileInfo) (stop bool, err error) {
+		if dir.FileExists(dirExpanded) {
+			err := dir.ForDirMax(dirExpanded, 0, 1, func(depth int, cwd string, fi os.FileInfo) (stop bool, err error) {
 				if fi.IsDir() {
 					return
 				}
 				var ok bool // = strings.HasPrefix(fi.Name(), prefix)
 				ok = true
 				// Logger.Debugf("      -> addons.dir: %v, file: %v", dirExpanded, fi.Name())
-				if ok && fi.Mode().IsRegular() && exec.IsModeExecAny(fi.Mode()) {
+				if ok && fi.Mode().IsRegular() && dir.IsModeExecAny(fi.Mode()) {
 					//name := fi.Name()[:len(prefix)]
 					name := fi.Name()
 					exe := path.Join(cwd, fi.Name())
@@ -410,18 +411,18 @@ func (w *ExecWorker) _addonAddFlg(parent *Command, addon cmdrbase.PluginEntry, f
 func (w *ExecWorker) buildExtensionsCrossRefs(root *RootCommand) {
 	flog("    - preprocess / buildXref / buildExtensionsCrossRefs...")
 	// prefix := conf.AppName
-	for _, dir := range w.extensionsLocations {
-		dirExpanded := os.ExpandEnv(dir)
+	for _, d := range w.extensionsLocations {
+		dirExpanded := os.ExpandEnv(d)
 		// Logger.Debugf("      -> ext.dir: %v", dirExpanded)
-		if exec.FileExists(dirExpanded) {
-			err := exec.ForDirMax(dirExpanded, 0, 1, func(depth int, cwd string, fi os.FileInfo) (stop bool, err error) {
+		if dir.FileExists(dirExpanded) {
+			err := dir.ForDirMax(dirExpanded, 0, 1, func(depth int, cwd string, fi os.FileInfo) (stop bool, err error) {
 				if fi.IsDir() {
 					return
 				}
 				var ok bool // = strings.HasPrefix(fi.Name(), prefix)
 				ok = true
 				// Logger.Debugf("      -> ext.dir: %v, file: %v", dirExpanded, fi.Name())
-				if ok && fi.Mode().IsRegular() && exec.IsModeExecAny(fi.Mode()) {
+				if ok && fi.Mode().IsRegular() && dir.IsModeExecAny(fi.Mode()) {
 					//name := fi.Name()[:len(prefix)]
 					name := fi.Name()
 					exe := path.Join(cwd, fi.Name())

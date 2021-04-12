@@ -5,7 +5,7 @@
 package cmdr
 
 import (
-	"github.com/hedzr/log/exec"
+	"github.com/hedzr/log/dir"
 	"os"
 	"path"
 	"path/filepath"
@@ -72,18 +72,18 @@ func FileExists(name string) bool {
 }
 
 // EnsureDir checks and creates the directory.
-func EnsureDir(dir string) (err error) {
-	return exec.EnsureDir(dir)
+func EnsureDir(directory string) (err error) {
+	return dir.EnsureDir(directory)
 }
 
 // EnsureDirEnh checks and creates the directory, via sudo if necessary.
-func EnsureDirEnh(dir string) (err error) {
-	return exec.EnsureDirEnh(dir)
+func EnsureDirEnh(directory string) (err error) {
+	return dir.EnsureDirEnh(directory)
 }
 
 // RemoveDirRecursive removes a directory and any children it contains.
-func RemoveDirRecursive(dir string) (err error) {
-	return exec.RemoveDirRecursive(dir)
+func RemoveDirRecursive(directory string) (err error) {
+	return dir.RemoveDirRecursive(directory)
 }
 
 // // RemoveContentsInDir removes all file and sub-directory in a directory

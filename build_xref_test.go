@@ -6,7 +6,7 @@ import (
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/conf"
 	"github.com/hedzr/cmdr/tool"
-	"github.com/hedzr/log/exec"
+	"github.com/hedzr/log/dir"
 	"github.com/hedzr/logex"
 	"gopkg.in/hedzr/errors.v2"
 	"os"
@@ -17,7 +17,7 @@ import (
 // TestAddonPlugin for pluggable addons/plugins
 func TestAddonPlugin(t *testing.T) {
 	conf.AppName = "fluent"
-	t.Logf("    - pwd=%q", exec.GetCurrentDir())
+	t.Logf("    - pwd=%q", dir.GetCurrentDir())
 
 	defer logex.CaptureLog(t).Release()
 	if tool.SavedOsArgs == nil {

@@ -16,6 +16,13 @@ func (c *RootCommand) AppendPostActions(fns ...func(cmd *Command, args []string)
 	}
 }
 
+// AppendPreActions adds the global pre-action to cmdr system
+func (c *RootCommand) AppendPreActions(fns ...func(cmd *Command, args []string) (err error)) {
+	for _, fn := range fns {
+		c.PreActions = append(c.PreActions, fn)
+	}
+}
+
 // PrintHelp prints help screen
 func (c *Command) PrintHelp(justFlags bool) {
 	internalGetWorker().printHelp(c, justFlags)

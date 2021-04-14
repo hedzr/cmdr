@@ -7,6 +7,7 @@ package main
 import (
 	"fmt"
 	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/plugin/pprof"
 )
 
 func main() {
@@ -18,6 +19,7 @@ func main() {
 		// To disable internal commands and flags, uncomment the following codes
 		cmdr.WithBuiltinCommands(true, false, true, true, true),
 		// daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
+		pprof.GetCmdrProfilingOptions("cpu"),
 		// cmdr.WithHelpTabStop(40),
 	); err != nil {
 		fmt.Printf("Error: %v", err)

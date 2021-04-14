@@ -3,6 +3,7 @@ package cmdr
 import (
 	"fmt"
 	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/plugin/pprof"
 	"github.com/hedzr/cmdr/tool"
 	"golang.org/x/crypto/ssh/terminal"
 	"io/ioutil"
@@ -45,6 +46,7 @@ func Entry() {
 		cmdr.WithOnSwitchCharHit(onSwitchCharHit),
 		cmdr.WithOnPassThruCharHit(onPassThruCharHit),
 
+		pprof.GetCmdrProfilingOptions("cpu"),
 		optAddTraceOption,
 		optAddServerExtOption,
 	); err != nil {

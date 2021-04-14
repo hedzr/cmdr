@@ -602,3 +602,17 @@ func WithOnPassThruCharHit(fn func(parsed *Command, switchChar string, args []st
 		w.onPassThruCharHit = fn
 	}
 }
+
+// WithGlobalPreActions adds the pre-action for every command invoking
+func WithGlobalPreActions(fns ...Handler) ExecOption {
+	return func(w *ExecWorker) {
+		w.preActions = append(w.preActions, fns...)
+	}
+}
+
+// WithGlobalPostActions adds the post-action for each command invoked
+func WithGlobalPostActions(fns ...Invoker) ExecOption {
+	return func(w *ExecWorker) {
+		w.postActions = append(w.postActions, fns...)
+	}
+}

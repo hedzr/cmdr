@@ -77,6 +77,10 @@ and Bonus of #cmdr Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.7.46
+  - added `plugin/pprof` package to simplify pprof integration
+  - slight improvements
+
 - v1.7.45
   - upgrade hedzr/log to 0.3.12 for api upgrade and additions.
 

@@ -20,6 +20,8 @@ type ExecWorker struct {
 	afterAutomaticEnv       []HookOptsFunc
 	beforeHelpScreen        []HookHelpScreenFunc
 	afterHelpScreen         []HookHelpScreenFunc
+	preActions              []Handler
+	postActions             []Invoker
 
 	envPrefixes         []string
 	rxxtPrefixes        []string

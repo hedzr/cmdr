@@ -385,3 +385,8 @@ func (s *optCommandImpl) RootCommand() (root *RootCommand) {
 	root = optCtx.root
 	return
 }
+
+func (s *optCommandImpl) RootCmdOpt() (root *RootCmdOpt) {
+	root = RootFrom(optCtx.root)
+	return
+}

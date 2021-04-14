@@ -118,6 +118,20 @@ func (s *RootCmdOpt) AddGlobalPostAction(post Invoker) *RootCmdOpt {
 	return s
 }
 
+// AppendPostActions adds the global post-action to cmdr system
+func (s *RootCmdOpt) AppendPostActions(fns ...func(cmd *Command, args []string)) {
+	for _, fn := range fns {
+		optCtx.root.PostActions = append(optCtx.root.PostActions, fn)
+	}
+}
+
+// AppendPreActions adds the global pre-action to cmdr system
+func (s *RootCmdOpt) AppendPreActions(fns ...func(cmd *Command, args []string) (err error)) {
+	for _, fn := range fns {
+		optCtx.root.PreActions = append(optCtx.root.PreActions, fn)
+	}
+}
+
 // func (s *RootCmdOpt) Command(cmdOpt *cmdOpt) *RootCmdOpt {
 // 	optCtx.root.Command = *cmdOpt.workingFlag
 // 	return s

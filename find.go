@@ -124,6 +124,9 @@ func (w *ExecWorker) setupRootCommand(rootCmd *RootCommand) {
 	if len(conf.Buildstamp) == 0 {
 		conf.Buildstamp = time.Now().Format(time.RFC1123)
 	}
+
+	w.rootCommand.PreActions = append(w.rootCommand.PreActions, w.preActions...)
+	w.rootCommand.PostActions = append(w.rootCommand.PostActions, w.postActions...)
 }
 
 func (w *ExecWorker) getPrefix() string {

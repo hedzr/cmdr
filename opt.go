@@ -88,7 +88,7 @@ type (
 	// OptCmd to support fluent api of cmdr.
 	// see also: cmdr.Root().NewSubCommand()/.NewFlag()
 	OptCmd interface {
-		// Titles: broken API since v1.6.39
+		// Titles broken API since v1.6.39
 		//
 		// If necessary, an order prefix can be attached to the long title.
 		// The title with prefix will be set to Name field and striped to Long field.
@@ -143,6 +143,7 @@ type (
 		SetOwner(opt OptCmd)
 
 		RootCommand() *RootCommand
+		RootCmdOpt() (root *RootCmdOpt)
 
 		ToCommand() *Command
 

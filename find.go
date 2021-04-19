@@ -135,7 +135,7 @@ func (w *ExecWorker) getPrefix() string {
 
 func (w *ExecWorker) getRemainArgs(pkg *ptpkg, args []string) []string {
 	if pkg.remainArgs == nil && pkg.i < len(args) {
-		return args[pkg.i:]
+		pkg.remainArgs = args[pkg.i:]
 	}
 	return pkg.remainArgs
 }

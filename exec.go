@@ -253,8 +253,45 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 	// }
 
 	if w.noDefaultHelpScreen == false {
-		w.printHelp(goCommand, pkg.needFlagsHelp)
+		rArgs := w.getRemainArgs(pkg, args)
+		err = w.doInvokeHelpScreen(pkg, rootCmd, goCommand, rArgs)
 	}
+	return
+}
+
+func (w *ExecWorker) doInvokeHelpScreen(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
+
+	postActions := append(rootCmd.PostActions, rootCmd.PostAction)
+	if len(postActions) > 0 {
+		defer func() {
+			for _, fn := range postActions {
+				if fn != nil {
+					fn(goCommand, remainArgs)
+				}
+			}
+		}()
+	}
+
+	var preActions []Handler
+	preActions = append(preActions, w.afterArgsParsed, rootCmd.PreAction)
+	preActions = append(preActions, rootCmd.PreActions...)
+	c := errors.NewContainer("cannot invoke preActions")
+	for _, fn := range preActions {
+		if fn != nil {
+			switch e := fn(goCommand, remainArgs); {
+			case e == ErrShouldBeStopException:
+				return e
+			case e != nil:
+				c.Attach(e)
+			}
+		}
+	}
+	if err = c.Error(); err != nil {
+		return
+	}
+
+	w.printHelp(goCommand, pkg.needFlagsHelp)
+
 	return
 }
 

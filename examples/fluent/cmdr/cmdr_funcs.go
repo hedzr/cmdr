@@ -1,6 +1,9 @@
 package cmdr
 
-import "github.com/hedzr/cmdr"
+import (
+	"fmt"
+	"github.com/hedzr/cmdr"
+)
 
 func attachModifyFlags(cmd cmdr.OptCmd) {
 	cmd.NewFlagV("=", "delim", "d").
@@ -83,6 +86,11 @@ func attachConsulConnectFlags(cmd cmdr.OptCmd) {
 
 func kvBackup(cmd *cmdr.Command, args []string) (err error) {
 	// err = consul.Backup()
+	fmt.Printf(`
+cmd: %v
+args: %v
+
+`, cmd, args)
 	return
 }
 

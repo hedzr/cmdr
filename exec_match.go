@@ -4,7 +4,10 @@
 
 package cmdr
 
-import "github.com/hedzr/cmdr/tool"
+import (
+	"gopkg.in/hedzr/errors.v2"
+	"strings"
+)
 
 func (w *ExecWorker) helpOptMatching(pkg *ptpkg, goCommand **Command, args []string) (matched, stop bool, err error) {
 	// pkg.needHelp = true
@@ -69,60 +72,96 @@ func (w *ExecWorker) cmdMatched(pkg *ptpkg, goCommand *Command, args []string) (
 }
 
 func (w *ExecWorker) flagsPrepare(pkg *ptpkg, goCommand **Command, args []string) (stop bool, err error) {
-	if len(pkg.a) > 1 && (pkg.a[1] == '-' || pkg.a[1] == '~') {
-		if len(pkg.a) == 2 {
-			// disableParser = true // '--': ignore the following args // PassThrough hit!
-			stop = true
-			pkg.lastCommandHeld = false
-			pkg.needHelp = false
-			pkg.needFlagsHelp = false
-			ra := args[pkg.i:]
-			if len(ra) > 0 {
-				ra = ra[1:]
+	if len(pkg.a) > 1 {
+		if strings.Contains(w.switchCharset, pkg.a[1:2]) { // '--', '~~', '//'
+			if len(pkg.a) == 2 {
+				// disableParser = true // '--': ignore the following args // PassThrough hit!
+				stop = true
+				pkg.lastCommandHeld = false
+				pkg.needHelp = false
+				pkg.needFlagsHelp = false
+				ra := args[pkg.i:]
+				if len(ra) > 0 {
+					ra = ra[1:]
+				}
+				if w.onPassThruCharHit != nil {
+					err = w.onPassThruCharHit(*goCommand, pkg.a, ra)
+				} else {
+					err = defaultOnPassThruCharHit(*goCommand, pkg.a, ra)
+				}
+				return
 			}
-			if w.onPassThruCharHit != nil {
-				err = w.onPassThruCharHit(*goCommand, pkg.a, ra)
-			} else {
-				err = defaultOnPassThruCharHit(*goCommand, pkg.a, ra)
-			}
+
+			// long flag
+			pkg.doMatchingLongFlag(goCommand)
 			return
 		}
-
-		// long flag
-		pkg.fn = pkg.a[2:]
-		pkg.findValueAttached(&pkg.fn)
-
-	} else {
 
 		// short flag
-		if (*goCommand).headLikeFlag != nil && tool.IsDigitHeavy(pkg.a[1:]) {
-			// println("head-like")
-			pkg.short = true
-			pkg.flg = (*goCommand).headLikeFlag
-			pkg.val = pkg.a[1:]
-			pkg.fn = pkg.flg.Short
-			pkg.found = true
-			err = pkg.processTypeIntCore(args)
+		var ok bool
+		if ok, err = pkg.doExtractingHeadLikeFlag(goCommand, args); ok {
 			return
 		}
-
-		pkg.suffix = pkg.a[len(pkg.a)-1]
-		if pkg.suffix == '+' || pkg.suffix == '-' {
-			pkg.a = pkg.a[0 : len(pkg.a)-1]
-		} else {
-			pkg.suffix = 0
-		}
-
-		if i := pkg.matchShortFlag(*goCommand, pkg.a); i >= 0 {
-			pkg.fn = pkg.a[1:i]
-			pkg.savedFn = pkg.a[i:]
-		} else {
-			pkg.fn = pkg.a[1:2]     // from one char
-			pkg.savedFn = pkg.a[2:] // save others
-		}
-		pkg.short = true
-		pkg.findValueAttached(&pkg.savedFn)
+		pkg.doParseSuffix()
+		pkg.doMatchingShortFlag(goCommand)
 	}
+
+	//if len(pkg.a) > 1 && strings.Contains(w.switchCharset, pkg.a[1:2]) {
+	//	if len(pkg.a) == 2 {
+	//		// disableParser = true // '--': ignore the following args // PassThrough hit!
+	//		stop = true
+	//		pkg.lastCommandHeld = false
+	//		pkg.needHelp = false
+	//		pkg.needFlagsHelp = false
+	//		ra := args[pkg.i:]
+	//		if len(ra) > 0 {
+	//			ra = ra[1:]
+	//		}
+	//		if w.onPassThruCharHit != nil {
+	//			err = w.onPassThruCharHit(*goCommand, pkg.a, ra)
+	//		} else {
+	//			err = defaultOnPassThruCharHit(*goCommand, pkg.a, ra)
+	//		}
+	//		return
+	//	}
+	//
+	//	// long flag
+	//	pkg.fn = pkg.a[2:]
+	//	pkg.findValueAttached(&pkg.fn)
+	//
+	//} else {
+	//
+	//	// short flag
+	//
+	//	if (*goCommand).headLikeFlag != nil && tool.IsDigitHeavy(pkg.a[1:]) {
+	//		// println("head-like")
+	//		pkg.short = true
+	//		pkg.flg = (*goCommand).headLikeFlag
+	//		pkg.val = pkg.a[1:]
+	//		pkg.fn = pkg.flg.Short
+	//		pkg.found = true
+	//		err = pkg.processTypeIntCore(args)
+	//		return
+	//	}
+	//
+	//	pkg.suffix = pkg.a[len(pkg.a)-1]
+	//	if pkg.suffix == '+' || pkg.suffix == '-' {
+	//		pkg.a = pkg.a[0 : len(pkg.a)-1]
+	//	} else {
+	//		pkg.suffix = 0
+	//	}
+	//
+	//	if i := pkg.matchShortFlag(*goCommand, pkg.a); i >= 0 {
+	//		pkg.fn = pkg.a[1:i]
+	//		pkg.savedFn = pkg.a[i:]
+	//	} else {
+	//		// no matched short flags found
+	//		pkg.fn = pkg.a[1:2]     // from one char
+	//		pkg.savedFn = pkg.a[2:] // save others
+	//	}
+	//	pkg.short = true
+	//	pkg.findValueAttached(&pkg.savedFn)
+	//}
 	return
 }
 
@@ -133,14 +172,14 @@ goUp:
 	if pkg.short {
 		a := "-" + pkg.fn + pkg.savedFn
 		flog("    .  . matching short flag for %q", a)
-		if i := pkg.matchShortFlag(cc, a); i >= 0 {
+		if i := pkg.matchShortFlag(cc, a, 1); i >= 0 {
 			pkg.fn = a[1:i]
 			pkg.savedFn = a[i:]
 			pkg.flg, matched = cc.plainShortFlags[pkg.fn]
 		}
 	} else {
 		flog("    .  . matching long flag for --%v", pkg.fn)
-		matched = w.matchForLongFlags(pkg.fn, cc, pkg)
+		matched = pkg.matchForLongFlags(cc, pkg.fn, 0) >= 0
 	}
 
 	if matched {
@@ -179,8 +218,11 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 	pkg.flg.times++
 
 	if err = pkg.tryExtractingValue(args); err != nil {
-		stop = true
-		return
+		var perr *ErrorForCmdr
+		if errors.As(err, &perr) && !perr.Ignorable {
+			stop = true
+			return
+		}
 	}
 
 	if pkg.found {
@@ -208,23 +250,6 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 			}
 		} else {
 			flog("    .  . [value assigned] %q = %v", pkg.fn, pkg.val)
-		}
-	}
-	return
-}
-
-func (w *ExecWorker) matchForLongFlags(fn string, cc *Command, pkg *ptpkg) (ok bool) {
-	var ln = len(fn)
-	for ; ln > 1; ln-- {
-		fn = pkg.fn[0:ln]
-		pkg.flg, ok = cc.plainLongFlags[fn]
-		if ok {
-			if ln < len(pkg.fn) {
-				pkg.val = pkg.fn[ln:]
-				pkg.fn = fn
-				pkg.assigned = true
-			}
-			break
 		}
 	}
 	return

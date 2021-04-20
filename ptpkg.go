@@ -96,16 +96,100 @@ func (pkg *ptpkg) splitQuotedValueIfNecessary(fn *string) {
 	}
 }
 
-func (pkg *ptpkg) matchShortFlag(goCommand *Command, a string) (i int) {
+func (pkg *ptpkg) doExtractingHeadLikeFlag(goCommand **Command, args []string) (ok bool, err error) {
+	if (*goCommand).headLikeFlag != nil && tool.IsDigitHeavy(pkg.a[1:]) {
+		// println("head-like")
+		pkg.short = true
+		pkg.flg = (*goCommand).headLikeFlag
+		pkg.val = pkg.a[1:]
+		pkg.fn = pkg.flg.Short
+		pkg.found = true
+		err = pkg.processTypeIntCore(args)
+		ok = true
+	}
+	return
+}
+
+func (pkg *ptpkg) doParseSuffix() {
+	pkg.suffix = pkg.a[len(pkg.a)-1]
+	if pkg.suffix == '+' || pkg.suffix == '-' {
+		pkg.a = pkg.a[0 : len(pkg.a)-1]
+	} else {
+		pkg.suffix = 0
+	}
+}
+
+func (pkg *ptpkg) doMatchingShortFlag(goCommand **Command) {
+	if i := pkg.matchShortFlag(*goCommand, pkg.a, 1); i >= 0 {
+		pkg.fn = pkg.a[1:i]
+		pkg.savedFn = pkg.a[i:]
+	} else {
+		// no matched short flags found
+		if len(pkg.a) >= 2 && pkg.a[0] == '/' && pkg.a[1] != '/' {
+			if i = pkg.matchForLongFlags(*goCommand, pkg.a, 1); i >= 0 {
+				return
+			}
+		}
+		pkg.fn = pkg.a[1:2]     // from one char
+		pkg.savedFn = pkg.a[2:] // save others
+	}
+	pkg.short = true
+	pkg.findValueAttached(&pkg.savedFn)
+}
+
+func (pkg *ptpkg) doMatchingLongFlag(goCommand **Command) {
+	if i := pkg.matchForLongFlags(*goCommand, pkg.a, 1); i >= 0 {
+		pkg.fn = pkg.a[2:]
+		pkg.findValueAttached(&pkg.fn)
+		return
+	}
+
+	pkg.fn = pkg.a[2:]
+	pkg.findValueAttached(&pkg.fn)
+}
+
+func (pkg *ptpkg) matchForLongFlags(cc *Command, a string, startPos int) (i int) {
+	var ln int
+	var fn string
+	var ok bool
+	if pkg.assigned {
+		if pkg.flg != nil {
+			return
+		}
+	}
+
+retry:
+	i, ln = -1, len(a)
+	for ; ln > startPos; ln-- {
+		fn = a[startPos:ln]
+		pkg.flg, ok = cc.plainLongFlags[fn]
+		if ok {
+			if ln < len(a) {
+				pkg.val = tool.StripQuotes(a[ln:])
+				pkg.assigned = true
+			}
+			pkg.fn = fn
+			i = ln
+			return
+		}
+	}
+	if cc.HasParent() {
+		cc = cc.owner
+		goto retry
+	}
+	return
+}
+
+func (pkg *ptpkg) matchShortFlag(cc *Command, a string, startPos int) (i int) {
 	type MS struct {
 		index int
 		fn    string
 	}
-	matched := []MS{}
-	longest := -1
-	for i = len(a); i > 1; i-- {
-		fn := a[1:i]
-		if _, ok := goCommand.plainShortFlags[fn]; ok {
+	var matched []MS
+	var longest = -1
+	for i = len(a); i > startPos; i-- {
+		fn := a[startPos:i]
+		if _, ok := cc.plainShortFlags[fn]; ok {
 			matched = append(matched, struct {
 				index int
 				fn    string

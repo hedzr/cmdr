@@ -12,6 +12,7 @@ import (
 	"github.com/hedzr/logex/build"
 	"gopkg.in/hedzr/errors.v2"
 	"os"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -228,6 +229,31 @@ func TestUnknownHandler(t *testing.T) {
 	cmdr.ResetOptions()
 	cmdr.InternalResetWorker()
 
+}
+
+func TestErrorForCmdr(t *testing.T) {
+	var e = &cmdr.ErrorForCmdr{
+		Ignorable: false,
+	}
+
+	testErrorForCmdr(t, e, func(t *testing.T, e *cmdr.ErrorForCmdr) {
+		e.As(nil)
+		var err error
+		e.As(err)
+	})
+	testErrorForCmdr(t, e, func(t *testing.T, e *cmdr.ErrorForCmdr) {
+		e.Is(nil)
+	})
+}
+
+func testErrorForCmdr(t *testing.T, e *cmdr.ErrorForCmdr, fn func(t *testing.T, e *cmdr.ErrorForCmdr)) {
+	defer func() {
+		if e := recover(); e != nil {
+			//
+		}
+	}()
+
+	fn(t, e)
 }
 
 func TestConfigOption(t *testing.T) {
@@ -651,7 +677,18 @@ func TestExec(t *testing.T) {
 	flgOpt.OnSet(func(keyPath string, value interface{}) {})
 
 	t.Log("xxx: -------- loops for execTestings")
-	for sss, verifier := range execTestings {
+	//
+	keys := make([]string, len(execTestings))
+	i := 0
+	for k := range execTestings {
+		keys[i] = k
+		i++
+	}
+	sort.Strings(keys)
+	//
+	for _, sss := range keys {
+		verifier := execTestings[sss]
+
 		resetFlagsAndLog(t)
 		cmdr.ResetOptions()
 		cmdr.ResetRootInWorker()
@@ -665,10 +702,11 @@ func TestExec(t *testing.T) {
 			// })
 			// cmdr.SetCustomShowBuildInfo(func() {
 			// })
-		}
-		if sss == "consul-tags -? -vD kv backup --prefix'4' -h ~~debug" {
+		} else if sss == "consul-tags -? -vD kv backup --prefix'4' -h ~~debug" {
 			fmt.Println("xx*: ***: ", sss)
 		} else if sss == "consul-tags services kx1" {
+			fmt.Println("xx*: ***: ", sss)
+		} else if sss == "consul-tags -? -vD kv backup --prefix'4'" { // something wrong 2 (4). |8500|/|true|false|true|true
 			fmt.Println("xx*: ***: ", sss)
 		}
 
@@ -679,7 +717,7 @@ func TestExec(t *testing.T) {
 			errX = bytes.NewBufferString("") // ignore the error outputs 'Unknown command: unknown'
 		}
 		if err = verifier(t); err != nil {
-			t.Fatal(err)
+			t.Fatalf("failed: %v\n             cmdline is: %q", err, sss)
 		}
 
 		if cmdr.GetStrictMode() == false && cmdr.GetQuietMode() == false {
@@ -796,7 +834,7 @@ var (
 			}
 			return nil
 		},
-		"consul-tags -? -vD kv backup --prefix'4' -h ~~debug": func(t *testing.T) error {
+		"consul-tags -? -vD kv backup --prefix'4' ~~debug": func(t *testing.T) error {
 			fmt.Println(cmdr.FindFlag("verbose", nil).GetTriggeredTimes())
 
 			if cmdr.GetInt("app.kv.port") != 8500 || cmdr.GetString("app.kv.prefix") != "4" ||

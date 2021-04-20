@@ -50,6 +50,101 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 	return
 }
 
+func (w *ExecWorker) postExecFor(rootCmd *RootCommand, pkg *ptpkg) {
+	// stop fs watcher explicitly
+	// stopExitingChannelForFsWatcher()
+
+	if rootCmd.ow != nil {
+		_ = rootCmd.ow.Flush()
+	}
+	if rootCmd.oerr != nil {
+		_ = rootCmd.oerr.Flush()
+	}
+
+	w.lastPkg = pkg
+
+	if true {
+		w.rxxtOptions.Flush()
+	}
+}
+
+func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error) {
+	flog("--> preprocess")
+	for _, x := range w.beforeXrefBuilding {
+		if x != nil {
+			x(rootCmd, args)
+		}
+	}
+
+	err = w.buildXref(rootCmd, args)
+
+	if err == nil {
+		flog("--> preprocess / rxxtOptions.buildAutomaticEnv()")
+		err = w.rxxtOptions.buildAutomaticEnv(rootCmd)
+	}
+
+	flog("--> preprocess / rxxtOptions.setCB(onOptionMergingSet)")
+	w.rxxtOptions.setCB(w.onOptionMergingSet, w.onOptionSet)
+
+	if err == nil {
+		flog("--> preprocess / afterXrefBuilt()")
+		for _, x := range w.afterXrefBuilt {
+			x(rootCmd, args)
+		}
+	}
+
+	flog("--> preprocess / END: trace=%v/logex:%v, debug=%v/logex:%v, inDebugging:%v",
+		GetTraceMode(), logex.GetTraceMode(), GetDebugMode(), logex.GetDebugMode(),
+		logex.InDebugging())
+	return
+}
+
+func (w *ExecWorker) internalExecForV2(pkg *ptpkg, rootCmd *RootCommand, args []string) (last *Command, err error) {
+	var (
+		goCommand    = &rootCmd.Command
+		stopF, stopC bool
+		matched      bool
+	)
+
+	flog("--> process...")
+	for pkg.i = 1; pkg.i < len(args); pkg.i++ {
+		// if pkg.ResetAnd(args[pkg.i]) == 0 {
+		// 	continue
+		// }
+		lr := pkg.ResetAnd(args[pkg.i])
+		flog("--> parsing %q (idx=%v, len=%v) | pkg.lastCommandHeld=%v", pkg.a, pkg.i, lr, pkg.lastCommandHeld)
+
+		matched, stopC, stopF, err = w.xxTestCmd(pkg, &goCommand, rootCmd, &args)
+		if err != nil {
+			var e *ErrorForCmdr
+			if errors.As(err, &e) {
+				ferr("%v", e)
+				if !e.Ignorable {
+					return
+				}
+			}
+		}
+		if !matched {
+			pkg.remainArgs = append(pkg.remainArgs, pkg.a)
+		}
+		if stopF {
+			//if pkg.lastCommandHeld || (matched && pkg.flg == nil) {
+			//	pkg.remainArgs = append(pkg.remainArgs, pkg.a)
+			//}
+			break
+		}
+		if stopC && !matched {
+			break
+		}
+	}
+
+	last = goCommand
+	pkg.remainArgs = append(pkg.remainArgs, args[pkg.i:]...)
+	err = w.afterInternalExec(pkg, rootCmd, goCommand, args, stopC || pkg.lastCommandHeld)
+
+	return
+}
+
 func (w *ExecWorker) internalExecFor(pkg *ptpkg, rootCmd *RootCommand, args []string) (last *Command, err error) {
 	var (
 		goCommand    = &rootCmd.Command
@@ -169,55 +264,6 @@ func (w *ExecWorker) updateArgs(pkg *ptpkg, goCommand **Command, rootCmd *RootCo
 	}
 }
 
-func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error) {
-	flog("--> preprocess")
-	for _, x := range w.beforeXrefBuilding {
-		if x != nil {
-			x(rootCmd, args)
-		}
-	}
-
-	err = w.buildXref(rootCmd, args)
-
-	if err == nil {
-		flog("--> preprocess / rxxtOptions.buildAutomaticEnv()")
-		err = w.rxxtOptions.buildAutomaticEnv(rootCmd)
-	}
-
-	flog("--> preprocess / rxxtOptions.setCB(onOptionMergingSet)")
-	w.rxxtOptions.setCB(w.onOptionMergingSet, w.onOptionSet)
-
-	if err == nil {
-		flog("--> preprocess / afterXrefBuilt()")
-		for _, x := range w.afterXrefBuilt {
-			x(rootCmd, args)
-		}
-	}
-
-	flog("--> preprocess / END: trace=%v/logex:%v, debug=%v/logex:%v, inDebugging:%v",
-		GetTraceMode(), logex.GetTraceMode(), GetDebugMode(), logex.GetDebugMode(),
-		logex.InDebugging())
-	return
-}
-
-func (w *ExecWorker) postExecFor(rootCmd *RootCommand, pkg *ptpkg) {
-	// stop fs watcher explicitly
-	// stopExitingChannelForFsWatcher()
-
-	if rootCmd.ow != nil {
-		_ = rootCmd.ow.Flush()
-	}
-	if rootCmd.oerr != nil {
-		_ = rootCmd.oerr.Flush()
-	}
-
-	w.lastPkg = pkg
-
-	if true {
-		w.rxxtOptions.Flush()
-	}
-}
-
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string, stopC bool) (err error) {
 
@@ -253,8 +299,45 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 	// }
 
 	if w.noDefaultHelpScreen == false {
-		w.printHelp(goCommand, pkg.needFlagsHelp)
+		rArgs := w.getRemainArgs(pkg, args)
+		err = w.doInvokeHelpScreen(pkg, rootCmd, goCommand, rArgs)
 	}
+	return
+}
+
+func (w *ExecWorker) doInvokeHelpScreen(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
+
+	postActions := append(rootCmd.PostActions, rootCmd.PostAction)
+	if len(postActions) > 0 {
+		defer func() {
+			for _, fn := range postActions {
+				if fn != nil {
+					fn(goCommand, remainArgs)
+				}
+			}
+		}()
+	}
+
+	var preActions []Handler
+	preActions = append(preActions, w.afterArgsParsed, rootCmd.PreAction)
+	preActions = append(preActions, rootCmd.PreActions...)
+	c := errors.NewContainer("cannot invoke preActions")
+	for _, fn := range preActions {
+		if fn != nil {
+			switch e := fn(goCommand, remainArgs); {
+			case e == ErrShouldBeStopException:
+				return e
+			case e != nil:
+				c.Attach(e)
+			}
+		}
+	}
+	if err = c.Error(); err != nil {
+		return
+	}
+
+	w.printHelp(goCommand, pkg.needFlagsHelp)
+
 	return
 }
 

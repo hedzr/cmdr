@@ -29,6 +29,8 @@ docs/
 *.deb
 *.rpm
 *.log
+*.prof
+*.pprof
 coverage.txt
 cover.out
 cover.html

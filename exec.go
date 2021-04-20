@@ -45,7 +45,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 
 	err = w.preprocess(rootCmd, args)
 	if err == nil {
-		last, err = w.internalExecForV2(pkg, rootCmd, args)
+		last, err = w.internalExecFor(pkg, rootCmd, args)
 	}
 	return
 }

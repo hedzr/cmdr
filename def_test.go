@@ -834,7 +834,7 @@ var (
 			}
 			return nil
 		},
-		"consul-tags -? -vD kv backup --prefix'4'": func(t *testing.T) error {
+		"consul-tags -? -vD kv backup --prefix'4' ~~debug": func(t *testing.T) error {
 			fmt.Println(cmdr.FindFlag("verbose", nil).GetTriggeredTimes())
 
 			if cmdr.GetInt("app.kv.port") != 8500 || cmdr.GetString("app.kv.prefix") != "4" ||

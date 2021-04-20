@@ -125,12 +125,12 @@ func (w *ExecWorker) internalExecForV2(pkg *ptpkg, rootCmd *RootCommand, args []
 			}
 		}
 		if !matched {
-			// remainArgs = append(remainArgs, args[0])
+			pkg.remainArgs = append(pkg.remainArgs, pkg.a)
 		}
 		if stopF {
-			if pkg.lastCommandHeld || (matched && pkg.flg == nil) {
-				// remainArgs = append(remainArgs, args...)
-			}
+			//if pkg.lastCommandHeld || (matched && pkg.flg == nil) {
+			//	pkg.remainArgs = append(pkg.remainArgs, pkg.a)
+			//}
 			break
 		}
 		if stopC && !matched {
@@ -139,6 +139,7 @@ func (w *ExecWorker) internalExecForV2(pkg *ptpkg, rootCmd *RootCommand, args []
 	}
 
 	last = goCommand
+	pkg.remainArgs = append(pkg.remainArgs, args[pkg.i:]...)
 	err = w.afterInternalExec(pkg, rootCmd, goCommand, args, stopC || pkg.lastCommandHeld)
 
 	return

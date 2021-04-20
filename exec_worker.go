@@ -102,7 +102,7 @@ func internalGetWorker() (w *ExecWorker) {
 
 func internalResetWorkerNoLock() (w *ExecWorker) {
 	w = &ExecWorker{
-		switchCharset: "-~",
+		switchCharset: "-~/",
 
 		envPrefixes:  []string{"CMDR"},
 		rxxtPrefixes: []string{"app"},

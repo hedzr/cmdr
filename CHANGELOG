@@ -2,6 +2,11 @@
 
 ## Versions
 
+- v1.7.47
+  - BREAK: removed support to golang 1.11 and below
+  - update deps: log & logex(logrus indirect, ...)
+  
+  
 - v1.7.46
   - added `plugin/pprof` package to simplify pprof integration
   - slight improvements

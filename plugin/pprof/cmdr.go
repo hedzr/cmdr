@@ -119,6 +119,7 @@ func addTo(root *cmdr.RootCmdOpt) {
 		Titles("profiling-types", "pt").
 		Description("specify types of profiling, such as: cpu, mem, mutex, block, trace, thread-create, goroutine", "").
 		Group(grpName).
+		ValidArgs("cpu", "mem", "mutex", "block", "trace", "thread-create", "goroutine").
 		AttachTo(root)
 
 	cmdr.NewString(".").

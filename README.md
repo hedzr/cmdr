@@ -77,6 +77,10 @@ and Bonus of #cmdr Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.8.1
+	- small imp: pprof - added validArgs for cmdr-opt `profiling-type`
+	- update deps: log & logex(logrus indirect, ...)
+
 - v1.8.0
   - BREAK: removed support to golang 1.11 and below
   - update deps: log & logex(logrus indirect, ...)

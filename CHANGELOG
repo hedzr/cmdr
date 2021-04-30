@@ -2,6 +2,15 @@
 
 ## Versions
 
+- v1.8.1
+	- small imp: pprof - added validArgs for cmdr-opt `profiling-type`
+	- update deps: log & logex(logrus indirect, ...)
+
+- v1.8.0
+  - BREAK: removed support to golang 1.11 and below
+  - update deps: log & logex(logrus indirect, ...)
+
+
 - v1.7.47
   - BREAK: removed support to golang 1.11 and below
   - update deps: log & logex(logrus indirect, ...)

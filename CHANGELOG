@@ -3,6 +3,8 @@
 ## Versions
 
 - v1.8.1
+	- fixed the CI error by imported from `log`
+	- fixed a data racing in config files watching
 	- small imp: pprof - added validArgs for cmdr-opt `profiling-type`
 	- update deps: log & logex(logrus indirect, ...)
 

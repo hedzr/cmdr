@@ -1095,13 +1095,13 @@ func (s *Options) loopMap(kDot string, m map[string]interface{}) (err error) {
 }
 
 func (s *Options) mapOrphans() {
+	defer s.rw.Unlock()
+	s.rw.Lock()
+
 	// flog("mapOrphans")
 	if s.batchMerging {
 		return
 	}
-
-	defer s.rw.Unlock()
-	s.rw.Lock()
 
 retryChecking:
 	var kSorted []string

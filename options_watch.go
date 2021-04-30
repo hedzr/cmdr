@@ -107,7 +107,9 @@ func (s *Options) LoadConfigFile(file string, main bool) (mainFile, subDir strin
 		s.mapOrphans()
 	}()
 
+	s.rw.Lock()
 	s.batchMerging = true
+	s.rw.Unlock()
 
 	if !FileExists(file) {
 		// log.Warnf("%v NOT EXISTS. PWD=%v", file, GetCurrentDir())

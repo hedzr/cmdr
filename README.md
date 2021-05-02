@@ -77,9 +77,13 @@ and Bonus of #cmdr Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.8.2
+  - compliant with plan9,bsd,...
+  - some data racing PRBs in parallel testing
+
 - v1.8.1
-	- fixed the CI error by imported from `log`
-	- fixed a data racing in config files watching
+  - fixed the CI error by imported from `log`
+  - fixed a data racing in config files watching
   - small imp: pprof - added validArgs for cmdr-opt `profiling-type`
   - update deps: log & logex(logrus indirect, ...)
 

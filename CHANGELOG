@@ -2,6 +2,10 @@
 
 ## Versions
 
+- v1.8.2
+	- compliant with plan9,bsd,...
+	- some data racing PRBs in parallel testing
+
 - v1.8.1
 	- fixed the CI error by imported from `log`
 	- fixed a data racing in config files watching

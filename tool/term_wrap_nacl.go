@@ -4,9 +4,14 @@
 
 package tool
 
+import (
+	"syscall"
+	"unsafe"
+)
+
 // ReadPassword reads the password from stdin with safe protection
 func ReadPassword() (text string, err error) {
-	return randomStringPure(9), nil
+	return RandomStringPure(9), nil
 }
 
 // GetTtySize returns the window size in columns and rows in the active console window.
@@ -20,5 +25,6 @@ func GetTtySize() (cols, rows int) {
 		uintptr(syscall.TIOCGWINSZ),
 		uintptr(unsafe.Pointer(&sz)))
 	cols, rows = int(sz.cols), int(sz.rows)
+	// cols, rows = 32768, 43
 	return
 }

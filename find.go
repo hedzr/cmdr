@@ -112,12 +112,16 @@ func tplApply(tmpl string, data interface{}) string {
 
 func (w *ExecWorker) setupRootCommand(rootCmd *RootCommand) {
 	uniqueWorkerLock.Lock()
-	defer uniqueWorkerLock.Unlock()
 
 	w.rootCommand = rootCmd
 
 	w.rootCommand.ow = nil   // w.defaultStdout
 	w.rootCommand.oerr = nil // w.defaultStderr
+
+	w.rootCommand.PreActions = append(w.rootCommand.PreActions, w.preActions...)
+	w.rootCommand.PostActions = append(w.rootCommand.PostActions, w.postActions...)
+
+	uniqueWorkerLock.Unlock()
 
 	if len(conf.AppName) == 0 {
 		conf.AppName = w.rootCommand.AppName
@@ -127,9 +131,6 @@ func (w *ExecWorker) setupRootCommand(rootCmd *RootCommand) {
 	if len(conf.Buildstamp) == 0 {
 		conf.Buildstamp = time.Now().Format(time.RFC1123)
 	}
-
-	w.rootCommand.PreActions = append(w.rootCommand.PreActions, w.preActions...)
-	w.rootCommand.PostActions = append(w.rootCommand.PostActions, w.postActions...)
 }
 
 func (w *ExecWorker) getPrefix() string {

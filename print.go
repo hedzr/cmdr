@@ -34,15 +34,17 @@ func fp0(fmtStr string, args ...interface{}) {
 }
 
 func fp(fmtStr string, args ...interface{}) {
-	if wkr := internalGetWorker(); wkr != nil && wkr.rootCommand != nil {
+	if wkr := internalGetWorker(); wkr != nil {
 		uniqueWorkerLock.RLock()
 		defer uniqueWorkerLock.RUnlock()
-		if w := wkr.rootCommand.ow; w != nil {
-			_, _ = fmt.Fprintf(w, fmtStr, args...)
-			if !strings.HasSuffix(fmtStr, "\n") {
-				_, _ = fmt.Fprintln(w)
+		if wkr.rootCommand != nil {
+			if w := wkr.rootCommand.ow; w != nil {
+				_, _ = fmt.Fprintf(w, fmtStr, args...)
+				if !strings.HasSuffix(fmtStr, "\n") {
+					_, _ = fmt.Fprintln(w)
+				}
+				return
 			}
-			return
 		}
 	}
 
@@ -63,15 +65,17 @@ func ffp(of io.Writer, fmtStr string, args ...interface{}) {
 }
 
 func ferr(fmtStr string, args ...interface{}) {
-	if wkr := internalGetWorker(); wkr != nil && wkr.rootCommand != nil {
+	if wkr := internalGetWorker(); wkr != nil {
 		uniqueWorkerLock.RLock()
 		defer uniqueWorkerLock.RUnlock()
-		if w := wkr.rootCommand.oerr; w != nil {
-			_, _ = fmt.Fprintf(w, fmtStr, args...)
-			if !strings.HasSuffix(fmtStr, "\n") {
-				_, _ = fmt.Fprintln(w)
+		if wkr.rootCommand != nil {
+			if w := wkr.rootCommand.oerr; w != nil {
+				_, _ = fmt.Fprintf(w, fmtStr, args...)
+				if !strings.HasSuffix(fmtStr, "\n") {
+					_, _ = fmt.Fprintln(w)
+				}
+				return
 			}
-			return
 		}
 	}
 

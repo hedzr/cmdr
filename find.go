@@ -111,6 +111,9 @@ func tplApply(tmpl string, data interface{}) string {
 //
 
 func (w *ExecWorker) setupRootCommand(rootCmd *RootCommand) {
+	uniqueWorkerLock.Lock()
+	defer uniqueWorkerLock.Unlock()
+
 	w.rootCommand = rootCmd
 
 	w.rootCommand.ow = nil   // w.defaultStdout

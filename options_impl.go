@@ -701,6 +701,9 @@ func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 	s.rwCB.RLock()
 	defer s.rwCB.RUnlock()
 
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+
 	// prefix := strings.Join(EnvPrefix,"_")
 	prefix := internalGetWorker().getPrefix() // strings.Join(RxxtPrefix, ".")
 	for key := range s.entries {
@@ -1095,8 +1098,8 @@ func (s *Options) loopMap(kDot string, m map[string]interface{}) (err error) {
 }
 
 func (s *Options) mapOrphans() {
-	defer s.rw.Unlock()
 	s.rw.Lock()
+	defer s.rw.Unlock()
 
 	// flog("mapOrphans")
 	if s.batchMerging {

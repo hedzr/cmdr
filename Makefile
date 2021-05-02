@@ -367,14 +367,14 @@ coverage: | $(GOBASE)
 	@echo "  >  gocov ..."
 	@$(GO) test $(COVER_TEST_TARGETS) -v -race -coverprofile=coverage.txt -covermode=atomic -timeout=20m -test.short | tee coverage.log
 	@$(GO) tool cover -html=coverage.txt -o cover.html
-	@open cover.html
+	@if [[ $OSTYPE == *darwin* ]]; then open cover.html; fi
 
 ## coverage-full: run go coverage test (with the long tests)
 coverage-full: | $(GOBASE)
 	@echo "  >  gocov ..."
 	@$(GO) test $(COVER_TEST_TARGETS) -v -race -coverprofile=coverage.txt -covermode=atomic -timeout=20m | tee coverage.log
 	@$(GO) tool cover -html=coverage.txt -o cover.html
-	@open cover.html
+	@if [[ $OSTYPE == *darwin* ]]; then open cover.html; fi
 
 ## codecov: run go test for codecov; (codecov.io)
 codecov: | $(GOBASE)

@@ -169,6 +169,18 @@ build-freebsd:
 build-riscv:
 	@-$(MAKE) -s go-build-task os=linux goarchset=riscv64
 
+## build-linux: build to riscv64 executable, for LAN deploy manually.
+build-linux:
+	@-$(MAKE) -s go-build-task os=linux goarchset=amd64
+
+## build-windows: build to riscv64 executable, for LAN deploy manually.
+build-windows:
+	@-$(MAKE) -s go-build-task os=windows goarchset=amd64
+
+## build-darwin: build to riscv64 executable, for LAN deploy manually.
+build-darwin:
+	@-$(MAKE) -s go-build-task os=darwin goarchset=amd64
+
 ## build-ci: run build-ci task. just for CI tools
 build-ci:
 	@echo "  >  Building binaries in CI flow..."

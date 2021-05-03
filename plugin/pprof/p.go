@@ -7,7 +7,6 @@ package pprof
 import (
 	"github.com/hedzr/log"
 	"github.com/hedzr/log/trace"
-	stdLog "log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -59,11 +58,6 @@ type profile struct {
 }
 
 //var cpuProfile, memProfile string
-
-func init() {
-	stdLog.SetFlags(stdLog.LstdFlags | stdLog.Llongfile)
-	//cpuProfile, memProfile = "cpu.prof", "mem.prof"
-}
 
 // EnableCPUProfile enables cpu profiling.
 // And review the pprof result in a web ui:

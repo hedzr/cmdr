@@ -69,13 +69,8 @@ func (r *randomizer) NextInRange(min, max int) int { return r.inRange(min, max) 
 func (r *randomizer) AsHires() HiresRandomizer     { return r }
 func (r *randomizer) AsStrings() StringsRandomizer { return r }
 
-func (r *randomizer) HiresNext() uint64 {
-	return r.hiresNextIn(hundred)
-}
-
-func (r *randomizer) HiresNextIn(max uint64) uint64 {
-	return r.hiresNextIn(big.NewInt(int64(max)))
-}
+func (r *randomizer) HiresNext() uint64             { return r.hiresNextIn(hundred) }
+func (r *randomizer) HiresNextIn(max uint64) uint64 { return r.hiresNextIn(big.NewInt(int64(max))) }
 
 func (r *randomizer) hiresNextIn(max *big.Int) uint64 {
 	var bi *big.Int

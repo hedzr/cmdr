@@ -77,6 +77,9 @@ and Bonus of #cmdr Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.8.7 (WIP)
+  - todo
+
 - v1.8.5
   - updated `log`, fixed: forwarding systemd log to file
 

@@ -61,7 +61,10 @@ func InternalResetWorkerNoLock() (w *ExecWorker) {
 
 // ResetRootInWorker function
 func ResetRootInWorker() {
-	internalGetWorker().rootCommand = nil
+	uniqueWorkerLock.Lock()
+	w := internalResetWorkerNoLock()
+	w.rootCommand = nil
+	uniqueWorkerLock.Unlock()
 }
 
 func TestEmptyUnknownOptionHandler(t *testing.T) {

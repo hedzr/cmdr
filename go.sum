@@ -8,10 +8,10 @@ github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4
 github.com/google/renameio v0.1.0/go.mod h1:KWCgfxg9yswjAJkECMjeO8J8rahYeXnNhOm40UhjYkI=
 github.com/hedzr/cmdr-base v0.1.3 h1:pMhVLP+Uxdhuf6BeasAC2OivMXJ3vxJHvFJHPQscQPU=
 github.com/hedzr/cmdr-base v0.1.3/go.mod h1:c3vMkHa5PME2P2W8lE3T9+JX12tq9tmCUt6lXbmt5kI=
-github.com/hedzr/log v0.3.19 h1:UWx3iSPuum/02KeeQMggqgGvai+gCEjmzoQgfuspKp4=
-github.com/hedzr/log v0.3.19/go.mod h1:E9WB0BC2AAX58UDlFC2zg9X19soXmTZRnXubWR04AiE=
-github.com/hedzr/logex v1.3.19 h1:lZh5D4eGgmXPTx2gQtlm2ON51MZNaAxhi4gsP5wALP8=
-github.com/hedzr/logex v1.3.19/go.mod h1:hGdGkai7BW2TXTmfGCWAkZXJWuxQl+YYg3TWgKUq5N4=
+github.com/hedzr/log v0.3.21 h1:mbTjaMo2QSUa1XnPy1tOMB+A7ftM1HY2T2KpefJ0U94=
+github.com/hedzr/log v0.3.21/go.mod h1:bmQqsGC0rv4r/5ISLJO++HM2kYoKfyBcRbncMknYNjY=
+github.com/hedzr/logex v1.3.21 h1:QI1cXYtsb1QNzjXqTsSp16JEUOR2bpulsUhZ/6ziRIM=
+github.com/hedzr/logex v1.3.21/go.mod h1:+AhwdqkZ275ZcmehHEuRbrP9jAlahEvtOWKOwJE7wo8=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
 github.com/konsorten/go-windows-terminal-sequences v1.0.3 h1:CE8S1cTafDpPvMhIxNJKvHsGVBgn1xWYf1NbHQhywc8=
 github.com/konsorten/go-windows-terminal-sequences v1.0.3/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
@@ -73,8 +73,8 @@ gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8
 gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 h1:qIbj1fsPNlZgppZ+VLlY7N33q108Sa+fhmuc+sWQYwY=
 gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/errgo.v2 v2.1.0/go.mod h1:hNsd1EY+bozCKY1Ytp96fpM3vjJbqLJn88ws8XvfDNI=
-gopkg.in/hedzr/errors.v2 v2.1.3 h1:aweZp4qYgUIuGQeWYnIeM88R4m2strxFaiVBSk+GAcI=
-gopkg.in/hedzr/errors.v2 v2.1.3/go.mod h1:DEescy6i8SVj60/wLdTtFfx9r+LIctBbOLf7hYJ30AA=
+gopkg.in/hedzr/errors.v2 v2.1.5 h1:fSHbWEoKcyfc8olz/0bfGshNlTnqEKZJ5Bo+bC6jdAQ=
+gopkg.in/hedzr/errors.v2 v2.1.5/go.mod h1:DEescy6i8SVj60/wLdTtFfx9r+LIctBbOLf7hYJ30AA=
 gopkg.in/natefinch/lumberjack.v2 v2.0.0 h1:1Lc07Kr7qY4U2YPouBjpCLxpiyxIVoxqXgkXLknAOE8=
 gopkg.in/natefinch/lumberjack.v2 v2.0.0/go.mod h1:l0ndWWf7gzL7RNwBG7wST/UCcT4T24xpD6X8LsfU/+k=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=

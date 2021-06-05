@@ -2,6 +2,9 @@
 
 ## Versions
 
+- v1.8.7
+  - updated `log`, added: AutoStart Peripheral interface
+
 - v1.8.5
   - updated `log`, fixed: forwarding systemd log to file
 

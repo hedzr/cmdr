@@ -43,6 +43,8 @@ cover.out
 cover.html
 profile.cov
 *___jb_old___
+fossa-result.json
+
 
 bin/
 dist/

@@ -77,8 +77,9 @@ and Bonus of #cmdr Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.8.8 (WIP)
-  - todo
+- v1.9.0 (WIP)
+  - .fossa.yaml so a pre-release scan can be launched locally
+  - BREAK: remove plugin/daemon - instead of cmdr-addons/pkg/plugins/dex
 
 - v1.8.7
   - updated `log`, added: AutoStart Peripheral interface

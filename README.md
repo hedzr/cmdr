@@ -79,7 +79,7 @@ and Bonus of #cmdr Series:
 
 - v1.9.0 (WIP)
   - .fossa.yaml so a pre-release scan can be launched locally
-  - BREAK: remove plugin/daemon - instead of cmdr-addons/pkg/plugins/dex
+  - BREAK: remove plugin/daemon - use cmdr-addons/pkg/plugins/dex instead
 
 - v1.8.7
   - updated `log`, added: AutoStart Peripheral interface

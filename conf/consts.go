@@ -2,7 +2,8 @@
  * Copyright © 2019 Hedzr Yeh.
  */
 
-// Package conf are used to store the app-level constants (app name/vaersion) for cmdr and your app
+// Package conf are used to store the app-level constants (app name/vaersion) for cmdr and your app.
+// The names, such as app name, version, and building tags, would be held.
 package conf
 
 var (

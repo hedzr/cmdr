@@ -7,26 +7,29 @@
 package conf
 
 var (
-	// CfgFile never used
-	CfgFile string
-	// AppName app name
+	// AppName app name.
+	// it'll be rewritten by build-arg.
 	AppName string
 
-	// these 3 variables will be rewrote when app had been building by ci-tool
-
-	// Version app version
+	// Version app version.
+	// it'll be rewritten by build-arg.
 	Version = "0.2.1"
-	// Buildstamp app built stamp
+	// Buildstamp app built stamp.
+	// it'll be rewritten by build-arg.
 	Buildstamp = ""
-	// Githash app git hash
+	// Githash app git hash.
+	// it'll be rewritten by build-arg.
 	Githash = ""
-	// GitShortVersion from `git describe --long` [NEVER USED]
-	GitShortVersion = ""
-	// GoVersion `go version` string
+	// GoVersion `go version` string.
+	// it'll be rewritten by build-arg.
 	GoVersion = ""
 
-	// ServerTag app server tag names
+	// GitShortVersion from `git describe --long`. [NEVER USED]
+	GitShortVersion = ""
+	// ServerTag app server tag names.[NEVER USED]
 	ServerTag = ""
-	// ServerID app server id
+	// ServerID app server id.[NEVER USED]
 	ServerID = ""
+	// CfgFile never used [NEVER USED]
+	CfgFile string
 )

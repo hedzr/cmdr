@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"math/big"
 	mrand "math/rand"
+	"sync"
 	"time"
 )
 
@@ -61,11 +62,43 @@ const (
 
 var hundred = big.NewInt(100)
 var seededRand = mrand.New(mrand.NewSource(time.Now().UTC().UnixNano()))
+var mu sync.Mutex
 
-func (r *randomizer) Next() int                    { return seededRand.Int() }
-func (r *randomizer) NextIn(max int) int           { return seededRand.Intn(max) }
-func (r *randomizer) inRange(min, max int) int     { return seededRand.Intn(max-min) + min }
-func (r *randomizer) NextInRange(min, max int) int { return r.inRange(min, max) }
+func (r *randomizer) Next() int {
+	mu.Lock()
+	defer mu.Unlock()
+	return seededRand.Int()
+}
+func (r *randomizer) NextIn(max int) int {
+	mu.Lock()
+	defer mu.Unlock()
+	return seededRand.Intn(max)
+}
+func (r *randomizer) inRange(min, max int) int {
+	mu.Lock()
+	defer mu.Unlock()
+	return seededRand.Intn(max-min) + min
+}
+func (r *randomizer) NextInRange(min, max int) int {
+	mu.Lock()
+	defer mu.Unlock()
+	return r.inRange(min, max)
+}
+func (r *randomizer) NextInt63n(n int64) int64 {
+	mu.Lock()
+	defer mu.Unlock()
+	return seededRand.Int63n(n)
+}
+func (r *randomizer) NextIntn(n int) int {
+	mu.Lock()
+	defer mu.Unlock()
+	return seededRand.Intn(n)
+}
+func (r *randomizer) NextFloat64() float64 {
+	mu.Lock()
+	defer mu.Unlock()
+	return seededRand.Float64()
+}
 func (r *randomizer) AsHires() HiresRandomizer     { return r }
 func (r *randomizer) AsStrings() StringsRandomizer { return r }
 
@@ -73,6 +106,8 @@ func (r *randomizer) HiresNext() uint64             { return r.hiresNextIn(hundr
 func (r *randomizer) HiresNextIn(max uint64) uint64 { return r.hiresNextIn(big.NewInt(int64(max))) }
 
 func (r *randomizer) hiresNextIn(max *big.Int) uint64 {
+	mu.Lock()
+	defer mu.Unlock()
 	var bi *big.Int
 	bi, r.lastErr = rand.Int(rand.Reader, max)
 	if r.lastErr == nil {
@@ -82,6 +117,8 @@ func (r *randomizer) hiresNextIn(max *big.Int) uint64 {
 }
 
 func (r *randomizer) hiresInRange(min, max uint64) uint64 {
+	mu.Lock()
+	defer mu.Unlock()
 	var bi *big.Int
 	bi, r.lastErr = rand.Int(rand.Reader, big.NewInt(int64(max-min)))
 	if r.lastErr == nil {
@@ -90,7 +127,13 @@ func (r *randomizer) hiresInRange(min, max uint64) uint64 {
 	return 0
 }
 
-func (r *randomizer) HiresNextInRange(min, max uint64) uint64 { return r.hiresInRange(min, max) }
+func (r *randomizer) HiresNextInRange(min, max uint64) uint64 {
+	mu.Lock()
+	defer mu.Unlock()
+	return r.hiresInRange(min, max)
+}
+func (r *randomizer) LastError() error { return r.lastErr }
+func (r *randomizer) Error() error     { return r.lastErr }
 
 //
 //
@@ -98,6 +141,8 @@ func (r *randomizer) HiresNextInRange(min, max uint64) uint64 { return r.hiresIn
 
 // NextStringSimple returns a random string with specified length 'n', just in A..Z
 func (r *randomizer) NextStringSimple(n int) string {
+	mu.Lock()
+	defer mu.Unlock()
 	bytes := make([]byte, n)
 	for i := 0; i < n; i++ {
 		bytes[i] = byte(r.inRange(65, 90)) // 'a' .. 'z'
@@ -111,6 +156,8 @@ func (r *randomizer) NextString(n int) string {
 }
 
 func (r *randomizer) randStringBaseImpl(n int, charset []rune) string {
+	mu.Lock()
+	defer mu.Unlock()
 	b := make([]rune, n)
 	for i := range b {
 		b[i] = charset[seededRand.Intn(len(charset))]

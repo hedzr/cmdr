@@ -79,11 +79,7 @@ func (r *randomizer) inRange(min, max int) int {
 	defer mu.Unlock()
 	return seededRand.Intn(max-min) + min
 }
-func (r *randomizer) NextInRange(min, max int) int {
-	mu.Lock()
-	defer mu.Unlock()
-	return r.inRange(min, max)
-}
+func (r *randomizer) NextInRange(min, max int) int { return r.inRange(min, max) }
 func (r *randomizer) NextInt63n(n int64) int64 {
 	mu.Lock()
 	defer mu.Unlock()
@@ -128,8 +124,6 @@ func (r *randomizer) hiresInRange(min, max uint64) uint64 {
 }
 
 func (r *randomizer) HiresNextInRange(min, max uint64) uint64 {
-	mu.Lock()
-	defer mu.Unlock()
 	return r.hiresInRange(min, max)
 }
 func (r *randomizer) LastError() error { return r.lastErr }
@@ -141,11 +135,10 @@ func (r *randomizer) Error() error     { return r.lastErr }
 
 // NextStringSimple returns a random string with specified length 'n', just in A..Z
 func (r *randomizer) NextStringSimple(n int) string {
-	mu.Lock()
-	defer mu.Unlock()
 	bytes := make([]byte, n)
 	for i := 0; i < n; i++ {
-		bytes[i] = byte(r.inRange(65, 90)) // 'a' .. 'z'
+		n := seededRand.Intn(90-65) + 65
+		bytes[i] = byte(n) // 'a' .. 'z'
 	}
 	return string(bytes)
 }

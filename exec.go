@@ -5,6 +5,7 @@
 package cmdr
 
 import (
+	"github.com/hedzr/log/closers"
 	"github.com/hedzr/logex"
 	"gopkg.in/hedzr/errors.v2"
 	"os"
@@ -17,9 +18,7 @@ func Exec(rootCmd *RootCommand, opts ...ExecOption) (err error) {
 		// stop fs watcher explicitly
 		stopExitingChannelForFsWatcher()
 
-		for _, c := range internalGetWorker().closers {
-			c()
-		}
+		closers.Close()
 	}()
 
 	w := internalGetWorker()

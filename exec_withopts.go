@@ -7,6 +7,7 @@ package cmdr
 import (
 	"bufio"
 	"github.com/hedzr/cmdr/conf"
+	"github.com/hedzr/log/closers"
 	"gopkg.in/hedzr/errors.v2"
 	"io"
 	"log"
@@ -14,6 +15,7 @@ import (
 	"os/exec"
 	"path"
 	"runtime"
+	"sync/atomic"
 )
 
 // WithXrefBuildingHooks sets the hook before and after building xref indices.
@@ -376,16 +378,28 @@ func EnableShellPager(enabled bool) {
 
 func enableShellPager(w *ExecWorker, enabled bool) {
 	if enabled {
-		w.closers = append(w.closers, openPager(w))
+		closers.RegisterPeripheral(&pagerClose{fn: openPager(w)})
 		return
 	}
 
-	for _, c := range w.closers {
-		if c != nil {
-			c()
+	for _, c := range closers.ClosersClosers() {
+		if pc, ok := c.(*pagerClose); ok {
+			pc.Close()
 		}
 	}
-	w.closers = nil
+}
+
+type pagerClose struct {
+	fn     func()
+	closed int32
+}
+
+func (s *pagerClose) Close() {
+	if atomic.CompareAndSwapInt32(&s.closed, 0, 1) {
+		if s.fn != nil {
+			s.fn()
+		}
+	}
 }
 
 func closePager(w *ExecWorker, cmd *exec.Cmd, pager io.WriteCloser) func() {

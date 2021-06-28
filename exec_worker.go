@@ -53,7 +53,6 @@ type ExecWorker struct {
 	bufferedStdio bool
 	defaultStdout *bufio.Writer
 	defaultStderr *bufio.Writer
-	closers       []func()
 
 	// rootCommand the root of all commands
 	rootCommand *RootCommand

@@ -77,9 +77,12 @@ and Bonus of #cmdr Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.9.0 (WIP)
+- v1.9.0
   - .fossa.yaml so a pre-release scan can be launched locally
   - BREAK: remove plugin/daemon - use cmdr-addons/pkg/plugins/dex instead
+  - updated `log`, added: closers, detects and more
+  - use `closers` for better closing hooks
+  - just a early BREAK release
 
 - v1.8.7
   - updated `log`, added: AutoStart Peripheral interface

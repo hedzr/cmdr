@@ -21,8 +21,7 @@ We made many enhancements beyond the standard library `flag`.
 There is a fully-functional `Options Store` (configurations) for your
 hierarchical configuration dataset too.
 
-The .netCore version [Cmdr.Core](https
-://github.com/hedzr/Cmdr.Core) is available now. And, a cxx version [`cmdr-cxx`](https://github.com/hedzr/cmdr-cxx) was pre-released just now (Happy Spring Festival 2021).
+The .netCore version [Cmdr.Core](https://github.com/hedzr/Cmdr.Core) is available now. And, a cxx version [`cmdr-cxx`](https://github.com/hedzr/cmdr-cxx) was pre-released just now (Happy Spring Festival 2021).
 
 ![ee99d078e2f7](https://user-images.githubusercontent.com/12786150/72876202-f49ee500-3d30-11ea-9de0-434bf8decf90.gif)
 <!-- built by https://ezgif.com/ -->

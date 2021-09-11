@@ -27,35 +27,12 @@ The .netCore version [Cmdr.Core](https://github.com/hedzr/Cmdr.Core) is availabl
 <!-- built by https://ezgif.com/ -->
 > To review the image frames, go surfing at <https://github.com/hedzr/cmdr/issues/1#issuecomment-567779978>
 
-
-## Table of Contents
-
-* [cmdr](#cmdr)
-  * [Table of Contents](#table-of-contents)
-  * [Import](#import)
-  * [News](#news)
-  * [Features](#features)
-  * [For Developer](#for-developer)
-  * [Examples](#examples)
-  * [Uses](#uses)
-  * [Contrib](#contrib)
-  * [Thanks to JODL](#thanks-to-jodl)
-  * [License](#license)
-
-<!-- Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go) -->
+## Resources
 
 > [Youtube - 李宗盛2013最新單曲 山丘 官方完整版音檔](https://www.youtube.com/watch?v=_qNpR1Ew5jA) / [Jonathan Lee - Hill *CHT + ENU*](https://www.youtube.com/watch?v=FNlFe8ftBh0)
 
 
 
-
-## Import
-
-With go-modules enabled:
-
-```go
-import "github.com/hedzr/cmdr"
-```
 
 See our extras:
 
@@ -122,7 +99,20 @@ uses the public template [cmdr-go-starter](https://github.com/hedzr/cmdr-go-star
 > Old README.md: [README.old.md](old/README.old.md)
 
 
-## About the Docker build
+## For Developer
+
+[For Developer](old/Developer.md)
+
+### Import cmdr
+
+With go-modules enabled:
+
+```go
+import "github.com/hedzr/cmdr"
+```
+
+
+### About the Docker build
 
 Here is a docker build for cmdr/examples/fluent so that you can run it without go building or downloading the release files:
 
@@ -137,13 +127,7 @@ $ docker run -it --rm docker.pkg.github.com/hedzr/cmdr/cmdr-fluent --help
 ```
 
 
-## For Developer
-
-[For Developer](old/Developer.md)
-
-
-
-## Examples
+### Examples
 
 1. [**short**](./examples/short/README.md)  
    simple codes with structured data style.

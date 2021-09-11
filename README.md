@@ -51,7 +51,7 @@ The .netCore version [Cmdr.Core](https://github.com/hedzr/Cmdr.Core) is availabl
 
 ## Import
 
-The better choice is importing with go-modules enabled:
+With go-modules enabled:
 
 ```go
 import "github.com/hedzr/cmdr"
@@ -68,6 +68,7 @@ and Bonus of #cmdr Series:
 - dotnetCore: [Cmdr.Core](https://github.com/hedzr/Cmdr.Core)
 - C++17 or higher: [cmdr-cxx](https://github.com/hedzr/cmdr-cxx)
 
+uses the public template [cmdr-go-starter](https://github.com/hedzr/cmdr-go-starter).
 
 ## News
 
@@ -75,6 +76,9 @@ and Bonus of #cmdr Series:
 - docs (WIP):
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
+
+- v1.9.1 (WIP):
+  - uses the public template [cmdr-go-starter](https://github.com/hedzr/cmdr-go-starter).
 
 - v1.9.0
   - .fossa.yaml so a pre-release scan can be launched locally

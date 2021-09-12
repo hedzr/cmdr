@@ -45,7 +45,7 @@ and Bonus of #cmdr Series:
 - dotnetCore: [Cmdr.Core](https://github.com/hedzr/Cmdr.Core)
 - C++17 or higher: [cmdr-cxx](https://github.com/hedzr/cmdr-cxx)
 
-uses the public template [cmdr-go-starter](https://github.com/hedzr/cmdr-go-starter).
+uses the public template [**cmdr-go-starter**](https://github.com/hedzr/cmdr-go-starter).
 
 ## News
 

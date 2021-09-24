@@ -12,7 +12,7 @@ go 1.13
 
 require (
 	github.com/BurntSushi/toml v0.3.1
-	github.com/fsnotify/fsnotify v1.4.9
+	github.com/fsnotify/fsnotify v1.5.1
 	github.com/hedzr/cmdr-base v0.1.3
 	github.com/hedzr/log v1.3.22
 	github.com/hedzr/logex v1.3.22

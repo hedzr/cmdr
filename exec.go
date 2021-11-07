@@ -13,6 +13,8 @@ import (
 )
 
 // Exec is main entry of `cmdr`.
+//
+//
 func Exec(rootCmd *RootCommand, opts ...ExecOption) (err error) {
 	defer func() {
 		// stop fs watcher explicitly

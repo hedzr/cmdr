@@ -410,7 +410,7 @@ func (w *ExecWorker) prFlags(p Painter, command *Command, s2 []aGroupedSections,
 			p.FpFlagsTitle(command, nil, s1.title)
 			for _, s := range s1.sections {
 				//p.FpCommandsGroupTitle(s.title)
-				p.FpFlagsGroupTitle(s.title)
+				p.FpFlagsGroupTitle(s.title, s.isToggleGroup)
 
 				//fmtStr := fmt.Sprintf("%%-%dv%%v\n", maxL+2)
 				//for i, l := range s.bufLL {
@@ -495,9 +495,10 @@ func getSortedKeysFromCmdMap(groups map[string]*Command) (k1 []string) {
 }
 
 type aSection struct {
-	title        string
-	bufLL, bufLR []bytes.Buffer
-	maxL, maxR   int
+	title         string
+	isToggleGroup bool
+	bufLL, bufLR  []bytes.Buffer
+	maxL, maxR    int
 }
 
 type aGroupedSections struct {
@@ -619,6 +620,9 @@ func printHelpFlagSectionsChild(p Painter, command *Command, groups map[string]*
 			}
 			if section.maxR < bufR.Len() {
 				section.maxR = bufR.Len()
+			}
+			if flg.ToggleGroup != "" {
+				section.isToggleGroup = true
 			}
 			// fp("  %-48s%v%s", flg.GetTitleFlagNames(), flg.Description, defValStr)
 		}

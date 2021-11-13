@@ -162,7 +162,7 @@ func (s *helpPainter) FpFlagsTitle(command *Command, flag *Flag, title string) {
 	s.Printf("\n%s:", title)
 }
 
-func (s *helpPainter) FpFlagsGroupTitle(group string) {
+func (s *helpPainter) FpFlagsGroupTitle(group string, isToggleGroup bool) {
 	if group != UnsortedGroup {
 		if GetNoColorMode() {
 			s.Printf(fmtGroupTitleNC, tool.StripOrderPrefix(group))
@@ -171,7 +171,11 @@ func (s *helpPainter) FpFlagsGroupTitle(group string) {
 			// // echo -e "Normal \e[2mDim"
 			// _, _ = fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m\x1b[2m\x1b[%dm[%04d]\x1b[0m%-48s \x1b[2m\x1b[%dm%s\x1b[0m ",
 			// 	levelColor, levelText, DarkColor, int(entry.Time.Sub(baseTimestamp)/time.Second), entry.Message, DarkColor, caller)
-			s.Printf(fmtGroupTitle, CurrentGroupTitleColor, tool.StripOrderPrefix(group))
+			t := ""
+			if isToggleGroup {
+				t += "?"
+			}
+			s.Printf(fmtGroupTitle, CurrentGroupTitleColor, tool.StripOrderPrefix(group), t)
 		}
 	}
 }
@@ -207,6 +211,9 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, def
 		} else {
 			s.bufPrintf(&bufL, fmtFlagsDepL, // "  \x1b[%dm\x1b[%dm%-48s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]",
 				BgNormal, CurrentDescColor, flg.GetTitleFlagNamesByMax(",", maxShort))
+			if flg.ToggleGroup != "" {
+				s.bufPrintf(&bufR, "⬡ ")
+			}
 			s.bufPrintf(&bufR, fmtFlagsDepR, // "  \x1b[%dm\x1b[%dm%-48s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]",
 				flg.Description, BgItalic, CurrentDefaultValueColor, envKeys, defValStr, flg.Deprecated)
 		}
@@ -217,6 +224,9 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, def
 		} else {
 			s.bufPrintf(&bufL, fmtFlagsL, // "  %-48s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%s\x1b[0m",
 				flg.GetTitleFlagNamesByMax(",", maxShort))
+			if flg.ToggleGroup != "" {
+				s.bufPrintf(&bufR, "⬡ ")
+			}
 			s.bufPrintf(&bufR, fmtFlagsR, BgNormal, CurrentDescColor, flg.Description,
 				BgItalic, CurrentDefaultValueColor, envKeys, defValStr)
 		}
@@ -242,7 +252,7 @@ func initTabStop(ts int) {
 	fmtCmdlineDepNCL = "  %-" + s + "s"
 	fmtCmdlineDepNCR = "%s [deprecated since %v]"
 
-	fmtGroupTitle = "  [\x1b[2m\x1b[%dm%s\x1b[0m]"
+	fmtGroupTitle = "  [\x1b[2m\x1b[%dm%s\x1b[0m%s]"
 	fmtGroupTitleNC = "  [%s]"
 
 	fmtFlagsDepL = "  \x1b[%dm\x1b[%dm%-" + s + "s"

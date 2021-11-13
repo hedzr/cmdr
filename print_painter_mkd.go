@@ -260,7 +260,7 @@ func (s *markdownPainter) FpFlagsTitle(command *Command, flag *Flag, title strin
 	s.Printf("\n### %s\n", title)
 }
 
-func (s *markdownPainter) FpFlagsGroupTitle(group string) {
+func (s *markdownPainter) FpFlagsGroupTitle(group string, isToggleGroup bool) {
 	if group != UnsortedGroup {
 		s.Printf("#### %s\n", tool.StripOrderPrefix(group))
 	} else {

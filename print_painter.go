@@ -28,7 +28,7 @@ type (
 		FpCommandsGroupTitle(group string)
 		FpCommandsLine(command *Command) (bufL, bufR bytes.Buffer)
 		FpFlagsTitle(command *Command, flag *Flag, title string)
-		FpFlagsGroupTitle(group string)
+		FpFlagsGroupTitle(group string, isToggleGroup bool)
 		FpFlagsLine(command *Command, flag *Flag, maxShort int, defValStr string) (bufL, bufR bytes.Buffer)
 
 		Flush()

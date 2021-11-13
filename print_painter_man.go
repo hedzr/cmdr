@@ -218,7 +218,7 @@ func (s *manPainter) FpFlagsTitle(command *Command, flag *Flag, title string) {
 	s.Printf("\n.SH %s\n", "OPTIONS")
 }
 
-func (s *manPainter) FpFlagsGroupTitle(group string) {
+func (s *manPainter) FpFlagsGroupTitle(group string, isToggleGroup bool) {
 	if group != UnsortedGroup {
 		s.Printf(".SS \"%s\"\n", tool.StripOrderPrefix(group))
 	} else {

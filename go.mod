@@ -11,7 +11,7 @@ go 1.13
 //replace gopkg.in/hedzr/errors.v2 => ../05.errors
 
 require (
-	github.com/BurntSushi/toml v0.3.1
+	github.com/BurntSushi/toml v0.4.1
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/hedzr/cmdr-base v0.1.3
 	github.com/hedzr/log v1.3.22

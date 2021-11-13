@@ -54,8 +54,10 @@ uses the public template [**cmdr-go-starter**](https://github.com/hedzr/cmdr-go-
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.9.1 (WIP):
-  - uses the public template [cmdr-go-starter](https://github.com/hedzr/cmdr-go-starter).
+- v1.9.1:
+  - A public template repo may simplify your new CLI app: [**cmdr-go-starter**](https://github.com/hedzr/cmdr-go-starter).
+  - crashed at an elder fsnotify on macOS, with go1.17
+  - minor fixes
 
 - v1.9.0
   - .fossa.yaml so a pre-release scan can be launched locally

@@ -1104,8 +1104,10 @@ func (w *ExecWorker) backtraceCmdNames(cmd *Command, verboseLast bool) (str stri
 	var a []string
 	if verboseLast {
 		va := cmd.GetTitleNamesArray()
-		vas := strings.Join(va, "|")
-		a = append(a, "["+vas+"]")
+		if len(va) > 0 {
+			vas := strings.Join(va, "|")
+			a = append(a, "["+vas+"]")
+		}
 	} else {
 		a = append(a, cmd.GetTitleName())
 	}

@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/hedzr/cmdr/tool"
+	"runtime"
 	"strconv"
 	"strings"
 )
@@ -211,9 +212,6 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, def
 		} else {
 			s.bufPrintf(&bufL, fmtFlagsDepL, // "  \x1b[%dm\x1b[%dm%-48s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]",
 				BgNormal, CurrentDescColor, flg.GetTitleFlagNamesByMax(",", maxShort))
-			if flg.ToggleGroup != "" {
-				s.bufPrintf(&bufR, "⬡ ")
-			}
 			s.bufPrintf(&bufR, fmtFlagsDepR, // "  \x1b[%dm\x1b[%dm%-48s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]",
 				flg.Description, BgItalic, CurrentDefaultValueColor, envKeys, defValStr, flg.Deprecated)
 		}
@@ -225,7 +223,11 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, def
 			s.bufPrintf(&bufL, fmtFlagsL, // "  %-48s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%s\x1b[0m",
 				flg.GetTitleFlagNamesByMax(",", maxShort))
 			if flg.ToggleGroup != "" {
-				s.bufPrintf(&bufR, "⬡ ")
+				if runtime.GOOS == "windows" {
+					s.bufPrintf(&bufR, "( ) ")
+				} else {
+					s.bufPrintf(&bufR, "⬡ ")
+				}
 			}
 			s.bufPrintf(&bufR, fmtFlagsR, BgNormal, CurrentDescColor, flg.Description,
 				BgItalic, CurrentDefaultValueColor, envKeys, defValStr)

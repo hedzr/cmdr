@@ -54,6 +54,10 @@ uses the public template [**cmdr-go-starter**](https://github.com/hedzr/cmdr-go-
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.9.2 (WIP)
+  - fixed: parsing not stop while a should-be-stopped flag (such as --version) found
+  - fixed: incorrect usage line at top level help screen
+
 - v1.9.1:
   - A public template repo may simplify your new CLI app: [**cmdr-go-starter**](https://github.com/hedzr/cmdr-go-starter).
   - crashed at an elder fsnotify on macOS, with go1.17

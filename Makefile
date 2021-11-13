@@ -136,14 +136,6 @@ endif
 build: directories compile
 
 
-## build-win: build to windows executable, for LAN deploy manually.
-build-win:
-	@-$(MAKE) -s go-build-task os=windows goarchset=amd64
-
-## build-linux: build to linux executable, for LAN deploy manually.
-build-linux:
-	@-$(MAKE) -s go-build-task os=linux goarchset=amd64
-
 ## build-nacl: build to nacl executable, for LAN deploy manually.
 build-nacl:
 	# NOTE: can't build to nacl with golang 1.14 and darwin
@@ -172,6 +164,10 @@ build-riscv:
 ## build-linux: build to riscv64 executable, for LAN deploy manually.
 build-linux:
 	@-$(MAKE) -s go-build-task os=linux goarchset=amd64
+
+## build-win: build to windows executable, for LAN deploy manually.
+build-win:
+	@-$(MAKE) -s go-build-task os=windows goarchset=amd64
 
 ## build-windows: build to riscv64 executable, for LAN deploy manually.
 build-windows:

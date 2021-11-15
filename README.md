@@ -25,12 +25,7 @@ The .netCore version [Cmdr.Core](https://github.com/hedzr/Cmdr.Core) is availabl
 
 ![ee99d078e2f7](https://user-images.githubusercontent.com/12786150/72876202-f49ee500-3d30-11ea-9de0-434bf8decf90.gif)
 <!-- built by https://ezgif.com/ -->
-> To review the image frames, go surfing at <https://github.com/hedzr/cmdr/issues/1#issuecomment-567779978>
-
-## Resources
-
-> [Youtube - 李宗盛2013最新單曲 山丘 官方完整版音檔](https://www.youtube.com/watch?v=_qNpR1Ew5jA) / [Jonathan Lee - Hill *CHT + ENU*](https://www.youtube.com/watch?v=FNlFe8ftBh0)
-
+> See the image frames at [#1](https://github.com/hedzr/cmdr/issues/1#issuecomment-567779978).
 
 
 
@@ -39,13 +34,13 @@ See our extras:
 - [**cmdr-docs**](https://github.com/hedzr/cmdr-docs): documentations (Working)
 - [**cmdr-addons**](https://github.com/hedzr/cmdr-addons): a new daemon plugin `dex` for linux/macOS/windows.
 - [**cmdr-examples**](https://github.com/hedzr/cmdr-examples): collects the samples for cmdr
+- [**cmdr-go-starter**](https://github.com/hedzr/cmdr-go-starter): public template repo to new your cli app
 
 and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 
 - dotnetCore: [Cmdr.Core](https://github.com/hedzr/Cmdr.Core)
 - C++17 or higher: [cmdr-cxx](https://github.com/hedzr/cmdr-cxx)
 
-uses the public template [**cmdr-go-starter**](https://github.com/hedzr/cmdr-go-starter).
 
 ## News
 
@@ -57,7 +52,9 @@ uses the public template [**cmdr-go-starter**](https://github.com/hedzr/cmdr-go-
 - v1.9.2 (WIP)
   - fixed: parsing not stop while a should-be-stopped flag (such as --version) found
   - fixed: incorrect usage line at top level help screen
-  - improved: better toggle-group show in help screen
+  - improved: better toggle-group show in help screen  
+    new style for ToggleGroup items: A unicode character '⬡' as the prefix of the option description. (see [here](https://github.com/hedzr/cmdr/issues/1#issuecomment-968247546))
+  - 
 
 - v1.9.1:
   - A public template repo may simplify your new CLI app: [**cmdr-go-starter**](https://github.com/hedzr/cmdr-go-starter).

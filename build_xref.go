@@ -141,9 +141,9 @@ func (w *ExecWorker) _toolAddCmd(parent *Command, groupName string, cc *Command)
 	}
 	cmdName := cc.GetTitleName()
 	if _, ok := parent.allCmds[groupName][cmdName]; !ok {
-		parent.SubCommands = uniAddCmd(parent.SubCommands, cc)
-		parent.allCmds[groupName][cmdName] = cc
-		parent.plainCmds[cmdName] = cc
+		if cc.Action == nil {
+			w.bindInvokeToAction(cc)
+		}
 		if cc.Short != "" && cc.Short != cmdName {
 			if _, ok := parent.plainCmds[cc.Short]; !ok {
 				parent.plainCmds[cc.Short] = cc
@@ -154,6 +154,9 @@ func (w *ExecWorker) _toolAddCmd(parent *Command, groupName string, cc *Command)
 				parent.plainCmds[n] = cc
 			}
 		}
+		parent.SubCommands = uniAddCmd(parent.SubCommands, cc)
+		parent.allCmds[groupName][cmdName] = cc
+		parent.plainCmds[cmdName] = cc
 
 		for _, c := range cc.SubCommands {
 			if c.owner == nil {
@@ -173,7 +176,7 @@ func (w *ExecWorker) bindInvokeToAction(c *Command) {
 	if c.Invoke != "" {
 		cmdPathParts := strings.Split(c.Invoke, " ")
 		if len(cmdPathParts) > 1 {
-			c.presetCmdLines = cmdPathParts[1:]
+			c.Invoke, c.presetCmdLines = cmdPathParts[0], cmdPathParts[1:]
 		}
 		c.Action = w.getInvokeAction(c)
 	}

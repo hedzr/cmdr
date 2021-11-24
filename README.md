@@ -50,6 +50,7 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
 - v1.9.3 (WIP)
+  - fixed: commands might not work when loading from config file. ref: `fluent services kx3`, and/or `fluent ls/pwd`
 
 - v1.9.2
   - fixed: parsing not stop while a should-be-stopped flag (such as --version) found

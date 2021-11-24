@@ -256,12 +256,9 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 
 func (w *ExecWorker) updateArgs(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args *[]string) {
 	*args = append((*args)[0:pkg.i+1], append((*goCommand).presetCmdLines, (*args)[pkg.i+1:]...)...)
-	cmdPathParts := strings.Split((*goCommand).Invoke, " ")
-	if len(cmdPathParts) > 1 {
-		cmdPath := cmdPathParts[0]
-		if cmd, matched := w.locateCommand(cmdPath, *goCommand); matched {
-			*goCommand = cmd
-		}
+	cmdPath := (*goCommand).Invoke
+	if cmd, matched := w.locateCommand(cmdPath, *goCommand); matched {
+		*goCommand = cmd
 	}
 }
 

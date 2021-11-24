@@ -4,8 +4,13 @@ app:
   aliases:
     group:
     commands:
-      - title: ls
+      - title: list
+        short-name: ls
+        # aliases: []
+        # name: ""
         invoke-sh: ls -la -G                # for macOS, -G = --color; for linux: -G = --no-group
+        # invoke: "another cmdr command"
+        # invoke-proc: "..." # same with invoke-sh
         desc: list the current directory
       - title: pwd
         invoke-sh: pwd
@@ -38,7 +43,7 @@ app:
             desc: invoke /kb command
             group: Internal
           - title: kx2
-            invoke: ../.././//kb --size 32mb
+            invoke: ../.././//kb --size 32mb   # allow related path to seek a cmdr-command, and the ugly path is allowed (multiple slashes, ...)
             desc: invoke /kb command
             group: Internal
           - title: kx3

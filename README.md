@@ -49,12 +49,17 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.9.2 (WIP)
+- v1.9.3 (WIP)
+
+- v1.9.2
   - fixed: parsing not stop while a should-be-stopped flag (such as --version) found
   - fixed: incorrect usage line at top level help screen
   - improved: better toggle-group show in help screen  
-    new style for ToggleGroup items: A unicode character '⬡' as the prefix of the option description. (see [here](https://github.com/hedzr/cmdr/issues/1#issuecomment-968247546))
-  - 
+    new style for ToggleGroup items: A unicode character '⬡'(U+2B21) as the prefix of the option description. (see [here](https://github.com/hedzr/cmdr/issues/1#issuecomment-968247546))
+  - improved: better toggle-group choicer in help screen  
+    1. '⬢'(U+2B22) &amp; '⬡'(U+2B21) for the default choicer style (named as `hexagon`),
+    1. '▸'(U+25B8) &amp; '▹'(U+25B9) as another one (`triangle-right`),
+  - improved: `WithToggleGroupChoicerStyle(style)` and `WithToggleGroupChoicerNewStyle(style, trueChoicer, falseChoicer)`. 
 
 - v1.9.1:
   - A public template repo may simplify your new CLI app: [**cmdr-go-starter**](https://github.com/hedzr/cmdr-go-starter).

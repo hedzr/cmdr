@@ -212,6 +212,7 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, def
 		} else {
 			s.bufPrintf(&bufL, fmtFlagsDepL, // "  \x1b[%dm\x1b[%dm%-48s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]",
 				BgNormal, CurrentDescColor, flg.GetTitleFlagNamesByMax(",", maxShort))
+			s.printTGC(flg, &bufL, &bufR)
 			s.bufPrintf(&bufR, fmtFlagsDepR, // "  \x1b[%dm\x1b[%dm%-48s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]",
 				flg.Description, BgItalic, CurrentDefaultValueColor, envKeys, defValStr, flg.Deprecated)
 		}
@@ -222,7 +223,7 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, def
 		} else {
 			s.bufPrintf(&bufL, fmtFlagsL, // "  %-48s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%s\x1b[0m",
 				flg.GetTitleFlagNamesByMax(",", maxShort))
-			s.printTGC(flg, bufL, bufR)
+			s.printTGC(flg, &bufL, &bufR)
 			s.bufPrintf(&bufR, fmtFlagsR, BgNormal, CurrentDescColor, flg.Description,
 				BgItalic, CurrentDefaultValueColor, envKeys, defValStr)
 		}
@@ -230,7 +231,7 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, def
 	return
 }
 
-func (s *helpPainter) printTGC(flg *Flag, bufL, bufR bytes.Buffer) {
+func (s *helpPainter) printTGC(flg *Flag, bufL, bufR *bytes.Buffer) {
 	if flg.ToggleGroup != "" {
 		vv, ok := flg.DefaultValue.(bool)
 		if !ok {
@@ -239,12 +240,12 @@ func (s *helpPainter) printTGC(flg *Flag, bufL, bufR bytes.Buffer) {
 
 		if runtime.GOOS == "windows" {
 			if vv {
-				s.bufPrintf(&bufR, "(x) ")
+				s.bufPrintf(bufR, "(x) ")
 			} else {
-				s.bufPrintf(&bufR, "( ) ")
+				s.bufPrintf(bufR, "( ) ")
 			}
 		} else {
-			s.bufPrintf(&bufR, tgcMap[tgcStyle][vv])
+			s.bufPrintf(bufR, tgcMap[tgcStyle][vv])
 		}
 	}
 }

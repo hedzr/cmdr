@@ -180,6 +180,71 @@ $ {{.AppName}} kb --size 1g
 			return
 		})
 
+	tgCommand(root)
+	mxCommand(root)
+	kvCommand(root)
+	msCommand(root)
+
+	return
+}
+
+func tgCommand(root cmdr.OptCmd) {
+
+	// toggle-group-test - without a default choice
+
+	fx := root.NewSubCommand("tg-test", "tg", "toggle-group-test").
+		Description("test new features", "test new features,\nverbose long descriptions here.").
+		Group("Test").
+		Action(func(cmd *cmdr.Command, args []string) (err error) {
+
+			fmt.Printf("*** Got fruit (toggle group): %v\n", cmdr.GetString("app.tg-test.fruit"))
+
+			fmt.Printf("> STDIN MODE: %v \n", cmdr.GetBoolR("mx-test.stdin"))
+			fmt.Println()
+
+			//logrus.Debug("debug")
+			//logrus.Info("debug")
+			//logrus.Warning("debug")
+			//logrus.WithField(logex.SKIP, 1).Warningf("dsdsdsds")
+
+			return
+		})
+	fx.NewFlagV(false, "apple").
+		Description("the test text.", "").
+		ToggleGroup("fruit")
+	fx.NewFlagV(false, "banana").
+		Description("the test text.", "").
+		ToggleGroup("fruit")
+	fx.NewFlagV(false, "orange").
+		Description("the test text.", "").
+		ToggleGroup("fruit")
+
+	// tg2 - with a default choice
+
+	fx2 := root.NewSubCommand("tg-test2", "tg2", "toggle-group-test2").
+		Description("test new features", "test new features,\nverbose long descriptions here.").
+		Group("Test").
+		Action(func(cmd *cmdr.Command, args []string) (err error) {
+			fmt.Printf("*** Got fruit (toggle group): %v\n", cmdr.GetString("app.tg-test2.fruit"))
+
+			fmt.Printf("> STDIN MODE: %v \n", cmdr.GetBoolR("mx-test.stdin"))
+			fmt.Println()
+			return
+		})
+	fx2.NewFlagV(false, "apple").
+		Description("the test text.", "").
+		ToggleGroup("fruit")
+	fx2.NewFlagV(false, "banana").
+		Description("the test text.", "").
+		ToggleGroup("fruit")
+	fx2.NewFlagV(true, "orange").
+		Description("the test text.", "").
+		ToggleGroup("fruit")
+
+}
+
+func mxCommand(root cmdr.OptCmd) {
+
 	// mx-test
 
 	mx := root.NewSubCommand("mx-test", "mx").
@@ -202,7 +267,7 @@ $ {{.AppName}} kb --size 1g
 
 			fmt.Printf("*** Got pp: %s\n", cmdr.GetString("app.mx-test.password"))
 			fmt.Printf("*** Got msg: %s\n", cmdr.GetString("app.mx-test.message"))
-			fmt.Printf("*** Got fruit (toggle group): %v\n", cmdr.GetString("app.mx-test.fruit"))
+			fmt.Printf("*** Got fruit (valid args): %v\n", cmdr.GetString("app.mx-test.fruit"))
 			fmt.Printf("*** Got head (head-like): %v\n", cmdr.GetInt("app.mx-test.head"))
 			fmt.Println()
 			fmt.Printf("*** test text: %s\n", cmdr.GetStringR("mx-test.test"))
@@ -239,29 +304,38 @@ $ {{.AppName}} kb --size 1g
 		Description("the test text.", "").
 		EnvKeys("COOLT", "TEST").
 		Group("")
+
 	mx.NewFlagV("", "password", "pp").
 		Description("the password requesting.", "").
 		Group("").
 		Placeholder("PASSWORD").
 		ExternalTool(cmdr.ExternalToolPasswordInput)
+
 	mx.NewFlagV("", "message", "m", "msg").
 		Description("the message requesting.", "").
 		Group("").
 		Placeholder("MESG").
 		ExternalTool(cmdr.ExternalToolEditor)
+
 	mx.NewFlagV("", "fruit", "fr").
 		Description("the message.", "").
 		Group("").
 		Placeholder("FRUIT").
 		ValidArgs("apple", "banana", "orange")
+
 	mx.NewFlagV(1, "head", "hd").
 		Description("the head lines.", "").
 		Group("").
 		Placeholder("LINES").
 		HeadLike(true, 1, 3000)
+
 	mx.NewFlagV(false, "stdin", "c").
 		Description("read file content from stdin.", "").
 		Group("")
+
+}
+
+func kvCommand(root cmdr.OptCmd) {
 
 	// kv
 
@@ -283,6 +357,9 @@ $ {{.AppName}} kb --size 1g
 	kvRestoreCmd.NewFlagV("consul-backup.json", "input", "i").
 		Description("Read the input file (*.json / *.yml)", ``).
 		Placeholder("FILE")
+
+}
+func msCommand(root cmdr.OptCmd) {
 
 	// ms
 
@@ -476,7 +553,6 @@ $ {{.AppName}} kb --size 1g
 		Description("the address of the service (by id or name)").
 		Placeholder("HOST:PORT")
 
-	return
 }
 
 const (

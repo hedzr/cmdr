@@ -18,6 +18,46 @@ import (
 	"sync/atomic"
 )
 
+// WithToggleGroupChoicerStyle allows user-defined choicer style.
+//
+// The valid styles are: hexagon, triangle-right.
+//
+// For `ToggleGroup Choicer` and its style, see also:
+// https://github.com/hedzr/cmdr/issues/1#issuecomment-968247546
+func WithToggleGroupChoicerStyle(style string) ExecOption {
+	return func(w *ExecWorker) {
+		if _, ok := tgcMap[style]; ok {
+			tgcStyle = style
+		} else {
+			// keys := maps.Keys(tgcMap)
+			i := 0
+			keys := make([]string, len(tgcMap))
+			for k := range tgcMap {
+				keys[i] = k
+				i++
+			}
+			Logger.Fatalf("The valid styles are: %v", keys)
+		}
+	}
+}
+
+// WithToggleGroupChoicerNewStyle enables customizable choicer characters
+// with your own style name.
+//
+// For `ToggleGroup Choicer` and its style, see also:
+// https://github.com/hedzr/cmdr/issues/1#issuecomment-968247546
+func WithToggleGroupChoicerNewStyle(style string, trueChoicer, falseChoicer string) ExecOption {
+	return func(w *ExecWorker) {
+		if _, ok := tgcMap[style]; !ok {
+			tgcMap[style] = map[bool]string{
+				true: trueChoicer, false: falseChoicer,
+			}
+		} else {
+			Logger.Fatalf("'%v' is a builtin choicer style", style)
+		}
+	}
+}
+
 // WithXrefBuildingHooks sets the hook before and after building xref indices.
 // It's replacers for AddOnBeforeXrefBuilding, and AddOnAfterXrefBuilt.
 //

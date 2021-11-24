@@ -118,6 +118,10 @@ More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-
 			"$HOME/.$APPNAME/ext",
 			"/usr/local/share/$APPNAME/ext",
 			"/usr/share/$APPNAME/ext"),
+
+		// since 1.9.2+
+		cmdr.WithToggleGroupChoicerNewStyle("new", "x ", "  "),
+		cmdr.WithToggleGroupChoicerStyle("hexagon"),
 	)
 
 	cmdr.InternalResetWorker()
@@ -627,6 +631,17 @@ func TestCmdrClone(t *testing.T) {
 	t.Log(flags)
 }
 
+func theKeys(theExecTestings map[string]func(t *testing.T) error) (keys []string) {
+	keys = make([]string, len(theExecTestings))
+	i := 0
+	for k := range theExecTestings {
+		keys[i] = k
+		i++
+	}
+	sort.Strings(keys)
+	return
+}
+
 func TestExec(t *testing.T) {
 	cmdr.InternalResetWorker()
 	cmdr.ResetOptions()
@@ -677,15 +692,7 @@ func TestExec(t *testing.T) {
 	flgOpt.OnSet(func(keyPath string, value interface{}) {})
 
 	t.Log("xxx: -------- loops for execTestings")
-	//
-	keys := make([]string, len(execTestings))
-	i := 0
-	for k := range execTestings {
-		keys[i] = k
-		i++
-	}
-	sort.Strings(keys)
-	//
+	keys := theKeys(execTestings)
 	for _, sss := range keys {
 		verifier := execTestings[sss]
 

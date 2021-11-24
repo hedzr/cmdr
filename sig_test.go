@@ -1,6 +1,7 @@
 // Copyright © 2019 Hedzr Yeh.
 
-//+build linux
+//go:build linux
+// +build linux
 
 package cmdr_test
 

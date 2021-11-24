@@ -1,5 +1,6 @@
 // Copyright © 2020 Hedzr Yeh.
 
+//go:build !go1.13
 // +build !go1.13
 
 package cmdr

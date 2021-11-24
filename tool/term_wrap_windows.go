@@ -1,5 +1,5 @@
-// +build windows
-// +build !nacl
+//go:build windows && !nacl
+// +build windows,!nacl
 
 // Copyright © 2020 Hedzr Yeh.
 

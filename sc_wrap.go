@@ -1,3 +1,4 @@
+//go:build (darwin || dragonfly || freebsd || linux || netbsd || openbsd || windows || aix || arm_linux || solaris) && !nacl
 // +build darwin dragonfly freebsd linux netbsd openbsd windows aix arm_linux solaris
 // +build !nacl
 

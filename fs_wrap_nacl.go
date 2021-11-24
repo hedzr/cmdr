@@ -1,3 +1,4 @@
+//go:build nacl
 // +build nacl
 
 /*

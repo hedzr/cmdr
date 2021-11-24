@@ -1,3 +1,4 @@
+//go:build delve
 // +build delve
 
 // Copyright © 2019 Hedzr Yeh.

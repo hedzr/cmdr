@@ -2,6 +2,10 @@
 
 ## Versions
 
+- v1.9.3
+  - fixed: commands might not work when loading from config file. ref: `fluent services kx3`, and/or `fluent ls/pwd`
+  - fixed: incorrect usage on bytes.Buffer, for toggle-group choicer
+
 - v1.9.2:
   - fixed: parsing not stop while a should-be-stopped flag (such as --version) found
   - fixed: incorrect usage line at top level help screen

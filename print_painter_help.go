@@ -222,18 +222,31 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, def
 		} else {
 			s.bufPrintf(&bufL, fmtFlagsL, // "  %-48s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%s\x1b[0m",
 				flg.GetTitleFlagNamesByMax(",", maxShort))
-			if flg.ToggleGroup != "" {
-				if runtime.GOOS == "windows" {
-					s.bufPrintf(&bufR, "( ) ")
-				} else {
-					s.bufPrintf(&bufR, "⬡ ")
-				}
-			}
+			s.printTGC(flg, bufL, bufR)
 			s.bufPrintf(&bufR, fmtFlagsR, BgNormal, CurrentDescColor, flg.Description,
 				BgItalic, CurrentDefaultValueColor, envKeys, defValStr)
 		}
 	}
 	return
+}
+
+func (s *helpPainter) printTGC(flg *Flag, bufL, bufR bytes.Buffer) {
+	if flg.ToggleGroup != "" {
+		vv, ok := flg.DefaultValue.(bool)
+		if !ok {
+			vv = false
+		}
+
+		if runtime.GOOS == "windows" {
+			if vv {
+				s.bufPrintf(&bufR, "(x) ")
+			} else {
+				s.bufPrintf(&bufR, "( ) ")
+			}
+		} else {
+			s.bufPrintf(&bufR, tgcMap[tgcStyle][vv])
+		}
+	}
 }
 
 func initTabStop(ts int) {
@@ -285,6 +298,29 @@ var (
 	fmtTailLine, fmtTailLineNC           string
 )
 
-const defaultTailLine = `
+const (
+	defaultTailLine = `
 Type '-h'/'-?' or '--help' to get command help screen. 
 More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-info', '--no-color', '--strict-mode', '--no-env-overrides'...`
+
+	//blackhexagon       = '⬢' // U+2B22
+	//whitehexagon       = '⬡' // U+2B21
+	//cir                = '○' // U+25CB, &cir; ⭘○
+	//blacktriangleright = '▸' // U+25B8, &blacktriangleright;
+	//triangleright      = '▹' // U+25B9, &triangleright;
+)
+
+// tgcMap holds a map of the toggle-group choice flag characters
+var tgcMap = map[string]map[bool]string{
+	"hexagon": {
+		true:  "⬢ ",
+		false: "⬡ ",
+	},
+	"triangle-right": {
+		true:  "▸ ",
+		false: "▹ ",
+	},
+}
+
+//var tgcStyle = "triangle-right"
+var tgcStyle = "hexagon"

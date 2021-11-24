@@ -103,11 +103,13 @@ func addTo(root *cmdr.RootCmdOpt) {
 	cmdr.NewString("heap").
 		Titles("mem-profile-type", "mpt").
 		Description("the profile type for memory profiles, 'heap' or 'allocs'", "").
+		Placeholder("TYPE").
 		Group("Profiling-Memory").
 		AttachTo(root)
 	cmdr.NewInt(DefaultMemProfileRate).
 		Titles("mem-profile-rate", "mpr").
 		Description("the rate for the memory profile", "").
+		Placeholder("RATE").
 		Group("Profiling-Memory").
 		AttachTo(root)
 

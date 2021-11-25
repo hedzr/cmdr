@@ -275,7 +275,7 @@ func WithConfigSubDirAutoName(folderName string) ExecOption {
 	}
 }
 
-// WithSearchAlterConfigFiles adds CURRDIR/.<appname>.yml and CURRDIR/.<appname>/*.yml
+// WithSearchAlterConfigFiles adds CURR_DIR/.<appname>.yml and CURR_DIR/.<appname>/*.yml
 // to the assumed config files and folders
 func WithSearchAlterConfigFiles(b bool) ExecOption {
 	return func(w *ExecWorker) {

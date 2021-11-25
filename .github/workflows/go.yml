@@ -19,7 +19,7 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.12.x, 1.13.x, 1.15.x]
+        go-version: [1.12.x, 1.16.x]     # 1.13.x, 1.14.x, 1.15.x,
         #os: [ubuntu-latest, macos-latest, windows-latest]
         os: [ubuntu-latest]
       fail-fast: false
@@ -127,7 +127,7 @@ jobs:
           docker push hedzr/$IMAGE_NAME:$IMAGE_TAG
           docker push hedzr/$IMAGE_NAME:latest
 
-      - name: Build
+      - name: Build for releases
         run: |
           export GIT_REVISION="$(git rev-parse --short HEAD)"
           export GOVERSION="$(go version)"
@@ -147,8 +147,15 @@ jobs:
           EOF
           for app in short demo fluent ffdemo wget-demo; do
           for dir in ./examples; do
-            for GOOS in windows linux darwin; do
+            for GOOS in windows linux; do
               for GOARCH in amd64; do
+                suf=; if [[ $GOOS == "windows" ]]; then suf=".exe"; fi
+                go build -v -ldflags "$LDFLAGS" -o ./bin/$app-$GOOS-$GOARCH$suf ./$dir/$app/
+                gzip -f ./bin/$app-$GOOS-$GOARCH$suf
+              done
+            done
+            for GOOS in darwin; do
+              for GOARCH in amd64 arm64; do
                 suf=; if [[ $GOOS == "windows" ]]; then suf=".exe"; fi
                 go build -v -ldflags "$LDFLAGS" -o ./bin/$app-$GOOS-$GOARCH$suf ./$dir/$app/
                 gzip -f ./bin/$app-$GOOS-$GOARCH$suf

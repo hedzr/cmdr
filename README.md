@@ -49,6 +49,9 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.9.4 (WIP)
+  - fixed: potential nil exception while writing back to the alternative config files
+
 - v1.9.3
   - fixed: commands might not work when loading from config file. ref: `fluent services kx3`, and/or `fluent ls/pwd`
   - fixed: incorrect usage on bytes.Buffer, for toggle-group choicer

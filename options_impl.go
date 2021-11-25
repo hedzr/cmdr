@@ -1009,7 +1009,10 @@ func (s *Options) Flush() {
 func (s *Options) updateMap(kDot string, m map[string]interface{}) (updated bool, mc map[string]interface{}, err error) {
 	for k, v := range m {
 		key := mxIx(kDot, k)
-		if vm, ok := v.(map[interface{}]interface{}); ok {
+		if v == nil {
+			// mc[k], m[k] = v, v
+			// nothing to do
+		} else if vm, ok := v.(map[interface{}]interface{}); ok {
 			if err = s.updateIxMap(key, vm); err != nil {
 				return
 			}

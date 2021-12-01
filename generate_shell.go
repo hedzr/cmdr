@@ -17,28 +17,60 @@ import (
 func genShell(cmd *Command, args []string) (err error) {
 	// logrus.Infof("OK gen shell. %v", *cmd)
 	w := internalGetWorker()
-	if GetBoolP(w.getPrefix(), "generate.shell.zsh") {
-		// if !GetBoolP(getPrefix(), "quiet") {
-		// 	logrus.Debugf("zsh-dump")
-		// }
-		// printHelpZsh(command, justFlags)
 
-		// not yet
-	} else if GetBoolP(w.getPrefix(), "generate.shell.bash") {
-		err = genShellBash(cmd, args)
-	} else {
-		// auto
-		// shell := os.Getenv("SHELL")
-		// if strings.HasSuffix(shell, "/bash") || GetBoolP(getPrefix(), "generate.shell.force-bash") {
-		// 	err = genShellBash(cmd, args)
-		// } else if strings.HasSuffix(shell, "/zsh") {
-		// 	// not yet
-		// }
-		err = genShellAuto(cmd, args)
-		// } else {
-		// 	_, _ = fmt.Fprint(os.Stderr, "Unknown shell. ignored.")
-		// err = genShellB(cmd, args)
+	what := "bash"
+	if GetBoolP(w.getPrefix(), "generate.shell.zsh") {
+		what = "zsh"
+	} else if GetBoolP(w.getPrefix(), "generate.shell.elvish") {
+		what = "elvish"
+	} else if GetBoolP(w.getPrefix(), "generate.shell.fig") {
+		what = "fig"
+	} else if GetBoolP(w.getPrefix(), "generate.shell.fish") {
+		what = "fish"
+	} else if GetBoolP(w.getPrefix(), "generate.shell.powershell") {
+		what = "powershell"
+	} else if !GetBoolP(w.getPrefix(), "generate.shell.bash") {
+		shell := os.Getenv("SHELL")
+		if strings.HasSuffix(shell, "/zsh") {
+			what = "zsh"
+		} else if !strings.HasSuffix(shell, "/bash") {
+			what = path.Base(shell)
+		}
 	}
+
+	switch what {
+	case "zsh":
+		err = genShellZsh(cmd, args)
+	case "fish":
+		err = genShellFish(cmd, args)
+	case "bash":
+		fallthrough
+	default:
+		err = genShellBash(cmd, args)
+	}
+
+	//if GetBoolP(w.getPrefix(), "generate.shell.zsh") {
+	//	// if !GetBoolP(getPrefix(), "quiet") {
+	//	// 	logrus.Debugf("zsh-dump")
+	//	// }
+	//	// printHelpZsh(command, justFlags)
+	//
+	//	// not yet
+	//} else if GetBoolP(w.getPrefix(), "generate.shell.bash") {
+	//	err = genShellBash(cmd, args)
+	//} else {
+	//	// auto
+	//	// shell := os.Getenv("SHELL")
+	//	// if strings.HasSuffix(shell, "/bash") || GetBoolP(getPrefix(), "generate.shell.force-bash") {
+	//	// 	err = genShellBash(cmd, args)
+	//	// } else if strings.HasSuffix(shell, "/zsh") {
+	//	// 	// not yet
+	//	// }
+	//	err = genShellAuto(cmd, args)
+	//	// } else {
+	//	// 	_, _ = fmt.Fprint(os.Stderr, "Unknown shell. ignored.")
+	//	// err = genShellB(cmd, args)
+	//}
 	return
 }
 
@@ -62,7 +94,13 @@ func findDepth(cmd *Command) (deep int) {
 // 	return
 // }
 
-func genShellAuto(cmd *Command, args []string) (err error) {
+func genShellZsh(cmd *Command, args []string) (err error) {
+	fmt.Println(`# todo`)
+	return
+}
+
+func genShellFish(cmd *Command, args []string) (err error) {
+	fmt.Println(`# todo`)
 	return
 }
 

@@ -58,6 +58,20 @@ func WithToggleGroupChoicerNewStyle(style string, trueChoicer, falseChoicer stri
 	}
 }
 
+// withShellCompletionCommandEnabled NOT YET, to-do
+func withShellCompletionCommandEnabled(b bool) ExecOption {
+	return func(w *ExecWorker) {
+		enableShellCompletionCommand = !b
+	}
+}
+
+// withShellCompletionPartialMatch NOT YET, to-do
+func withShellCompletionPartialMatch(b bool) ExecOption {
+	return func(w *ExecWorker) {
+		noPartialMatching = !b
+	}
+}
+
 // WithXrefBuildingHooks sets the hook before and after building xref indices.
 // It's replacers for AddOnBeforeXrefBuilding, and AddOnAfterXrefBuilt.
 //

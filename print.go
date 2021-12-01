@@ -129,6 +129,9 @@ func (w *ExecWorker) printHelp(command *Command, justFlags bool) {
 
 	initTabStop(defaultTabStop)
 
+	// fluent -nc --help-zsh 1   # print _arguments array for sub-commands level 1
+	// fluent -nc --help-zsh 2   # print _arguments array for sub-commands level 2
+	// fluent Ø ms tags, ...
 	if GetIntR("help-zsh") > 0 {
 		w.printHelpZsh(command, justFlags)
 	} else if GetBoolR("help-bash") {
@@ -214,18 +217,25 @@ func (w *ExecWorker) printHelpZsh(command *Command, justFlags bool) {
 func (w *ExecWorker) printHelpZshCommands(command *Command, justFlags bool) {
 	if !justFlags {
 		var x strings.Builder
-		x.WriteString(fmt.Sprintf("%d: :((", GetIntP(w.getPrefix(), "help-zsh")))
 		for _, cx := range command.SubCommands {
 			for _, n := range cx.GetExpandableNamesArray() {
-				x.WriteString(fmt.Sprintf(`%v:'%v' `, n, cx.Description))
+				x.WriteString(fmt.Sprintf("%v:'%v' \n", n, tool.EscapeCompletionTitle(cx.Description)))
 			}
-
-			// fp(`  %-25s  %v%v`, cx.GetName(), cx.GetQuotedGroupName(), cx.Description)
-
-			// fp(`%v:%v`, cx.GetExpandableNames(), cx.Description)
-			// printHelpZshCommands(cx)
 		}
-		x.WriteString("))")
+		//x.WriteString(fmt.Sprintf("%d: :((", GetIntP(w.getPrefix(), "help-zsh")))
+		//for _, cx := range command.SubCommands {
+		//	for _, n := range cx.GetExpandableNamesArray() {
+		//		x.WriteString(fmt.Sprintf(`%v:'%v' `, n, cx.Description))
+		//	}
+		//
+		//	// fp(`  %-25s  %v%v`, cx.GetName(), cx.GetQuotedGroupName(), cx.Description)
+		//
+		//	// fp(`%v:%v`, cx.GetExpandableNames(), cx.Description)
+		//	// printHelpZshCommands(cx)
+		//}
+		//x.WriteString("))")
+		directive := 4
+		x.WriteString(fmt.Sprintf(":%d\n", directive))
 		fp("%v", x.String())
 	} else {
 		for _, flg := range command.Flags {

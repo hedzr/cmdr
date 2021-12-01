@@ -13,6 +13,7 @@ man*/
 *.6
 *.7
 *.8
+*.bak
 .vagrant/
 docs/
 .tmp.*

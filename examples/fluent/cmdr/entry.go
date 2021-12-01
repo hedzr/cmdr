@@ -162,7 +162,7 @@ $ {{.AppName}} kb --size 1g
 	// xy-print
 
 	root.NewSubCommand("xy-print", "xy").
-		Description("test terminal control sequences", "test terminal control sequences,\nverbose long descriptions here.").
+		Description("test terminal control sequences", "xy-print test terminal control sequences,\nverbose long descriptions here.").
 		Group("Test").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			//
@@ -193,7 +193,7 @@ func tgCommand(root cmdr.OptCmd) {
 	// toggle-group-test - without a default choice
 
 	fx := root.NewSubCommand("tg-test", "tg", "toggle-group-test").
-		Description("test new features", "test new features,\nverbose long descriptions here.").
+		Description("tg test new features", "tg test new features,\nverbose long descriptions here.").
 		Group("Test").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 
@@ -222,7 +222,7 @@ func tgCommand(root cmdr.OptCmd) {
 	// tg2 - with a default choice
 
 	fx2 := root.NewSubCommand("tg-test2", "tg2", "toggle-group-test2").
-		Description("test new features", "test new features,\nverbose long descriptions here.").
+		Description("tg2 test new features", "tg2 test new features,\nverbose long descriptions here.").
 		Group("Test").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			fmt.Printf("*** Got fruit (toggle group): %v\n", cmdr.GetString("app.tg-test2.fruit"))
@@ -248,7 +248,7 @@ func mxCommand(root cmdr.OptCmd) {
 	// mx-test
 
 	mx := root.NewSubCommand("mx-test", "mx").
-		Description("test new features", "test new features,\nverbose long descriptions here.").
+		Description("mx test new features", "mx test new features,\nverbose long descriptions here.").
 		Group("Test").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			// cmdr.Set("test.1", 8)

@@ -2,7 +2,10 @@
 
 package tool
 
-import "regexp"
+import (
+	"regexp"
+	"strings"
+)
 
 // StripQuotes strips single or double quotes around a string.
 func StripQuotes(s string) string {
@@ -41,3 +44,10 @@ func EraseAnyWSs(s string) string {
 
 // var reSimp = regexp.MustCompile(`[ \t][ \t]+`)
 var reSimpSimp = regexp.MustCompile(`[ \t]+`)
+
+// EscapeCompletionTitle escapes ';' character for zsh completion system
+func EscapeCompletionTitle(title string) string {
+	ret := strings.ReplaceAll(title, "'", "\"")
+	ret = strings.ReplaceAll(ret, ":", "\\:")
+	return ret
+}

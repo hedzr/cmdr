@@ -161,7 +161,7 @@ build-freebsd:
 build-riscv:
 	@-$(MAKE) -s go-build-task os=linux goarchset=riscv64
 
-## build-linux: build to riscv64 executable, for LAN deploy manually.
+## build-linux: build to linux executable, for LAN deploy manually.
 build-linux:
 	@-$(MAKE) -s go-build-task os=linux goarchset=amd64
 
@@ -169,13 +169,21 @@ build-linux:
 build-win:
 	@-$(MAKE) -s go-build-task os=windows goarchset=amd64
 
-## build-windows: build to riscv64 executable, for LAN deploy manually.
+## build-windows: build to windows executable, for LAN deploy manually.
 build-windows:
 	@-$(MAKE) -s go-build-task os=windows goarchset=amd64
 
-## build-darwin: build to riscv64 executable, for LAN deploy manually.
+## build-darwin: build to macOS executable (Intel chip), for LAN deploy manually.
 build-darwin:
 	@-$(MAKE) -s go-build-task os=darwin goarchset=amd64
+
+## build-m1: build to macOS M1 executable
+build-m1:
+	@-$(MAKE) -s go-build-task os="darwin" goarchset="arm64"
+
+## build-fluent: simple local debugging
+build-fluent:
+	@-$(MAKE) -s go-build-task os="darwin" goarchset="amd64" MAIN_APPS=fluent
 
 ## build-ci: run build-ci task. just for CI tools
 build-ci:
@@ -186,10 +194,6 @@ build-ci:
 	@-$(MAKE) -s go-build-task os="darwin" goarchset="arm64"
 	@echo "  < All Done."
 	@ls -la $(LS_OPT) $(GOBIN)/*
-
-## build-m1: run build-ci task. just for CI tools
-build-m1:
-	@-$(MAKE) -s go-build-task os="darwin" goarchset="arm64"
 
 go-build-task: directories go-generate
 	@echo "  >  Building $(os)/$(goarchset) binary..."

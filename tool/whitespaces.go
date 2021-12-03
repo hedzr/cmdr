@@ -3,6 +3,7 @@
 package tool
 
 import (
+	"reflect"
 	"regexp"
 	"strings"
 )
@@ -50,4 +51,21 @@ func EscapeCompletionTitle(title string) string {
 	ret := strings.ReplaceAll(title, "'", "\"")
 	ret = strings.ReplaceAll(ret, ":", "\\:")
 	return ret
+}
+
+// ReverseAnySlice reverse any slice/array
+func ReverseAnySlice(s interface{}) {
+	n := reflect.ValueOf(s).Len()
+	swap := reflect.Swapper(s)
+	for i, j := 0, n-1; i < j; i, j = i+1, j-1 {
+		swap(i, j)
+	}
+}
+
+// ReverseStringSlice reverse a string slice
+func ReverseStringSlice(s []string) []string {
+	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+		s[i], s[j] = s[j], s[i]
+	}
+	return s
 }

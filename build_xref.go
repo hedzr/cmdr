@@ -386,18 +386,7 @@ func (w *ExecWorker) _addonAddFlg(parent *Command, addon cmdrbase.PluginEntry, f
 		DefaultValue:            flg.DefaultValue(),
 		DefaultValuePlaceholder: flg.PlaceHolder(),
 	}
-	if parent.allFlags == nil {
-		parent.allFlags = make(map[string]map[string]*Flag)
-	}
-	if parent.plainLongFlags == nil {
-		parent.plainLongFlags = make(map[string]*Flag)
-	}
-	if parent.plainShortFlags == nil {
-		parent.plainShortFlags = make(map[string]*Flag)
-	}
-	if _, ok := parent.allFlags[AddonsGroup]; !ok {
-		parent.allFlags[AddonsGroup] = make(map[string]*Flag)
-	}
+	w.ensureCommandMaps(parent, "", AddonsGroup)
 	parent.Flags = uniAddFlg(parent.Flags, cx)
 	parent.allFlags[AddonsGroup][name] = cx
 	parent.plainLongFlags[name] = cx
@@ -496,149 +485,204 @@ func (w *ExecWorker) buildRootCrossRefs(root *RootCommand) {
 }
 
 func (w *ExecWorker) _boolFlgAdd(root *RootCommand, full, desc string, adding func(ff *Flag)) {
-	if _, ok := root.allFlags[SysMgmtGroup][full]; !ok {
+	w._boolFlgAdd1(&root.Command, full, desc, adding)
+}
+
+func (w *ExecWorker) _boolFlgAdd1(parent *Command, full, desc string, adding func(ff *Flag)) {
+	if _, ok := parent.allFlags[SysMgmtGroup][full]; !ok {
 		ff := &Flag{
 			BaseOpt: BaseOpt{
 				Full:        full,
 				Description: desc,
 				Hidden:      true,
 				Group:       SysMgmtGroup,
-				owner:       &root.Command,
+				owner:       parent,
 			},
 			DefaultValue: false,
 		}
 		if adding != nil {
 			adding(ff)
 		}
-		root.Flags = append(root.Flags, ff)
-		root.allFlags[SysMgmtGroup][full] = ff
-		root.plainLongFlags[full] = ff
+		parent.Flags = append(parent.Flags, ff)
+		w.ensureCommandMaps(parent, "", SysMgmtGroup)
+		parent.allFlags[SysMgmtGroup][full] = ff
+		parent.plainLongFlags[full] = ff
 		if ff.Short != "" {
 			// NOTE: dup short title would be ignored
-			if _, ok := root.plainShortFlags[ff.Short]; !ok {
-				root.plainShortFlags[ff.Short] = ff
+			if _, ok := parent.plainShortFlags[ff.Short]; !ok {
+				parent.plainShortFlags[ff.Short] = ff
 			}
 		}
 		for _, t := range ff.Aliases {
 			if t != "" {
 				// NOTE: dup aliases would be ignored
-				if _, ok := root.plainLongFlags[t]; !ok {
-					root.plainLongFlags[t] = ff
+				if _, ok := parent.plainLongFlags[t]; !ok {
+					parent.plainLongFlags[t] = ff
 				}
 			}
 		}
 	} else {
-		Logger.Fatalf("duplicated bool flag %q had been adding.", full)
+		Logger.Warnf("duplicated bool flag %q had been adding.", full)
 	}
 }
 
 func (w *ExecWorker) _intFlgAdd(root *RootCommand, full, desc string, adding func(ff *Flag)) {
-	if _, ok := root.allFlags[SysMgmtGroup][full]; !ok {
+	w._intFlgAdd1(&root.Command, full, desc, adding)
+}
+
+func (w *ExecWorker) _intFlgAdd1(parent *Command, full, desc string, adding func(ff *Flag)) {
+	if _, ok := parent.allFlags[SysMgmtGroup][full]; !ok {
 		ff := &Flag{
 			BaseOpt: BaseOpt{
 				Full:        full,
 				Description: desc,
 				Hidden:      true,
 				Group:       SysMgmtGroup,
-				owner:       &root.Command,
+				owner:       parent,
 			},
 			DefaultValue: 0,
 		}
 		if adding != nil {
 			adding(ff)
 		}
-		root.Flags = append(root.Flags, ff)
-		root.allFlags[SysMgmtGroup][full] = ff
-		root.plainLongFlags[full] = ff
+		parent.Flags = append(parent.Flags, ff)
+		w.ensureCommandMaps(parent, "", SysMgmtGroup)
+		parent.allFlags[SysMgmtGroup][full] = ff
+		parent.plainLongFlags[full] = ff
 		if ff.Short != "" {
 			// NOTE: dup short title would be ignored
-			if _, ok := root.plainShortFlags[ff.Short]; !ok {
-				root.plainShortFlags[ff.Short] = ff
+			if _, ok := parent.plainShortFlags[ff.Short]; !ok {
+				parent.plainShortFlags[ff.Short] = ff
 			}
 		}
 		for _, t := range ff.Aliases {
 			if t != "" {
 				// NOTE: dup aliases would be ignored
-				if _, ok := root.plainLongFlags[t]; !ok {
-					root.plainLongFlags[t] = ff
+				if _, ok := parent.plainLongFlags[t]; !ok {
+					parent.plainLongFlags[t] = ff
 				}
 			}
 		}
 	} else {
-		Logger.Fatalf("duplicated int flag %q had been adding.", full)
+		Logger.Warnf("duplicated int flag %q had been adding.", full)
 	}
 }
 
 func (w *ExecWorker) _stringFlgAdd(root *RootCommand, full, desc string, adding func(ff *Flag)) {
-	if _, ok := root.allFlags[SysMgmtGroup][full]; !ok {
+	w._stringFlgAdd1(&root.Command, full, desc, adding)
+}
+
+func (w *ExecWorker) _stringFlgAdd1(parent *Command, full, desc string, adding func(ff *Flag)) {
+	if _, ok := parent.allFlags[SysMgmtGroup][full]; !ok {
 		ff := &Flag{
 			BaseOpt: BaseOpt{
 				Full:        full,
 				Description: desc,
 				Hidden:      true,
 				Group:       SysMgmtGroup,
-				owner:       &root.Command,
+				owner:       parent,
 			},
 			DefaultValue: "",
 		}
 		if adding != nil {
 			adding(ff)
 		}
-		root.Flags = append(root.Flags, ff)
-		root.allFlags[SysMgmtGroup][full] = ff
-		root.plainLongFlags[full] = ff
+		parent.Flags = append(parent.Flags, ff)
+		w.ensureCommandMaps(parent, "", SysMgmtGroup)
+		parent.allFlags[SysMgmtGroup][full] = ff
+		parent.plainLongFlags[full] = ff
 		if ff.Short != "" {
 			// NOTE: dup short title would be ignored
-			if _, ok := root.plainShortFlags[ff.Short]; !ok {
-				root.plainShortFlags[ff.Short] = ff
+			if _, ok := parent.plainShortFlags[ff.Short]; !ok {
+				parent.plainShortFlags[ff.Short] = ff
 			}
 		}
 		for _, t := range ff.Aliases {
 			if t != "" {
 				// NOTE: dup aliases would be ignored
-				if _, ok := root.plainLongFlags[t]; !ok {
-					root.plainLongFlags[t] = ff
+				if _, ok := parent.plainLongFlags[t]; !ok {
+					parent.plainLongFlags[t] = ff
 				}
 			}
 		}
 	} else {
-		Logger.Fatalf("duplicated string flag %q had been adding.", full)
+		Logger.Warnf("duplicated string flag %q had been adding.", full)
+	}
+}
+
+func (w *ExecWorker) ensureCommandMaps(parent *Command, group, flgGroup string) {
+	if group == "" {
+		group = UnsortedGroup
+	}
+	if flgGroup == "" {
+		flgGroup = UnsortedGroup
+	}
+
+	if parent.allCmds == nil {
+		parent.allCmds = make(map[string]map[string]*Command)
+	}
+	if _, ok := parent.allCmds[group]; !ok {
+		parent.allCmds[group] = make(map[string]*Command)
+	}
+
+	if parent.plainCmds == nil {
+		parent.plainCmds = make(map[string]*Command)
+	}
+
+	if parent.allFlags == nil {
+		parent.allFlags = make(map[string]map[string]*Flag)
+	}
+	if _, ok := parent.allFlags[flgGroup]; !ok {
+		parent.allFlags[flgGroup] = make(map[string]*Flag)
+	}
+
+	if parent.plainLongFlags == nil {
+		parent.plainLongFlags = make(map[string]*Flag)
+	}
+	if parent.plainShortFlags == nil {
+		parent.plainShortFlags = make(map[string]*Flag)
 	}
 }
 
 func (w *ExecWorker) _cmdAdd(root *RootCommand, full, desc string, adding func(cx *Command)) {
-	if _, ok := root.allCmds[SysMgmtGroup][full]; !ok {
+	w._cmdAdd1(&root.Command, full, desc, adding)
+}
+
+func (w *ExecWorker) _cmdAdd1(parent *Command, full, desc string, adding func(cx *Command)) {
+	if _, ok := parent.allCmds[SysMgmtGroup][full]; !ok {
 		cx := &Command{
 			BaseOpt: BaseOpt{
 				Full:        full,
 				Description: desc,
 				Hidden:      true,
 				Group:       SysMgmtGroup,
-				owner:       &root.Command,
+				owner:       parent,
 			},
 		}
+		w.ensureCommandMaps(parent, cx.Group, "")
 		if adding != nil {
 			adding(cx)
 		}
-		root.SubCommands = uniAddCmd(root.SubCommands, cx)
-		root.allCmds[SysMgmtGroup][full] = cx
-		root.plainCmds[full] = cx
+		w.ensureCommandMaps(parent, cx.Group, "")
+		parent.SubCommands = uniAddCmd(parent.SubCommands, cx)
+		parent.allCmds[cx.Group][full] = cx
+		parent.plainCmds[full] = cx
 		if cx.Short != "" {
-			if _, ok := root.allCmds[SysMgmtGroup][cx.Short]; !ok {
-				root.allCmds[SysMgmtGroup][cx.Short] = cx
-				root.plainCmds[cx.Short] = cx
+			if _, ok := parent.allCmds[cx.Group][cx.Short]; !ok {
+				// parent.allCmds[cx.Group][cx.Short] = cx
+				parent.plainCmds[cx.Short] = cx
 			}
 		}
 		for _, t := range cx.Aliases {
 			if t != "" {
-				if _, ok := root.allCmds[SysMgmtGroup][t]; !ok {
-					root.allCmds[SysMgmtGroup][t] = cx
-					root.plainCmds[t] = cx
+				if _, ok := parent.allCmds[cx.Group][t]; !ok {
+					// parent.allCmds[cx.Group][t] = cx
+					parent.plainCmds[t] = cx
 				}
 			}
 		}
 	} else {
-		Logger.Fatalf("duplicated command %q had been adding.", full)
+		Logger.Warnf("duplicated command %q had been adding.", full)
 	}
 }
 
@@ -652,11 +696,14 @@ func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
 			}
 		})
 		w._boolFlgAdd(root, "version", "Show the version of this app.", func(ff *Flag) {
+			ff.Short = "V"
 			ff.Aliases = []string{"ver", "versions"}
 			ff.Action = func(cmd *Command, args []string) (err error) {
 				w.showVersion()
 				return ErrShouldBeStopException
 			}
+			ff.circuitBreak = true
+			ff.justOnce = true
 		})
 		w._stringFlgAdd(root, "version-sim", "Simulate a faked version number for this app.", func(ff *Flag) {
 			ff.Aliases = []string{"version-simulate"}
@@ -672,6 +719,8 @@ func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
 				w.showBuildInfo()
 				return ErrShouldBeStopException
 			}
+			ff.circuitBreak = true
+			ff.justOnce = true
 		})
 		//if _, ok := root.allCmds[SysMgmtGroup]["version"]; !ok {
 		//	cx := &Command{
@@ -768,7 +817,7 @@ func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
 func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 	if w.enableHelpCommands {
 		if _, ok := root.allFlags[SysMgmtGroup]["help"]; !ok {
-			w._stringFlgAdd(root, "help", "Show this help screen", func(ff *Flag) {
+			w._boolFlgAdd(root, "help", "Show this help screen", func(ff *Flag) {
 				ff.Short = "h"
 				ff.Aliases = []string{"?", "helpme", "info", "usage"}
 				ff.Action = func(cmd *Command, args []string) (err error) {
@@ -778,6 +827,8 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 					return nil
 				}
 				ff.EnvVars = []string{"HELP"}
+				ff.circuitBreak = true
+				ff.justOnce = true
 			})
 			root.plainShortFlags["?"] = root.allFlags[SysMgmtGroup]["help"]
 			//ff := &Flag{
@@ -811,7 +862,10 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 			w._intFlgAdd(root, "help-zsh", "show help with zsh completion format, or others", func(ff *Flag) { ff.DefaultValuePlaceholder = "LEVEL" })
 			w._intFlgAdd(root, "help-bash", "show help with bash completion format, or others", func(ff *Flag) { ff.DefaultValuePlaceholder = "LEVEL" })
 
-			w._boolFlgAdd(root, "tree", "show a tree for all commands", func(ff *Flag) { ff.Action = dumpTreeForAllCommands })
+			w._boolFlgAdd(root, "tree", "show a tree for all commands", func(ff *Flag) {
+				ff.Action = dumpTreeForAllCommands
+				ff.dblTildeOnly = true
+			})
 
 			if enableShellCompletionCommand {
 				w._cmdAdd(root, "help", "help system", func(cx *Command) {
@@ -860,10 +914,19 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 			ff.DefaultValue = "dbg.log"
 			ff.EnvVars = []string{"DEBUG_OUTPUT"}
 		})
-		w._boolFlgAdd(root, "env", "Dump environment info in `~~debug` mode.", nil)
-		w._boolFlgAdd(root, "raw", "Dump the option value in raw mode (with golang data structure, without envvar expanding).", nil)
-		w._boolFlgAdd(root, "value-type", "Dump the option value type.", nil)
-		w._boolFlgAdd(root, "more", "Dump more info in `~~debug` mode.", nil)
+		w._boolFlgAdd(root, "env", "Dump environment info in `~~debug` mode.", func(ff *Flag) {
+			ff.prerequisites = []string{"debug"}
+			// ff.mutualExclusives = []string{"raw", "value-type", "more", "env"}
+		})
+		w._boolFlgAdd(root, "raw", "Dump the option value in raw mode (with golang data structure, without envvar expanding).", func(ff *Flag) {
+			ff.prerequisites = []string{"debug"}
+		})
+		w._boolFlgAdd(root, "value-type", "Dump the option value type.", func(ff *Flag) {
+			ff.prerequisites = []string{"debug"}
+		})
+		w._boolFlgAdd(root, "more", "Dump more info in `~~debug` mode.", func(ff *Flag) {
+			ff.prerequisites = []string{"debug"}
+		})
 		//if _, ok := root.allFlags[SysMgmtGroup]["verbose"]; !ok {
 		//	ff := &Flag{
 		//		BaseOpt: BaseOpt{
@@ -1091,13 +1154,175 @@ func (w *ExecWorker) attachGeneratorsCommands(root *RootCommand) {
 	if w.enableGenerateCommands {
 		found := false
 		for _, sc := range root.SubCommands {
-			if sc.Full == generatorCommands.Full {
+			if sc.Full == "generate" { // generatorCommands.Full {
 				found = true
 				return
 			}
 		}
 		if !found {
-			root.SubCommands = append(root.SubCommands, generatorCommands)
+			// root.SubCommands = append(root.SubCommands, generatorCommands)
+			w._cmdAdd(root, "generate", "generators for this app.", func(cx1 *Command) {
+				cx1.Short = "g"
+				cx1.Aliases = []string{"gen"}
+				cx1.LongDescription = `
+[cmdr] includes multiple generators like:
+
+- linux man page generator
+- shell completion script generator
+- markdown generator
+- more...
+
+			`
+				cx1.Examples = `
+$ {{.AppName}} gen sh --bash
+			generate bash completion script
+$ {{.AppName}} gen shell --auto
+			generate shell completion script with detecting on current shell environment.
+$ {{.AppName}} gen sh
+			generate shell completion script with detecting on current shell environment.
+$ {{.AppName}} gen man
+			generate linux manual (man page)
+$ {{.AppName}} gen doc
+			generate document, default markdown.
+$ {{.AppName}} gen doc --markdown
+			generate markdown.
+$ {{.AppName}} gen doc --pdf
+			generate pdf.
+$ {{.AppName}} gen markdown
+			generate markdown.
+$ {{.AppName}} gen pdf
+			generate pdf.
+			`
+				w._cmdAdd1(cx1, "shell", "generate the bash/zsh auto-completion script or install it.", func(cx *Command) {
+					cx.Short = "s"
+					cx.Aliases = []string{"sh"}
+					cx.Action = genShell
+					cx.Hidden = false
+
+					w._stringFlgAdd1(cx, "dir", "the output directory", func(ff *Flag) {
+						ff.Short = "d"
+						ff.Group = "output"
+						ff.DefaultValue = "."
+						ff.DefaultValuePlaceholder = "DIR"
+						ff.Hidden = false
+					})
+					w._boolFlgAdd1(cx, "auto", "generate auto completion script to fit for your current env.", func(ff *Flag) {
+						ff.Short = "a"
+						ff.ToggleGroup = "ShellType"
+						ff.DefaultValue = true
+						ff.Hidden = false
+					})
+					w._boolFlgAdd1(cx, "force-bash", "just for --auto", func(ff *Flag) {
+						ff.Group = ""
+						ff.DefaultValue = true
+						ff.Hidden = false
+						ff.prerequisites = []string{"auto"}
+					})
+					w._boolFlgAdd1(cx, "bash", "generate auto completion script for Bash", func(ff *Flag) {
+						ff.Short = "b"
+						ff.ToggleGroup = "ShellType"
+						ff.Hidden = false
+					})
+					w._boolFlgAdd1(cx, "zsh", "generate auto completion script for Zsh", func(ff *Flag) {
+						ff.Short = "z"
+						ff.ToggleGroup = "ShellType"
+						ff.Hidden = false
+					})
+					//w._boolFlgAdd1(cx, "ash", "generate auto completion script for Zsh", func(ff *Flag) {
+					//	ff.ToggleGroup = "ShellType"
+					//ff.Hidden = false
+					//})
+					//w._boolFlgAdd1(cx, "rbash", "generate auto completion script for Zsh", func(ff *Flag) {
+					//	ff.ToggleGroup = "ShellType"
+					//ff.Hidden = false
+					//})
+					//w._boolFlgAdd1(cx, "csh", "generate auto completion script for Zsh", func(ff *Flag) {
+					//	ff.ToggleGroup = "ShellType"
+					//ff.Hidden = false
+					//})
+					//w._boolFlgAdd1(cx, "dash", "generate auto completion script for Zsh", func(ff *Flag) {
+					//	ff.ToggleGroup = "ShellType"
+					//ff.Hidden = false
+					//})
+					//w._boolFlgAdd1(cx, "ksh", "generate auto completion script for Zsh", func(ff *Flag) {
+					//	ff.ToggleGroup = "ShellType"
+					//ff.Hidden = false
+					//})
+					//w._boolFlgAdd1(cx, "tcsh", "generate auto completion script for Zsh", func(ff *Flag) {
+					//	ff.ToggleGroup = "ShellType"
+					//ff.Hidden = false
+					//})
+					//w._boolFlgAdd1(cx, "elvish", "generate auto completion script for Fish", func(ff *Flag) {
+					//	ff.ToggleGroup = "ShellType"
+					//ff.Hidden = false
+					//})
+					//w._boolFlgAdd1(cx, "fig", "generate auto completion script for Fish", func(ff *Flag) {
+					//	ff.ToggleGroup = "ShellType"
+					//ff.Hidden = false
+					//})
+					w._boolFlgAdd1(cx, "fish", "generate auto completion script for Fish", func(ff *Flag) {
+						ff.Short = "f"
+						ff.ToggleGroup = "ShellType"
+						ff.Hidden = false
+					})
+					w._boolFlgAdd1(cx, "powershell", "generate auto completion script for Powershell", func(ff *Flag) {
+						ff.Short = "p"
+						ff.ToggleGroup = "ShellType"
+						ff.Hidden = false
+					})
+				})
+				w._cmdAdd1(cx1, "manual", "generate linux man page.", func(cx *Command) {
+					cx.Short = "m"
+					cx.Aliases = []string{"man"}
+					cx.Action = genManual
+					cx.Hidden = false
+
+					w._stringFlgAdd1(cx, "dir", "the output directory", func(ff *Flag) {
+						ff.Short = "d"
+						ff.Group = "output"
+						ff.DefaultValue = "./man1"
+						ff.DefaultValuePlaceholder = "DIR"
+						ff.Hidden = false
+					})
+				})
+				w._cmdAdd1(cx1, "doc", "generate a markdown document, or: pdf/TeX/...", func(cx *Command) {
+					cx.Short = "d"
+					cx.Aliases = []string{"pdf", "docx", "tex", "markdown"}
+					cx.Action = genDoc
+					cx.Hidden = false
+
+					w._stringFlgAdd1(cx, "dir", "the output directory", func(ff *Flag) {
+						ff.Short = "d"
+						ff.Group = "output"
+						ff.DefaultValue = "./docs"
+						ff.DefaultValuePlaceholder = "DIR"
+						ff.Hidden = false
+					})
+					w._boolFlgAdd1(cx, "markdown", "to generate a markdown file", func(ff *Flag) {
+						ff.Short = "md"
+						ff.Aliases = []string{"mkd", "m"}
+						ff.ToggleGroup = "DocType"
+						ff.DefaultValue = true
+						ff.Hidden = false
+					})
+					w._boolFlgAdd1(cx, "pdf", "to generate a PDF file", func(ff *Flag) {
+						ff.Short = "p"
+						ff.ToggleGroup = "DocType"
+						ff.Hidden = false
+					})
+					w._boolFlgAdd1(cx, "docx", "to generate a Word (.docx) file", func(ff *Flag) {
+						ff.Aliases = []string{"doc"}
+						ff.ToggleGroup = "DocType"
+						ff.Hidden = false
+					})
+					w._boolFlgAdd1(cx, "tex", "to generate a LaTeX file", func(ff *Flag) {
+						ff.Short = "t"
+						ff.ToggleGroup = "DocType"
+						ff.Hidden = false
+					})
+				})
+			})
+
 		}
 	}
 }

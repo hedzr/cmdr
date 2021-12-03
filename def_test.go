@@ -914,8 +914,8 @@ var (
 							if flg.GetDescZsh() != "ss" {
 								err = errors.New("err `t`.GetDescZsh()")
 							}
-							if flg.GetTitleZshFlagNames(",") == "" {
-								err = errors.New("err ss.GetTitleZshFlagNames()")
+							if flg.GetTitleNamesBy(",") == "" {
+								err = errors.New("err ss.GetTitleNamesBy()")
 							}
 							if len(flg.GetTitleZshFlagNamesArray()) != 2 {
 								err = errors.New("err ss.GetTitleZshFlagNamesArray()")
@@ -924,8 +924,8 @@ var (
 							if len(flg.GetDescZsh()) == 0 {
 								err = errors.New("err sss.GetDescZsh()")
 							}
-							if flg.GetTitleZshFlagNames(",") == "" {
-								err = errors.New("err ss.GetTitleZshFlagNames()")
+							if flg.GetTitleZshNamesBy(",", false) == "" {
+								err = errors.New("err ss.GetTitleZshNamesBy()")
 							}
 							if len(flg.GetTitleZshFlagNamesArray()) != 2 {
 								err = errors.New("err ss.GetTitleZshFlagNamesArray()")
@@ -934,8 +934,11 @@ var (
 							if len(flg.GetDescZsh()) == 0 {
 								err = errors.New("err ssss.GetDescZsh()")
 							}
-							if flg.GetTitleZshFlagNames(",") == "" {
-								err = errors.New("err ss.GetTitleZshFlagNames()")
+							if flg.GetTitleZshFlagName() == "" {
+								err = errors.New("err ss.GetTitleZshFlagName()")
+							}
+							if flg.GetTitleZshFlagShortName() == "" {
+								err = errors.New("err ss.GetTitleZshFlagShortName()")
 							}
 							if len(flg.GetTitleZshFlagNamesArray()) != 2 {
 								err = errors.New("err ss.GetTitleZshFlagNamesArray()")
@@ -979,6 +982,7 @@ var (
 							cmd.PrintVersion()
 							// cmdr.PrintBuildInfo()
 							cmd.PrintBuildInfo()
+							cmd.GetTitleZshNames()
 
 							// cmdr.SetCustomShowVersion(nil)
 							// cmdr.SetCustomShowBuildInfo(nil)

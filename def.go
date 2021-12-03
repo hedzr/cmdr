@@ -93,7 +93,7 @@ type (
 
 		root            *RootCommand
 		allCmds         map[string]map[string]*Command // key1: Commnad.Group, key2: Command.Full
-		allFlags        map[string]map[string]*Flag    // key1: Command.Flags[#].Group, key2: Command.Flags[#].Fullui
+		allFlags        map[string]map[string]*Flag    // key1: Command.Flags[#].Group, key2: Command.Flags[#].Full
 		plainCmds       map[string]*Command
 		plainShortFlags map[string]*Flag
 		plainLongFlags  map[string]*Flag
@@ -184,6 +184,17 @@ type (
 		// times how many times this flag was triggered.
 		// To access it with `Flag.GetTriggeredTimes()`.
 		times int
+
+		// actionStr: for zsh completion, see action of an optspec in _argument
+		actionStr string
+		// mutualExclusives flags
+		mutualExclusives []string
+		// prerequisites flags for this one. in zsh completion, any of prerequisites
+		// flags must be present so that user can complete this one.
+		prerequisites []string
+		justOnce      bool
+		circuitBreak  bool
+		dblTildeOnly  bool // such as '~~tree'
 
 		// PostAction treat this flag as a command!
 		// PostAction Handler

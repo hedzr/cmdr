@@ -157,7 +157,7 @@ func TestFlag(t *testing.T) {
 			},
 		},
 	}
-	_ = walkFromCommand(&rootCmdX.Command, 0, func(cmd *Command, index int) (err error) {
+	_ = walkFromCommand(&rootCmdX.Command, 0, 0, func(cmd *Command, index, level int) (err error) {
 		if index > 0 {
 			return ErrBadArg
 		}
@@ -181,10 +181,11 @@ func TestHandlePanic(t *testing.T) {
 	ResetOptions()
 	InternalResetWorker()
 
-	onUnhandleErrorHandler := func(err interface{}) {
+	onUnhandledErrorHandler1 := func(err interface{}) {
 		// debug.PrintStack()
 		// pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
 		// dumpStacks()
+		fmt.Println("some error handled: ", err)
 	}
 
 	v1, v2 := 11, 0
@@ -227,12 +228,12 @@ func TestHandlePanic(t *testing.T) {
 		SetInternalOutputStreams(nil, nil)
 		ResetOptions()
 		if err := Exec(rootCmdX,
-			WithUnhandledErrorHandler(onUnhandleErrorHandler),
+			WithUnhandledErrorHandler(onUnhandledErrorHandler1),
 			WithOnSwitchCharHit(func(parsed *Command, switchChar string, args []string) (err error) {
 				return
 			}),
-		); err != nil {
-			t.Log(err) // hi, here is not real error occurs
+		); err == nil {
+			t.Error("BAD !! / ERROR !! / expecting an error returned without unexpected program terminated") // hi, here is not real error occurs
 		}
 	}
 

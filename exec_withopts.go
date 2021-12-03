@@ -117,6 +117,7 @@ func WithEnvVarMap(varToValue map[string]func() string) ExecOption {
 		w.envVarToValueMap = varToValue
 		testAndSetMap(w.envVarToValueMap, "THIS", func() string { return GetExecutableDir() })
 		testAndSetMap(w.envVarToValueMap, "APPNAME", func() string { return conf.AppName })
+		testAndSetMap(w.envVarToValueMap, "APP_NAME", func() string { return conf.AppName })
 		testAndSetMap(w.envVarToValueMap, "CFG_DIR", func() string { return path.Dir(GetUsedConfigFile()) })
 	}
 }

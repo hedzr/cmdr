@@ -523,6 +523,8 @@ func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, goCommand *Command, rem
 				unhandledErrorHandler(ex)
 				if e, ok := ex.(error); ok {
 					err = e
+				} else {
+					err = errors.New("unexpected unknown error handled")
 				}
 			}
 		}()

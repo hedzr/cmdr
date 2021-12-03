@@ -800,8 +800,14 @@ func (s *Options) Set(key string, val interface{}) {
 
 // SetNx but without prefix auto-wrapped.
 // `rxxtPrefix` is a string slice to define the prefix string array, default is ["app"].
-// So, cmdr.Set("debug", true) will put an real entry with (`app.debug`, true).
+// So, cmdr.SetNx("debug", true) will put a real entry with (`debug`, true).
 func (s *Options) SetNx(key string, val interface{}) {
+	s.setNx(key, val)
+}
+
+// SetRaw but without prefix auto-wrapped.
+// So, cmdr.SetRaw("debug", true) will put a real entry with (`debug`, true).
+func (s *Options) SetRaw(key string, val interface{}) {
 	s.setNx(key, val)
 }
 

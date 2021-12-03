@@ -126,7 +126,7 @@ func (pkg *ptpkg) doMatchingShortFlag(goCommand **Command) {
 	} else {
 		// no matched short flags found
 		if len(pkg.a) >= 2 && pkg.a[0] == '/' && pkg.a[1] != '/' {
-			if i = pkg.matchForLongFlags(*goCommand, pkg.a, 1); i >= 0 {
+			if i = pkg.matchForLongFlags(*goCommand, pkg.a, 2); i >= 0 {
 				return
 			}
 		}
@@ -138,7 +138,7 @@ func (pkg *ptpkg) doMatchingShortFlag(goCommand **Command) {
 }
 
 func (pkg *ptpkg) doMatchingLongFlag(goCommand **Command) {
-	if i := pkg.matchForLongFlags(*goCommand, pkg.a, 1); i >= 0 {
+	if i := pkg.matchForLongFlags(*goCommand, pkg.a, 2); i >= 0 {
 		pkg.fn = pkg.a[2:]
 		pkg.findValueAttached(&pkg.fn)
 		return

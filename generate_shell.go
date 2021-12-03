@@ -6,10 +6,14 @@ package cmdr
 
 import (
 	"fmt"
+	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log/exec"
 	"io/ioutil"
 	"log"
 	"os"
 	"path"
+	"regexp"
+	"strconv"
 	"strings"
 	"text/template"
 )
@@ -17,32 +21,19 @@ import (
 func genShell(cmd *Command, args []string) (err error) {
 	// logrus.Infof("OK gen shell. %v", *cmd)
 	w := internalGetWorker()
-
-	what := "bash"
-	if GetBoolP(w.getPrefix(), "generate.shell.zsh") {
-		what = "zsh"
-	} else if GetBoolP(w.getPrefix(), "generate.shell.elvish") {
-		what = "elvish"
-	} else if GetBoolP(w.getPrefix(), "generate.shell.fig") {
-		what = "fig"
-	} else if GetBoolP(w.getPrefix(), "generate.shell.fish") {
-		what = "fish"
-	} else if GetBoolP(w.getPrefix(), "generate.shell.powershell") {
-		what = "powershell"
-	} else if !GetBoolP(w.getPrefix(), "generate.shell.bash") {
-		shell := os.Getenv("SHELL")
-		if strings.HasSuffix(shell, "/zsh") {
-			what = "zsh"
-		} else if !strings.HasSuffix(shell, "/bash") {
-			what = path.Base(shell)
-		}
-	}
+	what := w.gsWhat()
 
 	switch what {
 	case "zsh":
 		err = genShellZsh(cmd, args)
 	case "fish":
 		err = genShellFish(cmd, args)
+	case "fig":
+		err = genShellFig(cmd, args)
+	case "elvish":
+		err = genShellElvish(cmd, args)
+	case "powershell":
+		err = genShellPowershell(cmd, args)
 	case "bash":
 		fallthrough
 	default:
@@ -74,6 +65,29 @@ func genShell(cmd *Command, args []string) (err error) {
 	return
 }
 
+func (w *ExecWorker) gsWhat() (what string) {
+	what = "bash"
+	if GetBoolP(w.getPrefix(), "generate.shell.zsh") {
+		what = "zsh"
+	} else if GetBoolP(w.getPrefix(), "generate.shell.elvish") {
+		what = "elvish"
+	} else if GetBoolP(w.getPrefix(), "generate.shell.fig") {
+		what = "fig"
+	} else if GetBoolP(w.getPrefix(), "generate.shell.fish") {
+		what = "fish"
+	} else if GetBoolP(w.getPrefix(), "generate.shell.powershell") {
+		what = "powershell"
+	} else if !GetBoolP(w.getPrefix(), "generate.shell.bash") {
+		shell := os.Getenv("SHELL")
+		if strings.HasSuffix(shell, "/zsh") {
+			what = "zsh"
+		} else if !strings.HasSuffix(shell, "/bash") {
+			what = path.Base(shell)
+		}
+	}
+	return
+}
+
 // findDepth returns the depth of a command. rootCommand's deep = 1.
 func findDepth(cmd *Command) (deep int) {
 	deep = 1
@@ -94,19 +108,304 @@ func findDepth(cmd *Command) (deep int) {
 // 	return
 // }
 
-func genShellZsh(cmd *Command, args []string) (err error) {
-	fmt.Println(`# todo`)
+func _makeFileIn(locations []string, appName string, fn func(path string, f *os.File) (err error)) (err error) {
+	linuxRoot := os.Getuid() == 0
+	for _, s := range locations {
+		//Logger.Debugf("--- checking %s", s)
+		if FileExists(s) {
+			file := path.Join(s, "_"+appName)
+			//Logger.Debugf("    try creating %s", file)
+			var f *os.File
+			if f, err = os.Create(file); err != nil {
+				if !linuxRoot {
+					break // for non-root user, we break file-writing loop and dump scripts to console too.
+				}
+				return
+			}
+			Logger.Debugf("    generating %s", file)
+			err = fn(file, f)
+			//if !linuxRoot {
+			//	break // for non-root user, we break file-writing loop and dump scripts to console too.
+			//}
+			return
+		}
+	}
+	err = fn("-", os.Stdout)
 	return
 }
 
+func genShellZsh(cmd *Command, args []string) (err error) {
+	shell := os.Getenv("SHELL")
+	_, fpath, _ := exec.RunWithOutput(shell, "-c", `echo $fpath`)
+	//Logger.Infof("fpath = %v", fpath)
+	//Logger.Infof("ENV:\n%v", os.Environ())
+	//
+	// /usr/local/share/zsh/site-functions
+	// $HOME/.oh-my-zsh/completions
+	// $HOME/.oh-my-zsh/functions
+	//
+	locs := tool.ReverseStringSlice(strings.Split(strings.TrimRight(fpath, "\n"), " "))
+	err = _makeFileIn(locs, cmd.root.AppName, genShellZshHO(cmd))
+	return
+}
+
+func genShellZshHO(cmd *Command) func(path string, f *os.File) (err error) {
+	return func(path string, f *os.File) (err error) {
+		ctx := &genZshCtx{
+			cmd: cmd,
+			args: &internalShellTemplateArgs{cmd.root,
+				GetString("cmdr.Version"),
+			},
+			output: f,
+		}
+
+		err = zshTplExpand(ctx, "zsh.completion.head", zshCompHead, ctx.args)
+		if err == nil {
+			err = walkFromCommand(&cmd.root.Command, 0, 0, func(cx *Command, index, level int) (err error) {
+				//generate for command cx
+				safeName := getZshSubFuncName(cx)
+				if level == 0 {
+					safeName = "_" + safeZshFnName(cx.root.AppName)
+				}
+				err = genZshFnFromTpl(ctx, safeName, cx)
+				return
+			})
+
+			err = zshTplExpand(ctx, "zsh.completion.tail", zshCompTail, ctx.args)
+			fmt.Printf(`# '%v' generated.
+# Re-login to enable the new bash completion script.
+`, path)
+		}
+		return
+	}
+}
+
+func genZshFnFromTpl(ctx *genZshCtx, fnName string, cmd *Command) (err error) {
+	if len(cmd.SubCommands) > 0 {
+		err = genZshFnByCommand(ctx, fnName, cmd)
+	} else {
+		//if fnName == "__fluent_generate_shell" {
+		//	print()
+		//}
+		err = genZshFnFlagsByCommand(ctx, fnName, cmd)
+	}
+	return
+}
+
+func genZshFnByCommand(ctx *genZshCtx, fnName string, cmd *Command) (err error) {
+	var flags, descCommands, caseCommands strings.Builder
+
+	gzt1(&flags, cmd, true)
+
+	if len(cmd.Flags) > 0 {
+		flags.WriteString("               \\\n")
+	}
+
+	for _, c := range cmd.SubCommands {
+		descCommands.WriteString(fmt.Sprintf(`                %v':%v'
+`, zshDescribeNames(c), c.GetDescZsh()))
+		caseCommands.WriteString(fmt.Sprintf(`            %v)
+                %v
+                ;;
+`, safeZshFnName(c.GetTitleNamesBy("|")), getZshSubFuncName(c)))
+	}
+
+	err = zshTplExpand(ctx, "zsh.completion.sub-commands", zshCompCommands, struct {
+		*internalShellTemplateArgs
+		FuncName         string
+		Flags            string
+		DescribeCommands string
+		CaseCommands     string
+	}{
+		ctx.args,
+		fnName,
+		flags.String(),
+		strings.TrimSuffix(descCommands.String(), " \\\n"),
+		caseCommands.String(),
+	})
+	return
+}
+
+func genZshFnFlagsByCommand(ctx *genZshCtx, fnName string, cmd *Command) (err error) {
+	var descCommands strings.Builder
+
+	if len(cmd.Flags) > 0 {
+		descCommands.WriteString("    _arguments -s \\\n")
+	}
+
+	gzt1(&descCommands, cmd, false)
+
+	desc := strings.TrimSuffix(descCommands.String(), " \\\n")
+	decl := ""
+	if desc != "" {
+		decl = `    local context curcontext="$curcontext" state line
+    typeset -A opt_args
+`
+	}
+
+	err = zshTplExpand(ctx, "zsh.completion.flags", zshCompCommandFlags, struct {
+		*internalShellTemplateArgs
+		FuncName         string
+		Declarations     string
+		DescribeCommands string
+		CaseCommands     string
+	}{
+		ctx.args,
+		fnName,
+		decl,
+		desc,
+		"",
+	})
+	return
+}
+
+func gzt1(descCommands *strings.Builder, cmd *Command, shortTitleOnly bool) {
+	gzt1ForToggleGroups(descCommands, cmd, shortTitleOnly)
+
+	for ix, c := range cmd.Flags {
+		if c.ToggleGroup != "" {
+			continue
+		}
+		gzt2(descCommands, cmd, ix, c, "", shortTitleOnly)
+	}
+}
+
+func gzt1ForToggleGroups(descCommands *strings.Builder, cmd *Command, shortTitleOnly bool) {
+	var tgs = make(map[string][]*Flag)
+	for _, c := range cmd.Flags {
+		if c.ToggleGroup != "" {
+			tgs[c.ToggleGroup] = append(tgs[c.ToggleGroup], c)
+		}
+	}
+
+	for _, v := range tgs {
+		var sb strings.Builder
+		for _, f := range v {
+			sb.WriteString(f.GetTitleZshNamesBy(" ", false))
+			sb.WriteString(" ")
+		}
+		me := strings.TrimRight(sb.String(), " ")
+
+		for ix, c := range v {
+			//var sb strings.Builder
+			//for i, f := range v {
+			//	if i != ix {
+			//		sb.WriteString(f.GetTitleZshNamesBy(" "))
+			//		sb.WriteString(" ")
+			//	}
+			//}
+			gzt2(descCommands, cmd, ix, c, me, shortTitleOnly)
+		}
+	}
+}
+
+func gzt2(descCommands *strings.Builder, cmd *Command, ix int, c *Flag, mutualExclusives string, shortTitleOnly bool) {
+
+	//if c.Full == "profiling-types" {
+	//	println()
+	//}
+
+	if len(c.ValidArgs) != 0 {
+		gzAction(descCommands, c, "("+strings.Join(c.ValidArgs, " ")+")", mutualExclusives, shortTitleOnly)
+	} else if c.DefaultValuePlaceholder == "FILE" {
+		act := "_files"
+		if c.actionStr != "" {
+			act += " -g " + strconv.Quote(c.actionStr)
+		}
+		gzAction(descCommands, c, act, mutualExclusives, shortTitleOnly)
+	} else if c.DefaultValuePlaceholder == "DIR" {
+		gzAction(descCommands, c, "_files -/", mutualExclusives, shortTitleOnly)
+	} else if c.DefaultValuePlaceholder == "USER" {
+		gzAction(descCommands, c, "_users", mutualExclusives, shortTitleOnly)
+	} else if c.DefaultValuePlaceholder == "GROUP" {
+		gzAction(descCommands, c, "_groups", mutualExclusives, shortTitleOnly)
+	} else if c.DefaultValuePlaceholder == "INTERFACES" {
+		gzAction(descCommands, c, "_net_interfaces", mutualExclusives, shortTitleOnly)
+	} else {
+		mutualExclusives = gzChkME(c, mutualExclusives)
+		if mutualExclusives != "" {
+			descCommands.WriteString(fmt.Sprintf("                \"($I %v)\"%v'[%v]'",
+				mutualExclusives, zshDescribeFlagNames(c, shortTitleOnly, false), c.GetDescZsh()))
+		} else {
+			descCommands.WriteString(fmt.Sprintf("                %v'[%v]'",
+				zshDescribeFlagNames(c, shortTitleOnly, false), c.GetDescZsh()))
+		}
+	}
+	//if ix != len(cmd.Flags)-1 {
+	descCommands.WriteString(" \\\n")
+	//}
+}
+
+//func gzAction(descCommands *strings.Builder, c *Flag, action, mutualExclusives string) {
+//	gzAction_(descCommands,c, action, mutualExclusives, false)
+//}
+
+func gzAction(descCommands *strings.Builder, c *Flag, action, mutualExclusives string, shortTitleOnly bool) {
+	if c.dblTildeOnly {
+		return
+	}
+
+	names := zshDescribeFlagNames(c, shortTitleOnly, false)
+	title := c.Full
+	if c.DefaultValuePlaceholder != "" {
+		title = c.DefaultValuePlaceholder
+	}
+	mutualExclusives = gzChkME(c, mutualExclusives)
+	descCommands.WriteString(fmt.Sprintf("                \"(%v)\"%v'[%v]':%v:'%v'",
+		unquote(mutualExclusives), names, c.GetDescZsh(), title, action))
+}
+
+func gzChkME(c *Flag, mutualExclusives string) string {
+	if mutualExclusives == "" {
+		if len(c.mutualExclusives) > 0 {
+			var sb strings.Builder
+			for _, t := range c.mutualExclusives {
+				if tgt, ok := c.owner.plainLongFlags[t]; ok {
+					sb.WriteString(tgt.GetTitleZshNamesBy(" ", false))
+				}
+			}
+			sb.WriteString(c.GetTitleZshNamesBy(" ", false))
+			mutualExclusives = strings.TrimRight(sb.String(), " ")
+		} else if c.circuitBreak {
+			mutualExclusives = "- *"
+		} else {
+			mutualExclusives = c.GetTitleZshNamesBy(" ", false)
+		}
+	}
+	return mutualExclusives
+}
+
+func unquote(s string) string {
+	return regexp.MustCompile(`'(.*?)'`).ReplaceAllString(s, "$1")
+}
+
+//
+//
+//
+
 func genShellFish(cmd *Command, args []string) (err error) {
-	fmt.Println(`# todo`)
+	fmt.Println(`# todo fish`)
+	return
+}
+
+func genShellElvish(cmd *Command, args []string) (err error) {
+	fmt.Println(`# todo elvish`)
+	return
+}
+
+func genShellFig(cmd *Command, args []string) (err error) {
+	fmt.Println(`# todo fig`)
+	return
+}
+
+func genShellPowershell(cmd *Command, args []string) (err error) {
+	fmt.Println(`# todo powershell`)
 	return
 }
 
 func genShellBash(cmd *Command, args []string) (err error) {
-	tmpl := template.New("bash.completion")
-	tmpl.Parse(`
+	var tmpl *template.Template
+	tmpl, err = template.New("bash.completion").Parse(`
 
 #
 
@@ -165,35 +464,36 @@ else if type compdef >/dev/null 2>&1; then
 	compdef _cmdr_cmd_{{.AppName}}_zsh {{.AppName}}
 fi; fi
 `)
+	if err == nil {
+		linuxRoot := os.Getuid() == 0
 
-	linuxRoot := os.Getuid() == 0
-
-	for _, s := range []string{"/etc/bash_completion.d", "/usr/local/etc/bash_completion.d", "/tmp"} {
-		if FileExists(s) {
-			file := path.Join(s, cmd.root.AppName)
-			var f *os.File
-			if f, err = os.Create(file); err != nil {
-				if !linuxRoot {
-					continue
+		for _, s := range []string{"/etc/bash_completion.d", "/usr/local/etc/bash_completion.d", "/tmp"} {
+			if FileExists(s) {
+				file := path.Join(s, cmd.root.AppName)
+				var f *os.File
+				if f, err = os.Create(file); err != nil {
+					if !linuxRoot {
+						continue
+					}
+					return
 				}
-				return
-			}
 
-			err = tmpl.Execute(f, cmd.root)
-			if err == nil {
-				fmt.Printf(`''%v generated.
+				err = tmpl.Execute(f, cmd.root)
+				if err == nil {
+					fmt.Printf(`''%v generated.
 Re-login to enable the new bash completion script.
 `, file)
-			}
-			if !linuxRoot {
-				break // for non-root user, we break file-writing loop and dump scripts to console too.
-			}
-			return
+				}
+				if !linuxRoot {
+					break // for non-root user, we break file-writing loop and dump scripts to console too.
+				}
+				return
 
+			}
 		}
-	}
 
-	err = tmpl.Execute(os.Stdout, cmd.root)
+		err = tmpl.Execute(os.Stdout, cmd.root)
+	}
 	return
 }
 
@@ -338,7 +638,7 @@ func genManual(command *Command, args []string) (err error) {
 	prefix := strings.Join(append(w.rxxtPrefixes, "generate.manual"), ".")
 	// logrus.Debugf("OK gen manual: hit=%v", cmd.strHit)
 	// paintFromCommand(newManPainter(), &rootCommand.Command, false)
-	err = WalkAllCommands(func(cmd *Command, index int) (err error) {
+	err = WalkAllCommands(func(cmd *Command, index, level int) (err error) {
 		painter.Reset()
 
 		dir := GetStringP(prefix, "dir")
@@ -402,7 +702,7 @@ func genDoc(command *Command, args []string) (err error) {
 
 	// fmt.Printf("  .  . args = [%v]\n", args)
 	w := internalGetWorker()
-	err = WalkAllCommands(func(cmd *Command, index int) (err error) {
+	err = WalkAllCommands(func(cmd *Command, index, level int) (err error) {
 		painter.Reset()
 		// fmt.Printf("  .  .  cmd = %v\n", cmd.GetTitleNames())
 

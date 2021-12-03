@@ -639,9 +639,19 @@ func Set(key string, val interface{}) {
 
 // SetNx but without prefix auto-wrapped.
 // `rxxtPrefix` is a string slice to define the prefix string array, default is ["app"].
-// So, cmdr.Set("debug", true) will put an real entry with (`app.debug`, true).
+// So, cmdr.Set("debug", true) will put a real entry with (`debug`, true).
 func SetNx(key string, val interface{}) {
 	internalGetWorker().rxxtOptions.SetNx(key, val)
+}
+
+// SetRaw but without prefix auto-wrapped.
+// So, cmdr.SetRaw("debug", true) will put a real entry with (`debug`, true).
+//
+//    cmdr.Set("debug", true)
+//    cmdr.GetBool("debug") => true
+//
+func SetRaw(key string, val interface{}) {
+	internalGetWorker().rxxtOptions.SetRaw(key, val)
 }
 
 // MergeWith will merge a map recursive.

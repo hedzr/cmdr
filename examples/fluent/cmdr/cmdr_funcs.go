@@ -7,8 +7,9 @@ import (
 
 func attachModifyFlags(cmd cmdr.OptCmd) {
 	cmd.NewFlagV("=", "delim", "d").
-		Description("delimitor char in `non-plain` mode.").
-		Placeholder("")
+		Description("delimiter char in `non-plain` mode.").
+		Placeholder("").
+		CompletionJustOnce(true)
 
 	cmd.NewFlagV(false, "clear", "c").
 		Description("clear all tags.").
@@ -18,27 +19,27 @@ func attachModifyFlags(cmd cmdr.OptCmd) {
 	cmd.NewFlagV(false, "string", "g", "string-mode").
 		Description("In 'String Mode', default will be disabled: default, a tag string will be split by comma(,), and treated as a string list.").
 		Placeholder("").
-		Group("Mode")
+		ToggleGroup("Mode")
 
 	cmd.NewFlagV(false, "meta", "m", "meta-mode").
 		Description("In 'Meta Mode', service 'NodeMeta' field will be updated instead of 'Tags'. (--plain assumed false).").
 		Placeholder("").
-		Group("Mode")
+		ToggleGroup("Mode")
 
 	cmd.NewFlagV(false, "both", "2", "both-mode").
 		Description("In 'Both Mode', both of 'NodeMeta' and 'Tags' field will be updated.").
 		Placeholder("").
-		Group("Mode")
+		ToggleGroup("Mode")
 
 	cmd.NewFlagV(false, "plain", "p", "plain-mode").
 		Description("In 'Plain Mode', a tag be NOT treated as `key=value` or `key:value`, and modify with the `key`.").
 		Placeholder("").
-		Group("Mode")
+		ToggleGroup("Mode")
 
 	cmd.NewFlagV(true, "tag", "t", "tag-mode").
 		Description("In 'Tag Mode', a tag be treated as `key=value` or `key:value`, and modify with the `key`.").
 		Placeholder("").
-		Group("Mode")
+		ToggleGroup("Mode")
 
 }
 

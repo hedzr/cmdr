@@ -349,7 +349,9 @@ func kvCommand(root cmdr.OptCmd) {
 		Action(kvBackup)
 	kvBackupCmd.NewFlagV("consul-backup.json", "output", "o").
 		Description("Write output to a file (*.json / *.yml)", ``).
-		Placeholder("FILE")
+		Placeholder("FILE").
+		CompletionActionStr(`*.(json|yml|yaml)`) //  \*.\(ps\|eps\)
+		// ':postscript file:_files -g \*.\(ps\|eps\)'
 
 	kvRestoreCmd := kvCmd.NewSubCommand("restore", "r").
 		Description("restore to Consul's KV store, from a a JSON/YAML backup file", ``).
@@ -368,7 +370,7 @@ func msCommand(root cmdr.OptCmd) {
 		Group("")
 
 	msCmd.NewFlagV(false, "money", "mm").
-		Description("A placeholder flag.", "").
+		Description("A placeholder flag - money.", "").
 		Group("").
 		Placeholder("")
 
@@ -383,14 +385,14 @@ func msCommand(root cmdr.OptCmd) {
 		Placeholder("")
 
 	msCmd.NewFlagV(3, "retry", "t").
-		Description("", "").
+		Description("retry times for ms cmd", "").
 		Group("").
 		Placeholder("RETRY")
 
 	// ms ls
 
 	msCmd.NewSubCommand("list", "ls", "l", "lst", "dir").
-		Description("list tags", "").
+		Description("list tags for ms cmd", "").
 		Group("2333.List").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			return
@@ -425,7 +427,7 @@ func msCommand(root cmdr.OptCmd) {
 	// ms tags ls
 
 	msTagsCmd.NewSubCommand("list", "ls", "l", "lst", "dir").
-		Description("list tags").
+		Description("list tags for ms tags cmd").
 		Group("2333.List").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			return
@@ -442,7 +444,7 @@ func msCommand(root cmdr.OptCmd) {
 		})
 
 	tagsAdd.NewFlagV([]string{}, "list", "ls", "l", "lst", "dir").
-		Description("a comma list to be added").
+		Description("tags add: a comma list to be added").
 		Group("").
 		Placeholder("LIST")
 
@@ -461,11 +463,11 @@ func msCommand(root cmdr.OptCmd) {
 		})
 
 	c2.NewFlagV([]string{}, "add", "a", "add-list").
-		Description("a comma list to be added.").
+		Description("checkpoint: a comma list to be added.").
 		Placeholder("LIST").
 		Group("List")
 	c2.NewFlagV([]string{}, "remove", "r", "rm-list", "rm", "del", "delete").
-		Description("a comma list to be removed.", ``).
+		Description("checkpoint: a comma list to be removed.", ``).
 		Placeholder("LIST").
 		Group("List")
 
@@ -475,19 +477,19 @@ func msCommand(root cmdr.OptCmd) {
 
 	c3.NewFlag(cmdr.OptFlagTypeString).
 		Titles("n", "name").
-		Description("a string to be added.").
+		Description("check-in name: a string to be added.").
 		DefaultValue("", "")
 
 	c3.NewSubCommand("demo-1", "d1").
-		Description("[sub][sub] check-in sub").
+		Description("[sub][sub] check-in sub, d1").
 		Group("")
 
 	c3.NewSubCommand("demo-2", "d2").
-		Description("[sub][sub] check-in sub").
+		Description("[sub][sub] check-in sub, d2").
 		Group("")
 
 	c3.NewSubCommand("demo-3", "d3").
-		Description("[sub][sub] check-in sub").
+		Description("[sub][sub] check-in sub, d3").
 		Group("")
 
 	c1.NewSubCommand("check-out", "out", "chk-out").
@@ -507,7 +509,7 @@ func msCommand(root cmdr.OptCmd) {
 		})
 
 	tagsRm.NewFlagV([]string{}, "list", "ls", "l", "lst", "dir").
-		Description("a comma list to be added").
+		Description("tags rm: a comma list to be added").
 		Group("").
 		Placeholder("LIST")
 
@@ -520,11 +522,11 @@ func msCommand(root cmdr.OptCmd) {
 	attachModifyFlags(msTagsModifyCmd)
 
 	msTagsModifyCmd.NewFlagV([]string{}, "add", "a", "add-list").
-		Description("a comma list to be added.").
+		Description("tags modify: a comma list to be added.").
 		Placeholder("LIST").
 		Group("List")
 	msTagsModifyCmd.NewFlagV([]string{}, "remove", "r", "rm-list", "rm", "del", "delete").
-		Description("a comma list to be removed.").
+		Description("tags modify: a comma list to be removed.").
 		Placeholder("LIST").
 		Group("List")
 
@@ -540,17 +542,17 @@ func msCommand(root cmdr.OptCmd) {
 	attachModifyFlags(tagsTog)
 
 	tagsTog.NewFlagV([]string{}, "set", "s").
-		Description("a comma list to be set").
+		Description("tags toggle: a comma list to be set").
 		Group("").
 		Placeholder("LIST")
 
 	tagsTog.NewFlagV([]string{}, "unset", "un").
-		Description("a comma list to be unset").
+		Description("tags toggle: a comma list to be unset").
 		Group("").
 		Placeholder("LIST")
 
 	tagsTog.NewFlagV("", "address", "a", "addr").
-		Description("the address of the service (by id or name)").
+		Description("tags toggle: the address of the service (by id or name)").
 		Placeholder("HOST:PORT")
 
 }

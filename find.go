@@ -131,10 +131,19 @@ func (w *ExecWorker) setupRootCommand(rootCmd *RootCommand) {
 	if len(conf.Buildstamp) == 0 {
 		conf.Buildstamp = time.Now().Format(time.RFC1123)
 	}
+
+	SetRaw("cmdr.Version", w.rootCommand.Version)
 }
 
 func (w *ExecWorker) getPrefix() string {
 	return strings.Join(w.rxxtPrefixes, ".")
+}
+
+func (w *ExecWorker) tmpGetRemainArgs(pkg *ptpkg, args []string) []string {
+	if pkg.remainArgs == nil && pkg.i < len(args) {
+		return args[pkg.i:]
+	}
+	return pkg.remainArgs
 }
 
 func (w *ExecWorker) getRemainArgs(pkg *ptpkg, args []string) []string {

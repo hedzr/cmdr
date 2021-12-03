@@ -54,6 +54,14 @@ type (
 		// IMPORTANT: cmdr interprets value type of an option based on the underlying default value set.
 		DefaultValue(val interface{}, placeholder string) (opt OptFlag)
 		Placeholder(placeholder string) (opt OptFlag)
+		CompletionActionStr(s string) (opt OptFlag)
+		// CompletionMutualExclusiveFlags is a slice of flag full/long titles
+		CompletionMutualExclusiveFlags(flags ...string) (opt OptFlag)
+		// CompletionPrerequisitesFlags is a slice of flag full/long titles
+		CompletionPrerequisitesFlags(flags ...string) (opt OptFlag)
+		CompletionJustOnce(once bool) (opt OptFlag)
+		CompletionCircuitBreak(once bool) (opt OptFlag)
+		DoubleTildeOnly(once bool) (opt OptFlag)
 		ExternalTool(envKeyName string) (opt OptFlag)
 		ValidArgs(list ...string) (opt OptFlag)
 		// HeadLike enables `head -n` mode.

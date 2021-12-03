@@ -150,6 +150,42 @@ func (s *optFlagImpl) Placeholder(placeholder string) (opt OptFlag) {
 	return
 }
 
+func (s *optFlagImpl) CompletionActionStr(str string) (opt OptFlag) {
+	s.working.actionStr = str
+	opt = s
+	return
+}
+
+func (s *optFlagImpl) CompletionMutualExclusiveFlags(flags ...string) (opt OptFlag) {
+	s.working.mutualExclusives = append(s.working.mutualExclusives, flags...)
+	opt = s
+	return
+}
+
+func (s *optFlagImpl) CompletionPrerequisitesFlags(flags ...string) (opt OptFlag) {
+	s.working.prerequisites = append(s.working.prerequisites, flags...)
+	opt = s
+	return
+}
+
+func (s *optFlagImpl) CompletionJustOnce(once bool) (opt OptFlag) {
+	s.working.justOnce = once
+	opt = s
+	return
+}
+
+func (s *optFlagImpl) CompletionCircuitBreak(once bool) (opt OptFlag) {
+	s.working.circuitBreak = once
+	opt = s
+	return
+}
+
+func (s *optFlagImpl) DoubleTildeOnly(once bool) (opt OptFlag) {
+	s.working.dblTildeOnly = once
+	opt = s
+	return
+}
+
 func (s *optFlagImpl) ExternalTool(envKeyName string) (opt OptFlag) {
 	s.working.ExternalTool = envKeyName
 	opt = s

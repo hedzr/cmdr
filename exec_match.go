@@ -230,7 +230,7 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 		// 	logrus.Debugf("-- flag '%v' hit, go ahead...", pkg.flg.GetTitleName())
 		// }
 		if pkg.flg.Action != nil {
-			if err = pkg.flg.Action(goCommand, w.getRemainArgs(pkg, args)); err == ErrShouldBeStopException {
+			if err = pkg.flg.Action(goCommand, w.tmpGetRemainArgs(pkg, args)); err == ErrShouldBeStopException {
 				stop = true
 				err = nil
 				return

@@ -15,11 +15,6 @@ func (s *Flag) GetTriggeredTimes() int {
 	return s.times
 }
 
-// GetTitleFlagNames temp
-func (s *Flag) GetTitleFlagNames() string {
-	return s.GetTitleFlagNamesBy(",")
-}
-
 // GetDescZsh temp
 func (s *Flag) GetDescZsh() (desc string) {
 	desc = s.Description
@@ -27,26 +22,75 @@ func (s *Flag) GetDescZsh() (desc string) {
 		desc = tool.EraseAnyWSs(s.GetTitleZshFlagName())
 	}
 	// desc = replaceAll(desc, " ", "\\ ")
+	desc = reSQ.ReplaceAllString(desc, `*$1*`)
+	desc = reBQ.ReplaceAllString(desc, `**$1**`)
+	desc = strings.ReplaceAll(desc, ":", "\\:")
+	desc = strings.ReplaceAll(desc, "[", "\\[")
+	desc = strings.ReplaceAll(desc, "]", "\\]")
 	return
+}
+
+// GetTitleFlagNames temp
+func (s *Flag) GetTitleFlagNames() string {
+	return s.GetTitleFlagNamesBy(",")
 }
 
 // GetTitleZshFlagName temp
 func (s *Flag) GetTitleZshFlagName() (str string) {
 	if len(s.Full) > 0 {
 		str += "--" + s.Full
-	} else if len(s.Short) == 1 {
+	} else if len(s.Short) > 0 {
 		str += "-" + s.Short
 	}
 	return
 }
 
-// GetTitleZshFlagNames temp
-func (s *Flag) GetTitleZshFlagNames(delimChar string) (str string) {
-	if len(s.Short) == 1 {
-		str += "-" + s.Short + delimChar
+// GetTitleZshFlagShortName temp
+func (s *Flag) GetTitleZshFlagShortName() (str string) {
+	if len(s.Short) > 0 {
+		str += "-" + s.Short
+	} else if len(s.Full) > 0 {
+		str += "--" + s.Full
+	}
+	return
+}
+
+// GetTitleZshNamesBy temp
+func (s *Flag) GetTitleZshNamesBy(delimChar string, allowPrefix bool) (str string) {
+	return s.GetTitleZshNamesExtBy(delimChar, allowPrefix, true, true)
+}
+
+// GetTitleZshNamesExtBy temp
+func (s *Flag) GetTitleZshNamesExtBy(delimChar string, allowPrefix, shortTitleOnly, longTitleOnly bool) (str string) {
+	quote := false
+	prefix, suffix := "", ""
+	if _, ok := s.DefaultValue.(bool); !ok {
+		suffix = "="
+		//} else if _, ok := s.DefaultValue.(bool); ok {
+		//	suffix = "-"
+	}
+	if allowPrefix && !s.justOnce {
+		quote, prefix = true, "*"
+	}
+	if !longTitleOnly && len(s.Short) > 0 {
+		if quote {
+			str += "'" + prefix + "-" + s.Short + suffix + "'"
+		} else {
+			str += prefix + "-" + s.Short + suffix
+		}
+		if shortTitleOnly {
+			return
+		}
 	}
 	if len(s.Full) > 0 {
-		str += "--" + s.Full
+		if str != "" {
+			str += delimChar
+		}
+		if quote {
+			str += "'" + prefix + "--" + s.Full + suffix + "'"
+		} else {
+			str += "'" + prefix + "--" + s.Full + suffix + "'"
+		}
 	}
 	return
 }

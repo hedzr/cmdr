@@ -404,3 +404,20 @@ func TestNoColorMode(t *testing.T) {
 	cmdr.GetQuietMode()
 	cmdr.GetNoColorMode()
 }
+
+func TestBaseOpt(t *testing.T) {
+	bo := &cmdr.BaseOpt{
+		Name:            "",
+		Short:           "",
+		Full:            "",
+		Aliases:         nil,
+		Group:           "",
+		Description:     "",
+		LongDescription: "",
+		Examples:        "",
+		Hidden:          false,
+		Deprecated:      "",
+		Action:          nil,
+	}
+	bo.GetDescZsh()
+}

@@ -5,6 +5,8 @@
 package cmdr
 
 import (
+	"github.com/hedzr/cmdr/tool"
+	"regexp"
 	"strings"
 )
 
@@ -32,6 +34,13 @@ func (s *BaseOpt) GetTitleName() string {
 
 // GetTitleNamesArray returns short,full,aliases names
 func (s *BaseOpt) GetTitleNamesArray() []string {
+	a := s.GetTitleNamesArrayMainly()
+	a = uniAddStrs(a, s.Aliases...)
+	return a
+}
+
+// GetTitleNamesArrayMainly returns short,full names
+func (s *BaseOpt) GetTitleNamesArrayMainly() []string {
 	var a []string
 	if len(s.Short) != 0 {
 		a = uniAddStr(a, s.Short)
@@ -39,7 +48,6 @@ func (s *BaseOpt) GetTitleNamesArray() []string {
 	if len(s.Full) > 0 {
 		a = uniAddStr(a, s.Full)
 	}
-	a = uniAddStrs(a, s.Aliases...)
 	return a
 }
 
@@ -73,3 +81,39 @@ func (s *BaseOpt) GetTitleNamesBy(delimChar string) string {
 	str := strings.Join(a, delimChar)
 	return str
 }
+
+// GetTitleZshNames temp
+func (s *BaseOpt) GetTitleZshNames() string {
+	var a = s.GetTitleNamesArrayMainly()
+	str := strings.Join(a, ",")
+	return str
+}
+
+// GetTitleZshNamesBy temp
+func (s *BaseOpt) GetTitleZshNamesBy(delimChar string) (str string) {
+	if len(s.Short) != 0 {
+		str += s.Short + delimChar
+	}
+	if len(s.Full) > 0 {
+		str += s.Full
+	}
+	return
+}
+
+// GetDescZsh temp
+func (s *BaseOpt) GetDescZsh() (desc string) {
+	desc = s.Description
+	if len(desc) == 0 {
+		desc = tool.EraseAnyWSs(s.GetTitleZshNames())
+	}
+	// desc = replaceAll(desc, " ", "\\ ")
+	desc = reSQ.ReplaceAllString(desc, `*$1*`)
+	desc = reBQ.ReplaceAllString(desc, `**$1**`)
+	desc = strings.ReplaceAll(desc, ":", "\\:")
+	return
+}
+
+var (
+	reSQ = regexp.MustCompile(`'(.*?)'`)
+	reBQ = regexp.MustCompile("`(.*?)`")
+)

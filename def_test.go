@@ -924,7 +924,7 @@ var (
 							if len(flg.GetDescZsh()) == 0 {
 								err = errors.New("err sss.GetDescZsh()")
 							}
-							if flg.GetTitleZshNamesBy(",", false) == "" {
+							if flg.GetTitleZshNamesBy(",", false, false) == "" {
 								err = errors.New("err ss.GetTitleZshNamesBy()")
 							}
 							if len(flg.GetTitleZshFlagNamesArray()) != 2 {

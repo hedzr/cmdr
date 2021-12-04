@@ -202,8 +202,8 @@ func genZshFnByCommand(ctx *genZshCtx, fnName string, cmd *Command) (err error) 
 	}
 
 	for _, c := range cmd.SubCommands {
-		descCommands.WriteString(fmt.Sprintf(`                %v':%v'
-`, zshDescribeNames(c), c.GetDescZsh()))
+		descCommands.WriteString(fmt.Sprintf("                %v':%v'\n",
+			zshDescribeNames(c), c.GetDescZsh()))
 		caseCommands.WriteString(fmt.Sprintf(`            %v)
                 %v
                 ;;
@@ -213,12 +213,13 @@ func genZshFnByCommand(ctx *genZshCtx, fnName string, cmd *Command) (err error) 
 	err = zshTplExpand(ctx, "zsh.completion.sub-commands", zshCompCommands, struct {
 		*internalShellTemplateArgs
 		FuncName         string
+		FuncNameSeq      string // "__fluent_ms" => "[fluent ms]"
 		Flags            string
 		DescribeCommands string
 		CaseCommands     string
 	}{
 		ctx.args,
-		fnName,
+		fnName, seqName(fnName),
 		flags.String(),
 		strings.TrimSuffix(descCommands.String(), " \\\n"),
 		caseCommands.String(),
@@ -238,8 +239,10 @@ func genZshFnFlagsByCommand(ctx *genZshCtx, fnName string, cmd *Command) (err er
 	desc := strings.TrimSuffix(descCommands.String(), " \\\n")
 	decl := ""
 	if desc != "" {
-		decl = `    local context curcontext="$curcontext" state line
-    typeset -A opt_args
+		decl = `    typeset -A opt_args
+    local context curcontext="$curcontext" state line ret=0
+    local I="-h --help --version -V -#"
+    local -a commands
 `
 	}
 
@@ -278,13 +281,8 @@ func gzt1ForToggleGroups(descCommands *strings.Builder, cmd *Command, shortTitle
 		}
 	}
 
-	for _, v := range tgs {
-		var sb strings.Builder
-		for _, f := range v {
-			sb.WriteString(f.GetTitleZshNamesBy(" ", false))
-			sb.WriteString(" ")
-		}
-		me := strings.TrimRight(sb.String(), " ")
+	for k, v := range tgs {
+		me := gzChkMEForToggleGroup(k, v)
 
 		for ix, c := range v {
 			//var sb strings.Builder
@@ -301,7 +299,7 @@ func gzt1ForToggleGroups(descCommands *strings.Builder, cmd *Command, shortTitle
 
 func gzt2(descCommands *strings.Builder, cmd *Command, ix int, c *Flag, mutualExclusives string, shortTitleOnly bool) {
 
-	//if c.Full == "profiling-types" {
+	//if c.Full == "pprof" {
 	//	println()
 	//}
 
@@ -355,24 +353,46 @@ func gzAction(descCommands *strings.Builder, c *Flag, action, mutualExclusives s
 		unquote(mutualExclusives), names, c.GetDescZsh(), title, action))
 }
 
+// gzChkME checks mutual exclusive flags and builds the leading section for zsh completion system.
+// A mutual exclusive section looks like:
+//
+//      '(--debug -D --quiet -q)'
+//
+// and the responding optspec will be:
+//
+//      '(--debug -D --quiet -q)'{--quiet,-q}'[Quiet Mode]'
+//      '(--debug -D --quiet -q)'{--debug,-D}'[Debug Mode]'
+//
 func gzChkME(c *Flag, mutualExclusives string) string {
+	const quoted = false
 	if mutualExclusives == "" {
 		if len(c.mutualExclusives) > 0 {
 			var sb strings.Builder
 			for _, t := range c.mutualExclusives {
 				if tgt, ok := c.owner.plainLongFlags[t]; ok {
-					sb.WriteString(tgt.GetTitleZshNamesBy(" ", false))
+					sb.WriteString(tgt.GetTitleZshNamesExtBy(" ", false, quoted, false, false))
 				}
 			}
-			sb.WriteString(c.GetTitleZshNamesBy(" ", false))
+			sb.WriteString(c.GetTitleZshNamesExtBy(" ", false, quoted, false, false))
 			mutualExclusives = strings.TrimRight(sb.String(), " ")
 		} else if c.circuitBreak {
 			mutualExclusives = "- *"
 		} else {
-			mutualExclusives = c.GetTitleZshNamesBy(" ", false)
+			mutualExclusives = c.GetTitleZshNamesExtBy(" ", false, quoted, false, false)
 		}
 	}
 	return mutualExclusives
+}
+
+func gzChkMEForToggleGroup(toggleGroupName string, v []*Flag) (mutualExclusives string) {
+	const quoted = false
+	var sb strings.Builder
+	for _, f := range v {
+		sb.WriteString(f.GetTitleZshNamesExtBy(" ", false, quoted, false, false))
+		sb.WriteString(" ")
+	}
+	mutualExclusives = strings.TrimRight(sb.String(), " ")
+	return
 }
 
 func unquote(s string) string {

@@ -56,7 +56,7 @@ func zshDescribeFlagNames(s *Flag, shortTitleOnly, longTitleOnly bool) string {
 	//if longTitleOnly {
 	//	return s.GetTitleZshFlagName()
 	//}
-	str := s.GetTitleZshNamesExtBy(",", true, shortTitleOnly, longTitleOnly)
+	str := s.GetTitleZshNamesExtBy(",", true, true, shortTitleOnly, longTitleOnly)
 	if strings.Contains(str, ",") {
 		return "{" + str + "}"
 	}
@@ -86,6 +86,12 @@ type genZshCtx struct {
 type internalShellTemplateArgs struct {
 	*RootCommand
 	CmdrVersion string
+}
+
+func seqName(s string) string {
+	s = strings.TrimLeft(s, "_")
+	s = reULs.ReplaceAllString(s, " ")
+	return "[" + s + "]"
 }
 
 var (
@@ -141,7 +147,10 @@ __{{.AppName}}_debug() {
 `
 	zshCompCommands = `
 {{.FuncName}}() {
-    local line state ret
+    typeset -A opt_args
+    local -a commands
+    local context curcontext="$curcontext" line state ret=0
+    local I="-h --help --version -V -#"
 
     _arguments -s -C : \
                "1: :->cmds" \
@@ -149,10 +158,10 @@ __{{.AppName}}_debug() {
 {{.Flags}}               && ret=0
     case "$state" in
         cmds)
-            local commands; commands=(
+            commands=(
 {{.DescribeCommands}}            )
-            __{{.AppName}}_debug "_describe '{{.FuncName}}': ${commands[@]}"
-            _describe -t commands '{{.FuncName}} commands' commands "$@"
+            __{{.AppName}}_debug "_describe '{{.FuncNameSeq}}': ${commands[@]}"
+            _describe -t commands '{{.FuncNameSeq}} commands' commands "$@"
             ;;
         args)
             case $line[1] in
@@ -171,7 +180,7 @@ __{{.AppName}}_debug() {
 
 # don't run the completion function when being source-ed or eval-ed
 if [ "$funcstack[1]" = "_{{.AppName}}" ]; then
-	_fluent
+	_{{.AppName}}
 fi
 
 # Local Variables:
@@ -180,6 +189,5 @@ fi
 # indent-tabs-mode: nil
 # sh-basic-offset: 2
 # End:
-# vim: ft=zsh sw=2 ts=2 et
-`
+# vim: ft=zsh sw=2 ts=2 et`
 )

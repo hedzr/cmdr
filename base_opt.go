@@ -109,11 +109,18 @@ func (s *BaseOpt) GetDescZsh() (desc string) {
 	// desc = replaceAll(desc, " ", "\\ ")
 	desc = reSQ.ReplaceAllString(desc, `*$1*`)
 	desc = reBQ.ReplaceAllString(desc, `**$1**`)
+	desc = reSQnp.ReplaceAllString(desc, "''")
+	desc = reBQnp.ReplaceAllString(desc, "\\`")
 	desc = strings.ReplaceAll(desc, ":", "\\:")
+	desc = strings.ReplaceAll(desc, "[", "\\[")
+	desc = strings.ReplaceAll(desc, "]", "\\]")
 	return
 }
 
 var (
-	reSQ = regexp.MustCompile(`'(.*?)'`)
-	reBQ = regexp.MustCompile("`(.*?)`")
+	reSQnp = regexp.MustCompile(`'`)
+	reBQnp = regexp.MustCompile("`")
+	reSQ   = regexp.MustCompile(`'(.*?)'`)
+	reBQ   = regexp.MustCompile("`(.*?)`")
+	reULs  = regexp.MustCompile("_+")
 )

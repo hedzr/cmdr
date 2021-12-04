@@ -24,6 +24,8 @@ func (s *Flag) GetDescZsh() (desc string) {
 	// desc = replaceAll(desc, " ", "\\ ")
 	desc = reSQ.ReplaceAllString(desc, `*$1*`)
 	desc = reBQ.ReplaceAllString(desc, `**$1**`)
+	desc = reSQnp.ReplaceAllString(desc, "''")
+	desc = reBQnp.ReplaceAllString(desc, "\\`")
 	desc = strings.ReplaceAll(desc, ":", "\\:")
 	desc = strings.ReplaceAll(desc, "[", "\\[")
 	desc = strings.ReplaceAll(desc, "]", "\\]")
@@ -56,13 +58,13 @@ func (s *Flag) GetTitleZshFlagShortName() (str string) {
 }
 
 // GetTitleZshNamesBy temp
-func (s *Flag) GetTitleZshNamesBy(delimChar string, allowPrefix bool) (str string) {
-	return s.GetTitleZshNamesExtBy(delimChar, allowPrefix, true, true)
+func (s *Flag) GetTitleZshNamesBy(delimChar string, allowPrefix, quoted bool) (str string) {
+	return s.GetTitleZshNamesExtBy(delimChar, allowPrefix, quoted, true, true)
 }
 
 // GetTitleZshNamesExtBy temp
-func (s *Flag) GetTitleZshNamesExtBy(delimChar string, allowPrefix, shortTitleOnly, longTitleOnly bool) (str string) {
-	quote := false
+func (s *Flag) GetTitleZshNamesExtBy(delimChar string, allowPrefix, quoted, shortTitleOnly, longTitleOnly bool) (str string) {
+	// quote := false
 	prefix, suffix := "", ""
 	if _, ok := s.DefaultValue.(bool); !ok {
 		suffix = "="
@@ -70,10 +72,10 @@ func (s *Flag) GetTitleZshNamesExtBy(delimChar string, allowPrefix, shortTitleOn
 		//	suffix = "-"
 	}
 	if allowPrefix && !s.justOnce {
-		quote, prefix = true, "*"
+		quoted, prefix = true, "*"
 	}
 	if !longTitleOnly && len(s.Short) > 0 {
-		if quote {
+		if quoted {
 			str += "'" + prefix + "-" + s.Short + suffix + "'"
 		} else {
 			str += prefix + "-" + s.Short + suffix
@@ -86,10 +88,10 @@ func (s *Flag) GetTitleZshNamesExtBy(delimChar string, allowPrefix, shortTitleOn
 		if str != "" {
 			str += delimChar
 		}
-		if quote {
+		if quoted {
 			str += "'" + prefix + "--" + s.Full + suffix + "'"
 		} else {
-			str += "'" + prefix + "--" + s.Full + suffix + "'"
+			str += prefix + "--" + s.Full + suffix
 		}
 	}
 	return

@@ -49,7 +49,10 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.9.5 (WIP)
+- v1.9.6 (WIP)
+
+- v1.9.5
+  - **improved**: zsh completion generator (`app gen sh --zsh/--auto`)
 
 - v1.9.4
   - fixed: potential nil exception while writing back to the alternative config files
@@ -57,7 +60,7 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - improved: rewrote builtin options constructions
   - added 'cmdr.version' into Option Store
   - added some tool helpers
-  - **improved**: zsh completion generator (app gen sh --zsh/--auto)
+  - **improved**: zsh completion generator (`app gen sh --zsh/--auto`)
 
 - v1.9.3
   - fixed: commands might not work when loading from config file. ref: `fluent services kx3`, and/or `fluent ls/pwd`

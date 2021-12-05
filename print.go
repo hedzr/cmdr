@@ -345,7 +345,7 @@ func getTextPiece(str string, start, want int) string {
 	for _, c := range src {
 		if c == '\x1b' {
 			tryEscape, tryAnsiColor = true, false
-			tryPos = sb.Len()
+			tryPos = len([]rune(sb.String()))
 			tried.Reset()
 			tried.WriteRune(c)
 			continue
@@ -368,15 +368,19 @@ func getTextPiece(str string, start, want int) string {
 			}
 			sb.WriteString(tried.String())
 		}
-		if sb.Len() >= want {
+		if len([]rune(sb.String())) >= want {
 			break
 		}
 		sb.WriteRune(c)
 	}
+
 	var out strings.Builder
 	var outs = []rune(sb.String())
 	var last int
 	for _, cc := range escapeSeqs {
+		//if cc.pos > len(outs) {
+		//	cc.pos = len(outs)
+		//}
 		out.WriteString(string(outs[last:cc.pos]))
 		out.WriteString(cc.seq)
 		last = cc.pos

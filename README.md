@@ -50,6 +50,7 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
 - v1.9.6 (WIP)
+  - fixed: incorrect rune count at calc escaped text in help screen.
 
 - v1.9.5
   - **improved**: zsh completion generator (`app gen sh --zsh/--auto`)

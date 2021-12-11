@@ -49,7 +49,9 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.9.6 (WIP)
+- v1.9.7 (WIP)
+
+- v1.9.6
   - fixed: incorrect rune count at calc escaped text in help screen.
   - remove deprecated internal options: `--help-zsh`, `--help-bash`
   - add new option `--man` to enter manpage entry of a sub-command, try `fluent ms tags ls --man`. [linux/darwin only]

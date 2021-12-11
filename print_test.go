@@ -2,7 +2,9 @@
 
 package cmdr
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestGetTextPieces(t *testing.T) {
 	for _, tt := range []string{

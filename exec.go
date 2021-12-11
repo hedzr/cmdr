@@ -182,6 +182,8 @@ func (w *ExecWorker) internalExecFor(pkg *ptpkg, rootCmd *RootCommand, args []st
 				if !e.Ignorable {
 					return
 				}
+			} else {
+				return
 			}
 		}
 		if stopF {

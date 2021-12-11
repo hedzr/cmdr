@@ -51,6 +51,9 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 
 - v1.9.6 (WIP)
   - fixed: incorrect rune count at calc escaped text in help screen.
+  - remove deprecated internal options: `--help-zsh`, `--help-bash`
+  - add new option `--man` to enter manpage entry of a sub-command, try `fluent ms tags ls --man`. [linux/darwin only]
+  - fixed: Flag.Action return err but cmdr.Exec no breaking its flow.
 
 - v1.9.5
   - **improved**: zsh completion generator (`app gen sh --zsh/--auto`)

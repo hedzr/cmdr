@@ -39,6 +39,11 @@ func Worker3(root *RootCommand) *ExecWorker {
 	return w
 }
 
+// BacktraceCmdNames _
+func BacktraceCmdNames(cmd *Command, v bool) string {
+	return internalGetWorker().backtraceCmdNames(cmd, v)
+}
+
 // // ResetWorker function
 // func ResetWorker() {
 // 	InternalResetWorker()

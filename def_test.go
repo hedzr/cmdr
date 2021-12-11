@@ -586,6 +586,45 @@ func TestGetSectionFrom(t *testing.T) {
 	resetFlagsAndLog(t)
 }
 
+func TestBacktraceCmdNames(t *testing.T) {
+	//w:=cmdr.Worker()
+	//strings.ReplaceAll(w.backtraceCmdNames(cmd, false), ".", "-")
+
+	copyRootCmd = rootCmdForTesting
+	var commands = []struct{ cmdline, result, verboseResult string }{
+		{"consul-tags ms tags ls", "microservices.tags.list", "microservices.tags.[ls|list|l|lst|dir]"},
+		{"consul-tags ms", "microservices", "[ms|microservice|micro-service]"},
+		{"consul-tags", "consul-tags", ""},
+	}
+	for _, cc := range commands {
+		resetFlagsAndLog(t)
+		resetOsArgs()
+		cmdr.ResetOptions()
+		t.Logf("-> --- command-line: %v", cc)
+		os.Args = strings.Split(cc.cmdline, " ")
+		// cmdr.SetInternalOutputStreams(nil, nil)
+		//var last *cmdr.Command
+		if last, err := cmdr.Worker().InternalExecFor(rootCmdForTesting, os.Args); err != nil {
+			t.Fatal(err)
+		} else {
+			// fmt.Printf("%v: %v\n", cc.cmdline, cmdr.BacktraceCmdNames(last, true))
+			r1 := cmdr.BacktraceCmdNames(last, false)
+			vr1 := cmdr.BacktraceCmdNames(last, true)
+			if cc.result != r1 {
+				t.Fatalf("expecting %q but got %q | backtraceCmdNames([%v], false)", cc.result, r1, cc.cmdline)
+			}
+			if cc.verboseResult != vr1 {
+				t.Fatalf("expecting %q but got %q | backtraceCmdNames([%v], true)", cc.verboseResult, vr1, cc.cmdline)
+			}
+		}
+	}
+
+	t.Log("-> ok end 1")
+	resetOsArgs()
+	cmdr.ResetOptions()
+	t.Log("-> ok end 2")
+}
+
 func TestCompactFlag(t *testing.T) {
 	copyRootCmd = rootCmdForTesting
 	var commands = []string{
@@ -594,11 +633,11 @@ func TestCompactFlag(t *testing.T) {
 		"consul-tags -? ~~debug ~~more",
 		"consul-tags -? ~~debug ~~env",
 		"consul-tags -? ~~debug ~~raw",
-		"consul-tags -t3 -s 5 kv b --help --help-zsh 2 ~~",
+		// "consul-tags -t3 -s 5 kv b --help --help-zsh 2 ~~",
 	}
-	resetOsArgs()
-	cmdr.ResetOptions()
 	for _, cc := range commands {
+		resetOsArgs()
+		cmdr.ResetOptions()
 		t.Logf("-> --- command-line: %v", cc)
 		os.Args = strings.Split(cc, " ")
 		// cmdr.SetInternalOutputStreams(nil, nil)
@@ -606,8 +645,6 @@ func TestCompactFlag(t *testing.T) {
 			t.Fatal(err)
 		}
 		t.Log("-> stepping")
-		resetOsArgs()
-		cmdr.ResetOptions()
 	}
 
 	t.Log("-> ok end 1")
@@ -758,12 +795,12 @@ var (
 		"consul-tags pwd": func(t *testing.T) error {
 			return nil
 		},
-		"consul-tags --help --help-zsh 1": func(t *testing.T) error {
-			return nil
-		},
-		"consul-tags --help --help-bash": func(t *testing.T) error {
-			return nil
-		},
+		//"consul-tags --help --help-zsh 1": func(t *testing.T) error {
+		//	return nil
+		//},
+		//"consul-tags --help --help-bash": func(t *testing.T) error {
+		//	return nil
+		//},
 		"consul-tags ms dr --help": func(t *testing.T) error {
 			return nil
 		},
@@ -801,11 +838,11 @@ var (
 			fmt.Println("consul-tags kv b -------- no errors")
 			return nil
 		},
-		"consul-tags -t3 -s 5 kv b --help-zsh 2 ~~": func(t *testing.T) error {
-			// gocov Command.PrintXXX
-			fmt.Println("consul-tags -t3 -s5 -pp kv b ~~ -------- no errors")
-			return nil
-		},
+		//"consul-tags -t3 -s 5 kv b --help-zsh 2 ~~": func(t *testing.T) error {
+		//	// gocov Command.PrintXXX
+		//	fmt.Println("consul-tags -t3 -s5 -pp kv b ~~ -------- no errors")
+		//	return nil
+		//},
 		"consul-tags server --help": func(t *testing.T) error {
 			fmt.Println("consul-tags server --help -------- no errors")
 			return nil

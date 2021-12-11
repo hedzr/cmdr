@@ -14,6 +14,7 @@ import (
 	"path"
 	"plugin"
 	"regexp"
+	"runtime"
 	"strings"
 )
 
@@ -859,8 +860,25 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 			//root.plainShortFlags["h"] = ff
 			//root.plainShortFlags["?"] = ff
 
-			w._intFlgAdd(root, "help-zsh", "show help with zsh completion format, or others", func(ff *Flag) { ff.DefaultValuePlaceholder = "LEVEL" })
-			w._intFlgAdd(root, "help-bash", "show help with bash completion format, or others", func(ff *Flag) { ff.DefaultValuePlaceholder = "LEVEL" })
+			//w._intFlgAdd(root, "help-zsh", "show help with zsh completion format, or others", func(ff *Flag) { ff.DefaultValuePlaceholder = "LEVEL" })
+			//w._intFlgAdd(root, "help-bash", "show help with bash completion format, or others", func(ff *Flag) { ff.DefaultValuePlaceholder = "LEVEL" })
+
+			if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
+				w._boolFlgAdd(root, "man", "show help screen in manpage format", func(ff *Flag) {
+					ff.Action = func(cmd *Command, args []string) (err error) {
+						str := strings.ReplaceAll(w.backtraceCmdNames(cmd, false), ".", "-")
+						if !cmd.IsRoot() {
+							str = cmd.root.Name + "-" + str
+						}
+						if e := exec.Run("man", str); e != nil {
+							return e
+						}
+						return ErrShouldBeStopException
+					}
+					ff.Hidden = false
+					//ff.dblTildeOnly = true
+				})
+			}
 
 			w._boolFlgAdd(root, "tree", "show a tree for all commands", func(ff *Flag) {
 				ff.Action = dumpTreeForAllCommands
@@ -916,7 +934,7 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 		})
 		w._boolFlgAdd(root, "env", "Dump environment info in `~~debug` mode.", func(ff *Flag) {
 			ff.prerequisites = []string{"debug"}
-			// ff.mutualExclusives = []string{"raw", "value-type", "more", "env"}
+			ff.mutualExclusives = []string{"raw", "value-type", "more", "env"}
 		})
 		w._boolFlgAdd(root, "raw", "Dump the option value in raw mode (with golang data structure, without envvar expanding).", func(ff *Flag) {
 			ff.prerequisites = []string{"debug"}
@@ -1633,6 +1651,14 @@ func (w *ExecWorker) backtraceFlagNames(flg *Flag) (str string) {
 	return
 }
 
+// backtraceCmdNames returns the sequences of a sub-command from
+// top-level.
+//
+// - if verboseLast = false, got 'microservices.tags.list' for sub-cmd microservice/tags/list.
+//
+// - if verboseLast = true,  got 'microservices.tags.[ls|list|l|lst|dir]'.
+//
+// - at root command, it returns 'appName' or '' when verboseLast is true.
 func (w *ExecWorker) backtraceCmdNames(cmd *Command, verboseLast bool) (str string) {
 	var a []string
 	if verboseLast {

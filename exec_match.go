@@ -234,6 +234,8 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 				stop = true
 				err = nil
 				return
+			} else if err != nil {
+				return
 			}
 		}
 		if isBool(pkg.flg.DefaultValue) || isNil1(pkg.flg.DefaultValue) {

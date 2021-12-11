@@ -378,9 +378,6 @@ func getTextPiece(str string, start, want int) string {
 	var outs = []rune(sb.String())
 	var last int
 	for _, cc := range escapeSeqs {
-		//if cc.pos > len(outs) {
-		//	cc.pos = len(outs)
-		//}
 		out.WriteString(string(outs[last:cc.pos]))
 		out.WriteString(cc.seq)
 		last = cc.pos

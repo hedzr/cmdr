@@ -2,6 +2,10 @@
 
 ## Versions
 
+
+- v1.9.7
+  - fixed: dead-lock while setting up env keys
+
 - v1.9.6
   - fixed: incorrect rune count at calc escaped text in help screen.
     > help screen might not be proper in a small terminal window

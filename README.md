@@ -49,7 +49,10 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.9.7 (WIP)
+- v1.9.8 (WIP)
+
+- v1.9.7
+  - fixed: dead-lock while setting up env keys
 
 - v1.9.6
   - fixed: incorrect rune count at calc escaped text in help screen.

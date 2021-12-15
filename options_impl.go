@@ -727,11 +727,12 @@ func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 					// flog("    [cmdr][buildAutomaticEnv] envvar %q found (flg=%v): %v", ek, flg.GetTitleName(), v)
 					if strings.HasPrefix(key, prefix) {
 						// Logger.Printf("setnx: %v <-- %v", key, v)
-						s.SetNx(key, v)
+						s.setNxNoLock(key, v)
 						// Logger.Printf("setnx: %v", s.GetString(key))
 					} else {
 						// Logger.Printf("set: %v <-- %v", key, v)
-						s.Set(key, v)
+						k := wrapWithRxxtPrefix(key)
+						s.setNxNoLock(k, v)
 					}
 					if flg.onSet != nil {
 						flg.onSet(key, v)
@@ -814,7 +815,10 @@ func (s *Options) SetRaw(key string, val interface{}) {
 func (s *Options) setNx(key string, val interface{}) (oldVal interface{}, modi bool) {
 	defer s.rw.Unlock()
 	s.rw.Lock()
+	return s.setNxNoLock(key, val)
+}
 
+func (s *Options) setNxNoLock(key string, val interface{}) (oldVal interface{}, modi bool) {
 	if val == nil && s.getMapNoLock(key) != nil {
 		// don't set a branch node to nil if it have children.
 		return

@@ -8,13 +8,13 @@
 
 - v1.9.6
   - fixed: incorrect rune count at calc escaped text in help screen.
-    > help screen might not be proper in a small terminal window
+    > help screen might not work properly in a small terminal window
   - remove deprecated internal options: `--help-zsh`, `--help-bash`
   - add new option `--man` to enter manpage entry of a sub-command, try `fluent ms tags ls --man`. [linux/darwin only]
   - fixed: Flag.Action return err but cmdr.Exec no breaking its flow.
 
 - v1.9.5
-  - **improved**: zsh completion generator (`app gen sh --zsh/--auto`)
+  - **improved**: zsh completion generator (`app gen sh --zsh/--auto`) - supports unlimited nested sub-command now.
     fixed: single quote in desc string,
     fixed: don't quote in mutual exclusive section
     fixed: both short and long titles in mutual exclusive section

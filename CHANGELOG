@@ -3,6 +3,10 @@
 ## Versions
 
 
+- v1.9.8
+  - upgrade log and logex 
+  - added DebugOutputTildeInfo()
+
 - v1.9.7
   - fixed: dead-lock while setting up env keys
 

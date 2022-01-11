@@ -33,110 +33,99 @@ The .netCore version [Cmdr.Core](https://github.com/hedzr/Cmdr.Core) is availabl
 
 See our extras:
 
--   [**cmdr-docs**](https://github.com/hedzr/cmdr-docs): documentations (Working)
--   [**cmdr-addons**](https://github.com/hedzr/cmdr-addons): a new daemon plugin `dex` for linux/macOS/windows.
--   [**cmdr-examples**](https://github.com/hedzr/cmdr-examples): collects the samples for cmdr
--   [**cmdr-go-starter**](https://github.com/hedzr/cmdr-go-starter): public template repo to new your cli app
+- [**cmdr-docs**](https://github.com/hedzr/cmdr-docs): documentations (Working)
+- [**cmdr-addons**](https://github.com/hedzr/cmdr-addons): a new daemon plugin `dex` for linux/macOS/windows.
+- [**cmdr-examples**](https://github.com/hedzr/cmdr-examples): collects the samples for cmdr
+- [**cmdr-go-starter**](https://github.com/hedzr/cmdr-go-starter): public template repo to new your cli app
 
 and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 
--   dotnetCore: [Cmdr.Core](https://github.com/hedzr/Cmdr.Core)
--   C++17 or higher: [cmdr-cxx](https://github.com/hedzr/cmdr-cxx)
+- dotnetCore: [Cmdr.Core](https://github.com/hedzr/Cmdr.Core)
+- C++17 or higher: [cmdr-cxx](https://github.com/hedzr/cmdr-cxx)
 
 ## News
 
--   docs (WIP):
+- docs (WIP):
+  - english documentation NOT completed yet
+  - documentation at: https://hedzr.github.io/cmdr-docs/
 
-    -   english documentation NOT completed yet
-    -   documentation at: https://hedzr.github.io/cmdr-docs/
+- v1.9.9 (WIP)
 
--   v1.9.8 (WIP)
+- v1.9.8
+  - upgrade log and logex 
+  - added DebugOutputTildeInfo()
 
--   v1.9.7
+- v1.9.7
+  - fixed: dead-lock while setting up env keys
 
-    -   fixed: dead-lock while setting up env keys
+- v1.9.6
+  - fixed: incorrect rune count at calc escaped text in help screen.
+  - remove deprecated internal options: `--help-zsh`, `--help-bash`
+  - add new option `--man` to enter manpage entry of a sub-command, try `fluent ms tags ls --man`. [linux/darwin only]
+  - fixed: Flag.Action return err but cmdr.Exec no breaking its flow.
 
--   v1.9.6
+- v1.9.5
+  - **improved**: zsh completion generator (`app gen sh --zsh/--auto`) - supports unlimited nested sub-command now.
 
-    -   fixed: incorrect rune count at calc escaped text in help screen.
-    -   remove deprecated internal options: `--help-zsh`, `--help-bash`
-    -   add new option `--man` to enter manpage entry of a sub-command, try `fluent ms tags ls --man`. [linux/darwin only]
-    -   fixed: Flag.Action return err but cmdr.Exec no breaking its flow.
+- v1.9.4
+  - fixed: potential nil exception while writing back to the alternative config files
+  - fixed: wrong calculating on remain args sometimes
+  - improved: rewrote builtin options constructions
+  - added 'cmdr.version' into Option Store
+  - added some tool helpers
+  - **improved**: zsh completion generator (`app gen sh --zsh/--auto`)
 
--   v1.9.5
+- v1.9.3
+  - fixed: commands might not work when loading from config file. ref: `fluent services kx3`, and/or `fluent ls/pwd`
+  - fixed: incorrect usage on bytes.Buffer, for toggle-group choicer
 
-    -   **improved**: zsh completion generator (`app gen sh --zsh/--auto`) - supports unlimited nested sub-command now.
-
--   v1.9.4
-
-    -   fixed: potential nil exception while writing back to the alternative config files
-    -   fixed: wrong calculating on remain args sometimes
-    -   improved: rewrote builtin options constructions
-    -   added 'cmdr.version' into Option Store
-    -   added some tool helpers
-    -   **improved**: zsh completion generator (`app gen sh --zsh/--auto`)
-
--   v1.9.3
-
-    -   fixed: commands might not work when loading from config file. ref: `fluent services kx3`, and/or `fluent ls/pwd`
-    -   fixed: incorrect usage on bytes.Buffer, for toggle-group choicer
-
--   v1.9.2
-
-    -   fixed: parsing not stop while a should-be-stopped flag (such as --version) found
-    -   fixed: incorrect usage line at top level help screen
-    -   improved: better toggle-group show in help screen  
+- v1.9.2
+  - fixed: parsing not stop while a should-be-stopped flag (such as --version) found
+  - fixed: incorrect usage line at top level help screen
+  - improved: better toggle-group show in help screen  
         new style for ToggleGroup items: A unicode character '⬡'(U+2B21) as the prefix of the option description. (see [here](https://github.com/hedzr/cmdr/issues/1#issuecomment-968247546))
-    -   improved: better toggle-group choicer in help screen
+  - improved: better toggle-group choicer in help screen
         1. '⬢'(U+2B22) &amp; '⬡'(U+2B21) for the default choicer style (named as `hexagon`),
         1. '▸'(U+25B8) &amp; '▹'(U+25B9) as another one (`triangle-right`),
-    -   improved: `WithToggleGroupChoicerStyle(style)` and `WithToggleGroupChoicerNewStyle(style, trueChoicer, falseChoicer)`.
+  - improved: `WithToggleGroupChoicerStyle(style)` and `WithToggleGroupChoicerNewStyle(style, trueChoicer, falseChoicer)`.
 
--   v1.9.1:
+- v1.9.1:
+  - A public template repo may simplify your new CLI app: [**cmdr-go-starter**](https://github.com/hedzr/cmdr-go-starter).
+  - crashed at an elder fsnotify on macOS, with go1.17
+  - minor fixes
 
-    -   A public template repo may simplify your new CLI app: [**cmdr-go-starter**](https://github.com/hedzr/cmdr-go-starter).
-    -   crashed at an elder fsnotify on macOS, with go1.17
-    -   minor fixes
+- v1.9.0
+  - .fossa.yaml so a pre-release scan can be launched locally
+  - BREAK: remove plugin/daemon - use cmdr-addons/pkg/plugins/dex instead
+  - updated `log`, added: closers, detects and more
+  - use `closers` for better closing hooks
+  - just a early BREAK release
 
--   v1.9.0
+- v1.8.7
+  - updated `log`, added: AutoStart Peripheral interface
 
-    -   .fossa.yaml so a pre-release scan can be launched locally
-    -   BREAK: remove plugin/daemon - use cmdr-addons/pkg/plugins/dex instead
-    -   updated `log`, added: closers, detects and more
-    -   use `closers` for better closing hooks
-    -   just a early BREAK release
+- v1.8.5
+  - updated `log`, fixed: forwarding systemd log to file
 
--   v1.8.7
+- v1.8.2
+  - compliant with plan9,bsd,...
+  - some data racing PRBs in parallel testing
 
-    -   updated `log`, added: AutoStart Peripheral interface
+- v1.8.1
+  - fixed the CI error by imported from `log`
+  - fixed a data racing in config files watching
+  - small imp: pprof - added validArgs for cmdr-opt `profiling-type`
+  - update deps: log & logex(logrus indirect, ...)
 
--   v1.8.5
+- v1.8.0
+  - BREAK: removed support to golang 1.11 and below
+  - update deps: log & logex(logrus indirect, ...)
 
-    -   updated `log`, fixed: forwarding systemd log to file
+- v1.7.46
+  - added `plugin/pprof` package to simplify pprof integration
+  - slight improvements
 
--   v1.8.2
-
-    -   compliant with plan9,bsd,...
-    -   some data racing PRBs in parallel testing
-
--   v1.8.1
-
-    -   fixed the CI error by imported from `log`
-    -   fixed a data racing in config files watching
-    -   small imp: pprof - added validArgs for cmdr-opt `profiling-type`
-    -   update deps: log & logex(logrus indirect, ...)
-
--   v1.8.0
-
-    -   BREAK: removed support to golang 1.11 and below
-    -   update deps: log & logex(logrus indirect, ...)
-
--   v1.7.46
-
-    -   added `plugin/pprof` package to simplify pprof integration
-    -   slight improvements
-
--   More details at [CHANGELOG](./CHANGELOG)
+- More details at [CHANGELOG](./CHANGELOG)
 
 ## Features
 
@@ -186,7 +175,7 @@ $ docker run -it --rm docker.pkg.github.com/hedzr/cmdr/cmdr-fluent --help
 
 5. [ffdemo](./examples/ffdemo)
 
-    a demo to show you how to migrate from go `flag` smoothly.
+   a demo to show you how to migrate from go `flag` smoothly.
 
 6. [cmdr-http2](https://github.com/hedzr/cmdr-http2)  
    http2 server with daemon supports, graceful shutdown

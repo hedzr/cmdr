@@ -150,7 +150,7 @@ func (w *ExecWorker) getWithLogexInitializer(lvl Level, opts ...logex.Option) Ha
 		if target == "journal" {
 			format = "text"
 		}
-		logex.SetupLoggingFormat(format, w.logexSkipFrames)
+		logex.SetupLoggingFormat(format, w.logexSkipFrames, false, "")
 		//switch format {
 		//case "json":
 		//	logrus.SetFormatter(&logrus.JSONFormatter{

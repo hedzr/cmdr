@@ -6,9 +6,10 @@ package cmdr
 
 import (
 	"bufio"
+	"sync"
+
 	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log"
-	"sync"
 )
 
 const (
@@ -85,8 +86,14 @@ type (
 		PreAction Handler `yaml:"-" json:"-"`
 		// PostAction will be run after Action() invoked.
 		PostAction Invoker `yaml:"-" json:"-"`
-		// be shown at tail of command usages line. Such as for TailPlaceHolder="<host-fqdn> <ipv4/6>":
-		// austr dns add <host-fqdn> <ipv4/6> [Options] [Parent/Global Options]
+		// TailPlaceHolder contains the description text of positional
+		// arguments of a command.
+		// It will be shown at tail of command usages line. Suppose there's
+		// a TailPlaceHolder  with"<host-fqdn> <ipv4/6>", they will be
+		// painted in help screen just like:
+		//
+		//     austr dns add <host-fqdn> <ipv4/6> [Options] [Parent/Global Options]
+		//
 		TailPlaceHolder string `yaml:"tail-placeholder,omitempty" json:"tail-placeholder,omitempty"`
 		// TailArgsText string
 		// TailArgsDesc string

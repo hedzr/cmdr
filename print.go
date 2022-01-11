@@ -153,6 +153,11 @@ func (w *ExecWorker) printHelp(command *Command, justFlags bool) {
 	}
 }
 
+// DebugOutputTildeInfo prints debug information like `~~debug`
+func DebugOutputTildeInfo(showType bool) {
+	internalGetWorker().paintTildeDebugCommand(showType)
+}
+
 // paintTildeDebugCommand for `~~debug`
 func (w *ExecWorker) paintTildeDebugCommand(showType bool) {
 	of, _ := os.Create(GetStringR("debug-output"))

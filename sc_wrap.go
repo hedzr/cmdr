@@ -85,12 +85,21 @@ func TrapSignalsEnh(done chan bool, onTrapped func(s os.Signal), signals ...os.S
 		}
 	}()
 
+	safeSender := func(done chan<- bool) {
+		defer func() {
+			// sometimes the peer of done channel was closed
+			if e := recover(); e != nil {
+				Logger.Warnf("send sig to done (channel) failed? : %v", e)
+			}
+		}()
+		done <- true // stop os signals for-select looper
+	}
 	waiter = func() {
 		for {
 			select {
 			case byManual := <-done:
 				if byManual {
-					done <- true // stop os signals for-select looper
+					safeSender(done)
 				}
 				return // os.Exit(1) // log.Infof("done got.")
 			}

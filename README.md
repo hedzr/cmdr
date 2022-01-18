@@ -105,30 +105,6 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - use `closers` for better closing hooks
   - just a early BREAK release
 
-- v1.8.7
-  - updated `log`, added: AutoStart Peripheral interface
-
-- v1.8.5
-  - updated `log`, fixed: forwarding systemd log to file
-
-- v1.8.2
-  - compliant with plan9,bsd,...
-  - some data racing PRBs in parallel testing
-
-- v1.8.1
-  - fixed the CI error by imported from `log`
-  - fixed a data racing in config files watching
-  - small imp: pprof - added validArgs for cmdr-opt `profiling-type`
-  - update deps: log & logex(logrus indirect, ...)
-
-- v1.8.0
-  - BREAK: removed support to golang 1.11 and below
-  - update deps: log & logex(logrus indirect, ...)
-
-- v1.7.46
-  - added `plugin/pprof` package to simplify pprof integration
-  - slight improvements
-
 - More details at [CHANGELOG](./CHANGELOG)
 
 ## Features

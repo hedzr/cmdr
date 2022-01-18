@@ -50,6 +50,8 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
 - v1.9.9 (WIP)
+  - improved: prevent `sent to closed channel` defensively
+  - SPECIAL: needs go1.16+ because some dep-lib wants io/fs (such as .../toml). 
 
 - v1.9.8
   - upgrade log and logex 

@@ -49,7 +49,9 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.9.9 (WIP)
+- v1.9.10 (WIP)
+
+- v1.9.9
   - improved: prevent `sent to closed channel` defensively
   - SPECIAL: needs go1.16+ because some dep-lib wants io/fs (such as .../toml, zap ...). 
 

@@ -53,7 +53,7 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 
 - v1.9.9
   - improved: prevent `sent to closed channel` defensively
-  - SPECIAL: needs go1.16+ because some dep-lib wants io/fs (such as .../toml, zap ...). 
+  - SPECIAL: needs go1.16+ because some indirect-dep-lib wants io/fs (such as .../toml, zap ...). 
 
 - v1.9.8
   - upgrade log and logex 

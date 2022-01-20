@@ -725,15 +725,17 @@ func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 			for _, ek := range flg.EnvVars {
 				if v, ok := os.LookupEnv(ek); ok {
 					// flog("    [cmdr][buildAutomaticEnv] envvar %q found (flg=%v): %v", ek, flg.GetTitleName(), v)
-					if strings.HasPrefix(key, prefix) {
-						// Logger.Printf("setnx: %v <-- %v", key, v)
-						s.setNxNoLock(key, v)
-						// Logger.Printf("setnx: %v", s.GetString(key))
-					} else {
-						// Logger.Printf("set: %v <-- %v", key, v)
-						k := wrapWithRxxtPrefix(key)
-						s.setNxNoLock(k, v)
+					k := key
+					if !strings.HasPrefix(k, prefix) {
+						k = wrapWithRxxtPrefix(key)
 					}
+					// Logger.Printf("setnx: %v <-- %v", key, v)
+					s.setNxNoLock(k, v)
+					if flg.ToggleGroup != "" {
+						s.tryResetOthersInTG(flg, k)
+					}
+					// Logger.Printf("setnx: %v", s.GetString(key))
+
 					if flg.onSet != nil {
 						flg.onSet(key, v)
 					}
@@ -753,6 +755,33 @@ func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 		h(rootCmd, s)
 	}
 	return
+}
+
+func (s *Options) tryResetOthersInTG(flg *Flag, fullKey string) {
+	var tgs = make(map[string][]*Flag)
+	for _, c := range flg.owner.Flags {
+		if c.ToggleGroup != "" {
+			tgs[c.ToggleGroup] = append(tgs[c.ToggleGroup], c)
+		}
+	}
+
+	for _, c := range tgs[flg.ToggleGroup] {
+		if c != flg {
+			k1 := strings.Split(fullKey, ".")
+			k1[len(k1)-1] = c.Full
+			k2 := strings.Join(k1, ".")
+			s.setNxNoLock(k2, false)
+
+			if f := s.lookupFlag(k2, flg.owner.GetRoot()); f != nil {
+				f.DefaultValueType = "bool"
+				f.DefaultValue = false
+			}
+		}
+	}
+
+	k1 := flg.owner.GetDottedNamePath() + "." + flg.ToggleGroup
+	k2 := wrapWithRxxtPrefix(k1)
+	s.setNxNoLock(k2, flg.Full)
 }
 
 func (s *Options) lookupFlag(keyPath string, rootCmd *RootCommand) (flg *Flag) {
@@ -842,7 +871,12 @@ func (s *Options) setNxNoLock(key string, val interface{}) (oldVal interface{}, 
 			return
 		}
 	}
+
 	s.entries[key] = val
+	a := strings.Split(key, ".")
+	s.mergeMap(s.hierarchy, a[0], "", et(a, 1, val))
+	s.internalRaiseOnSetCB(key, val, oldVal)
+	modi = true
 	return
 }
 
@@ -1092,11 +1126,13 @@ func (s *Options) loopMap(kDot string, m map[string]interface{}) (err error) {
 	defer s.mapOrphans()
 	for k, v := range m {
 		if vm, ok := v.(map[interface{}]interface{}); ok {
-			if err = s.loopIxMap(mx(kDot, k), vm); err != nil {
+			key := mx(kDot, k)
+			if err = s.loopIxMap(key, vm); err != nil {
 				return
 			}
 		} else if vm, ok := v.(map[string]interface{}); ok {
-			if err = s.loopMap(mx(kDot, k), vm); err != nil {
+			key := mx(kDot, k)
+			if err = s.loopMap(key, vm); err != nil {
 				return
 			}
 		} else {

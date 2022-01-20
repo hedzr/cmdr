@@ -50,6 +50,9 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
 - v1.9.10 (WIP)
+  - fix: toggle-group key not sync while set via envvar
+  - imp: speed up by extracting a re compiling code
+  - imp: upgrade deps with more enh-helpers from [hedzr/log](https://github.com/hedzr/log)
 
 - v1.9.9
   - improved: prevent `sent to closed channel` defensively

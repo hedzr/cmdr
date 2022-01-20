@@ -1354,6 +1354,8 @@ func (w *ExecWorker) _buildCrossRefs(cmd *Command) {
 	stringCmdNames := make(map[string]bool)
 	tgs := make(map[string]bool)
 
+	bre := regexp.MustCompile("`(.+)`")
+
 	for _, flg := range cmd.Flags {
 		flg.owner = cmd
 
@@ -1364,7 +1366,7 @@ func (w *ExecWorker) _buildCrossRefs(cmd *Command) {
 			tgs[flg.ToggleGroup] = true
 		}
 
-		if b := regexp.MustCompile("`(.+)`").Find([]byte(flg.Description)); len(flg.DefaultValuePlaceholder) == 0 && len(b) > 2 {
+		if b := bre.Find([]byte(flg.Description)); len(flg.DefaultValuePlaceholder) == 0 && len(b) > 2 {
 			ph := strings.ToUpper(strings.Trim(string(b), "`"))
 			flg.DefaultValuePlaceholder = ph
 		}

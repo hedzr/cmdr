@@ -1234,16 +1234,22 @@ func (s *Options) DumpAsString(showType bool) (str string) {
 	str += "---------------------------------\n"
 
 	var err error
-	var b []byte
+	var sb strings.Builder
 	defer handleSerializeError(&err)
-	b, err = yaml.Marshal(s.hierarchy)
-	if err == nil {
-		if s.GetBoolEx("raw") {
-			str += string(b)
-		} else {
-			ss := string(b)
-			ss = os.ExpandEnv(ss)
-			str += ss
+	e := yaml.NewEncoder(&sb)
+	e.SetIndent(2)
+	if err = e.Encode(s.hierarchy); err == nil {
+		err = e.Close()
+		// var b []byte
+		// b, err = yaml.Marshal(s.hierarchy)
+		if err == nil {
+			if s.GetBoolEx("raw") {
+				str += sb.String() // string(b)
+			} else {
+				ss := sb.String() // string(b)
+				ss = os.ExpandEnv(ss)
+				str += ss
+			}
 		}
 	}
 	return
@@ -1255,3 +1261,49 @@ func (s *Options) GetHierarchyList() map[string]interface{} {
 	s.rw.RLock()
 	return s.hierarchy
 }
+
+func (s *Options) SaveCheckpoint() (err error) {
+	defer s.rw.RUnlock()
+	s.rw.RLock()
+	no := newOptions()
+	if err = StandardCopier.Copy(no, s); err == nil {
+		w := internalGetWorker()
+		w.savedOptions = append(w.savedOptions, no)
+	}
+	return
+}
+
+func (s *Options) RestoreCheckpoint(n ...int) (err error) {
+	var nn = 1
+	for _, n1 := range n {
+		nn = n1
+	}
+
+	if 1 <= nn && nn <= s.CheckpointSize() {
+		w := internalGetWorker()
+		var no *Options
+		for i := 0; i < nn; i++ {
+			no = w.savedOptions[len(w.savedOptions)-1]
+		}
+		w.savedOptions = w.savedOptions[0 : len(w.savedOptions)-nn]
+
+		defer s.rw.RUnlock()
+		s.rw.RLock()
+		w.rxxtOptions = no
+	}
+	return
+}
+
+func (s *Options) ClearCheckpoints() {
+	w := internalGetWorker()
+	w.savedOptions = nil
+}
+
+func (s *Options) CheckpointSize() int { return len(internalGetWorker().savedOptions) }
+
+func SaveCheckpoint() (err error) { return internalGetWorker().rxxtOptions.SaveCheckpoint() }
+func RestoreCheckpoint(n ...int) (err error) {
+	return internalGetWorker().rxxtOptions.RestoreCheckpoint(n...)
+}
+func ClearCheckpoints()   { internalGetWorker().rxxtOptions.ClearCheckpoints() }
+func CheckpointSize() int { return internalGetWorker().rxxtOptions.CheckpointSize() }

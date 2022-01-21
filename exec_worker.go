@@ -60,6 +60,7 @@ type ExecWorker struct {
 	rxxtOptions        *Options
 	onOptionMergingSet OnOptionSetCB
 	onOptionSet        OnOptionSetCB
+	savedOptions       []*Options
 
 	similarThreshold      float64
 	noDefaultHelpScreen   bool

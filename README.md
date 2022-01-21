@@ -53,6 +53,14 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - fix: toggle-group key not sync while set via envvar
   - imp: speed up by extracting a re compiling code
   - imp: upgrade deps with more enh-helpers from [hedzr/log](https://github.com/hedzr/log)
+  - imp: yaml indent size
+  - imp: StripOrderPrefix
+  - imp/fix: sync debug/trace mode back to hedzr/log
+  - fix: options after tail args (positional args) might be ignored
+  - fix: ResetOptions
+  - fea: added Checkpoints on Option Store
+    you may save and restore multiple checkpoints for cmdr Option Store, so that some temporary changes can be made.
+  - fix/imp: --man crash if manpages not installed - the responding manpage will be generated temporarily and instantly now
 
 - v1.9.9
   - improved: prevent `sent to closed channel` defensively

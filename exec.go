@@ -192,7 +192,7 @@ func (w *ExecWorker) internalExecFor(pkg *ptpkg, rootCmd *RootCommand, args []st
 			}
 			return
 		}
-		if stopC && !matched {
+		if stopC && !matched && !pkg.lastCommandHeld {
 			break
 		}
 	}

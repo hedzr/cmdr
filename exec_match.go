@@ -49,7 +49,7 @@ func (w *ExecWorker) cmdMatching(pkg *ptpkg, goCommand **Command, args []string)
 	}
 
 	if w.treatUnknownCommandAsArgs {
-		stop = true
+		pkg.lastCommandHeld, stop = true, true
 		return
 	}
 
@@ -64,8 +64,7 @@ func (w *ExecWorker) cmdMatched(pkg *ptpkg, goCommand *Command, args []string) (
 
 	if len((*goCommand).SubCommands) == 0 { // (*goCommand).Action != nil &&
 		// the args remained are files, not sub-commands.
-		pkg.lastCommandHeld = true
-		stop = true
+		pkg.lastCommandHeld, stop = true, true
 	}
 
 	return

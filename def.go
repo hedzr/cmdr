@@ -6,6 +6,7 @@ package cmdr
 
 import (
 	"bufio"
+	"github.com/hedzr/logex"
 	"sync"
 
 	"github.com/hedzr/cmdr/tool"
@@ -342,6 +343,7 @@ func GetTraceMode() bool {
 // SetTraceMode setup the tracing mode status in Option Store
 func SetTraceMode(b bool) {
 	Set("trace", b)
+	logex.SetTraceMode(b)
 }
 
 // GetDebugMode returns the flag value of `--debug`/`-D`
@@ -360,6 +362,7 @@ func GetDebugMode() bool {
 // SetDebugMode setup the debug mode status in Option Store
 func SetDebugMode(b bool) {
 	Set("debug", b)
+	logex.SetDebugMode(b)
 }
 
 // NewLoggerConfig returns a default LoggerConfig

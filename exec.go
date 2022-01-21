@@ -480,6 +480,9 @@ func (w *ExecWorker) checkStates(pkg *ptpkg) {
 	if w.strictMode {
 		Set("strict-mode", true)
 	}
+
+	SetDebugMode(GetDebugMode()) // send state to hedzr/log
+	SetTraceMode(GetTraceMode()) // send state to hedzr/log
 }
 
 // func (w *ExecWorker) beforeInvokeCommand(rootCmd *RootCommand, goCommand *Command, args []string) (err error) {

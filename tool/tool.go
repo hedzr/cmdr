@@ -189,10 +189,12 @@ func stripPrefix(s, p string) string {
 // An order prefix is a dotted string with multiple alphabet and digit. Such as:
 // "zzzz.", "0001.", "700.", "A1." ...
 func StripOrderPrefix(s string) string {
-	if xre.MatchString(s) {
-		s = s[strings.Index(s, ".")+1:]
-	}
-	return s
+	a := xre.FindStringSubmatch(s)
+	return a[2]
+	//if xre.MatchString(s) {
+	//	s = s[strings.Index(s, ".")+1:]
+	//}
+	//return s
 }
 
 // HasOrderPrefix tests whether an order prefix is present or not.
@@ -203,7 +205,7 @@ func HasOrderPrefix(s string) bool {
 }
 
 var (
-	xre = regexp.MustCompile(`^[0-9A-Za-z]+\.(.+)$`)
+	xre = regexp.MustCompile(`^([0-9A-Za-z]+[.])?(.+)$`)
 )
 
 // IsDigitHeavy tests if the whole string is digit

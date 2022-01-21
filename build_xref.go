@@ -723,95 +723,6 @@ func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
 			ff.circuitBreak = true
 			ff.justOnce = true
 		})
-		//if _, ok := root.allCmds[SysMgmtGroup]["version"]; !ok {
-		//	cx := &Command{
-		//		BaseOpt: BaseOpt{
-		//			Full:        "version",
-		//			Aliases:     []string{"ver", "versions"},
-		//			Description: "Show the version of this app.",
-		//			Action: func(cmd *Command, args []string) (err error) {
-		//				w.showVersion()
-		//				return ErrShouldBeStopException
-		//			},
-		//			Hidden: true,
-		//			Group:  SysMgmtGroup,
-		//			owner:  &root.Command,
-		//		},
-		//	}
-		//	root.SubCommands = uniAddCmd(root.SubCommands, cx)
-		//	root.allCmds[SysMgmtGroup]["version"] = cx
-		//	root.allCmds[SysMgmtGroup]["versions"] = cx
-		//	root.allCmds[SysMgmtGroup]["ver"] = cx
-		//	root.plainCmds["version"] = cx
-		//	root.plainCmds["versions"] = cx
-		//	root.plainCmds["ver"] = cx
-		//}
-		//if _, ok := root.allFlags[SysMgmtGroup]["version"]; !ok {
-		//	ff := &Flag{
-		//		BaseOpt: BaseOpt{
-		//			Short:       "V",
-		//			Full:        "version",
-		//			Aliases:     []string{"ver", "versions"},
-		//			Description: "Show the version of this app.",
-		//			Hidden:      true,
-		//			Group:       SysMgmtGroup,
-		//			owner:       &root.Command,
-		//			Action: func(cmd *Command, args []string) (err error) {
-		//				w.showVersion()
-		//				return ErrShouldBeStopException
-		//			},
-		//		},
-		//		DefaultValue: false,
-		//	}
-		//	root.Flags = append(root.Flags, ff)
-		//	root.allFlags[SysMgmtGroup]["version"] = ff
-		//	root.plainLongFlags["version"] = ff
-		//	root.plainLongFlags["versions"] = ff
-		//	root.plainLongFlags["ver"] = ff
-		//	root.plainShortFlags["V"] = ff
-		//}
-		//if _, ok := root.allFlags[SysMgmtGroup]["version-sim"]; !ok {
-		//	ff := &Flag{
-		//		BaseOpt: BaseOpt{
-		//			Full:        "version-sim",
-		//			Aliases:     []string{"version-simulate"},
-		//			Description: "Simulate a faked version number for this app.",
-		//			Hidden:      true,
-		//			Group:       SysMgmtGroup,
-		//			owner:       &root.Command,
-		//			Action: func(cmd *Command, args []string) (err error) {
-		//				conf.Version = GetStringR("version-sim")
-		//				Set("version", conf.Version) // set into option 'app.version' too.
-		//				return
-		//			},
-		//		},
-		//		DefaultValue: "",
-		//	}
-		//	root.Flags = append(root.Flags, ff)
-		//	root.allFlags[SysMgmtGroup]["version-sim"] = ff
-		//	root.plainLongFlags["version-sim"] = ff
-		//	root.plainLongFlags["version-simulate"] = ff
-		//}
-		//if _, ok := root.allFlags[SysMgmtGroup]["build-info"]; !ok {
-		//	root.allFlags[SysMgmtGroup]["build-info"] = &Flag{
-		//		BaseOpt: BaseOpt{
-		//			Full:        "build-info",
-		//			Short:       "#",
-		//			Aliases:     []string{},
-		//			Description: "Show the building information of this app.",
-		//			Hidden:      true,
-		//			Group:       SysMgmtGroup,
-		//			owner:       &root.Command,
-		//			Action: func(cmd *Command, args []string) (err error) {
-		//				w.showBuildInfo()
-		//				return ErrShouldBeStopException
-		//			},
-		//		},
-		//		DefaultValue: false,
-		//	}
-		//	root.plainShortFlags["#"] = root.allFlags[SysMgmtGroup]["build-info"]
-		//	root.plainLongFlags["build-info"] = root.allFlags[SysMgmtGroup]["build-info"]
-		//}
 	}
 }
 
@@ -832,46 +743,23 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 				ff.justOnce = true
 			})
 			root.plainShortFlags["?"] = root.allFlags[SysMgmtGroup]["help"]
-			//ff := &Flag{
-			//	BaseOpt: BaseOpt{
-			//		Short:       "h",
-			//		Full:        "help",
-			//		Aliases:     []string{"?", "helpme", "info", "usage"},
-			//		Description: "Show this help screen",
-			//		Hidden:      true,
-			//		Group:       SysMgmtGroup,
-			//		owner:       &root.Command,
-			//		Action: func(cmd *Command, args []string) (err error) {
-			//			// cmdr.Logger.Debugf("-- helpCommand hit. printHelp and stop.")
-			//			// printHelp(cmd)
-			//			// return ErrShouldBeStopException
-			//			return nil
-			//		},
-			//	},
-			//	DefaultValue: false,
-			//	EnvVars:      []string{"HELP"},
-			//}
-			//root.Flags = append(root.Flags, ff)
-			//root.allFlags[SysMgmtGroup]["help"] = ff
-			//root.plainLongFlags["help"] = ff
-			//root.plainLongFlags["helpme"] = ff
-			//root.plainLongFlags["info"] = ff
-			//root.plainLongFlags["usage"] = ff
-			//root.plainShortFlags["h"] = ff
-			//root.plainShortFlags["?"] = ff
 
 			//w._intFlgAdd(root, "help-zsh", "show help with zsh completion format, or others", func(ff *Flag) { ff.DefaultValuePlaceholder = "LEVEL" })
 			//w._intFlgAdd(root, "help-bash", "show help with bash completion format, or others", func(ff *Flag) { ff.DefaultValuePlaceholder = "LEVEL" })
 
 			if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-				w._boolFlgAdd(root, "man", "show help screen in manpage format", func(ff *Flag) {
+				w._boolFlgAdd(root, "man", "show help screen in manpage format (INSTALL NEEDED!)", func(ff *Flag) {
 					ff.Action = func(cmd *Command, args []string) (err error) {
 						str := strings.ReplaceAll(w.backtraceCmdNames(cmd, false), ".", "-")
 						if !cmd.IsRoot() {
 							str = cmd.root.Name + "-" + str
 						}
 						if e := exec.Run("man", str); e != nil {
-							return e
+							// Logger.Warnf("%v", errors.Unwrap(e).Error())
+							if fn, e2 := genManualForCommand(cmd); e2 == nil {
+								defer func() { _ = dir.DeleteFile(fn) }()
+								_ = exec.Run("man", fn)
+							}
 						}
 						return ErrShouldBeStopException
 					}
@@ -945,165 +833,6 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 		w._boolFlgAdd(root, "more", "Dump more info in `~~debug` mode.", func(ff *Flag) {
 			ff.prerequisites = []string{"debug"}
 		})
-		//if _, ok := root.allFlags[SysMgmtGroup]["verbose"]; !ok {
-		//	ff := &Flag{
-		//		BaseOpt: BaseOpt{
-		//			Short: "v",
-		//			Full:  "verbose",
-		//			// Aliases:     []string{"vv", "vvv"},
-		//			Description: "Show this help screen",
-		//			// Hidden:      true,
-		//			Group: SysMgmtGroup,
-		//			owner: &root.Command,
-		//			// Action: func(cmd *Command, args []string) (err error) {
-		//			// 	if f := FindFlag("verbose", cmd); f != nil {
-		//			// 		f.times++
-		//			// 		// fmt.Println("verbose++: ", f.times)
-		//			// 	}
-		//			// 	return
-		//			// },
-		//
-		//			// Action: func(cmd *Command, args []string) (err error) {
-		//			// 	if f := FindFlag("verbose", cmd); f != nil {
-		//			// 		fmt.Println("verbose++: ", f.times)
-		//			// 	}
-		//			// 	return
-		//			// },
-		//		},
-		//		DefaultValue: false,
-		//		EnvVars:      []string{"VERBOSE"},
-		//	}
-		//	root.Flags = append(root.Flags, ff)
-		//	root.allFlags[SysMgmtGroup]["verbose"] = ff
-		//	root.plainLongFlags["verbose"] = root.allFlags[SysMgmtGroup]["verbose"]
-		//	// root.plainLongFlags["vvv"] = root.allFlags[SysMgmtGroup]["verbose"]
-		//	// root.plainLongFlags["vv"] = root.allFlags[SysMgmtGroup]["verbose"]
-		//	root.plainShortFlags["v"] = root.allFlags[SysMgmtGroup]["verbose"]
-		//}
-		//if _, ok := root.allFlags[SysMgmtGroup]["quiet"]; !ok {
-		//	ff := &Flag{
-		//		BaseOpt: BaseOpt{
-		//			Short:       "q",
-		//			Full:        "quiet",
-		//			Aliases:     []string{},
-		//			Description: "No more screen output.",
-		//			// Hidden:      true,
-		//			Group: SysMgmtGroup,
-		//			owner: &root.Command,
-		//		},
-		//		DefaultValue: false,
-		//		EnvVars:      []string{"QUITE"},
-		//	}
-		//	root.Flags = append(root.Flags, ff)
-		//	root.allFlags[SysMgmtGroup]["quiet"] = ff
-		//	root.plainLongFlags["quiet"] = root.allFlags[SysMgmtGroup]["quiet"]
-		//	root.plainShortFlags["q"] = root.allFlags[SysMgmtGroup]["quiet"]
-		//}
-		//if _, ok := root.allFlags[SysMgmtGroup]["debug"]; !ok {
-		//	ff := &Flag{
-		//		BaseOpt: BaseOpt{
-		//			Short:       "D",
-		//			Full:        "debug",
-		//			Aliases:     []string{},
-		//			Description: "Get into debug mode.",
-		//			Hidden:      true,
-		//			Group:       SysMgmtGroup,
-		//			owner:       &root.Command,
-		//		},
-		//		DefaultValue: false,
-		//		EnvVars:      []string{"DEBUG"},
-		//	}
-		//	root.Flags = append(root.Flags, ff)
-		//	root.allFlags[SysMgmtGroup]["debug"] = ff
-		//	root.plainLongFlags["debug"] = root.allFlags[SysMgmtGroup]["debug"]
-		//	root.plainShortFlags["D"] = root.allFlags[SysMgmtGroup]["debug"]
-		//}
-		//if _, ok := root.allFlags[SysMgmtGroup]["debug-output"]; !ok {
-		//	ff := &Flag{
-		//		BaseOpt: BaseOpt{
-		//			Short:       "",
-		//			Full:        "debug-output",
-		//			Aliases:     []string{},
-		//			Description: "store the ~~debug outputs into file.",
-		//			Hidden:      true,
-		//			Group:       SysMgmtGroup,
-		//			owner:       &root.Command,
-		//		},
-		//		DefaultValue: "dbg.log",
-		//		EnvVars:      []string{"DEBUG_OUTPUT"},
-		//	}
-		//	root.Flags = append(root.Flags, ff)
-		//	root.allFlags[SysMgmtGroup]["debug-output"] = ff
-		//	root.plainLongFlags["debug-output"] = root.allFlags[SysMgmtGroup]["debug-output"]
-		//}
-		//if _, ok := root.allFlags[SysMgmtGroup]["env"]; !ok {
-		//	ff := &Flag{
-		//		BaseOpt: BaseOpt{
-		//			Short:       "",
-		//			Full:        "env",
-		//			Aliases:     []string{},
-		//			Description: "Dump environment info in `~~debug` mode.",
-		//			Hidden:      true,
-		//			Group:       SysMgmtGroup,
-		//			owner:       &root.Command,
-		//		},
-		//		DefaultValue: false,
-		//	}
-		//	root.Flags = append(root.Flags, ff)
-		//	root.allFlags[SysMgmtGroup]["env"] = ff
-		//	root.plainLongFlags["env"] = root.allFlags[SysMgmtGroup]["env"]
-		//}
-		//if _, ok := root.allFlags[SysMgmtGroup]["raw"]; !ok {
-		//	ff := &Flag{
-		//		BaseOpt: BaseOpt{
-		//			Short:       "",
-		//			Full:        "raw",
-		//			Aliases:     []string{},
-		//			Description: "Dump the option value in raw mode (with golang data structure, without envvar expanding).",
-		//			Hidden:      true,
-		//			Group:       SysMgmtGroup,
-		//			owner:       &root.Command,
-		//		},
-		//		DefaultValue: false,
-		//	}
-		//	root.Flags = append(root.Flags, ff)
-		//	root.allFlags[SysMgmtGroup]["raw"] = ff
-		//	root.plainLongFlags["raw"] = root.allFlags[SysMgmtGroup]["raw"]
-		//}
-		//if _, ok := root.allFlags[SysMgmtGroup]["value-type"]; !ok {
-		//	ff := &Flag{
-		//		BaseOpt: BaseOpt{
-		//			Short:       "",
-		//			Full:        "value-type",
-		//			Aliases:     []string{},
-		//			Description: "Dump the option value type.",
-		//			Hidden:      true,
-		//			Group:       SysMgmtGroup,
-		//			owner:       &root.Command,
-		//		},
-		//		DefaultValue: false,
-		//	}
-		//	root.Flags = append(root.Flags, ff)
-		//	root.allFlags[SysMgmtGroup]["value-type"] = ff
-		//	root.plainLongFlags["value-type"] = root.allFlags[SysMgmtGroup]["value-type"]
-		//}
-		//if _, ok := root.allFlags[SysMgmtGroup]["more"]; !ok {
-		//	ff := &Flag{
-		//		BaseOpt: BaseOpt{
-		//			Short:       "",
-		//			Full:        "more",
-		//			Aliases:     []string{},
-		//			Description: "Dump more info in `~~debug` mode.",
-		//			Hidden:      true,
-		//			Group:       SysMgmtGroup,
-		//			owner:       &root.Command,
-		//		},
-		//		DefaultValue: false,
-		//	}
-		//	root.Flags = append(root.Flags, ff)
-		//	root.allFlags[SysMgmtGroup]["more"] = ff
-		//	root.plainLongFlags["more"] = root.allFlags[SysMgmtGroup]["more"]
-		//}
 	}
 }
 
@@ -1118,53 +847,6 @@ func (w *ExecWorker) attachCmdrCommands(root *RootCommand) {
 			ff.Aliases = []string{"nc"}
 			ff.EnvVars = []string{"NOCOLOR", "NO_COLOR"}
 		})
-		//if _, ok := root.allFlags[SysMgmtGroup]["strict-mode"]; !ok {
-		//	ff := &Flag{
-		//		BaseOpt: BaseOpt{
-		//			Full:        "strict-mode",
-		//			Description: "strict mode for `cmdr`.",
-		//			Hidden:      true,
-		//			Group:       SysMgmtGroup,
-		//			owner:       &root.Command,
-		//		},
-		//		DefaultValue: false,
-		//		EnvVars:      []string{"STRICT"},
-		//	}
-		//	root.Flags = append(root.Flags, ff)
-		//	root.allFlags[SysMgmtGroup]["strict-mode"] = ff
-		//	root.plainLongFlags["strict-mode"] = ff
-		//}
-		//if _, ok := root.allFlags[SysMgmtGroup]["no-env-overrides"]; !ok {
-		//	ff := &Flag{
-		//		BaseOpt: BaseOpt{
-		//			Full:        "no-env-overrides",
-		//			Description: "No env var overrides for `cmdr`.",
-		//			Hidden:      true,
-		//			Group:       SysMgmtGroup,
-		//			owner:       &root.Command,
-		//		},
-		//		DefaultValue: false,
-		//	}
-		//	root.Flags = append(root.Flags, ff)
-		//	root.allFlags[SysMgmtGroup]["no-env-overrides"] = ff
-		//	root.plainLongFlags["no-env-overrides"] = ff
-		//}
-		//if _, ok := root.allFlags[SysMgmtGroup]["no-color"]; !ok {
-		//	ff := &Flag{
-		//		BaseOpt: BaseOpt{
-		//			Full:        "no-color",
-		//			Description: "No color output for `cmdr`.",
-		//			Hidden:      true,
-		//			Group:       SysMgmtGroup,
-		//			owner:       &root.Command,
-		//		},
-		//		DefaultValue: false,
-		//		EnvVars:      []string{"NOCOLOR", "NO_COLOR"},
-		//	}
-		//	root.Flags = append(root.Flags, ff)
-		//	root.allFlags[SysMgmtGroup]["no-color"] = ff
-		//	root.plainLongFlags["no-color"] = ff
-		//}
 	}
 }
 

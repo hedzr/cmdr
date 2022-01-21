@@ -652,6 +652,34 @@ Re-login to enable the new bash completion script.
 //
 //
 
+func genManualForCommand(cmd *Command) (fn string, err error) {
+	painter := newManPainter()
+	w := internalGetWorker()
+	prefix := strings.Join(append(w.rxxtPrefixes, "generate.manual"), ".")
+	dir := GetStringP(prefix, "dir")
+	if err = EnsureDir(dir); err != nil {
+		return
+	}
+
+	fn = cmd.root.AppName
+	if !cmd.IsRoot() {
+		cmds := replaceAll(w.backtraceCmdNames(cmd, false), ".", "-")
+		// if cmds == "generate" {
+		// 	cmds += ""
+		// }
+		if len(cmds) > 0 {
+			fn += "-" + cmds
+		}
+	}
+	fn = fmt.Sprintf("%s/%v.1", dir, fn)
+
+	w.paintFromCommand(painter, cmd, false)
+	if err = ioutil.WriteFile(fn, painter.Results(), 0644); err == nil {
+		log.Printf("%q generated...", fn)
+	}
+	return
+}
+
 func genManual(command *Command, args []string) (err error) {
 	w := internalGetWorker()
 	painter := newManPainter()

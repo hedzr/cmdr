@@ -1095,8 +1095,10 @@ func (s *Options) Reset() {
 	s.rw.Lock()
 
 	s.entries = nil
+	s.hierarchy = nil
 	time.Sleep(100 * time.Millisecond)
 	s.entries = make(map[string]interface{})
+	s.hierarchy = make(map[string]interface{})
 }
 
 func mx(pre, k string) string {

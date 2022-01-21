@@ -14,6 +14,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -681,7 +682,21 @@ func AsYaml() (b []byte) {
 func AsYamlExt() (b []byte, err error) {
 	obj := internalGetWorker().rxxtOptions.GetHierarchyList()
 	defer handleSerializeError(&err)
-	b, err = yaml.Marshal(obj)
+
+	var sb strings.Builder
+	e := yaml.NewEncoder(&sb)
+	e.SetIndent(2)
+	err = e.Encode(obj)
+	if err != nil {
+		return nil, err
+	}
+	err = e.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	b = []byte(sb.String())
+	// b, err = yaml.Marshal(obj)
 	return
 }
 

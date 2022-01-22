@@ -750,7 +750,7 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 			if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
 				w._boolFlgAdd(root, "man", "show help screen in manpage format (INSTALL NEEDED!)", func(ff *Flag) {
 					ff.Action = func(cmd *Command, args []string) (err error) {
-						str := strings.ReplaceAll(w.backtraceCmdNames(cmd, false), ".", "-")
+						str := strings.ReplaceAll(backtraceCmdNames(cmd, false), ".", "-")
 						if !cmd.IsRoot() {
 							str = cmd.root.Name + "-" + str
 						}
@@ -1056,7 +1056,7 @@ func (w *ExecWorker) _buildCrossRefs(cmd *Command) {
 		w._buildCrossRefsForFlag(flg, cmd, singleFlagNames, stringFlagNames)
 
 		// opt.Children[flg.Full] = &OptOne{Value: flg.DefaultValue,}
-		w.rxxtOptions.Set(w.backtraceFlagNames(flg), flg.DefaultValue)
+		w.rxxtOptions.Set(backtraceFlagNames(flg), flg.DefaultValue)
 	}
 
 	for _, cx := range cmd.SubCommands {
@@ -1065,7 +1065,7 @@ func (w *ExecWorker) _buildCrossRefs(cmd *Command) {
 		w._buildCrossRefsForCommand(cx, cmd, singleCmdNames, stringCmdNames)
 		// opt.Children[cx.Full] = newOpt()
 
-		w.rxxtOptions.Set(w.backtraceCmdNames(cx, false), nil)
+		w.rxxtOptions.Set(backtraceCmdNames(cx, false), nil)
 		// buildCrossRefs(cx, opt.Children[cx.Full])
 		w._buildCrossRefs(cx)
 	}
@@ -1080,7 +1080,7 @@ func (w *ExecWorker) _buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagN
 
 	for _, sz := range flg.Aliases {
 		if _, ok := stringFlagNames[sz]; ok {
-			ferr("\nNOTE: flag alias name '%v' has been used. (command: %v)", sz, w.backtraceCmdNames(cmd, false))
+			ferr("\nNOTE: flag alias name '%v' has been used. (command: %v)", sz, backtraceCmdNames(cmd, false))
 		} else {
 			stringFlagNames[sz] = true
 		}
@@ -1106,21 +1106,21 @@ func (w *ExecWorker) _buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagN
 func (w *ExecWorker) forFlagNames(flg *Flag, cmd *Command, singleFlagNames, stringFlagNames map[string]bool) {
 	if len(flg.Short) != 0 {
 		if _, ok := singleFlagNames[flg.Short]; ok {
-			ferr("\nNOTE: flag char '%v' has been used. (command: %v)", flg.Short, w.backtraceCmdNames(cmd, false))
+			ferr("\nNOTE: flag char '%v' has been used. (command: %v)", flg.Short, backtraceCmdNames(cmd, false))
 		} else {
 			singleFlagNames[flg.Short] = true
 		}
 	}
 	if len(flg.Full) != 0 {
 		if _, ok := stringFlagNames[flg.Full]; ok {
-			ferr("\nNOTE: flag '%v' has been used. (command: %v)", flg.Full, w.backtraceCmdNames(cmd, false))
+			ferr("\nNOTE: flag '%v' has been used. (command: %v)", flg.Full, backtraceCmdNames(cmd, false))
 		} else {
 			stringFlagNames[flg.Full] = true
 		}
 	}
 	if len(flg.Short) == 0 && len(flg.Full) == 0 && len(flg.Name) != 0 {
 		if _, ok := stringFlagNames[flg.Name]; ok {
-			ferr("\nNOTE: flag '%v' has been used. (command: %v)", flg.Name, w.backtraceCmdNames(cmd, false))
+			ferr("\nNOTE: flag '%v' has been used. (command: %v)", flg.Name, backtraceCmdNames(cmd, false))
 		} else {
 			stringFlagNames[flg.Name] = true
 		}
@@ -1260,7 +1260,7 @@ func (w *ExecWorker) _buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames,
 	for _, sz := range cx.Aliases {
 		if len(sz) != 0 {
 			if _, ok := stringCmdNames[sz]; ok {
-				ferr("\nNOTE: command alias name '%v' has been used. (command: %v)", sz, w.backtraceCmdNames(cmd, false))
+				ferr("\nNOTE: command alias name '%v' has been used. (command: %v)", sz, backtraceCmdNames(cmd, false))
 			} else {
 				stringCmdNames[sz] = true
 			}
@@ -1282,21 +1282,21 @@ func (w *ExecWorker) _buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames,
 func (w *ExecWorker) forCommandNames(cx, cmd *Command, singleCmdNames, stringCmdNames map[string]bool) {
 	if len(cx.Short) != 0 {
 		if _, ok := singleCmdNames[cx.Short]; ok {
-			ferr("\nNOTE: command char '%v' has been used. (command: %v)", cx.Short, w.backtraceCmdNames(cmd, false))
+			ferr("\nNOTE: command char '%v' has been used. (command: %v)", cx.Short, backtraceCmdNames(cmd, false))
 		} else {
 			singleCmdNames[cx.Short] = true
 		}
 	}
 	if len(cx.Full) != 0 {
 		if _, ok := stringCmdNames[cx.Full]; ok {
-			ferr("\nNOTE: command '%v' has been used. (command: %v)", cx.Full, w.backtraceCmdNames(cmd, false))
+			ferr("\nNOTE: command '%v' has been used. (command: %v)", cx.Full, backtraceCmdNames(cmd, false))
 		} else {
 			stringCmdNames[cx.Full] = true
 		}
 	}
 	if len(cx.Short) == 0 && len(cx.Full) == 0 && len(cx.Name) != 0 {
 		if _, ok := stringCmdNames[cx.Name]; ok {
-			ferr("\nNOTE: command '%v' has been used. (command: %v)", cx.Name, w.backtraceCmdNames(cmd, false))
+			ferr("\nNOTE: command '%v' has been used. (command: %v)", cx.Name, backtraceCmdNames(cmd, false))
 		} else {
 			stringCmdNames[cx.Name] = true
 		}
@@ -1307,14 +1307,68 @@ func (w *ExecWorker) forCommandNames(cx, cmd *Command, singleCmdNames, stringCmd
 func (w *ExecWorker) buildToggleGroup(tg string, cmd *Command) {
 	for _, f := range cmd.Flags {
 		if tg == f.ToggleGroup && f.DefaultValue == true {
-			w.rxxtOptions.Set(w.backtraceFlagNames(f), true)
-			w.rxxtOptions.Set(w.backtraceCmdNames(cmd, false)+"."+tg, f.Full)
+			w.rxxtOptions.Set(backtraceFlagNames(f), true)
+			w.rxxtOptions.Set(backtraceCmdNames(cmd, false)+"."+tg, f.Full)
 			break
 		}
 	}
 }
 
-func (w *ExecWorker) backtraceFlagNames(flg *Flag) (str string) {
+func dottedPathToCommand(dottedPath string, anyCmd *Command) (cc *Command) {
+	if anyCmd != nil {
+		if rc := anyCmd.root; rc != nil {
+			var c = &rc.Command
+			if err := walkFromCommand(c, 0, 0,
+				func(cmd *Command, index, level int) (err error) {
+					if cmd.GetDottedNamePath() == dottedPath {
+						cc, err = cmd, ErrShouldBeStopException
+					}
+					return
+				}); err == nil && cc != nil {
+				return
+			}
+		}
+	}
+	return
+}
+
+func dottedPathToCommandOrFlag(dottedPath string, anyCmd *Command) (cc *Command, ff *Flag) {
+	if anyCmd != nil {
+		if rc := anyCmd.root; rc != nil {
+			var c = &rc.Command
+			if err := walkFromCommand(c, 0, 0,
+				func(cmd *Command, index, level int) (err error) {
+					kp := cmd.GetDottedNamePath()
+
+					if kp == dottedPath {
+						cc, err = cmd, ErrShouldBeStopException
+						return
+					}
+
+					if strings.HasPrefix(dottedPath, kp) {
+						parts := strings.TrimPrefix(dottedPath, kp)
+						if !strings.Contains(parts, ".") {
+							// try matching flags in this command
+							for _, f := range cmd.Flags {
+								if parts == f.Full {
+									ff, err = f, ErrShouldBeStopException
+									return
+								}
+							}
+						}
+					}
+					return
+				}); err == nil && cc != nil {
+				return
+			}
+		}
+	}
+	return
+}
+
+// func (w *ExecWorker) backtraceFlagNames(flg *Flag) (str string) { return backtraceFlagNames(flg) }
+
+func backtraceFlagNames(flg *Flag) (str string) {
 	var a []string
 	a = append(a, flg.Full)
 	for p := flg.owner; p != nil && p.owner != nil; {
@@ -1343,7 +1397,7 @@ func (w *ExecWorker) backtraceFlagNames(flg *Flag) (str string) {
 // - if verboseLast = true,  got 'microservices.tags.[ls|list|l|lst|dir]'.
 //
 // - at root command, it returns 'appName' or '' when verboseLast is true.
-func (w *ExecWorker) backtraceCmdNames(cmd *Command, verboseLast bool) (str string) {
+func backtraceCmdNames(cmd *Command, verboseLast bool) (str string) {
 	var a []string
 	if verboseLast {
 		va := cmd.GetTitleNamesArray()

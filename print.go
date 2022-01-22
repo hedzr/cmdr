@@ -272,7 +272,7 @@ func (w *ExecWorker) printHelpUsages(p Painter, command *Command) {
 			}
 		}
 
-		cmds := replaceAll(w.backtraceCmdNames(command, true), ".", " ")
+		cmds := replaceAll(backtraceCmdNames(command, true), ".", " ")
 		if len(cmds) > 0 {
 			cmds += " "
 		}
@@ -693,7 +693,8 @@ func (w *ExecWorker) showVersion() {
 %v
 %v
 %v
-%v`, conf.Version, conf.AppName, conf.Buildstamp, conf.Githash, conf.GoVersion)
+%v
+%v`, conf.Version, conf.AppName, conf.Buildstamp, conf.Githash, conf.GoVersion, conf.GitSummary)
 }
 
 func (w *ExecWorker) showBuildInfo() {
@@ -716,5 +717,7 @@ func (w *ExecWorker) showBuildInfo() {
 	fp(`
        Built by: %v
 Build Timestamp: %v
-        Githash: %v`, conf.GoVersion, ts, conf.Githash)
+        Githash: %v
+    Git Summary: %v
+`, conf.GoVersion, ts, conf.Githash, conf.GitSummary)
 }

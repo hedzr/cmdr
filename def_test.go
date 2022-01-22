@@ -328,8 +328,8 @@ func TestTreeDump(t *testing.T) {
 	cmdr.Set("no-watch-conf-dir", true)
 
 	for _, args := range [][]string{
-		{"consul-tags", "--tree"},
-		{"consul-tags", "--no-color", "--tree"},
+		{"consul-tags", "~~tree"},
+		{"consul-tags", "--no-color", "~~tree"},
 	} {
 		os.Args = args
 		// cmdr.SetInternalOutputStreams(nil, nil)

@@ -49,7 +49,7 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.9.10 (WIP)
+- v1.10.0 (WIP)
   - fix: toggle-group key not sync while set via envvar
   - imp: speed up by extracting a re compiling code
   - imp: upgrade deps with more enh-helpers from [hedzr/log](https://github.com/hedzr/log)
@@ -57,14 +57,18 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - imp: StripOrderPrefix
   - imp/fix: sync debug/trace mode back to hedzr/log
   - fix: options after tail args (positional args) might be ignored
-  - fix: ResetOptions
-  - fea: added Checkpoints on Option Store
-    you may save and restore multiple checkpoints for cmdr Option Store, so that some temporary changes can be made.
-  - fix/imp: --man crash if manpages not installed - the responding manpage will be generated temporarily and instantly now
-  - add GitSummary field into conf package
+  - fix: ResetOptions not clean up internal hierarchy-list
+  - fea: added `Checkpoints` on _Option Store_  
+    you may save and restore multiple checkpoints for cmdr _Option Store_, so that some temporary changes can be made.
+  - fix/imp: `--man` crashes if manpages not installed - the responding manpage will be generated temporarily and instantly now
+  - add `GitSummary` field into conf package
   - imp: speed up by reduce get worker
     - centralize rxxtOptions to store()
     - flatten backtrace(Flg|Cmd)Names, added dottedPathToCommand
+  - **NOTE**: _the phrase wrapped by backtick(````) in `Description` field will be extracted as `DefaultValuePlaceholder` field automatically, so **beware** this feature._
+  - fea: `-vv` (dup `-v` more than once) will print the hidden commands & flags in help screen NOW.  
+    To take a sight of running `fluent generate --help --verbose -verbose`.
+  - 
 
 - v1.9.9
   - improved: prevent `sent to closed channel` defensively

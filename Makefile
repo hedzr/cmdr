@@ -23,6 +23,7 @@ GOFILES      =  $(wildcard *.go)
 SRCS         =  $(shell git ls-files '*.go')
 PKGS         =  $(shell go list ./...)
 GIT_VERSION  := $(shell git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+GIT_SUMMARY  := $(shell git describe --tags --dirty --always)
 GIT_REVISION := $(shell git rev-parse --short HEAD)
 #GITHASH     =  $(shell git rev-parse HEAD)
 #BUILDTIME   := $(shell date "+%Y%m%d_%H%M%S")
@@ -49,13 +50,19 @@ MAKEFLAGS += --silent
 
 
 goarch=amd64
+#goarch=$(shell go env GOARCH)
+#goos=$(shell go env GOOS)
 W_PKG=github.com/hedzr/cmdr/conf
 LDFLAGS := -s -w \
 	-X '$(W_PKG).Buildstamp=$(BUILDTIME)' \
 	-X '$(W_PKG).Githash=$(GIT_REVISION)' \
+	-X '$(W_PKG).GitSummary=$(GIT_SUMMARY)' \
 	-X '$(W_PKG).GoVersion=$(GOVERSION)' \
 	-X '$(W_PKG).Version=$(VERSION)'
 # -X '$(W_PKG).AppName=$(APPNAME)'
+GOSYS := GOARCH="$(goarch)" GOOS="$(os)" \
+	GOPATH="$(GOPATH)" GOBIN="$(BIN)" \
+	GO111MODULE=auto GOPROXY=$(GOPROXY) go
 GO := GOARCH="$(goarch)" GOOS="$(os)" \
 	GOPATH="$(GOPATH)" GOBIN="$(GOBIN)" \
 	GO111MODULE=on GOPROXY=$(GOPROXY) go
@@ -130,6 +137,7 @@ endif
 #  const goosList = "aix android darwin dragonfly freebsd hurd illumos js linux nacl netbsd openbsd plan9 solaris windows zos "
 #  const goarchList = "386 amd64 amd64p32 arm armbe arm64 arm64be ppc64 ppc64le mips mipsle mips64 mips64le mips64p32 mips64p32le ppc riscv riscv64 s390 s390x sparc sparc64 wasm "
 #©
+# `go tool dist list`
 
 
 ## build: Compile the binary. Synonym of `compile`

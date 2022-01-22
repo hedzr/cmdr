@@ -24,6 +24,9 @@ var (
 	// it'll be rewritten by build-arg.
 	GoVersion = ""
 
+	// GitSummary holds the output of git describe --tags --dirty --always
+	GitSummary = ""
+
 	// GitShortVersion from `git describe --long`. [NEVER USED]
 	GitShortVersion = ""
 	// ServerTag app server tag names.[NEVER USED]

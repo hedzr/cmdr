@@ -130,12 +130,14 @@ jobs:
       - name: Build for releases
         run: |
           export GIT_REVISION="$(git rev-parse --short HEAD)"
+          export GIT_SUMMARY="$(git describe --tags --dirty --always)"
           export GOVERSION="$(go version)"
           export BUILDTIME="$(date -u '+%Y-%m-%d_%H-%M-%S')"
           export VERSION="$(grep -E "Version[ \t]+=[ \t]+" doc.go|grep -Eo "[0-9.]+")"
           export W_PKG="github.com/hedzr/cmdr/conf"
           export LDFLAGS="-s -w \
             -X '$W_PKG.Githash=$GIT_REVISION' \
+            -X '$W_PKG.GitSummary=$GIT_SUMMARY' \
             -X '$W_PKG.GoVersion=$GOVERSION' \
             -X '$W_PKG.Buildstamp=$BUILDTIME' \
             -X '$W_PKG.Version=$VERSION'"

@@ -146,6 +146,11 @@ func (c *Command) GetDottedNamePath() string {
 	return backtraceCmdNames(c, false)
 }
 
+// GetTriggeredTimes returns the matched times
+func (c *Command) GetTriggeredTimes() int {
+	return c.times
+}
+
 // GetQuotedGroupName returns the group name quoted string.
 func (c *Command) GetQuotedGroupName() string {
 	if len(strings.TrimSpace(c.Group)) == 0 {

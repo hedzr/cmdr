@@ -122,6 +122,10 @@ type (
 		// Shell is just for importing from a file.
 		// invoke a command under this shell, or /usr/bin/env bash|zsh|...
 		Shell string `yaml:"shell,omitempty" json:"shell,omitempty"`
+
+		// times how many times this flag was triggered.
+		// To access it with `Command.GetTriggeredTimes()`, or `cmdr.GetHitCountByDottedPath()`.
+		times int
 	}
 
 	// RootCommand holds some application information
@@ -190,7 +194,8 @@ type (
 		onSet func(keyPath string, value interface{})
 
 		// times how many times this flag was triggered.
-		// To access it with `Flag.GetTriggeredTimes()`.
+		// To access it with `Flag.GetTriggeredTimes()`, `cmdr.GetFlagHitCount()`,
+		// `cmdr.GetFlagHitCountRecursively()` or `cmdr.GetHitCountByDottedPath()`.
 		times int
 
 		// actionStr: for zsh completion, see action of an optspec in _argument
@@ -306,6 +311,12 @@ var (
 	//
 	// currentHelpPainter Painter
 
+	// CurrentHiddenColor the print color for left part of a hidden opt
+	CurrentHiddenColor = FgDarkGray
+
+	// CurrentDeprecatedColor the print color for deprecated opt line
+	CurrentDeprecatedColor = FgDarkGray
+
 	// CurrentDescColor the print color for description line
 	CurrentDescColor = FgDarkGray
 	// CurrentDefaultValueColor the print color for default value line
@@ -410,9 +421,55 @@ func GetQuietMode() bool {
 	return GetBoolR("quiet")
 }
 
-// GetNoColorMode return the flag value of `--no-color`
+// GetNoColorMode return the flag value of `--no-color`/`-nc`
 func GetNoColorMode() bool {
 	return GetBoolR("no-color")
+}
+
+// GetVerboseModeHitCount returns how many times `--verbose`/`-v` specified
+func GetVerboseModeHitCount() int { return GetFlagHitCount("verbose") }
+
+// GetQuietModeHitCount returns how many times `--quiet`/`-q` specified
+func GetQuietModeHitCount() int { return GetFlagHitCount("quiet") }
+
+// GetNoColorModeHitCount returns how many times `--no-color`/`-nc` specified
+func GetNoColorModeHitCount() int { return GetFlagHitCount("no-color") }
+
+// GetDebugModeHitCount returns how many times `--debug`/`-D` specified
+func GetDebugModeHitCount() int { return GetFlagHitCount("debug") }
+
+// GetTraceModeHitCount returns how many times `--trace`/`-tr` specified
+func GetTraceModeHitCount() int { return GetFlagHitCount("trace") }
+
+// GetFlagHitCount return how manu times a top-level Flag was specified from command-line.
+func GetFlagHitCount(longName string) int {
+	w := internalGetWorker()
+	if f := w.rootCommand.FindFlag(longName); f != nil {
+		return f.times
+	}
+	return 0
+}
+
+// GetFlagHitCountRecursively return how manu times a Flag was specified from command-line.
+// longName will be search recursively.
+func GetFlagHitCountRecursively(longName string) int {
+	w := internalGetWorker()
+	if f := w.rootCommand.FindFlagRecursive(longName); f != nil {
+		return f.times
+	}
+	return 0
+}
+
+// GetHitCountByDottedPath return how manu times a Flag or a Command was specified from command-line.
+func GetHitCountByDottedPath(dottedPath string) int {
+	c, f := dottedPathToCommandOrFlag(dottedPath, nil)
+	if c != nil {
+		return c.times
+	}
+	if f != nil {
+		return f.times
+	}
+	return 0
 }
 
 // func init() {

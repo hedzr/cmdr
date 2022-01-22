@@ -763,7 +763,7 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 						}
 						return ErrShouldBeStopException
 					}
-					ff.Hidden = false
+					//ff.Hidden = false
 					//ff.dblTildeOnly = true
 				})
 			}
@@ -808,10 +808,12 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 			ff.Short = "v"
 			ff.EnvVars = []string{"VERBOSE"}
 		})
+
 		w._boolFlgAdd(root, "quiet", "No more screen output", func(ff *Flag) {
 			ff.Short = "q"
 			ff.EnvVars = []string{"QUIET", "SILENT"}
 		})
+
 		w._boolFlgAdd(root, "debug", "Get into debug mode.", func(ff *Flag) {
 			ff.Short = "D"
 			ff.EnvVars = []string{"DEBUG"}
@@ -822,7 +824,11 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 		})
 
 		mutualExclusives := []string{"raw", "value-type", "more", "env"}
-		w._boolFlgAdd(root, "env", "Dump environment info in `~~debug` mode.", func(ff *Flag) {
+		w._boolFlgAdd(root, "env", "Dump environment info in '~~debug' mode.", func(ff *Flag) {
+			ff.prerequisites = []string{"debug"}
+			ff.mutualExclusives = mutualExclusives
+		})
+		w._boolFlgAdd(root, "more", "Dump more info in '~~debug' mode.", func(ff *Flag) {
 			ff.prerequisites = []string{"debug"}
 			ff.mutualExclusives = mutualExclusives
 		})
@@ -834,20 +840,16 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 			ff.prerequisites = []string{"debug"}
 			ff.mutualExclusives = mutualExclusives
 		})
-		w._boolFlgAdd(root, "more", "Dump more info in `~~debug` mode.", func(ff *Flag) {
-			ff.prerequisites = []string{"debug"}
-			ff.mutualExclusives = mutualExclusives
-		})
 	}
 }
 
 func (w *ExecWorker) attachCmdrCommands(root *RootCommand) {
 	if w.enableCmdrCommands {
-		w._boolFlgAdd(root, "strict-more", "strict mode for `cmdr`.", func(ff *Flag) {
+		w._boolFlgAdd(root, "strict-more", "strict mode for 'cmdr'.", func(ff *Flag) {
 			ff.EnvVars = []string{"STRICT"}
 		})
-		w._boolFlgAdd(root, "no-env-overrides", "No env var overrides for `cmdr`.", nil)
-		w._boolFlgAdd(root, "no-color", "No color output for `cmdr`.", func(ff *Flag) {
+		w._boolFlgAdd(root, "no-env-overrides", "No env var overrides for 'cmdr'.", nil)
+		w._boolFlgAdd(root, "no-color", "No color output for 'cmdr'.", func(ff *Flag) {
 			ff.Short = "nc"
 			ff.Aliases = []string{"nc"}
 			ff.EnvVars = []string{"NOCOLOR", "NO_COLOR"}
@@ -936,12 +938,12 @@ $ {{.AppName}} gen pdf
 					w._boolFlgAdd1(cx, "fish", "generate auto completion script for Fish", func(ff *Flag) {
 						ff.Short = "f"
 						ff.ToggleGroup = "ShellType"
-						ff.Hidden = false
+						// ff.Hidden = true
 					})
 					w._boolFlgAdd1(cx, "powershell", "generate auto completion script for Powershell", func(ff *Flag) {
 						ff.Short = "p"
 						ff.ToggleGroup = "ShellType"
-						ff.Hidden = false
+						//ff.Hidden = true
 					})
 				})
 				w._cmdAdd1(cx1, "manual", "generate linux man page.", func(cx *Command) {
@@ -962,7 +964,8 @@ $ {{.AppName}} gen pdf
 					cx.Short = "d"
 					cx.Aliases = []string{"pdf", "docx", "tex", "markdown"}
 					cx.Action = genDoc
-					cx.Hidden = false
+					cx.Hidden = true
+					cx.Deprecated = "1.9.9"
 
 					w._stringFlgAdd1(cx, "dir", "the output directory", func(ff *Flag) {
 						ff.Short = "d"
@@ -976,22 +979,22 @@ $ {{.AppName}} gen pdf
 						ff.Aliases = []string{"mkd", "m"}
 						ff.ToggleGroup = "DocType"
 						ff.DefaultValue = true
-						ff.Hidden = false
+						//ff.Hidden = true
 					})
 					w._boolFlgAdd1(cx, "pdf", "to generate a PDF file", func(ff *Flag) {
 						ff.Short = "p"
 						ff.ToggleGroup = "DocType"
-						ff.Hidden = false
+						//ff.Hidden = true
 					})
 					w._boolFlgAdd1(cx, "docx", "to generate a Word (.docx) file", func(ff *Flag) {
 						ff.Aliases = []string{"doc"}
 						ff.ToggleGroup = "DocType"
-						ff.Hidden = false
+						//ff.Hidden = true
 					})
 					w._boolFlgAdd1(cx, "tex", "to generate a LaTeX file", func(ff *Flag) {
 						ff.Short = "t"
 						ff.ToggleGroup = "DocType"
-						ff.Hidden = false
+						//ff.Hidden = true
 					})
 				})
 			})
@@ -1287,55 +1290,65 @@ func (w *ExecWorker) buildToggleGroup(tg string, cmd *Command) {
 	}
 }
 
+// dottedPathToCommand searches the matched Command with the specified dotted-path.
+// The searching will start from root if anyCmd is nil.
 func dottedPathToCommand(dottedPath string, anyCmd *Command) (cc *Command) {
-	if anyCmd != nil {
-		if rc := anyCmd.root; rc != nil {
-			var c = &rc.Command
-			if err := walkFromCommand(c, 0, 0,
-				func(cmd *Command, index, level int) (err error) {
-					if cmd.GetDottedNamePath() == dottedPath {
-						cc, err = cmd, ErrShouldBeStopException
-					}
-					return
-				}); err == nil && cc != nil {
+	if anyCmd == nil {
+		anyCmd = &internalGetWorker().rootCommand.Command
+	}
+
+	if rc := anyCmd.root; rc != nil {
+		var c = &rc.Command
+		if err := walkFromCommand(c, 0, 0,
+			func(cmd *Command, index, level int) (err error) {
+				if cmd.GetDottedNamePath() == dottedPath {
+					cc, err = cmd, ErrShouldBeStopException
+				}
 				return
-			}
+			}); err == nil && cc != nil {
+			return
 		}
 	}
+
 	return
 }
 
+// dottedPathToCommandOrFlag searches the matched Command or Flag with the specified dotted-path.
+// The searching will start from root if anyCmd is nil.
 func dottedPathToCommandOrFlag(dottedPath string, anyCmd *Command) (cc *Command, ff *Flag) {
-	if anyCmd != nil {
-		if rc := anyCmd.root; rc != nil {
-			var c = &rc.Command
-			if err := walkFromCommand(c, 0, 0,
-				func(cmd *Command, index, level int) (err error) {
-					kp := cmd.GetDottedNamePath()
+	if anyCmd == nil {
+		anyCmd = &internalGetWorker().rootCommand.Command
+	}
 
-					if kp == dottedPath {
-						cc, err = cmd, ErrShouldBeStopException
-						return
-					}
+	if rc := anyCmd.root; rc != nil {
+		var c = &rc.Command
+		if err := walkFromCommand(c, 0, 0,
+			func(cmd *Command, index, level int) (err error) {
+				kp := cmd.GetDottedNamePath()
 
-					if strings.HasPrefix(dottedPath, kp) {
-						parts := strings.TrimPrefix(dottedPath, kp)
-						if !strings.Contains(parts, ".") {
-							// try matching flags in this command
-							for _, f := range cmd.Flags {
-								if parts == f.Full {
-									ff, err = f, ErrShouldBeStopException
-									return
-								}
+				if kp == dottedPath {
+					cc, err = cmd, ErrShouldBeStopException
+					return
+				}
+
+				if strings.HasPrefix(dottedPath, kp) {
+					parts := strings.TrimPrefix(dottedPath, kp)
+					if !strings.Contains(parts, ".") {
+						// try matching flags in this command
+						for _, f := range cmd.Flags {
+							if parts == f.Full {
+								ff, err = f, ErrShouldBeStopException
+								return
 							}
 						}
 					}
-					return
-				}); err == nil && cc != nil {
+				}
 				return
-			}
+			}); err == nil && cc != nil {
+			return
 		}
 	}
+
 	return
 }
 

@@ -223,7 +223,7 @@ func (w *ExecWorker) checkPrerequisites(pkg *ptpkg) (err error) {
 		for _, longTitleOrDottedPath := range pkg.flg.prerequisites {
 			var cc *Command
 			if strings.Contains(longTitleOrDottedPath, ",") {
-				cc = dottedPathToCommand(longTitleOrDottedPath, pkg.flg.owner)
+				cc = dottedPathToCommand(longTitleOrDottedPath, nil)
 			}
 			if cc != nil {
 				if err = w.checkPrerequisitesForCmd(cc, pkg); err != nil {

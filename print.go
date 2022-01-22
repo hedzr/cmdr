@@ -11,6 +11,7 @@ import (
 	"github.com/hedzr/cmdr/tool"
 	"io"
 	"os"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -391,6 +392,17 @@ func getTextPiece(str string, start, want int) string {
 	return out.String()
 }
 
+func isTtyEscaped(s string) bool {
+	return strings.Contains(s, "\x1b[")
+}
+
+var reStripEscapes = regexp.MustCompile(`\x1b\[[0-9,;]+m`)
+
+func stripEscapes(str string) (strCleaned string) {
+	strCleaned = reStripEscapes.ReplaceAllString(str, "")
+	return
+}
+
 func (w *ExecWorker) prCommands(p Painter, command *Command, s1 []aSection, maxL, cols int) {
 	if len(s1) > 0 {
 		p.FpCommandsTitle(command)
@@ -398,8 +410,16 @@ func (w *ExecWorker) prCommands(p Painter, command *Command, s1 []aSection, maxL
 			p.FpCommandsGroupTitle(s.title)
 			fmtStrL, fmtStrR, fmtStrMR := fmt.Sprintf("%%-%dv", maxL+2), "%v\n", fmt.Sprintf("%%%dv%%v\n", maxL+2)
 			for i, l := range s.bufLL {
-				p.Print(fmtStrL, l.String())
-				str := s.bufLR[i].String()
+				str := l.String()
+				if isTtyEscaped(str) {
+					strCleaned := stripEscapes(str)
+					fl := fmt.Sprintf("%%-%dv", maxL+2+(len(str)-len(strCleaned)))
+					p.Print(fl, l.String())
+				} else {
+					p.Print(fmtStrL, l.String())
+				}
+
+				str = s.bufLR[i].String()
 				// if len(str) > cols {
 				ww := maxL + 2
 				s2w := cols - ww
@@ -435,8 +455,16 @@ func (w *ExecWorker) prFlags(p Painter, command *Command, s2 []aGroupedSections,
 
 				fmtStrL, fmtStrR, fmtStrMR := fmt.Sprintf("%%-%dv", maxL+2), "%v\n", fmt.Sprintf("%%%dv%%v\n", maxL+2)
 				for i, l := range s.bufLL {
-					p.Print(fmtStrL, l.String())
-					str := s.bufLR[i].String()
+					str := l.String()
+					if isTtyEscaped(str) {
+						strCleaned := stripEscapes(str)
+						fl := fmt.Sprintf("%%-%dv", maxL+2+(len(str)-len(strCleaned)))
+						p.Print(fl, l.String())
+					} else {
+						p.Print(fmtStrL, l.String())
+					}
+
+					str = s.bufLR[i].String()
 					// if len(str) > cols {
 					ww := maxL + 2
 					s2w := cols - ww
@@ -525,7 +553,7 @@ type aGroupedSections struct {
 func countOfCommandsItems(p Painter, command *Command, justFlags bool) (count int) {
 	for _, items := range command.allCmds {
 		for _, c := range items {
-			if !c.Hidden {
+			if !c.Hidden || GetVerboseModeHitCount() > 1 {
 				count++
 			}
 		}
@@ -587,7 +615,7 @@ func getSortedKeysFromFlgMap(groups map[string]*Flag) (k3 []string) {
 func findMaxShortLength(groups map[string]*Flag) (maxShort int) {
 	for _, flg := range groups {
 		// flg := groups[nm]
-		if !flg.Hidden && maxShort < len(flg.Short) {
+		if /*!flg.Hidden &&*/ maxShort < len(flg.Short) {
 			maxShort = len(flg.Short)
 		}
 	}
@@ -597,7 +625,7 @@ func findMaxShortLength(groups map[string]*Flag) (maxShort int) {
 func countOfFlagsItems(p Painter, command *Command, justFlags bool) (count int) {
 	for _, items := range command.allFlags {
 		for _, c := range items {
-			if !c.Hidden {
+			if !c.Hidden || GetVerboseModeHitCount() > 1 {
 				count++
 			}
 		}
@@ -612,36 +640,38 @@ func printHelpFlagSectionsChild(p Painter, command *Command, groups map[string]*
 	maxShort := findMaxShortLength(groups)
 	for _, nm := range k3 {
 		flg := groups[nm]
-		if !flg.Hidden {
-			defValStr := ""
-			if flg.DefaultValue != nil {
-				if ss, ok := flg.DefaultValue.(string); ok && len(ss) > 0 {
-					if len(flg.DefaultValuePlaceholder) > 0 {
-						defValStr = fmt.Sprintf(" (default %v='%s')", flg.DefaultValuePlaceholder, ss)
-					} else {
-						defValStr = fmt.Sprintf(" (default='%s')", ss)
-					}
+		if flg.Hidden && GetVerboseModeHitCount() <= 1 {
+			continue
+		}
+
+		defValStr := ""
+		if flg.DefaultValue != nil {
+			if ss, ok := flg.DefaultValue.(string); ok && len(ss) > 0 {
+				if len(flg.DefaultValuePlaceholder) > 0 {
+					defValStr = fmt.Sprintf(" (default %v='%s')", flg.DefaultValuePlaceholder, ss)
 				} else {
-					if len(flg.DefaultValuePlaceholder) > 0 {
-						defValStr = fmt.Sprintf(" (default %v=%v)", flg.DefaultValuePlaceholder, flg.DefaultValue)
-					} else {
-						defValStr = fmt.Sprintf(" (default=%v)", flg.DefaultValue)
-					}
+					defValStr = fmt.Sprintf(" (default='%s')", ss)
+				}
+			} else {
+				if len(flg.DefaultValuePlaceholder) > 0 {
+					defValStr = fmt.Sprintf(" (default %v=%v)", flg.DefaultValuePlaceholder, flg.DefaultValue)
+				} else {
+					defValStr = fmt.Sprintf(" (default=%v)", flg.DefaultValue)
 				}
 			}
-			bufL, bufR := p.FpFlagsLine(command, flg, maxShort, defValStr)
-			section.bufLL, section.bufLR = append(section.bufLL, bufL), append(section.bufLR, bufR)
-			if section.maxL < bufL.Len() {
-				section.maxL = bufL.Len()
-			}
-			if section.maxR < bufR.Len() {
-				section.maxR = bufR.Len()
-			}
-			if flg.ToggleGroup != "" {
-				section.isToggleGroup = true
-			}
-			// fp("  %-48s%v%s", flg.GetTitleFlagNames(), flg.Description, defValStr)
 		}
+		bufL, bufR := p.FpFlagsLine(command, flg, maxShort, defValStr)
+		section.bufLL, section.bufLR = append(section.bufLL, bufL), append(section.bufLR, bufR)
+		if section.maxL < bufL.Len() {
+			section.maxL = bufL.Len()
+		}
+		if section.maxR < bufR.Len() {
+			section.maxR = bufR.Len()
+		}
+		if flg.ToggleGroup != "" {
+			section.isToggleGroup = true
+		}
+		// fp("  %-48s%v%s", flg.GetTitleFlagNames(), flg.Description, defValStr)
 	}
 	return
 }

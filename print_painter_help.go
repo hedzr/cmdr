@@ -124,26 +124,43 @@ func (s *helpPainter) FpCommandsGroupTitle(group string) {
 }
 
 func (s *helpPainter) FpCommandsLine(command *Command) (bufL, bufR bytes.Buffer) {
-	if !command.Hidden {
-		if len(command.Deprecated) > 0 {
-			if GetNoColorMode() {
-				s.bufPrintf(&bufL, fmtCmdlineDepNCL, command.GetTitleNames())
-				s.bufPrintf(&bufR, fmtCmdlineDepNCR, command.Description, command.Deprecated)
-			} else {
-				s.bufPrintf(&bufL, fmtCmdlineDepL, BgNormal, CurrentDescColor, command.GetTitleNames())
-				s.bufPrintf(&bufR, fmtCmdlineDepR, command.Description, command.Deprecated)
-			}
+	hidden := command.Hidden
+	if hidden && GetVerboseModeHitCount() > 1 {
+		hidden = false
+	}
+	if hidden {
+		return
+	}
+
+	if len(command.Deprecated) > 0 {
+		if GetNoColorMode() {
+			s.bufPrintf(&bufL, fmtCmdlineDepNCL, command.GetTitleNames())
+			s.bufPrintf(&bufR, fmtCmdlineDepNCR, command.Description, command.Deprecated)
 		} else {
-			if GetNoColorMode() {
-				s.bufPrintf(&bufL, fmtCmdlineNCL, command.GetTitleNames())
-				s.bufPrintf(&bufR, fmtCmdlineNCR, command.Description)
+			if command.Hidden {
+				format := fmtCmdlineDepLHidden
+				s.bufPrintf(&bufL, format, BgNormal, CurrentHiddenColor, command.GetTitleNames())
 			} else {
-				// s.Printf("  %-48s%v", command.GetTitleNames(), command.Description)
-				// s.Printf("\n\x1b[%dm\x1b[%dm%s\x1b[0m", BgNormal, DarkColor, title)
-				// s.Printf("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", BgDim, DarkColor, StripOrderPrefix(group))
-				s.bufPrintf(&bufL, fmtCmdlineL, command.GetTitleNames())
-				s.bufPrintf(&bufR, fmtCmdlineR, BgNormal, CurrentDescColor, command.Description)
+				format := fmtCmdlineDepL
+				s.bufPrintf(&bufL, format, BgNormal, CurrentDeprecatedColor, command.GetTitleNames())
 			}
+			s.bufPrintf(&bufR, fmtCmdlineDepR, command.Description, command.Deprecated)
+		}
+	} else {
+		if GetNoColorMode() {
+			s.bufPrintf(&bufL, fmtCmdlineNCL, command.GetTitleNames())
+			s.bufPrintf(&bufR, fmtCmdlineNCR, command.Description)
+		} else {
+			// s.Printf("  %-48s%v", command.GetTitleNames(), command.Description)
+			// s.Printf("\n\x1b[%dm\x1b[%dm%s\x1b[0m", BgNormal, DarkColor, title)
+			// s.Printf("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", BgDim, DarkColor, StripOrderPrefix(group))
+			if command.Hidden {
+				format := fmtCmdlineLHidden
+				s.bufPrintf(&bufL, format, BgNormal, CurrentHiddenColor, command.GetTitleNames())
+			} else {
+				s.bufPrintf(&bufL, fmtCmdlineL, command.GetTitleNames())
+			}
+			s.bufPrintf(&bufR, fmtCmdlineR, BgNormal, CurrentDescColor, command.Description)
 		}
 	}
 	return
@@ -182,6 +199,14 @@ func (s *helpPainter) FpFlagsGroupTitle(group string, isToggleGroup bool) {
 }
 
 func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, defValStr string) (bufL, bufR bytes.Buffer) {
+	hidden := flg.Hidden
+	if hidden && GetVerboseModeHitCount() > 1 {
+		hidden = false
+	}
+	if hidden {
+		return
+	}
+
 	if len(flg.ValidArgs) > 0 {
 		defValStr = fmt.Sprintf("%v, in %v", defValStr, flg.ValidArgs)
 	}
@@ -210,8 +235,13 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, def
 			s.bufPrintf(&bufR, fmtFlagsDepNCR, // "  %-48s%s%s [deprecated since %v]",
 				flg.Description, envKeys, defValStr, flg.Deprecated)
 		} else {
-			s.bufPrintf(&bufL, fmtFlagsDepL, // "  \x1b[%dm\x1b[%dm%-48s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]",
-				BgNormal, CurrentDescColor, flg.GetTitleFlagNamesByMax(",", maxShort))
+			if flg.Hidden {
+				s.bufPrintf(&bufL, fmtFlagsDepLHidden,
+					BgNormal, CurrentHiddenColor, flg.GetTitleFlagNamesByMax(",", maxShort))
+			} else {
+				s.bufPrintf(&bufL, fmtFlagsDepL, // "  \x1b[%dm\x1b[%dm%-48s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]",
+					BgNormal, CurrentDeprecatedColor, flg.GetTitleFlagNamesByMax(",", maxShort))
+			}
 			s.printTGC(flg, &bufL, &bufR)
 			s.bufPrintf(&bufR, fmtFlagsDepR, // "  \x1b[%dm\x1b[%dm%-48s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]",
 				flg.Description, BgItalic, CurrentDefaultValueColor, envKeys, defValStr, flg.Deprecated)
@@ -221,8 +251,13 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, def
 			s.bufPrintf(&bufL, fmtFlagsNCL, flg.GetTitleFlagNamesByMax(",", maxShort))
 			s.bufPrintf(&bufR, fmtFlagsNCR, flg.Description, envKeys, defValStr)
 		} else {
-			s.bufPrintf(&bufL, fmtFlagsL, // "  %-48s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%s\x1b[0m",
-				flg.GetTitleFlagNamesByMax(",", maxShort))
+			if flg.Hidden {
+				s.bufPrintf(&bufL, fmtFlagsLHidden,
+					BgNormal, CurrentHiddenColor, flg.GetTitleFlagNamesByMax(",", maxShort))
+			} else {
+				s.bufPrintf(&bufL, fmtFlagsL, // "  %-48s\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%s\x1b[0m",
+					flg.GetTitleFlagNamesByMax(",", maxShort))
+			}
 			s.printTGC(flg, &bufL, &bufR)
 			s.bufPrintf(&bufR, fmtFlagsR, BgNormal, CurrentDescColor, flg.Description,
 				BgItalic, CurrentDefaultValueColor, envKeys, defValStr)
@@ -260,8 +295,10 @@ func initTabStop(ts int) {
 	fmtCmdGroupTitleNC = "  [%s]"
 
 	fmtCmdlineL = "  %-" + s + "s"
+	fmtCmdlineLHidden = "  \x1b[%dm\x1b[%dm%-" + s + "s"
 	fmtCmdlineR = "\x1b[%dm\x1b[%dm%s\x1b[0m"
 	fmtCmdlineDepL = "  \x1b[%dm\x1b[%dm%-" + s + "s"
+	fmtCmdlineDepLHidden = "  \x1b[%dm\x1b[%dm%-" + s + "s"
 	fmtCmdlineDepR = "%s\x1b[0m [deprecated since %v]"
 	fmtCmdlineNCL = "  %-" + s + "s"
 	fmtCmdlineNCR = "%s"
@@ -272,8 +309,10 @@ func initTabStop(ts int) {
 	fmtGroupTitleNC = "  [%s]"
 
 	fmtFlagsDepL = "  \x1b[%dm\x1b[%dm%-" + s + "s"
+	fmtFlagsDepLHidden = "  \x1b[%dm\x1b[%dm%-" + s + "s"
 	fmtFlagsDepR = "%s\x1b[%dm\x1b[%dm%v%s\x1b[0m [deprecated since %v]"
 	fmtFlagsL = "  %-" + s + "s"
+	fmtFlagsLHidden = "  \x1b[%dm\x1b[%dm%-" + s + "s"
 	fmtFlagsR = "\x1b[%dm\x1b[%dm%s\x1b[%dm\x1b[%dm%v%s\x1b[0m"
 	fmtFlagsNCL = "  %-" + s + "s"
 	fmtFlagsNCR = "%s%v%s"
@@ -285,18 +324,18 @@ func initTabStop(ts int) {
 }
 
 var (
-	defaultTabStop                       = 33
-	fmtCmdGroupTitle, fmtCmdGroupTitleNC string
-	fmtCmdlineL, fmtCmdlineR             string
-	fmtCmdlineDepL, fmtCmdlineDepR       string
-	fmtCmdlineNCL, fmtCmdlineNCR         string
-	fmtCmdlineDepNCL, fmtCmdlineDepNCR   string
-	fmtGroupTitle, fmtGroupTitleNC       string
-	fmtFlagsL, fmtFlagsR                 string
-	fmtFlagsDepL, fmtFlagsDepR           string
-	fmtFlagsNCL, fmtFlagsNCR             string
-	fmtFlagsDepNCL, fmtFlagsDepNCR       string
-	fmtTailLine, fmtTailLineNC           string
+	defaultTabStop                                       = 33
+	fmtCmdGroupTitle, fmtCmdGroupTitleNC                 string
+	fmtCmdlineL, fmtCmdlineLHidden, fmtCmdlineR          string
+	fmtCmdlineDepL, fmtCmdlineDepLHidden, fmtCmdlineDepR string
+	fmtCmdlineNCL, fmtCmdlineNCR                         string
+	fmtCmdlineDepNCL, fmtCmdlineDepNCR                   string
+	fmtGroupTitle, fmtGroupTitleNC                       string
+	fmtFlagsL, fmtFlagsLHidden, fmtFlagsR                string
+	fmtFlagsDepL, fmtFlagsDepLHidden, fmtFlagsDepR       string
+	fmtFlagsNCL, fmtFlagsNCR                             string
+	fmtFlagsDepNCL, fmtFlagsDepNCR                       string
+	fmtTailLine, fmtTailLineNC                           string
 )
 
 const (

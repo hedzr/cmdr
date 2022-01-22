@@ -5,6 +5,9 @@
 package cmdr
 
 import (
+	"bytes"
+	"encoding/gob"
+	"github.com/hedzr/log"
 	"gopkg.in/hedzr/errors.v2"
 	"reflect"
 	"strings"
@@ -35,6 +38,23 @@ var (
 	// StandardCopier is a normal copier
 	StandardCopier = &copierImpl{}
 )
+
+// CloneViaGob do deep-clone with gob supports
+func CloneViaGob(to, from interface{}) (err error) {
+	buff := new(bytes.Buffer)
+	enc := gob.NewEncoder(buff)
+	dec := gob.NewDecoder(buff)
+
+	err = enc.Encode(from)
+	if err != nil {
+		return
+	}
+	err = dec.Decode(to)
+	//if err != nil {
+	//	return
+	//}
+	return
+}
 
 // Clone deep copy source to target
 func Clone(fromValue, toValue interface{}) interface{} {

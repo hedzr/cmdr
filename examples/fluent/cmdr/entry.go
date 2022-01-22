@@ -3,6 +3,7 @@ package cmdr
 import (
 	"fmt"
 	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/plugin/colortable"
 	"github.com/hedzr/cmdr/plugin/pprof"
 	"github.com/hedzr/cmdr/tool"
 	"golang.org/x/crypto/ssh/terminal"
@@ -46,7 +47,8 @@ func Entry() {
 		cmdr.WithOnSwitchCharHit(onSwitchCharHit),
 		cmdr.WithOnPassThruCharHit(onPassThruCharHit),
 
-		pprof.GetCmdrProfilingOptions("cpu"),
+		pprof.WithCmdrProfilingOptionsHidden("cpu"),
+		colortable.WithColorTableCommand(),
 		optAddTraceOption,
 		optAddServerExtOption,
 	); err != nil {
@@ -351,7 +353,7 @@ func kvCommand(root cmdr.OptCmd) {
 		Description("Write output to a file (*.json / *.yml)", ``).
 		Placeholder("FILE").
 		CompletionActionStr(`*.(json|yml|yaml)`) //  \*.\(ps\|eps\)
-		// ':postscript file:_files -g \*.\(ps\|eps\)'
+	// ':postscript file:_files -g \*.\(ps\|eps\)'
 
 	kvRestoreCmd := kvCmd.NewSubCommand("restore", "r").
 		Description("restore to Consul's KV store, from a a JSON/YAML backup file", ``).

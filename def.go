@@ -196,6 +196,8 @@ type (
 		// actionStr: for zsh completion, see action of an optspec in _argument
 		actionStr string
 		// mutualExclusives is used for zsh completion.
+		//
+		// For the ToggleGroup group, mutualExclusives is implicit.
 		mutualExclusives []string
 		// prerequisites flags for this one.
 		//

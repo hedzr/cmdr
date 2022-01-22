@@ -820,18 +820,23 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 			ff.DefaultValue = "dbg.log"
 			ff.EnvVars = []string{"DEBUG_OUTPUT"}
 		})
+
+		mutualExclusives := []string{"raw", "value-type", "more", "env"}
 		w._boolFlgAdd(root, "env", "Dump environment info in `~~debug` mode.", func(ff *Flag) {
 			ff.prerequisites = []string{"debug"}
-			ff.mutualExclusives = []string{"raw", "value-type", "more", "env"}
+			ff.mutualExclusives = mutualExclusives
 		})
 		w._boolFlgAdd(root, "raw", "Dump the option value in raw mode (with golang data structure, without envvar expanding).", func(ff *Flag) {
 			ff.prerequisites = []string{"debug"}
+			ff.mutualExclusives = mutualExclusives
 		})
 		w._boolFlgAdd(root, "value-type", "Dump the option value type.", func(ff *Flag) {
 			ff.prerequisites = []string{"debug"}
+			ff.mutualExclusives = mutualExclusives
 		})
 		w._boolFlgAdd(root, "more", "Dump more info in `~~debug` mode.", func(ff *Flag) {
 			ff.prerequisites = []string{"debug"}
+			ff.mutualExclusives = mutualExclusives
 		})
 	}
 }

@@ -104,63 +104,6 @@ func (w *ExecWorker) flagsPrepare(pkg *ptpkg, goCommand **Command, args []string
 		pkg.doParseSuffix()
 		pkg.doMatchingShortFlag(goCommand)
 	}
-
-	//if len(pkg.a) > 1 && strings.Contains(w.switchCharset, pkg.a[1:2]) {
-	//	if len(pkg.a) == 2 {
-	//		// disableParser = true // '--': ignore the following args // PassThrough hit!
-	//		stop = true
-	//		pkg.lastCommandHeld = false
-	//		pkg.needHelp = false
-	//		pkg.needFlagsHelp = false
-	//		ra := args[pkg.i:]
-	//		if len(ra) > 0 {
-	//			ra = ra[1:]
-	//		}
-	//		if w.onPassThruCharHit != nil {
-	//			err = w.onPassThruCharHit(*goCommand, pkg.a, ra)
-	//		} else {
-	//			err = defaultOnPassThruCharHit(*goCommand, pkg.a, ra)
-	//		}
-	//		return
-	//	}
-	//
-	//	// long flag
-	//	pkg.fn = pkg.a[2:]
-	//	pkg.findValueAttached(&pkg.fn)
-	//
-	//} else {
-	//
-	//	// short flag
-	//
-	//	if (*goCommand).headLikeFlag != nil && tool.IsDigitHeavy(pkg.a[1:]) {
-	//		// println("head-like")
-	//		pkg.short = true
-	//		pkg.flg = (*goCommand).headLikeFlag
-	//		pkg.val = pkg.a[1:]
-	//		pkg.fn = pkg.flg.Short
-	//		pkg.found = true
-	//		err = pkg.processTypeIntCore(args)
-	//		return
-	//	}
-	//
-	//	pkg.suffix = pkg.a[len(pkg.a)-1]
-	//	if pkg.suffix == '+' || pkg.suffix == '-' {
-	//		pkg.a = pkg.a[0 : len(pkg.a)-1]
-	//	} else {
-	//		pkg.suffix = 0
-	//	}
-	//
-	//	if i := pkg.matchShortFlag(*goCommand, pkg.a); i >= 0 {
-	//		pkg.fn = pkg.a[1:i]
-	//		pkg.savedFn = pkg.a[i:]
-	//	} else {
-	//		// no matched short flags found
-	//		pkg.fn = pkg.a[1:2]     // from one char
-	//		pkg.savedFn = pkg.a[2:] // save others
-	//	}
-	//	pkg.short = true
-	//	pkg.findValueAttached(&pkg.savedFn)
-	//}
 	return
 }
 
@@ -172,8 +115,7 @@ goUp:
 		a := "-" + pkg.fn + pkg.savedFn
 		flog("    .  . matching short flag for %q", a)
 		if i := pkg.matchShortFlag(cc, a, 1); i >= 0 {
-			pkg.fn = a[1:i]
-			pkg.savedFn = a[i:]
+			pkg.fn, pkg.savedFn = a[1:i], a[i:]
 			pkg.flg, matched = cc.plainShortFlags[pkg.fn]
 		}
 	} else {
@@ -200,8 +142,7 @@ goUp:
 			// try matching 2-chars short opt
 			if len(pkg.savedFn) > 0 {
 				fnf := pkg.fn + pkg.savedFn
-				pkg.fn = fnf[0:2]
-				pkg.savedFn = fnf[2:]
+				pkg.fn, pkg.savedFn = fnf[0:2], fnf[2:]
 				*goCommand = pkg.savedGoCommand
 				if (*goCommand).owner != nil {
 					goto goUp

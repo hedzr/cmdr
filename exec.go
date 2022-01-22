@@ -276,27 +276,10 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 	if !pkg.needHelp && len(pkg.unknownCmds) == 0 && len(pkg.unknownFlags) == 0 {
 		if goCommand.Action != nil {
 			rArgs := w.getRemainArgs(pkg, args)
-
-			// if goCommand != &rootCmd.Command {
-			// 	if err = w.beforeInvokeCommand(rootCmd, goCommand, args); err == ErrShouldBeStopException {
-			// 		return nil
-			// 	}
-			// }
-			//
-			// if err = w.invokeCommand(rootCmd, goCommand, args); err == ErrShouldBeStopException {
-			// 	return nil
-			// }
-
 			err = w.doInvokeCommand(pkg, rootCmd, goCommand, rArgs)
 			return
 		}
 	}
-
-	// if GetIntP(getPrefix(), "help-zsh") > 0 || GetBoolP(getPrefix(), "help-bash") {
-	// 	if len(goCommand.SubCommands) == 0 && !pkg.needFlagsHelp {
-	// 		// pkg.needFlagsHelp = true
-	// 	}
-	// }
 
 	if w.noDefaultHelpScreen == false {
 		rArgs := w.getRemainArgs(pkg, args)
@@ -307,20 +290,57 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 
 func (w *ExecWorker) doInvokeHelpScreen(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
 
-	postActions := append(rootCmd.PostActions, rootCmd.PostAction)
+	defer w.deferRunPostActionOfRootLevel(rootCmd, goCommand, remainArgs)()
+	err = w.runPreActionOfRootLevel(rootCmd, goCommand, remainArgs)
+	if err == nil {
+		w.printHelp(goCommand, pkg.needFlagsHelp)
+	}
+	return
+
+}
+
+func (w *ExecWorker) doInvokeCommand(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
+	if goCommand != &rootCmd.Command {
+		if w.noCommandAction {
+			return
+		}
+
+		defer w.deferRunPostActionOfRootLevel(rootCmd, goCommand, remainArgs)()
+
+		if err = w.checkArgs(pkg, rootCmd, goCommand, remainArgs); err != nil {
+			return
+		}
+
+		if err = w.runPreActionOfRootLevel(rootCmd, goCommand, remainArgs); err != nil {
+			return
+		}
+	}
+
+	if err = w.invokeCommand(rootCmd, goCommand, remainArgs); err == ErrShouldBeStopException {
+		return nil
+	}
+
+	return
+}
+
+func (w *ExecWorker) deferRunPostActionOfRootLevel(rootCmd *RootCommand, goCommand *Command, remainArgs []string) (deferFn func()) {
+	postActions := w.gatherPostActions(rootCmd)
 	if len(postActions) > 0 {
-		defer func() {
+		deferFn = func() {
 			for _, fn := range postActions {
 				if fn != nil {
 					fn(goCommand, remainArgs)
 				}
 			}
-		}()
+		}
+	} else {
+		deferFn = func() {}
 	}
+	return
+}
 
-	var preActions []Handler
-	preActions = append(preActions, w.afterArgsParsed, rootCmd.PreAction)
-	preActions = append(preActions, rootCmd.PreActions...)
+func (w *ExecWorker) runPreActionOfRootLevel(rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
+	var preActions = w.gatherPreActions(rootCmd)
 	c := errors.NewContainer("cannot invoke preActions")
 	for _, fn := range preActions {
 		if fn != nil {
@@ -332,78 +352,18 @@ func (w *ExecWorker) doInvokeHelpScreen(pkg *ptpkg, rootCmd *RootCommand, goComm
 			}
 		}
 	}
-	if err = c.Error(); err != nil {
-		return
-	}
-
-	w.printHelp(goCommand, pkg.needFlagsHelp)
-
+	err = c.Error()
 	return
 }
 
-func (w *ExecWorker) doInvokeCommand(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
-	if goCommand != &rootCmd.Command {
-		if w.noCommandAction {
-			return
-		}
+func (w *ExecWorker) gatherPreActions(rootCmd *RootCommand) (preActions []Handler) {
+	preActions = append(preActions, w.afterArgsParsed, rootCmd.PreAction)
+	preActions = append(preActions, rootCmd.PreActions...)
+	return
+}
 
-		// // if err = w.beforeInvokeCommand(rootCmd, goCommand, remainArgs); err == ErrShouldBeStopException {
-		// // 	return nil
-		// // }
-		// if rootCmd.PostAction != nil {
-		// 	defer rootCmd.PostAction(goCommand, remainArgs)
-		// }
-
-		postActions := append(rootCmd.PostActions, rootCmd.PostAction)
-		if len(postActions) > 0 {
-			defer func() {
-				for _, fn := range postActions {
-					if fn != nil {
-						fn(goCommand, remainArgs)
-					}
-				}
-			}()
-		}
-
-		if err = w.checkArgs(pkg, rootCmd, goCommand, remainArgs); err != nil {
-			return
-		}
-
-		//if w.afterArgsParsed != nil {
-		//	if err = w.afterArgsParsed(goCommand, remainArgs); err == ErrShouldBeStopException {
-		//		return
-		//	}
-		//}
-
-		var preActions []Handler
-		preActions = append(preActions, w.afterArgsParsed, rootCmd.PreAction)
-		preActions = append(preActions, rootCmd.PreActions...)
-		c := errors.NewContainer("cannot invoke preActions")
-		for _, fn := range preActions {
-			if fn != nil {
-				switch e := fn(goCommand, remainArgs); {
-				case e == ErrShouldBeStopException:
-					return e
-				case e != nil:
-					c.Attach(e)
-				}
-			}
-		}
-		if err = c.Error(); err != nil {
-			return
-		}
-
-		//if rootCmd.PreAction != nil {
-		//	if err = rootCmd.PreAction(goCommand, remainArgs); err == ErrShouldBeStopException {
-		//		return
-		//	}
-		//}
-	}
-
-	if err = w.invokeCommand(rootCmd, goCommand, remainArgs); err == ErrShouldBeStopException {
-		return nil
-	}
-
+func (w *ExecWorker) gatherPostActions(rootCmd *RootCommand) (postActions []Invoker) {
+	postActions = append(rootCmd.PostActions, rootCmd.PostAction)
 	return
 }
 
@@ -434,6 +394,10 @@ func (w *ExecWorker) checkArgs(pkg *ptpkg, rootCmd *RootCommand, goCommand *Comm
 		err = w.checkRequiredArgs(goCommand, remainArgs)
 	}
 
+	//if err == nil {
+	//	err = w.checkPrerequisiteArgs(goCommand, remainArgs)
+	//}
+
 	if err == nil && w.afterArgsParsed != nil {
 		err = w.afterArgsParsed(goCommand, remainArgs)
 		//; err == ErrShouldBeStopException {
@@ -441,6 +405,12 @@ func (w *ExecWorker) checkArgs(pkg *ptpkg, rootCmd *RootCommand, goCommand *Comm
 
 	return
 }
+
+////goland:noinspection GoUnusedParameter
+//func (w *ExecWorker) checkPrerequisiteArgs(goCommand *Command, remainArgs []string) (err error) {
+//	c := errors.NewContainer("obligatory flag missed")
+//	return
+//}
 
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) checkRequiredArgs(goCommand *Command, remainArgs []string) (err error) {

@@ -880,8 +880,8 @@ func (s *Options) setNxNoLock(key string, val interface{}) (oldVal interface{}, 
 	return
 }
 
-func isLeaf(oldval, val interface{}) (leaf bool) {
-	if _, ok := oldval.(map[string]interface{}); !ok {
+func isLeaf(oldVal, val interface{}) (leaf bool) {
+	if _, ok := oldVal.(map[string]interface{}); !ok {
 		if _, ok := val.(map[string]interface{}); !ok {
 			leaf = true
 		}

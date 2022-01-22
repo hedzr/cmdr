@@ -124,7 +124,7 @@ goUp:
 	}
 
 	if matched {
-		if err = w.checkPrerequisites(pkg); err == nil {
+		if err = w.checkFlagCanBeHere(pkg); err == nil {
 			if upLevel, stop, err = w.flagsMatched(pkg, *goCommand, args); stop || err != nil {
 				return
 			}
@@ -194,6 +194,25 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 			}
 		} else {
 			flog("    .  . [value assigned] %q = %v", pkg.fn, pkg.val)
+		}
+	}
+	return
+}
+
+func (w *ExecWorker) checkFlagCanBeHere(pkg *ptpkg) (err error) {
+	if err = w.checkPrerequisites(pkg); err != nil {
+		return
+	}
+	if err = w.checkDblTildeStatus(pkg); err != nil {
+		return
+	}
+	return
+}
+
+func (w *ExecWorker) checkDblTildeStatus(pkg *ptpkg) (err error) {
+	if pkg.flg.dblTildeOnly {
+		if pkg.a[:2] != "~~" {
+			err = errors.New("Flag '~~%v' request double tilde prefix only.", pkg.flg.GetTitleName())
 		}
 	}
 	return

@@ -182,11 +182,13 @@ goUp:
 	}
 
 	if matched {
-		if upLevel, stop, err = w.flagsMatched(pkg, *goCommand, args); stop || err != nil {
-			return
-		}
-		if upLevel {
-			goto goUp
+		if err = w.checkPrerequisites(pkg); err == nil {
+			if upLevel, stop, err = w.flagsMatched(pkg, *goCommand, args); stop || err != nil {
+				return
+			}
+			if upLevel {
+				goto goUp
+			}
 		}
 	} else {
 		if cc.owner != nil {
@@ -251,6 +253,35 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 			}
 		} else {
 			flog("    .  . [value assigned] %q = %v", pkg.fn, pkg.val)
+		}
+	}
+	return
+}
+
+func (w *ExecWorker) checkPrerequisites(pkg *ptpkg) (err error) {
+	if len(pkg.flg.prerequisites) > 0 {
+		for _, longTitleOrDottedPath := range pkg.flg.prerequisites {
+			var cc *Command
+			if strings.Contains(longTitleOrDottedPath, ",") {
+				cc = dottedPathToCommand(longTitleOrDottedPath, pkg.flg.owner)
+			}
+			if cc != nil {
+				if err = w.checkPrerequisitesForCmd(cc, pkg); err != nil {
+					return
+				}
+			}
+		}
+	}
+	return
+}
+
+func (w *ExecWorker) checkPrerequisitesForCmd(cc *Command, pkg *ptpkg) (err error) {
+	for _, f := range cc.Flags {
+		if f.times == 0 {
+			err = errors.New("The matching Flag '-%v' needs prerequisites are present, but '-%v' missed.",
+				pkg.flg.GetTitleName(),
+				f.GetTitleName())
+			return
 		}
 	}
 	return

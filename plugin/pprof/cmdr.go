@@ -54,6 +54,29 @@ func GetCmdrProfilingOptions(types ...string) cmdr.ExecOption {
 	return optAddCPUProfileOptions
 }
 
+// WithCmdrProfilingOptions returns an opt for cmdr.Exec(root, opts...). And,
+// it adds profiling options to cmdr system.
+//
+// For example:
+//
+//    cmdr.Exec(buildRootCmd(),
+//        profile.GetCmdrProfilingOptions(),
+//    )
+//
+// The variadic param `types` allows which profiling types are enabled
+// by default, such as `cpu`, `mem`. While end-user enables profiling
+// with `app -ep`, those profiles will be created and written.
+// The available type names are:
+// "cpu", "mem", "mutex", "block", "thread-create", "trace", and "go-routine".
+func WithCmdrProfilingOptions(types ...string) cmdr.ExecOption {
+	return GetCmdrProfilingOptions(types...)
+}
+
+func WithCmdrProfilingOptionsHidden(types ...string) cmdr.ExecOption {
+	hidden = true
+	return WithCmdrProfilingOptions(types...)
+}
+
 func addTo(root *cmdr.RootCmdOpt) {
 	const grpName = "Profiling"
 	const grpOptsName = "Profiling-Options"
@@ -62,42 +85,50 @@ func addTo(root *cmdr.RootCmdOpt) {
 		Titles("pprof", "ep", "prof", "enable-profile").
 		Description("enable profiling", "").
 		Group(grpName).
+		Hidden(hidden).
 		AttachTo(root)
 
 	cmdr.NewString("cpu.prof").
 		Titles("cpu-profile-path", "cpu").
 		Description("enable cpu profiling mode", "").
 		Group(grpOptsName).
+		Hidden(hidden).
 		AttachTo(root)
 	cmdr.NewString("mem.prof").
 		Titles("mem-profile-path", "mem").
 		Description("enable mem profiling mode", "").
 		Group(grpOptsName).
+		Hidden(hidden).
 		AttachTo(root)
 	cmdr.NewString("mutex.prof").
 		Titles("mutex-profile-path", "mutex").
 		Description("enable mutex profiling mode", "").
 		Group(grpOptsName).
+		Hidden(hidden).
 		AttachTo(root)
 	cmdr.NewString("block.prof").
 		Titles("block-profile-path", "block").
 		Description("enable block profiling mode", "").
 		Group(grpOptsName).
+		Hidden(hidden).
 		AttachTo(root)
 	cmdr.NewString("trace.out").
 		Titles("trace-profile-path", "tpp").
 		Description("enable trace profiling mode", "").
 		Group(grpOptsName).
+		Hidden(hidden).
 		AttachTo(root)
 	cmdr.NewString("thread-create.prof").
 		Titles("thread-create-profile-path", "thread-create", "tc").
 		Description("enable thread create profiling mode", "").
 		Group(grpOptsName).
+		Hidden(hidden).
 		AttachTo(root)
 	cmdr.NewString("go-routine.prof").
 		Titles("go-routine-profile-path", "go-routine").
 		Description("enable go routine profiling mode", "").
 		Group(grpOptsName).
+		Hidden(hidden).
 		AttachTo(root)
 
 	cmdr.NewString("heap").
@@ -105,12 +136,14 @@ func addTo(root *cmdr.RootCmdOpt) {
 		Description("the profile type for memory profiles, 'heap' or 'allocs'", "").
 		Placeholder("TYPE").
 		Group("Profiling-Memory").
+		Hidden(hidden).
 		AttachTo(root)
 	cmdr.NewInt(DefaultMemProfileRate).
 		Titles("mem-profile-rate", "mpr").
 		Description("the rate for the memory profile", "").
 		Placeholder("RATE").
 		Group("Profiling-Memory").
+		Hidden(hidden).
 		AttachTo(root)
 
 	if len(sTypes) == 0 {
@@ -122,12 +155,14 @@ func addTo(root *cmdr.RootCmdOpt) {
 		Description("specify types of profiling, such as: cpu, mem, mutex, block, trace, thread-create, goroutine", "").
 		Group(grpName).
 		ValidArgs("cpu", "mem", "mutex", "block", "trace", "thread-create", "goroutine").
+		Hidden(hidden).
 		AttachTo(root)
 
 	cmdr.NewString(".").
 		Titles("profile-output-dir", "pod").
 		Description("the output directory", "").
 		Group(grpName).
+		Hidden(hidden).
 		AttachTo(root)
 
 	root.AddGlobalPreAction(onCommandInvoking)
@@ -189,3 +224,4 @@ func init() {
 var optAddCPUProfileOptions cmdr.ExecOption
 var sTypes []string
 var closer func()
+var hidden bool

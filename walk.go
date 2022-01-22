@@ -14,10 +14,16 @@ func walkFromCommand(cmd *Command, index, level int, walk func(cmd *Command, ind
 	if cmd == nil {
 		cmd = &internalGetWorker().rootCommand.Command
 	}
+
+	// run callback for this command at first
 	err = walk(cmd, index, level)
+
 	if err == nil {
 		for ix, cc := range cmd.SubCommands {
 			if err = walkFromCommand(cc, ix, level+1, walk); err != nil {
+				if err == ErrShouldBeStopException {
+					err = nil // not an error
+				}
 				return
 			}
 		}

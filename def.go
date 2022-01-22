@@ -195,14 +195,32 @@ type (
 
 		// actionStr: for zsh completion, see action of an optspec in _argument
 		actionStr string
-		// mutualExclusives flags
+		// mutualExclusives is used for zsh completion.
 		mutualExclusives []string
-		// prerequisites flags for this one. in zsh completion, any of prerequisites
-		// flags must be present so that user can complete this one.
+		// prerequisites flags for this one.
+		//
+		// In zsh completion, any of prerequisites flags must be present
+		// so that user can complete this one.
+		//
+		// The prerequisites were not present and cmdr would report error
+		// and stop parsing flow.
 		prerequisites []string
-		justOnce      bool
-		circuitBreak  bool
-		dblTildeOnly  bool // such as '~~tree'
+		// justOnce is used for zsh completion.
+		justOnce bool
+		// circuitBreak is used for zsh completion.
+		//
+		// A flag can break cmdr parsing flow with return
+		// ErrShouldBeStopException in its Action handler.
+		// But you' better told zsh system with set circuitBreak
+		// to true. At this case, cmdr will generate a suitable
+		// completion script.
+		circuitBreak bool
+		// dblTildeOnly can be used for zsh completion.
+		//
+		// A DblTildeOnly Flag accepts '~~opt' only, so '--opt' is
+		// invalid form and couldn't be used for other Flag
+		// anymore.
+		dblTildeOnly bool // such as '~~tree'
 
 		// PostAction treat this flag as a command!
 		// PostAction Handler

@@ -163,7 +163,7 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 		var perr *ErrorForCmdr
 		if errors.As(err, &perr) && !perr.Ignorable {
 			stop = true
-			return
+			return // matched ok, and value extracted ok, no further parsing needs
 		}
 	}
 

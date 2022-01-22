@@ -25,10 +25,11 @@ type (
 	// copierImpl impl
 	copierImpl struct {
 		KeepIfFromIsNil  bool // 源字段值为nil指针时，目标字段的值保持不变
-		ZeroIfEqualsFrom bool // 源和目标字段值相同时，目标字段被清除为未初始化的零值
 		KeepIfFromIsZero bool // 源字段值为未初始化的零值时，目标字段的值保持不变 // 此条尚未实现
+		ZeroIfEqualsFrom bool // 源和目标字段值相同时，目标字段被清除为未初始化的零值
 		IgnoreNames      []string
 		EachFieldAlways  bool
+		IgnoreIfNotEqual bool
 	}
 )
 
@@ -158,10 +159,40 @@ func (s *copierImpl) copyAll(amount int, isSlice bool, from, to reflect.Value, f
 	return nil
 }
 
+func safetyTarget(dest reflect.Value, fromType reflect.Type, ignoreNames []string) {
+	if fromType.Kind() != reflect.Struct {
+		return
+	}
+
+	for i := 0; i < fromType.NumField(); i++ {
+		fld := fromType.Field(i)
+		if fld.Anonymous && fld.Type.Kind() == reflect.Ptr {
+			v := dest.Field(i)
+			if v.IsValid() && v.IsNil() && v.CanSet() {
+				v.Set(reflect.New(fld.Type.Elem()))
+				safetyTarget(v, fld.Type, ignoreNames)
+			}
+		}
+	}
+}
+
 func (s *copierImpl) copyFieldToField(dest, source reflect.Value, fromType reflect.Type, ignoreNames []string) error {
+	var names []string
+	var name string
+	defer func() {
+		if e := recover(); e != nil {
+			log.Errorf("failed on copying field %q : %v", name, e)
+			log.Errorf("    past fields: %v", names)
+			panic(e)
+		}
+	}()
+
+	safetyTarget(dest, fromType, ignoreNames)
+
 	// Copy from field to field or method
 	for _, field := range s.deepFields(fromType) {
-		name := field.Name
+		name = field.Name
+		names = append(names, name)
 		if contains(ignoreNames, name) {
 			continue
 		}
@@ -327,12 +358,21 @@ func equalArray(to, from reflect.Value) bool {
 	if from.Len() == 0 {
 		return true
 	}
+	//for i := 0; i < from.Len(); i++ {
+	//	if !equal(from.Slice(i, i+1), to.Slice(i, i+1)) {
+	//		return false
+	//	}
+	//}
+	//return true
+
+	x := make(map[interface{}]bool)
 	for i := 0; i < from.Len(); i++ {
-		if !equal(from.Slice(i, i+1), to.Slice(i, i+1)) {
-			return false
-		}
+		x[from.Index(i).Interface()] = true
 	}
-	return true
+	for i := 0; i < from.Len(); i++ {
+		delete(x, to.Index(i).Interface())
+	}
+	return len(x) == 0
 }
 
 func equalSlice(to, from reflect.Value) bool {
@@ -342,12 +382,16 @@ func equalSlice(to, from reflect.Value) bool {
 	if from.Len() == 0 {
 		return true
 	}
+
+	x := make(map[interface{}]bool)
 	for i := 0; i < from.Len(); i++ {
-		if !equal(from.Index(i), to.Index(i)) {
-			return false
-		}
+		x[from.Index(i).Interface()] = true
 	}
-	return true
+	for i := 0; i < from.Len(); i++ {
+		v := to.Index(i).Interface()
+		delete(x, v)
+	}
+	return len(x) == 0
 }
 
 func setDefault(to reflect.Value) {
@@ -394,7 +438,7 @@ func (s *copierImpl) setCvt(to, from reflect.Value) {
 		if !(s.KeepIfFromIsZero && IsZero(from)) {
 			if equal(to, from) && s.ZeroIfEqualsFrom {
 				setDefault(to)
-			} else {
+			} else if s.IgnoreIfNotEqual == false {
 				to.Set(from.Convert(to.Type()))
 			}
 		}
@@ -410,7 +454,7 @@ func (s *copierImpl) set(to, from reflect.Value) bool {
 
 			// set `to` to nil if from is nil
 			if from.Kind() == reflect.Ptr && from.IsNil() {
-				if !s.KeepIfFromIsNil && !s.KeepIfFromIsZero {
+				if !s.KeepIfFromIsNil && !s.KeepIfFromIsZero && !s.IgnoreIfNotEqual {
 					to.Set(reflect.Zero(to.Type()))
 				}
 				return true
@@ -428,7 +472,9 @@ func (s *copierImpl) set(to, from reflect.Value) bool {
 			// 		return false
 			// 	}
 		} else if from.Kind() == reflect.Ptr {
-			return s.set(to, from.Elem())
+			if !s.IgnoreIfNotEqual {
+				return s.set(to, from.Elem())
+			}
 		} else {
 			return false
 		}

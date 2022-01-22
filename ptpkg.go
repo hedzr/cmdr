@@ -35,6 +35,9 @@ type ptpkg struct {
 	remainArgs        []string
 }
 
+func (pkg *ptpkg) store() *Options                    { return internalGetWorker().rxxtOptions }
+func (pkg *ptpkg) storeFrom(wkr *ExecWorker) *Options { return wkr.rxxtOptions }
+
 func (pkg *ptpkg) ResetAnd(n string) (length int) {
 	pkg.Reset()
 	pkg.a = n
@@ -58,12 +61,13 @@ func (pkg *ptpkg) tryToggleGroup() {
 		wkr := internalGetWorker()
 		for _, f := range pkg.flg.owner.Flags {
 			if f.ToggleGroup == tg && (isBool(f.DefaultValue) || isNil1(f.DefaultValue)) {
+				var store = pkg.storeFrom(wkr)
 				if f != pkg.flg {
-					wkr.rxxtOptions.Set(wkr.backtraceFlagNames(f), false)
+					store.Set(backtraceFlagNames(f), false)
 					f.DefaultValue = false
 				} else {
-					wkr.rxxtOptions.Set(wkr.backtraceFlagNames(f), true)
-					wkr.rxxtOptions.Set(wkr.backtraceCmdNames(f.owner, false)+"."+f.ToggleGroup, f.Full)
+					store.Set(backtraceFlagNames(f), true)
+					store.Set(backtraceCmdNames(f.owner, false)+"."+f.ToggleGroup, f.Full)
 					f.DefaultValue = true
 				}
 			}
@@ -279,7 +283,7 @@ func (pkg *ptpkg) tryExtractingBoolValue() (err error) {
 	}
 
 	var v = pkg.flg.DefaultValue
-	var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
+	var keyPath = backtraceFlagNames(pkg.flg)
 	pkg.xxSet(keyPath, v)
 	return
 }
@@ -350,9 +354,9 @@ func (pkg *ptpkg) processExternalTool() (err error) {
 
 func (pkg *ptpkg) xxSet(keyPath string, v interface{}) {
 	if pkg.a[0] == '~' {
-		internalGetWorker().rxxtOptions.SetNx(keyPath, v)
+		pkg.store().SetNx(keyPath, v)
 	} else {
-		internalGetWorker().rxxtOptions.Set(keyPath, v)
+		pkg.store().Set(keyPath, v)
 	}
 	if pkg.flg != nil && pkg.flg.onSet != nil {
 		pkg.flg.onSet(keyPath, v)
@@ -373,7 +377,7 @@ func (pkg *ptpkg) processTypeDuration(args []string) (err error) {
 		v, err = time.ParseDuration(pkg.val)
 		if err == nil {
 			// flog("    .  . [duration] %q => %v", pkg.val, v)
-			var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
+			var keyPath = backtraceFlagNames(pkg.flg)
 			pkg.xxSet(keyPath, v)
 		}
 	}
@@ -392,7 +396,7 @@ func (pkg *ptpkg) processTypeIntCore(args []string) (err error) {
 		err = errors.New("wrong number (int): flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
 	}
 
-	var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
+	var keyPath = backtraceFlagNames(pkg.flg)
 	pkg.xxSet(keyPath, v)
 	return
 }
@@ -407,7 +411,7 @@ func (pkg *ptpkg) processTypeUint(args []string) (err error) {
 			return
 		}
 
-		var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
+		var keyPath = backtraceFlagNames(pkg.flg)
 		pkg.xxSet(keyPath, v)
 	}
 	return
@@ -423,7 +427,7 @@ func (pkg *ptpkg) processTypeFloat(args []string) (err error) {
 			return
 		}
 
-		var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
+		var keyPath = backtraceFlagNames(pkg.flg)
 		pkg.xxSet(keyPath, v)
 	}
 	return
@@ -439,7 +443,7 @@ func (pkg *ptpkg) processTypeComplex(args []string) (err error) {
 			return
 		}
 
-		var keyPath = internalGetWorker().backtraceFlagNames(pkg.flg)
+		var keyPath = backtraceFlagNames(pkg.flg)
 		pkg.xxSet(keyPath, v)
 	}
 	return
@@ -466,7 +470,7 @@ func (pkg *ptpkg) processTypeString(args []string) (err error) {
 
 	saveIt:
 		var v = pkg.val
-		var keyPath = wkr.backtraceFlagNames(pkg.flg)
+		var keyPath = backtraceFlagNames(pkg.flg)
 		pkg.xxSet(keyPath, v)
 		pkg.found = true
 
@@ -478,9 +482,8 @@ func (pkg *ptpkg) processTypeStringSlice(args []string) (err error) {
 	if err = pkg.preprocessPkg(args); err == nil {
 		var v = strings.Split(pkg.val, ",")
 
-		var wkr = internalGetWorker()
-		var keyPath = wkr.backtraceFlagNames(pkg.flg)
-		var existedVal = wkr.rxxtOptions.GetStringSlice(wrapWithRxxtPrefix(keyPath))
+		var keyPath = backtraceFlagNames(pkg.flg)
+		var existedVal = pkg.store().GetStringSlice(wrapWithRxxtPrefix(keyPath))
 		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) || pkg.flg.times == 1 { // if first matching
 			existedVal = nil
 		}
@@ -498,10 +501,9 @@ func (pkg *ptpkg) processTypeIntSlice(args []string) (err error) {
 			}
 		}
 
-		var wkr = internalGetWorker()
-		var keyPath = wkr.backtraceFlagNames(pkg.flg)
+		var keyPath = backtraceFlagNames(pkg.flg)
 		// pkg.xxSet(keyPath, v)
-		var existedVal = wkr.rxxtOptions.GetInt64Slice(wrapWithRxxtPrefix(keyPath))
+		var existedVal = pkg.store().GetInt64Slice(wrapWithRxxtPrefix(keyPath))
 		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) || pkg.flg.times == 1 { // if first matching
 			existedVal = nil
 		}
@@ -519,10 +521,9 @@ func (pkg *ptpkg) processTypeUintSlice(args []string) (err error) {
 			}
 		}
 
-		var wkr = internalGetWorker()
-		var keyPath = wkr.backtraceFlagNames(pkg.flg)
+		var keyPath = backtraceFlagNames(pkg.flg)
 		// pkg.xxSet(keyPath, v)
-		var existedVal = wkr.rxxtOptions.GetUint64Slice(wrapWithRxxtPrefix(keyPath))
+		var existedVal = pkg.store().GetUint64Slice(wrapWithRxxtPrefix(keyPath))
 		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) || pkg.flg.times == 1 { // if first matching
 			existedVal = nil
 		}

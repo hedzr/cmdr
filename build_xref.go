@@ -928,38 +928,6 @@ $ {{.AppName}} gen pdf
 						ff.ToggleGroup = "ShellType"
 						ff.Hidden = false
 					})
-					//w._boolFlgAdd1(cx, "ash", "generate auto completion script for Zsh", func(ff *Flag) {
-					//	ff.ToggleGroup = "ShellType"
-					//ff.Hidden = false
-					//})
-					//w._boolFlgAdd1(cx, "rbash", "generate auto completion script for Zsh", func(ff *Flag) {
-					//	ff.ToggleGroup = "ShellType"
-					//ff.Hidden = false
-					//})
-					//w._boolFlgAdd1(cx, "csh", "generate auto completion script for Zsh", func(ff *Flag) {
-					//	ff.ToggleGroup = "ShellType"
-					//ff.Hidden = false
-					//})
-					//w._boolFlgAdd1(cx, "dash", "generate auto completion script for Zsh", func(ff *Flag) {
-					//	ff.ToggleGroup = "ShellType"
-					//ff.Hidden = false
-					//})
-					//w._boolFlgAdd1(cx, "ksh", "generate auto completion script for Zsh", func(ff *Flag) {
-					//	ff.ToggleGroup = "ShellType"
-					//ff.Hidden = false
-					//})
-					//w._boolFlgAdd1(cx, "tcsh", "generate auto completion script for Zsh", func(ff *Flag) {
-					//	ff.ToggleGroup = "ShellType"
-					//ff.Hidden = false
-					//})
-					//w._boolFlgAdd1(cx, "elvish", "generate auto completion script for Fish", func(ff *Flag) {
-					//	ff.ToggleGroup = "ShellType"
-					//ff.Hidden = false
-					//})
-					//w._boolFlgAdd1(cx, "fig", "generate auto completion script for Fish", func(ff *Flag) {
-					//	ff.ToggleGroup = "ShellType"
-					//ff.Hidden = false
-					//})
 					w._boolFlgAdd1(cx, "fish", "generate auto completion script for Fish", func(ff *Flag) {
 						ff.Short = "f"
 						ff.ToggleGroup = "ShellType"

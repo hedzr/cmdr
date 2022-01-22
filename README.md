@@ -61,6 +61,10 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - fea: added Checkpoints on Option Store
     you may save and restore multiple checkpoints for cmdr Option Store, so that some temporary changes can be made.
   - fix/imp: --man crash if manpages not installed - the responding manpage will be generated temporarily and instantly now
+  - add GitSummary field into conf package
+  - imp: speed up by reduce get worker
+    - centralize rxxtOptions to store()
+    - flatten backtrace(Flg|Cmd)Names, added dottedPathToCommand
 
 - v1.9.9
   - improved: prevent `sent to closed channel` defensively

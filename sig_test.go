@@ -53,7 +53,7 @@ func TestTrapSignals(t *testing.T) {
 		//
 	})
 
-	_ = cmdr.RemoveDirRecursive("docs")
+	_ = dir.RemoveDirRecursive("docs")
 
 	// testTypes(t)
 }

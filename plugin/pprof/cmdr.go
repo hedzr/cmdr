@@ -72,6 +72,7 @@ func WithCmdrProfilingOptions(types ...string) cmdr.ExecOption {
 	return GetCmdrProfilingOptions(types...)
 }
 
+// WithCmdrProfilingOptionsHidden hides the commands and flags from help screen
 func WithCmdrProfilingOptionsHidden(types ...string) cmdr.ExecOption {
 	hidden = true
 	return WithCmdrProfilingOptions(types...)

@@ -7,6 +7,7 @@ package cmdr
 import (
 	"fmt"
 	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log/dir"
 	"github.com/hedzr/log/exec"
 	"io/ioutil"
 	"log"
@@ -112,7 +113,7 @@ func _makeFileIn(locations []string, appName string, fn func(path string, f *os.
 	linuxRoot := os.Getuid() == 0
 	for _, s := range locations {
 		//Logger.Debugf("--- checking %s", s)
-		if FileExists(s) {
+		if dir.FileExists(s) {
 			file := path.Join(s, "_"+appName)
 			//Logger.Debugf("    try creating %s", file)
 			var f *os.File
@@ -488,7 +489,7 @@ fi; fi
 		linuxRoot := os.Getuid() == 0
 
 		for _, s := range []string{"/etc/bash_completion.d", "/usr/local/etc/bash_completion.d", "/tmp"} {
-			if FileExists(s) {
+			if dir.FileExists(s) {
 				file := path.Join(s, cmd.root.AppName)
 				var f *os.File
 				if f, err = os.Create(file); err != nil {
@@ -656,8 +657,8 @@ func genManualForCommand(cmd *Command) (fn string, err error) {
 	painter := newManPainter()
 	w := internalGetWorker()
 	prefix := strings.Join(append(w.rxxtPrefixes, "generate.manual"), ".")
-	dir := GetStringP(prefix, "dir")
-	if err = EnsureDir(dir); err != nil {
+	dirname := GetStringP(prefix, "dir")
+	if err = dir.EnsureDir(dirname); err != nil {
 		return
 	}
 
@@ -671,7 +672,7 @@ func genManualForCommand(cmd *Command) (fn string, err error) {
 			fn += "-" + cmds
 		}
 	}
-	fn = fmt.Sprintf("%s/%v.1", dir, fn)
+	fn = fmt.Sprintf("%s/%v.1", dirname, fn)
 
 	w.paintFromCommand(painter, cmd, false)
 	if err = ioutil.WriteFile(fn, painter.Results(), 0644); err == nil {
@@ -689,8 +690,8 @@ func genManual(command *Command, args []string) (err error) {
 	err = WalkAllCommands(func(cmd *Command, index, level int) (err error) {
 		painter.Reset()
 
-		dir := GetStringP(prefix, "dir")
-		if err = EnsureDir(dir); err != nil {
+		dirname := GetStringP(prefix, "dir")
+		if err = dir.EnsureDir(dirname); err != nil {
 			return
 		}
 
@@ -704,7 +705,7 @@ func genManual(command *Command, args []string) (err error) {
 				fn += "-" + cmds
 			}
 		}
-		fn = fmt.Sprintf("%s/%v.1", dir, fn)
+		fn = fmt.Sprintf("%s/%v.1", dirname, fn)
 
 		w.paintFromCommand(painter, cmd, false)
 		if err = ioutil.WriteFile(fn, painter.Results(), 0644); err == nil {
@@ -754,8 +755,8 @@ func genDoc(command *Command, args []string) (err error) {
 		painter.Reset()
 		// fmt.Printf("  .  .  cmd = %v\n", cmd.GetTitleNames())
 
-		dir := GetStringP(prefix, "dir")
-		if err = EnsureDir(dir); err != nil {
+		dirname := GetStringP(prefix, "dir")
+		if err = dir.EnsureDir(dirname); err != nil {
 			return
 		}
 
@@ -766,7 +767,7 @@ func genDoc(command *Command, args []string) (err error) {
 				fn += "-" + cmds
 			}
 		}
-		fn = fmt.Sprintf("%s/%v.md", dir, fn)
+		fn = fmt.Sprintf("%s/%v.md", dirname, fn)
 
 		w.paintFromCommand(painter, cmd, false)
 		if err = ioutil.WriteFile(fn, painter.Results(), 0644); err == nil {

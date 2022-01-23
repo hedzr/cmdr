@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
 	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log/dir"
 	"io"
 	"os"
 	"sort"
@@ -181,7 +182,7 @@ func (w *ExecWorker) paintTildeDebugCommand(showType bool) {
 		}
 		if w.rxxtOptions.GetBoolEx("more") {
 			ffp(of, "---- INFO: ")
-			ffp(of, "Exec: \x1b[2m\x1b[%dm%s\x1b[0m, %s", DarkColor, GetExecutablePath(), GetExecutableDir())
+			ffp(of, "Exec: \x1b[2m\x1b[%dm%s\x1b[0m, %s", DarkColor, dir.GetExecutablePath(), dir.GetExecutableDir())
 		}
 	}
 }

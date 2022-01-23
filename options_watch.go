@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/BurntSushi/toml"
+	"github.com/hedzr/log/dir"
 	"gopkg.in/hedzr/errors.v2"
 	"gopkg.in/yaml.v3"
 	"io"
@@ -111,7 +112,7 @@ func (s *Options) LoadConfigFile(file string, main bool) (mainFile, subDir strin
 	s.batchMerging = true
 	s.rw.Unlock()
 
-	if !FileExists(file) {
+	if !dir.FileExists(file) {
 		// log.Warnf("%v NOT EXISTS. PWD=%v", file, GetCurrentDir())
 		return // not error, just ignore loading
 	}
@@ -126,16 +127,16 @@ func (s *Options) LoadConfigFile(file string, main bool) (mainFile, subDir strin
 	confDFolderName := internalGetWorker().confDFolderName
 	var filesWatching []string
 	if main {
-		dir := dirWatch
+		dirname := dirWatch
 		s.usedConfigFile = mainFile
-		_ = os.Setenv("CFG_DIR", dir)
+		_ = os.Setenv("CFG_DIR", dirname)
 
 		if internalGetWorker().watchMainConfigFileToo {
 			filesWatching = append(filesWatching, s.usedConfigFile)
 		}
 
-		subDir = path.Join(dir, confDFolderName)
-		if !FileExists(subDir) {
+		subDir = path.Join(dirname, confDFolderName)
+		if !dir.FileExists(subDir) {
 			subDir = ""
 			if len(filesWatching) == 0 {
 				return
@@ -167,11 +168,11 @@ func (s *Options) LoadConfigFile(file string, main bool) (mainFile, subDir strin
 
 func (s *Options) doWatchConfigFile(enableWatching bool, confDFolderName, dirWatch string, filesWatching []string) (err error) {
 	if internalGetWorker().watchChildConfigFiles {
-		var dir string
+		var dirname string
 		confDFolderName = os.ExpandEnv(".$APPNAME")
-		dir, err = filepath.Abs(confDFolderName)
-		if err == nil && FileExists(dir) {
-			err = filepath.Walk(dir, s.visit)
+		dirname, err = filepath.Abs(confDFolderName)
+		if err == nil && dir.FileExists(dirname) {
+			err = filepath.Walk(dirname, s.visit)
 			if err == nil {
 				filesWatching = append(filesWatching, s.configFiles...)
 				enableWatching = true

@@ -7,6 +7,7 @@ package cmdr_test
 import (
 	"fmt"
 	"github.com/hedzr/cmdr"
+	"github.com/hedzr/log/dir"
 	"gopkg.in/yaml.v3"
 	"strings"
 	"testing"
@@ -367,7 +368,7 @@ func createRoot() (rootOpt *cmdr.RootCmdOpt) {
 		Description("", "").
 		Group("")
 
-	co.NewFlagV(complex128(3.14+9i)).
+	co.NewFlagV(3.14+9i).
 		Titles("retry11", "t11").
 		Description("", "").
 		Group("")
@@ -564,7 +565,7 @@ func TestAlreadyUsed(t *testing.T) {
 	defer func() {
 
 		x := outX.String()
-		t.Logf("--------- stdout // %v // %v\n%v", cmdr.GetExecutableDir(), cmdr.GetExecutablePath(), x)
+		t.Logf("--------- stdout // %v // %v\n%v", dir.GetExecutableDir(), dir.GetExecutablePath(), x)
 
 		if errX.Len() > 0 {
 			t.Log("--------- stderr")

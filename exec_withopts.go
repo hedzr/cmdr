@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"github.com/hedzr/cmdr/conf"
 	"github.com/hedzr/log/closers"
+	"github.com/hedzr/log/dir"
 	"gopkg.in/hedzr/errors.v2"
 	"io"
 	"log"
@@ -115,7 +116,7 @@ func WithEnvVarMap(varToValue map[string]func() string) ExecOption {
 			varToValue = make(map[string]func() string)
 		}
 		w.envVarToValueMap = varToValue
-		testAndSetMap(w.envVarToValueMap, "THIS", func() string { return GetExecutableDir() })
+		testAndSetMap(w.envVarToValueMap, "THIS", func() string { return dir.GetExecutableDir() })
 		testAndSetMap(w.envVarToValueMap, "APPNAME", func() string { return conf.AppName })
 		testAndSetMap(w.envVarToValueMap, "APP_NAME", func() string { return conf.AppName })
 		testAndSetMap(w.envVarToValueMap, "CFG_DIR", func() string { return path.Dir(GetUsedConfigFile()) })

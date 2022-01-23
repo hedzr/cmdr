@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log/dir"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -126,7 +127,7 @@ app:
             desc: specify the name of a service
 
 `), 0644)
-	_ = cmdr.EnsureDir("conf.d")
+	_ = dir.EnsureDir("conf.d")
 
 	_ = ioutil.WriteFile("conf.d/tmp.yaml", []byte(`
 app:

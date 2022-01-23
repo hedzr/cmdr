@@ -9,6 +9,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log/dir"
 	"io/ioutil"
 	"os"
 	"path"
@@ -377,16 +378,16 @@ func TestLaunch(t *testing.T) {
 }
 
 func TestNormalizeDir(t *testing.T) {
-	if cmdr.NormalizeDir("./a") != path.Join(cmdr.GetCurrentDir(), "./a") {
+	if dir.NormalizeDir("./a") != path.Join(dir.GetCurrentDir(), "./a") {
 		t.Failed()
 	}
-	if cmdr.NormalizeDir("../a") != path.Join(cmdr.GetCurrentDir(), "../a") {
+	if dir.NormalizeDir("../a") != path.Join(dir.GetCurrentDir(), "../a") {
 		t.Failed()
 	}
-	if cmdr.NormalizeDir("~/a") != path.Join(os.Getenv("HOME"), "a") {
+	if dir.NormalizeDir("~/a") != path.Join(os.Getenv("HOME"), "a") {
 		t.Failed()
 	}
-	if cmdr.NormalizeDir("v/a") != "v/a" {
+	if dir.NormalizeDir("v/a") != "v/a" {
 		t.Failed()
 	}
 	_ = os.Setenv("EDITOR", "ls")

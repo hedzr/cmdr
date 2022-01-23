@@ -17,31 +17,31 @@ import (
 	"testing"
 )
 
-// TestIsDirectory tests more
+//// TestIsDirectory tests more
+////
+//// usage:
+////   go test ./... -v -test.run '^TestIsDirectory$'
+////
+//func TestIsDirectory(t *testing.T) {
+//	t.Logf("osargs[0] = %v", os.Args[0])
+//	t.Logf("InTesting: %v", cmdr.InTesting())
+//	t.Logf("InDebugging: %v", cmdr.InDebugging())
 //
-// usage:
-//   go test ./... -v -test.run '^TestIsDirectory$'
+//	cmdr.NormalizeDir("")
 //
-func TestIsDirectory(t *testing.T) {
-	t.Logf("osargs[0] = %v", os.Args[0])
-	t.Logf("InTesting: %v", cmdr.InTesting())
-	t.Logf("InDebugging: %v", cmdr.InDebugging())
-
-	cmdr.NormalizeDir("")
-
-	if yes, err := cmdr.IsDirectory("./conf.d1"); yes {
-		t.Fatal(err)
-	}
-	if yes, err := cmdr.IsDirectory("./ci"); !yes {
-		t.Fatal(err)
-	}
-	if yes, err := cmdr.IsRegularFile("./doc1.golang"); yes {
-		t.Fatal(err)
-	}
-	if yes, err := cmdr.IsRegularFile("./doc.go"); !yes {
-		t.Fatal(err)
-	}
-}
+//	if yes, err := cmdr.IsDirectory("./conf.d1"); yes {
+//		t.Fatal(err)
+//	}
+//	if yes, err := cmdr.IsDirectory("./ci"); !yes {
+//		t.Fatal(err)
+//	}
+//	if yes, err := cmdr.IsRegularFile("./doc1.golang"); yes {
+//		t.Fatal(err)
+//	}
+//	if yes, err := cmdr.IsRegularFile("./doc.go"); !yes {
+//		t.Fatal(err)
+//	}
+//}
 
 func TestDumpers(t *testing.T) {
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
 	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log/dir"
 	"os"
 	"path"
 	"strings"
@@ -26,14 +27,14 @@ func (w *ExecWorker) parsePredefinedLocation() (err error) {
 		location = tool.StripQuotes(location)
 		flog("--> preprocess / buildXref / parsePredefinedLocation: %q", location)
 
-		if len(location) > 0 && FileExists(location) {
-			if yes, err = IsDirectory(location); yes {
-				if FileExists(path.Join(location, w.confDFolderName)) {
+		if len(location) > 0 && dir.FileExists(location) {
+			if yes, err = dir.IsDirectory(location); yes {
+				if dir.FileExists(path.Join(location, w.confDFolderName)) {
 					setPredefinedLocations(location + "/%s.yml")
 				} else {
 					setPredefinedLocations(location + "/%s/%s.yml")
 				}
-			} else if yes, err = IsRegularFile(location); yes {
+			} else if yes, err = dir.IsRegularFile(location); yes {
 				setPredefinedLocations(location)
 			}
 		}
@@ -45,11 +46,11 @@ func (w *ExecWorker) checkMoreLocations(rootCmd *RootCommand) (err error) {
 	if w.watchChildConfigFiles {
 		a1, a2 := ".$APPNAME.yml", ".$APPNAME/*.yml"
 		a3, a4 := os.ExpandEnv(a1), os.ExpandEnv(a2)
-		b := FileExists(a3)
+		b := dir.FileExists(a3)
 		if b {
 			w.predefinedLocations = append(w.predefinedLocations, a3)
 		}
-		b = FileExists(a4)
+		b = dir.FileExists(a4)
 		if b {
 			//
 		}
@@ -90,10 +91,10 @@ func (w *ExecWorker) loadFromLocations(rootCmd *RootCommand, locations []string,
 			fn = fmt.Sprintf(s, rootCmd.AppName)
 		}
 
-		b := FileExists(fn)
+		b := dir.FileExists(fn)
 		if !b {
 			fn = replaceAll(fn, ".yml", ".yaml")
-			b = FileExists(fn)
+			b = dir.FileExists(fn)
 		}
 		if b {
 			mainFile, subDir, err = w.rxxtOptions.LoadConfigFile(fn, main)
@@ -106,7 +107,7 @@ func (w *ExecWorker) loadFromLocations(rootCmd *RootCommand, locations []string,
 // getExpandedAlterLocations for internal using
 func (w *ExecWorker) getExpandedAlterLocations() (locations []string) {
 	for _, d := range internalGetWorker().alterLocations {
-		locations = uniAddStr(locations, normalizeDir(d))
+		locations = uniAddStr(locations, dir.NormalizeDir(d))
 	}
 	return
 }
@@ -118,7 +119,7 @@ func setAlterLocations(locations ...string) {
 // getExpandedPredefinedLocations for internal using
 func (w *ExecWorker) getExpandedPredefinedLocations() (locations []string) {
 	for _, d := range internalGetWorker().predefinedLocations {
-		locations = uniAddStr(locations, normalizeDir(d))
+		locations = uniAddStr(locations, dir.NormalizeDir(d))
 	}
 	return
 }

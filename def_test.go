@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/hedzr/cmdr"
+	"github.com/hedzr/log/dir"
 	"github.com/hedzr/logex"
 	"github.com/hedzr/logex/build"
 	"gopkg.in/hedzr/errors.v2"
@@ -511,7 +512,7 @@ func TestForGenerateDoc(t *testing.T) {
 	cmdr.Set("no-watch-conf-dir", true)
 
 	defer func() {
-		_ = cmdr.RemoveDirRecursive("docs")
+		_ = dir.RemoveDirRecursive("docs")
 	}()
 
 	var commands = []string{
@@ -694,13 +695,13 @@ func TestExec(t *testing.T) {
 		postWorks(t)
 
 		x := outX.String()
-		t.Logf("--------- stdout // %v // %v\n%v", cmdr.GetExecutableDir(), cmdr.GetExecutablePath(), x)
+		t.Logf("--------- stdout // %v // %v\n%v", dir.GetExecutableDir(), dir.GetExecutablePath(), x)
 
-		_ = cmdr.EnsureDir("ci")
-		if err = cmdr.EnsureDir(""); err == nil {
+		_ = dir.EnsureDir("ci")
+		if err = dir.EnsureDir(""); err == nil {
 			t.Failed()
 		}
-		if err = cmdr.EnsureDirEnh(".tmp"); err == nil {
+		if err = dir.EnsureDirEnh(".tmp"); err == nil {
 			_ = os.Remove(".tmp")
 		}
 

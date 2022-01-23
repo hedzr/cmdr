@@ -1319,6 +1319,12 @@ func dottedPathToCommand(dottedPath string, anyCmd *Command) (cc *Command) {
 	return
 }
 
+// DottedPathToCommandOrFlag searches the matched Command or Flag with the specified dotted-path.
+// The searching will start from root if anyCmd is nil.
+func DottedPathToCommandOrFlag(dottedPath string, anyCmd *Command) (cc *Command, ff *Flag) {
+	return dottedPathToCommandOrFlag(dottedPath, anyCmd)
+}
+
 // dottedPathToCommandOrFlag searches the matched Command or Flag with the specified dotted-path.
 // The searching will start from root if anyCmd is nil.
 func dottedPathToCommandOrFlag(dottedPath string, anyCmd *Command) (cc *Command, ff *Flag) {

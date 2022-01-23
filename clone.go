@@ -7,8 +7,8 @@ package cmdr
 import (
 	"bytes"
 	"encoding/gob"
+	"errors"
 	"github.com/hedzr/log"
-	"gopkg.in/hedzr/errors.v2"
 	"reflect"
 	"strings"
 )
@@ -29,7 +29,10 @@ type (
 		ZeroIfEqualsFrom bool // 源和目标字段值相同时，目标字段被清除为未初始化的零值
 		IgnoreNames      []string
 		EachFieldAlways  bool
-		IgnoreIfNotEqual bool
+		IgnoreIfNotEqual bool // keep target field value if not equals to source
+
+		// keep all values in target but clear the fields if equals to source:
+		//   set IgnoreIfNotEqual and ZeroIfEqualsFrom to true
 	}
 )
 

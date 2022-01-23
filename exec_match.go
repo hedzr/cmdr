@@ -212,7 +212,7 @@ func (w *ExecWorker) checkFlagCanBeHere(pkg *ptpkg) (err error) {
 func (w *ExecWorker) checkDblTildeStatus(pkg *ptpkg) (err error) {
 	if pkg.flg.dblTildeOnly {
 		if pkg.a[:2] != "~~" {
-			err = errors.New("Flag '~~%v' request double tilde prefix only.", pkg.flg.GetTitleName())
+			err = errors.New("a Flag '~~%v' request double tilde prefix only", pkg.flg.GetTitleName())
 		}
 	}
 	return
@@ -238,7 +238,7 @@ func (w *ExecWorker) checkPrerequisites(pkg *ptpkg) (err error) {
 func (w *ExecWorker) checkPrerequisitesForCmd(cc *Command, pkg *ptpkg) (err error) {
 	for _, f := range cc.Flags {
 		if f.times == 0 {
-			err = errors.New("The matching Flag '-%v' needs prerequisites are present, but '-%v' missed.",
+			err = errors.New("the matching Flag '-%v' needs prerequisites are present, but '-%v' missed",
 				pkg.flg.GetTitleName(),
 				f.GetTitleName())
 			return

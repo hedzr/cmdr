@@ -11,7 +11,6 @@ import (
 	"github.com/hedzr/cmdr/tool"
 	"io"
 	"os"
-	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -392,17 +391,6 @@ func getTextPiece(str string, start, want int) string {
 	return out.String()
 }
 
-func isTtyEscaped(s string) bool {
-	return strings.Contains(s, "\x1b[")
-}
-
-var reStripEscapes = regexp.MustCompile(`\x1b\[[0-9,;]+m`)
-
-func stripEscapes(str string) (strCleaned string) {
-	strCleaned = reStripEscapes.ReplaceAllString(str, "")
-	return
-}
-
 func (w *ExecWorker) prCommands(p Painter, command *Command, s1 []aSection, maxL, cols int) {
 	if len(s1) > 0 {
 		p.FpCommandsTitle(command)
@@ -411,8 +399,8 @@ func (w *ExecWorker) prCommands(p Painter, command *Command, s1 []aSection, maxL
 			fmtStrL, fmtStrR, fmtStrMR := fmt.Sprintf("%%-%dv", maxL+2), "%v\n", fmt.Sprintf("%%%dv%%v\n", maxL+2)
 			for i, l := range s.bufLL {
 				str := l.String()
-				if isTtyEscaped(str) {
-					strCleaned := stripEscapes(str)
+				if tool.IsTtyEscaped(str) {
+					strCleaned := tool.StripEscapes(str)
 					fl := fmt.Sprintf("%%-%dv", maxL+2+(len(str)-len(strCleaned)))
 					p.Print(fl, l.String())
 				} else {
@@ -456,8 +444,8 @@ func (w *ExecWorker) prFlags(p Painter, command *Command, s2 []aGroupedSections,
 				fmtStrL, fmtStrR, fmtStrMR := fmt.Sprintf("%%-%dv", maxL+2), "%v\n", fmt.Sprintf("%%%dv%%v\n", maxL+2)
 				for i, l := range s.bufLL {
 					str := l.String()
-					if isTtyEscaped(str) {
-						strCleaned := stripEscapes(str)
+					if tool.IsTtyEscaped(str) {
+						strCleaned := tool.StripEscapes(str)
 						fl := fmt.Sprintf("%%-%dv", maxL+2+(len(str)-len(strCleaned)))
 						p.Print(fl, l.String())
 					} else {

@@ -5,13 +5,21 @@ import (
 	"github.com/hedzr/cmdr"
 )
 
-func WithColorTableCommand() cmdr.ExecOption {
+// WithColorTableCommand appends 'color-table' command at root-level
+func WithColorTableCommand(dottedCommand ...string) cmdr.ExecOption {
 	return cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {
-		addTo(cmdr.RootFrom(root))
+		cmd := &root.Command
+		for _, d := range dottedCommand {
+			cmd = cmdr.DottedPathToCommand(d, cmd)
+			break
+		}
+		rr := cmdr.NewCmdFrom(cmd)
+
+		addTo(rr, cmdr.RootFrom(root))
 	}, nil)
 }
 
-func addTo(root *cmdr.RootCmdOpt) {
+func addTo(rr cmdr.OptCmd, root *cmdr.RootCmdOpt) {
 
 	c := cmdr.NewSubCmd()
 
@@ -20,7 +28,7 @@ func addTo(root *cmdr.RootCmdOpt) {
 		Group(cmdr.SysMgmtGroup).
 		Hidden(hidden).
 		Action(printColorTable).
-		AttachTo(root)
+		AttachTo(rr)
 
 	const tgName = "Color Bits"
 	cmdr.NewBool(true).

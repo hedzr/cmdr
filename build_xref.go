@@ -1290,6 +1290,12 @@ func (w *ExecWorker) buildToggleGroup(tg string, cmd *Command) {
 	}
 }
 
+// DottedPathToCommand searches the matched Command with the specified dotted-path.
+// The searching will start from root if anyCmd is nil.
+func DottedPathToCommand(dottedPath string, anyCmd *Command) (cc *Command) {
+	return dottedPathToCommand(dottedPath, anyCmd)
+}
+
 // dottedPathToCommand searches the matched Command with the specified dotted-path.
 // The searching will start from root if anyCmd is nil.
 func dottedPathToCommand(dottedPath string, anyCmd *Command) (cc *Command) {

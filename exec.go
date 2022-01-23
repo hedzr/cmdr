@@ -146,6 +146,21 @@ func (w *ExecWorker) internalExecForV2(pkg *ptpkg, rootCmd *RootCommand, args []
 	return
 }
 
+func (w *ExecWorker) shouldTerminate(err error) (shouldTerminate bool) {
+	if err != nil {
+		var e *ErrorForCmdr
+		if errors.As(err, &e) {
+			ferr("%v", e)
+			if !e.Ignorable {
+				shouldTerminate = true
+			}
+		} else {
+			shouldTerminate = true
+		}
+	}
+	return
+}
+
 func (w *ExecWorker) internalExecFor(pkg *ptpkg, rootCmd *RootCommand, args []string) (last *Command, err error) {
 	var (
 		goCommand    = &rootCmd.Command
@@ -175,16 +190,8 @@ func (w *ExecWorker) internalExecFor(pkg *ptpkg, rootCmd *RootCommand, args []st
 		// -t3: opt with an argument.
 
 		matched, stopC, stopF, err = w.xxTestCmd(pkg, &goCommand, rootCmd, &args)
-		if err != nil {
-			var e *ErrorForCmdr
-			if errors.As(err, &e) {
-				ferr("%v", e)
-				if !e.Ignorable {
-					return
-				}
-			} else {
-				return
-			}
+		if w.shouldTerminate(err) {
+			return
 		}
 		if stopF {
 			if !matched && (pkg.lastCommandHeld || (matched && pkg.flg == nil)) {

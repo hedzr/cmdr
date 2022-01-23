@@ -1262,6 +1262,23 @@ func (s *Options) GetHierarchyList() map[string]interface{} {
 	return s.hierarchy
 }
 
+// SaveCheckpoint make a snapshot of the current Option Store
+//
+// You may ResetOptions after SaveCheckpoint:
+//
+//    func x(aMap map[string]interface{}){
+//        defer cmdr.RestoreCheckpoint()
+//        cmdr.SaveCheckpoint()
+//        cmdr.ResetOptions()
+//        cmdr.MergeWith(map[string]interface{}{
+//          "app": map[string]interface{}{
+//            conf.AppName: map[string]interface{}{
+//              "a-map": aMap,
+//            }
+//          }
+//        }
+//        cmdr.SaveAsYaml("a-setting.yml")
+//    }
 func (s *Options) SaveCheckpoint() (err error) {
 	defer s.rw.RUnlock()
 	s.rw.RLock()
@@ -1273,6 +1290,8 @@ func (s *Options) SaveCheckpoint() (err error) {
 	return
 }
 
+// RestoreCheckpoint restore 1 or n checkpoint(s) from snapshots history.
+// see also SaveCheckpoint
 func (s *Options) RestoreCheckpoint(n ...int) (err error) {
 	var nn = 1
 	for _, n1 := range n {
@@ -1294,16 +1313,46 @@ func (s *Options) RestoreCheckpoint(n ...int) (err error) {
 	return
 }
 
+// ClearCheckpoints removes all checkpoints from snapshot history
+// see also SaveCheckpoint
 func (s *Options) ClearCheckpoints() {
 	w := internalGetWorker()
 	w.savedOptions = nil
 }
 
+// CheckpointSize returns how many snapshots made
+// see also SaveCheckpoint
 func (s *Options) CheckpointSize() int { return len(internalGetWorker().savedOptions) }
 
+// SaveCheckpoint make a snapshot of the current Option Store
+//
+// You may ResetOptions after SaveCheckpoint:
+//
+//    func x(aMap map[string]interface{}){
+//        defer cmdr.RestoreCheckpoint()
+//        cmdr.SaveCheckpoint()
+//        cmdr.ResetOptions()
+//        cmdr.MergeWith(map[string]interface{}{
+//          "app": map[string]interface{}{
+//            conf.AppName: map[string]interface{}{
+//              "a-map": aMap,
+//            }
+//          }
+//        }
+//        cmdr.SaveAsYaml("a-setting.yml")
+//    }
 func SaveCheckpoint() (err error) { return internalGetWorker().rxxtOptions.SaveCheckpoint() }
+
+// RestoreCheckpoint restore 1 or n checkpoint(s) from snapshots history.
+// see also SaveCheckpoint
 func RestoreCheckpoint(n ...int) (err error) {
 	return internalGetWorker().rxxtOptions.RestoreCheckpoint(n...)
 }
-func ClearCheckpoints()   { internalGetWorker().rxxtOptions.ClearCheckpoints() }
+
+// ClearCheckpoints removes all checkpoints from snapshot history
+// see also SaveCheckpoint
+func ClearCheckpoints() { internalGetWorker().rxxtOptions.ClearCheckpoints() }
+
+// CheckpointSize returns how many snapshots made
+// see also SaveCheckpoint
 func CheckpointSize() int { return internalGetWorker().rxxtOptions.CheckpointSize() }

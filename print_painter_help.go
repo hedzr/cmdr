@@ -198,6 +198,22 @@ func (s *helpPainter) FpFlagsGroupTitle(group string, isToggleGroup bool) {
 	}
 }
 
+func (s *helpPainter) envKeys(flg *Flag) (envKeys string) {
+	if len(flg.EnvVars) > 0 {
+		var sb strings.Builder
+		for _, k := range flg.EnvVars {
+			if len(strings.TrimSpace(k)) > 0 {
+				sb.WriteString(strings.TrimSpace(k))
+				sb.WriteRune(',')
+			}
+		}
+		if sb.Len() > 0 {
+			envKeys = fmt.Sprintf(" [env: %v]", strings.TrimRight(sb.String(), ","))
+		}
+	}
+	return
+}
+
 func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, defValStr string) (bufL, bufR bytes.Buffer) {
 	hidden := flg.Hidden
 	if hidden && GetVerboseModeHitCount() > 1 {
@@ -214,19 +230,7 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, def
 		defValStr = fmt.Sprintf("%v, in [%v..%v]", defValStr, flg.Min, flg.Max)
 	}
 
-	var envKeys string
-	if len(flg.EnvVars) > 0 {
-		var sb strings.Builder
-		for _, k := range flg.EnvVars {
-			if len(strings.TrimSpace(k)) > 0 {
-				sb.WriteString(strings.TrimSpace(k))
-				sb.WriteRune(',')
-			}
-		}
-		if sb.Len() > 0 {
-			envKeys = fmt.Sprintf(" [env: %v]", strings.TrimRight(sb.String(), ","))
-		}
-	}
+	var envKeys = s.envKeys(flg)
 
 	if len(flg.Deprecated) > 0 {
 		if GetNoColorMode() {

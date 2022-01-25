@@ -156,3 +156,17 @@ func (s *Flag) GetTitleFlagNamesByMax(delimChar string, maxShort int) string {
 	}
 	return sb.String()
 }
+
+// Delete removes myself from the command owner.
+func (c *Flag) Delete() {
+	if c == nil || c.owner == nil {
+		return
+	}
+
+	for i, cc := range c.owner.Flags {
+		if c == cc {
+			c.owner.Flags = append(c.owner.Flags[0:i], c.owner.Flags[i+1:]...)
+			return
+		}
+	}
+}

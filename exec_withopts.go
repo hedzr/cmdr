@@ -73,6 +73,51 @@ func withShellCompletionPartialMatch(b bool) ExecOption {
 	}
 }
 
+// WithCommandSystemCustomizing provides a shortcut to allow plugin/addon
+// can customize the whole command/sub-command hierarchy structure.
+//
+// For example, suppose you're planning to hide the 'generate' internal
+// command from help screen:
+//
+//     opt := cmdr.WithCommandSystemCustomizing(
+//       func(root *cmdr.RootCommand, args []string) {
+//         root.FindSubCommand("generate").Delete()
+//       })
+//     opts := append(opts, opt)
+//     err := cmdr.Exec(buildMyCommands(), opts...)
+//
+// And, you may attach more sub-commands into the current command system
+// from your plugin/addon:
+//
+//     func WithColorTableCommand(dottedCommand ...string) cmdr.ExecOption {
+//         return cmdr.WithCommandSystemCustomizing(
+//           func(root *cmdr.RootCommand, args []string) {
+//             cmd := &root.Command
+//             for _, d := range dottedCommand {
+//               cmd = cmdr.DottedPathToCommand(d, cmd)
+//               break
+//             }
+//             rr := cmdr.NewCmdFrom(cmd)
+//             addTo(rr, cmdr.RootFrom(root))
+//           })
+//     }
+//
+//     func addTo(rr cmdr.OptCmd, root *cmdr.RootCmdOpt) {
+//         c := cmdr.NewSubCmd()
+//
+//         c.Titles("color-table", "ct").
+//             Description("print shell escape sequence table", "").
+//             Group(cmdr.SysMgmtGroup).
+//             Hidden(hidden).
+//             Action(printColorTable).
+//             AttachTo(rr)
+//         //...
+//     }
+//
+func WithCommandSystemCustomizing(customizer HookFunc) ExecOption {
+	return WithXrefBuildingHooks(customizer, nil)
+}
+
 // WithXrefBuildingHooks sets the hook before and after building xref indices.
 // It's replacers for AddOnBeforeXrefBuilding, and AddOnAfterXrefBuilt.
 //

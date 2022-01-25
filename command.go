@@ -211,3 +211,17 @@ func (c *Command) GetSubCommandNamesBy(delimChar string) string {
 	}
 	return strings.Join(a, delimChar)
 }
+
+// Delete removes myself from the command hierarchy system.
+func (c *Command) Delete() {
+	if c == nil || c.owner == nil {
+		return
+	}
+
+	for i, cc := range c.owner.SubCommands {
+		if c == cc {
+			c.owner.SubCommands = append(c.owner.SubCommands[0:i], c.owner.SubCommands[i+1:]...)
+			return
+		}
+	}
+}

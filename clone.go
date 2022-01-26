@@ -162,18 +162,33 @@ func (s *copierImpl) copyAll(amount int, isSlice bool, from, to reflect.Value, f
 	return nil
 }
 
-func safetyTarget(dest reflect.Value, fromType reflect.Type, ignoreNames []string) {
-	if fromType.Kind() != reflect.Struct {
+func safetyTargetStruct(dest reflect.Value, fromType reflect.Type, ignoreNames []string) {
+	if fromKind := fromType.Kind(); fromKind != reflect.Struct {
+		if fromKind == reflect.Array {
+			// array of struct?
+		}
 		return
 	}
 
+	// struct
+
 	for i := 0; i < fromType.NumField(); i++ {
 		fld := fromType.Field(i)
-		if fld.Anonymous && fld.Type.Kind() == reflect.Ptr {
+		switch kind := fld.Type.Kind(); kind {
+		case reflect.Ptr:
+			if fld.Anonymous {
+				v := dest.Field(i)
+				if v.IsValid() && v.IsNil() && v.CanSet() {
+					v.Set(reflect.New(fld.Type.Elem()))
+					safetyTargetStruct(v, fld.Type, ignoreNames)
+				}
+			}
+		case reflect.Map:
 			v := dest.Field(i)
 			if v.IsValid() && v.IsNil() && v.CanSet() {
-				v.Set(reflect.New(fld.Type.Elem()))
-				safetyTarget(v, fld.Type, ignoreNames)
+				typ := fld.Type
+				mapValue := reflect.MakeMap(typ)
+				v.Set(mapValue)
 			}
 		}
 	}
@@ -190,7 +205,7 @@ func (s *copierImpl) copyFieldToField(dest, source reflect.Value, fromType refle
 		}
 	}()
 
-	safetyTarget(dest, fromType, ignoreNames)
+	safetyTargetStruct(dest, fromType, ignoreNames)
 
 	// Copy from field to field or method
 	for _, field := range s.deepFields(fromType) {
@@ -368,6 +383,10 @@ func equalArray(to, from reflect.Value) bool {
 	//}
 	//return true
 
+	if from.Type().Elem().Comparable() == false {
+		return false
+	}
+
 	x := make(map[interface{}]bool)
 	for i := 0; i < from.Len(); i++ {
 		x[from.Index(i).Interface()] = true
@@ -384,6 +403,10 @@ func equalSlice(to, from reflect.Value) bool {
 	}
 	if from.Len() == 0 {
 		return true
+	}
+
+	if from.Type().Elem().Comparable() == false {
+		return false
 	}
 
 	x := make(map[interface{}]bool)
@@ -439,10 +462,17 @@ func setDefault(to reflect.Value) {
 func (s *copierImpl) setCvt(to, from reflect.Value) {
 	if !(s.KeepIfFromIsNil && isNil(from)) {
 		if !(s.KeepIfFromIsZero && IsZero(from)) {
-			if equal(to, from) && s.ZeroIfEqualsFrom {
-				setDefault(to)
-			} else if s.IgnoreIfNotEqual == false {
-				to.Set(from.Convert(to.Type()))
+			if equal(to, from) {
+				if s.ZeroIfEqualsFrom {
+					setDefault(to)
+				} else if s.IgnoreIfNotEqual == false {
+					to.Set(from.Convert(to.Type()))
+				}
+				// else ignore it
+			} else {
+				if s.IgnoreIfNotEqual == false || isNil(to) || IsZero(to) {
+					to.Set(from.Convert(to.Type()))
+				}
 			}
 		}
 	}

@@ -7,7 +7,7 @@ import (
 
 // WithColorTableCommand appends 'color-table' command at root-level
 func WithColorTableCommand(dottedCommand ...string) cmdr.ExecOption {
-	return cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {
+	return cmdr.WithCommandSystemCustomizing(func(root *cmdr.RootCommand, args []string) {
 		cmd := &root.Command
 		for _, d := range dottedCommand {
 			cmd = cmdr.DottedPathToCommand(d, cmd)
@@ -16,7 +16,7 @@ func WithColorTableCommand(dottedCommand ...string) cmdr.ExecOption {
 		rr := cmdr.NewCmdFrom(cmd)
 
 		addTo(rr, cmdr.RootFrom(root))
-	}, nil)
+	})
 }
 
 func addTo(rr cmdr.OptCmd, root *cmdr.RootCmdOpt) {

@@ -2,6 +2,26 @@
 
 ## Versions
 
+- v1.10.0
+  - fix: toggle-group key not sync while set via envvar
+  - imp: speed up by extracting a re compiling code
+  - imp: upgrade deps with more enh-helpers from [hedzr/log](https://github.com/hedzr/log)
+  - imp: yaml indent size
+  - imp: StripOrderPrefix
+  - imp/fix: sync debug/trace mode back to hedzr/log
+  - fix: options after tail args (positional args) might be ignored
+  - fix: ResetOptions not clean up internal hierarchy-list
+  - fea: added `Checkpoints` on _Option Store_  
+    you may save and restore multiple checkpoints for cmdr _Option Store_, so that some temporary changes can be made.
+  - fix/imp: `--man` crashes if manpages not installed - the responding manpage will be generated temporarily and instantly now
+  - add `GitSummary` field into conf package
+  - imp: speed up by reduce get worker
+    - centralize rxxtOptions to store()
+    - flatten backtrace(Flg|Cmd)Names, added dottedPathToCommand
+  - **NOTE**: _the phrase wrapped by backtick(````) in `Description` field will be extracted as `DefaultValuePlaceholder` field automatically, so **beware** this feature._
+  - fea: `-vv` (dup `-v` more than once) will print the hidden commands & flags in help screen NOW.  
+    To take a sight of running `fluent generate --help --verbose -verbose`.
+  - ...
 
 - v1.9.9
   - improved: prevent `sent to closed channel` defensively

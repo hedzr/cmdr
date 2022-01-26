@@ -13,7 +13,7 @@ const (
 	// AppName const
 	AppName = "cmdr"
 	// Version const
-	Version = "1.9.9"
+	Version = "1.10.0"
 	// VersionInt const
-	VersionInt = 0x010909
+	VersionInt = 0x010a00
 )

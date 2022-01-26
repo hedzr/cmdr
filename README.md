@@ -49,7 +49,10 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.10.0 (WIP)
+- v1.10.1 (WIP)
+
+
+- v1.10.0
   - fix: toggle-group key not sync while set via envvar
   - imp: speed up by extracting a re compiling code
   - imp: upgrade deps with more enh-helpers from [hedzr/log](https://github.com/hedzr/log)
@@ -68,7 +71,7 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - **NOTE**: _the phrase wrapped by backtick(````) in `Description` field will be extracted as `DefaultValuePlaceholder` field automatically, so **beware** this feature._
   - fea: `-vv` (dup `-v` more than once) will print the hidden commands & flags in help screen NOW.  
     To take a sight of running `fluent generate --help --verbose -verbose`.
-  - 
+  - ...
 
 - v1.9.9
   - improved: prevent `sent to closed channel` defensively

@@ -101,6 +101,10 @@ func GetLoggerLevel() Level {
 	return Level(l)
 }
 
+func (w *ExecWorker) setLoggerLevel(l Level, opts ...logex.Option) {
+	_ = w.processLevelStr(l, opts...)
+}
+
 func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.Option) (err error) {
 	var lvlStr = GetStringRP(w.logexPrefix, "level", lvl.String())
 	var l Level

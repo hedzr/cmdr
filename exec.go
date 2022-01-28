@@ -460,6 +460,12 @@ func (w *ExecWorker) checkStates(pkg *ptpkg) {
 
 	SetDebugMode(GetDebugMode()) // send state to hedzr/log
 	SetTraceMode(GetTraceMode()) // send state to hedzr/log
+	if GetDebugMode() {
+		w.setLoggerLevel(DebugLevel)
+	}
+	if GetTraceMode() {
+		w.setLoggerLevel(TraceLevel)
+	}
 }
 
 // func (w *ExecWorker) beforeInvokeCommand(rootCmd *RootCommand, goCommand *Command, args []string) (err error) {

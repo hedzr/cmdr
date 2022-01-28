@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log/exec"
 	"runtime"
 	"strconv"
 	"strings"
@@ -89,7 +90,11 @@ func (s *helpPainter) FpDescTitle(command *Command, title string) {
 }
 
 func (s *helpPainter) FpDescLine(command *Command) {
-	s.Printf("    %v", command.Description)
+	desc := command.Description
+	if command.LongDescription != "" {
+		desc = command.LongDescription
+	}
+	s.Printf("%v", exec.LeftPad(desc, 4))
 }
 
 func (s *helpPainter) FpExamplesTitle(command *Command, title string) {
@@ -98,9 +103,10 @@ func (s *helpPainter) FpExamplesTitle(command *Command, title string) {
 
 func (s *helpPainter) FpExamplesLine(command *Command) {
 	str := tplApply(command.Examples, command.root)
-	for _, line := range strings.Split(str, "\n") {
-		s.Printf("    %v", line)
-	}
+	s.Printf("%v", exec.LeftPad(str, 4))
+	//for _, line := range strings.Split(str, "\n") {
+	//	s.Printf("    %v", line)
+	//}
 }
 
 func (s *helpPainter) FpCommandsTitle(command *Command) {

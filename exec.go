@@ -283,7 +283,7 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 	if !pkg.needHelp && len(pkg.unknownCmds) == 0 && len(pkg.unknownFlags) == 0 {
 		if goCommand.Action != nil {
 			rArgs := w.getRemainArgs(pkg, args)
-			err = w.doInvokeCommand(pkg, rootCmd, goCommand, rArgs)
+			err = w.doInvokeCommand(rootCmd, goCommand, rArgs)
 			return
 		}
 	}
@@ -306,7 +306,7 @@ func (w *ExecWorker) doInvokeHelpScreen(pkg *ptpkg, rootCmd *RootCommand, goComm
 
 }
 
-func (w *ExecWorker) doInvokeCommand(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
+func (w *ExecWorker) doInvokeCommand(rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
 	if goCommand != &rootCmd.Command {
 		if w.noCommandAction {
 			return
@@ -314,7 +314,7 @@ func (w *ExecWorker) doInvokeCommand(pkg *ptpkg, rootCmd *RootCommand, goCommand
 
 		defer w.deferRunPostActionOfRootLevel(rootCmd, goCommand, remainArgs)()
 
-		if err = w.checkArgs(pkg, rootCmd, goCommand, remainArgs); err != nil {
+		if err = w.checkArgs(rootCmd, goCommand, remainArgs); err != nil {
 			return
 		}
 
@@ -375,22 +375,7 @@ func (w *ExecWorker) gatherPostActions(rootCmd *RootCommand) (postActions []Invo
 }
 
 //goland:noinspection GoUnusedParameter
-func (w *ExecWorker) checkArgs(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
-	//if w.logexInitialFunctor != nil {
-	//	if err = w.logexInitialFunctor(goCommand, remainArgs); err == ErrShouldBeStopException {
-	//		return
-	//	}
-	//}
-	//
-	//if err = w.checkRequiredArgs(goCommand, remainArgs); err != nil {
-	//	return
-	//}
-	//
-	//if w.afterArgsParsed != nil {
-	//	if err = w.afterArgsParsed(goCommand, remainArgs); err == ErrShouldBeStopException {
-	//		return
-	//	}
-	//}
+func (w *ExecWorker) checkArgs(rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
 
 	if w.logexInitialFunctor != nil {
 		err = w.logexInitialFunctor(goCommand, remainArgs)

@@ -30,3 +30,13 @@ func walkFromCommand(cmd *Command, index, level int, walk func(cmd *Command, ind
 	}
 	return
 }
+
+// InvokeCommand invokes a sub-command internally.
+func InvokeCommand(dottedCommandPath string, extraArgs ...string) (err error) {
+	cc := dottedPathToCommand(dottedCommandPath, nil)
+	if cc != nil {
+		w := internalGetWorker()
+		err = w.doInvokeCommand(w.rootCommand, cc, extraArgs)
+	}
+	return
+}

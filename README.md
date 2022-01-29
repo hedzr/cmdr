@@ -49,12 +49,15 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.10.1 (WIP)
+- v1.10.2 (WIP)
+
+- v1.10.1
   - move to go1.17 to get a split declaration
   - fix: added the forgotten long-desc field
   - fix: transfer proper log-level to hedzr/log if in debug/trace mode
-  - fea: added InvokeCommand to run a sub-command from somewhere
+  - fix/imp: log.ForDir, ForFile
   - fix: log.LeftPad
+  - fea: added InvokeCommand to run a sub-command from somewhere
 
 - v1.10.0
   - fix: toggle-group key not sync while set via envvar

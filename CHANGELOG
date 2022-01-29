@@ -2,6 +2,9 @@
 
 ## Versions
 
+- v1.10.5
+  - fix: logex might crash on a nil skip field
+
 - v1.10.3
   - last release failed because some deps cannot committed due to weak network
 

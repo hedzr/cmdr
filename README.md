@@ -49,7 +49,10 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.10.5 (WIP)
+- v1.10.6 (WIP)
+
+- v1.10.5
+  - fix: logex might crash on a nil skip field
 
 - v1.10.3
   - last release failed because some deps cannot committed due to weak network

@@ -9,10 +9,10 @@ github.com/fsnotify/fsnotify v1.5.1 h1:mZcQUHVQUQWoPXXtuf9yuEXKudkV2sx1E06UadKWp
 github.com/fsnotify/fsnotify v1.5.1/go.mod h1:T3375wBYaZdLLcVNkcVbzGHY7f1l/uK5T5Ai1i3InKU=
 github.com/hedzr/cmdr-base v0.1.3 h1:pMhVLP+Uxdhuf6BeasAC2OivMXJ3vxJHvFJHPQscQPU=
 github.com/hedzr/cmdr-base v0.1.3/go.mod h1:c3vMkHa5PME2P2W8lE3T9+JX12tq9tmCUt6lXbmt5kI=
-github.com/hedzr/log v1.5.6 h1:zdkr3AepsRlzhrUsz/mRtrZzD+CY2UEL37q6Mf9nQcg=
-github.com/hedzr/log v1.5.6/go.mod h1:bmQqsGC0rv4r/5ISLJO++HM2kYoKfyBcRbncMknYNjY=
-github.com/hedzr/logex v1.5.6 h1:ceQVoHRuIMLVD0Y6+V1f0QOMCZF7W1qG5ORnaYnO7/U=
-github.com/hedzr/logex v1.5.6/go.mod h1:UYWKRJIzPNP180a7G7ciPN5lTgOt1UOPiQlkTj2b2iY=
+github.com/hedzr/log v1.5.7 h1:fG5UaUk22Pmn0gS52bjEtmJAPYYWIXHVHr3TYxWlpoI=
+github.com/hedzr/log v1.5.7/go.mod h1:bmQqsGC0rv4r/5ISLJO++HM2kYoKfyBcRbncMknYNjY=
+github.com/hedzr/logex v1.5.7 h1:6LB/sDCohtdLN9g0jFeXG4QQUoiqIdDcjLjC+1zYyj4=
+github.com/hedzr/logex v1.5.7/go.mod h1:1T4I0+pXlPJe20562Kt85u/AjFrGK7qTzdfUwkpXYS8=
 github.com/konsorten/go-windows-terminal-sequences v1.0.3 h1:CE8S1cTafDpPvMhIxNJKvHsGVBgn1xWYf1NbHQhywc8=
 github.com/konsorten/go-windows-terminal-sequences v1.0.3/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
 github.com/kr/pretty v0.1.0 h1:L/CwN0zerZDmRFUapSPitk6f+Q3+0za1rQkzVuMiMFI=

@@ -19,6 +19,8 @@ docs/
 .tmp.*
 conf.d/
 
+Makefile
+.env*
 
 
 

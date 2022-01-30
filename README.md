@@ -49,7 +49,10 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.10.7 (WIP)
+- v1.10.8 (WIP)
+
+- v1.10.7
+  - fix: generate shell may be lost buffered contents on writing to file
 
 - v1.10.6
   - fix: internal commands and flags has wrong group declarations since last refactored.

@@ -49,7 +49,11 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.10.6 (WIP)
+- v1.10.7 (WIP)
+
+- v1.10.6
+  - fix: internal commands and flags has wrong group declarations since last refactored.
+  - fea: `-o file` for `generate shell` command.
 
 - v1.10.5
   - fix: logex might crash on a nil skip field

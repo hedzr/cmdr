@@ -3,6 +3,7 @@
 package cmdr
 
 import (
+	"io"
 	"os"
 	"strings"
 	"text/template"
@@ -80,7 +81,7 @@ func zshTplExpand(ctx *genZshCtx, name, tmplString string, args interface{}) (er
 type genZshCtx struct {
 	cmd    *Command
 	args   *internalShellTemplateArgs
-	output *os.File
+	output io.Writer
 }
 
 type internalShellTemplateArgs struct {

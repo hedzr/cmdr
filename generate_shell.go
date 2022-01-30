@@ -5,10 +5,12 @@
 package cmdr
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log/dir"
 	"github.com/hedzr/log/exec"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -22,23 +24,39 @@ import (
 func genShell(cmd *Command, args []string) (err error) {
 	// logrus.Infof("OK gen shell. %v", *cmd)
 	w := internalGetWorker()
-	what := w.gsWhat()
 
-	switch what {
+	var writer io.Writer
+	filename := GetStringP(w.getPrefix(), "generate.shell.output")
+	filePath := filename
+	if filename != "" {
+		dirname := GetStringP(w.getPrefix(), "generate.shell.dir")
+		if dirname != "" {
+			filePath = path.Join(dirname, filename)
+		}
+		var f *os.File
+		if f, err = os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0644); err == nil {
+			defer f.Close()
+			writer = bufio.NewWriter(f)
+		} else {
+			return
+		}
+	}
+
+	switch what := w.gsWhat(); what {
 	case "zsh":
-		err = genShellZsh(cmd, args)
+		err = genShellZsh(writer, filePath, cmd, args)
 	case "fish":
-		err = genShellFish(cmd, args)
+		err = genShellFish(writer, filePath, cmd, args)
 	case "fig":
-		err = genShellFig(cmd, args)
+		err = genShellFig(writer, filePath, cmd, args)
 	case "elvish":
-		err = genShellElvish(cmd, args)
+		err = genShellElvish(writer, filePath, cmd, args)
 	case "powershell":
-		err = genShellPowershell(cmd, args)
+		err = genShellPowershell(writer, filePath, cmd, args)
 	case "bash":
 		fallthrough
 	default:
-		err = genShellBash(cmd, args)
+		err = genShellBash(writer, filePath, cmd, args)
 	}
 
 	//if GetBoolP(w.getPrefix(), "generate.shell.zsh") {
@@ -109,17 +127,38 @@ func findDepth(cmd *Command) (deep int) {
 // 	return
 // }
 
-func _makeFileIn(locations []string, appName string, fn func(path string, f *os.File) (err error)) (err error) {
+func genShellZsh(writer io.Writer, fullPath string, cmd *Command, args []string) (err error) {
+	shell := os.Getenv("SHELL")
+	_, fpath, _ := exec.RunWithOutput(shell, "-c", `echo $fpath`)
+	//Logger.Infof("fpath = %v", fpath)
+	//Logger.Infof("ENV:\n%v", os.Environ())
+	//
+	// /usr/local/share/zsh/site-functions
+	// $HOME/.oh-my-zsh/completions
+	// $HOME/.oh-my-zsh/functions
+	//
+	locs := tool.ReverseStringSlice(strings.Split(strings.TrimRight(fpath, "\n"), " "))
+	err = _makeFileIn(writer, fullPath, locs, cmd.root.AppName, genShellZshHO(cmd))
+	return
+}
+
+func _makeFileIn(writer io.Writer, fullPath string, locations []string, appName string, fn func(path string, writer io.Writer) (err error)) (err error) {
+	if writer != nil {
+		err = fn(fullPath, writer)
+		return
+	}
+
 	linuxRoot := os.Getuid() == 0
 	for _, s := range locations {
-		//Logger.Debugf("--- checking %s", s)
+		//Logger.Infof("--- checking %s", s)
 		if dir.FileExists(s) {
 			file := path.Join(s, "_"+appName)
 			//Logger.Debugf("    try creating %s", file)
 			var f *os.File
 			if f, err = os.Create(file); err != nil {
 				if !linuxRoot {
-					break // for non-root user, we break file-writing loop and dump scripts to console too.
+					err = nil
+					continue // for non-root user, we break file-writing loop and dump scripts to console too.
 				}
 				return
 			}
@@ -131,33 +170,19 @@ func _makeFileIn(locations []string, appName string, fn func(path string, f *os.
 			return
 		}
 	}
+
 	err = fn("-", os.Stdout)
 	return
 }
 
-func genShellZsh(cmd *Command, args []string) (err error) {
-	shell := os.Getenv("SHELL")
-	_, fpath, _ := exec.RunWithOutput(shell, "-c", `echo $fpath`)
-	//Logger.Infof("fpath = %v", fpath)
-	//Logger.Infof("ENV:\n%v", os.Environ())
-	//
-	// /usr/local/share/zsh/site-functions
-	// $HOME/.oh-my-zsh/completions
-	// $HOME/.oh-my-zsh/functions
-	//
-	locs := tool.ReverseStringSlice(strings.Split(strings.TrimRight(fpath, "\n"), " "))
-	err = _makeFileIn(locs, cmd.root.AppName, genShellZshHO(cmd))
-	return
-}
-
-func genShellZshHO(cmd *Command) func(path string, f *os.File) (err error) {
-	return func(path string, f *os.File) (err error) {
+func genShellZshHO(cmd *Command) func(path string, writer io.Writer) (err error) {
+	return func(path string, writer io.Writer) (err error) {
 		ctx := &genZshCtx{
 			cmd: cmd,
 			args: &internalShellTemplateArgs{cmd.root,
 				GetString("cmdr.Version"),
 			},
-			output: f,
+			output: writer,
 		}
 
 		err = zshTplExpand(ctx, "zsh.completion.head", zshCompHead, ctx.args)
@@ -173,8 +198,9 @@ func genShellZshHO(cmd *Command) func(path string, f *os.File) (err error) {
 			})
 
 			err = zshTplExpand(ctx, "zsh.completion.tail", zshCompTail, ctx.args)
-			fmt.Printf(`# '%v' generated.
-# Re-login to enable the new bash completion script.
+			fmt.Printf(`
+# %q generated.
+# Re-login to enable the new zsh completion script.
 `, path)
 		}
 		return
@@ -404,27 +430,27 @@ func unquote(s string) string {
 //
 //
 
-func genShellFish(cmd *Command, args []string) (err error) {
+func genShellFish(writer io.Writer, fullPath string, cmd *Command, args []string) (err error) {
 	fmt.Println(`# todo fish`)
 	return
 }
 
-func genShellElvish(cmd *Command, args []string) (err error) {
+func genShellElvish(writer io.Writer, fullPath string, cmd *Command, args []string) (err error) {
 	fmt.Println(`# todo elvish`)
 	return
 }
 
-func genShellFig(cmd *Command, args []string) (err error) {
+func genShellFig(writer io.Writer, fullPath string, cmd *Command, args []string) (err error) {
 	fmt.Println(`# todo fig`)
 	return
 }
 
-func genShellPowershell(cmd *Command, args []string) (err error) {
+func genShellPowershell(writer io.Writer, fullPath string, cmd *Command, args []string) (err error) {
 	fmt.Println(`# todo powershell`)
 	return
 }
 
-func genShellBash(cmd *Command, args []string) (err error) {
+func genShellBash(writer io.Writer, fullPath string, cmd *Command, args []string) (err error) {
 	var tmpl *template.Template
 	tmpl, err = template.New("bash.completion").Parse(`
 
@@ -488,32 +514,54 @@ fi; fi
 	if err == nil {
 		linuxRoot := os.Getuid() == 0
 
-		for _, s := range []string{"/etc/bash_completion.d", "/usr/local/etc/bash_completion.d", "/tmp"} {
-			if dir.FileExists(s) {
-				file := path.Join(s, cmd.root.AppName)
-				var f *os.File
-				if f, err = os.Create(file); err != nil {
-					if !linuxRoot {
-						continue
+		if writer == nil {
+			for _, s := range []string{"/etc/bash_completion.d", "/usr/local/etc/bash_completion.d", "/tmp"} {
+				if dir.FileExists(s) {
+					file := path.Join(s, cmd.root.AppName)
+					var f *os.File
+					if f, err = os.Create(file); err != nil {
+						if !linuxRoot {
+							continue
+						}
+						return
 					}
-					return
-				}
 
-				err = tmpl.Execute(f, cmd.root)
-				if err == nil {
-					fmt.Printf(`''%v generated.
-Re-login to enable the new bash completion script.
-`, file)
-				}
-				if !linuxRoot {
-					break // for non-root user, we break file-writing loop and dump scripts to console too.
-				}
-				return
+					writer, fullPath = f, file
+					break
 
+					//					err = tmpl.Execute(f, cmd.root)
+					//					if err == nil {
+					//						fmt.Printf(`''%v generated.
+					//Re-login to enable the new bash completion script.
+					//`, file)
+					//					}
+					//					if !linuxRoot {
+					//						break // for non-root user, we break file-writing loop and dump scripts to console too.
+					//					}
+					//					return
+
+				}
 			}
 		}
 
-		err = tmpl.Execute(os.Stdout, cmd.root)
+		if writer == nil {
+			err = tmpl.Execute(os.Stdout, cmd.root)
+		} else {
+			err = tmpl.Execute(writer, cmd.root)
+
+			if !linuxRoot {
+				// for non-root user, we break file-writing loop and dump scripts to console too.
+				err = tmpl.Execute(os.Stdout, cmd.root)
+			}
+
+			if err == nil && fullPath != "" {
+				fmt.Printf(`
+# %q generated.
+# Re-login to enable the new bash completion script.
+`, fullPath)
+			}
+
+		}
 	}
 	return
 }

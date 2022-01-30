@@ -12,7 +12,7 @@ import (
 )
 
 // App is a global singleton GlobalApp instance
-func App() *GlobalApp { return app_ }
+func App() *GlobalApp { return appUniqueInstance }
 
 // ---------------------------------------------
 
@@ -22,17 +22,26 @@ func App() *GlobalApp { return app_ }
 // GormDB returns the underlying GORM DB object in DB layer (for fast, simple coding)
 //func (s *GlobalApp) GormDB() *gorm.DB { return s.dbx.DBE() }
 
+// RootCommand returns cmdr.RootCommand
 func (s *GlobalApp) RootCommand() *cmdr.RootCommand { return s.cmd.GetRoot() }
-func (s *GlobalApp) AppName() string                { return conf.AppName }
-func (s *GlobalApp) AppTag() string                 { return conf.AppName } // appTag: appName or serviceID
-func (s *GlobalApp) AppTitle() string               { return cmdr.GetStringR("app-title") }
-func (s *GlobalApp) AppModuleName() string          { return cmdr.GetStringR("app-module-name") }
+
+// AppName returns app name
+func (s *GlobalApp) AppName() string { return conf.AppName }
+
+// AppTag returns app tag name (app name or service id)
+func (s *GlobalApp) AppTag() string { return conf.AppName } // appTag: appName or serviceID
+// AppTitle returns app title line
+func (s *GlobalApp) AppTitle() string { return cmdr.GetStringR("app-title") }
+
+// AppModuleName returns app module name
+func (s *GlobalApp) AppModuleName() string { return cmdr.GetStringR("app-module-name") }
 
 // Cache returns Cache/Redis Service
 //func (s *GlobalApp) Cache() *cache.Hub { return s.cache }
 
 // ---------------------------------------------
 
+// Close cleanups internal resources and free any basic infrastructure if necessary
 func (s *GlobalApp) Close() {
 	log.Debug("* *App shutting down ...")
 	s.Basic.Close()
@@ -40,6 +49,7 @@ func (s *GlobalApp) Close() {
 
 // ---------------------------------------------
 
+// GlobalApp is a general global object
 type GlobalApp struct {
 	basics.Basic
 
@@ -53,20 +63,21 @@ type GlobalApp struct {
 }
 
 func createApp() {
-	app_ = &GlobalApp{}
+	appUniqueInstance = &GlobalApp{}
 }
 
-var once_ sync.Once
-var app_ *GlobalApp
+var onceForApp sync.Once
+var appUniqueInstance *GlobalApp
 
 func init() {
-	once_.Do(func() {
+	onceForApp.Do(func() {
 		createApp()
 	})
 }
 
 // ---------------------------------------------
 
+// Init do initial stuffs
 func (s *GlobalApp) Init(cmd *cmdr.Command, args []string) (err error) {
 	// initialize all infrastructures here, such as: DB, Cache, MQ, ...
 

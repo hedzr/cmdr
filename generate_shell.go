@@ -35,8 +35,12 @@ func genShell(cmd *Command, args []string) (err error) {
 		}
 		var f *os.File
 		if f, err = os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0644); err == nil {
-			defer f.Close()
-			writer = bufio.NewWriter(f)
+			ww := bufio.NewWriter(f)
+			defer func() {
+				ww.Flush()
+				f.Close()
+			}()
+			writer = ww
 		} else {
 			return
 		}

@@ -1,0 +1,44 @@
+app:
+  bgo:
+    build:
+      os: [ darwin,linux,windows ]
+      arch: [ amd64,arm64,"386" ]
+      projects:
+        000-default-group:
+          items:
+            fluent:
+              name: fluent
+              dir: examples/fluent
+              package: github.com/hedzr/cmdr/examples/fluent
+              keep-workdir: true
+
+        010-examples-group:
+          disabled: true
+          items:
+            demo:
+              name: demo
+              dir: examples/demo
+              package: github.com/hedzr/cmdr/examples/demo
+              keep-workdir: true
+            ffdemo:
+              name: ffdemo
+              dir: examples/ffdemo
+              package: github.com/hedzr/cmdr/examples/ffdemo
+              keep-workdir: true
+            short:
+              name: short
+              dir: examples/short
+              package: github.com/hedzr/cmdr/examples/short
+              keep-workdir: true
+            wget-demo:
+              name: wget-demo
+              dir: examples/wget-demo
+              package: github.com/hedzr/cmdr/examples/wget-demo
+              keep-workdir: true
+      output:
+        dir: ./bin
+        named-as: '{{.AppName}}-{{.OS}}-{{.ARCH}}'
+      excludes: [ study*, test* ]
+      saved-as: .bgo.yml
+
+

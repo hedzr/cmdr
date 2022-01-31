@@ -864,12 +864,21 @@ func (s *Options) setNxNoLock(key string, val interface{}) (oldVal interface{}, 
 			s.internalRaiseOnSetCB(key, val, oldVal)
 			modi = true
 			return
-		} else if isEmptySlice(val) && isSlice(oldVal) {
+		}
+		if isEmptySlice(val) && isSlice(oldVal) {
 			s.entries[key] = val
 			s.internalRaiseOnSetCB(key, val, oldVal)
 			modi = true
 			return
-		} else if isSlice(oldVal) && isSlice(val) {
+		}
+	}
+
+	return s.setNxNoLock2(key, val, leaf)
+}
+
+func (s *Options) setNxNoLock2(key string, val interface{}, leaf bool) (oldVal interface{}, modi bool) {
+	if leaf {
+		if isSlice(oldVal) && isSlice(val) {
 			newVal := mergeSlice(oldVal, val)
 			val = newVal
 		} else if isMap(oldVal) && isMap(val) {

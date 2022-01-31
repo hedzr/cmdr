@@ -961,7 +961,7 @@ func (s *Options) mmset(m map[string]interface{}, key, path string, val interfac
 
 	var leaf bool
 	if _, ok := oldval.(map[string]interface{}); !ok {
-		if _, ok := val.(map[string]interface{}); !ok {
+		if _, ok = val.(map[string]interface{}); !ok {
 			leaf = true
 		}
 	}
@@ -992,17 +992,17 @@ func (s *Options) setCB(onMergingSet, onSet func(keyPath string, value, oldVal i
 }
 
 func (s *Options) internalRaiseOnMergingSetCB(path string, val, oldval interface{}) {
-	s.rwCB.RLock()
-	defer s.rwCB.RUnlock()
 	if s.onMergingSet != nil {
+		s.rwCB.RLock()
+		defer s.rwCB.RUnlock()
 		s.onMergingSet(path, val, oldval)
 	}
 }
 
 func (s *Options) internalRaiseOnSetCB(path string, val, oldval interface{}) {
-	s.rwCB.RLock()
-	defer s.rwCB.RUnlock()
 	if s.onSet != nil {
+		s.rwCB.RLock()
+		defer s.rwCB.RUnlock()
 		s.onSet(path, val, oldval)
 	}
 }
@@ -1132,15 +1132,18 @@ func (s *Options) loopMap(kDot string, m map[string]interface{}) (err error) {
 			if err = s.loopIxMap(key, vm); err != nil {
 				return
 			}
-		} else if vm, ok := v.(map[string]interface{}); ok {
+		} else if vm1, ok1 := v.(map[string]interface{}); ok1 {
 			key := mx(kDot, k)
-			if err = s.loopMap(key, vm); err != nil {
+			if err = s.loopMap(key, vm1); err != nil {
 				return
 			}
 		} else {
 			// s.SetNx(mx(kDot, k), v)
 			key := mxIx(kDot, k)
 			if oldVal, modified := s.setNx(key, v); modified {
+				s.rw.Lock()
+				v = s.entries[key]
+				s.rw.Unlock()
 				s.internalRaiseOnMergingSetCB(k, v, oldVal)
 			}
 		}

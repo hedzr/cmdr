@@ -2,6 +2,11 @@
 
 ## Versions
 
+- v1.10.9
+  - fix: setNx with slices merging
+  - fix: aliases might be added to multiple groups
+  - fea: secondary config file locations
+
 - v1.10.8
   - fix/fea/imp: make cmdr aliases subsystem better
 

@@ -49,7 +49,12 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.10.9 (WIP)
+- v1.10.11 (WIP)
+
+- v1.10.9
+  - fix: setNx with slices merging
+  - fix: aliases might be added to multiple groups
+  - fea: secondary config file locations
 
 - v1.10.8
   - fix/fea/imp: make cmdr aliases subsystem better

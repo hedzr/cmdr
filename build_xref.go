@@ -147,9 +147,16 @@ func (w *ExecWorker) _addCommandsForAliasesGroup(root *RootCommand, aliases *ali
 }
 
 func (w *ExecWorker) _toolAddCmd(parent *Command, groupName string, cc *Command) (err error) {
+	if cc.Group == "" {
+		cc.Group = groupName
+	} else {
+		groupName = cc.Group
+	}
+
 	if _, ok := parent.allCmds[groupName]; !ok {
 		parent.allCmds[groupName] = make(map[string]*Command)
 	}
+
 	cmdName := cc.GetTitleName()
 	if _, ok := parent.allCmds[groupName][cmdName]; !ok {
 		if cc.Action == nil {
@@ -174,7 +181,7 @@ func (w *ExecWorker) _toolAddCmd(parent *Command, groupName string, cc *Command)
 				c.owner = cc
 			}
 			if len(c.SubCommands) > 0 {
-				err = w._toolAddCmd(c, groupName, c)
+				err = w._toolAddCmd(cc, groupName, c)
 			} else if c.Action == nil {
 				w.bindInvokeToAction(c)
 			}

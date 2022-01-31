@@ -869,6 +869,12 @@ func (s *Options) setNxNoLock(key string, val interface{}) (oldVal interface{}, 
 			s.internalRaiseOnSetCB(key, val, oldVal)
 			modi = true
 			return
+		} else if isSlice(oldVal) && isSlice(val) {
+			newVal := mergeSlice(oldVal, val)
+			val = newVal
+		} else if isMap(oldVal) && isMap(val) {
+			newVal := mergeTwoMapNoRecursive(oldVal, val)
+			val = newVal
 		}
 	}
 
@@ -887,6 +893,28 @@ func isLeaf(oldVal, val interface{}) (leaf bool) {
 		}
 	}
 	return
+}
+
+func mergeTwoMapNoRecursive(v1, v2 interface{}) (v3 interface{}) {
+	if !isMap(v1) || !isMap(v2) {
+		return
+	}
+	return v2 // todo, merge two map as a new one, we need a clean redesigned map merger
+}
+
+func isMap(v interface{}) bool {
+	x := reflect.ValueOf(v)
+	return x.Kind() == reflect.Map
+}
+
+func mergeSlice(v1, v2 interface{}) (v3 interface{}) {
+	if !isSlice(v1) || !isSlice(v2) {
+		return
+	}
+
+	x1, x2 := reflect.ValueOf(v1), reflect.ValueOf(v2)
+	x1 = reflect.AppendSlice(x1, x2)
+	return x1.Interface()
 }
 
 func isSlice(v interface{}) bool {

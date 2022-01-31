@@ -49,10 +49,11 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.10.11 (WIP)
+- v1.10.13 (WIP)
 
-- v1.10.10
+- v1.10.11
   - fix: setNx bug at last commit
+  - fix: send 1.10.10 failure
 
 - v1.10.9
   - fix: setNx with slices merging

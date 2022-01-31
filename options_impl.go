@@ -938,16 +938,25 @@ func mergeSlice(v1, v2 interface{}) (v3 interface{}) {
 			x4 = reflect.Append(x4, x1.Index(i).Convert(typ))
 		}
 		for i := 0; i < x2.Len(); i++ {
-			if x2.Index(i).CanConvert(typ) {
-				x4 = reflect.Append(x4, x2.Index(i).Convert(typ))
+			if typ.Kind() == reflect.String {
+				str := fmt.Sprintf("%v", x2.Interface())
+				x4 = reflect.Append(x4, reflect.ValueOf(str))
 			} else {
-				if typ.Kind() == reflect.String {
-					str := fmt.Sprintf("%v", x2.Interface())
-					x4 = reflect.Append(x4, reflect.ValueOf(str))
-				} else {
-					ferr("cannot convert '%v' to type: %v", x2.Interface(), typ.Kind())
-				}
+				x4 = reflect.Append(x4, x2.Index(i).Convert(typ))
 			}
+
+			// Just for go1.17+
+			//
+			//if x2.Index(i).CanConvert(typ) {
+			//	x4 = reflect.Append(x4, x2.Index(i).Convert(typ))
+			//} else {
+			//	if typ.Kind() == reflect.String {
+			//		str := fmt.Sprintf("%v", x2.Interface())
+			//		x4 = reflect.Append(x4, reflect.ValueOf(str))
+			//	} else {
+			//		ferr("cannot convert '%v' to type: %v", x2.Interface(), typ.Kind())
+			//	}
+			//}
 		}
 		v3 = x4.Interface()
 	} else {

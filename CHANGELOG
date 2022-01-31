@@ -2,6 +2,9 @@
 
 ## Versions
 
+- v1.10.10
+  - fix: setNx bug at last commit
+
 - v1.10.9
   - fix: setNx with slices merging
   - fix: aliases might be added to multiple groups

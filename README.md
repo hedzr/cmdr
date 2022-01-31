@@ -51,6 +51,9 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 
 - v1.10.11 (WIP)
 
+- v1.10.10
+  - fix: setNx bug at last commit
+
 - v1.10.9
   - fix: setNx with slices merging
   - fix: aliases might be added to multiple groups

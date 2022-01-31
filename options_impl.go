@@ -873,10 +873,11 @@ func (s *Options) setNxNoLock(key string, val interface{}) (oldVal interface{}, 
 		}
 	}
 
-	return s.setNxNoLock2(key, val, leaf)
+	modi = s.setNxNoLock2(key, oldVal, val, leaf)
+	return
 }
 
-func (s *Options) setNxNoLock2(key string, val interface{}, leaf bool) (oldVal interface{}, modi bool) {
+func (s *Options) setNxNoLock2(key string, oldVal, val interface{}, leaf bool) (modi bool) {
 	if leaf {
 		if isSlice(oldVal) && isSlice(val) {
 			newVal := mergeSlice(oldVal, val)

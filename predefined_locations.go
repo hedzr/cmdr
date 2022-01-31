@@ -112,6 +112,14 @@ func (w *ExecWorker) getExpandedAlterLocations() (locations []string) {
 	return
 }
 
+// getExpandedAlterDirLocations for internal using
+func (w *ExecWorker) getExpandedAlterDirLocations() (locations []string) {
+	for _, d := range internalGetWorker().alterDirLocations {
+		locations = uniAddStr(locations, dir.NormalizeDir(d))
+	}
+	return
+}
+
 func setAlterLocations(locations ...string) {
 	internalGetWorker().alterLocations = locations
 }
@@ -127,6 +135,11 @@ func (w *ExecWorker) getExpandedPredefinedLocations() (locations []string) {
 // GetPredefinedLocations return the searching locations for loading config files.
 func GetPredefinedLocations() []string {
 	return internalGetWorker().predefinedLocations
+}
+
+// GetPredefinedAlterLocations return the searching locations for loading alternative config file.
+func GetPredefinedAlterLocations() []string {
+	return internalGetWorker().alterLocations
 }
 
 // // SetPredefinedLocations to customize the searching locations for loading config files.

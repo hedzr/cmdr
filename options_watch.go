@@ -27,6 +27,16 @@ func GetOptions() *Options {
 	return internalGetWorker().rxxtOptions
 }
 
+// GetUsedAlterConfigFile returns the alternative config filename
+func GetUsedAlterConfigFile() string {
+	return internalGetWorker().rxxtOptions.usedAlterConfigFile
+}
+
+// GetUsedAlterConfigSubDir returns the alternative config files directory
+func GetUsedAlterConfigSubDir() string {
+	return internalGetWorker().rxxtOptions.usedAlterConfigSubDir
+}
+
 // GetUsedConfigFile returns the main config filename (generally
 // it's `<appname>.yml`)
 func GetUsedConfigFile() string {

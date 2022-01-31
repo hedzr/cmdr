@@ -27,6 +27,7 @@ type ExecWorker struct {
 	rxxtPrefixes        []string
 	predefinedLocations []string // predefined config file locations
 	alterLocations      []string // alter config file locations, so we can write back the changes
+	alterDirLocations   []string
 	pluginsLocations    []string
 	extensionsLocations []string
 
@@ -126,9 +127,17 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 		},
 
 		alterLocations: []string{
-			"./bin/$APPNAME.yml", // for developer, current bin directory
-			"/var/lib/$APPNAME",  //
-			"$THIS/$APPNAME.yml", // executable's directory
+			"/ci/etc/$APPNAME/alter/$APPNAME.yml",
+			"/etc/$APPNAME/alter/$APPNAME.yml",
+			"/usr/local/etc/$APPNAME/alter/$APPNAME.yml",
+			"./bin/$APPNAME.yml",              // for developer, current bin directory
+			"/var/lib/$APPNAME/.$APPNAME.yml", //
+			"$THIS/.$APPNAME.yml",             // executable's directory
+		},
+		alterDirLocations: []string{
+			"/ci/etc/$APPNAME/conf",
+			"/etc/$APPNAME/conf",
+			"/usr/local/etc/$APPNAME/conf",
 		},
 
 		pluginsLocations: []string{

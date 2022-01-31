@@ -60,8 +60,9 @@ func (w *ExecWorker) checkMoreLocations(rootCmd *RootCommand) (err error) {
 
 func (w *ExecWorker) loadFromPredefinedLocations(rootCmd *RootCommand) (err error) {
 	err = w.checkMoreLocations(w.rootCommand)
+
 	var mainFile, subDir string
-	mainFile, subDir, err = w.loadFromLocations(rootCmd, w.getExpandedPredefinedLocations(), true)
+	mainFile, subDir, err = w.loadFromLocations(rootCmd, w.getExpandedPredefinedLocations(), mainConfigFiles)
 	if err == nil {
 		conf.CfgFile = mainFile
 		flog("--> preprocess / buildXref / loadFromPredefinedLocations: %q loaded (CFG_DIR=%v)", mainFile, subDir)
@@ -70,17 +71,27 @@ func (w *ExecWorker) loadFromPredefinedLocations(rootCmd *RootCommand) (err erro
 	return
 }
 
-func (w *ExecWorker) loadFromAlterLocations(rootCmd *RootCommand) (err error) {
-	err = w.checkMoreLocations(w.rootCommand)
+func (w *ExecWorker) loadFromSecondaryLocations(rootCmd *RootCommand) (err error) {
 	var mainFile, subDir string
-	mainFile, subDir, err = w.loadFromLocations(rootCmd, w.getExpandedAlterLocations(), false)
+	mainFile, subDir, err = w.loadFromLocations(rootCmd, w.getExpandedSecondaryLocations(), secondaryConfigFiles)
 	if err == nil {
-		flog("--> preprocess / buildXref / loadFromAlterLocations: %q loaded (CFG_DIR=%v)", mainFile, subDir)
+		//conf.CfgFile = mainFile
+		flog("--> preprocess / buildXref / loadFromSecondaryLocations: %q loaded (CFG_DIR_2NDRY=%v)", mainFile, subDir)
+		//flog("--> loadFromPredefinedLocations(): %q loaded", fn)
 	}
 	return
 }
 
-func (w *ExecWorker) loadFromLocations(rootCmd *RootCommand, locations []string, main bool) (mainFile, subDir string, err error) {
+func (w *ExecWorker) loadFromAlterLocations(rootCmd *RootCommand) (err error) {
+	var mainFile, subDir string
+	mainFile, subDir, err = w.loadFromLocations(rootCmd, w.getExpandedAlterLocations(), alterConfigFile)
+	if err == nil {
+		flog("--> preprocess / buildXref / loadFromAlterLocations: %q loaded (ALTER_DIR=%v)", mainFile, subDir)
+	}
+	return
+}
+
+func (w *ExecWorker) loadFromLocations(rootCmd *RootCommand, locations []string, cft configFileType) (mainFile, subDir string, err error) {
 	// and now, loading the external configuration files
 	for _, s := range locations {
 		fn := s
@@ -97,7 +108,7 @@ func (w *ExecWorker) loadFromLocations(rootCmd *RootCommand, locations []string,
 			b = dir.FileExists(fn)
 		}
 		if b {
-			mainFile, subDir, err = w.rxxtOptions.LoadConfigFile(fn, main)
+			mainFile, subDir, err = w.rxxtOptions.LoadConfigFile(fn, cft)
 			break
 		}
 	}
@@ -112,16 +123,12 @@ func (w *ExecWorker) getExpandedAlterLocations() (locations []string) {
 	return
 }
 
-// getExpandedAlterDirLocations for internal using
-func (w *ExecWorker) getExpandedAlterDirLocations() (locations []string) {
-	for _, d := range internalGetWorker().alterDirLocations {
+// getExpandedSecondaryLocations for internal using
+func (w *ExecWorker) getExpandedSecondaryLocations() (locations []string) {
+	for _, d := range internalGetWorker().secondaryLocations {
 		locations = uniAddStr(locations, dir.NormalizeDir(d))
 	}
 	return
-}
-
-func setAlterLocations(locations ...string) {
-	internalGetWorker().alterLocations = locations
 }
 
 // getExpandedPredefinedLocations for internal using
@@ -132,12 +139,26 @@ func (w *ExecWorker) getExpandedPredefinedLocations() (locations []string) {
 	return
 }
 
-// GetPredefinedLocations return the searching locations for loading config files.
+// GetPredefinedLocations return the primary searching locations for
+// loading the main config files.
+// cmdr finds these location to create the main config store.
 func GetPredefinedLocations() []string {
 	return internalGetWorker().predefinedLocations
 }
 
-// GetPredefinedAlterLocations return the searching locations for loading alternative config file.
+// GetSecondaryLocations return the secondary searching
+// locations, and these configs will be merged into main config
+// store.
+func GetSecondaryLocations() []string {
+	return internalGetWorker().secondaryLocations
+}
+
+// GetPredefinedAlterLocations return the alternative searching
+// locations.
+// The alter config file will be merged into main config store
+// after secondary config merged.
+// The most different things are the alter config file can be
+// written back when cmdr
 func GetPredefinedAlterLocations() []string {
 	return internalGetWorker().alterLocations
 }
@@ -154,4 +175,12 @@ func GetPredefinedAlterLocations() []string {
 
 func setPredefinedLocations(locations ...string) {
 	internalGetWorker().predefinedLocations = locations
+}
+
+func setSecondaryLocations(locations ...string) {
+	internalGetWorker().secondaryLocations = locations
+}
+
+func setAlterLocations(locations ...string) {
+	internalGetWorker().alterLocations = locations
 }

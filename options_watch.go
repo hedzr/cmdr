@@ -32,9 +32,14 @@ func GetUsedAlterConfigFile() string {
 	return internalGetWorker().rxxtOptions.usedAlterConfigFile
 }
 
-// GetUsedAlterConfigSubDir returns the alternative config files directory
-func GetUsedAlterConfigSubDir() string {
-	return internalGetWorker().rxxtOptions.usedAlterConfigSubDir
+// GetUsedSecondaryConfigFile returns the secondary config filename
+func GetUsedSecondaryConfigFile() string {
+	return internalGetWorker().rxxtOptions.usedSecondaryConfigFile
+}
+
+// GetUsedSecondaryConfigSubDir returns the subdirectory `conf.d` of secondary config files.
+func GetUsedSecondaryConfigSubDir() string {
+	return internalGetWorker().rxxtOptions.usedSecondaryConfigSubDir
 }
 
 // GetUsedConfigFile returns the main config filename (generally
@@ -105,13 +110,21 @@ func SetOnConfigLoadedListener(c ConfigReloaded, enabled bool) {
 // into `rxxtOptions`
 // and load files in the `conf.d` child directory too.
 func LoadConfigFile(file string) (mainFile, subDir string, err error) {
-	return internalGetWorker().rxxtOptions.LoadConfigFile(file, true)
+	return internalGetWorker().rxxtOptions.LoadConfigFile(file, mainConfigFiles)
 }
+
+type configFileType int
+
+const (
+	mainConfigFiles configFileType = iota
+	secondaryConfigFiles
+	alterConfigFile
+)
 
 // LoadConfigFile loads a yaml config file and merge the settings
 // into `rxxtOptions`
 // and load files in the `conf.d` child directory too.
-func (s *Options) LoadConfigFile(file string, main bool) (mainFile, subDir string, err error) {
+func (s *Options) LoadConfigFile(file string, cft configFileType) (mainFile, subDir string, err error) {
 
 	defer func() {
 		s.batchMerging = false
@@ -131,18 +144,24 @@ func (s *Options) LoadConfigFile(file string, main bool) (mainFile, subDir strin
 		return
 	}
 
+	w := internalGetWorker()
 	mainFile = file
 	dirWatch := path.Dir(mainFile)
-	enableWatching := internalGetWorker().watchMainConfigFileToo
-	confDFolderName := internalGetWorker().confDFolderName
+	enableWatching := w.watchMainConfigFileToo
+	confDFolderName := w.confDFolderName
 	var filesWatching []string
-	if main {
+	if cft != alterConfigFile {
 		dirname := dirWatch
-		s.usedConfigFile = mainFile
-		_ = os.Setenv("CFG_DIR", dirname)
+		if cft == mainConfigFiles {
+			s.usedConfigFile = mainFile
+			_ = os.Setenv("CFG_DIR", dirname)
+		} else if cft == secondaryConfigFiles {
+			s.usedSecondaryConfigFile = mainFile
+			_ = os.Setenv("CFG_DIR_2NDRY", dirname)
+		}
 
-		if internalGetWorker().watchMainConfigFileToo {
-			filesWatching = append(filesWatching, s.usedConfigFile)
+		if w.watchMainConfigFileToo {
+			filesWatching = append(filesWatching, mainFile)
 		}
 
 		subDir = path.Join(dirname, confDFolderName)
@@ -157,7 +176,7 @@ func (s *Options) LoadConfigFile(file string, main bool) (mainFile, subDir strin
 		if err == nil {
 			err = filepath.Walk(subDir, s.visit)
 			if err == nil {
-				if !internalGetWorker().watchMainConfigFileToo {
+				if !w.watchMainConfigFileToo {
 					dirWatch = subDir
 				}
 				filesWatching = append(filesWatching, s.configFiles...)
@@ -168,7 +187,11 @@ func (s *Options) LoadConfigFile(file string, main bool) (mainFile, subDir strin
 			// log.Fatalf("ERROR: filepath.Walk() returned %v\n", err)
 		}
 
-		s.usedConfigSubDir = subDir
+		if cft == mainConfigFiles {
+			s.usedConfigSubDir = subDir
+		} else if cft == secondaryConfigFiles {
+			s.usedSecondaryConfigSubDir = subDir
+		}
 	} else {
 		s.usedAlterConfigFile = mainFile
 	}

@@ -248,14 +248,14 @@ func WithExtensionsLocations(locations ...string) ExecOption {
 // Default is:
 //
 //     []string{
-//			"./ci/etc/$APPNAME/$APPNAME.yml",       // for developer
-//			"/etc/$APPNAME/$APPNAME.yml",           // regular location
-//			"/usr/local/etc/$APPNAME/$APPNAME.yml", // regular macOS HomeBrew location
-//			"/opt/etc/$APPNAME/$APPNAME.yml",       // regular location
-//			"$HOME/.config/$APPNAME/$APPNAME.yml",  // per user
-//			"$HOME/.$APPNAME/$APPNAME.yml",         // ext location per user
-//			"$THIS/$APPNAME.yml", // executable's directory
-//			"$APPNAME.yml",       // current directory
+//         "./ci/etc/$APPNAME/$APPNAME.yml",       // for developer
+//         "/etc/$APPNAME/$APPNAME.yml",           // regular location
+//         "/usr/local/etc/$APPNAME/$APPNAME.yml", // regular macOS HomeBrew location
+//         "/opt/etc/$APPNAME/$APPNAME.yml",       // regular location
+//         "/var/lib/etc/$APPNAME/$APPNAME.yml",   // regular location
+//         "$HOME/.config/$APPNAME/$APPNAME.yml",  // per user
+//         "$THIS/$APPNAME.yml",                   // executable's directory
+//         "$APPNAME.yml",                         // current directory
 //     },
 //
 // See also internalResetWorkerNoLock()
@@ -265,14 +265,36 @@ func WithPredefinedLocations(locations ...string) ExecOption {
 	}
 }
 
+// WithSecondaryLocations sets the secondary config file locations.
+//
+// Default is:
+//
+//     secondaryLocations: []string{
+//         "/ci/etc/$APPNAME/conf/$APPNAME.yml",
+//         "/etc/$APPNAME/conf/$APPNAME.yml",
+//         "/usr/local/etc/$APPNAME/conf/$APPNAME.yml",
+//         "$HOME/.$APPNAME/$APPNAME.yml", // ext location per user
+//     },
+//
+// The child `conf.d` folder will be loaded too.
+//
+func WithSecondaryLocations(locations ...string) ExecOption {
+	return func(w *ExecWorker) {
+		w.secondaryLocations = locations
+	}
+}
+
 // WithAlterLocations sets the alter config file locations.
 //
 // Default is:
 //
 //     alterLocations: []string{
-//         "./bin/$APPNAME.yml", // for developer, current bin directory
-//         "/var/lib/$APPNAME",
-//         "$THIS/$APPNAME.yml", // executable's directory
+//         "/ci/etc/$APPNAME/alter/$APPNAME.yml",
+//         "/etc/$APPNAME/alter/$APPNAME.yml",
+//         "/usr/local/etc/$APPNAME/alter/$APPNAME.yml",
+//         "./bin/$APPNAME.yml",              // for developer, current bin directory
+//         "/var/lib/$APPNAME/.$APPNAME.yml", //
+//         "$THIS/.$APPNAME.yml",             // executable's directory
 //     },
 //
 // NOTE that just one config file will be loaded, the child `conf.d` folder not supports.

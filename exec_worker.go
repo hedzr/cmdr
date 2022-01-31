@@ -25,9 +25,9 @@ type ExecWorker struct {
 
 	envPrefixes         []string
 	rxxtPrefixes        []string
-	predefinedLocations []string // predefined config file locations
+	predefinedLocations []string // predefined config file locations, the main config store
+	secondaryLocations  []string // secondary locations, these configs will be merged into main config store
 	alterLocations      []string // alter config file locations, so we can write back the changes
-	alterDirLocations   []string
 	pluginsLocations    []string
 	extensionsLocations []string
 
@@ -115,15 +115,21 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 			"/opt/etc/$APPNAME/$APPNAME.yml",       // regular location
 			"/var/lib/etc/$APPNAME/$APPNAME.yml",   // regular location
 			"$HOME/.config/$APPNAME/$APPNAME.yml",  // per user
-			"$HOME/.$APPNAME/$APPNAME.yml",         // ext location per user
+			"$THIS/$APPNAME.yml",                   // executable's directory
+			"$APPNAME.yml",                         // current directory
 			// "$XDG_CONFIG_HOME/$APPNAME/$APPNAME.yml", // ?? seldom defined | generally it's $HOME/.config
-			"$THIS/$APPNAME.yml", // executable's directory
-			"$APPNAME.yml",       // current directory
 			// "./ci/etc/%s/%s.yml",
 			// "/etc/%s/%s.yml",
 			// "/usr/local/etc/%s/%s.yml",
 			// "$HOME/.%s/%s.yml",
 			// "$HOME/.config/%s/%s.yml",
+		},
+
+		secondaryLocations: []string{
+			"/ci/etc/$APPNAME/conf/$APPNAME.yml",
+			"/etc/$APPNAME/conf/$APPNAME.yml",
+			"/usr/local/etc/$APPNAME/conf/$APPNAME.yml",
+			"$HOME/.$APPNAME/$APPNAME.yml", // ext location per user
 		},
 
 		alterLocations: []string{
@@ -133,11 +139,6 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 			"./bin/$APPNAME.yml",              // for developer, current bin directory
 			"/var/lib/$APPNAME/.$APPNAME.yml", //
 			"$THIS/.$APPNAME.yml",             // executable's directory
-		},
-		alterDirLocations: []string{
-			"/ci/etc/$APPNAME/conf",
-			"/etc/$APPNAME/conf",
-			"/usr/local/etc/$APPNAME/conf",
 		},
 
 		pluginsLocations: []string{

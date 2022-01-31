@@ -241,13 +241,14 @@ type (
 		hierarchy map[string]interface{}
 		rw        *sync.RWMutex
 
-		usedConfigFile        string
-		usedConfigSubDir      string
-		usedAlterConfigFile   string
-		usedAlterConfigSubDir string
-		configFiles           []string
-		filesWatching         []string
-		batchMerging          bool
+		usedConfigFile            string
+		usedConfigSubDir          string
+		usedAlterConfigFile       string
+		usedSecondaryConfigFile   string
+		usedSecondaryConfigSubDir string
+		configFiles               []string
+		filesWatching             []string
+		batchMerging              bool
 
 		onConfigReloadedFunctions map[ConfigReloaded]bool
 		rwlCfgReload              *sync.RWMutex

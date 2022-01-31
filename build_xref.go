@@ -69,7 +69,7 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand, args []string) (err error) 
 
 		// and now, loading the external configuration files
 		err = w.loadFromPredefinedLocations(rootCmd)
-
+		err = w.loadFromSecondaryLocations(rootCmd)
 		err = w.loadFromAlterLocations(rootCmd)
 
 		// if len(w.envPrefixes) > 0 {

@@ -923,8 +923,38 @@ func mergeSlice(v1, v2 interface{}) (v3 interface{}) {
 	}
 
 	x1, x2 := reflect.ValueOf(v1), reflect.ValueOf(v2)
-	x1 = reflect.AppendSlice(x1, x2)
-	return x1.Interface()
+	if et1, et2 := x1.Type().Elem(), x2.Type().Elem(); et1 == et2 {
+		x1 = reflect.AppendSlice(x1, x2)
+		v3 = x1.Interface()
+	} else if et1.ConvertibleTo(et2) {
+		typ := et1
+		if et1.Kind() < et2.Kind() {
+			typ = et2
+		}
+
+		x3 := reflect.New(reflect.SliceOf(typ)) // reflect.MakeSlice(typ, x1.Len(), x1.Len())
+		x4 := x3.Elem()
+		for i := 0; i < x1.Len(); i++ {
+			x4 = reflect.Append(x4, x1.Index(i).Convert(typ))
+		}
+		for i := 0; i < x2.Len(); i++ {
+			if x2.Index(i).CanConvert(typ) {
+				x4 = reflect.Append(x4, x2.Index(i).Convert(typ))
+			} else {
+				if typ.Kind() == reflect.String {
+					str := fmt.Sprintf("%v", x2.Interface())
+					x4 = reflect.Append(x4, reflect.ValueOf(str))
+				} else {
+					ferr("cannot convert '%v' to type: %v", x2.Interface(), typ.Kind())
+				}
+			}
+		}
+		v3 = x4.Interface()
+	} else {
+		ferr("cannot convert type between two slice elements, cannot merge slice %v -> %v", v2, v1)
+		v3 = v1
+	}
+	return
 }
 
 func isSlice(v interface{}) bool {

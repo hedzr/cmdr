@@ -308,26 +308,41 @@ func TestSliceConverters(t *testing.T) {
 	GetIntSliceR("x")
 	w.rxxtOptions.GetInt64Slice("app.x")
 	w.rxxtOptions.GetUint64Slice("app.x")
-	Set("x", "1,2,3")
+
+	var val interface{} = "1,2,3"
+	Set("x", val) // val = "1,2,3"
+	if v1, v2 := GetIntSliceR("x"), []int{1, 2, 3}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+		t.Errorf("want %v, but got %v", v2, v1)
+	}
+	w.rxxtOptions.GetInt64Slice("app.x")
+	w.rxxtOptions.GetUint64Slice("app.x")
+
+	Set("x", []int{1, 2, 4}) // old val type = string, so new value replace it
+	if v1, v2 := GetIntSliceR("x"), []int{1, 2, 4}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+		t.Errorf("want %v, but got %v", v2, v1)
+	}
+	w.rxxtOptions.GetInt64Slice("app.x")
+	w.rxxtOptions.GetUint64Slice("app.x")
+
+	Set("x", []int64{5, 2}) // slices will be merged, but without dup elem check of course
+	if v1, v2 := GetInt64SliceR("x"), []int64{1, 2, 4, 5, 2}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+		t.Errorf("want %v, but got %v", v2, v1)
+	}
+	w.rxxtOptions.GetIntSlice("app.x")
+	w.rxxtOptions.GetUint64Slice("app.x")
+
+	Set("x", []uint64{9, 5})
+	if v1, v2 := GetUint64SliceR("x"), []uint64{1, 2, 4, 5, 2, 9, 5}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+		t.Errorf("want %v, but got %v", v2, v1)
+	}
+	w.rxxtOptions.GetInt64Slice("app.x")
+	w.rxxtOptions.GetIntSlice("app.x")
+
+	Set("x", []byte{11, 13})
 	GetIntSliceR("x")
 	w.rxxtOptions.GetInt64Slice("app.x")
 	w.rxxtOptions.GetUint64Slice("app.x")
-	Set("x", []int{1, 2})
-	GetIntSliceR("x")
-	w.rxxtOptions.GetInt64Slice("app.x")
-	w.rxxtOptions.GetUint64Slice("app.x")
-	Set("x", []int64{1, 2})
-	GetIntSliceR("x")
-	w.rxxtOptions.GetInt64Slice("app.x")
-	w.rxxtOptions.GetUint64Slice("app.x")
-	Set("x", []uint64{1, 2})
-	GetIntSliceR("x")
-	w.rxxtOptions.GetInt64Slice("app.x")
-	w.rxxtOptions.GetUint64Slice("app.x")
-	Set("x", []byte{1, 2})
-	GetIntSliceR("x")
-	w.rxxtOptions.GetInt64Slice("app.x")
-	w.rxxtOptions.GetUint64Slice("app.x")
+
 	Set("x", 57)
 	GetIntSliceR("x")
 	w.rxxtOptions.GetInt64Slice("app.x")

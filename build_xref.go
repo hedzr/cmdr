@@ -106,14 +106,24 @@ type aliasesCommands struct {
 	Commands []*Command
 }
 
+// buildAliasesCrossRefs binds aliases into cmdr command
+// system.
+//
+// The aliases are defined in config file at path 'app.aliases'.
+// For more details, lookup the real sample in 'examples/fluent':
+//
+//    ci/etc/fluent/conf.d/91.cmd-aliases.yml
+//
+// A load-failure aliases state will be ignored by the mainly
+// cmdr parsing process (but print an error message).
+//
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) buildAliasesCrossRefs(root *RootCommand) {
 	var (
 		aliases *aliasesCommands = new(aliasesCommands)
 		err     error
 	)
-	err = GetSectionFrom("aliases", &aliases)
-	if err == nil {
+	if err = GetSectionFrom("aliases", &aliases); err == nil {
 		err = w._addCommandsForAliasesGroup(root, aliases)
 	}
 	if err != nil {
@@ -250,7 +260,8 @@ func (w *ExecWorker) getInvokeShellAction(from *Command) Handler {
 
 // buildAddonsCrossRefs for cmdr addons.
 //
-// A cmdr addon, which is a golang plugin, can be integrated into host-app better than an extension.
+// A cmdr addon, which is a golang plugin, can be integrated
+// into host-app better than an extension.
 //
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) buildAddonsCrossRefs(root *RootCommand) {
@@ -400,6 +411,12 @@ func (w *ExecWorker) _addonAddFlg(parent *Command, addon cmdrbase.PluginEntry, f
 	return
 }
 
+// buildExtensionsCrossRefs for cmdr extensions.
+//
+// An extension, which is an external script or an executable
+// typically, can be integrated into host-app cmdr command
+// system.
+//
 //goland:noinspection ALL
 func (w *ExecWorker) buildExtensionsCrossRefs(root *RootCommand) {
 	flog("    - preprocess / buildXref / buildExtensionsCrossRefs...")

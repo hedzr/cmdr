@@ -2,7 +2,7 @@
 app:
 
   aliases:
-    group:
+    group:                                  # group-name (optional). such as: "别名".
     commands:
       - title: list
         short-name: ls

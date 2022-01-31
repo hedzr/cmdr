@@ -113,13 +113,13 @@ type (
 		// It invokes a command from the command tree in this app.
 		// Invoke field is available for
 		Invoke string `yaml:"invoke,omitempty" json:"invoke,omitempty"`
-		// InvokeProc is just for importing from a file.
+		// InvokeProc is just for cmdr aliases commands
 		// invoke the external commands (via: executable)
 		InvokeProc string `yaml:"invoke-proc,omitempty" json:"invoke-proc,omitempty"`
-		// InvokeShell is just for importing from a file.
+		// InvokeShell is just for cmdr aliases commands
 		// invoke the external commands (via: shell)
 		InvokeShell string `yaml:"invoke-sh,omitempty" json:"invoke-sh,omitempty"`
-		// Shell is just for importing from a file.
+		// Shell is just for cmdr aliases commands
 		// invoke a command under this shell, or /usr/bin/env bash|zsh|...
 		Shell string `yaml:"shell,omitempty" json:"shell,omitempty"`
 
@@ -241,12 +241,13 @@ type (
 		hierarchy map[string]interface{}
 		rw        *sync.RWMutex
 
-		usedConfigFile      string
-		usedConfigSubDir    string
-		usedAlterConfigFile string
-		configFiles         []string
-		filesWatching       []string
-		batchMerging        bool
+		usedConfigFile        string
+		usedConfigSubDir      string
+		usedAlterConfigFile   string
+		usedAlterConfigSubDir string
+		configFiles           []string
+		filesWatching         []string
+		batchMerging          bool
 
 		onConfigReloadedFunctions map[ConfigReloaded]bool
 		rwlCfgReload              *sync.RWMutex

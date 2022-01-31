@@ -231,7 +231,8 @@ func (w *ExecWorker) locateCommand(cmdPath string, from *Command) (cmd *Command,
 
 func (w *ExecWorker) getInvokeAction(from *Command) Handler {
 	return func(cmd *Command, args []string) (err error) {
-		if cx, matched := w.locateCommand(from.Invoke, cmd); matched {
+		invoke := w.expandTmplWithExecutiveEnv(cmd.Invoke, cmd, args)
+		if cx, matched := w.locateCommand(invoke, cmd); matched {
 			if cx.Action != nil {
 				err = cx.Action(cmd, args)
 			}
@@ -242,7 +243,8 @@ func (w *ExecWorker) getInvokeAction(from *Command) Handler {
 
 func (w *ExecWorker) getInvokeProcAction(from *Command) Handler {
 	return func(cmd *Command, args []string) (err error) {
-		cmdParts := strings.Split(from.InvokeProc, " ")
+		invokeProc := w.expandTmplWithExecutiveEnv(cmd.InvokeProc, cmd, args)
+		cmdParts := strings.Split(invokeProc, " ")
 		c, args := cmdParts[0], cmdParts[1:]
 		err = exec.Run(c, args...)
 		return
@@ -251,11 +253,40 @@ func (w *ExecWorker) getInvokeProcAction(from *Command) Handler {
 
 func (w *ExecWorker) getInvokeShellAction(from *Command) Handler {
 	return func(cmd *Command, args []string) (err error) {
-		cmdParts := strings.Split(from.InvokeShell, " ")
-		c, args := cmdParts[0], cmdParts[1:]
-		err = exec.Run(c, args...)
+		//cmdParts := strings.Split(from.InvokeShell, " ")
+		//c, args := cmdParts[0], cmdParts[1:]
+		//err = exec.Run(c, args...)
+
+		// NOTE: cmd == from
+
+		var a []string
+		shell := cmd.Shell
+		if shell == "" {
+			shell = "/bin/bash"
+		} else if strings.Contains(shell, "/env ") {
+			c := strings.Split(shell, " ")
+			shell, a = c[0], append(a, c[1:]...)
+		}
+
+		scriptFragments := w.expandTmplWithExecutiveEnv(cmd.InvokeShell, cmd, args)
+		a = append(a, "-c", scriptFragments)
+
+		err = exec.Run(shell, a...)
 		return
 	}
+}
+
+func (w *ExecWorker) expandTmplWithExecutiveEnv(source string, cmd *Command, args []string) (text string) {
+	text = tplApply(source, struct {
+		Cmd        *Command
+		Args       []string
+		ArgsString string
+	}{
+		cmd,
+		args,
+		strings.Join(args, " "),
+	})
+	return
 }
 
 // buildAddonsCrossRefs for cmdr addons.

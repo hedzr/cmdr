@@ -2,6 +2,9 @@
 
 ## Versions
 
+- v1.10.8
+  - fix/fea/imp: make cmdr aliases subsystem better
+
 - v1.10.7
   - fix: generate shell may be lost buffered contents on writing to file
 

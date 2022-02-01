@@ -254,7 +254,9 @@ func (pkg *ptpkg) tryExtractingOthers(args []string, kind reflect.Kind) (err err
 	} else if isTypeComplex(kind) {
 		err = pkg.processTypeComplex(args)
 	} else {
-		ferr("Unacceptable default value kind=%v", kind)
+		fwrn("Unacceptable default value kind=%v", kind)
+		// try parsing as a string
+		err = pkg.processTypeString(args)
 	}
 	return
 }

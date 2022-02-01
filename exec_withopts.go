@@ -165,6 +165,9 @@ func WithEnvVarMap(varToValue map[string]func() string) ExecOption {
 		testAndSetMap(w.envVarToValueMap, "APPNAME", func() string { return conf.AppName })
 		testAndSetMap(w.envVarToValueMap, "APP_NAME", func() string { return conf.AppName })
 		testAndSetMap(w.envVarToValueMap, "CFG_DIR", func() string { return path.Dir(GetUsedConfigFile()) })
+		if runtime.GOOS == "windows" {
+			testAndSetMap(w.envVarToValueMap, "HOME", func() string { return os.Getenv("USERPROFILE") })
+		}
 	}
 }
 

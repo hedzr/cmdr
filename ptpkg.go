@@ -355,7 +355,7 @@ func (pkg *ptpkg) processExternalTool() (err error) {
 }
 
 func (pkg *ptpkg) xxSet(keyPath string, v interface{}) {
-	if pkg.a[0] == '~' {
+	if len(pkg.a) > 0 && pkg.a[0] == '~' {
 		pkg.store().SetNx(keyPath, v)
 	} else {
 		pkg.store().Set(keyPath, v)

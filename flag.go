@@ -170,3 +170,9 @@ func (f *Flag) Delete() {
 		}
 	}
 }
+
+// GetDottedNamePath return the dotted key path of this flag
+// in the options store.
+func (f *Flag) GetDottedNamePath() string {
+	return f.owner.GetDottedNamePath() + "." + f.GetTitleName()
+}

@@ -652,6 +652,11 @@ func (s *Options) GetDuration(key string, defaultVal ...time.Duration) (ir time.
 	return
 }
 
+// Wrap wraps a key with [RxxtPrefix], for [GetXxx(key)] and [GetXxxP(prefix,key)]
+func (s *Options) Wrap(key string) string {
+	return wrapWithRxxtPrefix(key)
+}
+
 // GetString returns the string value of an `Option` key.
 func (s *Options) GetString(key string, defaultVal ...string) (ret string) {
 	ret = s.GetStringNoExpand(key, defaultVal...)

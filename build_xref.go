@@ -146,6 +146,27 @@ func (w *ExecWorker) _addCommandsForAliasesGroup(root *RootCommand, aliases *ali
 	return
 }
 
+func (w *ExecWorker) _toolChkFlags(cc *Command) (err error) {
+	for _, f := range cc.Flags {
+		if f.owner == nil {
+			f.owner = cc
+		}
+		if f.DefaultValueType != "" && f.DefaultValue == nil {
+			//var kind = reflect.String
+			//for x := reflect.Bool; x <= reflect.Complex128; x++ {
+			//	if x.String() == f.DefaultValueType {
+			//		kind = x
+			//		break
+			//	}
+			//}
+
+			//typ := reflect.Kind.String()
+			//f.DefaultValue = reflect.New(typ)
+		}
+	}
+	return
+}
+
 func (w *ExecWorker) _toolAddCmd(parent *Command, groupName string, cc *Command) (err error) {
 	if cc.Group == "" {
 		cc.Group = groupName
@@ -156,6 +177,8 @@ func (w *ExecWorker) _toolAddCmd(parent *Command, groupName string, cc *Command)
 	if _, ok := parent.allCmds[groupName]; !ok {
 		parent.allCmds[groupName] = make(map[string]*Command)
 	}
+
+	err = w._toolChkFlags(cc)
 
 	cmdName := cc.GetTitleName()
 	if _, ok := parent.allCmds[groupName][cmdName]; !ok {
@@ -288,10 +311,12 @@ func (w *ExecWorker) expandTmplWithExecutiveEnv(source string, cmd *Command, arg
 		Cmd        *Command
 		Args       []string
 		ArgsString string
+		Store      *Options
 	}{
 		cmd,
 		args,
 		strings.Join(args, " "),
+		w.rxxtOptions,
 	})
 	return
 }

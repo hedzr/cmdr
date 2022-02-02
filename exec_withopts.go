@@ -310,6 +310,23 @@ func WithAlterLocations(locations ...string) ExecOption {
 	}
 }
 
+// SetAlterConfigWriteBackMode enables writing the runtime changes back to alter config file, or disable it
+func SetAlterConfigWriteBackMode(enabled bool) {
+	internalGetWorker().writeBackAlterConfigs = enabled
+}
+
+// GetAlterConfigWriteBackMode return the state of writeBackAlterConfigs
+func GetAlterConfigWriteBackMode() bool {
+	return internalGetWorker().writeBackAlterConfigs
+}
+
+// WithAlterConfigAutoWriteBack enables writing the runtime changes back to alter config file.
+func WithAlterConfigAutoWriteBack(writeChanges bool) ExecOption {
+	return func(w *ExecWorker) {
+		w.writeBackAlterConfigs = writeChanges
+	}
+}
+
 // WithWatchMainConfigFileToo enables the watcher on main config file.
 //
 // By default, cmdr watches all files in the sub-directory `conf.d` of

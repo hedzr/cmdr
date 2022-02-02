@@ -58,10 +58,11 @@ type ExecWorker struct {
 	// rootCommand the root of all commands
 	rootCommand *RootCommand
 	// rootOptions *Opt
-	rxxtOptions        *Options
-	onOptionMergingSet OnOptionSetCB
-	onOptionSet        OnOptionSetCB
-	savedOptions       []*Options
+	rxxtOptions           *Options
+	onOptionMergingSet    OnOptionSetCB
+	onOptionSet           OnOptionSetCB
+	savedOptions          []*Options
+	writeBackAlterConfigs bool
 
 	similarThreshold      float64
 	noDefaultHelpScreen   bool

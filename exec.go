@@ -64,7 +64,7 @@ func (w *ExecWorker) postExecFor(rootCmd *RootCommand, pkg *ptpkg) {
 
 	w.lastPkg = pkg
 
-	if true {
+	if w.writeBackAlterConfigs {
 		w.rxxtOptions.Flush()
 	}
 }

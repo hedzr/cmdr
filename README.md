@@ -49,7 +49,15 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.10.13 (WIP)
+- v1.10.15 (WIP)
+
+
+- v1.10.13
+  - fix/imp: adapt windir to *nix name to fit for generic config file loading
+  - fea/imp: improved Aliases algor, support more tmpl var substitute
+  - fix: fallback the unknown type as string type
+  - fea: add flag to control whether write the changes back to alternative config file or not, `WithAlterConfigAutoWriteBack`
+  - imp: name/desc fields of builtin commands and flags
 
 - v1.10.11
   - fix: setNx bug at last commit
@@ -104,60 +112,6 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - fea: `-vv` (dup `-v` more than once) will print the hidden commands & flags in help screen NOW.  
     To take a sight of running `fluent generate --help --verbose -verbose`.
   - ...
-
-- v1.9.9
-  - improved: prevent `sent to closed channel` defensively
-  - SPECIAL: needs go1.16+ because some indirect-dep-lib wants io/fs (such as .../toml, zap ...). 
-
-- v1.9.8
-  - upgrade log and logex 
-  - added DebugOutputTildeInfo()
-
-- v1.9.7
-  - fixed: dead-lock while setting up env keys
-
-- v1.9.6
-  - fixed: incorrect rune count at calc escaped text in help screen.
-  - remove deprecated internal options: `--help-zsh`, `--help-bash`
-  - add new option `--man` to enter manpage entry of a sub-command, try `fluent ms tags ls --man`. [linux/darwin only]
-  - fixed: Flag.Action return err but cmdr.Exec no breaking its flow.
-
-- v1.9.5
-  - **improved**: zsh completion generator (`app gen sh --zsh/--auto`) - supports unlimited nested sub-command now.
-
-- v1.9.4
-  - fixed: potential nil exception while writing back to the alternative config files
-  - fixed: wrong calculating on remain args sometimes
-  - improved: rewrote builtin options constructions
-  - added 'cmdr.version' into Option Store
-  - added some tool helpers
-  - **improved**: zsh completion generator (`app gen sh --zsh/--auto`)
-
-- v1.9.3
-  - fixed: commands might not work when loading from config file. ref: `fluent services kx3`, and/or `fluent ls/pwd`
-  - fixed: incorrect usage on bytes.Buffer, for toggle-group choicer
-
-- v1.9.2
-  - fixed: parsing not stop while a should-be-stopped flag (such as --version) found
-  - fixed: incorrect usage line at top level help screen
-  - improved: better toggle-group show in help screen  
-        new style for ToggleGroup items: A unicode character '⬡'(U+2B21) as the prefix of the option description. (see [here](https://github.com/hedzr/cmdr/issues/1#issuecomment-968247546))
-  - improved: better toggle-group choicer in help screen
-        1. '⬢'(U+2B22) &amp; '⬡'(U+2B21) for the default choicer style (named as `hexagon`),
-        1. '▸'(U+25B8) &amp; '▹'(U+25B9) as another one (`triangle-right`),
-  - improved: `WithToggleGroupChoicerStyle(style)` and `WithToggleGroupChoicerNewStyle(style, trueChoicer, falseChoicer)`.
-
-- v1.9.1:
-  - A public template repo may simplify your new CLI app: [**cmdr-go-starter**](https://github.com/hedzr/cmdr-go-starter).
-  - crashed at an elder fsnotify on macOS, with go1.17
-  - minor fixes
-
-- v1.9.0
-  - .fossa.yaml so a pre-release scan can be launched locally
-  - BREAK: remove plugin/daemon - use cmdr-addons/pkg/plugins/dex instead
-  - updated `log`, added: closers, detects and more
-  - use `closers` for better closing hooks
-  - just a early BREAK release
 
 - More details at [CHANGELOG](./CHANGELOG)
 

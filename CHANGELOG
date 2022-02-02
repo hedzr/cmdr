@@ -2,6 +2,13 @@
 
 ## Versions
 
+- v1.10.13
+  - fix/imp: adapt windir to *nix name to fit for generic config file loading
+  - fea/imp: improved Aliases algor, support more tmpl var substitute
+  - fix: fallback the unknown type as string type
+  - fea: add flag to control whether write the changes back to alternative config file or not, `WithAlterConfigAutoWriteBack`
+  - imp: name/desc fields of builtin commands and flags
+
 - v1.10.11
   - fix: setNx bug at last commit
   - fix: send 1.10.10 failure

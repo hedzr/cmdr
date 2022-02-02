@@ -405,7 +405,7 @@ func (w *ExecWorker) _addonAddCmd(parent *Command, cmdName, desc string, addon c
 
 		// add flags
 		for _, ff := range cmd.Flags() {
-			err = w._addonAddFlg(cx, addon, ff)
+			err = w._addonAddFlag(cx, addon, ff)
 		}
 
 		// children: sub-commands
@@ -417,7 +417,7 @@ func (w *ExecWorker) _addonAddCmd(parent *Command, cmdName, desc string, addon c
 }
 
 //goland:noinspection GoUnusedParameter
-func (w *ExecWorker) _addonAddFlg(parent *Command, addon cmdrbase.PluginEntry, flg cmdrbase.PluginFlag) (err error) {
+func (w *ExecWorker) _addonAddFlag(parent *Command, addon cmdrbase.PluginEntry, flg cmdrbase.PluginFlag) (err error) {
 	name, short := flg.Name(), flg.ShortName()
 	cx := &Flag{
 		BaseOpt: BaseOpt{
@@ -631,11 +631,11 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 			})
 			root.plainShortFlags["?"] = root.allFlags[SysMgmtGroup]["help"]
 
-			//w._intFlgAdd(root, "help-zsh", "show help with zsh completion format, or others", func(ff *Flag) { ff.DefaultValuePlaceholder = "LEVEL" })
-			//w._intFlgAdd(root, "help-bash", "show help with bash completion format, or others", func(ff *Flag) { ff.DefaultValuePlaceholder = "LEVEL" })
+			//w._intFlgAdd(root, "help-zsh", "Show help with zsh completion format, or others", func(ff *Flag) { ff.DefaultValuePlaceholder = "LEVEL" })
+			//w._intFlgAdd(root, "help-bash", "Show help with bash completion format, or others", func(ff *Flag) { ff.DefaultValuePlaceholder = "LEVEL" })
 
 			if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-				w._boolFlgAdd(root, "man", "show help screen in manpage format (INSTALL NEEDED!)", SysMgmtGroup, func(ff *Flag) {
+				w._boolFlgAdd(root, "man", "Show help screen in manpage format (INSTALL NEEDED!)", SysMgmtGroup, func(ff *Flag) {
 					ff.Action = func(cmd *Command, args []string) (err error) {
 						str := strings.ReplaceAll(backtraceCmdNames(cmd, false), ".", "-")
 						if !cmd.IsRoot() {
@@ -655,13 +655,13 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 				})
 			}
 
-			w._boolFlgAdd(root, "tree", "show a tree for all commands", SysMgmtGroup, func(ff *Flag) {
+			w._boolFlgAdd(root, "tree", "Show a tree for all commands", SysMgmtGroup, func(ff *Flag) {
 				ff.Action = dumpTreeForAllCommands
 				ff.dblTildeOnly = true
 			})
 
 			if enableShellCompletionCommand {
-				w._cmdAdd(root, "help", "help system", func(cx *Command) {
+				w._cmdAdd(root, "help", "Help system", func(cx *Command) {
 					cx.Short = "h"
 					cx.Action = w.helpSystemPrint
 				})
@@ -702,7 +702,7 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 			ff.Short = "D"
 			ff.EnvVars = []string{"DEBUG"}
 		})
-		w._stringFlgAdd(root, "debug-output", "store the ~~debug outputs into file.", SysMgmtGroup, func(ff *Flag) {
+		w._stringFlgAdd(root, "debug-output", "Store the ~~debug outputs into file.", SysMgmtGroup, func(ff *Flag) {
 			ff.DefaultValue = "dbg.log"
 			ff.EnvVars = []string{"DEBUG_OUTPUT"}
 		})
@@ -729,7 +729,7 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 
 func (w *ExecWorker) attachCmdrCommands(root *RootCommand) {
 	if w.enableCmdrCommands {
-		w._boolFlgAdd(root, "strict-more", "strict mode for 'cmdr'.", SysMgmtGroup, func(ff *Flag) {
+		w._boolFlgAdd(root, "strict-more", "Strict mode for 'cmdr'.", SysMgmtGroup, func(ff *Flag) {
 			ff.EnvVars = []string{"STRICT"}
 		})
 		w._boolFlgAdd(root, "no-env-overrides", "No env var overrides for 'cmdr'.", SysMgmtGroup, nil)
@@ -752,7 +752,7 @@ func (w *ExecWorker) attachGeneratorsCommands(root *RootCommand) {
 		}
 		if !found {
 			// root.SubCommands = append(root.SubCommands, generatorCommands)
-			w._cmdAdd(root, "generate", "generators for this app.", func(cx1 *Command) {
+			w._cmdAdd(root, "generate", "Generators for this app.", func(cx1 *Command) {
 				cx1.Short = "g"
 				cx1.Aliases = []string{"gen"}
 				cx1.LongDescription = `
@@ -786,20 +786,20 @@ $ {{.AppName}} gen man
 				//$ {{.AppName}} gen pdf
 				//generate pdf.
 
-				w._cmdAdd1(cx1, "shell", "generate the bash/zsh auto-completion script or install it.", func(cx *Command) {
+				w._cmdAdd1(cx1, "shell", "Generate the bash/zsh auto-completion script or install it.", func(cx *Command) {
 					cx.Short = "s"
 					cx.Aliases = []string{"sh"}
 					cx.Action = genShell
 					cx.Hidden = false
 
-					w._stringFlgAdd1(cx, "dir", "the output directory", "Output", func(ff *Flag) {
+					w._stringFlgAdd1(cx, "dir", "The output directory", "Output", func(ff *Flag) {
 						ff.Short = "d"
 						ff.DefaultValue = "."
 						ff.DefaultValuePlaceholder = "DIR"
 						ff.Hidden = false
 					})
 
-					w._stringFlgAdd1(cx, "output", "the output filename", "Output", func(ff *Flag) {
+					w._stringFlgAdd1(cx, "output", "The output filename", "Output", func(ff *Flag) {
 						ff.Short = "o"
 						ff.DefaultValue = os.ExpandEnv("$AppName")
 						ff.DefaultValuePlaceholder = "FILENAME"
@@ -807,79 +807,79 @@ $ {{.AppName}} gen man
 					})
 
 					const shTypeGroup = "ShellType"
-					w._boolFlgAdd1(cx, "auto", "generate auto completion script to fit for your current env.", shTypeGroup, func(ff *Flag) {
+					w._boolFlgAdd1(cx, "auto", "Generate auto completion script to fit for your current env.", shTypeGroup, func(ff *Flag) {
 						ff.Short = "a"
 						ff.DefaultValue = true
 						ff.ToggleGroup = shTypeGroup
 						ff.Hidden = false
 					})
-					w._boolFlgAdd1(cx, "bash", "generate auto completion script for Bash", shTypeGroup, func(ff *Flag) {
+					w._boolFlgAdd1(cx, "bash", "Generate auto completion script for Bash", shTypeGroup, func(ff *Flag) {
 						ff.Short = "b"
 						ff.ToggleGroup = shTypeGroup
 						ff.Hidden = false
 					})
-					w._boolFlgAdd1(cx, "zsh", "generate auto completion script for Zsh", shTypeGroup, func(ff *Flag) {
+					w._boolFlgAdd1(cx, "zsh", "Generate auto completion script for Zsh", shTypeGroup, func(ff *Flag) {
 						ff.Short = "z"
 						ff.ToggleGroup = shTypeGroup
 						ff.Hidden = false
 					})
-					w._boolFlgAdd1(cx, "fish", "generate auto completion script for Fish [TODO]", shTypeGroup, func(ff *Flag) {
+					w._boolFlgAdd1(cx, "fish", "Generate auto completion script for Fish [TODO]", shTypeGroup, func(ff *Flag) {
 						ff.Short = "f"
 						ff.ToggleGroup = shTypeGroup
 						ff.Hidden = true
 					})
-					w._boolFlgAdd1(cx, "powershell", "generate auto completion script for Powershell [TODO]", shTypeGroup, func(ff *Flag) {
+					w._boolFlgAdd1(cx, "powershell", "Generate auto completion script for Powershell [TODO]", shTypeGroup, func(ff *Flag) {
 						ff.Short = "p"
 						ff.ToggleGroup = shTypeGroup
 						ff.Hidden = true
 					})
-					w._boolFlgAdd1(cx, "force-bash", "just for --auto", shTypeGroup, func(ff *Flag) {
+					w._boolFlgAdd1(cx, "force-bash", "Just for --auto", shTypeGroup, func(ff *Flag) {
 						ff.Hidden = false
 						ff.prerequisites = []string{"auto"}
 					})
 				})
-				w._cmdAdd1(cx1, "manual", "generate linux man page.", func(cx *Command) {
+				w._cmdAdd1(cx1, "manual", "Generate linux man page.", func(cx *Command) {
 					cx.Short = "m"
 					cx.Aliases = []string{"man"}
 					cx.Action = genManual
 					cx.Hidden = false
 
-					w._stringFlgAdd1(cx, "dir", "the output directory", "Output", func(ff *Flag) {
+					w._stringFlgAdd1(cx, "dir", "The output directory", "Output", func(ff *Flag) {
 						ff.Short = "d"
 						ff.DefaultValue = "./man1"
 						ff.DefaultValuePlaceholder = "DIR"
 						ff.Hidden = false
 					})
 				})
-				w._cmdAdd1(cx1, "doc", "generate a markdown document, or: pdf/TeX/...", func(cx *Command) {
+				w._cmdAdd1(cx1, "doc", "Generate a markdown document, or: pdf/TeX/...", func(cx *Command) {
 					cx.Short = "d"
 					cx.Aliases = []string{"pdf", "docx", "tex", "markdown"}
 					cx.Action = genDoc
 					cx.Hidden = true
 					cx.Deprecated = "1.9.9"
 
-					w._stringFlgAdd1(cx, "dir", "the output directory", "Output", func(ff *Flag) {
+					w._stringFlgAdd1(cx, "dir", "The output directory", "Output", func(ff *Flag) {
 						ff.Short = "d"
 						ff.DefaultValue = "./docs"
 						ff.DefaultValuePlaceholder = "DIR"
 						ff.Hidden = false
 					})
 					const tg = "DocType"
-					w._boolFlgAdd1(cx, "markdown", "to generate a markdown file", tg, func(ff *Flag) {
+					w._boolFlgAdd1(cx, "markdown", "To generate a markdown file", tg, func(ff *Flag) {
 						ff.Short = "md"
 						ff.Aliases = []string{"mkd", "m"}
 						ff.ToggleGroup = tg
 						ff.DefaultValue = true
 					})
-					w._boolFlgAdd1(cx, "pdf", "to generate a PDF file", tg, func(ff *Flag) {
+					w._boolFlgAdd1(cx, "pdf", "To generate a PDF file", tg, func(ff *Flag) {
 						ff.Short = "p"
 						ff.ToggleGroup = tg
 					})
-					w._boolFlgAdd1(cx, "docx", "to generate a Word (.docx) file", tg, func(ff *Flag) {
+					w._boolFlgAdd1(cx, "docx", "To generate a Word (.docx) file", tg, func(ff *Flag) {
 						ff.Aliases = []string{"doc"}
 						ff.ToggleGroup = tg
 					})
-					w._boolFlgAdd1(cx, "tex", "to generate a LaTeX file", tg, func(ff *Flag) {
+					w._boolFlgAdd1(cx, "tex", "To generate a LaTeX file", tg, func(ff *Flag) {
 						ff.Short = "t"
 						ff.ToggleGroup = tg
 					})

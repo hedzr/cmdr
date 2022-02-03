@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 // Entry is real main entry for this app
@@ -57,7 +58,7 @@ func Entry() {
 }
 
 func buildRootCmd() (rootCmd *cmdr.RootCommand) {
-
+	cmdr.InDebugging()
 	// var cmd *Command
 
 	// cmdr.Root("aa", "1.0.1").
@@ -88,7 +89,55 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 	kvCommand(root)
 	msCommand(root)
 
+	cmdrMultiLevelTest(root)
+	cmdrManyCommandsTest(root)
 	return
+}
+
+func cmdrManyCommandsTest(root cmdr.OptCmd) {
+	for i := 1; i <= 43; i++ {
+		t := fmt.Sprintf("subcmd-%v", i)
+		var ttls []string
+		for o, l := root, cmdr.OptCmd(nil); o != nil && o != l; {
+			ttls = append(ttls, o.ToCommand().GetTitleName())
+			l, o = o, o.OwnerCommand()
+		}
+		ttl := strings.Join(tool.ReverseStringSlice(ttls), ".")
+
+		root.NewSubCommand(t, fmt.Sprintf("sc%v", i)).
+			Description(fmt.Sprintf("subcommands %v.sc%v test", ttl, i)).
+			Group("Test")
+	}
+}
+
+func cmdrMultiLevelTest(root cmdr.OptCmd) {
+
+	cmd := root.NewSubCommand("mls", "mls").
+		Description("multi-level subcommands test").
+		Group("Test")
+	cmdrMultiLevel(cmd, 1)
+
+}
+
+func cmdrMultiLevel(parent cmdr.OptCmd, depth int) {
+	if depth > 3 {
+		return
+	}
+
+	for i := 1; i < 4; i++ {
+		t := fmt.Sprintf("subcmd-%v", i)
+		var ttls []string
+		for o, l := parent, cmdr.OptCmd(nil); o != nil && o != l; {
+			ttls = append(ttls, o.ToCommand().GetTitleName())
+			l, o = o, o.OwnerCommand()
+		}
+		ttl := strings.Join(tool.ReverseStringSlice(ttls), ".")
+
+		cc := parent.NewSubCommand(t, fmt.Sprintf("sc%v", i)).
+			Description(fmt.Sprintf("subcommands %v.sc%v test", ttl, i)).
+			Group("Test")
+		cmdrMultiLevel(cc, depth+1)
+	}
 }
 
 func cmdrXyPrint(root cmdr.OptCmd) {

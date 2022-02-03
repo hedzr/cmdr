@@ -831,7 +831,6 @@ $ {{.AppName}} gen man
 						ff.Hidden = false
 					})
 
-					const shTypeGroup = "ShellType"
 					w._boolFlgAdd1(cx, "auto", "Generate auto completion script to fit for your current env.", shTypeGroup, func(ff *Flag) {
 						ff.Short = "a"
 						ff.DefaultValue = true
@@ -889,24 +888,23 @@ $ {{.AppName}} gen man
 						ff.DefaultValuePlaceholder = "DIR"
 						ff.Hidden = false
 					})
-					const tg = "DocType"
-					w._boolFlgAdd1(cx, "markdown", "To generate a markdown file", tg, func(ff *Flag) {
+					w._boolFlgAdd1(cx, "markdown", "To generate a markdown file", tgDocType, func(ff *Flag) {
 						ff.Short = "md"
 						ff.Aliases = []string{"mkd", "m"}
-						ff.ToggleGroup = tg
+						ff.ToggleGroup = tgDocType
 						ff.DefaultValue = true
 					})
-					w._boolFlgAdd1(cx, "pdf", "To generate a PDF file", tg, func(ff *Flag) {
+					w._boolFlgAdd1(cx, "pdf", "To generate a PDF file", tgDocType, func(ff *Flag) {
 						ff.Short = "p"
-						ff.ToggleGroup = tg
+						ff.ToggleGroup = tgDocType
 					})
-					w._boolFlgAdd1(cx, "docx", "To generate a Word (.docx) file", tg, func(ff *Flag) {
+					w._boolFlgAdd1(cx, "docx", "To generate a Word (.docx) file", tgDocType, func(ff *Flag) {
 						ff.Aliases = []string{"doc"}
-						ff.ToggleGroup = tg
+						ff.ToggleGroup = tgDocType
 					})
-					w._boolFlgAdd1(cx, "tex", "To generate a LaTeX file", tg, func(ff *Flag) {
+					w._boolFlgAdd1(cx, "tex", "To generate a LaTeX file", tgDocType, func(ff *Flag) {
 						ff.Short = "t"
-						ff.ToggleGroup = tg
+						ff.ToggleGroup = tgDocType
 					})
 				})
 			})
@@ -914,6 +912,9 @@ $ {{.AppName}} gen man
 		}
 	}
 }
+
+const shTypeGroup = "ShellType"
+const tgDocType = "DocType"
 
 // enableShellCompletionCommand NOT YET, to-do
 var enableShellCompletionCommand bool

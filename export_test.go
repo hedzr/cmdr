@@ -420,6 +420,11 @@ func SetPredefinedLocationsForTesting(locations ...string) {
 	internalGetWorker().predefinedLocations = locations
 }
 
+// Match try parsing the input command-line, the result is the last hit *Command.
+func Match(inputCommandlineWithoutArg0 string, opts ...ExecOption) (last *Command, err error) {
+	return match(inputCommandlineWithoutArg0, opts...)
+}
+
 func TestNewError(t *testing.T) {
 
 	errWrongEnumValue := newErrTmpl("unexpected enumerable value '%s' for option '%s', under command '%s'")

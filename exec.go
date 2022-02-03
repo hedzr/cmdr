@@ -194,7 +194,7 @@ func (w *ExecWorker) internalExecFor(pkg *ptpkg, rootCmd *RootCommand, args []st
 			return
 		}
 		if stopF {
-			if !matched && (pkg.lastCommandHeld || (matched && pkg.flg == nil)) {
+			if (matched && pkg.flg == nil) || (!matched && (pkg.lastCommandHeld || len((*goCommand).SubCommands) == 0)) {
 				err = w.afterInternalExec(pkg, rootCmd, goCommand, args, stopC || pkg.lastCommandHeld)
 			}
 			return

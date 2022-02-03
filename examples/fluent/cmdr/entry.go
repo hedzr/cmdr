@@ -78,42 +78,71 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 		Examples(examples)
 	rootCmd = root.RootCommand()
 
-	root.NewSubCommand("cols", "rows", "tty-size").
-		Description("detected tty size").
+	cmdrXyPrint(root)
+	cmdrKbPrint(root)
+	cmdrSoundex(root)
+	cmdrTtySize(root)
+
+	tgCommand(root)
+	mxCommand(root)
+	kvCommand(root)
+	msCommand(root)
+
+	return
+}
+
+func cmdrXyPrint(root cmdr.OptCmd) {
+
+	// xy-print
+
+	root.NewSubCommand("xy-print", "xy").
+		Description("test terminal control sequences", "xy-print test terminal control sequences,\nverbose long descriptions here.").
 		Group("Test").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
-			cols, rows := tool.GetTtySize()
-			fmt.Printf(" 1. cols = %v, rows = %v\n\n", cols, rows)
+			//
+			// https://en.wikipedia.org/wiki/ANSI_escape_code
+			// https://zh.wikipedia.org/wiki/ANSI%E8%BD%AC%E4%B9%89%E5%BA%8F%E5%88%97
+			// https://en.wikipedia.org/wiki/POSIX_terminal_interface
+			//
 
-			cols, rows, err = terminal.GetSize(int(os.Stdout.Fd()))
-			fmt.Printf(" 2. cols = %v, rows = %v | in-docker: %v\n\n", cols, rows, cmdr.InDockerEnv())
+			fmt.Println("\x1b[2J") // clear screen
 
-			var out []byte
-			cc := exec.Command("stty", "size")
-			cc.Stdin = os.Stdin
-			out, err = cc.Output()
-			fmt.Printf(" 3. out: %v", string(out))
-			fmt.Printf("    err: %v\n", err)
-
-			if cmdr.InDockerEnv() {
-				//
+			for i, s := range args {
+				fmt.Printf("\x1b[s\x1b[%d;%dH%s\x1b[u", 15+i, 30, s)
 			}
+
 			return
 		})
 
-	// soundex
+}
 
-	root.NewSubCommand("soundex", "snd", "sndx", "sound").
-		Description("soundex test").
+func cmdrKbPrint(root cmdr.OptCmd) {
+
+	// kb-print
+
+	kb := root.NewSubCommand("kb-print", "kb").
+		Description("kilobytes test", "test kibibytes' input,\nverbose long descriptions here.").
 		Group("Test").
-		TailPlaceholder("[text1, text2, ...]").
+		Examples(`
+$ {{.AppName}} kb --size 5kb
+  5kb = 5,120 bytes
+$ {{.AppName}} kb --size 8T
+  8TB = 8,796,093,022,208 bytes
+$ {{.AppName}} kb --size 1g
+  1GB = 1,073,741,824 bytes
+		`).
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
-			for ix, s := range args {
-				fmt.Printf("%5d. %s => %s\n", ix, s, tool.Soundex(s))
-			}
+			fmt.Printf("Got size: %v (literal: %v)\n\n", cmdr.GetKibibytesR("kb-print.size"), cmdr.GetStringR("kb-print.size"))
 			return
 		})
 
+	kb.NewFlagV("1k", "size", "s").
+		Description("max message size. Valid formats: 2k, 2kb, 2kB, 2KB. Suffixes: k, m, g, t, p, e.", "").
+		Group("")
+
+}
+
+func cmdrPanic(root cmdr.OptCmd) {
 	// panic test
 
 	pa := root.NewSubCommand("panic-test", "pa").
@@ -139,55 +168,48 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 			return
 		})
 
-	// kb-print
+}
 
-	kb := root.NewSubCommand("kb-print", "kb").
-		Description("kilobytes test", "test kibibytes' input,\nverbose long descriptions here.").
+func cmdrSoundex(root cmdr.OptCmd) {
+
+	root.NewSubCommand("soundex", "snd", "sndx", "sound").
+		Description("soundex test").
 		Group("Test").
-		Examples(`
-$ {{.AppName}} kb --size 5kb
-  5kb = 5,120 bytes
-$ {{.AppName}} kb --size 8T
-  8TB = 8,796,093,022,208 bytes
-$ {{.AppName}} kb --size 1g
-  1GB = 1,073,741,824 bytes
-		`).
+		TailPlaceholder("[text1, text2, ...]").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
-			fmt.Printf("Got size: %v (literal: %v)\n\n", cmdr.GetKibibytesR("kb-print.size"), cmdr.GetStringR("kb-print.size"))
-			return
-		})
-
-	kb.NewFlagV("1k", "size", "s").
-		Description("max message size. Valid formats: 2k, 2kb, 2kB, 2KB. Suffixes: k, m, g, t, p, e.", "").
-		Group("")
-
-	// xy-print
-
-	root.NewSubCommand("xy-print", "xy").
-		Description("test terminal control sequences", "xy-print test terminal control sequences,\nverbose long descriptions here.").
-		Group("Test").
-		Action(func(cmd *cmdr.Command, args []string) (err error) {
-			//
-			// https://en.wikipedia.org/wiki/ANSI_escape_code
-			// https://zh.wikipedia.org/wiki/ANSI%E8%BD%AC%E4%B9%89%E5%BA%8F%E5%88%97
-			// https://en.wikipedia.org/wiki/POSIX_terminal_interface
-			//
-
-			fmt.Println("\x1b[2J") // clear screen
-
-			for i, s := range args {
-				fmt.Printf("\x1b[s\x1b[%d;%dH%s\x1b[u", 15+i, 30, s)
+			for ix, s := range args {
+				fmt.Printf("%5d. %s => %s\n", ix, s, tool.Soundex(s))
 			}
-
 			return
 		})
 
-	tgCommand(root)
-	mxCommand(root)
-	kvCommand(root)
-	msCommand(root)
+}
 
-	return
+func cmdrTtySize(root cmdr.OptCmd) {
+
+	root.NewSubCommand("cols", "rows", "tty-size").
+		Description("detected tty size").
+		Group("Test").
+		Action(func(cmd *cmdr.Command, args []string) (err error) {
+			cols, rows := tool.GetTtySize()
+			fmt.Printf(" 1. cols = %v, rows = %v\n\n", cols, rows)
+
+			cols, rows, err = terminal.GetSize(int(os.Stdout.Fd()))
+			fmt.Printf(" 2. cols = %v, rows = %v | in-docker: %v\n\n", cols, rows, cmdr.InDockerEnv())
+
+			var out []byte
+			cc := exec.Command("stty", "size")
+			cc.Stdin = os.Stdin
+			out, err = cc.Output()
+			fmt.Printf(" 3. out: %v", string(out))
+			fmt.Printf("    err: %v\n", err)
+
+			if cmdr.InDockerEnv() {
+				//
+			}
+			return
+		})
+
 }
 
 func tgCommand(root cmdr.OptCmd) {

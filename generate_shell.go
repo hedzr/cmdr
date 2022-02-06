@@ -20,7 +20,6 @@ import (
 )
 
 func genShell(cmd *Command, args []string) (err error) {
-	// logrus.Infof("OK gen shell. %v", *cmd)
 	w := internalGetWorker()
 
 	var writer io.Writer

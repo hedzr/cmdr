@@ -1394,21 +1394,21 @@ func DottedPathToCommand(dottedPath string, anyCmd *Command) (cc *Command) {
 // dottedPathToCommand searches the matched Command with the specified dotted-path.
 // The searching will start from root if anyCmd is nil.
 func dottedPathToCommand(dottedPath string, anyCmd *Command) (cc *Command) {
+	var c *Command
 	if anyCmd == nil {
-		anyCmd = &internalGetWorker().rootCommand.Command
+		c = &internalGetWorker().rootCommand.Command
+	} else {
+		c = anyCmd
 	}
 
-	if rc := anyCmd.root; rc != nil {
-		var c = &rc.Command
-		if err := walkFromCommand(c, 0, 0,
-			func(cmd *Command, index, level int) (err error) {
-				if cmd.GetDottedNamePath() == dottedPath {
-					cc, err = cmd, ErrShouldBeStopException
-				}
-				return
-			}); err == nil && cc != nil {
+	if err := walkFromCommand(c, 0, 0,
+		func(cmd *Command, index, level int) (err error) {
+			if cmd.GetDottedNamePath() == dottedPath {
+				cc, err = cmd, ErrShouldBeStopException
+			}
 			return
-		}
+		}); err == nil && cc != nil {
+		return
 	}
 
 	return
@@ -1423,37 +1423,37 @@ func DottedPathToCommandOrFlag(dottedPath string, anyCmd *Command) (cc *Command,
 // dottedPathToCommandOrFlag searches the matched Command or Flag with the specified dotted-path.
 // The searching will start from root if anyCmd is nil.
 func dottedPathToCommandOrFlag(dottedPath string, anyCmd *Command) (cc *Command, ff *Flag) {
+	var c *Command
 	if anyCmd == nil {
-		anyCmd = &internalGetWorker().rootCommand.Command
+		c = &internalGetWorker().rootCommand.Command
+	} else {
+		c = anyCmd
 	}
 
-	if rc := anyCmd.root; rc != nil {
-		var c = &rc.Command
-		if err := walkFromCommand(c, 0, 0,
-			func(cmd *Command, index, level int) (err error) {
-				kp := cmd.GetDottedNamePath()
+	if err := walkFromCommand(c, 0, 0,
+		func(cmd *Command, index, level int) (err error) {
+			kp := cmd.GetDottedNamePath()
 
-				if kp == dottedPath {
-					cc, err = cmd, ErrShouldBeStopException
-					return
-				}
+			if kp == dottedPath {
+				cc, err = cmd, ErrShouldBeStopException
+				return
+			}
 
-				if strings.HasPrefix(dottedPath, kp) {
-					parts := strings.TrimPrefix(dottedPath, kp)
-					if !strings.Contains(parts, ".") {
-						// try matching flags in this command
-						for _, f := range cmd.Flags {
-							if parts == f.Full {
-								ff, err = f, ErrShouldBeStopException
-								return
-							}
+			if strings.HasPrefix(dottedPath, kp) {
+				parts := strings.TrimPrefix(dottedPath, kp)
+				if !strings.Contains(parts, ".") {
+					// try matching flags in this command
+					for _, f := range cmd.Flags {
+						if parts == f.Full {
+							ff, err = f, ErrShouldBeStopException
+							return
 						}
 					}
 				}
-				return
-			}); err == nil && cc != nil {
+			}
 			return
-		}
+		}); err == nil && cc != nil {
+		return
 	}
 
 	return

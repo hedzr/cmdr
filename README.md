@@ -49,8 +49,11 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.10.15 (WIP)
-
+- v1.10.23 (WIP)
+  - fix: unknown switch char not an error now
+  - imp: refined gen zsh code, and gen shell codes
+  - fea: support fish-shell completion generating now
+  - fea: added root.RunAsSubCommand, treat 'app' as a synonym of 'app subcmd1 subcmd2'
 
 - v1.10.13
   - fix/imp: adapt windir to *nix name to fit for generic config file loading

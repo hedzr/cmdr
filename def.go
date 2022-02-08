@@ -140,6 +140,17 @@ type (
 		Author    string `yaml:"author,omitempty" json:"author,omitempty"`
 		Header    string `yaml:"header,omitempty" json:"header,omitempty"` // using `Header` for header and ignore built with `Copyright` and `Author`, and no usage lines too.
 
+		// RunAsSubCommand give a subcommand and will be invoked
+		// while app enter without any subcommands.
+		//
+		// For example, RunAsSubCommand is set to "build", and
+		// entering "app" will equal to entering "app build ...".
+		//
+		// NOTE that when it's valid, RootCommand.Command.Action handler will be ignored.
+		RunAsSubCommand string `yaml:"run-as,omitempty" json:"run-as,omitempty"`
+
+		// PreActions lists all global pre-actions. They will be launched before
+		// any command hit would has been invoking.
 		PreActions  []Handler `yaml:"-" json:"-"`
 		PostActions []Invoker `yaml:"-" json:"-"`
 

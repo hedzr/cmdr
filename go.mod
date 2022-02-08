@@ -17,6 +17,7 @@ require (
 	github.com/hedzr/log v1.5.9
 	github.com/hedzr/logex v1.5.9
 	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce
+	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
 	gopkg.in/hedzr/errors.v2 v2.1.5
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )

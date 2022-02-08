@@ -49,21 +49,21 @@ func (s *markdownPainter) Printf(fmtStr string, args ...interface{}) {
 	str := fmt.Sprintf(fmtStr, args...)
 	str = replaceAll(str, "-", `\-`)
 	str = replaceAll(str, "`cmdr`", `\fBcmdr\fP`)
-	_, _ = s.writer.Write([]byte(str))
+	_, _ = s.writer.Write([]byte(cptNC.Translate(str, 0)))
 }
 
 func (s *markdownPainter) Print(fmtStr string, args ...interface{}) {
 	str := fmt.Sprintf(fmtStr, args...)
 	str = replaceAll(str, "-", `\-`)
 	str = replaceAll(str, "`cmdr`", `\fBcmdr\fP`)
-	_, _ = s.writer.Write([]byte(str))
+	_, _ = s.writer.Write([]byte(cptNC.Translate(str, 0)))
 }
 
 func (s *markdownPainter) bufPrintf(buf *bytes.Buffer, fmtStr string, args ...interface{}) {
 	str := fmt.Sprintf(fmtStr, args...)
 	str = replaceAll(str, "-", `\-`)
 	str = replaceAll(str, "`cmdr`", `\fBcmdr\fP`)
-	_, _ = buf.Write([]byte(str))
+	_, _ = buf.Write([]byte(cptNC.Translate(str, 0)))
 }
 
 type mkdHdrData struct {

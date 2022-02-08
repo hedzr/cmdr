@@ -48,21 +48,21 @@ func (s *manPainter) Printf(fmtStr string, args ...interface{}) {
 	str := fmt.Sprintf(fmtStr, args...)
 	str = replaceAll(str, "-", `\-`)
 	str = replaceAll(str, "`cmdr`", `\fBcmdr\fP`)
-	_, _ = s.writer.Write([]byte(str))
+	_, _ = s.writer.Write([]byte(cptNC.Translate(str, 0)))
 }
 
 func (s *manPainter) Print(fmtStr string, args ...interface{}) {
 	str := fmt.Sprintf(fmtStr, args...)
 	str = replaceAll(str, "-", `\-`)
 	str = replaceAll(str, "`cmdr`", `\fBcmdr\fP`)
-	_, _ = s.writer.Write([]byte(str))
+	_, _ = s.writer.Write([]byte(cptNC.Translate(str, 0)))
 }
 
 func (s *manPainter) bufPrintf(buf *bytes.Buffer, fmtStr string, args ...interface{}) {
 	str := fmt.Sprintf(fmtStr, args...)
 	str = replaceAll(str, "-", `\-`)
 	str = replaceAll(str, "`cmdr`", `\fBcmdr\fP`)
-	_, _ = buf.Write([]byte(str))
+	_, _ = buf.Write([]byte(cptNC.Translate(str, 0)))
 }
 
 type manHdrData struct {

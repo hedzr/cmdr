@@ -3,6 +3,9 @@
 package cmdr
 
 import (
+	"bufio"
+	"golang.org/x/net/html"
+	"strings"
 	"testing"
 )
 
@@ -18,4 +21,72 @@ func TestGetTextPieces(t *testing.T) {
 	} {
 		_ = getTextPiece(tt, 0, 1000)
 	}
+}
+
+func TestParseHtml(t *testing.T) {
+	source := `
+	load <code>config</code> files from where you specified
+	`
+
+	node, err := html.Parse(bufio.NewReader(strings.NewReader(source)))
+	if err != nil {
+		t.Error(err)
+	}
+
+	var sb strings.Builder
+	var walker func(node *html.Node, level int)
+	walker = func(node *html.Node, level int) {
+		switch node.Type {
+		case html.DocumentNode, html.DoctypeNode, html.CommentNode:
+		case html.ErrorNode:
+		case html.ElementNode:
+			switch node.Data {
+			case "html", "head", "body":
+			case "code":
+				sb.WriteString("\x1b[1m")
+				for child := node.FirstChild; child != nil; child = child.NextSibling {
+					walker(child, level+1)
+				}
+				sb.WriteString("\x1b[0m")
+				return
+			default:
+				//Logger.Debugf("%v, %v, lvl #%d\n", node.Type, node.Data, level)
+				//sb.WriteString(node.Data)
+			}
+		case html.TextNode:
+			//Logger.Debugf("%v, %v, lvl #%d\n", node.Type, node.Data, level)
+			sb.WriteString(node.Data)
+			return
+		default:
+			//sb.WriteString(node.Data)
+		}
+
+		for child := node.FirstChild; child != nil; child = child.NextSibling {
+			walker(child, level+1)
+		}
+	}
+
+	walker(node, 0)
+
+	t.Logf("%v", sb.String())
+}
+
+func TestCPT(t *testing.T) {
+	source := `
+	load <code>config</code> files from where you specified
+	<del>scan</del> <u>folder</u> and save <i>result</i> to <code>bgo.yml</code>, as <mark>project settings</mark>
+	`
+
+	str := cpt.Translate(source, 4)
+	t.Logf("\x1b[4m%v\x1b[0m", str)
+}
+
+func TestCPTNC(t *testing.T) {
+	source := `
+	load <code>config</code> files from where you specified
+	<del>scan</del> <u>folder</u> and save <i>result</i> to <code>bgo.yml</code>, as <mark>project settings</mark>
+	`
+
+	str := cptNC.Translate(source, 0)
+	t.Logf("%v", str)
 }

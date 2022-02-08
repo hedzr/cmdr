@@ -36,15 +36,21 @@ func (s *helpPainter) Results() (res []byte) {
 }
 
 func (s *helpPainter) bufPrintf(sb *bytes.Buffer, fmtStr string, args ...interface{}) {
-	_, _ = sb.WriteString(fmt.Sprintf(fmtStr, args...))
+	s1 := fmt.Sprintf(fmtStr, args...)
+	//s2 := cpt.Translate(s1)
+	_, _ = sb.WriteString(s1)
 }
 
 func (s *helpPainter) Printf(fmtStr string, args ...interface{}) {
-	fp(fmtStr, args...)
+	s1 := fmt.Sprintf(fmtStr, args...)
+	//s2 := cpt.Translate(s1)
+	fp("%s", s1)
 }
 
 func (s *helpPainter) Print(fmtStr string, args ...interface{}) {
-	fp0(fmtStr, args...)
+	s1 := fmt.Sprintf(fmtStr, args...)
+	//s2 := cpt.Translate(s1)
+	fp0("%s", s1)
 }
 
 func (s *helpPainter) FpPrintHeader(command *Command) {
@@ -94,7 +100,7 @@ func (s *helpPainter) FpDescLine(command *Command) {
 	if command.LongDescription != "" {
 		desc = command.LongDescription
 	}
-	s.Printf("%v", exec.LeftPad(desc, 4))
+	s.Printf("%v", exec.LeftPad(cpt.stripLeftTabs(desc), 4))
 }
 
 func (s *helpPainter) FpExamplesTitle(command *Command, title string) {
@@ -103,7 +109,7 @@ func (s *helpPainter) FpExamplesTitle(command *Command, title string) {
 
 func (s *helpPainter) FpExamplesLine(command *Command) {
 	str := tplApply(command.Examples, command.root)
-	s.Printf("%v", exec.LeftPad(str, 4))
+	s.Printf("%v", exec.LeftPad(cpt.stripLeftTabs(str), 4))
 	//for _, line := range strings.Split(str, "\n") {
 	//	s.Printf("    %v", line)
 	//}
@@ -141,21 +147,19 @@ func (s *helpPainter) FpCommandsLine(command *Command) (bufL, bufR bytes.Buffer)
 	if len(command.Deprecated) > 0 {
 		if GetNoColorMode() {
 			s.bufPrintf(&bufL, fmtCmdlineDepNCL, command.GetTitleNames())
-			s.bufPrintf(&bufR, fmtCmdlineDepNCR, command.Description, command.Deprecated)
+			s.bufPrintf(&bufR, fmtCmdlineDepNCR, cptNC.Translate(command.Description, 0), command.Deprecated)
 		} else {
+			clr, format := CurrentDeprecatedColor, fmtCmdlineDepL
 			if command.Hidden {
-				format := fmtCmdlineDepLHidden
-				s.bufPrintf(&bufL, format, BgNormal, CurrentHiddenColor, command.GetTitleNames())
-			} else {
-				format := fmtCmdlineDepL
-				s.bufPrintf(&bufL, format, BgNormal, CurrentDeprecatedColor, command.GetTitleNames())
+				clr, format = CurrentHiddenColor, fmtCmdlineDepLHidden
 			}
-			s.bufPrintf(&bufR, fmtCmdlineDepR, command.Description, command.Deprecated)
+			s.bufPrintf(&bufL, format, BgNormal, clr, command.GetTitleNames())
+			s.bufPrintf(&bufR, fmtCmdlineDepR, cpt.Translate(command.Description, clr), command.Deprecated)
 		}
 	} else {
 		if GetNoColorMode() {
 			s.bufPrintf(&bufL, fmtCmdlineNCL, command.GetTitleNames())
-			s.bufPrintf(&bufR, fmtCmdlineNCR, command.Description)
+			s.bufPrintf(&bufR, fmtCmdlineNCR, cptNC.Translate(command.Description, 0))
 		} else {
 			// s.Printf("  %-48s%v", command.GetTitleNames(), command.Description)
 			// s.Printf("\n\x1b[%dm\x1b[%dm%s\x1b[0m", BgNormal, DarkColor, title)
@@ -166,7 +170,12 @@ func (s *helpPainter) FpCommandsLine(command *Command) (bufL, bufR bytes.Buffer)
 			} else {
 				s.bufPrintf(&bufL, fmtCmdlineL, command.GetTitleNames())
 			}
-			s.bufPrintf(&bufR, fmtCmdlineR, BgNormal, CurrentDescColor, command.Description)
+			s.bufPrintf(&bufR, fmtCmdlineR, BgNormal, CurrentDescColor, cpt.Translate(command.Description, CurrentDescColor))
+			if command.root.RunAsSubCommand != "" {
+				if command.GetDottedNamePath() == command.root.RunAsSubCommand {
+					s.bufPrintf(&bufR, " [\x1b[%dmSynonym to '%s'\x1b[0m]", BgUnderline, command.root.Name)
+				}
+			}
 		}
 	}
 	return
@@ -243,23 +252,25 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, def
 			s.bufPrintf(&bufL, fmtFlagsDepNCL, // "  %-48s%s%s [deprecated since %v]",
 				flg.GetTitleFlagNamesByMax(",", maxShort))
 			s.bufPrintf(&bufR, fmtFlagsDepNCR, // "  %-48s%s%s [deprecated since %v]",
-				flg.Description, envKeys, defValStr, flg.Deprecated)
+				cptNC.Translate(flg.Description, 0), envKeys, defValStr, flg.Deprecated)
 		} else {
+			clr := CurrentDeprecatedColor
 			if flg.Hidden {
+				clr = CurrentHiddenColor
 				s.bufPrintf(&bufL, fmtFlagsDepLHidden,
-					BgNormal, CurrentHiddenColor, flg.GetTitleFlagNamesByMax(",", maxShort))
+					BgNormal, clr, flg.GetTitleFlagNamesByMax(",", maxShort))
 			} else {
 				s.bufPrintf(&bufL, fmtFlagsDepL, // "  \x1b[%dm\x1b[%dm%-48s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]",
-					BgNormal, CurrentDeprecatedColor, flg.GetTitleFlagNamesByMax(",", maxShort))
+					BgNormal, clr, flg.GetTitleFlagNamesByMax(",", maxShort))
 			}
 			s.printTGC(flg, &bufL, &bufR)
 			s.bufPrintf(&bufR, fmtFlagsDepR, // "  \x1b[%dm\x1b[%dm%-48s%s\x1b[%dm\x1b[%dm%s\x1b[0m [deprecated since %v]",
-				flg.Description, BgItalic, CurrentDefaultValueColor, envKeys, defValStr, flg.Deprecated)
+				cpt.Translate(flg.Description, clr), BgItalic, CurrentDefaultValueColor, envKeys, defValStr, flg.Deprecated)
 		}
 	} else {
 		if GetNoColorMode() {
 			s.bufPrintf(&bufL, fmtFlagsNCL, flg.GetTitleFlagNamesByMax(",", maxShort))
-			s.bufPrintf(&bufR, fmtFlagsNCR, flg.Description, envKeys, defValStr)
+			s.bufPrintf(&bufR, fmtFlagsNCR, cptNC.Translate(flg.Description, 0), envKeys, defValStr)
 		} else {
 			if flg.Hidden {
 				s.bufPrintf(&bufL, fmtFlagsLHidden,
@@ -269,7 +280,8 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, def
 					flg.GetTitleFlagNamesByMax(",", maxShort))
 			}
 			s.printTGC(flg, &bufL, &bufR)
-			s.bufPrintf(&bufR, fmtFlagsR, BgNormal, CurrentDescColor, flg.Description,
+			s.bufPrintf(&bufR, fmtFlagsR, BgNormal,
+				CurrentDescColor, cpt.Translate(flg.Description, CurrentDescColor),
 				BgItalic, CurrentDefaultValueColor, envKeys, defValStr)
 		}
 	}

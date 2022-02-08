@@ -80,83 +80,14 @@ const (
 	DarkColor = FgLightGray
 )
 
-//var onceColorPrintTranslator sync.Once
-var cpt colorPrintTranslator
-var cptNC = colorPrintTranslator{noColorMode: true}
+var (
+	// onceColorPrintTranslator sync.Once
+	cpt   colorPrintTranslator
+	cptNC = colorPrintTranslator{noColorMode: true}
+)
 
 type colorPrintTranslator struct {
 	noColorMode bool // strip color code simply
-}
-
-func (c *colorPrintTranslator) stripLeftTabs(s string) string {
-
-	var lines []string
-	var tabs int
-	var sb strings.Builder
-
-	scanner := bufio.NewScanner(bufio.NewReader(strings.NewReader(s)))
-	for scanner.Scan() {
-		str := scanner.Text()
-		for i := 0; i < len(str); i++ {
-			if str[i] != '\t' {
-				if tabs < i {
-					tabs = i
-					break
-				}
-			}
-		}
-		lines = append(lines, str)
-	}
-
-	pad := strings.Repeat("\t", tabs)
-	for _, str := range lines {
-		if strings.HasPrefix(str, pad) {
-			sb.WriteString(str[tabs:])
-		} else {
-			sb.WriteString(str)
-		}
-		sb.WriteRune('\n')
-	}
-
-	return c.Translate(sb.String(), 0)
-}
-
-func (c *colorPrintTranslator) toColorInt(s string) int {
-	switch strings.ToLower(s) {
-	case "black":
-		return FgBlack
-	case "red":
-		return FgRed
-	case "green":
-		return FgGreen
-	case "yellow":
-		return FgYellow
-	case "blue":
-		return FgBlue
-	case "magenta":
-		return FgMagenta
-	case "cyan":
-		return FgCyan
-	case "lightgray", "light-gray":
-		return FgLightGray
-	case "darkgray", "dark-gray":
-		return FgDarkGray
-	case "lightred", "light-red":
-		return FgLightRed
-	case "lightgreen", "light-green":
-		return FgLightGreen
-	case "lightyellow", "light-yellow":
-		return FgLightYellow
-	case "lightblue", "light-blue":
-		return FgLightBlue
-	case "lightmagenta", "light-magenta":
-		return FgLightMagenta
-	case "lightcyan", "light-cyan":
-		return FgLightCyan
-	case "white":
-		return FgWhite
-	}
-	return 0
 }
 
 func (c *colorPrintTranslator) Translate(s string, initialFg int) string {
@@ -262,6 +193,115 @@ func (c *colorPrintTranslator) _ss(s string) string {
 	}
 	return c.stripHtmlTags(s)
 }
+
+func (c *colorPrintTranslator) toColorInt(s string) int {
+	switch strings.ToLower(s) {
+	case "black":
+		return FgBlack
+	case "red":
+		return FgRed
+	case "green":
+		return FgGreen
+	case "yellow":
+		return FgYellow
+	case "blue":
+		return FgBlue
+	case "magenta":
+		return FgMagenta
+	case "cyan":
+		return FgCyan
+	case "lightgray", "light-gray":
+		return FgLightGray
+	case "darkgray", "dark-gray":
+		return FgDarkGray
+	case "lightred", "light-red":
+		return FgLightRed
+	case "lightgreen", "light-green":
+		return FgLightGreen
+	case "lightyellow", "light-yellow":
+		return FgLightYellow
+	case "lightblue", "light-blue":
+		return FgLightBlue
+	case "lightmagenta", "light-magenta":
+		return FgLightMagenta
+	case "lightcyan", "light-cyan":
+		return FgLightCyan
+	case "white":
+		return FgWhite
+	}
+	return 0
+}
+
+func (c *colorPrintTranslator) stripLeftTabs(s string) string {
+	r := c.stripLeftTabsOnly(s)
+	return c.Translate(r, 0)
+}
+
+func (c *colorPrintTranslator) stripLeftTabsOnly(s string) string {
+
+	var lines []string
+	var tabs int = 1000
+	var emptyLines []int
+	var sb strings.Builder
+	var line int
+	var noLastLF bool = !strings.HasSuffix(s, "\n")
+
+	scanner := bufio.NewScanner(bufio.NewReader(strings.NewReader(s)))
+	for scanner.Scan() {
+		str := scanner.Text()
+		i, n, allTabs := 0, len(str), true
+		for ; i < n; i++ {
+			if str[i] != '\t' {
+				allTabs = false
+				if tabs > i && i > 0 {
+					tabs = i
+					break
+				}
+			}
+		}
+		if i == n && allTabs {
+			emptyLines = append(emptyLines, line)
+		}
+		lines = append(lines, str)
+		line++
+	}
+
+	pad := strings.Repeat("\t", tabs)
+	for i, str := range lines {
+		if strings.HasPrefix(str, pad) {
+			sb.WriteString(str[tabs:])
+		} else if inIntSlice(i, emptyLines) {
+		} else {
+			sb.WriteString(str)
+		}
+		if noLastLF && i == len(lines)-1 {
+			break
+		}
+		sb.WriteRune('\n')
+	}
+
+	return sb.String()
+}
+
+func inIntSlice(i int, slice []int) bool {
+	for _, n := range slice {
+		if n == i {
+			return true
+		}
+	}
+	return false
+}
+
+// StripLeftTabs strips the least left side tab chars from lines.
+// StripLeftTabs strips html tags too.
+func StripLeftTabs(s string) string { return cptNC.stripLeftTabs(s) }
+
+// StripLeftTabsOnly strips the least left side tab chars from lines.
+func StripLeftTabsOnly(s string) string { return cptNC.stripLeftTabsOnly(s) }
+
+// StripHtmlTags aggressively strips HTML tags from a string.
+// It will only keep anything between `>` and `<`.
+func StripHtmlTags(s string) string { return cptNC.stripHtmlTags(s) }
 
 const (
 	htmlTagStart = 60 // Unicode `<`

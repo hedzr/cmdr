@@ -90,3 +90,59 @@ func TestCPTNC(t *testing.T) {
 	str := cptNC.Translate(source, 0)
 	t.Logf("%v", str)
 }
+
+func TestStripLeftTabs(t *testing.T) {
+	source := `
+		// load <code>config</code> files from where you specified
+			if tool.IsTtyEscaped(s) {
+		    clean := tool.StripEscapes(s)
+			return c.stripHtmlTags(clean)
+		}
+	`
+	expected := `
+// load config files from where you specified
+	if tool.IsTtyEscaped(s) {
+    clean := tool.StripEscapes(s)
+	return c.stripHtmlTags(clean)
+}
+`
+	expected2 := `
+// load <code>config</code> files from where you specified
+	if tool.IsTtyEscaped(s) {
+    clean := tool.StripEscapes(s)
+	return c.stripHtmlTags(clean)
+}
+`
+	sz := StripLeftTabs(source)
+	if sz != expected {
+		t.Errorf("unexpect result\n%v", sz)
+	}
+
+	sz = StripLeftTabsOnly(source)
+	if sz != expected2 {
+		t.Errorf("unexpect result\n%v", sz)
+	}
+}
+
+func TestStripHtmlTags(t *testing.T) {
+	source := `
+		// load <code>config</code> files from where you specified
+			if tool.IsTtyEscaped(s) {
+			clean := tool.StripEscapes(s)
+			return c.stripHtmlTags(clean)
+		}
+		<del>scan</del> <u>folder</u> and save <i>result</i> to <code>bgo.yml</code>, as <mark>project settings</mark>
+	`
+	expected := `
+		// load config files from where you specified
+			if tool.IsTtyEscaped(s) {
+			clean := tool.StripEscapes(s)
+			return c.stripHtmlTags(clean)
+		}
+		scan folder and save result to bgo.yml, as project settings
+	`
+	sz := StripHtmlTags(source)
+	if sz != expected {
+		t.Errorf("unexpect result\n%v", sz)
+	}
+}

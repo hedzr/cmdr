@@ -54,6 +54,7 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - imp: refined gen zsh code, and gen shell codes
   - fea: support fish-shell completion generating now
   - fea: added root.RunAsSubCommand, treat 'app' as a synonym of 'app subcmd1 subcmd2'
+  - imp/fix/fea: clarify the slice append or replace mode - SetNx & SetNxOverwrite for Option Store
 
 - v1.10.13
   - fix/imp: adapt windir to *nix name to fit for generic config file loading

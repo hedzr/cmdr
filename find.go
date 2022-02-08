@@ -123,6 +123,10 @@ func (w *ExecWorker) setupRootCommand(rootCmd *RootCommand) {
 
 	uniqueWorkerLock.Unlock()
 
+	w.syncRootCommand()
+}
+
+func (w *ExecWorker) syncRootCommand() {
 	if len(conf.AppName) == 0 {
 		conf.AppName = w.rootCommand.AppName
 		conf.Version = w.rootCommand.Version
@@ -133,6 +137,12 @@ func (w *ExecWorker) setupRootCommand(rootCmd *RootCommand) {
 	}
 
 	SetRaw("cmdr.Version", w.rootCommand.Version)
+}
+
+func (w *ExecWorker) preparePtPkg(pkg *ptpkg) {
+	if w.rootCommand.RunAsSubCommand != "" {
+		pkg.aliasCommand = dottedPathToCommand(w.rootCommand.RunAsSubCommand, nil)
+	}
 }
 
 func (w *ExecWorker) getPrefix() string {

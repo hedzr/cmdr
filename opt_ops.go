@@ -106,6 +106,13 @@ func (s *RootCmdOpt) Copyright(copyright, author string) *RootCmdOpt {
 	return s
 }
 
+// RunAsSubCommand set RootCommand.RunAsSubCommand field.
+// NOTE that when it's valid, RootCommand.Command.Action handler will be ignored.
+func (s *RootCmdOpt) RunAsSubCommand(dottedPathToSubCommand string) *RootCmdOpt {
+	optCtx.root.RunAsSubCommand = dottedPathToSubCommand
+	return s
+}
+
 // AddGlobalPreAction attaches your pre handler to the global Pre-Actions list
 func (s *RootCmdOpt) AddGlobalPreAction(pre Handler) *RootCmdOpt {
 	optCtx.root.PreActions = append(optCtx.root.PreActions, pre)

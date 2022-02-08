@@ -40,6 +40,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 	if w.rootCommand == nil {
 		w.setupRootCommand(rootCmd)
 	}
+	w.preparePtPkg(pkg)
 
 	// initExitingChannelForFsWatcher()
 	defer w.postExecFor(rootCmd, pkg)
@@ -222,7 +223,7 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 		if stopF, err = w.flagsPrepare(pkg, goCommand, *args); stopF || err != nil {
 			return
 		}
-		if pkg.flg != nil && pkg.found {
+		if pkg.flg != nil && pkg.found { // if headLike flag matched
 			matched = true
 			return
 		}
@@ -240,26 +241,35 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 		// 	return
 		// }
 		flog("    -> matching flag for %q", pkg.a)
+		if pkg.aliasCommand != nil && *goCommand == &rootCmd.Command {
+			matched, stopF, err = w.flagsMatching(pkg, pkg.aliasCommand, &pkg.aliasCommand, *args)
+			if matched || stopF || err != nil {
+				*goCommand = pkg.flg.owner
+				return
+			}
+		}
 		matched, stopF, err = w.flagsMatching(pkg, cc, goCommand, *args)
 
-	} else {
-		// testing the next command, but the last one has already been the end of command series.
-		if pkg.lastCommandHeld {
-			// if pkg.i == len(args) {	pkg.i-- }
-			stopC, matched = true, true
-			pkg.remainArgs = append(pkg.remainArgs, pkg.a)
-			return
-		}
-
-		// or, keep going on...
-		// if matched, stop, err = cmdMatching(pkg, goCommand, args); stop || err != nil {
-		// 	return
-		// }
-		matched, stopC, err = w.cmdMatching(pkg, goCommand, *args)
-		if matched && len((*goCommand).presetCmdLines) > 0 && (*goCommand).Invoke != "" {
-			w.updateArgs(pkg, goCommand, rootCmd, args)
-		}
+		return
 	}
+
+	// testing the next command, but the last one has already been the end of command series.
+	if pkg.lastCommandHeld {
+		// if pkg.i == len(args) {	pkg.i-- }
+		stopC, matched = true, true
+		pkg.remainArgs = append(pkg.remainArgs, pkg.a)
+		return
+	}
+
+	// or, keep going on...
+	// if matched, stop, err = cmdMatching(pkg, goCommand, args); stop || err != nil {
+	// 	return
+	// }
+	matched, stopC, err = w.cmdMatching(pkg, goCommand, *args)
+	if matched && len((*goCommand).presetCmdLines) > 0 && (*goCommand).Invoke != "" {
+		w.updateArgs(pkg, goCommand, rootCmd, args)
+	}
+
 	return
 }
 

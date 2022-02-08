@@ -33,6 +33,7 @@ type ptpkg struct {
 	unknownCmds       []string
 	unknownFlags      []string
 	remainArgs        []string
+	aliasCommand      *Command
 }
 
 func (pkg *ptpkg) store() *Options                    { return internalGetWorker().rxxtOptions }
@@ -123,26 +124,16 @@ func (pkg *ptpkg) doParseSuffix() {
 	}
 }
 
-func (pkg *ptpkg) doMatchingShortFlag(goCommand **Command) {
-	if i := pkg.matchShortFlag(*goCommand, pkg.a, 1); i >= 0 {
-		pkg.fn = pkg.a[1:i]
-		pkg.savedFn = pkg.a[i:]
-	} else {
-		// no matched short flags found
-		if len(pkg.a) >= 2 && pkg.a[0] == '/' && pkg.a[1] != '/' {
-			if i = pkg.matchForLongFlags(*goCommand, pkg.a, 2); i >= 0 {
-				return
-			}
+func (pkg *ptpkg) matchLongFlag(goCommand **Command) {
+	if *goCommand == &((*goCommand).root.Command) && pkg.aliasCommand != nil {
+		if i := pkg.matchLongFlagsRecursively(pkg.aliasCommand, pkg.a, 2); i >= 0 {
+			pkg.fn = pkg.a[2:]
+			pkg.findValueAttached(&pkg.fn)
+			return
 		}
-		pkg.fn = pkg.a[1:2]     // from one char
-		pkg.savedFn = pkg.a[2:] // save others
 	}
-	pkg.short = true
-	pkg.findValueAttached(&pkg.savedFn)
-}
 
-func (pkg *ptpkg) doMatchingLongFlag(goCommand **Command) {
-	if i := pkg.matchForLongFlags(*goCommand, pkg.a, 2); i >= 0 {
+	if i := pkg.matchLongFlagsRecursively(*goCommand, pkg.a, 2); i >= 0 {
 		pkg.fn = pkg.a[2:]
 		pkg.findValueAttached(&pkg.fn)
 		return
@@ -152,7 +143,7 @@ func (pkg *ptpkg) doMatchingLongFlag(goCommand **Command) {
 	pkg.findValueAttached(&pkg.fn)
 }
 
-func (pkg *ptpkg) matchForLongFlags(cc *Command, a string, startPos int) (i int) {
+func (pkg *ptpkg) matchLongFlagsRecursively(cc *Command, a string, startPos int) (i int) {
 	var ln int
 	var fn string
 	var ok bool
@@ -184,7 +175,40 @@ retry:
 	return
 }
 
-func (pkg *ptpkg) matchShortFlag(cc *Command, a string, startPos int) (i int) {
+func (pkg *ptpkg) matchShortFlag(goCommand **Command) {
+	if i := pkg.matchLongestShortFlag(*goCommand, pkg.a, 1); i >= 0 {
+		pkg.fn = pkg.a[1:i]
+		pkg.savedFn = pkg.a[i:]
+		pkg.short = true
+		pkg.findValueAttached(&pkg.savedFn)
+		return
+	}
+
+	if *goCommand == &((*goCommand).root.Command) && pkg.aliasCommand != nil {
+		if i := pkg.matchLongestShortFlag(pkg.aliasCommand, pkg.a, 1); i >= 0 {
+			pkg.fn = pkg.a[1:i]
+			pkg.savedFn = pkg.a[i:]
+			pkg.short = true
+			pkg.findValueAttached(&pkg.savedFn)
+			return
+		}
+	}
+
+	// no matched short flags found
+	if len(pkg.a) >= 2 && pkg.a[0] == '/' && pkg.a[1] != '/' {
+		if i := pkg.matchLongFlagsRecursively(*goCommand, pkg.a, 2); i >= 0 {
+			return
+		}
+	}
+
+	pkg.fn = pkg.a[1:2]     // from one char
+	pkg.savedFn = pkg.a[2:] // save others
+
+	pkg.short = true
+	pkg.findValueAttached(&pkg.savedFn)
+}
+
+func (pkg *ptpkg) matchLongestShortFlag(cc *Command, a string, startPos int) (i int) {
 	type MS struct {
 		index int
 		fn    string
@@ -194,10 +218,7 @@ func (pkg *ptpkg) matchShortFlag(cc *Command, a string, startPos int) (i int) {
 	for i = len(a); i > startPos; i-- {
 		fn := a[startPos:i]
 		if _, ok := cc.plainShortFlags[fn]; ok {
-			matched = append(matched, struct {
-				index int
-				fn    string
-			}{index: i, fn: fn})
+			matched = append(matched, MS{index: i, fn: fn})
 			if longest < i {
 				longest = i
 			}

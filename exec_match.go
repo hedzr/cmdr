@@ -30,21 +30,27 @@ func (w *ExecWorker) helpOptMatching(pkg *ptpkg, goCommand **Command, args []str
 }
 
 func (w *ExecWorker) cmdMatching(pkg *ptpkg, goCommand **Command, args []string) (matched, stop bool, err error) {
-	// command, files
-	if cmd, ok := (*goCommand).plainCmds[pkg.a]; ok {
+	cc := *goCommand
+
+	if cmd, ok := cc.plainCmds[pkg.a]; ok {
 		cmd.strHit = pkg.a
 		*goCommand = cmd
 		matched = true
 		flog("    -> command %q hit (a=%q, idx=%v)...", cmd.GetTitleName(), pkg.a, pkg.i)
-		stop, err = w.cmdMatched(pkg, *goCommand, args)
+		stop, err = w.cmdMatched(pkg, cc, args)
 		return
 	}
 
-	if len((*goCommand).SubCommands) == 0 { // (*goCommand).Action != nil &&
+	if len(cc.SubCommands) == 0 { // (*goCommand).Action != nil &&
 		// the args remained are files, not sub-commands.
 		pkg.i--
 		pkg.lastCommandHeld = true
 		pkg.iLastCommand = pkg.i
+		return
+	}
+
+	if cc == &w.rootCommand.Command && pkg.aliasCommand != nil {
+		matched, stop, err = w.cmdMatching(pkg, &pkg.aliasCommand, args)
 		return
 	}
 
@@ -55,7 +61,7 @@ func (w *ExecWorker) cmdMatching(pkg *ptpkg, goCommand **Command, args []string)
 
 	flog("    . adding unknown command %q", pkg.a)
 	pkg.unknownCmds = append(pkg.unknownCmds, pkg.a)
-	unknownCommand(pkg, *goCommand, args)
+	unknownCommand(pkg, cc, args)
 	return
 }
 
@@ -92,7 +98,7 @@ func (w *ExecWorker) flagsPrepare(pkg *ptpkg, goCommand **Command, args []string
 			}
 
 			// long flag
-			pkg.doMatchingLongFlag(goCommand)
+			pkg.matchLongFlag(goCommand)
 			return
 		}
 
@@ -102,7 +108,7 @@ func (w *ExecWorker) flagsPrepare(pkg *ptpkg, goCommand **Command, args []string
 			return
 		}
 		pkg.doParseSuffix()
-		pkg.doMatchingShortFlag(goCommand)
+		pkg.matchShortFlag(goCommand)
 	}
 	return
 }
@@ -114,13 +120,13 @@ goUp:
 	if pkg.short {
 		a := "-" + pkg.fn + pkg.savedFn
 		flog("    .  . matching short flag for %q", a)
-		if i := pkg.matchShortFlag(cc, a, 1); i >= 0 {
+		if i := pkg.matchLongestShortFlag(cc, a, 1); i >= 0 {
 			pkg.fn, pkg.savedFn = a[1:i], a[i:]
 			pkg.flg, matched = cc.plainShortFlags[pkg.fn]
 		}
 	} else {
 		flog("    .  . matching long flag for --%v", pkg.fn)
-		matched = pkg.matchForLongFlags(cc, pkg.fn, 0) >= 0
+		matched = pkg.matchLongFlagsRecursively(cc, pkg.fn, 0) >= 0
 	}
 
 	if matched {

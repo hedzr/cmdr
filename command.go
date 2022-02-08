@@ -58,6 +58,23 @@ func (c *Command) GetHitStr() string {
 	return c.strHit
 }
 
+// Match matches title
+func (c *Command) Match(title string) (ok bool) {
+	if title == "" {
+		return
+	}
+
+	ok = c.Full == title || c.Short == title
+	if !ok {
+		for _, t := range c.Aliases {
+			if ok = t == title; ok {
+				break
+			}
+		}
+	}
+	return
+}
+
 // FindSubCommand find sub-command with `longName` from `cmd`
 func (c *Command) FindSubCommand(longName string) (res *Command) {
 	// return FindSubCommand(longName, c)

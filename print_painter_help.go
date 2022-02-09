@@ -140,7 +140,7 @@ func (s *helpPainter) FpCommandsLine(command *Command) (bufL, bufR bytes.Buffer)
 	if hidden && GetVerboseModeHitCount() > 1 {
 		hidden = false
 	}
-	if hidden {
+	if hidden || command.VendorHidden {
 		return
 	}
 
@@ -234,7 +234,7 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, def
 	if hidden && GetVerboseModeHitCount() > 1 {
 		hidden = false
 	}
-	if hidden {
+	if hidden || flg.VendorHidden {
 		return
 	}
 

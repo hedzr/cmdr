@@ -12,7 +12,7 @@ import (
 func dumpTreeForAllCommands(cmd *Command, args []string) (err error) {
 	command := &internalGetWorker().rootCommand.Command
 	_ = walkFromCommand(command, 0, 0, func(cmd *Command, index, level int) (e error) {
-		if cmd.Hidden {
+		if cmd.VendorHidden || (cmd.Hidden && GetVerboseModeHitCount() < 1) {
 			return
 		}
 

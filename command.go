@@ -222,7 +222,7 @@ func (c *Command) GetParentName() string {
 func (c *Command) GetSubCommandNamesBy(delimChar string) string {
 	var a []string
 	for _, sc := range c.SubCommands {
-		if !sc.Hidden {
+		if !sc.Hidden && !sc.VendorHidden {
 			a = append(a, sc.GetTitleNamesBy(delimChar))
 		}
 	}

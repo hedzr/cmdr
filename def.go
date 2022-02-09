@@ -60,6 +60,7 @@ type (
 		LongDescription string `yaml:"long-desc,omitempty" json:"long-desc,omitempty"`
 		Examples        string `yaml:"examples,omitempty" json:"examples,omitempty"`
 		Hidden          bool   `yaml:"hidden,omitempty" json:"hidden,omitempty"`
+		VendorHidden    bool   `yaml:"vendor-hidden,omitempty" json:"vendor-hidden,omitempty"`
 
 		// Deprecated is a version string just like '0.5.9' or 'v0.5.9', that means this command/flag was/will be deprecated since `v0.5.9`.
 		Deprecated string `yaml:"deprecated,omitempty" json:"deprecated,omitempty"`

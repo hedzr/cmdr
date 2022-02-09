@@ -75,14 +75,12 @@ func (s *optCommandImpl) Titles(long, short string, aliases ...string) (opt OptC
 		s.working.Name = long
 	}
 	s.working.Aliases = uniAddStrs(s.working.Aliases, aliases...)
-	opt = s
-	return
+	return s
 }
 
 func (s *optCommandImpl) Short(short string) (opt OptCmd) {
 	s.working.Short = short
-	opt = s
-	return
+	return s
 }
 
 func (s *optCommandImpl) Long(long string) (opt OptCmd) {
@@ -91,20 +89,17 @@ func (s *optCommandImpl) Long(long string) (opt OptCmd) {
 		s.working.Full = tool.StripOrderPrefix(long)
 		s.working.Name = long
 	}
-	opt = s
-	return
+	return s
 }
 
 func (s *optCommandImpl) Name(name string) (opt OptCmd) {
 	s.working.Name = name
-	opt = s
-	return
+	return s
 }
 
 func (s *optCommandImpl) Aliases(aliases ...string) (opt OptCmd) {
 	s.working.Aliases = uniAddStrs(s.working.Aliases, aliases...)
-	opt = s
-	return
+	return s
 }
 
 func (s *optCommandImpl) Description(oneLine string, long ...string) (opt OptCmd) {
@@ -112,59 +107,55 @@ func (s *optCommandImpl) Description(oneLine string, long ...string) (opt OptCmd
 	for _, l := range long {
 		s.working.LongDescription = l
 	}
-	opt = s
-	return
+	return s
 }
 
 func (s *optCommandImpl) Examples(examples string) (opt OptCmd) {
 	s.working.Examples = examples
-	opt = s
-	return
+	return s
 }
 
 func (s *optCommandImpl) Group(group string) (opt OptCmd) {
 	s.working.Group = group
-	opt = s
-	return
+	return s
 }
 
 func (s *optCommandImpl) Hidden(hidden bool) (opt OptCmd) {
 	s.working.Hidden = hidden
-	opt = s
-	return
+	return s
+}
+
+func (s *optCommandImpl) VendorHidden(hidden bool) (opt OptCmd) {
+	s.working.VendorHidden = hidden
+	return s
 }
 
 func (s *optCommandImpl) Deprecated(deprecation string) (opt OptCmd) {
 	s.working.Deprecated = deprecation
-	opt = s
-	return
+	return s
 }
 
 func (s *optCommandImpl) Action(action Handler) (opt OptCmd) {
 	s.working.Action = action
-	opt = s
-	return
+	return s
 }
 
 func (s *optCommandImpl) PreAction(pre Handler) (opt OptCmd) {
 	// s.workingFlag.ExternalTool = envKeyName
 	s.working.PreAction = pre
-	opt = s
-	return
+	return s
 }
 
 func (s *optCommandImpl) PostAction(post Invoker) (opt OptCmd) {
 	// s.workingFlag.ExternalTool = envKeyName
 	s.working.PostAction = post
-	opt = s
-	return
+	return s
 }
 
 func (s *optCommandImpl) TailPlaceholder(placeholder string) (opt OptCmd) {
 	// s.workingFlag.ExternalTool = envKeyName
 	s.working.TailPlaceHolder = placeholder
-	opt = s
-	return
+	return s
 }
 
 func (s *optCommandImpl) Bool() (opt OptFlag) {

@@ -850,12 +850,12 @@ $ {{.AppName}} gen man
 					w._boolFlgAdd1(cx, "fish", "Generate auto completion script for Fish [TODO]", shTypeGroup, func(ff *Flag) {
 						ff.Short = "f"
 						ff.ToggleGroup = shTypeGroup
-						ff.Hidden = true
+						ff.VendorHidden = true
 					})
 					w._boolFlgAdd1(cx, "powershell", "Generate auto completion script for Powershell [TODO]", shTypeGroup, func(ff *Flag) {
 						ff.Short = "p"
 						ff.ToggleGroup = shTypeGroup
-						ff.Hidden = true
+						ff.VendorHidden = true
 					})
 					w._boolFlgAdd1(cx, "force-bash", "Just for --auto", shTypeGroup, func(ff *Flag) {
 						ff.Hidden = false
@@ -879,7 +879,7 @@ $ {{.AppName}} gen man
 					cx.Short = "d"
 					cx.Aliases = []string{"pdf", "docx", "tex", "markdown"}
 					cx.Action = genDoc
-					cx.Hidden = true
+					cx.VendorHidden = true
 					cx.Deprecated = "1.9.9"
 
 					w._stringFlgAdd1(cx, "dir", "The output directory", "Output", func(ff *Flag) {

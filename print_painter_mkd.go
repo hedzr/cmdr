@@ -218,41 +218,44 @@ func (s *markdownPainter) FpCommandsGroupTitle(group string) {
 }
 
 func (s *markdownPainter) FpCommandsLine(command *Command) (bufL, bufR bytes.Buffer) {
-	if !command.Hidden {
-		// s.Printf("  %-48s%v", command.GetTitleNames(), command.Description)
-		// s.Printf("\n\x1b[%dm\x1b[%dm%s\x1b[0m", bgNormal, darkColor, title)
-		// s.Printf("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", bgDim, darkColor, normalize(group))
-		// s.Printf(".TP\n.BI %s\n%s\n", manWs(command.GetTitleNames()), command.Description)
-		title := command.Full
-		if len(title) == 0 {
-			title = command.Short
-		}
-
-		var wrapChars, tail string
-		if len(command.Deprecated) > 0 {
-			wrapChars = "~~"
-			tail = fmt.Sprintf("> deprecated since %v", command.Deprecated)
-		}
-
-		s.bufPrintf(&bufL, "##### %s%s%s", wrapChars, title, wrapChars)
-		if len(command.Short) > 0 && len(command.Full) > 0 {
-			s.bufPrintf(&bufL, " (**Short**: %v) ", command.Short)
-		}
-		if len(command.Aliases) > 0 {
-			s.bufPrintf(&bufL, " (**Aliases**: %v) ", command.Aliases)
-		}
-		s.bufPrintf(&bufL, "\n\n%v\n\n", tail)
-
-		if len(command.Description) > 0 {
-			s.bufPrintf(&bufR, "%v\n\n", command.Description)
-		}
-		if len(command.LongDescription) > 0 {
-			s.bufPrintf(&bufR, "%v\n\n", command.LongDescription)
-		}
-		if len(command.Examples) > 0 {
-			s.bufPrintf(&bufR, "```bash\n%v\n```\n", tplApply(command.Examples, command.root))
-		}
+	if command.VendorHidden || (command.Hidden && GetVerboseModeHitCount() < 1) {
+		return
 	}
+
+	// s.Printf("  %-48s%v", command.GetTitleNames(), command.Description)
+	// s.Printf("\n\x1b[%dm\x1b[%dm%s\x1b[0m", bgNormal, darkColor, title)
+	// s.Printf("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", bgDim, darkColor, normalize(group))
+	// s.Printf(".TP\n.BI %s\n%s\n", manWs(command.GetTitleNames()), command.Description)
+	title := command.Full
+	if len(title) == 0 {
+		title = command.Short
+	}
+
+	var wrapChars, tail string
+	if len(command.Deprecated) > 0 {
+		wrapChars = "~~"
+		tail = fmt.Sprintf("> deprecated since %v", command.Deprecated)
+	}
+
+	s.bufPrintf(&bufL, "##### %s%s%s", wrapChars, title, wrapChars)
+	if len(command.Short) > 0 && len(command.Full) > 0 {
+		s.bufPrintf(&bufL, " (**Short**: %v) ", command.Short)
+	}
+	if len(command.Aliases) > 0 {
+		s.bufPrintf(&bufL, " (**Aliases**: %v) ", command.Aliases)
+	}
+	s.bufPrintf(&bufL, "\n\n%v\n\n", tail)
+
+	if len(command.Description) > 0 {
+		s.bufPrintf(&bufR, "%v\n\n", command.Description)
+	}
+	if len(command.LongDescription) > 0 {
+		s.bufPrintf(&bufR, "%v\n\n", command.LongDescription)
+	}
+	if len(command.Examples) > 0 {
+		s.bufPrintf(&bufR, "```bash\n%v\n```\n", tplApply(command.Examples, command.root))
+	}
+
 	return
 }
 

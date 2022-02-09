@@ -204,13 +204,16 @@ func (s *manPainter) FpCommandsGroupTitle(group string) {
 }
 
 func (s *manPainter) FpCommandsLine(command *Command) (bufL, bufR bytes.Buffer) {
-	if !command.Hidden {
-		// s.Printf("  %-48s%v", command.GetTitleNames(), command.Description)
-		// s.Printf("\n\x1b[%dm\x1b[%dm%s\x1b[0m", bgNormal, darkColor, title)
-		// s.Printf("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", bgDim, darkColor, normalize(group))
-		s.bufPrintf(&bufL, ".TP\n.BI %s", manWs(command.GetTitleNames()))
-		s.bufPrintf(&bufR, "\n%s\n", command.Description)
+	if command.VendorHidden || (command.Hidden && GetVerboseModeHitCount() < 1) {
+		return
 	}
+
+	// s.Printf("  %-48s%v", command.GetTitleNames(), command.Description)
+	// s.Printf("\n\x1b[%dm\x1b[%dm%s\x1b[0m", bgNormal, darkColor, title)
+	// s.Printf("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", bgDim, darkColor, normalize(group))
+	s.bufPrintf(&bufL, ".TP\n.BI %s", manWs(command.GetTitleNames()))
+	s.bufPrintf(&bufR, "\n%s\n", command.Description)
+
 	return
 }
 

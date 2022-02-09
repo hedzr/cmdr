@@ -542,6 +542,9 @@ type aGroupedSections struct {
 func countOfCommandsItems(p Painter, command *Command, justFlags bool) (count int) {
 	for _, items := range command.allCmds {
 		for _, c := range items {
+			if c.VendorHidden {
+				continue
+			}
 			if !c.Hidden || GetVerboseModeHitCount() > 1 {
 				count++
 			}
@@ -614,6 +617,9 @@ func findMaxShortLength(groups map[string]*Flag) (maxShort int) {
 func countOfFlagsItems(p Painter, command *Command, justFlags bool) (count int) {
 	for _, items := range command.allFlags {
 		for _, c := range items {
+			if c.VendorHidden {
+				continue
+			}
 			if !c.Hidden || GetVerboseModeHitCount() > 1 {
 				count++
 			}
@@ -629,7 +635,7 @@ func printHelpFlagSectionsChild(p Painter, command *Command, groups map[string]*
 	maxShort := findMaxShortLength(groups)
 	for _, nm := range k3 {
 		flg := groups[nm]
-		if flg.Hidden && GetVerboseModeHitCount() <= 1 {
+		if flg.VendorHidden || (flg.Hidden && GetVerboseModeHitCount() <= 1) {
 			continue
 		}
 

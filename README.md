@@ -53,8 +53,9 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - fix: unknown switch char not an error now
   - imp: refined gen zsh code, and gen shell codes
   - fea: support fish-shell completion generating now
-  - fea: added root.RunAsSubCommand, treat 'app' as a synonym of 'app subcmd1 subcmd2'
-  - imp/fix/fea: clarify the slice append or replace mode - SetNx & SetNxOverwrite for Option Store
+  - fea: added root.`RunAsSubCommand`, treat 'app' as a synonym of 'app subcmd1 subcmd2'
+  - imp/fix/fea: clarify the slice append or replace mode - SetNx & `SetNxOverwrite` for Option Store
+  - fea: added `VendorHidden` field for when you wanna a never shown flag or command
 
 - v1.10.13
   - fix/imp: adapt windir to *nix name to fit for generic config file loading

@@ -63,7 +63,7 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - fix: fallback the unknown type as string type
   - fea: add flag to control whether write the changes back to alternative config file or not, `WithAlterConfigAutoWriteBack`
   - imp: name/desc fields of builtin commands and flags
-  - CHANGE: use bgo build-tool now, Makefile thrown
+  - CHANGE: use [bgo build-tool](https://github.com/hedzr/bgo) now, Makefile thrown
 
 - v1.10.11
   - fix: setNx bug at last commit

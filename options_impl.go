@@ -1008,7 +1008,7 @@ func (s *Options) mergeSlice(v1, v2 interface{}) (v3 interface{}) {
 		}
 		for i := 0; i < x2.Len(); i++ {
 			t := x2.Index(i)
-			if t.CanConvert(typ) {
+			if canConvert(t, typ) {
 				x4 = s._cvtToTgt(typ, t, x4)
 			} else if typ.Kind() == reflect.String {
 				x4 = s._cvtToStr(typ, t, x4)
@@ -1033,6 +1033,29 @@ func (s *Options) mergeSlice(v1, v2 interface{}) (v3 interface{}) {
 		v3 = v1
 	}
 	return
+}
+
+// canConvert reports whether the value v can be converted to type t.
+// If v.CanConvert(t) returns true then v.Convert(t) will not panic.
+func canConvert(v reflect.Value, t reflect.Type) bool {
+	vt := v.Type()
+	if !vt.ConvertibleTo(t) {
+		return false
+	}
+
+	// go1.17+ only:
+	//
+	//// Currently the only conversion that is OK in terms of type
+	//// but that can panic depending on the value is converting
+	//// from slice to pointer-to-array.
+	//if vt.Kind() == reflect.Slice && t.Kind() == reflect.Ptr && t.Elem().Kind() == reflect.Array {
+	//	n := t.Elem().Len()
+	//	h := (*unsafeheader.Slice)(v.ptr)
+	//	if n > h.Len {
+	//		return false
+	//	}
+	//}
+	return true
 }
 
 func isSlice(v interface{}) bool {

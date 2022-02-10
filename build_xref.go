@@ -347,22 +347,14 @@ func (w *ExecWorker) buildAddonsCrossRefs(root *RootCommand) {
 		dirExpanded := os.ExpandEnv(d)
 		// Logger.Debugf("      -> addons.dir: %v", dirExpanded)
 		if dir.FileExists(dirExpanded) {
-			err := dir.ForDirMax(dirExpanded, 0, 1, func(depth int, cwd string, fi os.FileInfo) (stop bool, err error) {
-				if fi.IsDir() {
-					return
-				}
-				var ok bool // = strings.HasPrefix(fi.Name(), prefix)
-				ok = true
-				// Logger.Debugf("      -> addons.dir: %v, file: %v", dirExpanded, fi.Name())
-				if ok && fi.Mode().IsRegular() && dir.IsModeExecAny(fi.Mode()) {
-					//name := fi.Name()[:len(prefix)]
-					name := fi.Name()
-					exe := path.Join(cwd, fi.Name())
-					//if strings.HasPrefix(name, "-") || strings.HasPrefix(name, "_") {
-					//	name = name[1:]
-					//	Logger.Debugf("      -> addons.dir: %v, file: %v", dirExpanded, fi.Name())
-					err = w._addonAsSubCmd(root, name, exe)
-					//}
+			err := dir.ForFileMax(dirExpanded, 0, 1, func(depth int, cwd string, fi os.FileInfo) (stop bool, err error) {
+				if !fi.IsDir() {
+					var ok bool // = strings.HasPrefix(fi.Name(), prefix)
+					ok = true
+					// Logger.Debugf("      -> addons.dir: %v, file: %v", dirExpanded, fi.Name())
+					if ok && dir.IsModeExecAny(fi.Mode()) {
+						err = w._addOnAddIt(fi, root, cwd)
+					}
 				}
 				return
 			})
@@ -371,6 +363,20 @@ func (w *ExecWorker) buildAddonsCrossRefs(root *RootCommand) {
 			}
 		}
 	}
+}
+
+func (w *ExecWorker) _addOnAddIt(fi os.FileInfo, root *RootCommand, cwd string) (err error) {
+	if fi.Mode().IsRegular() {
+		//name := fi.Name()[:len(prefix)]
+		name := fi.Name()
+		exe := path.Join(cwd, fi.Name())
+		//if strings.HasPrefix(name, "-") || strings.HasPrefix(name, "_") {
+		//	name = name[1:]
+		//	Logger.Debugf("      -> addons.dir: %v, file: %v", dirExpanded, fi.Name())
+		err = w._addonAsSubCmd(root, name, exe)
+		//}
+	}
+	return
 }
 
 func (w *ExecWorker) _addonAsSubCmd(root *RootCommand, cmdName, cmdPath string) (err error) {
@@ -500,22 +506,14 @@ func (w *ExecWorker) buildExtensionsCrossRefs(root *RootCommand) {
 		dirExpanded := os.ExpandEnv(d)
 		// Logger.Debugf("      -> ext.dir: %v", dirExpanded)
 		if dir.FileExists(dirExpanded) {
-			err := dir.ForDirMax(dirExpanded, 0, 1, func(depth int, cwd string, fi os.FileInfo) (stop bool, err error) {
-				if fi.IsDir() {
-					return
-				}
-				var ok bool // = strings.HasPrefix(fi.Name(), prefix)
-				ok = true
-				// Logger.Debugf("      -> ext.dir: %v, file: %v", dirExpanded, fi.Name())
-				if ok && fi.Mode().IsRegular() && dir.IsModeExecAny(fi.Mode()) {
-					//name := fi.Name()[:len(prefix)]
-					name := fi.Name()
-					exe := path.Join(cwd, fi.Name())
-					//if strings.HasPrefix(name, "-") || strings.HasPrefix(name, "_") {
-					//	name = name[1:]
-					//	Logger.Debugf("      -> ext.dir: %v, file: %v", dirExpanded, fi.Name())
-					w._addAsSubCmd(&root.Command, name, exe)
-					//}
+			err := dir.ForFileMax(dirExpanded, 0, 1, func(depth int, cwd string, fi os.FileInfo) (stop bool, err error) {
+				if !fi.IsDir() {
+					var ok bool // = strings.HasPrefix(fi.Name(), prefix)
+					ok = true
+					// Logger.Debugf("      -> ext.dir: %v, file: %v", dirExpanded, fi.Name())
+					if ok && dir.IsModeExecAny(fi.Mode()) {
+						err = w._addIt(fi, root, cwd)
+					}
 				}
 				return
 			})
@@ -524,6 +522,20 @@ func (w *ExecWorker) buildExtensionsCrossRefs(root *RootCommand) {
 			}
 		}
 	}
+}
+
+func (w *ExecWorker) _addIt(fi os.FileInfo, root *RootCommand, cwd string) (err error) {
+	if fi.Mode().IsRegular() {
+		//name := fi.Name()[:len(prefix)]
+		name := fi.Name()
+		exe := path.Join(cwd, fi.Name())
+		//if strings.HasPrefix(name, "-") || strings.HasPrefix(name, "_") {
+		//	name = name[1:]
+		//	Logger.Debugf("      -> addons.dir: %v, file: %v", dirExpanded, fi.Name())
+		w._addAsSubCmd(&root.Command, name, exe)
+		//}
+	}
+	return
 }
 
 func (w *ExecWorker) _addAsSubCmd(parent *Command, cmdName, cmdPath string) {

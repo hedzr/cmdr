@@ -137,16 +137,55 @@ func TestAsXXX(t *testing.T) {
 	}
 }
 
+func TestKiloBytes(t *testing.T) {
+	opts := cmdr.CurrentOptions()
+	for _, str := range []string{
+		"8K", "8M", "8G", "8T", "8P", "8E",
+	} {
+		//r:=str[1]
+		n := opts.FromKilobytes(str)
+		n = opts.FromKibiBytes(str)
+		t.Log(n)
+	}
+}
+
 func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 	root := cmdr.Root("aa", "1.0.1").
 		AddGlobalPreAction(func(cmd *cmdr.Command, args []string) (err error) {
 			return
-		}).AddGlobalPostAction(func(cmd *cmdr.Command, args []string) {
-	}).
+		}).
+		AddGlobalPostAction(func(cmd *cmdr.Command, args []string) {
+		}).
+		RunAsSubCommand("generate.shell").
 		Header("aa - test for cmdr - no version - hedzr").
 		Copyright("s", "x")
 
+	root.AppendPreActions(func(cmd *cmdr.Command, args []string) (err error) {
+		return
+	})
+	root.AppendPostActions(func(cmd *cmdr.Command, args []string) {
+	})
+
 	// ms
+
+	co1 := cmdr.NewSubCmd().
+		Titles("micro-service-1", "ms-1").
+		Short("ms-1").Long("micro-service-1").Aliases("goms-1").
+		Examples(``).Hidden(false).Deprecated("").
+		PreAction(nil).PostAction(nil).Action(nil).
+		TailPlaceholder("").
+		Description("", "")
+	co1.AttachTo(root)
+
+	ff2 := cmdr.NewInt(3).
+		Titles("retry1x", "t1x").
+		Description("1(2)3`FILE` usage", "").
+		Group("").
+		DefaultValue(false, "RETRY")
+
+	ff2.AttachTo(co1)
+	ff2.SetOwner(co1)
+	ff2.SetOwner(nil)
 
 	co := root.NewSubCommand().
 		Titles("micro-service", "ms").
@@ -174,13 +213,17 @@ func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 		CompletionActionStr("").CompletionMutualExclusiveFlags("").
 		CompletionPrerequisitesFlags("").CompletionJustOnce(false).
 		CompletionCircuitBreak(false).DoubleTildeOnly(false).
-		DefaultValue(uint(3), "RETRY").SetOwner(root)
+		DefaultValue(uint(3), "RETRY").
+		SetOwner(root)
 
-	co.NewFlag(cmdr.OptFlagTypeBool).
+	ff1 := co.NewFlag(cmdr.OptFlagTypeBool).
 		Titles("retry1", "t1").
-		Description("", "").
+		Description("1(2)3", "").
 		Group("").
-		DefaultValue(false, "RETRY").OwnerCommand()
+		DefaultValue(false, "RETRY").
+		OwnerCommand()
+	ff1.SetOwner(co)
+	ff1.SetOwner(nil)
 
 	co.NewFlag(cmdr.OptFlagTypeInt).
 		Titles("retry2", "t2").

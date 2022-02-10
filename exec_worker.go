@@ -183,17 +183,26 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 
 	WithEnvVarMap(nil)(w)
 
-	if sw, ok := switchCharMap[runtime.GOOS]; ok {
-		w.switchCharset = sw
-	} else {
-		w.switchCharset = "-~/"
-	}
+	w._setSwChars(runtime.GOOS)
 	//if runtime.GOOS == "windows" {
 	//	w.switchCharset = "-/~"
 	//}
 
 	uniqueWorker = w
 	return
+}
+
+func (w *ExecWorker) _setSwChars(os string) {
+	if os == "windows" {
+		w.switchCharset = "-/~"
+	} else {
+		w.switchCharset = "-~/"
+	}
+	//if sw, ok := switchCharMap[runtime.GOOS]; ok {
+	//	w.switchCharset = sw
+	//} else {
+	//	w.switchCharset = "-~/"
+	//}
 }
 
 func init() {

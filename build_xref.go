@@ -875,13 +875,23 @@ $ {{.AppName}} gen man
 						ff.ToggleGroup = shTypeGroup
 						ff.Hidden = false
 					})
-					w._boolFlgAdd1(cx, "fish", "Generate auto completion script for Fish [TODO]", shTypeGroup, func(ff *Flag) {
+					w._boolFlgAdd1(cx, "fish", "Generate auto completion script for Fish-shell [TODO]", shTypeGroup, func(ff *Flag) {
 						ff.Short = "f"
 						ff.ToggleGroup = shTypeGroup
 						ff.VendorHidden = true
 					})
 					w._boolFlgAdd1(cx, "powershell", "Generate auto completion script for Powershell [TODO]", shTypeGroup, func(ff *Flag) {
 						ff.Short = "p"
+						ff.ToggleGroup = shTypeGroup
+						ff.VendorHidden = true
+					})
+					w._boolFlgAdd1(cx, "elvish", "Generate auto completion script for Elvish-shell [TODO]", shTypeGroup, func(ff *Flag) {
+						ff.Short = "el"
+						ff.ToggleGroup = shTypeGroup
+						ff.VendorHidden = true
+					})
+					w._boolFlgAdd1(cx, "fig", "Generate auto completion script for fig-shell [TODO]", shTypeGroup, func(ff *Flag) {
+						ff.Short = "fig"
 						ff.ToggleGroup = shTypeGroup
 						ff.VendorHidden = true
 					})

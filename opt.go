@@ -167,9 +167,9 @@ type (
 		AddCommand(cmd *Command)
 		// AttachTo attaches itself as a sub-command of 'opt' OptCmd object
 		AttachTo(opt OptCmd)
-		// AttachTo attaches itself as a sub-command of *Command object
+		// AttachToCommand attaches itself as a sub-command of *Command object
 		AttachToCommand(cmd *Command)
-		// AttachTo attaches itself as a sub-command of *RootCommand object
+		// AttachToRoot attaches itself as a sub-command of *RootCommand object
 		AttachToRoot(root *RootCommand)
 	}
 

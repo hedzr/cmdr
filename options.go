@@ -638,11 +638,25 @@ func Set(key string, val interface{}) {
 	internalGetWorker().rxxtOptions.Set(key, val)
 }
 
+// SetOverwrite sets the value of an `Option` key. The key MUST not have an `app` prefix.
+// It replaces the old value on a slice, instead of the default append mode.
+//
+// SetOverwrite(key, newSlice) will replace the original value with newSlice.
+func SetOverwrite(key string, val interface{}) {
+	internalGetWorker().rxxtOptions.SetOverwrite(key, val)
+}
+
 // SetNx but without prefix auto-wrapped.
 // `rxxtPrefix` is a string slice to define the prefix string array, default is ["app"].
 // So, cmdr.Set("debug", true) will put a real entry with (`debug`, true).
 func SetNx(key string, val interface{}) {
 	internalGetWorker().rxxtOptions.SetNx(key, val)
+}
+
+// SetNxOverwrite likes SetOverwrite but without prefix auto-wrapped.
+// It replaces the old value on a slice, instead of the default append mode.
+func SetNxOverwrite(key string, val interface{}) {
+	internalGetWorker().rxxtOptions.SetNxOverwrite(key, val)
 }
 
 // SetRaw but without prefix auto-wrapped.

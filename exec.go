@@ -47,6 +47,7 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 
 	err = w.preprocess(rootCmd, args)
 	if err == nil {
+		w.rxxtOptions.setToAppendMode()
 		last, err = w.internalExecFor(pkg, rootCmd, args)
 	}
 	return
@@ -291,6 +292,9 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 	w.checkStates(pkg)
 
 	if !pkg.needHelp && len(pkg.unknownCmds) == 0 && len(pkg.unknownFlags) == 0 {
+		if goCommand.Action == nil && goCommand == &rootCmd.Command && pkg.aliasCommand != nil {
+			goCommand = pkg.aliasCommand
+		}
 		if goCommand.Action != nil {
 			rArgs := w.getRemainArgs(pkg, args)
 			err = w.doInvokeCommand(rootCmd, goCommand, rArgs)

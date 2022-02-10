@@ -823,21 +823,41 @@ func (s *Options) envKey(key string) (envKey string) {
 	return
 }
 
-// Set set the value of an `Option` key. The key MUST not have an `app` prefix. eg:
+// Set sets the value of an `Option` key. The key MUST not have an `app` prefix.
+//
+// For example:
 // ```golang
 // cmdr.Set("debug", true)
 // cmdr.GetBool("app.debug") => true
 // ```
+//
+// Set runs in slice appending mode: for a slice, Set(key, newSlice) will append
+// newSlice into original slice.
 func (s *Options) Set(key string, val interface{}) {
 	k := wrapWithRxxtPrefix(key)
 	s.setNx(k, val)
 }
 
-// SetNx but without prefix auto-wrapped.
+// SetOverwrite sets the value of an `Option` key. The key MUST not have an `app` prefix.
+// It replaces the old value on a slice, instead of the default append mode.
+//
+// SetOverwrite(key, newSlice) will replace the original value with newSlice.
+func (s *Options) SetOverwrite(key string, val interface{}) {
+	k := wrapWithRxxtPrefix(key)
+	s.setNxOverwrite(k, val)
+}
+
+// SetNx likes Set but without prefix auto-wrapped.
 // `rxxtPrefix` is a string slice to define the prefix string array, default is ["app"].
 // So, cmdr.SetNx("debug", true) will put a real entry with (`debug`, true).
 func (s *Options) SetNx(key string, val interface{}) {
 	s.setNx(key, val)
+}
+
+// SetNxOverwrite likes SetOverwrite but without prefix auto-wrapped.
+// It replaces the old value on a slice, instead of the default append mode.
+func (s *Options) SetNxOverwrite(key string, val interface{}) {
+	s.setNxOverwrite(key, val)
 }
 
 // SetRaw but without prefix auto-wrapped.
@@ -851,6 +871,24 @@ func (s *Options) setNx(key string, val interface{}) (oldVal interface{}, modi b
 	s.rw.Lock()
 	return s.setNxNoLock(key, val)
 }
+
+func (s *Options) setNxOverwrite(key string, val interface{}) (oldVal interface{}, modi bool) {
+	defer s.rw.Unlock()
+	s.rw.Lock()
+	old := s.setAppendMode(modi)
+	defer s.resetAppendMode(old)
+	return s.setNxNoLock(key, val)
+}
+
+func (s *Options) setAppendMode(bn bool) bool {
+	b := s.appendMode
+	s.appendMode = bn
+	return b
+}
+
+func (s *Options) resetAppendMode(b bool) { s.appendMode = b }
+func (s *Options) setToAppendMode()       { s.appendMode = true }
+func (s *Options) setToReplaceMode()      { s.appendMode = false }
 
 func (s *Options) setNxNoLock(key string, val interface{}) (oldVal interface{}, modi bool) {
 	if val == nil && s.getMapNoLock(key) != nil {
@@ -885,7 +923,7 @@ func (s *Options) setNxNoLock(key string, val interface{}) (oldVal interface{}, 
 func (s *Options) setNxNoLock2(key string, oldVal, val interface{}, leaf bool) (modi bool) {
 	if leaf {
 		if isSlice(oldVal) && isSlice(val) {
-			newVal := mergeSlice(oldVal, val)
+			newVal := s.mergeSlice(oldVal, val)
 			val = newVal
 		} else if isMap(oldVal) && isMap(val) {
 			newVal := mergeTwoMapNoRecursive(oldVal, val)
@@ -922,16 +960,42 @@ func isMap(v interface{}) bool {
 	return x.Kind() == reflect.Map
 }
 
-func mergeSlice(v1, v2 interface{}) (v3 interface{}) {
+func (s *Options) _cvtToTgt(typ reflect.Type, t, x4 reflect.Value) reflect.Value {
+	tn := t.Convert(typ)
+	var found bool
+	for zi := 0; zi < x4.Len(); zi++ {
+		if found = reflect.DeepEqual(tn.Interface(), x4.Index(zi).Interface()); found {
+			return x4
+		}
+	}
+	return reflect.Append(x4, tn)
+}
+
+func (s *Options) _cvtToStr(typ reflect.Type, t, x4 reflect.Value) reflect.Value {
+	str := fmt.Sprintf("%v", t.Interface())
+	var found bool
+	for zi := 0; zi < x4.Len(); zi++ {
+		if found = reflect.DeepEqual(str, x4.Index(zi).Interface()); found {
+			return x4
+		}
+	}
+	return reflect.Append(x4, reflect.ValueOf(str))
+}
+
+func (s *Options) mergeSlice(v1, v2 interface{}) (v3 interface{}) {
 	if !isSlice(v1) || !isSlice(v2) {
 		return
 	}
 
+	if s.appendMode == false {
+		return v2 // just replace the old value
+	}
+
 	x1, x2 := reflect.ValueOf(v1), reflect.ValueOf(v2)
-	if et1, et2 := x1.Type().Elem(), x2.Type().Elem(); et1 == et2 {
-		x1 = reflect.AppendSlice(x1, x2)
-		v3 = x1.Interface()
-	} else if et1.ConvertibleTo(et2) {
+	if et1, et2 := x1.Type().Elem(), x2.Type().Elem(); et1 == et2 || et1.ConvertibleTo(et2) {
+		// x1 = reflect.AppendSlice(x1, x2)
+		// v3 = x1.Interface()
+		// } else if et1.ConvertibleTo(et2) {
 		typ := et1
 		if et1.Kind() < et2.Kind() {
 			typ = et2
@@ -943,11 +1007,11 @@ func mergeSlice(v1, v2 interface{}) (v3 interface{}) {
 			x4 = reflect.Append(x4, x1.Index(i).Convert(typ))
 		}
 		for i := 0; i < x2.Len(); i++ {
-			if typ.Kind() == reflect.String {
-				str := fmt.Sprintf("%v", x2.Interface())
-				x4 = reflect.Append(x4, reflect.ValueOf(str))
-			} else {
-				x4 = reflect.Append(x4, x2.Index(i).Convert(typ))
+			t := x2.Index(i)
+			if t.CanConvert(typ) {
+				x4 = s._cvtToTgt(typ, t, x4)
+			} else if typ.Kind() == reflect.String {
+				x4 = s._cvtToStr(typ, t, x4)
 			}
 
 			// Just for go1.17+

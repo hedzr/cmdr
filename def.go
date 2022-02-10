@@ -261,6 +261,7 @@ type (
 		configFiles               []string
 		filesWatching             []string
 		batchMerging              bool
+		appendMode                bool // true: append mode, false: replaceMode
 
 		onConfigReloadedFunctions map[ConfigReloaded]bool
 		rwlCfgReload              *sync.RWMutex

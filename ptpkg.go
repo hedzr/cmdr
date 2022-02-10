@@ -307,7 +307,7 @@ func (pkg *ptpkg) tryExtractingBoolValue() (err error) {
 
 	var v = pkg.flg.DefaultValue
 	var keyPath = backtraceFlagNames(pkg.flg)
-	pkg.xxSet(keyPath, v)
+	pkg.xxSet(keyPath, v, false)
 	return
 }
 
@@ -375,15 +375,24 @@ func (pkg *ptpkg) processExternalTool() (err error) {
 	return
 }
 
-func (pkg *ptpkg) xxSet(keyPath string, v interface{}) {
-	if len(pkg.a) > 0 && pkg.a[0] == '~' {
-		pkg.store().SetNx(keyPath, v)
-	} else {
-		pkg.store().Set(keyPath, v)
+// xxSet _
+// replaceOrAppend: // true: replace old, false: append to old value
+func (pkg *ptpkg) xxSet(keyPath string, v interface{}, replaceOrAppend bool) {
+	if !(len(pkg.a) > 0 && pkg.a[0] == '~') {
+		keyPath = wrapWithRxxtPrefix(keyPath)
 	}
+
+	store := pkg.store()
+	if replaceOrAppend {
+		store.SetNxOverwrite(keyPath, v)
+	} else {
+		store.SetNx(keyPath, v)
+	}
+
 	if pkg.flg != nil && pkg.flg.onSet != nil {
 		pkg.flg.onSet(keyPath, v)
 	}
+
 	pkg.found = true
 }
 
@@ -401,7 +410,7 @@ func (pkg *ptpkg) processTypeDuration(args []string) (err error) {
 		if err == nil {
 			// flog("    .  . [duration] %q => %v", pkg.val, v)
 			var keyPath = backtraceFlagNames(pkg.flg)
-			pkg.xxSet(keyPath, v)
+			pkg.xxSet(keyPath, v, false)
 		}
 	}
 	return
@@ -420,7 +429,7 @@ func (pkg *ptpkg) processTypeIntCore(args []string) (err error) {
 	}
 
 	var keyPath = backtraceFlagNames(pkg.flg)
-	pkg.xxSet(keyPath, v)
+	pkg.xxSet(keyPath, v, false)
 	return
 }
 
@@ -435,7 +444,7 @@ func (pkg *ptpkg) processTypeUint(args []string) (err error) {
 		}
 
 		var keyPath = backtraceFlagNames(pkg.flg)
-		pkg.xxSet(keyPath, v)
+		pkg.xxSet(keyPath, v, false)
 	}
 	return
 }
@@ -451,7 +460,7 @@ func (pkg *ptpkg) processTypeFloat(args []string) (err error) {
 		}
 
 		var keyPath = backtraceFlagNames(pkg.flg)
-		pkg.xxSet(keyPath, v)
+		pkg.xxSet(keyPath, v, false)
 	}
 	return
 }
@@ -467,7 +476,7 @@ func (pkg *ptpkg) processTypeComplex(args []string) (err error) {
 		}
 
 		var keyPath = backtraceFlagNames(pkg.flg)
-		pkg.xxSet(keyPath, v)
+		pkg.xxSet(keyPath, v, false)
 	}
 	return
 }
@@ -494,7 +503,7 @@ func (pkg *ptpkg) processTypeString(args []string) (err error) {
 	saveIt:
 		var v = pkg.val
 		var keyPath = backtraceFlagNames(pkg.flg)
-		pkg.xxSet(keyPath, v)
+		pkg.xxSet(keyPath, v, false)
 		pkg.found = true
 
 	}
@@ -506,11 +515,13 @@ func (pkg *ptpkg) processTypeStringSlice(args []string) (err error) {
 		var v = strings.Split(pkg.val, ",")
 
 		var keyPath = backtraceFlagNames(pkg.flg)
-		var existedVal = pkg.store().GetStringSlice(wrapWithRxxtPrefix(keyPath))
-		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) || pkg.flg.times == 1 { // if first matching
-			existedVal = nil
-		}
-		pkg.xxSet(keyPath, append(existedVal, v...))
+		//var replaceOrAppend bool // true: replace old, false: append to old value
+		//var existedVal = pkg.store().GetStringSlice(wrapWithRxxtPrefix(keyPath))
+		//if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) || pkg.flg.times == 1 { // if first matching
+		//	existedVal, replaceOrAppend = nil, true
+		//}
+		//pkg.xxSet(keyPath, append(existedVal, v...), replaceOrAppend)
+		pkg.xxSet(keyPath, v, false)
 	}
 	return
 }
@@ -525,12 +536,14 @@ func (pkg *ptpkg) processTypeIntSlice(args []string) (err error) {
 		}
 
 		var keyPath = backtraceFlagNames(pkg.flg)
+		//var replaceOrAppend bool
 		// pkg.xxSet(keyPath, v)
-		var existedVal = pkg.store().GetInt64Slice(wrapWithRxxtPrefix(keyPath))
-		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) || pkg.flg.times == 1 { // if first matching
-			existedVal = nil
-		}
-		pkg.xxSet(keyPath, append(existedVal, v...))
+		//var existedVal = pkg.store().GetInt64Slice(wrapWithRxxtPrefix(keyPath))
+		//if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) || pkg.flg.times == 1 { // if first matching
+		//	existedVal, replaceOrAppend = nil, true
+		//}
+		//pkg.xxSet(keyPath, append(existedVal, v...), replaceOrAppend)
+		pkg.xxSet(keyPath, v, false)
 	}
 	return
 }
@@ -545,12 +558,14 @@ func (pkg *ptpkg) processTypeUintSlice(args []string) (err error) {
 		}
 
 		var keyPath = backtraceFlagNames(pkg.flg)
+		//var replaceOrAppend bool
 		// pkg.xxSet(keyPath, v)
-		var existedVal = pkg.store().GetUint64Slice(wrapWithRxxtPrefix(keyPath))
-		if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) || pkg.flg.times == 1 { // if first matching
-			existedVal = nil
-		}
-		pkg.xxSet(keyPath, append(existedVal, v...))
+		//var existedVal = pkg.store().GetUint64Slice(wrapWithRxxtPrefix(keyPath))
+		//if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) || pkg.flg.times == 1 { // if first matching
+		//	existedVal, replaceOrAppend = nil, true
+		//}
+		//pkg.xxSet(keyPath, append(existedVal, v...), replaceOrAppend)
+		pkg.xxSet(keyPath, v, false)
 	}
 	return
 }

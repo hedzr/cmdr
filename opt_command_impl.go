@@ -369,6 +369,11 @@ func (s *optCommandImpl) OwnerCommand() (opt OptCmd) {
 
 func (s *optCommandImpl) SetOwner(opt OptCmd) {
 	s.parent = opt
+	if s.working != nil && opt != nil {
+		s.working.owner = opt.ToCommand()
+	} else if s.working != nil {
+		s.working.owner = nil
+	}
 	return
 }
 

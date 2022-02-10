@@ -208,6 +208,11 @@ func (s *optFlagImpl) OnSet(f func(keyPath string, value interface{})) (opt OptF
 
 func (s *optFlagImpl) SetOwner(opt OptCmd) {
 	s.parent = opt
+	if s.working != nil && opt != nil {
+		s.working.owner = opt.ToCommand()
+	} else if s.working != nil {
+		s.working.owner = nil
+	}
 	return
 }
 

@@ -45,6 +45,7 @@ type (
 		Examples(examples string) (opt OptFlag)
 		Group(group string) (opt OptFlag)
 		Hidden(hidden bool) (opt OptFlag)
+		VendorHidden(hidden bool) (opt OptFlag)
 		Deprecated(deprecation string) (opt OptFlag)
 		// Action will be triggered once being parsed ok
 		Action(action Handler) (opt OptFlag)
@@ -117,6 +118,7 @@ type (
 		Examples(examples string) (opt OptCmd)
 		Group(group string) (opt OptCmd)
 		Hidden(hidden bool) (opt OptCmd)
+		VendorHidden(hidden bool) (opt OptCmd)
 		Deprecated(deprecation string) (opt OptCmd)
 		// Action will be triggered after all command-line arguments parsed
 		Action(action Handler) (opt OptCmd)

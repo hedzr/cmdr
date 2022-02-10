@@ -52,7 +52,7 @@ func (s *Options) Has(key string) (ok bool) {
 
 // DeleteKey deletes a key from cmdr options store
 func DeleteKey(key string) {
-	internalGetWorker().rxxtOptions.Delete(key)
+	currentOptions().Delete(key)
 }
 
 // Delete deletes a key from cmdr options store
@@ -1513,18 +1513,18 @@ func (s *Options) CheckpointSize() int { return len(internalGetWorker().savedOpt
 //        }
 //        cmdr.SaveAsYaml("a-setting.yml")
 //    }
-func SaveCheckpoint() (err error) { return internalGetWorker().rxxtOptions.SaveCheckpoint() }
+func SaveCheckpoint() (err error) { return currentOptions().SaveCheckpoint() }
 
 // RestoreCheckpoint restore 1 or n checkpoint(s) from snapshots history.
 // see also SaveCheckpoint
 func RestoreCheckpoint(n ...int) (err error) {
-	return internalGetWorker().rxxtOptions.RestoreCheckpoint(n...)
+	return currentOptions().RestoreCheckpoint(n...)
 }
 
 // ClearCheckpoints removes all checkpoints from snapshot history
 // see also SaveCheckpoint
-func ClearCheckpoints() { internalGetWorker().rxxtOptions.ClearCheckpoints() }
+func ClearCheckpoints() { currentOptions().ClearCheckpoints() }
 
 // CheckpointSize returns how many snapshots made
 // see also SaveCheckpoint
-func CheckpointSize() int { return internalGetWorker().rxxtOptions.CheckpointSize() }
+func CheckpointSize() int { return currentOptions().CheckpointSize() }

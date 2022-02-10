@@ -21,49 +21,53 @@ import (
 	"sync"
 )
 
-// GetOptions returns the global options instance (rxxtOptions),
-// ie. cmdr Options Store
-func GetOptions() *Options {
+// CurrentOptions returns the global options instance (rxxtOptions),
+// i.e. cmdr Options Store
+func CurrentOptions() *Options {
+	return currentOptions()
+}
+
+func currentOptions() *Options {
 	return internalGetWorker().rxxtOptions
 }
 
 // GetUsedAlterConfigFile returns the alternative config filename
 func GetUsedAlterConfigFile() string {
-	return internalGetWorker().rxxtOptions.usedAlterConfigFile
+	return currentOptions().usedAlterConfigFile
 }
 
 // GetUsedSecondaryConfigFile returns the secondary config filename
 func GetUsedSecondaryConfigFile() string {
-	return internalGetWorker().rxxtOptions.usedSecondaryConfigFile
+	return currentOptions().usedSecondaryConfigFile
 }
 
 // GetUsedSecondaryConfigSubDir returns the subdirectory `conf.d` of secondary config files.
 func GetUsedSecondaryConfigSubDir() string {
-	return internalGetWorker().rxxtOptions.usedSecondaryConfigSubDir
+	return currentOptions().usedSecondaryConfigSubDir
 }
 
 // GetUsedConfigFile returns the main config filename (generally
 // it's `<appname>.yml`)
 func GetUsedConfigFile() string {
-	return internalGetWorker().rxxtOptions.usedConfigFile
+	return currentOptions().usedConfigFile
 }
 
 // GetUsedConfigSubDir returns the sub-directory `conf.d` of config files.
 // Note that it be always normalized now.
 // Sometimes it might be empty string ("") if `conf.d` have not been found.
 func GetUsedConfigSubDir() string {
-	return internalGetWorker().rxxtOptions.usedConfigSubDir
+	return currentOptions().usedConfigSubDir
 }
 
 // GetUsingConfigFiles returns all loaded config files, includes
 // the main config file and children in sub-directory `conf.d`.
 func GetUsingConfigFiles() []string {
-	return internalGetWorker().rxxtOptions.configFiles
+	return currentOptions().configFiles
 }
 
 // GetWatchingConfigFiles returns all config files being watched.
 func GetWatchingConfigFiles() []string {
-	return internalGetWorker().rxxtOptions.filesWatching
+	return currentOptions().filesWatching
 }
 
 // var rwlCfgReload = new(sync.RWMutex)
@@ -71,11 +75,12 @@ func GetWatchingConfigFiles() []string {
 // AddOnConfigLoadedListener adds an functor on config loaded
 // and merged
 func AddOnConfigLoadedListener(c ConfigReloaded) {
-	defer internalGetWorker().rxxtOptions.rwlCfgReload.Unlock()
-	internalGetWorker().rxxtOptions.rwlCfgReload.Lock()
+	opts := currentOptions()
+	defer opts.rwlCfgReload.Unlock()
+	opts.rwlCfgReload.Lock()
 
 	// rwlCfgReload.RLock()
-	if _, ok := internalGetWorker().rxxtOptions.onConfigReloadedFunctions[c]; ok {
+	if _, ok := opts.onConfigReloadedFunctions[c]; ok {
 		// rwlCfgReload.RUnlock()
 		return
 	}
@@ -85,32 +90,34 @@ func AddOnConfigLoadedListener(c ConfigReloaded) {
 
 	// defer rwlCfgReload.Unlock()
 
-	internalGetWorker().rxxtOptions.onConfigReloadedFunctions[c] = true
+	opts.onConfigReloadedFunctions[c] = true
 }
 
 // RemoveOnConfigLoadedListener remove an functor on config
 // loaded and merged
 func RemoveOnConfigLoadedListener(c ConfigReloaded) {
 	w := internalGetWorker()
-	defer w.rxxtOptions.rwlCfgReload.Unlock()
-	w.rxxtOptions.rwlCfgReload.Lock()
-	delete(w.rxxtOptions.onConfigReloadedFunctions, c)
+	opts := w.rxxtOptions
+	defer opts.rwlCfgReload.Unlock()
+	opts.rwlCfgReload.Lock()
+	delete(opts.onConfigReloadedFunctions, c)
 }
 
 // SetOnConfigLoadedListener enable/disable an functor on config
 // loaded and merged
 func SetOnConfigLoadedListener(c ConfigReloaded, enabled bool) {
 	w := internalGetWorker()
-	defer w.rxxtOptions.rwlCfgReload.Unlock()
-	w.rxxtOptions.rwlCfgReload.Lock()
-	w.rxxtOptions.onConfigReloadedFunctions[c] = enabled
+	opts := w.rxxtOptions
+	defer opts.rwlCfgReload.Unlock()
+	opts.rwlCfgReload.Lock()
+	opts.onConfigReloadedFunctions[c] = enabled
 }
 
 // LoadConfigFile loads a yaml config file and merge the settings
 // into `rxxtOptions`
 // and load files in the `conf.d` child directory too.
 func LoadConfigFile(file string) (mainFile, subDir string, err error) {
-	return internalGetWorker().rxxtOptions.LoadConfigFile(file, mainConfigFiles)
+	return currentOptions().LoadConfigFile(file, mainConfigFiles)
 }
 
 type configFileType int

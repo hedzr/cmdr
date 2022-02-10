@@ -36,7 +36,7 @@ type ptpkg struct {
 	aliasCommand      *Command
 }
 
-func (pkg *ptpkg) store() *Options                    { return internalGetWorker().rxxtOptions }
+func (pkg *ptpkg) store() *Options                    { return currentOptions() }
 func (pkg *ptpkg) storeFrom(wkr *ExecWorker) *Options { return wkr.rxxtOptions }
 
 func (pkg *ptpkg) ResetAnd(n string) (length int) {

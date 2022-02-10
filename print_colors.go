@@ -10,6 +10,7 @@ import (
 	"github.com/hedzr/cmdr/tool"
 	"golang.org/x/net/html"
 	"strings"
+	"sync"
 	"time"
 	"unicode/utf8"
 )
@@ -94,20 +95,8 @@ func (c *colorPrintTranslator) Translate(s string, initialFg int) string {
 	return c.TranslateTo(s, initialFg)
 }
 
-func (c *colorPrintTranslator) TranslateTo(s string, initialState int) string {
-	if c.noColorMode {
-		return c._ss(s)
-	}
-
-	node, err := html.Parse(bufio.NewReader(strings.NewReader(s)))
-	if err != nil {
-		return c._sz(s)
-	}
-
-	var states = []int{initialState}
-	var sb strings.Builder
-	var walker func(node *html.Node, level int)
-	resetColors := func() {
+func (c *colorPrintTranslator) resetColors(sb strings.Builder, states []int) func() {
+	return func() {
 		var st string
 		st = "\x1b[0m"
 		sb.WriteString(st)
@@ -116,7 +105,10 @@ func (c *colorPrintTranslator) TranslateTo(s string, initialState int) string {
 			sb.WriteString(st)
 		}
 	}
-	colorize := func(node *html.Node, clr int, representation string, level int) {
+}
+
+func (c *colorPrintTranslator) colorize(sb strings.Builder, states []int, walker func(node *html.Node, level int)) func(node *html.Node, clr int, representation string, level int) {
+	return func(node *html.Node, clr int, representation string, level int) {
 		if representation != "" {
 			sb.WriteString(fmt.Sprintf("\x1b[%sm", representation))
 		} else {
@@ -127,30 +119,70 @@ func (c *colorPrintTranslator) TranslateTo(s string, initialState int) string {
 			walker(child, level+1)
 		}
 		states = states[0 : len(states)-1]
-		resetColors()
+		c.resetColors(sb, states)()
+	}
+}
+
+func (c *colorPrintTranslator) TranslateTo(s string, initialState int) string {
+	if c.noColorMode {
+		return c._ss(s)
+	}
+
+	node, err := html.Parse(bufio.NewReader(strings.NewReader(s)))
+	if err != nil {
+		return c._sz(s)
+	}
+
+	return c.translateTo(node, s, initialState)
+}
+
+func (c *colorPrintTranslator) translateTo(root *html.Node, s string, initialState int) string {
+	var states = []int{initialState}
+	var sb strings.Builder
+	var walker func(node *html.Node, level int)
+	colorize := c.colorize(sb, states, walker)
+	nilfn := func(node *html.Node, level int) {}
+	colorizeIt := func(clr int) func(node *html.Node, level int) {
+		return func(node *html.Node, level int) {
+			colorize(node, clr, "", level)
+		}
+	}
+	m := map[string]func(node *html.Node, level int){
+		"html": nilfn, "head": nilfn, "body": nilfn,
+		"b": colorizeIt(BgBoldOrBright), "strong": colorizeIt(BgBoldOrBright), "em": colorizeIt(BgBoldOrBright),
+		"i": colorizeIt(BgItalic), "cite": colorizeIt(BgItalic),
+		"u":    colorizeIt(BgUnderline),
+		"mark": colorizeIt(BgInverse),
+		"del":  colorizeIt(BgStrikeout),
 	}
 	walker = func(node *html.Node, level int) {
 		switch node.Type {
 		case html.DocumentNode, html.DoctypeNode, html.CommentNode:
 		case html.ErrorNode:
 		case html.ElementNode:
+			if fn, ok := m[node.Data]; ok {
+				fn(node, level)
+				return
+			}
+
 			switch node.Data {
-			case "html", "head", "body":
-			case "b", "strong", "em":
-				colorize(node, BgBoldOrBright, "", level)
-				return
-			case "i", "cite":
-				colorize(node, BgItalic, "", level)
-				return
-			case "u":
-				colorize(node, BgUnderline, "", level)
-				return
-			case "mark":
-				colorize(node, BgInverse, "", level)
-				return
-			case "del":
-				colorize(node, BgStrikeout, "", level)
-				return
+			//case "html", "head", "body":
+			//	// do nothing
+			//case "b", "strong", "em":
+			//	colorize(node, BgBoldOrBright, "", level)
+			//	return
+			//case "i", "cite":
+			//	colorize(node, BgItalic, "", level)
+			//	return
+			//case "u":
+			//	colorize(node, BgUnderline, "", level)
+			//	return
+			//case "mark":
+			//	colorize(node, BgInverse, "", level)
+			//	return
+			//case "del":
+			//	colorize(node, BgStrikeout, "", level)
+			//	return
 			case "font":
 				for _, a := range node.Attr {
 					if a.Key == "color" {
@@ -178,7 +210,7 @@ func (c *colorPrintTranslator) TranslateTo(s string, initialState int) string {
 			walker(child, level+1)
 		}
 	}
-	walker(node, 0)
+	walker(root, 0)
 	return sb.String()
 }
 
@@ -189,45 +221,37 @@ func (c *colorPrintTranslator) _sz(s string) string {
 func (c *colorPrintTranslator) _ss(s string) string {
 	if tool.IsTtyEscaped(s) {
 		clean := tool.StripEscapes(s)
-		return c.stripHtmlTags(clean)
+		return c.stripHTMLTags(clean)
 	}
-	return c.stripHtmlTags(s)
+	return c.stripHTMLTags(s)
 }
 
+var onceoptCM sync.Once
+var cptCM map[string]int
+
 func (c *colorPrintTranslator) toColorInt(s string) int {
-	switch strings.ToLower(s) {
-	case "black":
-		return FgBlack
-	case "red":
-		return FgRed
-	case "green":
-		return FgGreen
-	case "yellow":
-		return FgYellow
-	case "blue":
-		return FgBlue
-	case "magenta":
-		return FgMagenta
-	case "cyan":
-		return FgCyan
-	case "lightgray", "light-gray":
-		return FgLightGray
-	case "darkgray", "dark-gray":
-		return FgDarkGray
-	case "lightred", "light-red":
-		return FgLightRed
-	case "lightgreen", "light-green":
-		return FgLightGreen
-	case "lightyellow", "light-yellow":
-		return FgLightYellow
-	case "lightblue", "light-blue":
-		return FgLightBlue
-	case "lightmagenta", "light-magenta":
-		return FgLightMagenta
-	case "lightcyan", "light-cyan":
-		return FgLightCyan
-	case "white":
-		return FgWhite
+	onceoptCM.Do(func() {
+		cptCM = map[string]int{
+			"black":     FgBlack,
+			"red":       FgRed,
+			"green":     FgGreen,
+			"yellow":    FgYellow,
+			"blue":      FgBlue,
+			"magenta":   FgMagenta,
+			"cyan":      FgCyan,
+			"lightgray": FgLightGray, "light-gray": FgLightGray,
+			"darkgray": FgDarkGray, "dark-gray": FgDarkGray,
+			"lightred": FgLightRed, "light-red": FgLightRed,
+			"lightgreen": FgLightGreen, "light-green": FgLightGreen,
+			"lightyellow": FgLightYellow, "light-yellow": FgLightYellow,
+			"lightblue": FgLightBlue, "light-blue": FgLightBlue,
+			"lightmagenta": FgLightMagenta, "light-magenta": FgLightMagenta,
+			"lightcyan": FgLightCyan, "light-cyan": FgLightCyan,
+			"white": FgWhite,
+		}
+	})
+	if i, ok := cptCM[strings.ToLower(s)]; ok {
+		return i
 	}
 	return 0
 }
@@ -299,9 +323,9 @@ func StripLeftTabs(s string) string { return cptNC.stripLeftTabs(s) }
 // StripLeftTabsOnly strips the least left side tab chars from lines.
 func StripLeftTabsOnly(s string) string { return cptNC.stripLeftTabsOnly(s) }
 
-// StripHtmlTags aggressively strips HTML tags from a string.
+// StripHTMLTags aggressively strips HTML tags from a string.
 // It will only keep anything between `>` and `<`.
-func StripHtmlTags(s string) string { return cptNC.stripHtmlTags(s) }
+func StripHTMLTags(s string) string { return cptNC.stripHTMLTags(s) }
 
 const (
 	htmlTagStart = 60 // Unicode `<`
@@ -310,7 +334,7 @@ const (
 
 // Aggressively strips HTML tags from a string.
 // It will only keep anything between `>` and `<`.
-func (c *colorPrintTranslator) stripHtmlTags(s string) string {
+func (c *colorPrintTranslator) stripHTMLTags(s string) string {
 	// Setup a string builder and allocate enough memory for the new string.
 	var builder strings.Builder
 	builder.Grow(len(s) + utf8.UTFMax)

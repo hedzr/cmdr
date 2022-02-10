@@ -3,7 +3,12 @@ package cmdr
 import (
 	"fmt"
 	"io"
+	"os"
 )
+
+func isFishShell() bool {
+	return os.Getenv("FISH_VERSION") == os.Getenv("version")
+}
 
 func (w *ExecWorker) genShellFish(writer io.Writer, fullPath string, cmd *Command, args []string) (err error) {
 	fmt.Println(`# todo fish`)

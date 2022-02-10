@@ -116,9 +116,9 @@ func (w *ExecWorker) genShellZsh(writer io.Writer, fullPath string, cmd *Command
 			// err = errors.New("Couldn't find zsh installation, please install zsh and try again")
 			err = genZshTo(cmd, args, "-", os.Stdout)
 			return
-		} else {
-			shell = zsh
 		}
+
+		shell = zsh
 	}
 
 	if fullPath == "" && len(args) > 0 {

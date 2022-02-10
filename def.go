@@ -109,7 +109,7 @@ type (
 		headLikeFlag    *Flag
 
 		presetCmdLines []string
-		// Invoke is a space separated string which takes Command (name) and extra
+		// Invoke is a space-separated string which takes Command (name) and extra
 		// remain args to be invoked.
 		// It invokes a command from the command tree in this app.
 		// Invoke field is available for

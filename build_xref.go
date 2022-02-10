@@ -10,6 +10,7 @@ import (
 	"github.com/hedzr/cmdr/conf"
 	"github.com/hedzr/log/dir"
 	"github.com/hedzr/log/exec"
+	"gopkg.in/hedzr/errors.v2"
 	"os"
 	"path"
 	"plugin"
@@ -43,13 +44,15 @@ func (w *ExecWorker) setupFromEnvvarMap() {
 func (w *ExecWorker) buildXref(rootCmd *RootCommand, args []string) (err error) {
 	flog("--> preprocess / buildXref")
 
-	// build xref for root command and its all sub-commands and flags
-	// and build the default values
-	w.buildRootCrossRefs(rootCmd)
-	w.buildAddonsCrossRefs(rootCmd)
-	w.buildExtensionsCrossRefs(rootCmd)
+	if rootCmd != nil {
+		// build xref for root command and its all sub-commands and flags
+		// and build the default values
+		w.buildRootCrossRefs(rootCmd)
+		w.buildAddonsCrossRefs(rootCmd)
+		w.buildExtensionsCrossRefs(rootCmd)
 
-	w.setupFromEnvvarMap()
+		w.setupFromEnvvarMap()
+	}
 
 	flog("--> before-config-file-loading")
 	for _, x := range w.beforeConfigFileLoading {
@@ -58,7 +61,7 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand, args []string) (err error) 
 		}
 	}
 
-	if !w.doNotLoadingConfigFiles {
+	if rootCmd != nil && !w.doNotLoadingConfigFiles {
 		// flog("--> buildXref: loadFromPredefinedLocations()")
 
 		// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
@@ -66,6 +69,8 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand, args []string) (err error) 
 		//	return
 		//}
 		_ = w.parsePredefinedLocation()
+
+		w.rxxtOptions.setToAppendMode()
 
 		// and now, loading the external configuration files
 		err = w.loadFromPredefinedLocations(rootCmd)
@@ -134,6 +139,11 @@ func (w *ExecWorker) buildAliasesCrossRefs(root *RootCommand) {
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) _addCommandsForAliasesGroup(root *RootCommand, aliases *aliasesCommands) (err error) {
 	flog("aliases:\n%v\n", aliases)
+	if root == nil || aliases == nil {
+		err = errors.New("bad param")
+		return
+	}
+
 	if aliases.Group == "" {
 		aliases.Group = AliasesGroup
 	}
@@ -147,23 +157,25 @@ func (w *ExecWorker) _addCommandsForAliasesGroup(root *RootCommand, aliases *ali
 }
 
 func (w *ExecWorker) _toolChkFlags(cc *Command) (err error) {
-	for _, f := range cc.Flags {
-		if f.owner == nil {
-			f.owner = cc
-		}
-		if f.DefaultValueType != "" && f.DefaultValue == nil {
-			//var kind = reflect.String
-			//for x := reflect.Bool; x <= reflect.Complex128; x++ {
-			//	if x.String() == f.DefaultValueType {
-			//		kind = x
-			//		break
-			//	}
-			//}
-
-			//typ := reflect.Kind.String()
-			//f.DefaultValue = reflect.New(typ)
-		}
-	}
+	//for _, f := range cc.Flags {
+	//	if f.owner == nil {
+	//		f.owner = cc
+	//	}
+	//	if f.DefaultValueType != "" && f.DefaultValue == nil {
+	//		//var kind = reflect.String
+	//		//for x := reflect.Bool; x <= reflect.Complex128; x++ {
+	//		//	if x.String() == f.DefaultValueType {
+	//		//		kind = x
+	//		//		break
+	//		//	}
+	//		//}
+	//
+	//		//typ := reflect.Kind.String()
+	//		//f.DefaultValue = reflect.New(typ)
+	//
+	//		Logger.Errorf("fatal error")
+	//	}
+	//}
 	return
 }
 
@@ -659,7 +671,10 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 			//w._intFlgAdd(root, "help-zsh", "Show help with zsh completion format, or others", func(ff *Flag) { ff.DefaultValuePlaceholder = "LEVEL" })
 			//w._intFlgAdd(root, "help-bash", "Show help with bash completion format, or others", func(ff *Flag) { ff.DefaultValuePlaceholder = "LEVEL" })
 
-			if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
+			m := map[string]bool{
+				"linux": true, "darwin": true,
+			}
+			if _, ok := m[runtime.GOOS]; ok {
 				w._boolFlgAdd(root, "man", "Show help screen in manpage format (INSTALL NEEDED!)", SysMgmtGroup, func(ff *Flag) {
 					ff.Action = func(cmd *Command, args []string) (err error) {
 						str := strings.ReplaceAll(backtraceCmdNames(cmd, false), ".", "-")
@@ -685,9 +700,10 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 				ff.dblTildeOnly = true
 			})
 
-			if enableShellCompletionCommand {
-				w._cmdAdd(root, "help", "Help system", func(cx *Command) {
-					cx.Short = "h"
+			if enableShellCompletionCommand || isFishShell() {
+				w._cmdAdd(root, "help", "Completion Help system", func(cx *Command) {
+					cx.Aliases = []string{"__completion"}
+					cx.VendorHidden = true
 					cx.Action = w.helpSystemPrint
 				})
 				root.plainCmds["Ø"] = root.allCmds[SysMgmtGroup]["help"]
@@ -1243,8 +1259,9 @@ func (w *ExecWorker) lookupForHelpSystem(cmdHelp *Command, args []string) (match
 
 	for i := 0; i < len(args); i++ {
 		ttl := args[i]
+		ttllen := len(ttl)
 
-		if len(ttl) > 0 && strings.Contains(w.switchCharset, ttl[0:1]) {
+		if ttllen == 0 || (ttllen > 0 && strings.Contains(w.switchCharset, ttl[0:1])) {
 			// flags
 			continue
 		}
@@ -1252,6 +1269,8 @@ func (w *ExecWorker) lookupForHelpSystem(cmdHelp *Command, args []string) (match
 		// sub-commands
 		for _, c := range cmd.SubCommands {
 			var matchedPrecededList1, matchedList1 map[string]*Command
+			matchedPrecededList1 = make(map[string]*Command)
+			matchedList1 = make(map[string]*Command)
 			if exact, ok := _matchCommandTitle(c, ttl, matchedPrecededList1, matchedList1); exact && ok {
 				cmd = c
 				if i == len(args)-1 {
@@ -1284,7 +1303,7 @@ var noPartialMatching = true
 func _matchTitle(c *Command, source, title string, matchedPrecededList, matchedList map[string]*Command) (exact, ok bool) {
 	if title == source {
 		matchedPrecededList[c.Full] = c
-		ok = true
+		exact, ok = true, true
 	} else if strings.HasPrefix(source, title) {
 		matchedPrecededList[c.Full] = c
 		ok = true

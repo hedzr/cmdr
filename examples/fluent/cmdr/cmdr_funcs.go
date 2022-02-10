@@ -14,7 +14,8 @@ func attachModifyFlags(cmd cmdr.OptCmd) {
 	cmd.NewFlagV(false, "clear", "c").
 		Description("clear all tags.").
 		Placeholder("").
-		Group("Operate")
+		Group("Operate").
+		VendorHidden(false)
 
 	cmd.NewFlagV(false, "string", "g", "string-mode").
 		Description("In 'String Mode', default will be disabled: default, a tag string will be split by comma(,), and treated as a string list.").

@@ -399,11 +399,26 @@ func TestNormalizeDir(t *testing.T) {
 }
 
 func TestNoColorMode(t *testing.T) {
+	cmdr.ResetOptions()
+	cmdr.InternalResetWorker()
+
+	root := createRootOld()
+	rootCmd1 := root.RootCommand()
+	_ = cmdr.Exec(rootCmd1)
+
 	cmdr.GetStrictMode()
 	cmdr.GetDebugMode()
+	cmdr.GetDebugModeHitCount()
 	cmdr.GetVerboseMode()
+	cmdr.GetVerboseModeHitCount()
 	cmdr.GetQuietMode()
+	cmdr.GetQuietModeHitCount()
 	cmdr.GetNoColorMode()
+	cmdr.GetNoColorModeHitCount()
+	cmdr.GetTraceMode()
+	cmdr.GetTraceModeHitCount()
+	cmdr.GetFlagHitCountRecursively("verbose")
+	cmdr.GetHitCountByDottedPath("verbose")
 }
 
 func TestBaseOpt(t *testing.T) {

@@ -96,4 +96,6 @@ func TestCommand_GetName(t *testing.T) {
 		headLikeFlag:    nil,
 	}
 
+	cmd.SubCommands = append(cmd.SubCommands, child)
+	child.Delete()
 }

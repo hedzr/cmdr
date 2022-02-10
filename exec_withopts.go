@@ -37,7 +37,7 @@ func WithToggleGroupChoicerStyle(style string) ExecOption {
 				keys[i] = k
 				i++
 			}
-			Logger.Fatalf("The valid styles are: %v", keys)
+			Logger.Panicf("The valid styles are: %v", keys)
 		}
 	}
 }
@@ -62,7 +62,7 @@ func WithToggleGroupChoicerNewStyle(style string, trueChoicer, falseChoicer stri
 // withShellCompletionCommandEnabled NOT YET, to-do
 func withShellCompletionCommandEnabled(b bool) ExecOption {
 	return func(w *ExecWorker) {
-		enableShellCompletionCommand = !b
+		enableShellCompletionCommand = b
 	}
 }
 
@@ -165,8 +165,14 @@ func WithEnvVarMap(varToValue map[string]func() string) ExecOption {
 		testAndSetMap(w.envVarToValueMap, "APPNAME", func() string { return conf.AppName })
 		testAndSetMap(w.envVarToValueMap, "APP_NAME", func() string { return conf.AppName })
 		testAndSetMap(w.envVarToValueMap, "CFG_DIR", func() string { return path.Dir(GetUsedConfigFile()) })
-		if runtime.GOOS == "windows" {
-			testAndSetMap(w.envVarToValueMap, "HOME", func() string { return os.Getenv("USERPROFILE") })
+
+		m := map[string]func(){
+			"windows": func() {
+				testAndSetMap(w.envVarToValueMap, "HOME", func() string { return os.Getenv("USERPROFILE") })
+			},
+		}
+		if fn, ok := m[runtime.GOOS]; ok {
+			fn()
 		}
 	}
 }
@@ -581,17 +587,18 @@ func openPager(w *ExecWorker) (closer func()) {
 	cmd = exec.Command(pagerApp)
 	pager, err = cmd.StdinPipe()
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if pagerApp == "less" {
-		cmd.Args = []string{pagerApp, "-SEX"}
-	} else if runtime.GOOS == "darwin" {
-		cmd.Args = []string{pagerApp, "-SEX", "-R-"}
+		cmd.Args = []string{pagerApp, "-SXE"}
+	}
+	if runtime.GOOS == "darwin" {
+		cmd.Args = []string{pagerApp, "-SXE", "-R-"}
 	}
 	if err = cmd.Start(); err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 	// log.Printf("run %q %v....", pagerApp, cmd.Args)
 	w.defaultStdout = bufio.NewWriterSize(pager, 32768)

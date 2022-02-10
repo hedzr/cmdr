@@ -295,7 +295,126 @@ func TestUnknownXXX(t *testing.T) {
 	unknownFlagDetector(pkg, cmd, args)
 }
 
-// TestSliceConverters functions
+// TestBuildXref _
+func TestBuildXrefNilBranch(t *testing.T) {
+	w := internalGetWorker()
+	w.beforeConfigFileLoading = append(w.beforeConfigFileLoading, func(root *RootCommand, args []string) {})
+	w.afterConfigFileLoading = append(w.afterConfigFileLoading, func(root *RootCommand, args []string) {})
+	_ = w.buildXref(nil, nil)
+}
+
+func rootCmdAliasTest() *RootCommand {
+	var cc *Command
+	root := &RootCommand{
+		Command: Command{
+			BaseOpt: BaseOpt{
+				Full:   "Z",
+				Action: func(cmd *Command, args []string) (err error) { return },
+			},
+			plainCmds:   make(map[string]*Command),
+			allCmds:     make(map[string]map[string]*Command),
+			Invoke:      "cc arg1",
+			InvokeShell: "ls -l",
+			InvokeProc:  "ls -a",
+			Shell:       "/usr/bin/env bash",
+		},
+	}
+
+	cc = &Command{
+		BaseOpt: BaseOpt{
+			Full:    "cc",
+			Aliases: []string{"ccc"},
+			Group:   "G",
+			Action:  func(cmd *Command, args []string) (err error) { return },
+		},
+		plainCmds: make(map[string]*Command),
+		allCmds:   make(map[string]map[string]*Command),
+		SubCommands: []*Command{
+			{
+				BaseOpt: BaseOpt{
+					Full:    "cc1",
+					Aliases: []string{"ccc1"},
+					Action:  func(cmd *Command, args []string) (err error) { return },
+				},
+				plainCmds: make(map[string]*Command),
+				allCmds:   make(map[string]map[string]*Command),
+				SubCommands: []*Command{
+					{
+						BaseOpt: BaseOpt{
+							Full:    "cc1c1",
+							Aliases: []string{"ccc1c1"},
+							Action:  func(cmd *Command, args []string) (err error) { return },
+						},
+					},
+				},
+			},
+		},
+	}
+
+	root.SubCommands = uniAddCmd(root.SubCommands, cc)
+	return root
+}
+
+// TestBuildAliasesCrossRefsErrBranch _
+func TestBuildAliasesCrossRefsErrBranch(t *testing.T) {
+	w := internalGetWorker()
+	w.buildAliasesCrossRefs(nil)
+
+	w.rootCommand = rootCmdAliasTest()
+	root := &w.rootCommand.Command
+	cc := root.SubCommands[0]
+
+	_ = w._toolAddCmd(root, "G1", cc)
+	_, _ = w.locateCommand("cc", nil)
+	_, _ = w.locateCommand("", nil)
+
+	var h Handler
+	h = w.getInvokeAction(root)
+	_ = h(root, []string{"1", "2"})
+	h = w.getInvokeProcAction(root)
+	_ = h(root, []string{"1", "2"})
+	h = w.getInvokeShellAction(root)
+	_ = h(root, []string{"1", "2"})
+	root.Shell = ""
+	_ = h(root, []string{"1", "2"})
+
+	//_ = InvokeCommand("cc")
+
+}
+
+func TestAliasActions(t *testing.T) {
+	w := internalGetWorker()
+	w.buildAliasesCrossRefs(nil)
+
+	w.rootCommand = rootCmdAliasTest()
+	root := &w.rootCommand.Command
+	cc := root.SubCommands[0]
+
+	_ = w._toolAddCmd(root, "G1", cc)
+
+	_ = InvokeCommand("cc")
+
+	_ = cc.Match("ccc1")
+	_ = cc.Match("ccc")
+}
+
+func TestColorPrintTool(t *testing.T) {
+
+	for _, s := range []string{
+		"black", "red", "green", "yellow", "blue", "magenta", "cyan",
+		"lightgray", "light-gray", "darkgray", "dark-gray", "lightred", "light-red",
+		"lightgreen", "light-green", "lightyellow", "light-yellow", "lightblue", "light-blue",
+		"lightmagenta", "light-magenta", "lightcyan", "light-cyan", "white",
+		"??",
+	} {
+		_ = cpt.toColorInt(s)
+	}
+	_ = cpt._sz("")
+	_ = cpt._ss("\x1b[2m")
+
+}
+
+// TestSliceConverters _
 func TestSliceConverters(t *testing.T) {
 	stringSliceToInt64Slice([]string{"x"})
 	intSliceToUint64Slice([]int{1})
@@ -304,13 +423,45 @@ func TestSliceConverters(t *testing.T) {
 
 	w := internalGetWorker()
 
+	var val interface{} = "1,2,3"
+	var valary = []int{1, 2, 3}
+
+	w.rxxtOptions.setToReplaceMode()
+
 	Set("x", []string{"1"})
-	GetIntSliceR("x")
+	Set("x", val) // val = "1,2,3"
+	if v1, v2 := GetIntSliceR("x"), []int{1, 2, 3}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+		t.Errorf("want %v, but got %v", v2, v1)
+	}
+
+	Set("x", []string{"5", "7", "19"})
+	Set("x", val) // val = "1,2,3"
+	if v1, v2 := GetIntSliceR("x"), []int{1, 2, 3}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+		t.Errorf("want %v, but got %v", v2, v1)
+	}
+
+	Set("x", []string{"1"})
+
+	//
+	//
+	//
+
+	w.rxxtOptions.setToAppendMode()
+
+	SetOverwrite("x", []string{"5", "7", "19"})
+	SetOverwrite("x", valary) // val = "1,2,3"
+	if v1, v2 := GetIntSliceR("x"), []int{1, 2, 3}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+		t.Errorf("want %v, but got %v", v2, v1)
+	}
+
+	SetOverwrite("x", []string{"1"})
+	if v1, v2 := GetIntSliceR("x"), []int{1}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+		t.Errorf("want %v, but got %v", v2, v1)
+	}
 	w.rxxtOptions.GetInt64Slice("app.x")
 	w.rxxtOptions.GetUint64Slice("app.x")
 
-	var val interface{} = "1,2,3"
-	Set("x", val) // val = "1,2,3"
+	SetOverwrite("x", valary) // val = "1,2,3"
 	if v1, v2 := GetIntSliceR("x"), []int{1, 2, 3}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
 		t.Errorf("want %v, but got %v", v2, v1)
 	}
@@ -318,21 +469,21 @@ func TestSliceConverters(t *testing.T) {
 	w.rxxtOptions.GetUint64Slice("app.x")
 
 	Set("x", []int{1, 2, 4}) // old val type = string, so new value replace it
-	if v1, v2 := GetIntSliceR("x"), []int{1, 2, 4}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+	if v1, v2 := GetIntSliceR("x"), []int{1, 2, 3, 4}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
 		t.Errorf("want %v, but got %v", v2, v1)
 	}
 	w.rxxtOptions.GetInt64Slice("app.x")
 	w.rxxtOptions.GetUint64Slice("app.x")
 
 	Set("x", []int64{5, 2}) // slices will be merged, but without dup elem check of course
-	if v1, v2 := GetInt64SliceR("x"), []int64{1, 2, 4, 5, 2}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+	if v1, v2 := GetInt64SliceR("x"), []int64{1, 2, 3, 4, 5}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
 		t.Errorf("want %v, but got %v", v2, v1)
 	}
 	w.rxxtOptions.GetIntSlice("app.x")
 	w.rxxtOptions.GetUint64Slice("app.x")
 
 	Set("x", []uint64{9, 5})
-	if v1, v2 := GetUint64SliceR("x"), []uint64{1, 2, 4, 5, 2, 9, 5}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+	if v1, v2 := GetUint64SliceR("x"), []uint64{1, 2, 3, 4, 5, 9}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
 		t.Errorf("want %v, but got %v", v2, v1)
 	}
 	w.rxxtOptions.GetInt64Slice("app.x")
@@ -349,6 +500,14 @@ func TestSliceConverters(t *testing.T) {
 	w.rxxtOptions.GetUint64Slice("app.x")
 
 	mxIx("", "")
+}
+
+func TestWithShellCompletionXXX(t *testing.T) {
+	ResetOptions()
+	InternalResetWorker()
+
+	withShellCompletionCommandEnabled(true)
+	withShellCompletionPartialMatch(true)
 }
 
 func (pkg *ptpkg) setOwner(cmd *Command) {

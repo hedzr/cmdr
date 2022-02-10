@@ -102,51 +102,51 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 	return
 }
 
-func (w *ExecWorker) internalExecForV2(pkg *ptpkg, rootCmd *RootCommand, args []string) (last *Command, err error) {
-	var (
-		goCommand    = &rootCmd.Command
-		stopF, stopC bool
-		matched      bool
-	)
-
-	flog("--> process...")
-	for pkg.i = 1; pkg.i < len(args); pkg.i++ {
-		// if pkg.ResetAnd(args[pkg.i]) == 0 {
-		// 	continue
-		// }
-		lr := pkg.ResetAnd(args[pkg.i])
-		flog("--> parsing %q (idx=%v, len=%v) | pkg.lastCommandHeld=%v", pkg.a, pkg.i, lr, pkg.lastCommandHeld)
-
-		matched, stopC, stopF, err = w.xxTestCmd(pkg, &goCommand, rootCmd, &args)
-		if err != nil {
-			var e *ErrorForCmdr
-			if errors.As(err, &e) {
-				ferr("%v", e)
-				if !e.Ignorable {
-					return
-				}
-			}
-		}
-		if !matched {
-			pkg.remainArgs = append(pkg.remainArgs, pkg.a)
-		}
-		if stopF {
-			//if pkg.lastCommandHeld || (matched && pkg.flg == nil) {
-			//	pkg.remainArgs = append(pkg.remainArgs, pkg.a)
-			//}
-			break
-		}
-		if stopC && !matched {
-			break
-		}
-	}
-
-	last = goCommand
-	pkg.remainArgs = append(pkg.remainArgs, args[pkg.i:]...)
-	err = w.afterInternalExec(pkg, rootCmd, goCommand, args, stopC || pkg.lastCommandHeld)
-
-	return
-}
+//func (w *ExecWorker) internalExecForV2(pkg *ptpkg, rootCmd *RootCommand, args []string) (last *Command, err error) {
+//	var (
+//		goCommand    = &rootCmd.Command
+//		stopF, stopC bool
+//		matched      bool
+//	)
+//
+//	flog("--> process...")
+//	for pkg.i = 1; pkg.i < len(args); pkg.i++ {
+//		// if pkg.ResetAnd(args[pkg.i]) == 0 {
+//		// 	continue
+//		// }
+//		lr := pkg.ResetAnd(args[pkg.i])
+//		flog("--> parsing %q (idx=%v, len=%v) | pkg.lastCommandHeld=%v", pkg.a, pkg.i, lr, pkg.lastCommandHeld)
+//
+//		matched, stopC, stopF, err = w.xxTestCmd(pkg, &goCommand, rootCmd, &args)
+//		if err != nil {
+//			var e *ErrorForCmdr
+//			if errors.As(err, &e) {
+//				ferr("%v", e)
+//				if !e.Ignorable {
+//					return
+//				}
+//			}
+//		}
+//		if !matched {
+//			pkg.remainArgs = append(pkg.remainArgs, pkg.a)
+//		}
+//		if stopF {
+//			//if pkg.lastCommandHeld || (matched && pkg.flg == nil) {
+//			//	pkg.remainArgs = append(pkg.remainArgs, pkg.a)
+//			//}
+//			break
+//		}
+//		if stopC && !matched {
+//			break
+//		}
+//	}
+//
+//	last = goCommand
+//	pkg.remainArgs = append(pkg.remainArgs, args[pkg.i:]...)
+//	err = w.afterInternalExec(pkg, rootCmd, goCommand, args, stopC || pkg.lastCommandHeld)
+//
+//	return
+//}
 
 func (w *ExecWorker) shouldTerminate(err error) (shouldTerminate bool) {
 	if err != nil {
@@ -214,44 +214,13 @@ func (w *ExecWorker) internalExecFor(pkg *ptpkg, rootCmd *RootCommand, args []st
 
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args *[]string) (matched, stopC, stopF bool, err error) {
+
 	if len(pkg.a) > 0 && strings.Contains(w.switchCharset, pkg.a[0:1]) { // pkg.a[0] == '/' ||
 		if len(pkg.a) == 1 {
 			matched, stopF, err = w.helpOptMatching(pkg, goCommand, *args)
 			return
 		}
-
-		// flag
-		if stopF, err = w.flagsPrepare(pkg, goCommand, *args); stopF || err != nil {
-			return
-		}
-		if pkg.flg != nil && pkg.found { // if headLike flag matched
-			matched = true
-			return
-		}
-
-		// fn + val
-		// fn: short,
-		// fn: long
-		// fn: short||val: such as '-t3'
-		// fn: long=val, long='val', long="val", long val, long 'val', long "val"
-		// fn: longval, long'val', long"val"
-
-		pkg.savedGoCommand = *goCommand
-		cc := *goCommand
-		// if matched, stop, err = flagsMatching(pkg, cc, goCommand, args); stop || err != nil {
-		// 	return
-		// }
-		flog("    -> matching flag for %q", pkg.a)
-		if pkg.aliasCommand != nil && *goCommand == &rootCmd.Command {
-			matched, stopF, err = w.flagsMatching(pkg, pkg.aliasCommand, &pkg.aliasCommand, *args)
-			if matched || stopF || err != nil {
-				*goCommand = pkg.flg.owner
-				return
-			}
-		}
-		matched, stopF, err = w.flagsMatching(pkg, cc, goCommand, *args)
-
-		return
+		return w.xxTestCmdFlags(pkg, goCommand, rootCmd, args)
 	}
 
 	// testing the next command, but the last one has already been the end of command series.
@@ -271,6 +240,42 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 		w.updateArgs(pkg, goCommand, rootCmd, args)
 	}
 
+	return
+}
+
+func (w *ExecWorker) xxTestCmdFlags(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args *[]string) (matched, stopC, stopF bool, err error) {
+	// flag
+	if stopF, err = w.flagsPrepare(pkg, goCommand, *args); stopF || err != nil {
+		return
+	}
+	if pkg.flg != nil && pkg.found { // if headLike flag matched
+		matched = true
+		return
+	}
+
+	// fn + val
+	// fn: short,
+	// fn: long
+	// fn: short||val: such as '-t3'
+	// fn: long=val, long='val', long="val", long val, long 'val', long "val"
+	// fn: longval, long'val', long"val"
+
+	pkg.savedGoCommand = *goCommand
+	cc := *goCommand
+	// if matched, stop, err = flagsMatching(pkg, cc, goCommand, args); stop || err != nil {
+	// 	return
+	// }
+	flog("    -> matching flag for %q", pkg.a)
+
+	if pkg.aliasCommand != nil && *goCommand == &rootCmd.Command {
+		matched, stopF, err = w.flagsMatching(pkg, pkg.aliasCommand, &pkg.aliasCommand, *args)
+		if matched || stopF || err != nil {
+			*goCommand = pkg.flg.owner
+			return
+		}
+	}
+
+	matched, stopF, err = w.flagsMatching(pkg, cc, goCommand, *args)
 	return
 }
 

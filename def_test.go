@@ -52,6 +52,7 @@ func TestSingleCommandLine1(t *testing.T) {
 
 	_ = cmdr.Exec(rootCmdForTesting,
 		cmdr.WithLogx(build.New(lc)),
+		cmdr.WithLogxShort(true, "logrus", "debug"),
 		cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {}, func(root *cmdr.RootCommand, args []string) {}),
 		cmdr.WithAutomaticEnvHooks(func(root *cmdr.RootCommand, opts *cmdr.Options) {}),
 		cmdr.WithAfterArgsParsed(func(cmd *cmdr.Command, args []string) (err error) {
@@ -160,6 +161,65 @@ More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-
 	})
 
 	resetOsArgs()
+}
+
+func test1(w *cmdr.ExecWorker) {
+	defer func() {
+		recover()
+	}()
+	cmdr.WithToggleGroupChoicerNewStyle("zzz", " x", "  ")(w)
+}
+func test2(w *cmdr.ExecWorker) {
+	defer func() {
+		recover()
+	}()
+	cmdr.WithToggleGroupChoicerStyle("")(w)
+}
+func test3(w *cmdr.ExecWorker) {
+	defer func() {
+		recover()
+	}()
+	cmdr.WithToggleGroupChoicerStyle("xxx")(w)
+}
+func test4(w *cmdr.ExecWorker) {
+	cmdr.WithCommandSystemCustomizing(nil)(w)
+	cmdr.WithSecondaryLocations()(w)
+
+	cmdr.SetAlterConfigWriteBackMode(true)
+	cmdr.GetAlterConfigWriteBackMode()
+
+	cmdr.WithAlterConfigAutoWriteBack(false)(w)
+	cmdr.WithConfigFileLoadingHooks(func(root *cmdr.RootCommand, args []string) {
+	}, func(root *cmdr.RootCommand, args []string) {
+	})(w)
+	cmdr.WithHelpScreenHooks(func(w *cmdr.ExecWorker, p cmdr.Painter, cmd *cmdr.Command, justFlags bool) {
+	}, func(w *cmdr.ExecWorker, p cmdr.Painter, cmd *cmdr.Command, justFlags bool) {
+	})(w)
+	cmdr.WithPagerEnabled(true, false)(w)
+	cmdr.WithPagerEnabled(false)(w)
+	cmdr.WithGlobalPreActions(nil)(w)
+	cmdr.WithGlobalPostActions(nil)(w)
+}
+
+func TestSingleCommandLine2(t *testing.T) {
+	w := cmdr.InternalResetWorker()
+	resetFlagsAndLog(t)
+	resetOsArgs()
+	cmdr.ResetOptions()
+
+	copyRootCmd = rootCmdForTesting
+	defer func() {
+		_ = os.Remove(".tmp.1.json")
+		_ = os.Remove(".tmp.1.yaml")
+		_ = os.Remove(".tmp.1.toml")
+	}()
+
+	_, _ = w.InternalExecFor(copyRootCmd, []string{})
+
+	test1(w)
+	test2(w)
+	test3(w)
+	test4(w)
 }
 
 func TestUnknownHandler(t *testing.T) {

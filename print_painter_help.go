@@ -295,15 +295,29 @@ func (s *helpPainter) printTGC(flg *Flag, bufL, bufR *bytes.Buffer) {
 			vv = false
 		}
 
-		if runtime.GOOS == "windows" {
-			if vv {
-				s.bufPrintf(bufR, "(x) ")
-			} else {
-				s.bufPrintf(bufR, "( ) ")
-			}
+		m := map[string]func(){
+			"windows": func() {
+				if vv {
+					s.bufPrintf(bufR, "(x) ")
+				} else {
+					s.bufPrintf(bufR, "( ) ")
+				}
+			},
+		}
+		if fn, ok := m[runtime.GOOS]; ok {
+			fn()
 		} else {
 			s.bufPrintf(bufR, tgcMap[tgcStyle][vv])
 		}
+		//if runtime.GOOS == "windows" {
+		//	if vv {
+		//		s.bufPrintf(bufR, "(x) ")
+		//	} else {
+		//		s.bufPrintf(bufR, "( ) ")
+		//	}
+		//} else {
+		//	s.bufPrintf(bufR, tgcMap[tgcStyle][vv])
+		//}
 	}
 }
 

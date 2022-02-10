@@ -73,7 +73,7 @@ func TestParseHtml(t *testing.T) {
 
 func TestCPT(t *testing.T) {
 	source := `
-	load <code>config</code> files from where you specified
+	load <code>config</code> files from where <font color="green"><b>you</b></font> specified
 	<del>scan</del> <u>folder</u> and save <i>result</i> to <code>bgo.yml</code>, as <mark>project settings</mark>
 	`
 
@@ -83,7 +83,7 @@ func TestCPT(t *testing.T) {
 
 func TestCPTNC(t *testing.T) {
 	source := `
-	load <code>config</code> files from where you specified
+	load <code>config</code> files from where <font color="green"><b>you</b></font> specified
 	<del>scan</del> <u>folder</u> and save <i>result</i> to <code>bgo.yml</code>, as <mark>project settings</mark>
 	`
 
@@ -96,21 +96,21 @@ func TestStripLeftTabs(t *testing.T) {
 		// load <code>config</code> files from where you specified
 			if tool.IsTtyEscaped(s) {
 		    clean := tool.StripEscapes(s)
-			return c.stripHtmlTags(clean)
+			return c.stripHTMLTags(clean)
 		}
 	`
 	expected := `
 // load config files from where you specified
 	if tool.IsTtyEscaped(s) {
     clean := tool.StripEscapes(s)
-	return c.stripHtmlTags(clean)
+	return c.stripHTMLTags(clean)
 }
 `
 	expected2 := `
 // load <code>config</code> files from where you specified
 	if tool.IsTtyEscaped(s) {
     clean := tool.StripEscapes(s)
-	return c.stripHtmlTags(clean)
+	return c.stripHTMLTags(clean)
 }
 `
 	sz := StripLeftTabs(source)
@@ -129,7 +129,7 @@ func TestStripHtmlTags(t *testing.T) {
 		// load <code>config</code> files from where you specified
 			if tool.IsTtyEscaped(s) {
 			clean := tool.StripEscapes(s)
-			return c.stripHtmlTags(clean)
+			return c.stripHTMLTags(clean)
 		}
 		<del>scan</del> <u>folder</u> and save <i>result</i> to <code>bgo.yml</code>, as <mark>project settings</mark>
 	`
@@ -137,11 +137,11 @@ func TestStripHtmlTags(t *testing.T) {
 		// load config files from where you specified
 			if tool.IsTtyEscaped(s) {
 			clean := tool.StripEscapes(s)
-			return c.stripHtmlTags(clean)
+			return c.stripHTMLTags(clean)
 		}
 		scan folder and save result to bgo.yml, as project settings
 	`
-	sz := StripHtmlTags(source)
+	sz := StripHTMLTags(source)
 	if sz != expected {
 		t.Errorf("unexpect result\n%v", sz)
 	}

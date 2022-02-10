@@ -154,10 +154,12 @@ func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 		PreAction(nil).PostAction(nil).Action(nil).
 		TailPlaceholder("").
 		Description("", "").
-		Group("")
+		Group("").
+		VendorHidden(false)
 
 	co.OwnerCommand()
 	co.SetOwner(root)
+	co.RootCmdOpt()
 
 	co.NewFlag(cmdr.OptFlagTypeUint).
 		Titles("retry", "t").
@@ -168,6 +170,9 @@ func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 		ExternalTool(cmdr.ExternalToolPasswordInput).
 		Description("", "").
 		Group("").
+		CompletionActionStr("").CompletionMutualExclusiveFlags("").
+		CompletionPrerequisitesFlags("").CompletionJustOnce(false).
+		CompletionCircuitBreak(false).DoubleTildeOnly(false).
 		DefaultValue(uint(3), "RETRY").SetOwner(root)
 
 	co.NewFlag(cmdr.OptFlagTypeBool).
@@ -180,6 +185,7 @@ func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 		Titles("retry2", "t2").
 		Description("", "").
 		Group("").ToggleGroup("").
+		VendorHidden(false).
 		DefaultValue(3, "RETRY").RootCommand()
 
 	co.NewFlag(cmdr.OptFlagTypeUint64).
@@ -212,11 +218,12 @@ func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 		Group("").
 		DefaultValue(3, "RETRY")
 
-	co.NewFlag(cmdr.OptFlagTypeFloat32).
+	f0 := co.NewFlag(cmdr.OptFlagTypeFloat32).
 		Titles("retry8", "t8").
 		Description("", "").
 		Group("").
 		DefaultValue(3.14, "PI")
+	f0.ToFlag().GetTitleZshFlagNamesArray()
 
 	co.NewFlag(cmdr.OptFlagTypeFloat64).
 		Titles("retry9", "t9").
@@ -243,12 +250,19 @@ func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 		DefaultValue(1, "").
 		HeadLike(true, 1, 8000)
 
-	co.NewFlag(cmdr.OptFlagTypeString).
+	f1 := co.NewFlag(cmdr.OptFlagTypeString).
 		Titles("ienum", "i").
 		Description("", "").
 		Group("").
 		DefaultValue("", "").
 		ValidArgs("apple", "banana", "orange")
+	f2 := f1.ToFlag()
+	f2.GetDottedNamePath()
+	f2.Delete()
+	f2.GetTitleZshFlagNamesArray()
+	f2.GetTitleZshFlagShortName()
+	f2.GetTitleZshNamesBy(",", true, true)
+	(&cmdr.Flag{}).Delete()
 
 	// ms tags
 
@@ -273,13 +287,50 @@ func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 			return
 		})
 
-	cTags.NewSubCommand().
-		Titles("add", "a").
+	fn := func() {
+		defer func() {
+			if e := recover(); e != nil {
+				print(e)
+			}
+		}()
+
+		c1 := cTags.NewSubCommand().
+			Titles("", "")
+		c1.ToCommand().GetName()
+	}
+	fn()
+
+	c8 := cTags.NewSubCommand().
+		Titles("add1", "a1").
+		Description("", "").
+		Group("")
+
+	c9 := cTags.NewSubCommand().
+		Titles("add", "").
 		Description("", "").
 		Group("").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			return
 		})
+	f91 := c9.NewFlag(cmdr.OptFlagTypeString).
+		Titles("ienum", "").Aliases("ie91").
+		Description("", "").
+		Group("").
+		DefaultValue("", "").
+		ValidArgs("apple", "banana", "orange")
+	f91.ToFlag().GetTitleZshFlagShortName()
+
+	c91 := c9.ToCommand()
+	c91.Match("")
+	c91.Match("ie91")
+	c91.GetTriggeredTimes()
+	//c9.SetOwner(nil)
+	c91.Delete()
+
+	c8.SetOwner(nil)
+	c8.ToCommand().Delete()
+
+	cTags.ToCommand().Delete()
 
 	return root
 }

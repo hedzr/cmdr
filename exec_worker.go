@@ -104,8 +104,6 @@ func internalGetWorker() (w *ExecWorker) {
 
 func internalResetWorkerNoLock() (w *ExecWorker) {
 	w = &ExecWorker{
-		switchCharset: "-~/",
-
 		envPrefixes:  []string{"CMDR"},
 		rxxtPrefixes: []string{"app"},
 
@@ -185,20 +183,33 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 
 	WithEnvVarMap(nil)(w)
 
-	if runtime.GOOS == "windows" {
-		w.switchCharset = "-/~"
+	if sw, ok := switchCharMap[runtime.GOOS]; ok {
+		w.switchCharset = sw
+	} else {
+		w.switchCharset = "-~/"
 	}
+	//if runtime.GOOS == "windows" {
+	//	w.switchCharset = "-/~"
+	//}
 
 	uniqueWorker = w
 	return
 }
 
 func init() {
-	_ = internalResetWorkerNoLock()
+	onceWorkerInitial.Do(func() {
+		noResetWorker = true
+		switchCharMap = map[string]string{
+			"windows": "-/~",
+		}
+		_ = internalResetWorkerNoLock()
+	})
 }
 
+var onceWorkerInitial sync.Once
 var uniqueWorkerLock sync.RWMutex
 var uniqueWorker *ExecWorker
-var noResetWorker = true
+var noResetWorker bool
+var switchCharMap map[string]string
 
 const confDFolderNameConst = "conf.d"

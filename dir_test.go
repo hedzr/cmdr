@@ -66,7 +66,7 @@ func TestMatchPreQ(t *testing.T) {
 func TestMatch(t *testing.T) {
 
 	cmdr.ResetOptions()
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 
 	var err error
 	var cmd *cmdr.Command
@@ -114,7 +114,7 @@ func TestMatch(t *testing.T) {
 
 	t.Log("xxx: -------- loops for execTestingsMatch")
 	for sss, verifier := range execTestingsMatch {
-		cmdr.InternalResetWorker()
+		cmdr.InternalResetWorkerForTest()
 		resetFlagsAndLog(t)
 
 		// cmdr.ShouldIgnoreWrongEnumValue = true
@@ -123,7 +123,7 @@ func TestMatch(t *testing.T) {
 		w := cmdr.Worker3(rootCmdForTesting)
 		w.AddOnAfterXrefBuilt(func(root *cmdr.RootCommand, args []string) {})
 		w.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {})
-		if cmd, err = cmdr.Match(sss,
+		if cmd, err = cmdr.MatchForTest(sss,
 			cmdr.WithUnhandledErrorHandler(onUnhandledErrorHandler),
 			cmdr.WithNoCommandAction(true),
 			cmdr.WithOnSwitchCharHit(func(parsed *cmdr.Command, switchChar string, args []string) (err error) {
@@ -150,7 +150,7 @@ func TestMatch(t *testing.T) {
 func TestHeadLike(t *testing.T) {
 
 	cmdr.ResetOptions()
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 
 	var err error
 	var outX = bytes.NewBufferString("")
@@ -181,7 +181,7 @@ func TestHeadLike(t *testing.T) {
 
 	t.Log("xxx: -------- loops for execTestings")
 	for sss, verifier := range execTestingsHeadLike {
-		cmdr.InternalResetWorker()
+		cmdr.InternalResetWorkerForTest()
 		resetFlagsAndLog(t)
 
 		// cmdr.ShouldIgnoreWrongEnumValue = true
@@ -230,7 +230,7 @@ func TestComplexOpt(t *testing.T) {
 	}()
 
 	cmdr.ResetOptions()
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 
 	var err error
 	// v1, v2 := 11, 0
@@ -294,7 +294,7 @@ func TestTildeOptionsAndToggleGroupBranch(t *testing.T) {
 		os.Args = tool.SavedOsArgs
 	}()
 
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 	cmdr.SetInternalOutputStreams(nil, nil)
 
 	var err error
@@ -374,7 +374,7 @@ func TestHandlerPassThru(t *testing.T) {
 		os.Args = tool.SavedOsArgs
 	}()
 
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 	cmdr.SetInternalOutputStreams(nil, nil)
 
 	var err error
@@ -445,7 +445,7 @@ func TestHandlerPassThru(t *testing.T) {
 			t.Log(err) // hi, here is not real error occurs
 		}
 
-		if lastCommand, e := cmdr.Match(cc.line,
+		if lastCommand, e := cmdr.MatchForTest(cc.line,
 			cmdr.WithAfterArgsParsed(func(cmd *cmdr.Command, args []string) (err error) {
 				return
 			}),

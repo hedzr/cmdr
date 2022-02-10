@@ -519,7 +519,7 @@ func createRoot() (rootOpt *cmdr.RootCmdOpt) {
 
 func TestFluentAPINew(t *testing.T) {
 	cmdr.ResetOptions()
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 
 	root := createRoot()
 	rootCmd1 := root.RootCommand()
@@ -539,7 +539,7 @@ func TestFluentAPINew(t *testing.T) {
 
 func TestFluentAPIOld(t *testing.T) {
 	cmdr.ResetOptions()
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 
 	root := createRootOld()
 	rootCmd1 := root.RootCommand()
@@ -650,7 +650,7 @@ func addDupFlags(root *cmdr.RootCmdOpt) {
 
 func TestAlreadyUsed(t *testing.T) {
 	cmdr.ResetOptions()
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 
 	root := createRoot()
 
@@ -677,7 +677,7 @@ func TestAlreadyUsed(t *testing.T) {
 	t.Log("xxx: -------- loops for alreadyUsedTestings")
 	for sss, verifier := range alreadyUsedTestings {
 		resetFlagsAndLog(t)
-		cmdr.ResetRootInWorker()
+		cmdr.ResetRootInWorkerForTest()
 
 		t.Log("xxx: ***: ", sss)
 

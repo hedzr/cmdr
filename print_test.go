@@ -1,9 +1,10 @@
 // Copyright © 2020 Hedzr Yeh.
 
-package cmdr
+package cmdr_test
 
 import (
 	"bufio"
+	"github.com/hedzr/cmdr"
 	"golang.org/x/net/html"
 	"strings"
 	"testing"
@@ -19,7 +20,7 @@ func TestGetTextPieces(t *testing.T) {
 [2m[37m
 `,
 	} {
-		_ = getTextPiece(tt, 0, 1000)
+		_ = cmdr.GetTextPiecesForTest(tt, 0, 1000)
 	}
 }
 
@@ -77,7 +78,7 @@ func TestCPT(t *testing.T) {
 	<del>scan</del> <u>folder</u> and save <i>result</i> to <code>bgo.yml</code>, as <mark>project settings</mark>
 	`
 
-	str := cpt.Translate(source, 4)
+	str := cmdr.Cpt().Translate(source, 4)
 	t.Logf("\x1b[4m%v\x1b[0m", str)
 }
 
@@ -87,7 +88,7 @@ func TestCPTNC(t *testing.T) {
 	<del>scan</del> <u>folder</u> and save <i>result</i> to <code>bgo.yml</code>, as <mark>project settings</mark>
 	`
 
-	str := cptNC.Translate(source, 0)
+	str := cmdr.CptNC().Translate(source, 0)
 	t.Logf("%v", str)
 }
 
@@ -113,12 +114,12 @@ func TestStripLeftTabs(t *testing.T) {
 	return c.stripHTMLTags(clean)
 }
 `
-	sz := StripLeftTabs(source)
+	sz := cmdr.StripLeftTabs(source)
 	if sz != expected {
 		t.Errorf("unexpect result\n%v", sz)
 	}
 
-	sz = StripLeftTabsOnly(source)
+	sz = cmdr.StripLeftTabsOnly(source)
 	if sz != expected2 {
 		t.Errorf("unexpect result\n%v", sz)
 	}
@@ -141,7 +142,7 @@ func TestStripHtmlTags(t *testing.T) {
 		}
 		scan folder and save result to bgo.yml, as project settings
 	`
-	sz := StripHTMLTags(source)
+	sz := cmdr.StripHTMLTags(source)
 	if sz != expected {
 		t.Errorf("unexpect result\n%v", sz)
 	}

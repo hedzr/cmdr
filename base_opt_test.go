@@ -400,7 +400,7 @@ func TestNormalizeDir(t *testing.T) {
 
 func TestNoColorMode(t *testing.T) {
 	cmdr.ResetOptions()
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 
 	root := createRootOld()
 	rootCmd1 := root.RootCommand()

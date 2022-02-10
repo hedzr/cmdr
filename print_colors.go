@@ -87,6 +87,11 @@ var (
 	cptNC = colorPrintTranslator{noColorMode: true}
 )
 
+// ColorTranslator _
+type ColorTranslator interface {
+	Translate(s string, initialFg int) string
+}
+
 type colorPrintTranslator struct {
 	noColorMode bool // strip color code simply
 }

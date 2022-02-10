@@ -28,7 +28,7 @@ func TestAddonPlugin(t *testing.T) {
 	}()
 
 	cmdr.ResetOptions()
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 
 	var err error
 	// v1, v2 := 11, 0
@@ -96,7 +96,7 @@ func TestPE(t *testing.T) {
 	}()
 
 	cmdr.ResetOptions()
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 
 	var err error
 	// v1, v2 := 11, 0

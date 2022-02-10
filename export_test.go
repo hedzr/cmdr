@@ -40,18 +40,18 @@ func Worker3(root *RootCommand) *ExecWorker {
 	return w
 }
 
-// BacktraceCmdNames _
-func BacktraceCmdNames(cmd *Command, v bool) string {
+// BacktraceCmdNamesForTest _
+func BacktraceCmdNamesForTest(cmd *Command, v bool) string {
 	return backtraceCmdNames(cmd, v)
 }
 
 // // ResetWorker function
 // func ResetWorker() {
-// 	InternalResetWorker()
+// 	InternalResetWorkerForTest()
 // }
 
-// InternalResetWorker is an internal helper, esp for debugging
-func InternalResetWorker() (w *ExecWorker) {
+// InternalResetWorkerForTest is an internal helper, esp for debugging
+func InternalResetWorkerForTest() (w *ExecWorker) {
 	uniqueWorkerLock.Lock()
 	w = internalResetWorkerNoLock()
 	noResetWorker = false
@@ -59,18 +59,56 @@ func InternalResetWorker() (w *ExecWorker) {
 	return
 }
 
-// InternalResetWorkerNoLock is an internal helper, esp for debugging
-func InternalResetWorkerNoLock() (w *ExecWorker) {
+// InternalResetWorkerNoLockForTest is an internal helper, esp for debugging
+func InternalResetWorkerNoLockForTest() (w *ExecWorker) {
 	w = internalResetWorkerNoLock()
 	return
 }
 
-// ResetRootInWorker function
-func ResetRootInWorker() {
+// ResetRootInWorkerForTest function
+func ResetRootInWorkerForTest() {
 	uniqueWorkerLock.Lock()
 	w := internalResetWorkerNoLock()
 	w.rootCommand = nil
 	uniqueWorkerLock.Unlock()
+}
+
+// GetTextPiecesForTest _
+func GetTextPiecesForTest(str string, start, want int) string {
+	return getTextPiece(str, start, want)
+}
+
+// Cpt _
+func Cpt() ColorTranslator {
+	return &cpt
+}
+
+// CptNC _
+func CptNC() ColorTranslator {
+	return &cptNC
+}
+
+// NewOptionsForTest _
+func NewOptionsForTest() *Options { return newOptions() }
+
+// IsTypeUint _
+func IsTypeUint(kind reflect.Kind) bool {
+	return isTypeUint(kind)
+}
+
+// IsTypeSInt _
+func IsTypeSInt(kind reflect.Kind) bool {
+	return isTypeSInt(kind)
+}
+
+// IsTypeFloat _
+func IsTypeFloat(kind reflect.Kind) bool {
+	return isTypeFloat(kind)
+}
+
+// IsTypeComplex _
+func IsTypeComplex(kind reflect.Kind) bool {
+	return isTypeComplex(kind)
 }
 
 func TestEmptyUnknownOptionHandler(t *testing.T) {
@@ -85,11 +123,11 @@ func tLog(a ...interface{}) {}
 
 func TestFlag(t *testing.T) {
 	ResetOptions()
-	ResetRootInWorker()
+	ResetRootInWorkerForTest()
 	internalGetWorker().rxxtPrefixes = []string{}
 	t.Log(wrapWithRxxtPrefix("x"))
 	internalGetWorker().rxxtPrefixes = []string{"app"}
-	InternalResetWorker()
+	InternalResetWorkerForTest()
 
 	noResetWorker = false
 	tLog(GetStringR("version"))
@@ -185,7 +223,7 @@ func TestHandlePanic(t *testing.T) {
 	}()
 
 	ResetOptions()
-	InternalResetWorker()
+	InternalResetWorkerForTest()
 
 	onUnhandledErrorHandler1 := func(err interface{}) {
 		// debug.PrintStack()
@@ -503,15 +541,21 @@ func TestSliceConverters(t *testing.T) {
 	mxIx("", "")
 }
 
+// TestWithShellCompletionXXX _
 func TestWithShellCompletionXXX(t *testing.T) {
 	ResetOptions()
-	InternalResetWorker()
+	InternalResetWorkerForTest()
 
 	withShellCompletionCommandEnabled(true)
 	withShellCompletionPartialMatch(true)
 }
 
-func (pkg *ptpkg) setOwner(cmd *Command) {
+// GetWithLogexInitializer _
+func (w *ExecWorker) GetWithLogexInitializer(lvl Level, opts ...logex.Option) Handler {
+	return w.getWithLogexInitializer(lvl, opts...)
+}
+
+func (pkg *ptpkg) setOwnerForTest(cmd *Command) {
 	if pkg.flg != nil {
 		pkg.flg.owner = cmd
 	}
@@ -522,7 +566,7 @@ func TestPtpkgToggleGroup(t *testing.T) {
 	pkg := &ptpkg{flg: &Flag{
 		ToggleGroup: "XX",
 	}}
-	pkg.setOwner(&Command{
+	pkg.setOwnerForTest(&Command{
 		Flags: []*Flag{
 			{
 				ToggleGroup: "XX",
@@ -543,9 +587,9 @@ func TestPtpkgToggleGroup(t *testing.T) {
 	_ = pkg.processExternalTool()
 }
 
-// ExecWith is main entry of `cmdr`.
+// ExecWithForTest is main entry of `cmdr`.
 // for testing
-func ExecWith(rootCmd *RootCommand, beforeXrefBuildingX, afterXrefBuiltX HookFunc) (err error) {
+func ExecWithForTest(rootCmd *RootCommand, beforeXrefBuildingX, afterXrefBuiltX HookFunc) (err error) {
 	w := internalGetWorker()
 
 	if beforeXrefBuildingX != nil {
@@ -580,9 +624,9 @@ func SetPredefinedLocationsForTesting(locations ...string) {
 	internalGetWorker().predefinedLocations = locations
 }
 
-// Match try parsing the input command-line, the result is the last hit *Command.
-func Match(inputCommandlineWithoutArg0 string, opts ...ExecOption) (last *Command, err error) {
-	return match(inputCommandlineWithoutArg0, opts...)
+// MatchForTest try parsing the input command-line, the result is the last hit *Command.
+func MatchForTest(inputCommandlineWithoutArg0 string, opts ...ExecOption) (last *Command, err error) {
+	return matchForTest(inputCommandlineWithoutArg0, opts...)
 }
 
 func TestNewError(t *testing.T) {
@@ -616,4 +660,168 @@ func TestNewError(t *testing.T) {
 
 	// errWrongEnumValue = newErrTmpl("unexpected enumerable value '%s' for option '%s', under command '%s'")
 	// _ = errWrongEnumValue.Template("x").Format().Msg("x %v", 1).Nest(err)
+}
+
+func TestGenPowerShell1(t *testing.T) {
+	InternalResetWorkerForTest()
+	ResetOptions()
+
+	// copyRootCmd = rootCmdForTesting
+	var rootCmdX = &RootCommand{
+		Command: Command{
+			BaseOpt: BaseOpt{
+				Name: "consul-tags",
+			},
+		},
+	}
+
+	var commands = []string{
+		"consul-tags --help -q",
+	}
+
+	for _, cc := range commands {
+		os.Args = strings.Split(cc, " ")
+		SetInternalOutputStreams(nil, nil)
+
+		if err := Exec(rootCmdX); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	w := Worker()
+
+	_ = w.genShellPowershell(os.Stdout, "", &rootCmdX.Command, nil)
+}
+
+// GenManualForCommandForTest _
+func GenManualForCommandForTest(cmd *Command) (fn string, err error) {
+	return genManualForCommand(cmd)
+}
+
+func TestWorkerAddIt(t *testing.T) {
+	InternalResetWorkerForTest()
+	ResetOptions()
+
+	// copyRootCmd = rootCmdForTesting
+	var rootCmdX = rootCmdAliasTest()
+
+	w := Worker()
+
+	f, err := os.CreateTemp("", "example")
+	if err != nil {
+		t.Errorf("err: %v", err)
+		return
+	}
+	defer os.Remove(f.Name())
+
+	fi, err2 := f.Stat()
+	if err2 != nil {
+		t.Errorf("err: %v", err2)
+		return
+	}
+
+	root := &rootCmdX.Command
+
+	_ = w._addOnAddIt(fi, rootCmdX, ".")
+
+	_ = w._addonAddCmd(root, "v", "v", &a1{}, &p1{})
+
+	_ = w._addIt(fi, rootCmdX, ".")
+
+	w._intFlgAdd(rootCmdX, "full", "full", "full", func(ff *Flag) {})
+	w._intFlgAdd(rootCmdX, "full1", "full1", "", func(ff *Flag) {})
+	w._intFlgAdd(rootCmdX, "full1", "full1", "", func(ff *Flag) {})
+
+}
+
+type p1 struct{}
+
+func (p *p1) Name() string                      { return "vvv" }
+func (p *p1) ShortName() string                 { return "v" }
+func (p *p1) Aliases() []string                 { return []string{"v1"} }
+func (p *p1) Description() string               { return "v" }
+func (p *p1) SubCommands() []cmdrbase.PluginCmd { return []cmdrbase.PluginCmd{&p2{}} }
+func (p *p1) Flags() []cmdrbase.PluginFlag      { return []cmdrbase.PluginFlag{&f1{}} }
+func (p *p1) Action(args []string) (err error)  { return nil }
+
+type p2 struct{}
+
+func (p *p2) Name() string                      { return "vvv2" }
+func (p *p2) ShortName() string                 { return "v2" }
+func (p *p2) Aliases() []string                 { return []string{"v2"} }
+func (p *p2) Description() string               { return "v2" }
+func (p *p2) SubCommands() []cmdrbase.PluginCmd { return []cmdrbase.PluginCmd{} }
+func (p *p2) Flags() []cmdrbase.PluginFlag      { return []cmdrbase.PluginFlag{&f1{}} }
+func (p *p2) Action(args []string) (err error)  { return nil }
+
+type f1 struct{}
+
+func (f *f1) Name() string              { return "flag1" }
+func (f *f1) ShortName() string         { return "f1" }
+func (f *f1) Aliases() []string         { return []string{"f1f1"} }
+func (f *f1) Description() string       { return "f1" }
+func (f *f1) DefaultValue() interface{} { return true }
+func (f *f1) PlaceHolder() string       { return "" }
+func (f *f1) Action() (err error)       { return nil }
+
+type a1 struct{}
+
+func (a *a1) Name() string                      { return "addon1" }
+func (a *a1) ShortName() string                 { return "a1" }
+func (a *a1) Aliases() []string                 { return []string{"a1a1"} }
+func (a *a1) Description() string               { return "addon1" }
+func (a *a1) SubCommands() []cmdrbase.PluginCmd { return nil }
+func (a *a1) Flags() []cmdrbase.PluginFlag      { return nil }
+func (a *a1) Action(args []string) (err error)  { return nil }
+func (a *a1) AddonTitle() string                { return "addon1" }
+func (a *a1) AddonDescription() string          { return "addon1" }
+func (a *a1) AddonCopyright() string            { return "addon1" }
+func (a *a1) AddonVersion() string              { return "addon1" }
+
+func TestWorkerHelpSystemPrint(t *testing.T) {
+
+	InternalResetWorkerForTest()
+	ResetOptions()
+
+	// copyRootCmd = rootCmdForTesting
+	var rootCmdX = rootCmdAliasTest()
+
+	var commands = []string{
+		"consul-tags --help -q",
+	}
+
+	for _, cc := range commands {
+		os.Args = strings.Split(cc, " ")
+		SetInternalOutputStreams(nil, nil)
+
+		if err := Exec(rootCmdX); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	w := Worker()
+
+	_ = w.helpSystemPrint(&rootCmdX.Command, []string{})
+	_ = w.helpSystemPrint(&rootCmdX.Command, []string{"generate", "shell"})
+	_ = w.helpSystemPrint(&rootCmdX.Command, []string{"generate", "sh", "--zsh"})
+
+	root := &rootCmdX.Command
+
+	_, _, _, _ = w.lookupForHelpSystem(root, []string{"generate", "shell"})
+	_, _, _, _ = w.lookupForHelpSystem(root, []string{"generate", "sh", "--zsh"})
+
+	_ = DottedPathToCommand("generate.shell", nil)
+	_ = DottedPathToCommand("version", root)
+	_ = DottedPathToCommand("cc.cc1.cc1c1", root)
+
+	_ = DottedPathToCommand("versions", root)
+
+	_, _ = DottedPathToCommandOrFlag("generate.shell", nil)
+	_, _ = DottedPathToCommandOrFlag("version", root)
+	_, _ = DottedPathToCommandOrFlag("cc.cc1.cc1c1", root)
+	_, _ = DottedPathToCommandOrFlag("generate.shell.zsh", nil)
+
+	w.rootCommand.RunAsSubCommand = "generate.shell"
+	w.preparePtPkg(&ptpkg{})
+	w._setSwChars("windows")
 }

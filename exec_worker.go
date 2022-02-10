@@ -102,6 +102,9 @@ func internalGetWorker() (w *ExecWorker) {
 	return
 }
 
+// internalResetWorkerNoLock makes a new instance of pointer
+// to ExecWorker and updates uniqueWorker global variable.
+//
 func internalResetWorkerNoLock() (w *ExecWorker) {
 	w = &ExecWorker{
 		envPrefixes:  []string{"CMDR"},
@@ -207,18 +210,21 @@ func (w *ExecWorker) _setSwChars(os string) {
 
 func init() {
 	onceWorkerInitial.Do(func() {
+
 		noResetWorker = true
-		switchCharMap = map[string]string{
-			"windows": "-/~",
-		}
+		//switchCharMap = map[string]string{
+		//	"windows": "-/~",
+		//}
+
+		// create the uniqueWorker first time
 		_ = internalResetWorkerNoLock()
 	})
 }
 
-var onceWorkerInitial sync.Once
-var uniqueWorkerLock sync.RWMutex
-var uniqueWorker *ExecWorker
-var noResetWorker bool
-var switchCharMap map[string]string
+var onceWorkerInitial sync.Once   // once initializer for some global variables
+var uniqueWorkerLock sync.RWMutex //
+var uniqueWorker *ExecWorker      // NOTE that pointer to uniqueWorker can be updated, it's not an initial-once pointer
+var noResetWorker bool            //
+//var switchCharMap map[string]string //
 
 const confDFolderNameConst = "conf.d"

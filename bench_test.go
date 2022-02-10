@@ -19,9 +19,9 @@ func BenchmarkItoa(b *testing.B) {
 
 func benchmarkGetStringR(lock bool, b *testing.B) {
 	if lock {
-		cmdr.InternalResetWorker()
+		cmdr.InternalResetWorkerForTest()
 	} else {
-		cmdr.InternalResetWorkerNoLock()
+		cmdr.InternalResetWorkerNoLockForTest()
 	}
 	// resetFlagsAndLog(t)
 	resetOsArgs()
@@ -53,9 +53,9 @@ func benchmarkGetStringR(lock bool, b *testing.B) {
 
 func prepare(lock bool, b *testing.B) {
 	if lock {
-		cmdr.InternalResetWorker()
+		cmdr.InternalResetWorkerForTest()
 	} else {
-		cmdr.InternalResetWorkerNoLock()
+		cmdr.InternalResetWorkerNoLockForTest()
 	}
 	// resetFlagsAndLog(t)
 	resetOsArgs()

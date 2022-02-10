@@ -34,7 +34,7 @@ func TestSingleCommandLine1(t *testing.T) {
 
 	os.Args = []string{"consul-tags", "kv", "b"}
 
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 	t.Logf("trace: %v, debug: %v, verbose: %v, quiet: %v, no-color: %v",
 		cmdr.GetTraceMode(),
 		cmdr.GetDebugMode(),
@@ -126,11 +126,11 @@ More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-
 		cmdr.WithToggleGroupChoicerStyle("hexagon"),
 	)
 
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 	resetFlagsAndLog(t)
 	resetOsArgs()
 	cmdr.ResetOptions()
-	_ = cmdr.ExecWith(rootCmdForTesting, nil, nil)
+	_ = cmdr.ExecWithForTest(rootCmdForTesting, nil, nil)
 
 	cmdr.AsYaml()
 	_ = cmdr.SaveAsYaml(".tmp.1.yaml")
@@ -149,13 +149,13 @@ More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-
 	// cmdr.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {
 	// 	return
 	// })
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 	resetFlagsAndLog(t)
 	resetOsArgs()
 	cmdr.ResetOptions()
 
 	cmdr.AddOnConfigLoadedListener(&cfgLoaded{})
-	_ = cmdr.ExecWith(rootCmdForTesting, func(root *cmdr.RootCommand, args []string) {
+	_ = cmdr.ExecWithForTest(rootCmdForTesting, func(root *cmdr.RootCommand, args []string) {
 		return
 	}, func(root *cmdr.RootCommand, args []string) {
 		return
@@ -203,7 +203,7 @@ func test4(w *cmdr.ExecWorker) {
 }
 
 func TestSingleCommandLine2(t *testing.T) {
-	w := cmdr.InternalResetWorker()
+	w := cmdr.InternalResetWorkerForTest()
 	resetFlagsAndLog(t)
 	resetOsArgs()
 	cmdr.ResetOptions()
@@ -228,7 +228,7 @@ func TestUnknownHandler(t *testing.T) {
 
 	copyRootCmd = rootCmdForTesting
 
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 	cmdr.ResetOptions()
 
 	defer prepareConfD(t)()
@@ -250,7 +250,7 @@ func TestUnknownHandler(t *testing.T) {
 	}
 	resetOsArgs()
 	cmdr.ResetOptions()
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 
 	t.Log("............... 2")
 
@@ -267,7 +267,7 @@ func TestUnknownHandler(t *testing.T) {
 	}
 	resetOsArgs()
 	cmdr.ResetOptions()
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 
 	// cmdr.SetUnknownOptionHandler(nil)
 
@@ -282,7 +282,7 @@ func TestUnknownHandler(t *testing.T) {
 	}
 	resetOsArgs()
 	cmdr.ResetOptions()
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 
 	t.Log("............... 4")
 
@@ -293,7 +293,7 @@ func TestUnknownHandler(t *testing.T) {
 	}
 	resetOsArgs()
 	cmdr.ResetOptions()
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 
 }
 
@@ -325,7 +325,7 @@ func testErrorForCmdr(t *testing.T, e *cmdr.ErrorForCmdr, fn func(t *testing.T, 
 func TestConfigOption(t *testing.T) {
 	copyRootCmd = rootCmdForTesting
 	cmdr.ResetOptions()
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 
 	defer prepareConfD(t)()
 
@@ -357,7 +357,7 @@ func TestConfigOption(t *testing.T) {
 func TestStrictMode(t *testing.T) {
 	copyRootCmd = rootCmdForTesting
 	cmdr.ResetOptions()
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 	os.Args = []string{"consul-tags", "ms", "tags", "add", "--strict-mode"}
 	// cmdr.SetInternalOutputStreams(nil, nil)
 	if err := cmdr.Exec(rootCmdForTesting, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
@@ -385,7 +385,7 @@ func TestStrictMode(t *testing.T) {
 func TestTreeDump(t *testing.T) {
 	copyRootCmd = rootCmdForTesting
 
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 	cmdr.ResetOptions()
 	cmdr.Set("no-watch-conf-dir", true)
 
@@ -407,7 +407,7 @@ func TestTreeDump(t *testing.T) {
 func TestVersionCommand(t *testing.T) {
 	copyRootCmd = rootCmdForTesting
 
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 	cmdr.ResetOptions()
 	cmdr.Set("no-watch-conf-dir", true)
 	resetFlagsAndLog(t)
@@ -428,7 +428,7 @@ func TestVersionCommand(t *testing.T) {
 		}
 		resetOsArgs()
 		cmdr.ResetOptions()
-		cmdr.InternalResetWorker()
+		cmdr.InternalResetWorkerForTest()
 		resetFlagsAndLog(t)
 	}
 
@@ -439,7 +439,7 @@ func TestGlobalShow(t *testing.T) {
 	copyRootCmd = rootCmdForTesting
 	// cmdr.SetInternalOutputStreams(nil, nil)
 
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 	cmdr.ResetOptions()
 	cmdr.Set("no-watch-conf-dir", true)
 
@@ -486,7 +486,7 @@ func TestGlobalShow(t *testing.T) {
 func TestPP(t *testing.T) {
 	copyRootCmd = rootCmdForTesting
 
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 	cmdr.ResetOptions()
 	cmdr.Set("no-watch-conf-dir", true)
 
@@ -507,114 +507,6 @@ func TestPP(t *testing.T) {
 	// }
 	// resetOsArgs()
 
-	cmdr.ResetOptions()
-}
-
-func TestForGenerateCommands(t *testing.T) {
-	copyRootCmd = rootCmdForTesting
-
-	cmdr.InternalResetWorker()
-	cmdr.ResetOptions()
-	cmdr.Set("no-watch-conf-dir", true)
-
-	defer func() {
-		_ = os.Remove(".tmp.1.json")
-		_ = os.Remove(".tmp.1.yaml")
-		_ = os.Remove(".tmp.1.toml")
-	}()
-
-	var commands = []string{
-		"consul-tags gen doc --markdown",
-		"consul-tags gen shell --auto",
-		"consul-tags gen shell --auto --force-bash",
-		"consul-tags gen doc",
-		"consul-tags gen pdf",
-		"consul-tags gen docx",
-		"consul-tags gen tex",
-		"consul-tags gen markdown",
-		"consul-tags gen d",
-		"consul-tags gen doc --pdf",
-		"consul-tags gen doc --tex",
-		"consul-tags gen doc --doc",
-		"consul-tags gen doc --docx",
-		"consul-tags gen shell --bash",
-		"consul-tags gen shell --zsh",
-		"consul-tags gen shell",
-	}
-	for _, cc := range commands {
-		cmdr.Set("generate.shell.zsh", false)
-		cmdr.Set("generate.shell.bash", false)
-		cmdr.Set("generate.shell.auto", false)
-		cmdr.Set("generate.shell.force-bash", false)
-		cmdr.Set("generate.doc.pdf", false)
-		cmdr.Set("generate.doc.markdown", false)
-		cmdr.Set("generate.doc.tex", false)
-		cmdr.Set("generate.doc.doc", false)
-		cmdr.Set("generate.doc.docx", false)
-
-		os.Args = strings.Split(cc, " ")
-		fmt.Printf("  . args = [%v], go ...\n", os.Args)
-		// cmdr.SetInternalOutputStreams(nil, nil)
-		if err := cmdr.Exec(rootCmdForTesting, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
-			t.Fatal(err)
-		}
-		// time.Sleep(time.Second)
-	}
-
-	resetOsArgs()
-	cmdr.ResetOptions()
-}
-
-func TestForGenerateDoc(t *testing.T) {
-	copyRootCmd = rootCmdForTesting
-
-	cmdr.InternalResetWorker()
-	cmdr.ResetOptions()
-	cmdr.Set("no-watch-conf-dir", true)
-
-	defer func() {
-		_ = dir.RemoveDirRecursive("docs")
-	}()
-
-	var commands = []string{
-		"consul-tags gen doc",
-	}
-	for _, cc := range commands {
-		os.Args = strings.Split(cc, " ")
-		// cmdr.SetInternalOutputStreams(nil, nil)
-		if err := cmdr.Exec(rootCmdForTesting, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	resetOsArgs()
-	cmdr.ResetOptions()
-}
-
-func TestForGenerateMan(t *testing.T) {
-	copyRootCmd = rootCmdForTesting
-
-	cmdr.InternalResetWorker()
-	cmdr.ResetOptions()
-	cmdr.Set("no-watch-conf-dir", true)
-
-	defer func() {
-		_ = os.Remove("man1")
-		_ = os.Remove("man3")
-	}()
-
-	var commands = []string{
-		"consul-tags gen man",
-	}
-	for _, cc := range commands {
-		os.Args = strings.Split(cc, " ")
-		// cmdr.SetInternalOutputStreams(nil, nil)
-		if err := cmdr.Exec(rootCmdForTesting, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	resetOsArgs()
 	cmdr.ResetOptions()
 }
 
@@ -669,9 +561,9 @@ func TestBacktraceCmdNames(t *testing.T) {
 		if last, err := cmdr.Worker().InternalExecFor(rootCmdForTesting, os.Args); err != nil {
 			t.Fatal(err)
 		} else {
-			// fmt.Printf("%v: %v\n", cc.cmdline, cmdr.BacktraceCmdNames(last, true))
-			r1 := cmdr.BacktraceCmdNames(last, false)
-			vr1 := cmdr.BacktraceCmdNames(last, true)
+			// fmt.Printf("%v: %v\n", cc.cmdline, cmdr.BacktraceCmdNamesForTest(last, true))
+			r1 := cmdr.BacktraceCmdNamesForTest(last, false)
+			vr1 := cmdr.BacktraceCmdNamesForTest(last, true)
 			if cc.result != r1 {
 				t.Fatalf("expecting %q but got %q | backtraceCmdNames([%v], false)", cc.result, r1, cc.cmdline)
 			}
@@ -742,7 +634,7 @@ func theKeys(theExecTestings map[string]func(t *testing.T) error) (keys []string
 }
 
 func TestExec(t *testing.T) {
-	cmdr.InternalResetWorker()
+	cmdr.InternalResetWorkerForTest()
 	cmdr.ResetOptions()
 
 	var err error
@@ -797,7 +689,7 @@ func TestExec(t *testing.T) {
 
 		resetFlagsAndLog(t)
 		cmdr.ResetOptions()
-		cmdr.ResetRootInWorker()
+		cmdr.ResetRootInWorkerForTest()
 
 		t.Log("xxx: ***: ", sss)
 
@@ -830,7 +722,7 @@ func TestExec(t *testing.T) {
 			rootCmdForTesting.Header = ""
 		}
 
-		// cmdr.InternalResetWorker()
+		// cmdr.InternalResetWorkerForTest()
 
 	}
 

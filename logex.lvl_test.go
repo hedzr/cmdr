@@ -1,32 +1,33 @@
 // Copyright © 2020 Hedzr Yeh.
 
-package cmdr
+package cmdr_test
 
 import (
+	"github.com/hedzr/cmdr"
 	"testing"
 )
 
 func TestLevels(t *testing.T) {
-	for _, l := range AllLevels {
+	for _, l := range cmdr.AllLevels {
 		t.Logf("level: %v", l)
 	}
 
-	GetLoggerLevel()
-	SetLogger(Logger)
-	if Level(uint32(1000)).String() != "unknown" {
+	cmdr.GetLoggerLevel()
+	cmdr.SetLogger(cmdr.Logger)
+	if cmdr.Level(uint32(1000)).String() != "unknown" {
 		t.Fail()
 	}
-	_, e := Level(uint32(1000)).MarshalText()
-	t.Logf("- level %q: %v", Level(uint32(1000)), e)
+	_, e := cmdr.Level(uint32(1000)).MarshalText()
+	t.Logf("- level %q: %v", cmdr.Level(uint32(1000)), e)
 
-	var l = DebugLevel
+	var l = cmdr.DebugLevel
 	e = (&l).UnmarshalText([]byte("XX"))
 	t.Logf("- level XX: %v", e)
 	e = (&l).UnmarshalText([]byte("TRACE"))
 	t.Logf("- level TRACE: %v", e)
 
 	for _, x := range []string{"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "PANIC", "OFF", "XX"} {
-		l, err := ParseLevel(x)
+		l, err := cmdr.ParseLevel(x)
 		if err == nil {
 			t.Logf("level: %s => %v", x, l)
 		}
@@ -34,20 +35,20 @@ func TestLevels(t *testing.T) {
 }
 
 func TestLog(t *testing.T) {
-	var rootCmdX = &RootCommand{
-		Command: Command{
-			BaseOpt: BaseOpt{
+	var rootCmdX = &cmdr.RootCommand{
+		Command: cmdr.Command{
+			BaseOpt: cmdr.BaseOpt{
 				Name: "consul-tags",
 			},
 		},
 	}
 
 	for _, x := range []string{"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "PANIC", "OFF", "XX"} {
-		Set("logger.level", x)
-		_ = internalGetWorker().getWithLogexInitializer(DebugLevel)(&rootCmdX.Command, []string{})
+		cmdr.Set("logger.level", x)
+		_ = cmdr.Worker().GetWithLogexInitializer(cmdr.DebugLevel)(&rootCmdX.Command, []string{})
 	}
 
-	Set("logger.target", "journal")
-	Set("logger.format", "json")
-	_ = internalGetWorker().getWithLogexInitializer(DebugLevel)(&rootCmdX.Command, []string{})
+	cmdr.Set("logger.target", "journal")
+	cmdr.Set("logger.format", "json")
+	_ = cmdr.Worker().GetWithLogexInitializer(cmdr.DebugLevel)(&rootCmdX.Command, []string{})
 }

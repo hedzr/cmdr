@@ -2,24 +2,25 @@
  * Copyright © 2019 Hedzr Yeh.
  */
 
-package cmdr
+package cmdr_test
 
 import (
+	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/tool"
 	"reflect"
 	"testing"
 )
 
 func TestToBool(t *testing.T) {
-	ToBool(false)
-	ToBool(1)
-	ToBool(-1)
-	ToBool("sss")
-	ToBool(3.14, false)
+	cmdr.ToBool(false)
+	cmdr.ToBool(1)
+	cmdr.ToBool(-1)
+	cmdr.ToBool("sss")
+	cmdr.ToBool(3.14, false)
 }
 
 func TestOptions_GetInt64Ex(t *testing.T) {
-	o := newOptions()
+	o := cmdr.NewOptionsForTest()
 	o.Set("test", "123")
 	o.GetInt64Ex("app.test", 3)
 	o.GetKibibytesEx("app.test")
@@ -55,9 +56,24 @@ func TestTypes(t *testing.T) {
 	// func TestTyper(t *testing.T) {
 
 	v := uint(3)
-	tAssert(t, isTypeUint(reflect.ValueOf(v).Kind()) == true)
+	tAssert(t, cmdr.IsTypeUint(reflect.ValueOf(v).Kind()) == true)
+	tAssert(t, cmdr.IsTypeSInt(reflect.ValueOf(v).Kind()) == false)
 	vc := int(-3)
-	tAssert(t, isTypeUint(reflect.ValueOf(vc).Kind()) == false)
+	tAssert(t, cmdr.IsTypeUint(reflect.ValueOf(vc).Kind()) == false)
+	tAssert(t, cmdr.IsTypeSInt(reflect.ValueOf(vc).Kind()) == true)
+
+	f1 := float32(2)
+	tAssert(t, cmdr.IsTypeFloat(reflect.ValueOf(f1).Kind()) == true)
+	tAssert(t, cmdr.IsTypeFloat(reflect.ValueOf(vc).Kind()) == false)
+
+	f2 := float64(2)
+	tAssert(t, cmdr.IsTypeFloat(reflect.ValueOf(f2).Kind()) == true)
+	tAssert(t, cmdr.IsTypeFloat(reflect.ValueOf(vc).Kind()) == false)
+
+	c1 := complex(2.0, 3.0)
+	tAssert(t, cmdr.IsTypeComplex(reflect.ValueOf(c1).Kind()) == true)
+	tAssert(t, cmdr.IsTypeComplex(reflect.ValueOf(vc).Kind()) == false)
+	tAssert(t, cmdr.IsTypeComplex(reflect.ValueOf(f2).Kind()) == false)
 }
 
 func tAssert(t *testing.T, cond bool) {
@@ -70,7 +86,7 @@ func tAssert(t *testing.T, cond bool) {
 
 func TestFindsX(t *testing.T) {
 	t.Log("finds",
-		InTesting(),
+		cmdr.InTesting(),
 		tool.RandomStringPure(5),
 		tool.Min(3, 5),
 		tool.Min(13, 5),

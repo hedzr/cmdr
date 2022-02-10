@@ -8,9 +8,11 @@ import (
 )
 
 // match try parsing the input command-line, the result is the last hit *Command.
-func match(inputCommandlineWithoutArg0 string, opts ...ExecOption) (last *Command, err error) {
+func matchForTest(inputCommandlineWithoutArg0 string, opts ...ExecOption) (last *Command, err error) {
 	saved := internalGetWorker()
 	savedUnknownOptionHandler := unknownOptionHandler
+	rootCmd := saved.rootCommand
+
 	defer func() {
 		uniqueWorkerLock.Lock()
 		uniqueWorker = saved
@@ -18,8 +20,7 @@ func match(inputCommandlineWithoutArg0 string, opts ...ExecOption) (last *Comman
 		uniqueWorkerLock.Unlock()
 	}()
 
-	rootCmd := internalGetWorker().rootCommand
-
+	// get a new ExecWorker instance
 	w := internalResetWorkerNoLock()
 
 	for _, opt := range opts {

@@ -129,6 +129,7 @@ func TestFluentAPIDefault(t *testing.T) {
 func TestAsXXX(t *testing.T) {
 	cmdr.AsYaml()
 	cmdr.AsJSON()
+	_, _ = cmdr.AsJSONExt(true)
 	cmdr.AsToml()
 	cmdr.GetHierarchyList()
 	if _, err := cmdr.AsTomlExt(); err != nil {

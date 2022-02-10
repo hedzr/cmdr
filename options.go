@@ -726,15 +726,19 @@ func SaveAsYaml(filename string) (err error) {
 
 // AsJSON returns a json string bytes about all options
 func AsJSON() (b []byte) {
-	b, _ = AsJSONExt()
+	b, _ = AsJSONExt(false)
 	return
 }
 
 // AsJSONExt returns a json string bytes about all options
-func AsJSONExt() (b []byte, err error) {
+func AsJSONExt(prettyFormat bool) (b []byte, err error) {
 	obj := internalGetWorker().rxxtOptions.GetHierarchyList()
 	defer handleSerializeError(&err)
-	b, err = json.Marshal(obj)
+	if prettyFormat {
+		b, err = json.MarshalIndent(obj, "", "  ")
+	} else {
+		b, err = json.Marshal(obj)
+	}
 	return
 }
 
@@ -742,6 +746,16 @@ func AsJSONExt() (b []byte, err error) {
 func SaveAsJSON(filename string) (err error) {
 	b := AsJSON()
 	err = ioutil.WriteFile(filename, b, 0644)
+	return
+}
+
+// SaveAsJSONExt to Save all config entries as a json file
+func SaveAsJSONExt(filename string, prettyFormat bool) (err error) {
+	var b []byte
+	b, err = AsJSONExt(prettyFormat)
+	if err == nil {
+		err = ioutil.WriteFile(filename, b, 0644)
+	}
 	return
 }
 

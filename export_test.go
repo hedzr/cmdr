@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	cmdrbase "github.com/hedzr/cmdr-base"
 	"github.com/hedzr/cmdr/tool"
 	"io"
 	"os"

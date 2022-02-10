@@ -136,6 +136,7 @@ More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-
 	_ = cmdr.SaveAsYaml(".tmp.1.yaml")
 	cmdr.AsJSON()
 	_ = cmdr.SaveAsJSON(".tmp.1.json")
+	_ = cmdr.SaveAsJSONExt(".tmp.1.json", true)
 	cmdr.AsToml()
 	if err = cmdr.SaveAsToml(".tmp.1.toml"); err != nil {
 		// t.Fatal("dump toml failed", err)

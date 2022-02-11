@@ -2,6 +2,11 @@
 
 ## Versions
 
+
+- v1.10.19
+  - temporary build for earlier testing
+  - confirmed: backward compatible with go1.12
+
 - v1.10.13
   - fix/imp: adapt windir to *nix name to fit for generic config file loading
   - fea/imp: improved Aliases algor, support more tmpl var substitute

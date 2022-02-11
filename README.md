@@ -49,6 +49,8 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
+- v1.10.27 (WIP)
+
 - v1.10.23 (WIP)
   - fix: unknown switch char not an error now
   - imp: refined gen zsh code, and gen shell codes
@@ -56,6 +58,17 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - fea: added root.`RunAsSubCommand`, treat 'app' as a synonym of 'app subcmd1 subcmd2'
   - imp/fix/fea: clarify the slice append or replace mode - SetNx & `SetNxOverwrite` for Option Store
   - fea: added `VendorHidden` field for when you wanna a never shown flag or command
+  - fea: conf package - add `Serial`, `SerialString` for CI tool
+  - imp: erase man1 folder after `--man`
+  - fix/imp: prints description with color escaped, when multiline
+  - fix: restore Match() but with new name MatchAndTest()
+  - fix: high-order fn hold the older copy, so pass it by holding a pointer to original variable
+  - imp: review most of the tests
+  - NOTE: cleanup the deprecated codes
+
+- v1.10.19
+  - temporary build for earlier testing
+  - confirmed: backward compatible with go1.12
 
 - v1.10.13
   - fix/imp: adapt windir to *nix name to fit for generic config file loading

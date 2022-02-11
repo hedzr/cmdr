@@ -76,7 +76,8 @@ func ResetRootInWorkerForTest() {
 
 // GetTextPiecesForTest _
 func GetTextPiecesForTest(str string, start, want int) string {
-	return getTextPiece(str, start, want)
+	s, _ := getTextPiece(str, start, want)
+	return s
 }
 
 // Cpt _

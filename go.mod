@@ -14,11 +14,11 @@ require (
 	github.com/BurntSushi/toml v1.0.0
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/hedzr/cmdr-base v0.1.3
-	github.com/hedzr/log v1.5.9
-	github.com/hedzr/logex v1.5.9
-	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce
-	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
-	gopkg.in/hedzr/errors.v2 v2.1.5
+	github.com/hedzr/log v1.5.11
+	github.com/hedzr/logex v1.5.11
+	golang.org/x/crypto v0.0.0-20220210151621-f4118a5b28e2
+	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd
+	gopkg.in/hedzr/errors.v2 v2.1.9
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
 
@@ -27,8 +27,8 @@ require (
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
-	go.uber.org/zap v1.20.0 // indirect
-	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
-	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 // indirect
+	go.uber.org/zap v1.21.0 // indirect
+	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
+	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 )

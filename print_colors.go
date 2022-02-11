@@ -173,23 +173,6 @@ func (c *colorPrintTranslator) translateTo(root *html.Node, s string, initialSta
 			}
 
 			switch node.Data {
-			//case "html", "head", "body":
-			//	// do nothing
-			//case "b", "strong", "em":
-			//	colorize(node, BgBoldOrBright, "", level)
-			//	return
-			//case "i", "cite":
-			//	colorize(node, BgItalic, "", level)
-			//	return
-			//case "u":
-			//	colorize(node, BgUnderline, "", level)
-			//	return
-			//case "mark":
-			//	colorize(node, BgInverse, "", level)
-			//	return
-			//case "del":
-			//	colorize(node, BgStrikeout, "", level)
-			//	return
 			case "font":
 				for _, a := range node.Attr {
 					if a.Key == "color" {

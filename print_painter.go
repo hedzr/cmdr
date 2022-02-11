@@ -35,7 +35,7 @@ type (
 
 		Results() []byte
 
-		// clear any internal states and reset itself
+		// Reset does clear any internal states and reset itself
 		Reset()
 	}
 )

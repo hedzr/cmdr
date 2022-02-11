@@ -338,14 +338,15 @@ func findMaxR2(s2 []aGroupedSections, maxR int) int {
 	return maxR
 }
 
-func getTextPiece(str string, start, want int) string {
+func getTextPiece(str string, start, want int) (text, ending string) {
 	var sb, tried strings.Builder
 	var src = []rune(str[start:])
 	var tryEscape, tryAnsiColor bool
 	var tryPos int
 	type controls struct {
-		pos int
-		seq string
+		pos    int
+		esclen int
+		seq    string
 	}
 	var escapeSeqs []controls
 	for _, c := range src {
@@ -356,9 +357,10 @@ func getTextPiece(str string, start, want int) string {
 			tried.WriteRune(c)
 			continue
 		}
+
 		if tryEscape {
 			if tryAnsiColor {
-				if unicode.IsDigit(c) {
+				if unicode.IsDigit(c) || c == ';' || c == ',' {
 					tried.WriteRune(c)
 					continue
 				}
@@ -386,10 +388,11 @@ func getTextPiece(str string, start, want int) string {
 	for _, cc := range escapeSeqs {
 		out.WriteString(string(outs[last:cc.pos]))
 		out.WriteString(cc.seq)
-		last = cc.pos
+		last, ending = cc.pos, cc.seq
 	}
 	out.WriteString(string(outs[last:]))
-	return out.String()
+	text = out.String()
+	return
 }
 
 func (w *ExecWorker) prCommands(p Painter, command *Command, s1 []aSection, maxL, cols int) {
@@ -397,7 +400,7 @@ func (w *ExecWorker) prCommands(p Painter, command *Command, s1 []aSection, maxL
 		p.FpCommandsTitle(command)
 		for _, s := range s1 {
 			p.FpCommandsGroupTitle(s.title)
-			fmtStrL, fmtStrR, fmtStrMR := fmt.Sprintf("%%-%dv", maxL+2), "%v\n", fmt.Sprintf("%%%dv%%v\n", maxL+2)
+			fmtStrL, fmtStrR, fmtStrMR := fmt.Sprintf("%%-%dv", maxL+2), "%v\u001B[0m\n", fmt.Sprintf("%%%dv\x1b[%dm%%v%%v\u001B[0m\n", maxL+2, CurrentDeprecatedColor)
 			for i, l := range s.bufLL {
 				str := l.String()
 				if tool.IsTtyEscaped(str) {
@@ -413,11 +416,12 @@ func (w *ExecWorker) prCommands(p Painter, command *Command, s1 []aSection, maxL
 				ww := maxL + 2
 				s2w := cols - ww
 				if s2w < len(str) && !InTesting() {
-					firstPiece := getTextPiece(str, 0, s2w)
+					firstPiece, ending := getTextPiece(str, 0, s2w)
 					p.Print(fmtStrR, firstPiece)
 					for ix := len(firstPiece); ix < len(str); {
-						rs := getTextPiece(str, ix, s2w)
-						p.Print(fmtStrMR, " ", rs)
+						rs, end := getTextPiece(str, ix, s2w)
+						p.Print(fmtStrMR, " ", ending, rs)
+						ending = end
 						ix += len(rs)
 					}
 					// p.Print("ww, s2w, cols = %v, %v, %v\n", ww, s2w, cols)
@@ -442,7 +446,7 @@ func (w *ExecWorker) prFlags(p Painter, command *Command, s2 []aGroupedSections,
 				//	p.Print(fmtStr, l.String(), s.bufLR[i].String())
 				//}
 
-				fmtStrL, fmtStrR, fmtStrMR := fmt.Sprintf("%%-%dv", maxL+2), "%v\n", fmt.Sprintf("%%%dv%%v\n", maxL+2)
+				fmtStrL, fmtStrR, fmtStrMR := fmt.Sprintf("%%-%dv", maxL+2), "%v\u001B[0m\n", fmt.Sprintf("%%%dv\x1b[%dm%%v%%v\u001B[0m\n", maxL+2, CurrentDeprecatedColor)
 				for i, l := range s.bufLL {
 					str := l.String()
 					if tool.IsTtyEscaped(str) {
@@ -458,11 +462,12 @@ func (w *ExecWorker) prFlags(p Painter, command *Command, s2 []aGroupedSections,
 					ww := maxL + 2
 					s2w := cols - ww
 					if s2w < len(str) && !InTesting() {
-						firstPiece := getTextPiece(str, 0, s2w)
+						firstPiece, ending := getTextPiece(str, 0, s2w)
 						p.Print(fmtStrR, firstPiece)
 						for ix := len(firstPiece); ix < len(str); {
-							rs := getTextPiece(str, ix, s2w)
-							p.Print(fmtStrMR, " ", rs)
+							rs, end := getTextPiece(str, ix, s2w)
+							p.Print(fmtStrMR, " ", ending, rs)
+							ending = end
 							ix += len(rs)
 						}
 						// p.Print("ww, s2w, cols = %v, %v, %v\n", ww, s2w, cols)

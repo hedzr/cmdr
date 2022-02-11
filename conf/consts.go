@@ -35,4 +35,11 @@ var (
 	ServerID = ""
 	// CfgFile never used [NEVER USED]
 	CfgFile string
+
+	// Serial is a serial number (int64) from build-tool.
+	// `bgo` can hold and manage a serial number in her runtime environment.
+	Serial string
+	// SerialString is a random string from build-tool.
+	// `bgo can hold and manage a random string in her runtime environment.
+	SerialString string
 )

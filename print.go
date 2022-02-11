@@ -724,7 +724,12 @@ func (w *ExecWorker) showVersion() {
 %v
 %v
 %v
-%v`, conf.Version, conf.AppName, conf.Buildstamp, conf.Githash, conf.GoVersion, conf.GitSummary)
+%v
+%v
+%v`,
+		conf.Version, conf.AppName, conf.Buildstamp, conf.Githash, conf.GoVersion, conf.GitSummary,
+		conf.Serial, conf.SerialString,
+	)
 }
 
 func (w *ExecWorker) showBuildInfo() {

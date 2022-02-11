@@ -100,28 +100,28 @@ func (c *colorPrintTranslator) Translate(s string, initialFg int) string {
 	return c.TranslateTo(s, initialFg)
 }
 
-func (c *colorPrintTranslator) resetColors(sb strings.Builder, states []int) func() {
+func (c *colorPrintTranslator) resetColors(sb *strings.Builder, states []int) func() {
 	return func() {
 		var st string
 		st = "\x1b[0m"
-		sb.WriteString(st)
+		(*sb).WriteString(st)
 		if len(states) > 0 {
 			st = fmt.Sprintf("\x1b[%dm", states[len(states)-1])
-			sb.WriteString(st)
+			(*sb).WriteString(st)
 		}
 	}
 }
 
-func (c *colorPrintTranslator) colorize(sb strings.Builder, states []int, walker func(node *html.Node, level int)) func(node *html.Node, clr int, representation string, level int) {
+func (c *colorPrintTranslator) colorize(sb *strings.Builder, states []int, walker *func(node *html.Node, level int)) func(node *html.Node, clr int, representation string, level int) {
 	return func(node *html.Node, clr int, representation string, level int) {
 		if representation != "" {
-			sb.WriteString(fmt.Sprintf("\x1b[%sm", representation))
+			(*sb).WriteString(fmt.Sprintf("\x1b[%sm", representation))
 		} else {
-			sb.WriteString(fmt.Sprintf("\x1b[%dm", clr))
+			(*sb).WriteString(fmt.Sprintf("\x1b[%dm", clr))
 		}
 		states = append(states, clr)
 		for child := node.FirstChild; child != nil; child = child.NextSibling {
-			walker(child, level+1)
+			(*walker)(child, level+1)
 		}
 		states = states[0 : len(states)-1]
 		c.resetColors(sb, states)()
@@ -145,15 +145,15 @@ func (c *colorPrintTranslator) translateTo(root *html.Node, s string, initialSta
 	var states = []int{initialState}
 	var sb strings.Builder
 	var walker func(node *html.Node, level int)
-	colorize := c.colorize(sb, states, walker)
-	nilfn := func(node *html.Node, level int) {}
+	colorize := c.colorize(&sb, states, &walker)
+	//nilfn := func(node *html.Node, level int) {}
 	colorizeIt := func(clr int) func(node *html.Node, level int) {
 		return func(node *html.Node, level int) {
 			colorize(node, clr, "", level)
 		}
 	}
 	m := map[string]func(node *html.Node, level int){
-		"html": nilfn, "head": nilfn, "body": nilfn,
+		"html": nil, "head": nil, "body": nil,
 		"b": colorizeIt(BgBoldOrBright), "strong": colorizeIt(BgBoldOrBright), "em": colorizeIt(BgBoldOrBright),
 		"i": colorizeIt(BgItalic), "cite": colorizeIt(BgItalic),
 		"u":    colorizeIt(BgUnderline),
@@ -166,8 +166,10 @@ func (c *colorPrintTranslator) translateTo(root *html.Node, s string, initialSta
 		case html.ErrorNode:
 		case html.ElementNode:
 			if fn, ok := m[node.Data]; ok {
-				fn(node, level)
-				return
+				if fn != nil {
+					fn(node, level)
+					return
+				}
 			}
 
 			switch node.Data {

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	cmdrbase "github.com/hedzr/cmdr-base"
 	"github.com/hedzr/cmdr/conf"
+	"github.com/hedzr/log/closers"
 	"github.com/hedzr/log/dir"
 	"github.com/hedzr/log/exec"
 	"gopkg.in/hedzr/errors.v2"
@@ -697,6 +698,10 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 							// Logger.Warnf("%v", errors.Unwrap(e).Error())
 							if fn, e2 := genManualForCommand(cmd); e2 == nil {
 								defer func() { _ = dir.DeleteFile(fn) }()
+								closers.RegisterCloseFns(func() {
+									d := path.Dir(fn)
+									_ = dir.RemoveDirRecursive(d)
+								})
 								_ = exec.Run("man", fn)
 							}
 						}

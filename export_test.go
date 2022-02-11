@@ -550,10 +550,10 @@ func TestWithShellCompletionXXX(t *testing.T) {
 	withShellCompletionPartialMatch(true)
 }
 
-// GetWithLogexInitializer _
-func (w *ExecWorker) GetWithLogexInitializer(lvl Level, opts ...logex.Option) Handler {
-	return w.getWithLogexInitializer(lvl, opts...)
-}
+//// GetWithLogexInitializer _
+//func (w *ExecWorker) GetWithLogexInitializer(lvl Level, opts ...logex.Option) Handler {
+//	return w.getWithLogexInitializer(lvl, opts...)
+//}
 
 func (pkg *ptpkg) setOwnerForTest(cmd *Command) {
 	if pkg.flg != nil {

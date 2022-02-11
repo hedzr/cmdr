@@ -714,7 +714,7 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 
 			if enableShellCompletionCommand || isFishShell() {
 				w._cmdAdd(root, "help", "Completion Help system", func(cx *Command) {
-					cx.Aliases = []string{"__completion"}
+					cx.Aliases = []string{"__completion", "__complete"}
 					cx.VendorHidden = true
 					cx.Action = w.helpSystemPrint
 				})
@@ -1238,6 +1238,9 @@ func (w *ExecWorker) forFlagNames(flg *Flag, cmd *Command, singleFlagNames, stri
 
 // helpSystemPrint NOT YET, to-do
 func (w *ExecWorker) helpSystemPrint(cmd *Command, args []string) (err error) {
+	// disable trace, debug, info, warn messages
+	w.setLoggerLevel(ErrorLevel)
+
 	var matchedPrecededList, matchedList map[string]*Command
 	var matchedCmd *Command
 	matchedCmd, matchedPrecededList, matchedList, err = w.lookupForHelpSystem(cmd, args)

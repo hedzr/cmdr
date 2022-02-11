@@ -11,6 +11,7 @@ import (
 	cmdrbase "github.com/hedzr/cmdr-base"
 	"github.com/hedzr/cmdr/tool"
 	"io"
+	"io/ioutil"
 	"os"
 	"reflect"
 	"strings"
@@ -707,7 +708,8 @@ func TestWorkerAddIt(t *testing.T) {
 
 	w := Worker()
 
-	f, err := os.CreateTemp("", "example")
+	f, err := ioutil.TempFile("", "example")
+	// f, err := os.CreateTemp("", "example") // go 1.17+ only
 	if err != nil {
 		t.Errorf("err: %v", err)
 		return

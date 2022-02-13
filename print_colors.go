@@ -87,6 +87,14 @@ var (
 	cptNC = colorPrintTranslator{noColorMode: true}
 )
 
+func getCPT() ColorTranslator {
+	var cptLocal = &cpt
+	if GetNoColorMode() {
+		cptLocal = &cptNC
+	}
+	return cptLocal
+}
+
 // ColorTranslator _
 type ColorTranslator interface {
 	Translate(s string, initialFg int) string

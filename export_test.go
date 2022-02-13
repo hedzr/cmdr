@@ -548,8 +548,9 @@ func TestWithShellCompletionXXX(t *testing.T) {
 	ResetOptions()
 	InternalResetWorkerForTest()
 
-	withShellCompletionCommandEnabled(true)
-	withShellCompletionPartialMatch(true)
+	w := Worker()
+	WithShellCompletionCommandEnabled(true)(w)
+	withShellCompletionPartialMatch(true)(w)
 }
 
 //// GetWithLogexInitializer _
@@ -804,14 +805,20 @@ func TestWorkerHelpSystemPrint(t *testing.T) {
 
 	w := Worker()
 
-	_ = w.helpSystemPrint(&rootCmdX.Command, []string{})
-	_ = w.helpSystemPrint(&rootCmdX.Command, []string{"generate", "shell"})
-	_ = w.helpSystemPrint(&rootCmdX.Command, []string{"generate", "sh", "--zsh"})
+	_ = w.helpSystemAction(&rootCmdX.Command, []string{})
+	_ = w.helpSystemAction(&rootCmdX.Command, []string{"generate", "shell"})
+	_ = w.helpSystemAction(&rootCmdX.Command, []string{"generate", "sh", "--zsh"})
 
 	root := &rootCmdX.Command
 
-	_, _, _, _ = w.lookupForHelpSystem(root, []string{"generate", "shell"})
-	_, _, _, _ = w.lookupForHelpSystem(root, []string{"generate", "sh", "--zsh"})
+	_ = w.helpSystemAction(root, []string{"generate", "r"})
+	_ = w.helpSystemAction(root, []string{""})
+	_ = w.helpSystemAction(root, []string{"generate", ""})
+	_ = w.helpSystemAction(root, []string{"generate", "s"})
+	_ = w.helpSystemAction(root, []string{"generate", "shell", ""})
+	_ = w.helpSystemAction(root, []string{"generate", "sh", "-"})
+	_ = w.helpSystemAction(root, []string{"generate", "shell", "--z"})
+	_ = w.helpSystemAction(root, []string{"generate", "shell", "--zsh"})
 
 	_ = DottedPathToCommand("generate.shell", nil)
 	_ = DottedPathToCommand("version", root)

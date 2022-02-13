@@ -4,6 +4,8 @@
 
 package cmdr
 
+import "fmt"
+
 // WalkAllCommands loops for all commands, starting from root.
 func WalkAllCommands(walk func(cmd *Command, index, level int) (err error)) (err error) {
 	err = walkFromCommand(nil, 0, 0, walk)
@@ -36,7 +38,37 @@ func InvokeCommand(dottedCommandPath string, extraArgs ...string) (err error) {
 	cc := dottedPathToCommand(dottedCommandPath, nil)
 	if cc != nil {
 		w := internalGetWorker()
-		err = w.doInvokeCommand(w.rootCommand, cc, extraArgs)
+		action := cc.Action
+		if action == nil && assumeDefaultAction {
+			action = defaultAction
+		}
+		err = w.doInvokeCommand(w.rootCommand, action, cc, extraArgs)
 	}
+	return
+}
+
+var (
+	assumeDefaultAction bool
+	defaultAction       = defaultActionImpl
+)
+
+func defaultActionImpl(cmd *Command, args []string) (err error) {
+	fmt.Printf(`
+    Command: %v
+Description: %q
+       Args: %v
+      Flags:
+
+`,
+		cmd.GetDottedNamePath(), cmd.Description, args)
+	for _, f := range GetHitFlags() {
+		kp := f.GetDottedNamePath()
+		v := GetR(kp)
+		fmt.Printf(`  %v: %v
+`, kp, v)
+	}
+
+	println()
+
 	return
 }

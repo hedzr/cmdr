@@ -69,6 +69,8 @@ type (
 		// return: ErrShouldBeStopException will break the following flow and exit right now
 		// cmd 是 flag 被识别时已经得到的子命令
 		Action Handler `yaml:"-" json:"-"`
+
+		onMatched Handler
 	}
 
 	// Handler handles the event on a subcommand matched

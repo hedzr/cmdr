@@ -157,6 +157,17 @@ func (f *Flag) GetTitleFlagNamesByMax(delimChar string, maxShort int) string {
 	return sb.String()
 }
 
+// EqualTo _
+func (f *Flag) EqualTo(rh *Flag) (ok bool) {
+	if f == nil {
+		return rh == nil
+	}
+	if rh == nil {
+		return false
+	}
+	return f.GetTitleName() == rh.GetTitleName()
+}
+
 // Delete removes myself from the command owner.
 func (f *Flag) Delete() {
 	if f == nil || f.owner == nil {
@@ -174,5 +185,8 @@ func (f *Flag) Delete() {
 // GetDottedNamePath return the dotted key path of this flag
 // in the options store.
 func (f *Flag) GetDottedNamePath() string {
-	return f.owner.GetDottedNamePath() + "." + f.GetTitleName()
+	if f.owner != nil {
+		return f.owner.GetDottedNamePath() + "." + f.GetTitleName()
+	}
+	return f.GetTitleName()
 }

@@ -532,6 +532,15 @@ func getSortedKeysFromCmdMap(groups map[string]*Command) (k1 []string) {
 	return
 }
 
+//func getSortedKeysFromBaseOptMap(groups map[string]*BaseOpt) (k1 []string) {
+//	k1 = make([]string, 0)
+//	for k := range groups {
+//		k1 = append(k1, k)
+//	}
+//	sort.Strings(k1)
+//	return
+//}
+
 type aSection struct {
 	title         string
 	isToggleGroup bool

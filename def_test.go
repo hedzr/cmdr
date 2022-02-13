@@ -14,6 +14,7 @@ import (
 	"gopkg.in/hedzr/errors.v2"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -124,6 +125,8 @@ More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-
 		// since 1.9.2+
 		cmdr.WithToggleGroupChoicerNewStyle("new", "x ", "  "),
 		cmdr.WithToggleGroupChoicerStyle("hexagon"),
+
+		cmdr.WithInternalDefaultAction(true, nil, nil),
 	)
 
 	cmdr.InternalResetWorkerForTest()
@@ -605,6 +608,53 @@ func TestCompactFlag(t *testing.T) {
 	resetOsArgs()
 	cmdr.ResetOptions()
 	t.Log("-> ok end 2")
+}
+
+func TestCompleteCommand(t *testing.T) {
+	copyRootCmd = rootCmdForTesting
+	var commands = []string{
+		"consul-tags __complete ''",
+		"consul-tags __complete se",
+		"consul-tags __complete ms ''",
+		"consul-tags __complete ms l",
+		"consul-tags __complete ms ls",
+		"consul-tags __complete ms ls ''",
+		"consul-tags __complete ms list ''",
+		"consul-tags __complete ms tags a -",
+		"consul-tags __complete ms tags a --",
+		"consul-tags __complete ms tags a -l",
+		"consul-tags __complete ms tags a --l",
+		"consul-tags __complete ms tags a --list",
+	}
+	for _, cc := range commands {
+		resetOsArgs()
+		cmdr.ResetOptions()
+		t.Logf("-> --- command-line: %v", cc)
+		os.Args = strings.Split(cc, " ")
+		for i, arg := range os.Args {
+			if v, _, vn, _ := strconv.UnquoteChar(arg, '\''); v == 0 {
+				os.Args[i] = vn
+				//t.Logf("-> --- cmdline: %v, %v", v, mb)
+			}
+		}
+		// cmdr.SetInternalOutputStreams(nil, nil)
+		if err := cmdr.Exec(rootCmdForTesting,
+			cmdr.WithShellCompletionCommandEnabled(true),
+			cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+			t.Fatal(err)
+		}
+		t.Log("-> stepping")
+	}
+
+	cmdr.GetHitCountByDottedPath("ms")
+	cmdr.GetHitCountByDottedPath("verbose")
+	cmdr.GetHitCommands()
+	cmdr.GetHitFlags()
+
+	t.Log("-> ok end 1.1")
+	resetOsArgs()
+	cmdr.ResetOptions()
+	t.Log("-> ok end 1.2")
 }
 
 func TestCmdrClone(t *testing.T) {

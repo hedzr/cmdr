@@ -2,7 +2,9 @@ package cmdr
 
 import (
 	"fmt"
+	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log/dir"
+	"github.com/hedzr/log/exec"
 	"io"
 	"os"
 	"path"
@@ -12,19 +14,78 @@ import (
 	"text/template"
 )
 
-func _makeFileIn(writer io.Writer, fullPath string, locations []string, appName string, fn func(path string, writer io.Writer) (err error)) (err error) {
-	if writer != nil {
-		err = fn(fullPath, writer)
+type genzsh struct {
+	shell     string
+	locations []string
+	fullPath  string
+	appName   string
+}
+
+func (g *genzsh) Generate(writer io.Writer, fullPath string, cmd *Command, args []string) (err error) {
+	if err = g.detectShell(cmd, args); err != nil {
+		// if current shell is not zsh, generate to stdout, and return right away
 		return
 	}
 
-	linuxRoot := os.Getuid() == 0
-	for _, s := range locations {
+	if fullPath == "" && len(args) > 0 {
+		for _, a := range args {
+			if a == "-" {
+				err = g.genZshTo(cmd, args, "-", os.Stdout)
+				return
+			}
+		}
+
+		fullPath = args[0]
+	}
+	g.fullPath, g.appName = fullPath, cmd.root.AppName
+
+	// find fpath and write to the target
+
+	_, fpath, _ := exec.RunWithOutput(g.shell, "-c", `echo $fpath`)
+	//Logger.Infof("fpath = %v", fpath)
+	//Logger.Infof("ENV:\n%v", os.Environ())
+	//
+	// /usr/local/share/zsh/site-functions
+	// $HOME/.oh-my-zsh/completions
+	// $HOME/.oh-my-zsh/functions
+
+	g.locations = tool.ReverseStringSlice(strings.Split(strings.TrimRight(fpath, "\n"), " "))
+	err = g.generateFileIntoWriter(writer, g.genShellZshHO(cmd, args))
+	return
+}
+
+func (g *genzsh) detectShell(cmd *Command, args []string) (err error) {
+	g.shell = os.Getenv("SHELL")
+	if !strings.Contains(g.shell, "/bin/zsh") {
+		var zsh string
+		if _, zsh, err = exec.RunWithOutput("which", "zsh"); err != nil {
+			// err = errors.New("Couldn't find zsh installation, please install zsh and try again")
+			if err = g.genZshTo(cmd, args, "-", os.Stdout); err == nil {
+				err = ErrShouldBeStopException
+			}
+			return
+		}
+
+		g.shell = zsh
+	}
+	return
+}
+
+func (g *genzsh) generateFileIntoWriter(writer io.Writer, fn func(path string, writer io.Writer) (err error)) (err error) {
+	if writer != nil {
+		err = fn(g.fullPath, writer)
+		return
+	}
+
+	var linuxRoot = os.Getuid() == 0
+	var file = "-"
+	var wr io.Writer = os.Stdout
+	var f *os.File
+	for _, s := range g.locations {
 		//Logger.Infof("--- checking %s", s)
 		if dir.FileExists(s) {
-			file := path.Join(s, "_"+appName)
+			file = path.Join(s, "_"+g.appName)
 			//Logger.Debugf("    try creating %s", file)
-			var f *os.File
 			if f, err = os.Create(file); err != nil {
 				if !linuxRoot {
 					err = nil
@@ -33,27 +94,34 @@ func _makeFileIn(writer io.Writer, fullPath string, locations []string, appName 
 				return
 			}
 			Logger.Debugf("    generating %s", file)
-			err = fn(file, f)
+			wr = f
+			//err = fn(file, f)
 			//if !linuxRoot {
 			//	break // for non-root user, we break file-writing loop and dump scripts to console too.
 			//}
-			return
+			break
 		}
 	}
 
-	err = fn("-", os.Stdout)
+	if f != nil {
+		defer func(f *os.File) {
+			err = f.Close()
+		}(f)
+	}
+
+	err = fn(file, wr)
 	return
 }
 
-func genShellZshHO(cmd *Command, args []string) func(path string, writer io.Writer) (err error) {
+func (g *genzsh) genShellZshHO(cmd *Command, args []string) func(path string, writer io.Writer) (err error) {
 	return func(path string, writer io.Writer) (err error) {
-		err = genZshTo(cmd, args, path, writer)
+		err = g.genZshTo(cmd, args, path, writer)
 		return
 	}
 }
 
-func genZshTo(cmd *Command, args []string, path string, writer io.Writer) (err error) {
-	ctx := &genZshCtx{
+func (g *genzsh) genZshTo(cmd *Command, args []string, path string, writer io.Writer) (err error) {
+	ctx := &genshCtx{
 		cmd: cmd,
 		theArgs: &internalShellTemplateArgs{
 			cmd.root,
@@ -64,19 +132,19 @@ func genZshTo(cmd *Command, args []string, path string, writer io.Writer) (err e
 		output: writer,
 	}
 
-	err = zshTplExpand(ctx, "zsh.completion.head", zshCompHead, ctx.theArgs)
+	err = genshTplExpand(ctx, "zsh.completion.head", zshCompHead, ctx.theArgs)
 	if err == nil {
 		err = walkFromCommand(&cmd.root.Command, 0, 0, func(cx *Command, index, level int) (err error) {
 			//generate for command cx
-			safeName := getZshSubFuncName(cx)
+			safeName := g.getZshSubFuncName(cx)
 			if level == 0 {
-				safeName = "_" + safeZshFnName(cx.root.AppName)
+				safeName = "_" + g.safeZshFnName(cx.root.AppName)
 			}
-			err = genZshFnFromTpl(ctx, safeName, cx)
+			err = g.genZshFnFromTpl(ctx, safeName, cx)
 			return
 		})
 
-		err = zshTplExpand(ctx, "zsh.completion.tail", zshCompTail, ctx.theArgs)
+		err = genshTplExpand(ctx, "zsh.completion.tail", zshCompTail, ctx.theArgs)
 		fmt.Printf(`
 # %q generated.
 # Re-login to enable the new zsh completion script.
@@ -85,22 +153,22 @@ func genZshTo(cmd *Command, args []string, path string, writer io.Writer) (err e
 	return
 }
 
-func genZshFnFromTpl(ctx *genZshCtx, fnName string, cmd *Command) (err error) {
+func (g *genzsh) genZshFnFromTpl(ctx *genshCtx, fnName string, cmd *Command) (err error) {
 	if len(cmd.SubCommands) > 0 {
-		err = genZshFnByCommand(ctx, fnName, cmd)
+		err = g.genZshFnByCommand(ctx, fnName, cmd)
 	} else {
 		//if fnName == "__fluent_generate_shell" {
 		//	print()
 		//}
-		err = genZshFnFlagsByCommand(ctx, fnName, cmd)
+		err = g.genZshFnFlagsByCommand(ctx, fnName, cmd)
 	}
 	return
 }
 
-func genZshFnByCommand(ctx *genZshCtx, fnName string, cmd *Command) (err error) {
+func (g *genzsh) genZshFnByCommand(ctx *genshCtx, fnName string, cmd *Command) (err error) {
 	var flags, descCommands, caseCommands strings.Builder
 
-	gzt1(&flags, cmd, true)
+	g.gzt1(&flags, cmd, true)
 
 	if len(cmd.Flags) > 0 {
 		flags.WriteString("               \\\n")
@@ -108,38 +176,31 @@ func genZshFnByCommand(ctx *genZshCtx, fnName string, cmd *Command) (err error) 
 
 	for _, c := range cmd.SubCommands {
 		descCommands.WriteString(fmt.Sprintf("                %v':%v'\n",
-			zshDescribeNames(c), c.GetDescZsh()))
+			g.zshDescribeNames(c), c.GetDescZsh()))
 		caseCommands.WriteString(fmt.Sprintf(`            %v)
                 %v
                 ;;
-`, safeZshFnName(c.GetTitleNamesBy("|")), getZshSubFuncName(c)))
+`, g.safeZshFnName(c.GetTitleNamesBy("|")), g.getZshSubFuncName(c)))
 	}
 
-	err = zshTplExpand(ctx, "zsh.completion.sub-commands", zshCompCommands, struct {
-		*internalShellTemplateArgs
-		FuncName         string
-		FuncNameSeq      string // "__fluent_ms" => "[fluent ms]"
-		Flags            string
-		DescribeCommands string
-		CaseCommands     string
-	}{
-		ctx.theArgs,
-		fnName, seqName(fnName),
-		flags.String(),
-		strings.TrimSuffix(descCommands.String(), " \\\n"),
-		caseCommands.String(),
+	err = genshTplExpand(ctx, "zsh.completion.sub-commands", zshCompCommands, stdShellTemplateArgs{
+		internalShellTemplateArgs: ctx.theArgs,
+		FuncName:                  fnName, FuncNameSeq: seqName(fnName),
+		Flags:            flags.String(),
+		DescribeCommands: strings.TrimSuffix(descCommands.String(), " \\\n"),
+		CaseCommands:     caseCommands.String(),
 	})
 	return
 }
 
-func genZshFnFlagsByCommand(ctx *genZshCtx, fnName string, cmd *Command) (err error) {
+func (g *genzsh) genZshFnFlagsByCommand(ctx *genshCtx, fnName string, cmd *Command) (err error) {
 	var descCommands strings.Builder
 
 	if len(cmd.Flags) > 0 {
 		descCommands.WriteString("    _arguments -s \\\n")
 	}
 
-	gzt1(&descCommands, cmd, false)
+	g.gzt1(&descCommands, cmd, false)
 
 	desc := strings.TrimSuffix(descCommands.String(), " \\\n")
 	decl := ""
@@ -151,34 +212,27 @@ func genZshFnFlagsByCommand(ctx *genZshCtx, fnName string, cmd *Command) (err er
 `
 	}
 
-	err = zshTplExpand(ctx, "zsh.completion.flags", zshCompCommandFlags, struct {
-		*internalShellTemplateArgs
-		FuncName         string
-		Declarations     string
-		DescribeCommands string
-		CaseCommands     string
-	}{
-		ctx.theArgs,
-		fnName,
-		decl,
-		desc,
-		"",
+	err = genshTplExpand(ctx, "zsh.completion.flags", zshCompCommandFlags, stdShellTemplateArgs{
+		internalShellTemplateArgs: ctx.theArgs,
+		FuncName:                  fnName,
+		Declarations:              decl,
+		DescribeCommands:          desc,
 	})
 	return
 }
 
-func gzt1(descCommands *strings.Builder, cmd *Command, shortTitleOnly bool) {
-	gzt1ForToggleGroups(descCommands, cmd, shortTitleOnly)
+func (g *genzsh) gzt1(descCommands *strings.Builder, cmd *Command, shortTitleOnly bool) {
+	g.gzt1ForToggleGroups(descCommands, cmd, shortTitleOnly)
 
 	for ix, c := range cmd.Flags {
 		if c.ToggleGroup != "" {
 			continue
 		}
-		gzt2(descCommands, cmd, ix, c, "", shortTitleOnly)
+		g.gzt2(descCommands, cmd, ix, c, "", shortTitleOnly)
 	}
 }
 
-func gzt1ForToggleGroups(descCommands *strings.Builder, cmd *Command, shortTitleOnly bool) {
+func (g *genzsh) gzt1ForToggleGroups(descCommands *strings.Builder, cmd *Command, shortTitleOnly bool) {
 	var tgs = make(map[string][]*Flag)
 	for _, f := range cmd.Flags {
 		if f.ToggleGroup != "" {
@@ -187,7 +241,7 @@ func gzt1ForToggleGroups(descCommands *strings.Builder, cmd *Command, shortTitle
 	}
 
 	for k, v := range tgs {
-		me := gzChkMEForToggleGroup(k, v)
+		me := g.gzChkMEForToggleGroup(k, v)
 
 		for ix, c := range v {
 			//var sb strings.Builder
@@ -197,41 +251,41 @@ func gzt1ForToggleGroups(descCommands *strings.Builder, cmd *Command, shortTitle
 			//		sb.WriteString(" ")
 			//	}
 			//}
-			gzt2(descCommands, cmd, ix, c, me, shortTitleOnly)
+			g.gzt2(descCommands, cmd, ix, c, me, shortTitleOnly)
 		}
 	}
 }
 
-func gzt2(descCommands *strings.Builder, cmd *Command, ix int, f *Flag, mutualExclusives string, shortTitleOnly bool) {
+func (g *genzsh) gzt2(descCommands *strings.Builder, cmd *Command, ix int, f *Flag, mutualExclusives string, shortTitleOnly bool) {
 
 	//if c.Full == "pprof" {
 	//	println()
 	//}
 
 	if len(f.ValidArgs) != 0 {
-		gzAction(descCommands, f, "("+strings.Join(f.ValidArgs, " ")+")", mutualExclusives, shortTitleOnly)
+		g.gzAction(descCommands, f, "("+strings.Join(f.ValidArgs, " ")+")", mutualExclusives, shortTitleOnly)
 	} else if f.DefaultValuePlaceholder == "FILE" {
 		act := "_files"
 		if f.actionStr != "" {
 			act += " -g " + strconv.Quote(f.actionStr)
 		}
-		gzAction(descCommands, f, act, mutualExclusives, shortTitleOnly)
+		g.gzAction(descCommands, f, act, mutualExclusives, shortTitleOnly)
 	} else if f.DefaultValuePlaceholder == "DIR" {
-		gzAction(descCommands, f, "_files -/", mutualExclusives, shortTitleOnly)
+		g.gzAction(descCommands, f, "_files -/", mutualExclusives, shortTitleOnly)
 	} else if f.DefaultValuePlaceholder == "USER" {
-		gzAction(descCommands, f, "_users", mutualExclusives, shortTitleOnly)
+		g.gzAction(descCommands, f, "_users", mutualExclusives, shortTitleOnly)
 	} else if f.DefaultValuePlaceholder == "GROUP" {
-		gzAction(descCommands, f, "_groups", mutualExclusives, shortTitleOnly)
+		g.gzAction(descCommands, f, "_groups", mutualExclusives, shortTitleOnly)
 	} else if f.DefaultValuePlaceholder == "INTERFACES" {
-		gzAction(descCommands, f, "_net_interfaces", mutualExclusives, shortTitleOnly)
+		g.gzAction(descCommands, f, "_net_interfaces", mutualExclusives, shortTitleOnly)
 	} else {
-		mutualExclusives = gzChkME(f, mutualExclusives)
+		mutualExclusives = g.gzChkME(f, mutualExclusives)
 		if mutualExclusives != "" {
 			descCommands.WriteString(fmt.Sprintf("                \"($I %v)\"%v'[%v]'",
-				mutualExclusives, zshDescribeFlagNames(f, shortTitleOnly, false), f.GetDescZsh()))
+				mutualExclusives, g.zshDescribeFlagNames(f, shortTitleOnly, false), f.GetDescZsh()))
 		} else {
 			descCommands.WriteString(fmt.Sprintf("                %v'[%v]'",
-				zshDescribeFlagNames(f, shortTitleOnly, false), f.GetDescZsh()))
+				g.zshDescribeFlagNames(f, shortTitleOnly, false), f.GetDescZsh()))
 		}
 	}
 	//if ix != len(cmd.Flags)-1 {
@@ -239,21 +293,21 @@ func gzt2(descCommands *strings.Builder, cmd *Command, ix int, f *Flag, mutualEx
 	//}
 }
 
-//func gzAction(descCommands *strings.Builder, c *Flag, action, mutualExclusives string) {
-//	gzAction_(descCommands,c, action, mutualExclusives, false)
+//func (g *genzsh) gzAction(descCommands *strings.Builder, c *Flag, action, mutualExclusives string) {
+//	g.gzAction_(descCommands,c, action, mutualExclusives, false)
 //}
 
-func gzAction(descCommands *strings.Builder, f *Flag, action, mutualExclusives string, shortTitleOnly bool) {
+func (g *genzsh) gzAction(descCommands *strings.Builder, f *Flag, action, mutualExclusives string, shortTitleOnly bool) {
 	if f.dblTildeOnly {
 		return
 	}
 
-	names := zshDescribeFlagNames(f, shortTitleOnly, false)
+	names := g.zshDescribeFlagNames(f, shortTitleOnly, false)
 	title := f.Full
 	if f.DefaultValuePlaceholder != "" {
 		title = f.DefaultValuePlaceholder
 	}
-	mutualExclusives = gzChkME(f, mutualExclusives)
+	mutualExclusives = g.gzChkME(f, mutualExclusives)
 	descCommands.WriteString(fmt.Sprintf("                \"(%v)\"%v'[%v]':%v:'%v'",
 		unquote(mutualExclusives), names, f.GetDescZsh(), title, action))
 }
@@ -268,7 +322,7 @@ func gzAction(descCommands *strings.Builder, f *Flag, action, mutualExclusives s
 //      '(--debug -D --quiet -q)'{--quiet,-q}'[Quiet Mode]'
 //      '(--debug -D --quiet -q)'{--debug,-D}'[Debug Mode]'
 //
-func gzChkME(f *Flag, mutualExclusives string) string {
+func (g *genzsh) gzChkME(f *Flag, mutualExclusives string) string {
 	const quoted = false
 	if mutualExclusives == "" {
 		if len(f.mutualExclusives) > 0 {
@@ -289,7 +343,7 @@ func gzChkME(f *Flag, mutualExclusives string) string {
 	return mutualExclusives
 }
 
-func gzChkMEForToggleGroup(toggleGroupName string, v []*Flag) (mutualExclusives string) {
+func (g *genzsh) gzChkMEForToggleGroup(toggleGroupName string, v []*Flag) (mutualExclusives string) {
 	const quoted = false
 	var sb strings.Builder
 	for _, f := range v {
@@ -300,11 +354,11 @@ func gzChkMEForToggleGroup(toggleGroupName string, v []*Flag) (mutualExclusives 
 	return
 }
 
-func safeZshFnName(s string) string {
+func (g *genzsh) safeZshFnName(s string) string {
 	return strings.ReplaceAll(s, "-", "_")
 }
 
-func zshDescribeNames(s *Command) string {
+func (g *genzsh) zshDescribeNames(s *Command) string {
 	str := s.GetTitleZshNamesBy(",")
 	if strings.Contains(str, ",") {
 		return "{" + str + "}"
@@ -312,7 +366,7 @@ func zshDescribeNames(s *Command) string {
 	return str
 }
 
-func zshDescribeFlagNames(s *Flag, shortTitleOnly, longTitleOnly bool) string {
+func (g *genzsh) zshDescribeFlagNames(s *Flag, shortTitleOnly, longTitleOnly bool) string {
 	//if shortTitleOnly {
 	//	return s.GetTitleZshFlagShortName()
 	//}
@@ -326,21 +380,30 @@ func zshDescribeFlagNames(s *Flag, shortTitleOnly, longTitleOnly bool) string {
 	return str
 }
 
-func getZshSubFuncName(cmd *Command) (safeFuncName string) {
-	safeFuncName = safeZshFnName("__" + cmd.root.AppName + "_" + strings.ReplaceAll(cmd.GetDottedNamePath(), ".", "_"))
+func (g *genzsh) getZshSubFuncName(cmd *Command) (safeFuncName string) {
+	safeFuncName = g.safeZshFnName("__" + cmd.root.AppName + "_" + strings.ReplaceAll(cmd.GetDottedNamePath(), ".", "_"))
 	return
 }
 
-func zshTplExpand(ctx *genZshCtx, name, tmplString string, args interface{}) (err error) {
+//func (g *genzsh) zshTplExpand(ctx *genZshCtx, name, tmplString string, args interface{}) (err error) {
+//	var tmpl *template.Template
+//	tmpl, err = template.New(name).Parse(tmplString)
+//	if err == nil {
+//		err = tmpl.Execute(ctx.output, args)
+//	}
+//	return
+//}
+
+func genshTplExpand(ctx *genshCtx, tmplName, tmplString string, data interface{}) (err error) {
 	var tmpl *template.Template
-	tmpl, err = template.New(name).Parse(tmplString)
+	tmpl, err = template.New(tmplName).Parse(tmplString)
 	if err == nil {
-		err = tmpl.Execute(ctx.output, args)
+		err = tmpl.Execute(ctx.output, data)
 	}
 	return
 }
 
-type genZshCtx struct {
+type genshCtx struct {
 	cmd     *Command
 	theArgs *internalShellTemplateArgs
 	output  io.Writer
@@ -351,6 +414,16 @@ type internalShellTemplateArgs struct {
 	CmdrVersion string
 	Command     *Command
 	Args        []string
+}
+
+type stdShellTemplateArgs struct {
+	*internalShellTemplateArgs
+	FuncName         string
+	FuncNameSeq      string // "__fluent_ms" => "[fluent ms]"
+	Flags            string
+	Declarations     string
+	DescribeCommands string
+	CaseCommands     string
 }
 
 func seqName(s string) string {

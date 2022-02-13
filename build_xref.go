@@ -715,13 +715,20 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 			w._boolFlgAdd(root, "tree", "Show a tree for all commands", SysMgmtGroup, func(ff *Flag) {
 				ff.Action = dumpTreeForAllCommands
 				ff.dblTildeOnly = true
+				ff.VendorHidden = true
 			})
 
 			if enableShellCompletionCommand || isFishShell() {
 				w._cmdAdd(root, "help", "Completion Help system", func(cx *Command) {
 					cx.Aliases = []string{"__completion", "__complete"}
 					cx.VendorHidden = true
-					cx.Action = w.helpSystemPrint
+					cx.Action = w.helpSystemAction
+					cx.onMatched = func(cmd *Command, args []string) (err error) {
+						w.inCompleting = true
+						// disable trace, debug, info, warn messages
+						w.setLoggerLevel(ErrorLevel)
+						return
+					}
 				})
 				root.plainCmds["Ø"] = root.allCmds[SysMgmtGroup]["help"]
 			}
@@ -787,14 +794,16 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 
 func (w *ExecWorker) attachCmdrCommands(root *RootCommand) {
 	if w.enableCmdrCommands {
-		w._boolFlgAdd(root, "strict-more", "Strict mode for 'cmdr'.", SysMgmtGroup, func(ff *Flag) {
-			ff.EnvVars = []string{"STRICT"}
+		w._boolFlgAdd(root, "strict-mode", "Strict mode for 'cmdr'.", SysMgmtGroup, func(ff *Flag) {
+			ff.EnvVars, ff.VendorHidden = []string{"STRICT"}, true
 		})
-		w._boolFlgAdd(root, "no-env-overrides", "No env var overrides for 'cmdr'.", SysMgmtGroup, nil)
+		w._boolFlgAdd(root, "no-env-overrides", "No env var overrides for 'cmdr'.", SysMgmtGroup, func(ff *Flag) {
+			ff.VendorHidden = true
+		})
 		w._boolFlgAdd(root, "no-color", "No color output for 'cmdr'.", SysMgmtGroup, func(ff *Flag) {
 			ff.Short = "nc"
 			ff.Aliases = []string{"nc"}
-			ff.EnvVars = []string{"NOCOLOR", "NO_COLOR"}
+			ff.EnvVars, ff.VendorHidden = []string{"NOCOLOR", "NO_COLOR"}, true
 		})
 	}
 }
@@ -1239,139 +1248,6 @@ func (w *ExecWorker) forFlagNames(flg *Flag, cmd *Command, singleFlagNames, stri
 			stringFlagNames[flg.Name] = true
 		}
 	}
-}
-
-// helpSystemPrint NOT YET, to-do
-func (w *ExecWorker) helpSystemPrint(cmd *Command, args []string) (err error) {
-	// disable trace, debug, info, warn messages
-	w.setLoggerLevel(ErrorLevel)
-
-	var matchedPrecededList, matchedList map[string]*Command
-	var matchedCmd *Command
-	matchedCmd, matchedPrecededList, matchedList, err = w.lookupForHelpSystem(cmd, args)
-	if err == nil || err == ErrShouldBeStopException {
-		var x strings.Builder
-
-		for _, c := range matchedPrecededList {
-			_visitCommandTitles(c, func(c *Command, title string) (stopNow bool) {
-				x.WriteString(fmt.Sprintf("%v\t%v\n", title, c.Description))
-				return
-			})
-		}
-
-		if matchedCmd != nil && len(matchedPrecededList) == 1 {
-			// print, ret
-			fp("%v", x.String())
-			return
-		}
-
-		for _, c := range matchedList {
-			_visitCommandTitles(c, func(c *Command, title string) (stopNow bool) {
-				x.WriteString(fmt.Sprintf("%v\t%v\n", title, c.Description))
-				return
-			})
-		}
-
-		directive := 4
-		x.WriteString(fmt.Sprintf(":%d\n", directive))
-
-		fp("%v", x.String())
-	}
-	return
-}
-
-// lookupForHelpSystem NOT YET, to-do
-func (w *ExecWorker) lookupForHelpSystem(cmdHelp *Command, args []string) (matchedCmd *Command, matchedPrecededList, matchedList map[string]*Command, err error) {
-	err = ErrShouldBeStopException
-	matchedPrecededList = make(map[string]*Command)
-	matchedList = make(map[string]*Command)
-	cmd := &cmdHelp.root.Command
-
-	for i := 0; i < len(args); i++ {
-		ttl := args[i]
-		ttllen := len(ttl)
-
-		if ttllen == 0 || (ttllen > 0 && strings.Contains(w.switchCharset, ttl[0:1])) {
-			// flags
-			continue
-		}
-
-		// sub-commands
-		for _, c := range cmd.SubCommands {
-			var matchedPrecededList1, matchedList1 map[string]*Command
-			matchedPrecededList1 = make(map[string]*Command)
-			matchedList1 = make(map[string]*Command)
-			if exact, ok := _matchCommandTitle(c, ttl, matchedPrecededList1, matchedList1); exact && ok {
-				cmd = c
-				if i == len(args)-1 {
-					matchedCmd = c
-					for _, c1 := range c.SubCommands {
-						matchedList[c1.Full] = c1
-					}
-				}
-				break
-			} else {
-				return
-			}
-		}
-	}
-	return
-}
-
-func _matchCommandTitle(c *Command, titleChecking string, matchedPrecededList, matchedList map[string]*Command) (exact, ok bool) {
-	_visitCommandTitles(c, func(c *Command, title string) (stopNow bool) {
-		if exact, ok = _matchTitle(c, title, titleChecking, matchedPrecededList, matchedList); ok {
-			stopNow = true
-		}
-		return
-	})
-	return
-}
-
-var noPartialMatching = true
-
-func _matchTitle(c *Command, source, title string, matchedPrecededList, matchedList map[string]*Command) (exact, ok bool) {
-	if title == source {
-		matchedPrecededList[c.Full] = c
-		exact, ok = true, true
-	} else if strings.HasPrefix(source, title) {
-		matchedPrecededList[c.Full] = c
-		ok = true
-	} else if noPartialMatching == false && strings.Contains(source, title) {
-		matchedList[c.Full] = c
-		ok = true
-	}
-	return
-}
-
-func _visitCommandTitles(c *Command, fn func(c *Command, title string) (stopNow bool)) (ok bool) {
-	if c.Full != "" && fn(c, c.Full) {
-		return
-	}
-	if c.Short != "" && fn(c, c.Short) {
-		return
-	}
-	for _, t := range c.Aliases {
-		if t != "" && fn(c, t) {
-			return
-		}
-	}
-	return true
-}
-
-func _visitFlagTitles(c *Flag, fn func(f *Flag, title string) (stopNow bool)) (ok bool) {
-	if c.Full != "" && fn(c, c.Full) {
-		return
-	}
-	if c.Short != "" && fn(c, c.Short) {
-		return
-	}
-	for _, t := range c.Aliases {
-		if t != "" && fn(c, t) {
-			return
-		}
-	}
-	return true
 }
 
 func (w *ExecWorker) _buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames, stringCmdNames map[string]bool) {

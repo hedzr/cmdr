@@ -7,9 +7,7 @@ package cmdr
 import (
 	"bufio"
 	"fmt"
-	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log/dir"
-	"github.com/hedzr/log/exec"
 	"io"
 	"io/ioutil"
 	"log"
@@ -44,7 +42,7 @@ func genShell(cmd *Command, args []string) (err error) {
 	}
 
 	what := w.gsWhat(cmd)
-	if g, ok := w.gsGenMaps()[what]; ok {
+	if g, ok := w.lazyGetGenMaps()[what]; ok {
 		err = g(writer, filePath, cmd, args)
 	} else {
 		err = w.genShellBash(writer, filePath, cmd, args)
@@ -59,7 +57,7 @@ type shGenerator func(writer io.Writer, fullPath string, cmd *Command, args []st
 
 var shGenMaps map[string]shGenerator
 
-func (w *ExecWorker) gsGenMaps() (m map[string]shGenerator) {
+func (w *ExecWorker) lazyGetGenMaps() (m map[string]shGenerator) {
 	onceShGen.Do(func() {
 		shGenMaps = map[string]shGenerator{
 			"bash":       w.genShellBash,
@@ -109,41 +107,8 @@ func findDepth(cmd *Command) (deep int) {
 // }
 
 func (w *ExecWorker) genShellZsh(writer io.Writer, fullPath string, cmd *Command, args []string) (err error) {
-	shell := os.Getenv("SHELL")
-	if !strings.Contains(shell, "/bin/zsh") {
-		var zsh string
-		if _, zsh, err = exec.RunWithOutput("which", "zsh"); err != nil {
-			// err = errors.New("Couldn't find zsh installation, please install zsh and try again")
-			err = genZshTo(cmd, args, "-", os.Stdout)
-			return
-		}
-
-		shell = zsh
-	}
-
-	if fullPath == "" && len(args) > 0 {
-		for _, a := range args {
-			if a == "-" {
-				err = genZshTo(cmd, args, "-", os.Stdout)
-				return
-			}
-		}
-
-		fullPath = args[0]
-	}
-
-	// find fpath and write to the target
-
-	_, fpath, _ := exec.RunWithOutput(shell, "-c", `echo $fpath`)
-	//Logger.Infof("fpath = %v", fpath)
-	//Logger.Infof("ENV:\n%v", os.Environ())
-	//
-	// /usr/local/share/zsh/site-functions
-	// $HOME/.oh-my-zsh/completions
-	// $HOME/.oh-my-zsh/functions
-	//
-	locs := tool.ReverseStringSlice(strings.Split(strings.TrimRight(fpath, "\n"), " "))
-	err = _makeFileIn(writer, fullPath, locs, cmd.root.AppName, genShellZshHO(cmd, args))
+	var gen genzsh
+	err = gen.Generate(writer, fullPath, cmd, args)
 	return
 }
 

@@ -418,7 +418,10 @@ func TestNoColorMode(t *testing.T) {
 	cmdr.GetTraceMode()
 	cmdr.GetTraceModeHitCount()
 	cmdr.GetFlagHitCountRecursively("verbose")
+	cmdr.GetFlagHitCountRecursively("verbose1")
 	cmdr.GetHitCountByDottedPath("verbose")
+	cmdr.GetHitCountByDottedPath("verbose1")
+
 }
 
 func TestBaseOpt(t *testing.T) {

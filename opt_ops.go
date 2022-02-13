@@ -159,20 +159,26 @@ func NewCmdFrom(cmd *Command) (opt OptCmd) {
 
 // NewCmd creates a wrapped Command object as OptCmd
 func NewCmd() (opt OptCmd) {
-	current := &Command{}
+	current := &Command{root: optCtx.root}
+	if optCtx.temp == nil {
+		optCtx.temp = &Command{}
+	}
 	return &cmdOpt{optCommandImpl: optCommandImpl{working: current}}
 }
 
 // NewSubCmd creates a wrapped Command object as OptCmd, and append it into the current working item.
 func NewSubCmd() (opt OptCmd) {
-	cmd := &Command{}
-	optCtx.current.SubCommands = uniAddCmd(optCtx.current.SubCommands, cmd)
+	cmd := &Command{root: optCtx.root}
+	if optCtx.temp == nil {
+		optCtx.temp = &Command{}
+	}
+	optCtx.temp.SubCommands = uniAddCmd(optCtx.temp.SubCommands, cmd)
 	return &subCmdOpt{optCommandImpl: optCommandImpl{working: cmd}}
 }
 
 func uniAddCmd(cmds []*Command, cmd *Command) []*Command {
 	for _, f := range cmds {
-		if f == cmd {
+		if f == cmd || f.EqualTo(cmd) {
 			return cmds
 		}
 	}
@@ -181,7 +187,7 @@ func uniAddCmd(cmds []*Command, cmd *Command) []*Command {
 
 func uniAddFlg(flags []*Flag, flg *Flag) []*Flag {
 	for _, f := range flags {
-		if f == flg {
+		if f == flg || f.EqualTo(flg) {
 			return flags
 		}
 	}

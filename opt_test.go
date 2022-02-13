@@ -18,27 +18,46 @@ func TestCommandMethods(t *testing.T) {
 	root := cmdr.Root("aa", "1.0.1").
 		Header("sds")
 
-	msCmd := root.NewSubCommand().
+	msCmd := cmdr.NewSubCmd().
 		Titles("microservice", "ms").Name("ms").
 		Description("", "").
 		Group("").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			return
-		})
-	msCmd.NewSubCommand().
+		}).
+		AttachTo(root)
+	cmdr.NewSubCmd().
 		Titles("list", "ls", "l", "lst", "dir").
 		Description("list tags", "").
 		Group("2333.List").
 		Hidden(true).
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			return
-		})
-	msCmd.NewSubCommand().
+		}).
+		AttachTo(msCmd)
+	tagsSC := cmdr.NewSubCmd().
 		Titles("tags", "t").
 		Description("tags operations of a micro-service", "").
-		Group("")
+		Group("").
+		AttachTo(msCmd)
 
-	xy := root.NewSubCommand().
+	if cc := msCmd.ToCommand(); cc != nil {
+		assertBool(len(cc.SubCommands) == 2, t, "want len(cc.SubCommands) == 2")
+	}
+
+	cmdr.NewSubCmd().
+		Titles("list", "ls", "l", "lst", "dir").
+		Description("list tags", "").
+		Group("2333.List").
+		Hidden(true).
+		Action(func(cmd *cmdr.Command, args []string) (err error) {
+			return
+		}).
+		AttachTo(tagsSC)
+
+	assertBool(len(tagsSC.ToCommand().SubCommands) == 1, t, "want len(cc.SubCommands) == 2")
+
+	xy := cmdr.NewSubCmd().
 		Titles("xy-print", "xy").
 		Description("test terminal control sequences", "test terminal control sequences,\nverbose long descriptions here.").
 		Group("Test").
@@ -50,8 +69,9 @@ func TestCommandMethods(t *testing.T) {
 			}
 
 			return
-		})
-	root.NewSubCommand().
+		}).
+		AttachTo(root)
+	cmdr.NewSubCmd().
 		Titles("mx-test", "mx").
 		Description("test new features", "test new features,\nverbose long descriptions here.").
 		Group("001.Test").
@@ -59,7 +79,8 @@ func TestCommandMethods(t *testing.T) {
 			fmt.Printf("*** Got pp: %s\n", cmdr.GetString("app.mx-test.password"))
 			fmt.Printf("*** Got msg: %s\n", cmdr.GetString("app.mx-test.message"))
 			return
-		})
+		}).
+		AttachTo(root)
 
 	cmd := xy.RootCommand().SubCommands[1]
 	if cmd.GetHitStr() != "" {
@@ -80,6 +101,15 @@ func TestCommandMethods(t *testing.T) {
 	cmd = xy.RootCommand().SubCommands[0]
 	if cmd.GetSubCommandNamesBy(",") != "tags" {
 		t.Failed()
+	}
+}
+
+func assertBool(cond bool, t *testing.T, msgFailed ...string) {
+	if cond == false {
+		for _, msg := range msgFailed {
+			t.Fatalf(msg)
+		}
+		t.Fatalf("cond NOT TRUE!")
 	}
 }
 
@@ -187,7 +217,7 @@ func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 	ff2.SetOwner(co1)
 	ff2.SetOwner(nil)
 
-	co := root.NewSubCommand().
+	co := cmdr.NewSubCmd().
 		Titles("micro-service", "ms").
 		Short("ms").Long("micro-service").Aliases("goms").
 		Examples(``).Hidden(false).Deprecated("").
@@ -195,13 +225,14 @@ func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 		TailPlaceholder("").
 		Description("", "").
 		Group("").
-		VendorHidden(false)
+		VendorHidden(false).
+		AttachTo(root)
 
 	co.OwnerCommand()
 	co.SetOwner(root)
 	co.RootCmdOpt()
 
-	co.NewFlag(cmdr.OptFlagTypeUint).
+	cmdr.NewUint().
 		Titles("retry", "t").
 		Short("tt").Long("retry-tt").Aliases("go-tt").
 		Examples(``).Hidden(false).Deprecated("").
@@ -214,92 +245,107 @@ func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 		CompletionPrerequisitesFlags("").CompletionJustOnce(false).
 		CompletionCircuitBreak(false).DoubleTildeOnly(false).
 		DefaultValue(uint(3), "RETRY").
+		AttachTo(co).
 		SetOwner(root)
 
-	ff1 := co.NewFlag(cmdr.OptFlagTypeBool).
+	ff1 := cmdr.NewBool().
 		Titles("retry1", "t1").
 		Description("1(2)3", "").
 		Group("").
 		DefaultValue(false, "RETRY").
+		AttachTo(co).
 		OwnerCommand()
 	ff1.SetOwner(co)
 	ff1.SetOwner(nil)
 
-	co.NewFlag(cmdr.OptFlagTypeInt).
+	cmdr.NewInt().
 		Titles("retry2", "t2").
 		Description("", "").
 		Group("").ToggleGroup("").
 		VendorHidden(false).
-		DefaultValue(3, "RETRY").RootCommand()
+		DefaultValue(3, "RETRY").
+		AttachTo(co).
+		RootCommand()
 
-	co.NewFlag(cmdr.OptFlagTypeUint64).
+	cmdr.NewUint().
 		Titles("retry3", "t3").
 		Description("", "").
 		Group("").
-		DefaultValue(uint64(3), "RETRY")
+		DefaultValue(uint64(3), "RETRY").
+		AttachTo(co)
 
-	co.NewFlag(cmdr.OptFlagTypeInt64).
+	cmdr.NewInt64().
 		Titles("retry4", "t4").
 		Description("", "").
 		Group("").
-		DefaultValue(int64(3), "RETRY")
+		DefaultValue(int64(3), "RETRY").
+		AttachTo(co)
 
-	co.NewFlag(cmdr.OptFlagTypeStringSlice).
+	cmdr.NewStringSlice().
 		Titles("retry5", "t5").
 		Description("", "").
 		Group("").
-		DefaultValue([]string{"a", "b"}, "RETRY")
+		DefaultValue([]string{"a", "b"}, "RETRY").
+		AttachTo(co)
 
-	co.NewFlag(cmdr.OptFlagTypeIntSlice).
+	cmdr.NewIntSlice().
 		Titles("retry6", "t6").
 		Description("", "").
 		Group("").
-		DefaultValue([]int{1, 2, 3}, "RETRY")
+		DefaultValue([]int{1, 2, 3}, "RETRY").
+		AttachTo(co)
 
-	co.NewFlag(cmdr.OptFlagTypeDuration).
+	cmdr.NewDuration().
 		Titles("retry7", "t7").
 		Description("", "").
 		Group("").
-		DefaultValue(3, "RETRY")
+		DefaultValue(3, "RETRY").
+		AttachTo(co)
 
-	f0 := co.NewFlag(cmdr.OptFlagTypeFloat32).
+	f0 := cmdr.NewFloat32().
 		Titles("retry8", "t8").
 		Description("", "").
 		Group("").
-		DefaultValue(3.14, "PI")
+		DefaultValue(3.14, "PI").
+		AttachTo(co)
 	f0.ToFlag().GetTitleZshFlagNamesArray()
 
-	co.NewFlag(cmdr.OptFlagTypeFloat64).
+	cmdr.NewFloat64().
 		Titles("retry9", "t9").
 		Description("", "").
 		Group("").
-		DefaultValue(3.14159265358979323846264338327950288419716939937510582097494459230781640628620899, "PI")
+		DefaultValue(3.14159265358979323846264338327950288419716939937510582097494459230781640628620899, "PI").
+		AttachTo(co)
 
-	co.NewFlag(cmdr.OptFlagTypeComplex64).
+	cmdr.NewComplex64().
 		Titles("retry10", "t10").
 		Description("", "").
 		Group("").
-		DefaultValue(3.14, "PI")
+		DefaultValue(3.14, "PI").
+		AttachTo(co)
 
-	co.NewFlag(cmdr.OptFlagTypeComplex128).
+	cmdr.NewComplex128().
 		Titles("retry11", "t11").
 		Description("", "").
 		Group("").
-		DefaultValue(3.14159265358979323846264338327950288419716939937510582097494459230781640628620899, "PI")
+		DefaultValue(3.14159265358979323846264338327950288419716939937510582097494459230781640628620899, "PI").
+		AttachTo(co)
 
-	co.NewFlag(cmdr.OptFlagTypeInt).
+	cmdr.NewInt().
 		Titles("head", "h").
 		Description("", "").
 		Group("").
 		DefaultValue(1, "").
-		HeadLike(true, 1, 8000)
+		HeadLike(true, 1, 8000).
+		AttachTo(co)
 
-	f1 := co.NewFlag(cmdr.OptFlagTypeString).
+	f1 := cmdr.NewString().
 		Titles("ienum", "i").
 		Description("", "").
 		Group("").
 		DefaultValue("", "").
-		ValidArgs("apple", "banana", "orange")
+		ValidArgs("apple", "banana", "orange").
+		AttachTo(co)
 	f2 := f1.ToFlag()
 	f2.GetDottedNamePath()
 	f2.Delete()
@@ -310,26 +356,29 @@ func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 
 	// ms tags
 
-	cTags := co.NewSubCommand().
+	cTags := cmdr.NewSubCmd().
 		Titles("tags", "t").
 		Description("", "").
-		Group("")
+		Group("").
+		AttachTo(co)
 
-	cTags.NewFlag(cmdr.OptFlagTypeString).
+	cmdr.NewString().
 		Titles("addr", "a").
 		Description("", "").
 		Group("").
-		DefaultValue("consul.ops.local", "ADDR")
+		DefaultValue("consul.ops.local", "ADDR").
+		AttachTo(cTags)
 
 	// ms tags ls
 
-	cTags.NewSubCommand().
+	cmdr.NewSubCmd().
 		Titles("list", "ls").
 		Description("", "").
 		Group("").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			return
-		})
+		}).
+		AttachTo(cTags)
 
 	fn := func() {
 		defer func() {
@@ -338,30 +387,34 @@ func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 			}
 		}()
 
-		c1 := cTags.NewSubCommand().
-			Titles("", "")
+		c1 := cmdr.NewSubCmd().
+			Titles("", "").
+			AttachTo(cTags)
 		c1.ToCommand().GetName()
 	}
 	fn()
 
-	c8 := cTags.NewSubCommand().
+	c8 := cmdr.NewSubCmd().
 		Titles("add1", "a1").
 		Description("", "").
-		Group("")
+		Group("").
+		AttachTo(cTags)
 
-	c9 := cTags.NewSubCommand().
+	c9 := cmdr.NewSubCmd().
 		Titles("add", "").
 		Description("", "").
 		Group("").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			return
-		})
-	f91 := c9.NewFlag(cmdr.OptFlagTypeString).
+		}).
+		AttachTo(cTags)
+	f91 := cmdr.NewString().
 		Titles("ienum", "").Aliases("ie91").
 		Description("", "").
 		Group("").
 		DefaultValue("", "").
-		ValidArgs("apple", "banana", "orange")
+		ValidArgs("apple", "banana", "orange").
+		AttachTo(c9)
 	f91.ToFlag().GetTitleZshFlagShortName()
 
 	c91 := c9.ToCommand()
@@ -386,19 +439,20 @@ func createRoot() (rootOpt *cmdr.RootCmdOpt) {
 
 	// ms
 
-	co := root.NewSubCommand().
+	co := cmdr.NewSubCmd().
 		Titles("micro-service", "ms").
 		Short("ms").Long("micro-service").Aliases("goms").
 		Examples(``).Hidden(false).Deprecated("").
 		PreAction(nil).PostAction(nil).Action(nil).
 		TailPlaceholder("").
 		Description("", "").
-		Group("")
+		Group("").
+		AttachTo(root)
 
 	co.OwnerCommand()
 	co.SetOwner(root)
 
-	co.NewFlagV(uint(3)).
+	cmdr.NewUint(3).
 		Titles("retry", "t").
 		Short("tt").Long("retry-tt").Aliases("go-tt").
 		Examples(``).Hidden(false).Deprecated("").
@@ -407,112 +461,133 @@ func createRoot() (rootOpt *cmdr.RootCmdOpt) {
 		ExternalTool(cmdr.ExternalToolPasswordInput).
 		Description("", "").
 		Group("").
-		Placeholder("RETRY").SetOwner(root)
+		Placeholder("RETRY").
+		AttachTo(co).
+		SetOwner(root)
 
-	co.NewFlagV(true).
+	cmdr.NewBool().
 		Titles("retry1", "t1").
 		Description("", "").
 		Group("").
-		Placeholder("RETRY").OwnerCommand()
+		Placeholder("RETRY").
+		AttachTo(co).
+		OwnerCommand()
 
-	co.NewFlagV(3).
+	cmdr.NewInt(5).
 		Titles("retry2", "t2").
 		Description("", "").
 		Group("").ToggleGroup("").
+		AttachTo(co).
 		RootCommand()
 
-	co.NewFlagV(uint64(3)).
+	cmdr.NewUint64(uint64(3)).
 		Titles("retry3", "t3").
 		Description("", "").
-		Group("")
+		Group("").
+		AttachTo(co)
 
-	co.NewFlagV(int64(3)).
+	cmdr.NewInt64(int64(3)).
 		Titles("retry4", "t4").
 		Description("", "").
-		Group("")
+		Group("").
+		AttachTo(co)
 
-	co.NewFlagV([]string{"a", "b"}).
+	cmdr.NewStringSlice("a", "b").
 		Titles("retry5", "t5").
-		Description("", "")
+		Description("", "").
+		AttachTo(co)
 
-	co.NewFlagV([]int{1, 2, 3}).
+	cmdr.NewIntSlice(1, 2, 3).
 		Titles("retry6", "t6").
-		Description("", "")
+		Description("", "").
+		AttachTo(co)
 
-	co.NewFlagV([]uint{1, 2, 3}).
+	cmdr.NewUintSlice(1, 2, 3).
 		Titles("retry61", "t61").
-		Description("", "")
+		Description("", "").
+		AttachTo(co)
 
-	co.NewFlagV(time.Second).
-		Titles("retry7", "t7")
+	cmdr.NewDuration(time.Second).
+		Titles("retry7", "t7").
+		AttachTo(co)
 
-	co.NewFlagV(float32(3.14)).
+	cmdr.NewFloat32(float32(3.14)).
 		Titles("retry8", "t8").
 		Description("", "").
 		Group("").
-		Placeholder("PI")
+		Placeholder("PI").
+		AttachTo(co)
 
-	co.NewFlagV(3.14159265358979323846264338327950288419716939937510582097494459230781640628620899).
+	cmdr.NewFloat64(3.14159265358979323846264338327950288419716939937510582097494459230781640628620899).
 		Titles("retry9", "t9").
 		Description("", "").
 		Group("").
-		Placeholder("PI")
+		Placeholder("PI").
+		AttachTo(co)
 
-	co.NewFlagV(complex64(3.14+9i)).
+	cmdr.NewComplex64(complex64(3.14+9i)).
 		Titles("retry10", "t10").
 		Description("", "").
-		Group("")
+		Group("").
+		AttachTo(co)
 
-	co.NewFlagV(3.14+9i).
+	cmdr.NewComplex128(3.14+9i).
 		Titles("retry11", "t11").
 		Description("", "").
-		Group("")
+		Group("").
+		AttachTo(co)
 
-	co.NewFlagV(1).
+	cmdr.NewInt(1).
 		Titles("head", "h").
 		Description("", "").
 		Group("").
 		HeadLike(true, 1, 8000).
 		EnvKeys("AVCX").
 		Required().
-		Required(false, false, true, false)
+		Required(false, false, true, false).
+		AttachTo(co)
 
-	co.NewFlagV("").
+	cmdr.NewString("").
 		Titles("ienum", "i").
 		Description("", "").
 		Group("").
-		ValidArgs("apple", "banana", "orange")
+		ValidArgs("apple", "banana", "orange").
+		AttachTo(co)
 
 	// ms tags
 
-	cTags := co.NewSubCommand().
+	cTags := cmdr.NewSubCmd().
 		Titles("tags", "t").
 		Description("", "").
-		Group("")
+		Group("").
+		AttachTo(co)
 
-	cTags.NewFlagV("consul.ops.local").
+	cmdr.NewString("consul.ops.local").
 		Titles("addr", "a").
 		Description("", "").
 		Group("").
-		Placeholder("ADDR")
+		Placeholder("ADDR").
+		AttachTo(cTags)
 
 	// ms tags ls
 
-	cTags.NewSubCommand().
+	cmdr.NewSubCmd().
 		Titles("list", "ls").
 		Description("", "").
 		Group("").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			return
-		})
+		}).
+		AttachTo(cTags)
 
-	cTags.NewSubCommand().
+	cmdr.NewSubCmd().
 		Titles("add", "a").
 		Description("", "").
 		Group("").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
 			return
-		})
+		}).
+		AttachTo(cTags)
 
 	return root
 }

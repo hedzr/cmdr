@@ -58,6 +58,17 @@ func (c *Command) GetHitStr() string {
 	return c.strHit
 }
 
+// EqualTo _
+func (c *Command) EqualTo(rh *Command) (ok bool) {
+	if c == nil {
+		return rh == nil
+	}
+	if rh == nil {
+		return false
+	}
+	return c.GetTitleName() == rh.GetTitleName()
+}
+
 // Match matches title
 func (c *Command) Match(title string) (ok bool) {
 	if title == "" {

@@ -19,22 +19,32 @@ func (s *optFlagImpl) ToFlag() *Flag {
 	return s.working
 }
 
-func (s *optFlagImpl) AttachTo(opt OptCmd) {
-	if s != nil && s.working != nil && opt != nil {
-		opt.AddOptFlag(s)
+func (s *optFlagImpl) AttachTo(parent OptCmd) (opt OptFlag) {
+	if s != nil && s.working != nil && parent != nil {
+		parent.AddOptFlag(s)
+		s.parent = parent
 	}
+	return s
 }
 
-func (s *optFlagImpl) AttachToCommand(cmd *Command) {
+func (s *optFlagImpl) AttachToCommand(cmd *Command) (opt OptFlag) {
 	if cmd != nil {
-		cmd.Flags = uniAddFlg(cmd.Flags, s.ToFlag())
+		f := s.ToFlag()
+		f.owner = cmd
+		cmd.Flags = uniAddFlg(cmd.Flags, f)
+		s.parent = NewCmdFrom(cmd)
 	}
+	return s
 }
 
-func (s *optFlagImpl) AttachToRoot(root *RootCommand) {
+func (s *optFlagImpl) AttachToRoot(root *RootCommand) (opt OptFlag) {
 	if root != nil {
-		root.Command.Flags = uniAddFlg(root.Command.Flags, s.ToFlag())
+		f := s.ToFlag()
+		f.owner = &root.Command
+		root.Command.Flags = uniAddFlg(root.Command.Flags, f)
+		s.parent = RootFrom(root)
 	}
+	return s
 }
 
 func (s *optFlagImpl) Titles(long, short string, aliases ...string) (opt OptFlag) {

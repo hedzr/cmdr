@@ -27,6 +27,7 @@ func (s *optCommandImpl) AddOptFlag(flag OptFlag) {
 
 func (s *optCommandImpl) AddFlag(flag *Flag) {
 	if flag != nil {
+		flag.owner = s.working
 		s.working.Flags = uniAddFlg(s.working.Flags, flag)
 	}
 }
@@ -37,6 +38,7 @@ func (s *optCommandImpl) AddOptCmd(opt OptCmd) {
 
 		// optCtx.current = cmd
 
+		cmd.owner = s.working
 		s.working.SubCommands = uniAddCmd(s.working.SubCommands, cmd)
 
 		// opt = &subCmdOpt{optCommandImpl: optCommandImpl{working: cmd, parent: s}}
@@ -45,26 +47,33 @@ func (s *optCommandImpl) AddOptCmd(opt OptCmd) {
 
 func (s *optCommandImpl) AddCommand(cmd *Command) {
 	if cmd != nil {
+		cmd.owner = s.working
 		s.working.SubCommands = uniAddCmd(s.working.SubCommands, cmd)
 	}
 }
 
-func (s *optCommandImpl) AttachTo(opt OptCmd) {
-	if opt != nil {
-		opt.AddOptCmd(s)
+func (s *optCommandImpl) AttachTo(parentOpt OptCmd) (opt OptCmd) {
+	if parentOpt != nil {
+		parentOpt.AddOptCmd(s)
+		optCtx.temp = nil
 	}
+	return s
 }
 
-func (s *optCommandImpl) AttachToCommand(cmd *Command) {
+func (s *optCommandImpl) AttachToCommand(cmd *Command) (opt OptCmd) {
 	if cmd != nil {
 		cmd.SubCommands = uniAddCmd(cmd.SubCommands, s.working)
+		optCtx.temp = nil
 	}
+	return s
 }
 
-func (s *optCommandImpl) AttachToRoot(root *RootCommand) {
+func (s *optCommandImpl) AttachToRoot(root *RootCommand) (opt OptCmd) {
 	if root != nil {
 		root.SubCommands = uniAddCmd(root.SubCommands, s.working)
+		optCtx.temp = nil
 	}
+	return s
 }
 
 func (s *optCommandImpl) Titles(long, short string, aliases ...string) (opt OptCmd) {
@@ -236,6 +245,13 @@ func (s *optCommandImpl) Duration() (opt OptFlag) {
 	return &durationOpt{optFlagImpl: optFlagImpl{working: flg, parent: s}}
 }
 
+func (s *optCommandImpl) Sets(cb func(cmd OptCmd)) (opt OptCmd) {
+	if cb != nil {
+		cb(s)
+	}
+	return s
+}
+
 func (s *optCommandImpl) NewFlag(typ OptFlagType) (opt OptFlag) {
 	var flg OptFlag
 
@@ -341,26 +357,26 @@ func (s *optCommandImpl) NewFlagV(defaultValue interface{}, titles ...string) (o
 	return
 }
 
-func (s *optCommandImpl) NewSubCommand(titles ...string) (opt OptCmd) {
-	cmd := &Command{root: internalGetWorker().rootCommand}
-
-	optCtx.current = cmd
-
-	s.working.SubCommands = uniAddCmd(s.working.SubCommands, cmd)
-
-	opt = &subCmdOpt{optCommandImpl: optCommandImpl{working: cmd, parent: s}}
-
-	if len(titles) > 0 {
-		opt.Long(titles[0])
-		if len(titles) > 1 {
-			opt.Short(titles[1])
-			if len(titles) > 2 {
-				opt.Aliases(titles[2:]...)
-			}
-		}
-	}
-	return
-}
+//func (s *optCommandImpl) NewSubCommand(titles ...string) (opt OptCmd) {
+//	cmd := &Command{root: internalGetWorker().rootCommand}
+//
+//	optCtx.current = cmd
+//
+//	s.working.SubCommands = uniAddCmd(s.working.SubCommands, cmd)
+//
+//	opt = &subCmdOpt{optCommandImpl: optCommandImpl{working: cmd, parent: s}}
+//
+//	if len(titles) > 0 {
+//		opt.Long(titles[0])
+//		if len(titles) > 1 {
+//			opt.Short(titles[1])
+//			if len(titles) > 2 {
+//				opt.Aliases(titles[2:]...)
+//			}
+//		}
+//	}
+//	return
+//}
 
 func (s *optCommandImpl) OwnerCommand() (opt OptCmd) {
 	opt = s.parent
@@ -369,10 +385,12 @@ func (s *optCommandImpl) OwnerCommand() (opt OptCmd) {
 
 func (s *optCommandImpl) SetOwner(opt OptCmd) {
 	s.parent = opt
-	if s.working != nil && opt != nil {
-		s.working.owner = opt.ToCommand()
-	} else if s.working != nil {
-		s.working.owner = nil
+	if s.working != nil {
+		if opt != nil {
+			s.working.owner = opt.ToCommand()
+		} else {
+			s.working.owner = nil
+		}
 	}
 	return
 }

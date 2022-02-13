@@ -4,6 +4,48 @@ package cmdr
 
 import "testing"
 
+func TestFlag_EqualTo(t *testing.T) {
+	var c1 *Flag
+	cmd := &Flag{
+		BaseOpt: BaseOpt{
+			Name:  "a",
+			Short: "a",
+		},
+	}
+
+	c1.EqualTo(cmd)
+	cmd.EqualTo(c1)
+	cmd.GetDescZsh()
+	cmd.GetTitleZshFlagName()
+
+}
+
+func TestFlag_Delete(t *testing.T) {
+	var c1 *Flag
+	cmd := &Command{
+		BaseOpt: BaseOpt{
+			Name:  "a",
+			Short: "a",
+		},
+	}
+	c1 = &Flag{BaseOpt: BaseOpt{Full: "b", owner: cmd}}
+	cmd.Flags = uniAddFlg(cmd.Flags, c1)
+	c1.GetDottedNamePath()
+	c1.Delete()
+}
+
+func TestCommand_EqualTo(t *testing.T) {
+	var c1 *Command
+	cmd := &Command{
+		BaseOpt: BaseOpt{
+			Name: "a",
+		},
+	}
+
+	c1.EqualTo(cmd)
+	cmd.EqualTo(c1)
+}
+
 func TestCommand_GetName(t *testing.T) {
 	cmd := &Command{
 		BaseOpt: BaseOpt{

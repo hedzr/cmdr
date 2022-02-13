@@ -87,11 +87,11 @@ type (
 		ToFlag() *Flag
 
 		// AttachTo attach as a flag of `opt` OptCmd object
-		AttachTo(opt OptCmd)
+		AttachTo(parent OptCmd) (opt OptFlag)
 		// AttachToCommand attach as a flag of *Command object
-		AttachToCommand(cmd *Command)
+		AttachToCommand(cmd *Command) (opt OptFlag)
 		// AttachToRoot attach as a flag of *RootCommand object
-		AttachToRoot(root *RootCommand)
+		AttachToRoot(root *RootCommand) (opt OptFlag)
 
 		OnSet
 	}
@@ -135,21 +135,26 @@ type (
 
 		TailPlaceholder(placeholder string) (opt OptCmd)
 
+		// Sets _
+		Sets(func(cmd OptCmd)) (opt OptCmd)
+
 		// NewFlag create a new flag object and return it for further operations.
 		// Deprecated since v1.6.9, replace it with FlagV(defaultValue)
 		//
 		// Deprecated since v1.6.50, we recommend the new form:
 		//    cmdr.NewBool(false).Titles(...)...AttachTo(ownerCmd)
-		NewFlag(typ OptFlagType) (opt OptFlag)
+		//NewFlag(typ OptFlagType) (opt OptFlag)
 		// NewFlagV create a new flag object and return it for further operations.
 		// the titles in arguments MUST be: longTitle, [shortTitle, [aliasTitles...]]
 		//
 		// Deprecated since v1.6.50, we recommend the new form:
 		//    cmdr.NewBool(false).Titles(...)...AttachTo(ownerCmd)
-		NewFlagV(defaultValue interface{}, titles ...string) (opt OptFlag)
+		//NewFlagV(defaultValue interface{}, titles ...string) (opt OptFlag)
 		// NewSubCommand make a new sub-command optcmd object with optional titles.
 		// the titles in arguments MUST be: longTitle, [shortTitle, [aliasTitles...]]
-		NewSubCommand(titles ...string) (opt OptCmd)
+		//
+		// Deprecated since v1.6.50
+		//NewSubCommand(titles ...string) (opt OptCmd)
 
 		OwnerCommand() (opt OptCmd)
 		SetOwner(opt OptCmd)
@@ -165,12 +170,13 @@ type (
 		AddOptCmd(opt OptCmd)
 		// AddCommand adds a *Command as a sub-command
 		AddCommand(cmd *Command)
+
 		// AttachTo attaches itself as a sub-command of 'opt' OptCmd object
-		AttachTo(opt OptCmd)
+		AttachTo(parentOpt OptCmd) (opt OptCmd)
 		// AttachToCommand attaches itself as a sub-command of *Command object
-		AttachToCommand(cmd *Command)
+		AttachToCommand(cmd *Command) (opt OptCmd)
 		// AttachToRoot attaches itself as a sub-command of *RootCommand object
-		AttachToRoot(root *RootCommand)
+		AttachToRoot(root *RootCommand) (opt OptCmd)
 	}
 
 	// OnSet interface
@@ -231,6 +237,7 @@ type optContext struct {
 	current     *Command
 	root        *RootCommand
 	workingFlag *Flag
+	temp        *Command
 }
 
 var optCtx *optContext

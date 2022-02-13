@@ -30,6 +30,9 @@ func Exec(rootCmd *RootCommand, opts ...ExecOption) (err error) {
 	}
 
 	_, err = w.InternalExecFor(rootCmd, os.Args)
+	if err == ErrShouldBeStopException {
+		err = nil
+	}
 	return
 }
 
@@ -208,7 +211,6 @@ func (w *ExecWorker) internalExecFor(pkg *ptpkg, rootCmd *RootCommand, args []st
 
 	last = goCommand
 	err = w.afterInternalExec(pkg, rootCmd, goCommand, args, stopC || pkg.lastCommandHeld)
-
 	return
 }
 
@@ -217,7 +219,7 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 
 	if len(pkg.a) > 0 && strings.Contains(w.switchCharset, pkg.a[0:1]) { // pkg.a[0] == '/' ||
 		if len(pkg.a) == 1 {
-			matched, stopF, err = w.helpOptMatching(pkg, goCommand, *args)
+			matched, stopF, err = w.switchCharMatching(pkg, goCommand, *args)
 			return
 		}
 		return w.xxTestCmdFlags(pkg, goCommand, rootCmd, args)
@@ -300,9 +302,13 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 		if goCommand.Action == nil && goCommand == &rootCmd.Command && pkg.aliasCommand != nil {
 			goCommand = pkg.aliasCommand
 		}
-		if goCommand.Action != nil {
+		action := goCommand.Action
+		if goCommand.Action == nil && assumeDefaultAction {
+			action = defaultAction
+		}
+		if action != nil {
 			rArgs := w.getRemainArgs(pkg, args)
-			err = w.doInvokeCommand(rootCmd, goCommand, rArgs)
+			err = w.doInvokeCommand(rootCmd, action, goCommand, rArgs)
 			return
 		}
 	}
@@ -325,7 +331,7 @@ func (w *ExecWorker) doInvokeHelpScreen(pkg *ptpkg, rootCmd *RootCommand, goComm
 
 }
 
-func (w *ExecWorker) doInvokeCommand(rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
+func (w *ExecWorker) doInvokeCommand(rootCmd *RootCommand, action Handler, goCommand *Command, remainArgs []string) (err error) {
 	if goCommand != &rootCmd.Command {
 		if w.noCommandAction {
 			return
@@ -342,7 +348,7 @@ func (w *ExecWorker) doInvokeCommand(rootCmd *RootCommand, goCommand *Command, r
 		}
 	}
 
-	if err = w.invokeCommand(rootCmd, goCommand, remainArgs); err == ErrShouldBeStopException {
+	if err = w.invokeCommand(rootCmd, action, goCommand, remainArgs); err == ErrShouldBeStopException {
 		return nil
 	}
 
@@ -498,7 +504,7 @@ func (w *ExecWorker) checkStates(pkg *ptpkg) {
 // }
 
 //goland:noinspection GoUnusedParameter
-func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
+func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, action Handler, goCommand *Command, remainArgs []string) (err error) {
 	if unhandledErrorHandler != nil {
 		defer func() {
 			// fmt.Println("defer caller")
@@ -532,7 +538,7 @@ func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, goCommand *Command, rem
 	}
 
 	if err == nil {
-		err = goCommand.Action(goCommand, remainArgs)
+		err = action(goCommand, remainArgs)
 	}
 	return
 }

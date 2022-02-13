@@ -57,22 +57,24 @@ type ExecWorker struct {
 
 	// rootCommand the root of all commands
 	rootCommand *RootCommand
-	// rootOptions *Opt
+
 	rxxtOptions           *Options
 	onOptionMergingSet    OnOptionSetCB
 	onOptionSet           OnOptionSetCB
 	savedOptions          []*Options
 	writeBackAlterConfigs bool
 
-	similarThreshold      float64
-	noDefaultHelpScreen   bool
-	noColor               bool
-	noEnvOverrides        bool
-	strictMode            bool
-	noUnknownCmdTip       bool
-	noCommandAction       bool
-	noPluggableAddons     bool
-	noPluggableExtensions bool
+	similarThreshold            float64 //
+	noDefaultHelpScreen         bool    // disable printing help screen while '--help' hit
+	noColor                     bool    // 'no-color'
+	noEnvOverrides              bool    // 'no-env-overriders'
+	strictMode                  bool    // 'strict-mode'
+	noUnknownCmdTip             bool    // don't invoke unknownOptionHandler while unknown command found
+	noCommandAction             bool    // disable invoking command action even if it's valid
+	noPluggableAddons           bool    //
+	noPluggableExtensions       bool    //
+	noUseOnSwitchCharHitHandler bool    // don't invoke onSwitchCharHitHandler handler while a '-' found
+	inCompleting                bool    // allow partial matching at last cmdline args
 
 	logexInitialFunctor Handler
 	logexPrefix         string
@@ -84,13 +86,21 @@ type ExecWorker struct {
 
 	helpTailLine string
 
-	onSwitchCharHit   OnSwitchCharHitCB
-	onPassThruCharHit OnPassThruCharHitCB
+	onSwitchCharHitHandler   OnSwitchCharHitCB
+	onPassThruCharHitHandler OnPassThruCharHitCB
 
 	addons []cmdrBase.PluginEntry
 
-	lastPkg *ptpkg
+	lastPkg     *ptpkg
+	hitCommands []*Command
+	hitFlags    []*Flag
 }
+
+// GetHitCommands returns all matched sub-commands from commandline
+func GetHitCommands() []*Command { return internalGetWorker().hitCommands }
+
+// GetHitFlags returns all matched flags from commandline
+func GetHitFlags() []*Flag { return internalGetWorker().hitFlags }
 
 // ExecOption is the functional option for Exec()
 type ExecOption func(w *ExecWorker)

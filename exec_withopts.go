@@ -19,6 +19,16 @@ import (
 	"sync/atomic"
 )
 
+// WithInternalDefaultAction provides a default command action to which hasn't been defined.
+func WithInternalDefaultAction(useInternalDefaultAction bool, userDefinedActionHandler ...Handler) ExecOption {
+	return func(w *ExecWorker) {
+		assumeDefaultAction = useInternalDefaultAction
+		for _, h := range userDefinedActionHandler {
+			defaultAction = h
+		}
+	}
+}
+
 // WithToggleGroupChoicerStyle allows user-defined choicer style.
 //
 // The valid styles are: hexagon, triangle-right.
@@ -59,8 +69,8 @@ func WithToggleGroupChoicerNewStyle(style string, trueChoicer, falseChoicer stri
 	}
 }
 
-// withShellCompletionCommandEnabled NOT YET, to-do
-func withShellCompletionCommandEnabled(b bool) ExecOption {
+// WithShellCompletionCommandEnabled enables __complete command for internal usage in fish, ps, etc..
+func WithShellCompletionCommandEnabled(b bool) ExecOption {
 	return func(w *ExecWorker) {
 		enableShellCompletionCommand = b
 	}
@@ -755,7 +765,7 @@ func WithNoCommandAction(b bool) ExecOption {
 // For example, type `bin/fluent mx -d - --help` will trigger this callback at the 2nd flag '-'.
 func WithOnSwitchCharHit(fn func(parsed *Command, switchChar string, args []string) (err error)) ExecOption {
 	return func(w *ExecWorker) {
-		w.onSwitchCharHit = fn
+		w.onSwitchCharHitHandler = fn
 	}
 }
 
@@ -763,7 +773,7 @@ func WithOnSwitchCharHit(fn func(parsed *Command, switchChar string, args []stri
 // For example, type `bin/fluent mx -d -- --help` will trigger this callback at the 2nd flag '--'.
 func WithOnPassThruCharHit(fn func(parsed *Command, switchChar string, args []string) (err error)) ExecOption {
 	return func(w *ExecWorker) {
-		w.onPassThruCharHit = fn
+		w.onPassThruCharHitHandler = fn
 	}
 }
 

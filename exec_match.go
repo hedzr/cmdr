@@ -10,11 +10,11 @@ import (
 	"strings"
 )
 
-func (w *ExecWorker) helpOptMatching(pkg *ptpkg, goCommand **Command, args []string) (matched, stop bool, err error) {
+func (w *ExecWorker) switchCharMatching(pkg *ptpkg, goCommand **Command, args []string) (matched, stop bool, err error) {
 	// pkg.needHelp = true
 	// pkg.needFlagsHelp = true
 	ra := (args)[pkg.i:]
-	if len(ra) > 0 {
+	if len(ra) > 1 {
 		ra = ra[1:]
 	}
 
@@ -22,10 +22,14 @@ func (w *ExecWorker) helpOptMatching(pkg *ptpkg, goCommand **Command, args []str
 	pkg.lastCommandHeld = false
 	pkg.needHelp = false
 	pkg.needFlagsHelp = false
-	if w.onSwitchCharHit != nil {
-		err = w.onSwitchCharHit(*goCommand, pkg.a, ra)
+	if !w.noUseOnSwitchCharHitHandler && !w.inCompleting {
+		if w.onSwitchCharHitHandler != nil {
+			err = w.onSwitchCharHitHandler(*goCommand, pkg.a, ra)
+		} else {
+			err = defaultOnSwitchCharHit(*goCommand, pkg.a, ra)
+		}
 	} else {
-		err = defaultOnSwitchCharHit(*goCommand, pkg.a, ra)
+		pkg.remainArgs = append(pkg.remainArgs, pkg.a)
 	}
 	return
 }
@@ -38,7 +42,7 @@ func (w *ExecWorker) cmdMatching(pkg *ptpkg, goCommand **Command, args []string)
 		*goCommand = cmd
 		matched = true
 		flog("    -> command %q hit (a=%q, idx=%v)...", cmd.GetTitleName(), pkg.a, pkg.i)
-		stop, err = w.cmdMatched(pkg, cc, args)
+		stop, err = w.cmdMatched(pkg, *goCommand, args)
 		return
 	}
 
@@ -69,11 +73,16 @@ func (w *ExecWorker) cmdMatching(pkg *ptpkg, goCommand **Command, args []string)
 func (w *ExecWorker) cmdMatched(pkg *ptpkg, goCommand *Command, args []string) (stop bool, err error) {
 	pkg.iLastCommand = pkg.i
 
-	if len((*goCommand).SubCommands) == 0 { // (*goCommand).Action != nil &&
+	w.hitCommands = append(w.hitCommands, goCommand)
+
+	if len(goCommand.SubCommands) == 0 { // (*goCommand).Action != nil &&
 		// the args remained are files, not sub-commands.
 		pkg.lastCommandHeld, stop = true, true
 	}
 
+	if goCommand.onMatched != nil {
+		err = goCommand.onMatched(goCommand, args)
+	}
 	return
 }
 
@@ -86,12 +95,16 @@ func (w *ExecWorker) flagsPrepare(pkg *ptpkg, goCommand **Command, args []string
 				pkg.lastCommandHeld = false
 				pkg.needHelp = false
 				pkg.needFlagsHelp = false
+				if w.inCompleting {
+					pkg.remainArgs = append(pkg.remainArgs, pkg.a)
+					return
+				}
 				ra := args[pkg.i:]
 				if len(ra) > 0 {
 					ra = ra[1:]
 				}
-				if w.onPassThruCharHit != nil {
-					err = w.onPassThruCharHit(*goCommand, pkg.a, ra)
+				if w.onPassThruCharHitHandler != nil {
+					err = w.onPassThruCharHitHandler(*goCommand, pkg.a, ra)
 				} else {
 					err = defaultOnPassThruCharHit(*goCommand, pkg.a, ra)
 				}
@@ -131,40 +144,54 @@ goUp:
 	}
 
 	if matched {
-		if err = w.checkFlagCanBeHere(pkg); err == nil {
-			if upLevel, stop, err = w.flagsMatched(pkg, *goCommand, args); stop || err != nil {
-				return
-			}
-			if upLevel {
+		if upLevel, stop, err = w.flagsCheckAndDoMatched(pkg, goCommand, args); upLevel {
+			goto goUp
+		}
+		return
+	}
+
+	if cc.owner != nil {
+		// match the flag within parent's flags set.
+		cc = cc.owner
+		goto goUp
+	}
+
+	if !pkg.assigned && pkg.short {
+		// try matching 2-chars short opt
+		if len(pkg.savedFn) > 0 {
+			fnf := pkg.fn + pkg.savedFn
+			pkg.fn, pkg.savedFn = fnf[0:2], fnf[2:]
+			*goCommand = pkg.savedGoCommand
+			if (*goCommand).owner != nil {
 				goto goUp
 			}
 		}
-	} else {
-		if cc.owner != nil {
-			// match the flag within parent's flags set.
-			cc = cc.owner
-			goto goUp
-		}
-		if !pkg.assigned && pkg.short {
-			// try matching 2-chars short opt
-			if len(pkg.savedFn) > 0 {
-				fnf := pkg.fn + pkg.savedFn
-				pkg.fn, pkg.savedFn = fnf[0:2], fnf[2:]
-				*goCommand = pkg.savedGoCommand
-				if (*goCommand).owner != nil {
-					goto goUp
-				}
-			}
-		}
+	}
 
-		pkg.unknownFlags = append(pkg.unknownFlags, pkg.a)
-		unknownFlag(pkg, *goCommand, args)
+	if pkg.i == len(args)-1 && w.inCompleting {
+		stop = true
+		pkg.remainArgs = append(pkg.remainArgs, pkg.a)
+		return
+	}
+
+	pkg.unknownFlags = append(pkg.unknownFlags, pkg.a)
+	unknownFlag(pkg, *goCommand, args)
+
+	return
+}
+
+func (w *ExecWorker) flagsCheckAndDoMatched(pkg *ptpkg, goCommand **Command, args []string) (upLevel, stop bool, err error) {
+	if err = w.checkFlagCanBeHere(pkg); err == nil {
+		if upLevel, stop, err = w.flagsMatched(pkg, *goCommand, args); stop || err != nil {
+			return
+		}
 	}
 	return
 }
 
 func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string) (upLevel, stop bool, err error) {
 	pkg.flg.times++
+	w.hitFlags = append(w.hitFlags, pkg.flg)
 
 	if err = pkg.tryExtractingValue(args); err != nil {
 		var perr *ErrorForCmdr
@@ -178,15 +205,21 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 		// if !GetBoolP(getPrefix(), "quiet") {
 		// 	logrus.Debugf("-- flag '%v' hit, go ahead...", pkg.flg.GetTitleName())
 		// }
-		if pkg.flg.Action != nil {
-			if err = pkg.flg.Action(goCommand, w.tmpGetRemainArgs(pkg, args)); err == ErrShouldBeStopException {
-				stop = true
-				err = nil
-				return
-			} else if err != nil {
-				return
-			}
+		stop, err = w.handleHandlersForFlag(pkg, goCommand, args)
+		if stop || err != nil {
+			return
 		}
+
+		//if pkg.flg.Action != nil {
+		//	if err = pkg.flg.Action(goCommand, w.tmpGetRemainArgs(pkg, args)); err == ErrShouldBeStopException {
+		//		stop = true
+		//		err = nil
+		//		return
+		//	} else if err != nil {
+		//		return
+		//	}
+		//}
+
 		if isBool(pkg.flg.DefaultValue) || isNil1(pkg.flg.DefaultValue) {
 			flog("    .  . [tryToggleGroup] %q = %v", pkg.fn, pkg.val)
 			pkg.tryToggleGroup()
@@ -203,6 +236,24 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 			flog("    .  . [value assigned] %q = %v", pkg.fn, pkg.val)
 		}
 	}
+	return
+}
+
+func (w *ExecWorker) handleHandlersForFlag(pkg *ptpkg, goCommand *Command, args []string) (stop bool, err error) {
+	handleIt := func(handler Handler) (stop bool, err error) {
+		if handler != nil {
+			if err = handler(goCommand, w.tmpGetRemainArgs(pkg, args)); err == ErrShouldBeStopException {
+				stop = true
+				err = nil
+			}
+		}
+		return
+	}
+	stop, err = handleIt(pkg.flg.onMatched)
+	if stop || err != nil {
+		return
+	}
+	stop, err = handleIt(pkg.flg.Action)
 	return
 }
 

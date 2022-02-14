@@ -156,7 +156,7 @@ func WithOnSet(f func(keyPath string, value interface{})) (opt Option) {
 // WithCommand define an (Sub-)Command
 func WithCommand(cmdDefines func(newSubCmd cmdr.OptCmd)) (opt Option) {
 	return func(flag cmdr.OptFlag) {
-		var oo = flag.OwnerCommand().NewSubCommand()
+		var oo = cmdr.NewSubCmd().AttachTo(flag.OwnerCommand())
 		cmdDefines(oo)
 	}
 }

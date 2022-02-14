@@ -6,83 +6,108 @@ import (
 )
 
 func attachModifyFlags(cmd cmdr.OptCmd) {
-	cmd.NewFlagV("=", "delim", "d").
+	cmdr.NewString("=").Titles("delim", "d").
+		//cmd.NewFlagV("=", "delim", "d").
 		Description("delimiter char in `non-plain` mode.").
 		Placeholder("").
-		CompletionJustOnce(true)
+		CompletionJustOnce(true).
+		AttachTo(cmd)
 
-	cmd.NewFlagV(false, "clear", "c").
+	cmdr.NewBool().Titles("clear", "c").
+		//cmd.NewFlagV(false, "clear", "c").
 		Description("clear all tags.").
 		Placeholder("").
 		Group("Operate").
-		VendorHidden(false)
+		VendorHidden(false).
+		AttachTo(cmd)
 
-	cmd.NewFlagV(false, "string", "g", "string-mode").
+	cmdr.NewBool().Titles("string", "g", "string-mode").
+		//cmd.NewFlagV(false, "string", "g", "string-mode").
 		Description("In 'String Mode', default will be disabled: default, a tag string will be split by comma(,), and treated as a string list.").
 		Placeholder("").
-		ToggleGroup("Mode")
+		ToggleGroup("Mode").
+		AttachTo(cmd)
 
-	cmd.NewFlagV(false, "meta", "m", "meta-mode").
+	cmdr.NewBool().Titles("meta", "m", "meta-mode").
+		//cmd.NewFlagV(false, "meta", "m", "meta-mode").
 		Description("In 'Meta Mode', service 'NodeMeta' field will be updated instead of 'Tags'. (--plain assumed false).").
 		Placeholder("").
-		ToggleGroup("Mode")
+		ToggleGroup("Mode").
+		AttachTo(cmd)
 
-	cmd.NewFlagV(false, "both", "2", "both-mode").
+	cmdr.NewBool().Titles("both", "2", "both-mode").
+		//cmd.NewFlagV(false, "both", "2", "both-mode").
 		Description("In 'Both Mode', both of 'NodeMeta' and 'Tags' field will be updated.").
 		Placeholder("").
-		ToggleGroup("Mode")
+		ToggleGroup("Mode").
+		AttachTo(cmd)
 
-	cmd.NewFlagV(false, "plain", "p", "plain-mode").
+	cmdr.NewBool().Titles("plain", "p", "plain-mode").
+		//cmd.NewFlagV(false, "plain", "p", "plain-mode").
 		Description("In 'Plain Mode', a tag be NOT treated as `key=value` or `key:value`, and modify with the `key`.").
 		Placeholder("").
-		ToggleGroup("Mode")
+		ToggleGroup("Mode").
+		AttachTo(cmd)
 
-	cmd.NewFlagV(true, "tag", "t", "tag-mode").
+	cmdr.NewBool().Titles("tag", "t", "tag-mode").
+		//cmd.NewFlagV(true, "tag", "t", "tag-mode").
 		Description("In 'Tag Mode', a tag be treated as `key=value` or `key:value`, and modify with the `key`.").
 		Placeholder("").
-		ToggleGroup("Mode")
+		ToggleGroup("Mode").
+		AttachTo(cmd)
 
 }
 
 func attachConsulConnectFlags(cmd cmdr.OptCmd) {
 
-	cmd.NewFlagV("localhost", "addr", "a").
+	cmdr.NewString("localhost").Titles("addr", "a").
+		//cmd.NewFlagV("localhost", "addr", "a").
 		Description("Consul ip/host and port: HOST[:PORT] (No leading 'http(s)://')", ``).
 		Placeholder("HOST[:PORT]").
-		Group("Consul")
-	cmd.NewFlagV(8500, "port", "p").
+		Group("Consul").
+		AttachTo(cmd)
+	cmdr.NewInt(8500).Titles("port", "p").
 		Description("Consul port", ``).
 		Placeholder("PORT").
-		Group("Consul")
-	cmd.NewFlagV(true, "insecure", "K").
+		Group("Consul").
+		AttachTo(cmd)
+	cmdr.NewBool(false).Titles("insecure", "K").
 		Description("Skip TLS host verification", ``).
 		Placeholder("").
-		Group("Consul")
-	cmd.NewFlagV("/", "prefix", "px").
+		Group("Consul").
+		AttachTo(cmd)
+	cmdr.NewString("/").Titles("prefix", "px").
 		Description("Root key prefix", ``).
 		Placeholder("ROOT").
-		Group("Consul")
-	cmd.NewFlagV("", "cacert").
+		Group("Consul").
+		AttachTo(cmd)
+	cmdr.NewString("").Titles("cacert", "").
 		Description("Consul Client CA cert)", ``).
 		Placeholder("FILE").
-		Group("Consul")
-	cmd.NewFlagV("", "cert").
+		Group("Consul").
+		AttachTo(cmd)
+	cmdr.NewString("").Titles("cert", "").
 		Description("Consul Client cert", ``).
 		Placeholder("FILE").
-		Group("Consul")
-	cmd.NewFlagV("http", "scheme").
+		Group("Consul").
+		AttachTo(cmd)
+	cmdr.NewString("http").Titles("scheme", "").
 		Description("Consul connection protocol", ``).
 		Placeholder("SCHEME").
-		Group("Consul")
-	cmd.NewFlagV("", "username", "u", "user", "usr", "uid").
+		Group("Consul").
+		AttachTo(cmd)
+	cmdr.NewString().Titles("username", "u", "user", "usr", "uid").
 		Description("HTTP Basic auth user", ``).
 		Placeholder("USERNAME").
-		Group("Consul")
-	cmd.NewFlagV("", "password", "pw", "passwd", "pass", "pwd").
+		Group("Consul").
+		AttachTo(cmd)
+	cmdr.NewString().Titles("password", "pw", "passwd", "pass", "pwd").
+		//cmd.NewFlagV("", "password", "pw", "passwd", "pass", "pwd").
 		Description("HTTP Basic auth password", ``).
 		Placeholder("PASSWORD").
 		Group("Consul").
-		ExternalTool(cmdr.ExternalToolPasswordInput)
+		ExternalTool(cmdr.ExternalToolPasswordInput).
+		AttachTo(cmd)
 
 }
 

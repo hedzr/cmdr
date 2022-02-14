@@ -136,7 +136,9 @@ func (w *ExecWorker) syncRootCommand() {
 		conf.Buildstamp = time.Now().Format(time.RFC1123)
 	}
 
-	SetRaw("cmdr.Version", w.rootCommand.Version)
+	w.rootCommand.Version = conf.Version
+
+	SetRaw("cmdr.Version", Version)
 }
 
 func (w *ExecWorker) preparePtPkg(pkg *ptpkg) {

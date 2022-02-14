@@ -126,134 +126,141 @@ func (w *ExecWorker) genShellFig(writer io.Writer, fullPath string, cmd *Command
 	return
 }
 
-// // not complete
-// func genShellB(cmd *Command, args []string) (err error) {
-// 	// var sb strings.Builder
-// 	// var sbca []strings.Builder
-//
-// 	// cx := &cmd.GetRoot().Command
-// 	// lvl := findLvl(cx, 0)
-// 	// sbca = make([]strings.Builder, lvl+1)
-//
-// 	return
-// }
-//
-// // not complete
-// func genShellA(cmd *Command, args []string) (err error) {
-// 	var sb strings.Builder
-// 	var sbca []strings.Builder
-//
-// 	cx := &cmd.GetRoot().Command
-// 	lvl := findLvl(cx, 0)
-// 	sbca = make([]strings.Builder, lvl+1)
-//
-// 	sb.WriteString(fmt.Sprintf(`#compdef _%v %v
-//
-// # zsh completion wrapper for %v
-// # version: %v
-// # deep: %v
-// #
-// # Copyright (c) 2019-2025 Hedzr Yeh <hedzrz@gmail.com>
-// #
-//
-// __ac() {
-// 	local state
-// 	typeset -A words
-// 	_arguments \
-// `,
-// 		cmd.GetRoot().AppName, cmd.GetRoot().AppName, cmd.GetRoot().AppName, cmd.GetRoot().Version, lvl))
-//
-// 	for i := 1; i < lvl; i++ {
-// 		sb.WriteString(fmt.Sprintf("\t\t'%d: :->level%d' \\\n", i, i))
-// 	}
-// 	sb.WriteString(fmt.Sprintf("\t\t'%d: :_files'\n\n\tcase $state in\n", lvl))
-//
-// 	cx = &cmd.GetRoot().Command
-// 	body1, body2 := genShellLoopCommands(cx, 1, sbca)
-// 	// sb.WriteString(body1)
-// 	// sb.WriteString(body2)
-// 	logrus.Debugf("%v,%v", len(body1), len(body2))
-// 	for i := 1; i <= lvl; i++ {
-// 		sb.WriteString(fmt.Sprintf("\t\tlevel%d)\n\t\t\tcase $words[%d] in\n", i, i))
-// 		sb.WriteString(sbca[i].String())
-// 		sb.WriteString(fmt.Sprintf("\t\t\t\t*) _arguments '%d: :_files' ;;\n\t\t\tesac\n\t\t;;\n\n", i))
-// 	}
-//
-// 	sb.WriteString(fmt.Sprintf(`
-// 	esac
-// }
 //
 //
-// __ac "$@"
+// /////////////////////////////////////////
 //
 //
-// # Local Variables:
-// # mode: Shell-Script
-// # sh-indentation: 4
-// # indent-tabs-mode: nil
-// # sh-basic-offset: 4
-// # End:
-// # vim: ft=zsh sw=4 ts=4 et
-//
-// `))
-//
-// 	err = ioutil.WriteFile("_"+cmd.GetRoot().AppName, []byte(sb.String()), 0644)
-// 	if err == nil {
-// 		logrus.Infof("_%v written.", cmd.GetRoot().AppName)
-// 	}
-// 	return
-// }
-//
-// func genShellLoopCommands(cmd *Command, level int, sbca []strings.Builder) (scrFlg, scrCmd string) {
-// 	var sbCmds, sbFlags strings.Builder
-//
-// 	sbca[level].WriteString(fmt.Sprintf("\t\t\t\t%v) _arguments '%d: :(%v)' ;;\n",
-// 		cmd.GetName(), level, cmd.GetSubCommandNamesBy(" ")))
-//
-// 	for _, cc := range cmd.SubCommands {
-// 		// sbCmds.WriteString(fmt.Sprintf(`%v:::`, cc.Name))
-//
-// 		// sbFlags.WriteString(fmt.Sprintf("\t\t\t\n"))
-//
-// 		// '(- *)'{--version,-V}'[display version info]' \
-// 		// '(- *)'{--help,-h}'[display help]' \
-// 		// '(--background -b)'{--background,-b}'[run in background]' \
-// 		// 		if len(cc.Flags) > 0 {
-// 		// 			for _, flg := range cc.Flags {
-// 		// 				sbFlags.WriteString(fmt.Sprintf(`		'(%v)'{%v}'[%v]' \
-// 		// `, eraseMultiWSs(flg.GetTitleFlagNamesBy(" ")), eraseMultiWSs(flg.GetTitleFlagNames()), flg.Description))
-// 		// 			}
-// 		// 		}
-//
-// 		if len(cc.SubCommands) > 0 {
-// 			a, b := genShellLoopCommands(cc, level+1, sbca)
-// 			// sbChild.WriteString(a)
-// 			// sbca[level+1].WriteString(fmt.Sprintf("\t\tlevel%d)\n\t\t\tcase $words[%d] in\n", level+1, level+1))
-// 			sbca[level+1].WriteString(a)
-// 			// sbFlags.WriteString(fmt.Sprintf("\t\t\t\t*) _arguments '%d: :_files' ;;\n\t\t\tesac\n\t\t;;\n", level+1))
-// 			logrus.Debugf("level %v \nflgs:\n%v\ncmds:\n%v", level, a, b)
-// 		}
-// 	}
-//
-// 	// sbFlags.WriteString(fmt.Sprintf("\t\tlevel%d)\n\t\t\tcase $words[%d] in\n", level+1, level+1))
-// 	// sbFlags.WriteString(sbChild.String())
-// 	// sbFlags.WriteString(fmt.Sprintf("\t\t\t\t*) _arguments '%d: :_files' ;;\n\t\t\tesac\n\t\t;;\n", level+1))
-//
-// 	if level == 0 {
-// 		// 		scrFlg = fmt.Sprintf(`	_arguments -s -S \
-// 		// %v && return 0
-// 		//
-// 		// `, sbFlags.String())
-// 		// 		scrCmd = fmt.Sprintf(`	_alternative \
-// 		// %v
-// 		//
-// 		// `, sbCmds.String())
-// 	} else {
-// 		scrFlg = sbFlags.String()
-// 		scrCmd = sbCmds.String()
-// 	}
-// 	return
-// }
+
+type gensh struct {
+	shell         bool
+	ext           string
+	tplm          map[whatTpl]string
+	getTargetPath func(g *gensh) string
+	detectShell   func(g *gensh)
+	homeDir       string
+	shConfigDir   string
+	fullPath      string
+	appName       string
+	endingText    string
+}
+
+func (g *gensh) init() {
+	g.detectShell(g)
+	g.detectShellConfigFolders()
+}
+
+func (g *gensh) detectShellConfigFolders() {
+	g.homeDir = os.Getenv("HOME") // note that it's available in cmdr system specially for windows since we ever duplicated USERPROFILE as HOME.
+	shDir := path.Join(g.homeDir, ".config", g.ext)
+	if dir.FileExists(shDir) {
+		g.shConfigDir = shDir
+	}
+}
+
+func (g *gensh) Generate(writer io.Writer, fullPath string, cmd *Command, args []string) (err error) {
+	// log.Printf("fullPath: %v, args: %v", fullPath, args)
+	if fullPath == "" && len(args) > 0 {
+		for _, a := range args {
+			if a == "-" {
+				err = g.genTo(os.Stdout, cmd, args)
+				return
+			}
+		}
+
+		fullPath = args[0] + "." + g.ext
+	}
+	g.fullPath, g.appName = fullPath, cmd.root.AppName
+
+	if g.shConfigDir != "" && g.fullPath == "" && writer == nil {
+		fullPath = g.getTargetPath(g)
+		if d := path.Dir(fullPath); !dir.FileExists(d) {
+			err = dir.EnsureDir(d)
+			if err != nil {
+				return
+			}
+		}
+		g.fullPath = fullPath
+
+		var f *os.File
+		if f, err = os.Create(g.fullPath); err != nil {
+			return
+		}
+		defer func(f *os.File) {
+			err = f.Close()
+		}(f)
+		writer = f
+	}
+
+	if g.fullPath == "" {
+		g.fullPath = "-"
+		err = g.genTo(os.Stdout, cmd, args)
+	} else if writer != nil {
+		err = g.genTo(writer, cmd, args)
+	}
+	return
+}
+
+func (g *gensh) genTo(writer io.Writer, cmd *Command, args []string) (err error) {
+
+	var ctx = &genshCtx{
+		cmd: cmd,
+		theArgs: &internalShellTemplateArgs{
+			RootCommand: cmd.root,
+			CmdrVersion: GetString("cmdr.Version"),
+			Command:     cmd,
+			Args:        args,
+		},
+		output: writer,
+	}
+
+	err = genshTplExpand(ctx, "completion.head", g.tplm[wtHeader], ctx.theArgs)
+
+	if err == nil {
+
+		err = genshTplExpand(ctx, "completion.body", g.tplm[wtBody], ctx.theArgs)
+
+		if err == nil {
+
+			err = genshTplExpand(ctx, "completion.tail", g.tplm[wtTail], ctx.theArgs)
+
+			if g.fullPath != "-" {
+				fmt.Printf(`
+
+# %q generated.`, g.fullPath)
+			}
+
+			fmt.Printf(`
+
+%v`, leftPadStr(fmt.Sprintf(g.endingText, g.appName), "# "))
+		}
+	}
+
+	return
+}
+
+func leftPadStr(s, padStr string) string {
+	if padStr == "" {
+		return s
+	}
+
+	var sb strings.Builder
+	scanner := bufio.NewScanner(bufio.NewReader(strings.NewReader(s)))
+	for scanner.Scan() {
+		sb.WriteString(padStr)
+		sb.WriteString(scanner.Text())
+		sb.WriteRune('\n')
+	}
+	return sb.String()
+}
+
+type whatTpl int
+
+const (
+	wtHeader whatTpl = iota
+	wtBody
+	wtTail
+)
 
 //
 //

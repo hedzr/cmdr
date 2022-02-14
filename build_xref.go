@@ -126,7 +126,7 @@ type aliasesCommands struct {
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) buildAliasesCrossRefs(root *RootCommand) {
 	var (
-		aliases *aliasesCommands = new(aliasesCommands)
+		aliases = new(aliasesCommands)
 		err     error
 	)
 	if err = GetSectionFrom("aliases", &aliases); err == nil {
@@ -302,20 +302,35 @@ func (w *ExecWorker) getInvokeShellAction(from *Command) Handler {
 
 		// NOTE: cmd == from
 
-		var a []string
-		shell := cmd.Shell
-		if shell == "" {
-			shell = "/bin/bash"
-		} else if strings.Contains(shell, "/env ") {
-			c := strings.Split(shell, " ")
-			shell, a = c[0], append(a, c[1:]...)
-		}
+		//var a []string
+		//shell := cmd.Shell
+		//if shell == "" {
+		//	if runtime.GOOS == "windows" {
+		//		shell = "powershell.exe"
+		//	} else {
+		//		shell = "/bin/bash"
+		//	}
+		//} else if strings.Contains(shell, "/env ") {
+		//	c := strings.Split(shell, " ")
+		//	shell, a = c[0], append(a, c[1:]...)
+		//}
+		//
+		//scriptFragments := w.expandTmplWithExecutiveEnv(cmd.InvokeShell, cmd, args)
+		//
+		//if strings.Contains(shell, "powershell") {
+		//	a = append(a, "-NoProfile", "-NonInteractive", scriptFragments)
+		//} else {
+		//	a = append(a, "-c", scriptFragments)
+		//}
+		//
+		//err = exec.Run(shell, a...)
 
-		scriptFragments := w.expandTmplWithExecutiveEnv(cmd.InvokeShell, cmd, args)
-		a = append(a, "-c", scriptFragments)
-
-		err = exec.Run(shell, a...)
-		return
+		return exec.InvokeShellScripts(cmd.InvokeShell,
+			exec.WithScriptExpander(func(source string) string {
+				return w.expandTmplWithExecutiveEnv(cmd.InvokeShell, cmd, args)
+			}),
+			exec.WithScriptShell(cmd.Shell),
+		)
 	}
 }
 
@@ -718,8 +733,9 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 				ff.VendorHidden = true
 			})
 
-			if enableShellCompletionCommand || isFishShell() {
+			if enableShellCompletionCommand {
 				w._cmdAdd(root, "help", "Completion Help system", func(cx *Command) {
+					cx.Short = "h"
 					cx.Aliases = []string{"__completion", "__complete"}
 					cx.VendorHidden = true
 					cx.Action = w.helpSystemAction
@@ -868,7 +884,7 @@ $ {{.AppName}} gen man
 
 					w._stringFlgAdd1(cx, "output", "The output filename", "Output", func(ff *Flag) {
 						ff.Short = "o"
-						ff.DefaultValue = os.ExpandEnv("$AppName")
+						ff.DefaultValue = "" // os.ExpandEnv("$AppName")
 						ff.DefaultValuePlaceholder = "FILENAME"
 						ff.Hidden = false
 					})
@@ -889,15 +905,15 @@ $ {{.AppName}} gen man
 						ff.ToggleGroup = shTypeGroup
 						ff.Hidden = false
 					})
-					w._boolFlgAdd1(cx, "fish", "Generate auto completion script for Fish-shell [TODO]", shTypeGroup, func(ff *Flag) {
+					w._boolFlgAdd1(cx, "fish", "Generate auto completion script for Fish-shell", shTypeGroup, func(ff *Flag) {
 						ff.Short = "f"
 						ff.ToggleGroup = shTypeGroup
-						ff.VendorHidden = true
+						ff.Hidden = false
 					})
-					w._boolFlgAdd1(cx, "powershell", "Generate auto completion script for Powershell [TODO]", shTypeGroup, func(ff *Flag) {
-						ff.Short = "p"
+					w._boolFlgAdd1(cx, "powershell", "Generate auto completion script for Powershell", shTypeGroup, func(ff *Flag) {
+						ff.Short = "ps"
 						ff.ToggleGroup = shTypeGroup
-						ff.VendorHidden = true
+						ff.Hidden = false
 					})
 					w._boolFlgAdd1(cx, "elvish", "Generate auto completion script for Elvish-shell [TODO]", shTypeGroup, func(ff *Flag) {
 						ff.Short = "el"
@@ -968,8 +984,8 @@ $ {{.AppName}} gen man
 const shTypeGroup = "ShellType"
 const tgDocType = "DocType"
 
-// enableShellCompletionCommand NOT YET, to-do
-var enableShellCompletionCommand bool
+// enableShellCompletionCommand _
+var enableShellCompletionCommand bool = true
 
 func (w *ExecWorker) _boolFlgAdd(root *RootCommand, full, desc, group string, adding func(ff *Flag)) {
 	w._boolFlgAdd1(&root.Command, full, desc, group, adding)

@@ -27,13 +27,13 @@ func benchmarkGetStringR(lock bool, b *testing.B) {
 	resetOsArgs()
 	cmdr.ResetOptions()
 
-	copyRootCmd = rootCmdForTesting
+	//copyRootCmd := rootCmdForTesting
 	cmdr.Set("no-watch-conf-dir", true)
 	cmdr.Set("server.deps.kafka.devel.peers", []string{"192.168.0.11", "192.168.0.12", "192.168.0.13"})
 	cmdr.Set("server.deps.kafka.devel.id", "default-kafka")
 	os.Args = []string{"consul-tags", "--version"}
 
-	if err := cmdr.Exec(rootCmdForTesting, cmdr.WithCustomShowVersion(func() {}), cmdr.WithNoDefaultHelpScreen(true)); err != nil {
+	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithCustomShowVersion(func() {}), cmdr.WithNoDefaultHelpScreen(true)); err != nil {
 		b.Fatal(err)
 	}
 
@@ -61,13 +61,13 @@ func prepare(lock bool, b *testing.B) {
 	resetOsArgs()
 	cmdr.ResetOptions()
 
-	copyRootCmd = rootCmdForTesting
+	//copyRootCmd = rootCmdForTesting
 	cmdr.Set("no-watch-conf-dir", true)
 	cmdr.Set("server.deps.kafka.devel.peers", []string{"192.168.0.11", "192.168.0.12", "192.168.0.13"})
 	cmdr.Set("server.deps.kafka.devel.id", "default-kafka")
 	os.Args = []string{"consul-tags", "--version"}
 
-	if err := cmdr.Exec(rootCmdForTesting, cmdr.WithCustomShowVersion(func() {}), cmdr.WithNoDefaultHelpScreen(true)); err != nil {
+	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithCustomShowVersion(func() {}), cmdr.WithNoDefaultHelpScreen(true)); err != nil {
 		b.Fatal(err)
 	}
 

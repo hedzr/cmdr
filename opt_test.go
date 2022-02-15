@@ -9,6 +9,7 @@ import (
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/log/dir"
 	"gopkg.in/yaml.v3"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -725,7 +726,7 @@ func addDupFlags(root *cmdr.RootCmdOpt) {
 
 func TestAlreadyUsed(t *testing.T) {
 	cmdr.ResetOptions()
-	cmdr.InternalResetWorkerForTest()
+	w := cmdr.InternalResetWorkerForTest()
 
 	root := createRoot()
 
@@ -751,12 +752,14 @@ func TestAlreadyUsed(t *testing.T) {
 
 	t.Log("xxx: -------- loops for alreadyUsedTestings")
 	for sss, verifier := range alreadyUsedTestings {
-		resetFlagsAndLog(t)
+		//resetFlagsAndLog(t)
 		cmdr.ResetRootInWorkerForTest()
+		cmdr.ResetOptions()
+		os.Args = strings.Split(sss, " ")
 
 		t.Log("xxx: ***: ", sss)
 
-		if _, err = cmdr.Worker().InternalExecFor(root.RootCommand(), strings.Split(sss, " ")); err != nil {
+		if _, err = w.InternalExecFor(root.RootCommand(), os.Args); err != nil {
 			t.Fatal(err, fmt.Sprintf("rootCmd = %p", root.RootCommand()))
 		}
 		if err = verifier(t); err != nil {

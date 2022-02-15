@@ -286,6 +286,22 @@ func TestHandlePanic(t *testing.T) {
 	t.Log(GetPredefinedLocations())
 }
 
+func TestW_parsePredefinedLocation(t *testing.T) {
+	w := Worker()
+	os.Args = []string{"", "--config=/tmp/1"}
+	_ = w.parsePredefinedLocation()
+	os.Args = []string{"", "--config/tmp/1"}
+	_ = w.parsePredefinedLocation()
+	os.Args = []string{"", "--config", "/tmp"}
+	_ = w.parsePredefinedLocation()
+
+	GetSecondaryLocations()
+	GetPredefinedAlterLocations()
+	setPredefinedLocations("")
+	setSecondaryLocations("")
+	setAlterLocations("")
+}
+
 func TestNewOptions(t *testing.T) {
 	newOptions()
 	newOptionsWith(nil)
@@ -344,7 +360,7 @@ func TestBuildXrefNilBranch(t *testing.T) {
 	_ = w.buildXref(nil, nil)
 }
 
-func rootCmdAliasTest() *RootCommand {
+func rootCmdForAliasesTest() *RootCommand {
 	var cc *Command
 	root := &RootCommand{
 		Command: Command{
@@ -393,7 +409,19 @@ func rootCmdAliasTest() *RootCommand {
 	}
 
 	root.SubCommands = uniAddCmd(root.SubCommands, cc)
+
+	BuildXref(root)
+
 	return root
+}
+
+func BuildXref(root *RootCommand) {
+	w := internalGetWorker()
+	w.doNotLoadingConfigFiles = true
+	err := w.buildXref(root, nil)
+	if err != nil {
+		return
+	}
 }
 
 // TestBuildAliasesCrossRefsErrBranch _
@@ -401,7 +429,7 @@ func TestBuildAliasesCrossRefsErrBranch(t *testing.T) {
 	w := internalGetWorker()
 	w.buildAliasesCrossRefs(nil)
 
-	w.rootCommand = rootCmdAliasTest()
+	w.rootCommand = rootCmdForAliasesTest()
 	root := &w.rootCommand.Command
 	cc := root.SubCommands[0]
 
@@ -427,7 +455,7 @@ func TestAliasActions(t *testing.T) {
 	w := internalGetWorker()
 	w.buildAliasesCrossRefs(nil)
 
-	w.rootCommand = rootCmdAliasTest()
+	w.rootCommand = rootCmdForAliasesTest()
 	root := &w.rootCommand.Command
 	cc := root.SubCommands[0]
 
@@ -543,14 +571,9 @@ func TestSliceConverters(t *testing.T) {
 	mxIx("", "")
 }
 
-// TestWithShellCompletionXXX _
-func TestWithShellCompletionXXX(t *testing.T) {
-	ResetOptions()
-	InternalResetWorkerForTest()
-
-	w := Worker()
-	WithShellCompletionCommandEnabled(true)(w)
-	withShellCompletionPartialMatch(true)(w)
+// TestWithShellCompletionPrivates _
+func TestWithShellCompletionPrivates(t *testing.T) {
+	withShellCompletionPartialMatch(true)(Worker())
 }
 
 //// GetWithLogexInitializer _
@@ -610,6 +633,7 @@ func ExecWithForTest(rootCmd *RootCommand, beforeXrefBuildingX, afterXrefBuiltX 
 // for testing
 func SetInternalOutputStreams(out, err *bufio.Writer) {
 	w := internalGetWorker()
+
 	w.defaultStdout = out
 	w.defaultStderr = err
 
@@ -706,7 +730,7 @@ func TestWorkerAddIt(t *testing.T) {
 	ResetOptions()
 
 	// copyRootCmd = rootCmdForTesting
-	var rootCmdX = rootCmdAliasTest()
+	var rootCmdX = rootCmdForAliasesTest()
 
 	w := Worker()
 
@@ -788,7 +812,7 @@ func TestWorkerHelpSystemPrint(t *testing.T) {
 	ResetOptions()
 
 	// copyRootCmd = rootCmdForTesting
-	var rootCmdX = rootCmdAliasTest()
+	var rootCmdX = rootCmdForAliasesTest()
 
 	var commands = []string{
 		"consul-tags --help -q",

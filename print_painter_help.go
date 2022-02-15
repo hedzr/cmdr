@@ -50,7 +50,7 @@ func (s *helpPainter) Printf(fmtStr string, args ...interface{}) {
 func (s *helpPainter) Print(fmtStr string, args ...interface{}) {
 	s1 := fmt.Sprintf(fmtStr, args...)
 	//s2 := cpt.Translate(s1)
-	fp0("%s", s1)
+	fp("%s", s1)
 }
 
 func (s *helpPainter) FpPrintHeader(command *Command) {

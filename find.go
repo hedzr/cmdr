@@ -3,6 +3,7 @@
 package cmdr
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"github.com/hedzr/cmdr/conf"
@@ -115,8 +116,7 @@ func (w *ExecWorker) setupRootCommand(rootCmd *RootCommand) {
 
 	w.rootCommand = rootCmd
 
-	w.rootCommand.ow = nil   // w.defaultStdout
-	w.rootCommand.oerr = nil // w.defaultStderr
+	w.ow()
 
 	w.rootCommand.PreActions = append(w.rootCommand.PreActions, w.preActions...)
 	w.rootCommand.PostActions = append(w.rootCommand.PostActions, w.postActions...)
@@ -124,6 +124,23 @@ func (w *ExecWorker) setupRootCommand(rootCmd *RootCommand) {
 	uniqueWorkerLock.Unlock()
 
 	w.syncRootCommand()
+}
+
+func (w *ExecWorker) ow() {
+	if w.bufferedStdio {
+		if w.defaultStdout == nil {
+			w.defaultStdout = bufio.NewWriterSize(os.Stdout, 16384)
+		}
+		if w.defaultStderr == nil {
+			w.defaultStderr = bufio.NewWriterSize(os.Stderr, 16384)
+		}
+
+		w.rootCommand.ow = w.defaultStdout
+		w.rootCommand.oerr = w.defaultStderr
+	} else {
+		w.rootCommand.ow = nil
+		w.rootCommand.oerr = nil
+	}
 }
 
 func (w *ExecWorker) syncRootCommand() {

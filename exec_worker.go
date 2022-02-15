@@ -3,7 +3,6 @@ package cmdr
 import (
 	"bufio"
 	cmdrBase "github.com/hedzr/cmdr-base"
-	"os"
 	"runtime"
 	"sync"
 )
@@ -181,8 +180,8 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 
 		currentHelpPainter: new(helpPainter),
 
-		defaultStdout: bufio.NewWriterSize(os.Stdout, 16384),
-		defaultStderr: bufio.NewWriterSize(os.Stderr, 16384),
+		defaultStdout: nil, //bufio.NewWriterSize(os.Stdout, 16384),
+		defaultStderr: nil, //bufio.NewWriterSize(os.Stderr, 16384),
 
 		rxxtOptions: newOptions(),
 

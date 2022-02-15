@@ -74,6 +74,8 @@ func (w *ExecWorker) cmdMatched(pkg *ptpkg, goCommand *Command, args []string) (
 	pkg.iLastCommand = pkg.i
 
 	w.hitCommands = append(w.hitCommands, goCommand)
+	// goCommand.strHit = pkg.fn
+	goCommand.times++
 
 	if len(goCommand.SubCommands) == 0 { // (*goCommand).Action != nil &&
 		// the args remained are files, not sub-commands.
@@ -190,8 +192,9 @@ func (w *ExecWorker) flagsCheckAndDoMatched(pkg *ptpkg, goCommand **Command, arg
 }
 
 func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string) (upLevel, stop bool, err error) {
-	pkg.flg.times++
 	w.hitFlags = append(w.hitFlags, pkg.flg)
+	pkg.flg.times++
+	pkg.flg.strHit = pkg.fn
 
 	if err = pkg.tryExtractingValue(args); err != nil {
 		var perr *ErrorForCmdr
@@ -242,7 +245,7 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 func (w *ExecWorker) handleHandlersForFlag(pkg *ptpkg, goCommand *Command, args []string) (stop bool, err error) {
 	handleIt := func(handler Handler) (stop bool, err error) {
 		if handler != nil {
-			if err = handler(goCommand, w.tmpGetRemainArgs(pkg, args)); err == ErrShouldBeStopException {
+			if err = handler(goCommand, w.tmpGetRemainArgs(pkg, args)); IsIgnorableError(err) {
 				stop = true
 				err = nil
 			}

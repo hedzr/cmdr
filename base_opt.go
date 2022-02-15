@@ -15,6 +15,11 @@ func (s *BaseOpt) HasParent() bool {
 	return s.owner != nil
 }
 
+// GetHitStr returns the matched command string
+func (s *BaseOpt) GetHitStr() string {
+	return s.strHit
+}
+
 // GetTitleName returns name/full/short string
 func (s *BaseOpt) GetTitleName() string {
 	if len(s.Name) != 0 {

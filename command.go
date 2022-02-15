@@ -53,11 +53,6 @@ func (c *Command) IsRoot() bool {
 	return c == &c.root.Command
 }
 
-// GetHitStr returns the matched command string
-func (c *Command) GetHitStr() string {
-	return c.strHit
-}
-
 // EqualTo _
 func (c *Command) EqualTo(rh *Command) (ok bool) {
 	if c == nil {

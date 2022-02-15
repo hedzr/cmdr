@@ -440,3 +440,50 @@ func TestBaseOpt(t *testing.T) {
 	}
 	bo.GetDescZsh()
 }
+
+func TestHitCountAndTitle(t *testing.T) {
+	testFramework(t, rootCmdForTesting, testCases{
+
+		// for defaultActionImpl
+		"consul-tags kv": nil,
+
+		"consul-tags ms tags a --retry=1 -vqvv --list": func(t *testing.T, c *cmdr.Command, e error) (err error) {
+
+			if count := cmdr.GetHitCountByDottedPath("microservices.tags.add"); count != 1 {
+				t.Errorf("bad 1: got %v", count)
+			} else if cc, _ := cmdr.DottedPathToCommandOrFlag("microservices.tags.add", nil); cc == nil {
+				t.Error("bad 1.2")
+			} else if cc.GetHitStr() != "a" {
+				t.Error("bad 1.3")
+			}
+
+			if count := cmdr.GetHitCountByDottedPath("microservices"); count != 1 {
+				t.Errorf("bad 2: got %v", count)
+			}
+
+			if cmdr.GetHitCountByDottedPath("verbose") != 3 {
+				t.Error("bad 3")
+			}
+			if _, ff := cmdr.DottedPathToCommandOrFlag("verbose", nil); ff == nil {
+				t.Error("bad 3.2")
+			} else if ff.GetHitStr() != "v" {
+				t.Error("bad 3.3")
+			}
+
+			ca := cmdr.GetHitCommands()
+			if len(ca) != 3 {
+				t.Errorf("bad 4, %v", len(ca))
+			}
+			fa := cmdr.GetHitFlags()
+			if len(fa) != 6 {
+				t.Errorf("bad 5, %v", len(fa))
+			}
+
+			// all ok,
+			err = cmdr.InvokeCommand("microservices.tags")
+			return
+		},
+	},
+		cmdr.WithInternalDefaultAction(true),
+	)
+}

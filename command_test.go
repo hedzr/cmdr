@@ -1,43 +1,18 @@
 // Copyright © 2020 Hedzr Yeh.
 
-package cmdr
+package cmdr_test
 
-import "testing"
-
-func TestFlag_EqualTo(t *testing.T) {
-	var c1 *Flag
-	cmd := &Flag{
-		BaseOpt: BaseOpt{
-			Name:  "a",
-			Short: "a",
-		},
-	}
-
-	c1.EqualTo(cmd)
-	cmd.EqualTo(c1)
-	cmd.GetDescZsh()
-	cmd.GetTitleZshFlagName()
-
-}
-
-func TestFlag_Delete(t *testing.T) {
-	var c1 *Flag
-	cmd := &Command{
-		BaseOpt: BaseOpt{
-			Name:  "a",
-			Short: "a",
-		},
-	}
-	c1 = &Flag{BaseOpt: BaseOpt{Full: "b", owner: cmd}}
-	cmd.Flags = uniAddFlg(cmd.Flags, c1)
-	c1.GetDottedNamePath()
-	c1.Delete()
-}
+import (
+	"github.com/hedzr/cmdr"
+	"gopkg.in/hedzr/errors.v2"
+	"testing"
+	"time"
+)
 
 func TestCommand_EqualTo(t *testing.T) {
-	var c1 *Command
-	cmd := &Command{
-		BaseOpt: BaseOpt{
+	var c1 *cmdr.Command
+	cmd := &cmdr.Command{
+		BaseOpt: cmdr.BaseOpt{
 			Name: "a",
 		},
 	}
@@ -47,8 +22,8 @@ func TestCommand_EqualTo(t *testing.T) {
 }
 
 func TestCommand_GetName(t *testing.T) {
-	cmd := &Command{
-		BaseOpt: BaseOpt{
+	cmd := &cmdr.Command{
+		BaseOpt: cmdr.BaseOpt{
 			Name: "a",
 		},
 	}
@@ -59,8 +34,8 @@ func TestCommand_GetName(t *testing.T) {
 		t.Fatal("want empty group name")
 	}
 
-	cmd = &Command{
-		BaseOpt: BaseOpt{
+	cmd = &cmdr.Command{
+		BaseOpt: cmdr.BaseOpt{
 			Name:  "",
 			Short: "a",
 		},
@@ -70,8 +45,8 @@ func TestCommand_GetName(t *testing.T) {
 		t.Fatal("want 'a'")
 	}
 
-	cmd = &Command{
-		BaseOpt: BaseOpt{
+	cmd = &cmdr.Command{
+		BaseOpt: cmdr.BaseOpt{
 			Name:  "a",
 			Short: "",
 		},
@@ -81,63 +56,33 @@ func TestCommand_GetName(t *testing.T) {
 		t.Fatal("want 'a'")
 	}
 
-	cmd = &Command{
-		BaseOpt: BaseOpt{
-			Name: "",
-			Full: "full",
-		},
-	}
-	child := &Command{
-		BaseOpt: BaseOpt{
-			Name:    "u",
-			Short:   "v",
-			Full:    "w",
-			Aliases: nil,
-			Group:   "",
-			owner:   cmd,
-		},
-	}
-	if child.GetParentName() != "full" {
-		t.Fatal("want 'full'")
-	}
+}
 
-	root := &RootCommand{AppName: "aa"}
-	child.root = root
-	child.owner = nil
-	if child.GetParentName() != "aa" {
-		t.Fatal("want 'aa'")
-	}
+func TestRootCmdOpt_RunAsSubCommand(t *testing.T) {
+	testFramework(t, func() *cmdr.RootCommand {
+		x := rootCmdForTesting()
+		x.RunAsSubCommand = "microservices.tags"
+		return x
+	}, testCases{
 
-	child = &Command{
-		BaseOpt: BaseOpt{
-			Name:            "u",
-			Short:           "v",
-			Full:            "w",
-			Aliases:         nil,
-			Group:           "",
-			owner:           cmd,
-			strHit:          "",
-			Description:     "",
-			LongDescription: "",
-			Examples:        "",
-			Hidden:          false,
-			Deprecated:      "",
-			Action:          nil,
+		"consul-tags -p8500 --prefix=1 --prefix2 -ui123 --uint 2 -dur3h -flt 9.8 --uint 139 --prefix 3": func(t *testing.T, c *cmdr.Command, e error) (err error) {
+			// all ok,
+			//err = cmdr.InvokeCommand("microservices.tags")
+
+			if cmdr.GetInt("app.ms.tags.port") != 8500 || cmdr.GetString("app.ms.tags.prefix") != "3" ||
+				cmdr.GetUint("app.ms.tags.uint") != uint(139) || cmdr.GetFloat32("app.ms.tags.float") != 9.8 ||
+				cmdr.GetDuration("app.ms.tags.duration") != 3*time.Hour ||
+				cmdr.GetBool("debug") || cmdr.GetVerboseMode() {
+				return errors.New("something wrong 3. |%v|%v|%v|%v|%v|%v",
+					cmdr.GetInt("app.ms.tags.port"), cmdr.GetString("app.ms.tags.prefix"),
+					cmdr.GetUint("app.ms.tags.uint"), cmdr.GetFloat32("app.ms.tags.float"),
+					cmdr.GetDuration("app.ms.tags.duration"),
+					cmdr.GetBool("debug"), cmdr.GetVerboseMode())
+			}
+
+			return
 		},
-		Flags:           nil,
-		SubCommands:     nil,
-		PreAction:       nil,
-		PostAction:      nil,
-		TailPlaceHolder: "",
-		root:            nil,
-		allCmds:         nil,
-		allFlags:        nil,
-		plainCmds:       nil,
-		plainShortFlags: nil,
-		plainLongFlags:  nil,
-		headLikeFlag:    nil,
-	}
-
-	cmd.SubCommands = append(cmd.SubCommands, child)
-	child.Delete()
+	},
+		cmdr.WithInternalDefaultAction(true),
+	)
 }

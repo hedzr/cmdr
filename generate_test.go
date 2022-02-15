@@ -5,9 +5,20 @@ import (
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/log/dir"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 )
+
+// TestWithShellCompletionXXX _
+func TestWithShellCompletionXXX(t *testing.T) {
+	cmdr.ResetOptions()
+	cmdr.InternalResetWorkerForTest()
+
+	w := cmdr.Worker()
+	cmdr.WithShellCompletionCommandEnabled(true)(w)
+	//cmdr.withShellCompletionPartialMatch(true)(w)
+}
 
 func TestGenShell1(t *testing.T) {
 	cmdr.InternalResetWorkerForTest()
@@ -64,7 +75,7 @@ func TestGenShell1(t *testing.T) {
 }
 
 func TestForGenerateCommands(t *testing.T) {
-	copyRootCmd = rootCmdForTesting
+	//copyRootCmd = rootCmdForTesting
 
 	cmdr.InternalResetWorkerForTest()
 	cmdr.ResetOptions()
@@ -108,7 +119,7 @@ func TestForGenerateCommands(t *testing.T) {
 		os.Args = strings.Split(cc, " ")
 		fmt.Printf("  . args = [%v], go ...\n", os.Args)
 		// cmdr.SetInternalOutputStreams(nil, nil)
-		if err := cmdr.Exec(rootCmdForTesting, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+		if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 			t.Fatal(err)
 		}
 		// time.Sleep(time.Second)
@@ -119,7 +130,7 @@ func TestForGenerateCommands(t *testing.T) {
 }
 
 func TestForGenerateDoc(t *testing.T) {
-	copyRootCmd = rootCmdForTesting
+	//copyRootCmd = rootCmdForTesting
 
 	cmdr.InternalResetWorkerForTest()
 	cmdr.ResetOptions()
@@ -135,7 +146,7 @@ func TestForGenerateDoc(t *testing.T) {
 	for _, cc := range commands {
 		os.Args = strings.Split(cc, " ")
 		// cmdr.SetInternalOutputStreams(nil, nil)
-		if err := cmdr.Exec(rootCmdForTesting, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+		if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -145,7 +156,7 @@ func TestForGenerateDoc(t *testing.T) {
 }
 
 func TestForGenerateMan(t *testing.T) {
-	copyRootCmd = rootCmdForTesting
+	//copyRootCmd = rootCmdForTesting
 
 	cmdr.InternalResetWorkerForTest()
 	cmdr.ResetOptions()
@@ -162,11 +173,70 @@ func TestForGenerateMan(t *testing.T) {
 	for _, cc := range commands {
 		os.Args = strings.Split(cc, " ")
 		// cmdr.SetInternalOutputStreams(nil, nil)
-		if err := cmdr.Exec(rootCmdForTesting, cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+		if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 			t.Fatal(err)
 		}
 	}
 
 	resetOsArgs()
 	cmdr.ResetOptions()
+}
+
+func TestCompleteCommandAndQuery(t *testing.T) {
+	//copyRootCmd = rootCmdForTesting
+	var commands = []string{
+		"consul-tags __complete ''",
+		"consul-tags __complete se",
+		"consul-tags __complete ms ''",
+		"consul-tags __complete ms l",
+		"consul-tags __complete ms ls",
+		"consul-tags __complete ms ls ''",
+		"consul-tags __complete ms list ''",
+		"consul-tags __complete ms tags a -",
+		"consul-tags __complete ms tags a --",
+		"consul-tags __complete ms tags a -l",
+		"consul-tags __complete ms tags a --l",
+		"consul-tags __complete ms tags a --retry=1 -vqvv --list",
+	}
+	for _, cc := range commands {
+		resetOsArgs()
+		cmdr.ResetOptions()
+		t.Logf("-> --- command-line: %v", cc)
+		os.Args = strings.Split(cc, " ")
+		for i, arg := range os.Args {
+			if v, _, vn, _ := strconv.UnquoteChar(arg, '\''); v == 0 {
+				os.Args[i] = vn
+				//t.Logf("-> --- cmdline: %v, %v", v, mb)
+			}
+		}
+		// cmdr.SetInternalOutputStreams(nil, nil)
+		if err := cmdr.Exec(rootCmdForTesting(),
+			cmdr.WithShellCompletionCommandEnabled(true),
+			cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+			t.Fatal(err)
+		}
+		t.Log("-> --- ended.")
+	}
+
+	//if cmdr.GetHitCountByDottedPath("retry") != 1 {
+	//	t.Error("bad 1")
+	//}
+	//if count := cmdr.GetHitCountByDottedPath("microservices"); count != 0 {
+	//	t.Errorf("bad 2: got %v", count)
+	//}
+	//if cmdr.GetHitCountByDottedPath("verbose") != 3 {
+	//	t.Error("bad 3")
+	//}
+	//if _, ff := cmdr.DottedPathToCommandOrFlag("verbose", nil); ff == nil {
+	//	t.Error("bad 3.2")
+	//} else if ff.GetHitStr() != "v" {
+	//	t.Error("bad 3.3")
+	//}
+	//cmdr.GetHitCommands()
+	//cmdr.GetHitFlags()
+
+	t.Log("-> ok end 1.1")
+	resetOsArgs()
+	cmdr.ResetOptions()
+	t.Log("-> ok end 1.2")
 }

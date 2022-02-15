@@ -61,6 +61,7 @@ func CloneViaGob(to, from interface{}) (err error) {
 }
 
 // Clone deep copy source to target
+// Just works for struct to struct
 func Clone(fromValue, toValue interface{}) interface{} {
 	_ = StandardCopier.Copy(toValue, fromValue)
 	return toValue

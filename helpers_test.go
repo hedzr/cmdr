@@ -15,7 +15,6 @@ import (
 	"os"
 	"reflect"
 	"testing"
-	"time"
 )
 
 func resetOsArgs() {
@@ -187,195 +186,196 @@ func doubleSlice(s interface{}) interface{} {
 
 func tLog(a ...interface{}) {}
 
-func resetFlagsAndLog(t *testing.T) {
-
-	// reset all option values
-	cmdr.Set("kv.port", 8500)
-	cmdr.Set("ms.tags.port", 8500)
-	cmdr.SetNx("app.help", false)
-	cmdr.SetNx("app.help-zsh", false)
-	cmdr.SetNx("app.help-bash", false)
-	cmdr.SetNx("app.debug", false) // = cmdr.Set("debug", false)
-	cmdr.SetNx("debug", false)
-	cmdr.SetNx("app.verbose", false)
-	cmdr.SetNx("help", false)
-	cmdr.Set("generate.shell.zsh", false)
-	cmdr.Set("generate.shell.bash", false)
-
-	// SetNx(key, nil) shouldn't clear an node owned children
-	cmdr.Set("generate.shell", nil)
-	if cmdr.GetMapR("generate.shell") == nil {
-		t.Fatal("SetNx(key, nil) shouldn't clear an node owned children!!")
-	}
-
-	// cmdr.Set("app.generate.shell.auto", false)
-
-	_ = os.Setenv("APP_DEBUG", "1")
-
-	tLog(cmdr.Get("app.debug"))
-	tLog(cmdr.GetR("debug"))
-	tLog(cmdr.GetBool("app.debug"))
-	tLog(cmdr.GetBoolR("debug"))
-	tLog(cmdr.GetBoolRP("", "debug"))
-	tLog(cmdr.GetBoolP("app", "debug"))
-	tLog(cmdr.GetBool("app.debug", false))
-	tLog(cmdr.GetBoolR("debug", false))
-	tLog(cmdr.GetBoolRP("", "debug", false))
-	tLog(cmdr.GetBoolP("app", "debug", false))
-
-	tLog(cmdr.GetInt("app.retry"))
-	tLog(cmdr.GetIntR("retry"))
-	tLog(cmdr.GetIntRP("", "retry"))
-	tLog(cmdr.GetIntP("app", "retry"))
-	tLog(cmdr.GetInt64("app.retry"))
-	tLog(cmdr.GetInt64R("retry"))
-	tLog(cmdr.GetInt64RP("", "retry"))
-	tLog(cmdr.GetInt64P("app", "retry"))
-	tLog(cmdr.GetInt("app.retry", 1))
-	tLog(cmdr.GetIntR("retry", 1))
-	tLog(cmdr.GetIntRP("", "retry", 1))
-	tLog(cmdr.GetIntP("app", "retry", 1))
-	tLog(cmdr.GetInt64("app.retry", 1))
-	tLog(cmdr.GetInt64R("retry", 1))
-	tLog(cmdr.GetInt64RP("", "retry", 1))
-	tLog(cmdr.GetInt64P("app", "retry", 1))
-	tLog(cmdr.GetUint("app.retry"))
-	tLog(cmdr.GetUintP("app", "retry"))
-	tLog(cmdr.GetUintR("retry"))
-	tLog(cmdr.GetUintRP("", "retry"))
-	tLog(cmdr.GetUint64("app.retry"))
-	tLog(cmdr.GetUint64R("retry"))
-	tLog(cmdr.GetUint64RP("", "retry"))
-	tLog(cmdr.GetUint64P("app", "retry"))
-	tLog(cmdr.GetUint("app.retry", 1))
-	tLog(cmdr.GetUintP("app", "retry", 1))
-	tLog(cmdr.GetUintR("retry", 1))
-	tLog(cmdr.GetUintRP("", "retry", 1))
-	tLog(cmdr.GetUint64("app.retry", 1))
-	tLog(cmdr.GetUint64R("retry", 1))
-	tLog(cmdr.GetUint64RP("", "retry", 1))
-	tLog(cmdr.GetUint64P("app", "retry", 1))
-
-	tLog(cmdr.GetKibibytes("app.retry", 1))
-	tLog(cmdr.GetKibibytesR("retry", 1))
-	tLog(cmdr.GetKibibytesRP("", "retry", 1))
-	tLog(cmdr.GetKibibytesP("app", "retry", 1))
-	tLog(cmdr.GetKilobytes("app.retry", 1))
-	tLog(cmdr.GetKilobytesR("retry", 1))
-	tLog(cmdr.GetKilobytesRP("", "retry", 1))
-	tLog(cmdr.GetKilobytesP("app", "retry", 1))
-
-	tLog(cmdr.GetComplex64("app.retry"))
-	tLog(cmdr.GetComplex64P("app", "retry"))
-	tLog(cmdr.GetComplex64R("retry"))
-	tLog(cmdr.GetComplex64RP("", "retry"))
-	tLog(cmdr.GetComplex64P("app", "retry"))
-	tLog(cmdr.GetComplex128("app.retry"))
-	tLog(cmdr.GetComplex128R("retry"))
-	tLog(cmdr.GetComplex128RP("", "retry"))
-	tLog(cmdr.GetComplex128P("app", "retry"))
-
-	tLog(cmdr.GetFloat32("app.retry"))
-	tLog(cmdr.GetFloat32P("app", "retry"))
-	tLog(cmdr.GetFloat32R("retry"))
-	tLog(cmdr.GetFloat32RP("", "retry"))
-	tLog(cmdr.GetFloat32P("app", "retry"))
-	tLog(cmdr.GetFloat64("app.retry"))
-	tLog(cmdr.GetFloat64R("retry"))
-	tLog(cmdr.GetFloat64RP("", "retry"))
-	tLog(cmdr.GetFloat64P("app", "retry"))
-	tLog(cmdr.GetFloat32("app.retry", 1))
-	tLog(cmdr.GetFloat32P("app", "retry", 1))
-	tLog(cmdr.GetFloat32R("retry", 1))
-	tLog(cmdr.GetFloat32RP("", "retry", 1))
-	tLog(cmdr.GetFloat32P("app", "retry", 1))
-	tLog(cmdr.GetFloat64("app.retry", 1))
-	tLog(cmdr.GetFloat64R("retry", 1))
-	tLog(cmdr.GetFloat64RP("", "retry", 1))
-	tLog(cmdr.GetFloat64P("app", "retry", 1))
-
-	tLog(cmdr.GetString("app.version"))
-	tLog(cmdr.GetStringR("version"))
-	tLog(cmdr.GetStringRP("", "version"))
-	tLog(cmdr.GetStringP("", "app.version"))
-	tLog(cmdr.GetString("app.version", ""))
-	tLog(cmdr.GetStringR("version", ""))
-	tLog(cmdr.GetStringRP("", "version", ""))
-	tLog(cmdr.GetStringP("", "app.version", ""))
-
-	tLog(cmdr.GetStringNoExpand("app.version", "1"))
-	tLog(cmdr.GetStringNoExpandR("version", "2"))
-	tLog(cmdr.GetStringNoExpandRP("", "version", "3"))
-	tLog(cmdr.GetStringNoExpandP("", "app.version", "4"))
-
-	if cmdr.WrapWithRxxtPrefix("ms") != "app.ms" {
-		t.Fatal("WrapWithRxxtPrefix failed")
-	}
-
-	tLog(cmdr.GetMap("app.ms.tags"))
-	tLog(cmdr.GetMapR("app.ms.tags"))
-	tLog(cmdr.GetStringSlice("app.ms.tags.modify.set"))
-	tLog(cmdr.GetStringSliceP("app", "ms.tags.modify.set"))
-	tLog(cmdr.GetStringSliceR("ms.tags.modify.set"))
-	tLog(cmdr.GetStringSliceRP("ms.tags", "modify.set"))
-	tLog(cmdr.GetIntSlice("app.ms.tags.modify.xed"))
-	tLog(cmdr.GetIntSliceP("app", "ms.tags.modify.xed"))
-	tLog(cmdr.GetIntSliceR("ms.tags.modify.xed"))
-	tLog(cmdr.GetIntSliceRP("ms.tags", "modify.xed"))
-
-	tLog(cmdr.GetDuration("app.ms.tags.modify.v"))
-	tLog(cmdr.GetDurationP("app", "ms.tags.modify.v"))
-	tLog(cmdr.GetDurationR("ms.tags.modify.v"))
-	tLog(cmdr.GetDurationRP("ms.tags", "modify.v"))
-	tLog(cmdr.GetDuration("app.ms.tags.modify.v", time.Second))
-	tLog(cmdr.GetDurationP("app", "ms.tags.modify.v", time.Second))
-	tLog(cmdr.GetDurationR("ms.tags.modify.v", time.Second))
-	tLog(cmdr.GetDurationRP("ms.tags", "modify.v", time.Second))
-
-	tLog(cmdr.GetInt64Slice("app.ms.tags.modify.xed"))
-	tLog(cmdr.GetInt64SliceP("app", "ms.tags.modify.xed"))
-	tLog(cmdr.GetInt64SliceR("ms.tags.modify.xed"))
-	tLog(cmdr.GetInt64SliceRP("ms.tags", "modify.xed"))
-	tLog(cmdr.GetUint64Slice("app.ms.tags.modify.xed"))
-	tLog(cmdr.GetUint64SliceP("app", "ms.tags.modify.xed"))
-	tLog(cmdr.GetUint64SliceR("ms.tags.modify.xed"))
-	tLog(cmdr.GetUint64SliceRP("ms.tags", "modify.xed"))
-
-	// comma separator string -> int slice
-	tLog(cmdr.GetIntSlice("app.ms.tags.modify.ued"))
-	// string slice -> int slice
-	tLog(cmdr.GetIntSlice("app.ms.tags.modify.wed"))
-
-	tLog(cmdr.GetInt64P("app", "retry"))
-	tLog(cmdr.GetUintP("app", "retry"))
-	tLog(cmdr.GetUint64P("app", "retry"))
-
-	cmdr.Set("ms.tags.modify.v", "")
-	tLog(cmdr.GetDuration("app.ms.tags.modify.v"))
-	cmdr.Set("ms.tags.modify.v", "3s")
-	tLog(cmdr.GetDuration("app.ms.tags.modify.v"))
-
-}
+//func resetFlagsAndLog(t *testing.T) {
+//
+//	// reset all option values
+//	cmdr.Set("kv.port", 8500)
+//	cmdr.Set("ms.tags.port", 8500)
+//	cmdr.SetNx("app.help", false)
+//	cmdr.SetNx("app.help-zsh", false)
+//	cmdr.SetNx("app.help-bash", false)
+//	cmdr.SetNx("app.debug", false) // = cmdr.Set("debug", false)
+//	cmdr.SetNx("debug", false)
+//	cmdr.SetNx("app.verbose", false)
+//	cmdr.SetNx("help", false)
+//	cmdr.Set("generate.shell.zsh", false)
+//	cmdr.Set("generate.shell.bash", false)
+//
+//	// SetNx(key, nil) shouldn't clear an node owned children
+//	cmdr.Set("generate.shell", nil)
+//	if cmdr.GetMapR("generate.shell") == nil {
+//		t.Fatal("SetNx(key, nil) shouldn't clear an node owned children!!")
+//	}
+//
+//	// cmdr.Set("app.generate.shell.auto", false)
+//
+//	_ = os.Setenv("APP_DEBUG", "1")
+//
+//	tLog(cmdr.Get("app.debug"))
+//	tLog(cmdr.GetR("debug"))
+//	tLog(cmdr.GetBool("app.debug"))
+//	tLog(cmdr.GetBoolR("debug"))
+//	tLog(cmdr.GetBoolRP("", "debug"))
+//	tLog(cmdr.GetBoolP("app", "debug"))
+//	tLog(cmdr.GetBool("app.debug", false))
+//	tLog(cmdr.GetBoolR("debug", false))
+//	tLog(cmdr.GetBoolRP("", "debug", false))
+//	tLog(cmdr.GetBoolP("app", "debug", false))
+//
+//	tLog(cmdr.GetInt("app.retry"))
+//	tLog(cmdr.GetIntR("retry"))
+//	tLog(cmdr.GetIntRP("", "retry"))
+//	tLog(cmdr.GetIntP("app", "retry"))
+//	tLog(cmdr.GetInt64("app.retry"))
+//	tLog(cmdr.GetInt64R("retry"))
+//	tLog(cmdr.GetInt64RP("", "retry"))
+//	tLog(cmdr.GetInt64P("app", "retry"))
+//	tLog(cmdr.GetInt("app.retry", 1))
+//	tLog(cmdr.GetIntR("retry", 1))
+//	tLog(cmdr.GetIntRP("", "retry", 1))
+//	tLog(cmdr.GetIntP("app", "retry", 1))
+//	tLog(cmdr.GetInt64("app.retry", 1))
+//	tLog(cmdr.GetInt64R("retry", 1))
+//	tLog(cmdr.GetInt64RP("", "retry", 1))
+//	tLog(cmdr.GetInt64P("app", "retry", 1))
+//	tLog(cmdr.GetUint("app.retry"))
+//	tLog(cmdr.GetUintP("app", "retry"))
+//	tLog(cmdr.GetUintR("retry"))
+//	tLog(cmdr.GetUintRP("", "retry"))
+//	tLog(cmdr.GetUint64("app.retry"))
+//	tLog(cmdr.GetUint64R("retry"))
+//	tLog(cmdr.GetUint64RP("", "retry"))
+//	tLog(cmdr.GetUint64P("app", "retry"))
+//	tLog(cmdr.GetUint("app.retry", 1))
+//	tLog(cmdr.GetUintP("app", "retry", 1))
+//	tLog(cmdr.GetUintR("retry", 1))
+//	tLog(cmdr.GetUintRP("", "retry", 1))
+//	tLog(cmdr.GetUint64("app.retry", 1))
+//	tLog(cmdr.GetUint64R("retry", 1))
+//	tLog(cmdr.GetUint64RP("", "retry", 1))
+//	tLog(cmdr.GetUint64P("app", "retry", 1))
+//
+//	tLog(cmdr.GetKibibytes("app.retry", 1))
+//	tLog(cmdr.GetKibibytesR("retry", 1))
+//	tLog(cmdr.GetKibibytesRP("", "retry", 1))
+//	tLog(cmdr.GetKibibytesP("app", "retry", 1))
+//	tLog(cmdr.GetKilobytes("app.retry", 1))
+//	tLog(cmdr.GetKilobytesR("retry", 1))
+//	tLog(cmdr.GetKilobytesRP("", "retry", 1))
+//	tLog(cmdr.GetKilobytesP("app", "retry", 1))
+//
+//	tLog(cmdr.GetComplex64("app.retry"))
+//	tLog(cmdr.GetComplex64P("app", "retry"))
+//	tLog(cmdr.GetComplex64R("retry"))
+//	tLog(cmdr.GetComplex64RP("", "retry"))
+//	tLog(cmdr.GetComplex64P("app", "retry"))
+//	tLog(cmdr.GetComplex128("app.retry"))
+//	tLog(cmdr.GetComplex128R("retry"))
+//	tLog(cmdr.GetComplex128RP("", "retry"))
+//	tLog(cmdr.GetComplex128P("app", "retry"))
+//
+//	tLog(cmdr.GetFloat32("app.retry"))
+//	tLog(cmdr.GetFloat32P("app", "retry"))
+//	tLog(cmdr.GetFloat32R("retry"))
+//	tLog(cmdr.GetFloat32RP("", "retry"))
+//	tLog(cmdr.GetFloat32P("app", "retry"))
+//	tLog(cmdr.GetFloat64("app.retry"))
+//	tLog(cmdr.GetFloat64R("retry"))
+//	tLog(cmdr.GetFloat64RP("", "retry"))
+//	tLog(cmdr.GetFloat64P("app", "retry"))
+//	tLog(cmdr.GetFloat32("app.retry", 1))
+//	tLog(cmdr.GetFloat32P("app", "retry", 1))
+//	tLog(cmdr.GetFloat32R("retry", 1))
+//	tLog(cmdr.GetFloat32RP("", "retry", 1))
+//	tLog(cmdr.GetFloat32P("app", "retry", 1))
+//	tLog(cmdr.GetFloat64("app.retry", 1))
+//	tLog(cmdr.GetFloat64R("retry", 1))
+//	tLog(cmdr.GetFloat64RP("", "retry", 1))
+//	tLog(cmdr.GetFloat64P("app", "retry", 1))
+//
+//	tLog(cmdr.GetString("app.version"))
+//	tLog(cmdr.GetStringR("version"))
+//	tLog(cmdr.GetStringRP("", "version"))
+//	tLog(cmdr.GetStringP("", "app.version"))
+//	tLog(cmdr.GetString("app.version", ""))
+//	tLog(cmdr.GetStringR("version", ""))
+//	tLog(cmdr.GetStringRP("", "version", ""))
+//	tLog(cmdr.GetStringP("", "app.version", ""))
+//
+//	tLog(cmdr.GetStringNoExpand("app.version", "1"))
+//	tLog(cmdr.GetStringNoExpandR("version", "2"))
+//	tLog(cmdr.GetStringNoExpandRP("", "version", "3"))
+//	tLog(cmdr.GetStringNoExpandP("", "app.version", "4"))
+//
+//	if cmdr.WrapWithRxxtPrefix("ms") != "app.ms" {
+//		t.Fatal("WrapWithRxxtPrefix failed")
+//	}
+//
+//	tLog(cmdr.GetMap("app.ms.tags"))
+//	tLog(cmdr.GetMapR("app.ms.tags"))
+//	tLog(cmdr.GetStringSlice("app.ms.tags.modify.set"))
+//	tLog(cmdr.GetStringSliceP("app", "ms.tags.modify.set"))
+//	tLog(cmdr.GetStringSliceR("ms.tags.modify.set"))
+//	tLog(cmdr.GetStringSliceRP("ms.tags", "modify.set"))
+//	tLog(cmdr.GetIntSlice("app.ms.tags.modify.xed"))
+//	tLog(cmdr.GetIntSliceP("app", "ms.tags.modify.xed"))
+//	tLog(cmdr.GetIntSliceR("ms.tags.modify.xed"))
+//	tLog(cmdr.GetIntSliceRP("ms.tags", "modify.xed"))
+//
+//	tLog(cmdr.GetDuration("app.ms.tags.modify.v"))
+//	tLog(cmdr.GetDurationP("app", "ms.tags.modify.v"))
+//	tLog(cmdr.GetDurationR("ms.tags.modify.v"))
+//	tLog(cmdr.GetDurationRP("ms.tags", "modify.v"))
+//	tLog(cmdr.GetDuration("app.ms.tags.modify.v", time.Second))
+//	tLog(cmdr.GetDurationP("app", "ms.tags.modify.v", time.Second))
+//	tLog(cmdr.GetDurationR("ms.tags.modify.v", time.Second))
+//	tLog(cmdr.GetDurationRP("ms.tags", "modify.v", time.Second))
+//
+//	tLog(cmdr.GetInt64Slice("app.ms.tags.modify.xed"))
+//	tLog(cmdr.GetInt64SliceP("app", "ms.tags.modify.xed"))
+//	tLog(cmdr.GetInt64SliceR("ms.tags.modify.xed"))
+//	tLog(cmdr.GetInt64SliceRP("ms.tags", "modify.xed"))
+//	tLog(cmdr.GetUint64Slice("app.ms.tags.modify.xed"))
+//	tLog(cmdr.GetUint64SliceP("app", "ms.tags.modify.xed"))
+//	tLog(cmdr.GetUint64SliceR("ms.tags.modify.xed"))
+//	tLog(cmdr.GetUint64SliceRP("ms.tags", "modify.xed"))
+//
+//	// comma separator string -> int slice
+//	tLog(cmdr.GetIntSlice("app.ms.tags.modify.ued"))
+//	// string slice -> int slice
+//	tLog(cmdr.GetIntSlice("app.ms.tags.modify.wed"))
+//
+//	tLog(cmdr.GetInt64P("app", "retry"))
+//	tLog(cmdr.GetUintP("app", "retry"))
+//	tLog(cmdr.GetUint64P("app", "retry"))
+//
+//	cmdr.Set("ms.tags.modify.v", "")
+//	tLog(cmdr.GetDuration("app.ms.tags.modify.v"))
+//	cmdr.Set("ms.tags.modify.v", "3s")
+//	tLog(cmdr.GetDuration("app.ms.tags.modify.v"))
+//
+//}
 
 func postWorks(t *testing.T) {
-	if cx := cmdr.FindSubCommand("ms", &rootCmdForTesting.Command); cx == nil {
+	rc := rootCmdForTesting()
+	if cx := cmdr.FindSubCommand("ms", &rc.Command); cx == nil {
 		t.Fatal("cannot find `ms`")
 	} else if cy := cmdr.FindSubCommand("list", cx); cy == nil {
 		t.Fatal("cannot find `list`")
 	} else if cz := cmdr.FindSubCommand("yy", cy); cz != nil {
 		t.Fatal("should not find `yy` for 'ms list'")
 	}
-	if cx := cmdr.FindSubCommandRecursive("modify", &rootCmdForTesting.Command); cx == nil {
+	if cx := cmdr.FindSubCommandRecursive("modify", &rc.Command); cx == nil {
 		t.Fatal("cannot find `tags`")
 	} else {
 		if cmdr.FindFlag("spasswd", cx) != nil {
 			t.Fatal("should not find `spasswd` for 'ms tags modify'")
 		}
 	}
-	if cmdr.FindFlag("spasswd", &rootCmdForTesting.Command) == nil {
+	if cmdr.FindFlag("spasswd", &rc.Command) == nil {
 		t.Fatal("cannot find `spasswd`")
 	}
-	if cmdr.FindFlagRecursive("add", &rootCmdForTesting.Command) == nil {
+	if cmdr.FindFlagRecursive("add", &rc.Command) == nil {
 		t.Fatal("cannot find `add`")
 	}
 }

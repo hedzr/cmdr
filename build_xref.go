@@ -150,10 +150,10 @@ func (w *ExecWorker) _addCommandsForAliasesGroup(root *RootCommand, aliases *ali
 	}
 
 	for _, cmd := range aliases.Commands {
-		w.ensureCmdMembers(cmd)
+		w.ensureCmdMembers(cmd, root)
 		err = w._toolAddCmd(&root.Command, aliases.Group, cmd)
 	}
-	w._buildCrossRefs(&root.Command)
+	w._buildCrossRefs(&root.Command, root)
 	return
 }
 
@@ -588,7 +588,7 @@ func (w *ExecWorker) buildRootCrossRefs(root *RootCommand) {
 	flog("    - preprocess / buildXref / buildRootCrossRefs...")
 
 	// initializes the internal variables/members
-	w.ensureCmdMembers(&root.Command)
+	w.ensureCmdMembers(&root.Command, root)
 
 	// conf.AppName = root.AppName
 	// conf.Version = root.Version
@@ -602,7 +602,7 @@ func (w *ExecWorker) buildRootCrossRefs(root *RootCommand) {
 	w.attachGeneratorsCommands(root)
 	w.attachCmdrCommands(root)
 
-	w._buildCrossRefs(&root.Command)
+	w._buildCrossRefs(&root.Command, root)
 }
 
 func (w *ExecWorker) ensureCommandMaps(parent *Command, group, flgGroup string) {
@@ -1166,8 +1166,8 @@ func (w *ExecWorker) _cmdAdd1(parent *Command, full, desc string, adding func(cx
 	}
 }
 
-func (w *ExecWorker) _buildCrossRefs(cmd *Command) {
-	w.ensureCmdMembers(cmd)
+func (w *ExecWorker) _buildCrossRefs(cmd *Command, root *RootCommand) {
+	w.ensureCmdMembers(cmd, root)
 
 	singleFlagNames := make(map[string]bool)
 	stringFlagNames := make(map[string]bool)
@@ -1206,7 +1206,7 @@ func (w *ExecWorker) _buildCrossRefs(cmd *Command) {
 
 		w.rxxtOptions.Set(backtraceCmdNames(cx, false), nil)
 		// buildCrossRefs(cx, opt.Children[cx.Full])
-		w._buildCrossRefs(cx)
+		w._buildCrossRefs(cx, root)
 	}
 
 	for tg := range tgs {
@@ -1364,16 +1364,20 @@ func DottedPathToCommandOrFlag(dottedPath string, anyCmd *Command) (cc *Command,
 // dottedPathToCommandOrFlag searches the matched Command or Flag with the specified dotted-path.
 // The searching will start from root if anyCmd is nil.
 func dottedPathToCommandOrFlag(dottedPath string, anyCmd *Command) (cc *Command, ff *Flag) {
-	var c *Command
 	if anyCmd == nil {
-		c = &internalGetWorker().rootCommand.Command
-	} else {
-		c = anyCmd
+		anyCmd = &internalGetWorker().rootCommand.Command
 	}
 
-	if err := walkFromCommand(c, 0, 0,
+	if !strings.HasPrefix(dottedPath, anyCmd.root.AppName) {
+		dottedPath = anyCmd.root.AppName + "." + dottedPath
+	}
+
+	if err := walkFromCommand(anyCmd, 0, 0,
 		func(cmd *Command, index, level int) (err error) {
 			kp := cmd.GetDottedNamePath()
+			if !strings.HasPrefix(kp, anyCmd.root.AppName) {
+				kp = anyCmd.root.AppName + "." + kp
+			}
 
 			if kp == dottedPath {
 				cc, err = cmd, ErrShouldBeStopException
@@ -1381,7 +1385,7 @@ func dottedPathToCommandOrFlag(dottedPath string, anyCmd *Command) (cc *Command,
 			}
 
 			if strings.HasPrefix(dottedPath, kp) {
-				parts := strings.TrimPrefix(dottedPath, kp)
+				parts := strings.TrimPrefix(dottedPath, kp+".")
 				if !strings.Contains(parts, ".") {
 					// try matching flags in this command
 					for _, f := range cmd.Flags {
@@ -1460,7 +1464,7 @@ func backtraceCmdNames(cmd *Command, verboseLast bool) (str string) {
 	return
 }
 
-func (w *ExecWorker) ensureCmdMembers(cmd *Command) *Command {
+func (w *ExecWorker) ensureCmdMembers(cmd *Command, root *RootCommand) *Command {
 	if cmd.allFlags == nil {
 		cmd.allFlags = make(map[string]map[string]*Flag)
 		cmd.allFlags[UnsortedGroup] = make(map[string]*Flag)
@@ -1486,7 +1490,7 @@ func (w *ExecWorker) ensureCmdMembers(cmd *Command) *Command {
 	}
 
 	if cmd.root == nil {
-		cmd.root = w.rootCommand
+		cmd.root = root // w.rootCommand
 	}
 	return cmd
 }

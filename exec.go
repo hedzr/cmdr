@@ -30,7 +30,7 @@ func Exec(rootCmd *RootCommand, opts ...ExecOption) (err error) {
 	}
 
 	_, err = w.InternalExecFor(rootCmd, os.Args)
-	if err == ErrShouldBeStopException {
+	if IsIgnorableError(err) {
 		err = nil
 	}
 	return
@@ -152,17 +152,9 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 //}
 
 func (w *ExecWorker) shouldTerminate(err error) (shouldTerminate bool) {
-	if err != nil {
-		var e *ErrorForCmdr
-		if errors.As(err, &e) {
-			ferr("%v", e)
-			if !e.Ignorable {
-				shouldTerminate = true
-			}
-		} else {
-			shouldTerminate = true
-		}
-	}
+	//if err != nil {
+	shouldTerminate = !IsIgnorableError(err)
+	//}
 	return
 }
 
@@ -348,7 +340,7 @@ func (w *ExecWorker) doInvokeCommand(rootCmd *RootCommand, action Handler, goCom
 		}
 	}
 
-	if err = w.invokeCommand(rootCmd, action, goCommand, remainArgs); err == ErrShouldBeStopException {
+	if err = w.invokeCommand(rootCmd, action, goCommand, remainArgs); IsIgnorableError(err) {
 		return nil
 	}
 
@@ -377,7 +369,7 @@ func (w *ExecWorker) runPreActionOfRootLevel(rootCmd *RootCommand, goCommand *Co
 	for _, fn := range preActions {
 		if fn != nil {
 			switch e := fn(goCommand, remainArgs); {
-			case e == ErrShouldBeStopException:
+			case IsIgnorableError(e):
 				return e
 			case e != nil:
 				c.Attach(e)

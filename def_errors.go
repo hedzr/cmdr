@@ -11,7 +11,7 @@ import (
 
 var (
 	// ErrShouldBeStopException tips `Exec()` cancelled the following actions after `PreAction()`
-	ErrShouldBeStopException = newErrorWithMsg("stop me right now")
+	ErrShouldBeStopException = SetAsAnIgnorableError(newErrorWithMsg("stop me right now"), true)
 
 	// ErrBadArg is a generic error for user
 	ErrBadArg = newErrorWithMsg("bad argument")
@@ -19,14 +19,136 @@ var (
 	errWrongEnumValue = newErrTmpl("unexpected enumerable value '%s' for option '%s', under command '%s'")
 )
 
+// NewErrorForCmdr creates a *ErrorForCmdr object with ignorable field supports.
+//
+// For examples:
+//
+//     err := cmdr.NewErrorForCmdr("error here")
+//     cmdr.SetAsAnIgnorableError(err, true)
+//     if cmdr.IsIgnorable(err) {
+//         // do jump out and ignore it
+//     }
+//
+func NewErrorForCmdr(msg string, args ...interface{}) error {
+	return newErr(msg, args...)
+}
+
+// UnwrapError try extracting the *ErrorForCmdr object from a given error
+// object even if it'd been wrapped deeply.
+func UnwrapError(err error) (e *ErrorForCmdr, ignorable, ok bool) {
+	ok = errors.As(err, &e)
+	if ok && e != nil {
+		ignorable = e.Ignorable
+	}
+	return
+}
+
+// UnwrapLiveArgsFromCmdrError try extracting the *ErrorForCmdr object
+// from a given error object, and return the liveArgs field for usages.
+func UnwrapLiveArgsFromCmdrError(err error) (liveArgs []interface{}, e *ErrorForCmdr, ok bool) {
+	ok = errors.As(err, &e)
+	if ok && e != nil {
+		liveArgs = e.liveArgs
+	}
+	return
+}
+
+// UnwrapInnerErrorsFromCmdrError try extracting the *ErrorForCmdr object
+// from a given error object, and return the inner errors attached for usages.
+func UnwrapInnerErrorsFromCmdrError(err error) (errs []error) {
+	var e *ErrorForCmdr
+	ok := errors.As(err, &e)
+	if ok && e != nil {
+		errs = []error{e.causer}
+
+	} else {
+		if ewc, ok := err.(interface{ Causes() (errs []error) }); ok {
+			return ewc.Causes()
+		}
+		if ewc, ok := err.(interface{ Cause() (err error) }); ok {
+			return []error{ewc.Cause()}
+		}
+
+		defer func() {
+			recover() // for errors.As v2.1.9 and lower
+		}()
+		var e1 *errors.WithCauses
+		ok = errors.As(err, &e1)
+		if ok && e1 != nil {
+			errs = e1.Causes()
+		}
+	}
+	return
+}
+
+// IsIgnorableError tests if an error is a *ErrorForCmdr and its Ignorable field is true
+func IsIgnorableError(err error) bool {
+	if err == nil {
+		return true
+	}
+	var e *ErrorForCmdr
+	ok := errors.As(err, &e)
+	return ok && e.Ignorable
+}
+
+// SetAsAnIgnorableError checks err is a *ErrorForCmdr object and set its
+// Ignorable field.
+func SetAsAnIgnorableError(err error, ignorable bool) error {
+	var e *ErrorForCmdr
+	ok := errors.As(err, &e)
+	if ok {
+		e.Ignorable = ignorable
+	}
+	return err
+}
+
+// AttachErrorsTo wraps innerErrors into err if it's a *ErrorForCmdr as
+// a container. For the general error object, AttachErrorTo forwards it
+// to hedzr/errors to try to attach the causes.
+func AttachErrorsTo(err error, causes ...error) error {
+	var e *ErrorForCmdr
+	ok := errors.As(err, &e)
+	if ok {
+		e.Attach(causes...)
+	} else if errors.CanAttach(err) {
+		//if z, ok := err.(interface{ Attach(errs ...error) }); ok {
+		//	z.Attach(causes...)
+		//}
+
+		if ewc, ok := err.(interface{ Attach(errs ...error) }); ok {
+			ewc.Attach(causes...)
+		} else if eWC, ok := err.(interface{ Attach(errs ...error) bool }); ok {
+			eWC.Attach(causes...)
+		}
+
+	}
+	return err
+}
+
+// AttachLiveArgsTo wraps liveArgs into err if it's a *ErrorForCmdr as
+// a container.
+func AttachLiveArgsTo(err error, liveArgs ...interface{}) error {
+	var e *ErrorForCmdr
+	ok := errors.As(err, &e)
+	if ok {
+		e.liveArgs = append(e.liveArgs, liveArgs...)
+	}
+	return err
+}
+
 // ErrorForCmdr structure
 type ErrorForCmdr struct {
 	// Inner     error
 	// Msg       string
+
+	// Ignorable represents this is a software logical signal rather
+	// than a really programming error state.
+	//
+	// cmdr provides a standard Ignorable error object: ErrShouldBeStopException
 	Ignorable bool
 	causer    error
 	msg       string
-	livedArgs []interface{}
+	liveArgs  []interface{}
 }
 
 // newError formats a ErrorForCmdr object
@@ -112,7 +234,7 @@ func (w *ErrorForCmdr) Error() string {
 //
 func (w *ErrorForCmdr) FormatNew(ignorable bool, livedArgs ...interface{}) *errors.WithStackInfo {
 	x := withIgnorable(ignorable, w.causer, w.msg, livedArgs...).(*errors.WithStackInfo)
-	x.Cause().(*ErrorForCmdr).livedArgs = livedArgs
+	x.Cause().(*ErrorForCmdr).liveArgs = livedArgs
 	return x
 }
 
@@ -180,7 +302,7 @@ func (w *ErrorForCmdr) Is(target error) bool {
 		if x, ok := w.causer.(interface{ Is(error) bool }); ok && x.Is(target) {
 			return true
 		}
-		// TODO: consider supporing target.Is(err). This would allow
+		// TODO: consider supporting target.Is(err). This would allow
 		// user-definable predicates, but also may allow for coping with sloppy
 		// APIs, thereby making it easier to get away with them.
 		if err := errors.Unwrap(w.causer); err == nil {

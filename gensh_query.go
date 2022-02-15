@@ -28,7 +28,7 @@ func (w *ExecWorker) helpSystemAction(cmdComplete *Command, args []string) (err 
 	)
 
 	err = ctx.lookupForHelpSystem(cmdComplete, args)
-	if err == nil || err == ErrShouldBeStopException {
+	if IsIgnorableError(err) {
 
 		if hit := cmdComplete.GetHitStr(); hit == "help" || hit == "h" {
 			if ctx.matchedCmd != nil {
@@ -148,7 +148,7 @@ func (ctx *queryShcompContext) lookupForHelpSystem(cmdComplete *Command, args []
 		if l > 0 && strings.Contains(ctx.w.switchCharset, ttl[0:1]) {
 			// flags
 			flg, err = ctx.lookupFlagsForHelpSystem(ttl, cmd, args, i)
-			if err != nil && err != ErrShouldBeStopException {
+			if !IsIgnorableError(err) {
 				break
 			}
 			continue
@@ -156,7 +156,7 @@ func (ctx *queryShcompContext) lookupForHelpSystem(cmdComplete *Command, args []
 
 		// sub-commands
 		cmd, exact, err = ctx.lookupCommandsForHelpSystem(ttl, cmd, args, i, ic)
-		if err != nil && err != ErrShouldBeStopException {
+		if !IsIgnorableError(err) {
 			break
 		}
 

@@ -50,7 +50,9 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
 - v1.10.27 (WIP)
-  - fixing: version not work
+
+- v1.10.24
+  - fix: version command, help screen not work
 
 - v1.10.23
   - fix: unknown switch char not an error now

@@ -51,7 +51,7 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 
 - v1.10.27 (WIP)
 
-- v1.10.23 (WIP)
+- v1.10.23
   - fix: unknown switch char not an error now
   - imp: refined gen zsh code, and gen shell codes
   - fea: support fish-shell completion generating now
@@ -64,7 +64,8 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - fix: restore Match() but with new name MatchAndTest()
   - fix: high-order fn hold the older copy, so pass it by holding a pointer to original variable
   - imp: review most of the tests
-  - NOTE: cleanup the deprecated codes
+  - NOTE: cleanup the deprecated codes [`cmd.NewFlagV`,`cmd.NewFlag`, `cmd.NewSubCommand`, ...]
+  - fea: more completion supports
 
 - v1.10.19
   - temporary build for earlier testing

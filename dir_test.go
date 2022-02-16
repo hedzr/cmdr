@@ -616,6 +616,12 @@ func TestHandlerPassThru1(t *testing.T) {
 func testFramework(t *testing.T, rootCommand func() *cmdr.RootCommand, cases testCases, opts ...cmdr.ExecOption) {
 
 	defer logex.CaptureLog(t).Release()
+
+	deferFn := prepareConfD(t)
+	defer func() {
+		deferFn()
+	}()
+
 	if tool.SavedOsArgs == nil {
 		tool.SavedOsArgs = os.Args
 	}
@@ -630,7 +636,7 @@ func testFramework(t *testing.T, rootCommand func() *cmdr.RootCommand, cases tes
 	var cmd *cmdr.Command
 	var outX = bytes.NewBufferString("")
 	var errX = bytes.NewBufferString("")
-	var outBuf = bufio.NewWriterSize(outX, 16384)
+	var outBuf = bufio.NewWriterSize(outX, 32768)
 	var errBuf = bufio.NewWriterSize(errX, 16384)
 	cmdr.SetInternalOutputStreams(outBuf, errBuf)
 	// cmdr.SetCustomShowVersion(nil)
@@ -650,9 +656,10 @@ func testFramework(t *testing.T, rootCommand func() *cmdr.RootCommand, cases tes
 
 		postWorks(t)
 
-		if errX.Len() > 0 {
+		if errBuf.Buffered() > 0 {
 			t.Log("--------- stderr")
 			// t.Fatalf("Error!! %v", errX.String())
+			_ = errBuf.Flush()
 			t.Errorf("Error for testing (it might not be failed)!! %v", errX.String())
 		}
 

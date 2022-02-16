@@ -218,7 +218,7 @@ func (s *markdownPainter) FpCommandsGroupTitle(group string) {
 }
 
 func (s *markdownPainter) FpCommandsLine(command *Command) (bufL, bufR bytes.Buffer) {
-	if command.VendorHidden || (command.Hidden && GetVerboseModeHitCount() < 1) {
+	if command.VendorHidden || (command.Hidden && getFlagHitCount(command, "verbose") < 1) {
 		return
 	}
 

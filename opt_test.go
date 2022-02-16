@@ -7,10 +7,7 @@ package cmdr_test
 import (
 	"fmt"
 	"github.com/hedzr/cmdr"
-	"github.com/hedzr/log/dir"
 	"gopkg.in/yaml.v3"
-	"os"
-	"strings"
 	"testing"
 	"time"
 )
@@ -725,56 +722,64 @@ func addDupFlags(root *cmdr.RootCmdOpt) {
 }
 
 func TestAlreadyUsed(t *testing.T) {
-	cmdr.ResetOptions()
-	w := cmdr.InternalResetWorkerForTest()
-
-	root := createRoot()
-
-	var err error
-	deferFn := prepareConfD(t)
-	outX, errX := prepareStreams()
-	defer func() {
-
-		x := outX.String()
-		t.Logf("--------- stdout // %v // %v\n%v", dir.GetExecutableDir(), dir.GetExecutablePath(), x)
-
-		if errX.Len() > 0 {
-			t.Log("--------- stderr")
-			t.Logf("Warn for normal err-info!! %v", errX.String())
-		}
-
-		resetOsArgs()
-		deferFn()
-
-	}()
-
-	addDupFlags(root)
-
-	t.Log("xxx: -------- loops for alreadyUsedTestings")
-	for sss, verifier := range alreadyUsedTestings {
-		//resetFlagsAndLog(t)
-		cmdr.ResetRootInWorkerForTest()
-		cmdr.ResetOptions()
-		os.Args = strings.Split(sss, " ")
-
-		t.Log("xxx: ***: ", sss)
-
-		if _, err = w.InternalExecFor(root.RootCommand(), os.Args); err != nil {
-			t.Fatal(err, fmt.Sprintf("rootCmd = %p", root.RootCommand()))
-		}
-		if err = verifier(t); err != nil {
-			t.Fatal(err)
-		}
+	rootBuilder := func() *cmdr.RootCommand {
+		root := createRoot()
+		addDupFlags(root)
+		return root.RootCommand()
 	}
+
+	testFramework(t, rootBuilder, alreadyUsedTestings)
+
+	//cmdr.ResetOptions()
+	//w := cmdr.InternalResetWorkerForTest()
+	//
+	//root := createRoot()
+	//
+	//var err error
+	//deferFn := prepareConfD(t)
+	//outX, errX := prepareStreams()
+	//defer func() {
+	//
+	//	x := outX.String()
+	//	t.Logf("--------- stdout // %v // %v\n%v", dir.GetExecutableDir(), dir.GetExecutablePath(), x)
+	//
+	//	if errX.Len() > 0 {
+	//		t.Log("--------- stderr")
+	//		t.Logf("Warn for normal err-info!! %v", errX.String())
+	//	}
+	//
+	//	resetOsArgs()
+	//	deferFn()
+	//
+	//}()
+	//
+	//addDupFlags(root)
+	//
+	//t.Log("xxx: -------- loops for alreadyUsedTestings")
+	//for sss, verifier := range alreadyUsedTestings {
+	//	//resetFlagsAndLog(t)
+	//	cmdr.ResetRootInWorkerForTest()
+	//	cmdr.ResetOptions()
+	//	os.Args = strings.Split(sss, " ")
+	//
+	//	t.Log("xxx: ***: ", sss)
+	//
+	//	if _, err = w.InternalExecFor(root.RootCommand(), os.Args); err != nil {
+	//		t.Fatal(err, fmt.Sprintf("rootCmd = %p", root.RootCommand()))
+	//	}
+	//	if err = verifier(t); err != nil {
+	//		t.Fatal(err)
+	//	}
+	//}
 }
 
 var (
 	// testing args
-	alreadyUsedTestings = map[string]func(t *testing.T) error{
+	alreadyUsedTestings = map[string]func(t *testing.T, c *cmdr.Command, e error) error{
 		// "consul-tags -qq": func(t *testing.T) error {
 		// 	return nil
 		// },
-		"consul-tags --help": func(t *testing.T) error {
+		"consul-tags --help": func(t *testing.T, c *cmdr.Command, e error) error {
 			return nil
 		},
 		// "consul-tags --help ~~debug": func(t *testing.T) error {

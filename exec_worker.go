@@ -178,8 +178,6 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 
 		doNotLoadingConfigFiles: false,
 
-		currentHelpPainter: new(helpPainter),
-
 		defaultStdout: nil, //bufio.NewWriterSize(os.Stdout, 16384),
 		defaultStderr: nil, //bufio.NewWriterSize(os.Stderr, 16384),
 
@@ -195,6 +193,7 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 
 	WithEnvVarMap(nil)(w)
 
+	w.currentHelpPainter = &helpPainter{worker: w}
 	w._setSwChars(runtime.GOOS)
 	//if runtime.GOOS == "windows" {
 	//	w.switchCharset = "-/~"

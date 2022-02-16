@@ -16,17 +16,18 @@ import (
 
 type (
 	helpPainter struct {
+		worker *ExecWorker
 	}
 )
 
 func (s *helpPainter) Reset() {
-	if w := internalGetWorker().rootCommand.ow; w != nil {
+	if w := s.worker.rootCommand.ow; w != nil {
 		_ = w.Flush()
 	}
 }
 
 func (s *helpPainter) Flush() {
-	if w := internalGetWorker().rootCommand.ow; w != nil {
+	if w := s.worker.rootCommand.ow; w != nil {
 		_ = w.Flush()
 	}
 }
@@ -63,7 +64,7 @@ func (s *helpPainter) FpPrintHeader(command *Command) {
 }
 
 func (s *helpPainter) FpPrintHelpTailLine(command *Command) {
-	w := internalGetWorker()
+	w := s.worker
 	if w.enableHelpCommands {
 		if GetNoColorMode() {
 			s.Printf(fmtTailLineNC, w.helpTailLine)
@@ -139,7 +140,7 @@ func (s *helpPainter) FpCommandsGroupTitle(group string) {
 
 func (s *helpPainter) FpCommandsLine(command *Command) (bufL, bufR bytes.Buffer) {
 	hidden := command.Hidden
-	if hidden && GetVerboseModeHitCount() > 1 {
+	if hidden && getFlagHitCount(command, "verbose") > 1 {
 		hidden = false
 	}
 	if hidden || command.VendorHidden {
@@ -233,7 +234,7 @@ func (s *helpPainter) envKeys(flg *Flag) (envKeys string) {
 
 func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, defValStr string) (bufL, bufR bytes.Buffer) {
 	hidden := flg.Hidden
-	if hidden && GetVerboseModeHitCount() > 1 {
+	if hidden && getFlagHitCount(command, "verbose") > 1 {
 		hidden = false
 	}
 	if hidden || flg.VendorHidden {

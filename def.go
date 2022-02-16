@@ -461,7 +461,11 @@ func GetTraceModeHitCount() int { return GetFlagHitCount("trace") }
 // GetFlagHitCount return how manu times a top-level Flag was specified from command-line.
 func GetFlagHitCount(longName string) int {
 	w := internalGetWorker()
-	if f := w.rootCommand.FindFlag(longName); f != nil {
+	return getFlagHitCount(&w.rootCommand.Command, longName)
+}
+
+func getFlagHitCount(c *Command, longName string) int {
+	if f := c.root.FindFlag(longName); f != nil {
 		return f.times
 	}
 	return 0
@@ -471,7 +475,11 @@ func GetFlagHitCount(longName string) int {
 // longName will be search recursively.
 func GetFlagHitCountRecursively(longName string) int {
 	w := internalGetWorker()
-	if f := w.rootCommand.FindFlagRecursive(longName); f != nil {
+	return getFlagHitCountRecursively(&w.rootCommand.Command, longName)
+}
+
+func getFlagHitCountRecursively(c *Command, longName string) int {
+	if f := c.root.FindFlagRecursive(longName); f != nil {
 		return f.times
 	}
 	return 0

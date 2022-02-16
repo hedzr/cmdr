@@ -54,13 +54,18 @@ func _fpz(needln bool, s string) {
 		defer uniqueWorkerLock.RUnlock()
 
 		if wkr.rootCommand != nil {
+			if wkr.rootCommand.ow == nil {
+				return
+			}
 			w = wkr.rootCommand.ow
 		}
-	}
-
-	if w != nil {
+		if w != nil {
+			_fpzz(needln, s, w)
+		}
+	} else {
 		_fpzz(needln, s, w)
 	}
+
 }
 
 func _fpzz(needln bool, s string, w io.Writer) {
@@ -83,16 +88,24 @@ func ferr(fmtStr string, args ...interface{}) {
 		uniqueWorkerLock.RLock()
 		defer uniqueWorkerLock.RUnlock()
 
-		if wkr.bufferedStdio {
+		if wkr.rootCommand != nil {
+			if wkr.rootCommand.oerr == nil {
+				return
+			}
 			w = wkr.rootCommand.oerr
-		} else if wkr.defaultStderr != nil {
-			w = wkr.defaultStderr
 		}
-	}
 
-	s := fmt.Sprintf(fmtStr, args...)
-	needln := !strings.HasSuffix(fmtStr, "\n")
-	_fpzz(needln, s, w)
+		if w != nil {
+			s := fmt.Sprintf(fmtStr, args...)
+			needln := !strings.HasSuffix(fmtStr, "\n")
+			_fpzz(needln, s, w)
+		}
+
+	} else {
+		s := fmt.Sprintf(fmtStr, args...)
+		needln := !strings.HasSuffix(fmtStr, "\n")
+		_fpzz(needln, s, w)
+	}
 
 }
 
@@ -569,7 +582,7 @@ func countOfCommandsItems(p Painter, command *Command, justFlags bool) (count in
 			if c.VendorHidden {
 				continue
 			}
-			if !c.Hidden || GetVerboseModeHitCount() > 1 {
+			if !c.Hidden || getFlagHitCount(command, "verbose") > 1 {
 				count++
 			}
 		}
@@ -644,7 +657,7 @@ func countOfFlagsItems(p Painter, command *Command, justFlags bool) (count int) 
 			if c.VendorHidden {
 				continue
 			}
-			if !c.Hidden || GetVerboseModeHitCount() > 1 {
+			if !c.Hidden || getFlagHitCount(command, "verbose") > 1 {
 				count++
 			}
 		}
@@ -659,7 +672,7 @@ func printHelpFlagSectionsChild(p Painter, command *Command, groups map[string]*
 	maxShort := findMaxShortLength(groups)
 	for _, nm := range k3 {
 		flg := groups[nm]
-		if flg.VendorHidden || (flg.Hidden && GetVerboseModeHitCount() <= 1) {
+		if flg.VendorHidden || (flg.Hidden && getFlagHitCount(command, "verbose") <= 1) {
 			continue
 		}
 

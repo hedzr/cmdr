@@ -636,6 +636,7 @@ func SetInternalOutputStreams(out, err *bufio.Writer) {
 
 	w.defaultStdout = out
 	w.defaultStderr = err
+	w.bufferedStdio = true
 
 	if w.defaultStdout == nil {
 		w.defaultStdout = bufio.NewWriterSize(os.Stdout, 16384)

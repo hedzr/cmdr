@@ -625,7 +625,7 @@ func TestCmdrClone(t *testing.T) {
 	t.Log(ret)
 }
 
-func theKeys(theExecTestings map[string]func(t *testing.T) error) (keys []string) {
+func theKeys(theExecTestings map[string]func(t *testing.T, c *cmdr.Command, e error) error) (keys []string) {
 	keys = make([]string, len(theExecTestings))
 	i := 0
 	for k := range theExecTestings {
@@ -634,6 +634,21 @@ func theKeys(theExecTestings map[string]func(t *testing.T) error) (keys []string
 	}
 	sort.Strings(keys)
 	return
+}
+
+func testDirEnsure(t *testing.T) {
+	var err error
+	_ = dir.EnsureDir("ci")
+	if err = dir.EnsureDir(""); err == nil {
+		t.Failed()
+	}
+	if err = dir.EnsureDirEnh(".tmp"); err == nil {
+		_ = os.Remove(".tmp")
+	}
+}
+
+func TestDirEnsure(t *testing.T) {
+	testDirEnsure(t)
 }
 
 func TestExec(t *testing.T) {
@@ -653,14 +668,7 @@ func TestExec(t *testing.T) {
 		x := outX.String()
 		t.Logf("--------- stdout // %v // %v\n%v", dir.GetExecutableDir(), dir.GetExecutablePath(), x)
 
-		_ = dir.EnsureDir("ci")
-		if err = dir.EnsureDir(""); err == nil {
-			t.Failed()
-		}
-		if err = dir.EnsureDirEnh(".tmp"); err == nil {
-			_ = os.Remove(".tmp")
-		}
-
+		testDirEnsure(t)
 		// cmdr.SetPredefinedLocations([]string{})
 		// if len(cmdr.GetPredefinedLocations()) != 0 {
 		// 	t.Failed()
@@ -705,23 +713,24 @@ func TestExec(t *testing.T) {
 			// })
 			// cmdr.SetCustomShowBuildInfo(func() {
 			// })
-		} else if sss == "consul-tags -vD kv backup --prefix'4' ~~debug -h -?" {
-			fmt.Println("xx*: ***: ", sss)
-		} else if sss == "consul-tags services kx1" {
-			fmt.Println("xx*: ***: ", sss)
-		} else if sss == "consul-tags -vD kv backup --prefix'4' -?" { // something wrong 2 (4). |8500|/|true|false|true|true
-			fmt.Println("xx*: ***: ", sss)
+			//} else if sss == "consul-tags -vD kv backup --prefix'4' ~~debug -h -?" {
+			//	fmt.Println("xx*: ***: ", sss)
+			//} else if sss == "consul-tags services kx1" {
+			//	fmt.Println("xx*: ***: ", sss)
+			//} else if sss == "consul-tags -vD kv backup --prefix'4' -?" { // something wrong 2 (4). |8500|/|true|false|true|true
+			//	fmt.Println("xx*: ***: ", sss)
 		} else if sss == "consul-tags -vD kv backup --prefix'4' ~~debug -?" {
 			fmt.Println("xx*: ***: ", sss)
 		}
 
-		if _, err = w.InternalExecFor(rc, args); err != nil {
+		var cmd *cmdr.Command
+		if cmd, err = w.InternalExecFor(rc, args); err != nil {
 			t.Fatal(err, fmt.Sprintf("rootCmd = %p", rootCmdForTesting))
 		}
 		if sss == "consul-tags kv unknown" {
 			errX = bytes.NewBufferString("") // ignore the error outputs 'Unknown command: unknown'
 		}
-		if err = verifier(t); err != nil {
+		if err = verifier(t, cmd, err); err != nil {
 			t.Fatalf("failed: %v\n             cmdline is: %q", err, sss)
 		}
 
@@ -1607,100 +1616,100 @@ func rootCmdForTesting() (root *cmdr.RootCommand) {
 
 var (
 	// testing args
-	execTestings = map[string]func(t *testing.T) error{
-		// "consul-tags -qq": func(t *testing.T) error {
+	execTestings = map[string]func(t *testing.T, c *cmdr.Command, e error) error{
+		// "consul-tags -qq": func(t *testing.T, c *cmdr.Command, e error) error {
 		// 	return nil
 		// },
-		"consul-tags ls": func(t *testing.T) error {
+		"consul-tags ls": func(t *testing.T, c *cmdr.Command, e error) error {
 			return nil
 		},
-		"consul-tags services kx1": func(t *testing.T) error {
+		"consul-tags services kx1": func(t *testing.T, c *cmdr.Command, e error) error {
 			return nil
 		},
-		"consul-tags services kx2": func(t *testing.T) error {
+		"consul-tags services kx2": func(t *testing.T, c *cmdr.Command, e error) error {
 			return nil
 		},
-		"consul-tags services kx3": func(t *testing.T) error {
+		"consul-tags services kx3": func(t *testing.T, c *cmdr.Command, e error) error {
 			return nil
 		},
-		"consul-tags pwd": func(t *testing.T) error {
+		"consul-tags pwd": func(t *testing.T, c *cmdr.Command, e error) error {
 			return nil
 		},
-		//"consul-tags --help --help-zsh 1": func(t *testing.T) error {
+		//"consul-tags --help --help-zsh 1": func(t *testing.T, c *cmdr.Command, e error) error {
 		//	return nil
 		//},
-		//"consul-tags --help --help-bash": func(t *testing.T) error {
+		//"consul-tags --help --help-bash": func(t *testing.T, c *cmdr.Command, e error) error {
 		//	return nil
 		//},
-		"consul-tags ms dr --help": func(t *testing.T) error {
+		"consul-tags ms dr --help": func(t *testing.T, c *cmdr.Command, e error) error {
 			return nil
 		},
-		"consul-tags ms dz --help": func(t *testing.T) error {
+		"consul-tags ms dz --help": func(t *testing.T, c *cmdr.Command, e error) error {
 			fmt.Println("~ consul-tags ms dz --help")
 			return nil
 		},
-		"consul-tags ms dz dz --help": func(t *testing.T) error {
+		"consul-tags ms dz dz --help": func(t *testing.T, c *cmdr.Command, e error) error {
 			fmt.Println("~ consul-tags ms dz dz --help")
 			return nil
 		},
-		"consul-tags ms ls --help": func(t *testing.T) error {
+		"consul-tags ms ls --help": func(t *testing.T, c *cmdr.Command, e error) error {
 			return nil
 		},
-		"consul-tags --no-color --help": func(t *testing.T) error {
+		"consul-tags --no-color --help": func(t *testing.T, c *cmdr.Command, e error) error {
 			return nil
 		},
-		"consul-tags --version-sim 3.3.3": func(t *testing.T) error {
+		"consul-tags --version-sim 3.3.3": func(t *testing.T, c *cmdr.Command, e error) error {
 			return nil
 		},
-		"consul-tags -pp": func(t *testing.T) error {
+		"consul-tags -pp": func(t *testing.T, c *cmdr.Command, e error) error {
 			return nil
 		},
-		"consul-tags -dd 1h": func(t *testing.T) error {
+		"consul-tags -dd 1h": func(t *testing.T, c *cmdr.Command, e error) error {
 			return nil
 		},
-		"consul-tags ~dd 1h": func(t *testing.T) error {
+		"consul-tags ~dd 1h": func(t *testing.T, c *cmdr.Command, e error) error {
 			return nil
 		},
-		"consul-tags ms tags --help --no-color": func(t *testing.T) error {
+		"consul-tags ms tags --help --no-color": func(t *testing.T, c *cmdr.Command, e error) error {
 			return nil
 		},
-		"consul-tags kv b -K- -K+ --": func(t *testing.T) error {
+		"consul-tags kv b -K- -K+ --": func(t *testing.T, c *cmdr.Command, e error) error {
 			// gocov Command.PrintXXX
 			fmt.Println("consul-tags kv b -------- no errors")
 			return nil
 		},
-		//"consul-tags -t3 -s 5 kv b --help-zsh 2 ~~": func(t *testing.T) error {
+		//"consul-tags -t3 -s 5 kv b --help-zsh 2 ~~": func(t *testing.T, c *cmdr.Command, e error) error {
 		//	// gocov Command.PrintXXX
 		//	fmt.Println("consul-tags -t3 -s5 -pp kv b ~~ -------- no errors")
 		//	return nil
 		//},
-		"consul-tags server --help": func(t *testing.T) error {
+		"consul-tags server --help": func(t *testing.T, c *cmdr.Command, e error) error {
 			fmt.Println("consul-tags server --help -------- no errors")
 			return nil
 		},
-		"consul-tags kv b ~": func(t *testing.T) error {
+		"consul-tags kv b ~": func(t *testing.T, c *cmdr.Command, e error) error {
 			// gocov Command.PrintXXX
 			fmt.Println("consul-tags kv b ~ -------- no errors")
 			return nil
 		},
-		"consul-tags -ff 3.14159": func(t *testing.T) error {
+		"consul-tags -ff 3.14159": func(t *testing.T, c *cmdr.Command, e error) error {
 			if cmdr.GetFloat64("app.float") != 3.14159 {
 				return errors.New("something wrong float. |expected %v|got %v|", 3.14159, cmdr.GetFloat64("app.float"))
 			}
 			fmt.Println("consul-tags kv b ~ -------- no errors")
 			return nil
 		},
-		// "consul-tags -cc 3.14159-2.56i": func(t *testing.T) error {
+		// "consul-tags -cc 3.14159-2.56i": func(t *testing.T, c *cmdr.Command, e error) error {
 		// 	if cmdr.GetComplex128("app.complex") != 3.14159-2.56i {
 		// 		return errors.New("something wrong complex. |expected %v|got %v|", 3.14159-2.56i, cmdr.GetComplex128("app.complex"))
 		// 	}
 		// 	fmt.Println("consul-tags kv b ~ -------- no errors")
 		// 	return nil
 		// },
-		"consul-tags kv unknown": func(t *testing.T) error {
+		"consul-tags kv unknown": func(t *testing.T, c *cmdr.Command, e error) error {
 			return nil
 		},
-		"consul-tags ms tags modify ~~debug --port8509 --prefix/": func(t *testing.T) error {
+		"consul-tags ms tags modify ~~debug --port8509 --prefix/": func(t *testing.T, c *cmdr.Command, e error) error {
 			if cmdr.GetInt("app.ms.tags.port") != 8509 || cmdr.GetString("app.ms.tags.prefix") != "/" ||
 				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") {
 				return errors.New("something wrong 1. |%v|%v|%v|%v",
@@ -1709,7 +1718,7 @@ var (
 			}
 			return nil
 		},
-		"consul-tags -vD kv backup --prefix'4' ~~debug -?": func(t *testing.T) error {
+		"consul-tags -vD kv backup --prefix'4' ~~debug -?": func(t *testing.T, c *cmdr.Command, e error) error {
 			fmt.Println(cmdr.FindFlag("verbose", nil).GetTriggeredTimes())
 
 			if cmdr.GetInt("app.kv.port") != 8500 || cmdr.GetString("app.kv.prefix") != "4" ||
@@ -1722,7 +1731,7 @@ var (
 			}
 			return nil
 		},
-		"consul-tags -vD ms tags modify --prefix'' ~~debug --prefix\"\" --prefix'cmdr' --prefix\"app\" --prefix=1 --prefix2 --prefix 3": func(t *testing.T) error {
+		"consul-tags -vD ms tags modify --prefix'' ~~debug --prefix\"\" --prefix'cmdr' --prefix\"app\" --prefix=1 --prefix2 --prefix 3": func(t *testing.T, c *cmdr.Command, e error) error {
 			if cmdr.GetInt("app.ms.tags.port") != 8500 || cmdr.GetString("app.ms.tags.prefix") != "3" ||
 				!cmdr.GetBool("app.help") || !cmdr.GetBool("debug") ||
 				!cmdr.GetVerboseMode() || !cmdr.GetDebugMode() {
@@ -1733,7 +1742,7 @@ var (
 			}
 			return nil
 		},
-		"consul-tags -vD ms tags -K- modify --prefix'' -a a,b,v -z 1,2,3 -x '-1,-2' ~~debug --port8509 -p8507 -p=8506 -p 8503": func(t *testing.T) error {
+		"consul-tags -vD ms tags -K- modify --prefix'' -a a,b,v -z 1,2,3 -x '-1,-2' ~~debug --port8509 -p8507 -p=8506 -p 8503": func(t *testing.T, c *cmdr.Command, e error) error {
 			fmt.Println(cmdr.GetStringSlice("app.ms.tags.modify.add"))
 			fmt.Println(cmdr.GetIntSlice("app.ms.tags.modify.zed"))
 			fmt.Println(cmdr.GetStringSlice("app.ms.tags.modify.xed"))

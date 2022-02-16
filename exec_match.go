@@ -245,9 +245,9 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 func (w *ExecWorker) handleHandlersForFlag(pkg *ptpkg, goCommand *Command, args []string) (stop bool, err error) {
 	handleIt := func(handler Handler) (stop bool, err error) {
 		if handler != nil {
-			if err = handler(goCommand, w.tmpGetRemainArgs(pkg, args)); IsIgnorableError(err) {
-				stop = true
-				err = nil
+			remainArgs := w.tmpGetRemainArgs(pkg, args)
+			if err = handler(goCommand, remainArgs); IsIgnorableError(err) && err != nil {
+				stop, err = true, nil
 			}
 		}
 		return

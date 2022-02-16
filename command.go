@@ -30,12 +30,12 @@ func (c *Command) PrintHelp(justFlags bool) {
 
 // PrintVersion prints versions information
 func (c *Command) PrintVersion() {
-	internalGetWorker().showVersion()
+	internalGetWorker().showVersion(c)
 }
 
 // PrintBuildInfo print building information
 func (c *Command) PrintBuildInfo() {
-	internalGetWorker().showBuildInfo()
+	internalGetWorker().showBuildInfo(c)
 }
 
 // GetRoot returns the `RootCommand`

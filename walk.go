@@ -58,17 +58,20 @@ func defaultActionImpl(cmd *Command, args []string) (err error) {
 Description: %q
        Args: %v
       Flags:
-
 `,
 		cmd.GetDottedNamePath(), cmd.Description, args)
 	for _, f := range GetHitFlags() {
 		kp := f.GetDottedNamePath()
 		v := GetR(kp)
-		fmt.Printf(`  %v: %v
-`, kp, v)
+		fmt.Printf(`
+		%v: %v`, kp, v)
 	}
 
-	println()
+	//println()
+
+	w := internalGetWorker()
+	initTabStop(defaultTabStop)
+	w.currentHelpPainter.FpPrintHelpTailLine(cmd)
 
 	return
 }

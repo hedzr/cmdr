@@ -644,7 +644,7 @@ func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
 		w._cmdAdd(root, "version", "Show the version of this app.", func(cx *Command) {
 			cx.Aliases = []string{"ver", "versions"}
 			cx.Action = func(cmd *Command, args []string) (err error) {
-				w.showVersion()
+				w.showVersion(cmd)
 				return ErrShouldBeStopException
 			}
 		})
@@ -652,7 +652,7 @@ func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
 			ff.Short = "V"
 			ff.Aliases = []string{"ver", "versions"}
 			ff.Action = func(cmd *Command, args []string) (err error) {
-				w.showVersion()
+				w.showVersion(cmd)
 				return ErrShouldBeStopException
 			}
 			ff.circuitBreak = true
@@ -669,7 +669,7 @@ func (w *ExecWorker) attachVersionCommands(root *RootCommand) {
 		w._boolFlgAdd(root, "build-info", "Show the building information of this app.", SysMgmtGroup, func(ff *Flag) {
 			ff.Short = "#"
 			ff.Action = func(cmd *Command, args []string) (err error) {
-				w.showBuildInfo()
+				w.showBuildInfo(cmd)
 				return ErrShouldBeStopException
 			}
 			ff.circuitBreak = true

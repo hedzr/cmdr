@@ -5,6 +5,7 @@
 package cmdr
 
 import (
+	"github.com/hedzr/log"
 	"github.com/hedzr/log/closers"
 	"github.com/hedzr/logex"
 	"gopkg.in/hedzr/errors.v2"
@@ -60,11 +61,16 @@ func (w *ExecWorker) postExecFor(rootCmd *RootCommand, pkg *ptpkg) {
 	// stop fs watcher explicitly
 	// stopExitingChannelForFsWatcher()
 
+	var err error
 	if rootCmd.ow != nil {
-		_ = rootCmd.ow.Flush()
+		err = rootCmd.ow.Flush()
 	}
 	if rootCmd.oerr != nil {
-		_ = rootCmd.oerr.Flush()
+		err = rootCmd.oerr.Flush()
+	}
+
+	if err != nil {
+		log.Errorf("flush stdout or stderr failed: %v", err)
 	}
 
 	w.lastPkg = pkg
@@ -191,8 +197,11 @@ func (w *ExecWorker) internalExecFor(pkg *ptpkg, rootCmd *RootCommand, args []st
 			return
 		}
 		if stopF {
-			if (matched && pkg.flg == nil) || (!matched && (pkg.lastCommandHeld || len((*goCommand).SubCommands) == 0)) {
-				err = w.afterInternalExec(pkg, rootCmd, goCommand, args, stopC || pkg.lastCommandHeld)
+			if matched && pkg.flg == nil {
+				break
+			}
+			if !matched && (pkg.lastCommandHeld || len((*goCommand).SubCommands) == 0) {
+				break
 			}
 			return
 		}

@@ -138,8 +138,8 @@ func (w *ExecWorker) ow() {
 		w.rootCommand.ow = w.defaultStdout
 		w.rootCommand.oerr = w.defaultStderr
 	} else {
-		w.rootCommand.ow = nil
-		w.rootCommand.oerr = nil
+		w.rootCommand.ow = bufio.NewWriter(os.Stdout)
+		w.rootCommand.oerr = bufio.NewWriter(os.Stderr)
 	}
 }
 

@@ -26,73 +26,74 @@ import (
 //	}
 //}
 
-func fp0(fmtStr string, args ...interface{}) {
-	if w := internalGetWorker().rootCommand.ow; w != nil {
-		_, _ = fmt.Fprintf(w, fmtStr, args...)
-	} else {
-		_, _ = fmt.Printf(fmtStr, args...)
-	}
-}
+//func fp0_(fmtStr string, args ...interface{}) {
+//	if w := internalGetWorker().rootCommand.ow; w != nil {
+//		_, _ = fmt.Fprintf(w, fmtStr, args...)
+//	} else {
+//		_, _ = fmt.Printf(fmtStr, args...)
+//	}
+//}
 
 func fp(fmtStr string, args ...interface{}) {
+
+	s := fmt.Sprintf(fmtStr, args...)
+	needln := !strings.HasSuffix(s, "\n")
+	_fpz(needln, s)
+
+}
+
+func fpK(fmtStr string, args ...interface{}) {
+	s := fmt.Sprintf(fmtStr, args...)
+	_fpz(false, s)
+}
+
+func _fpz(needln bool, s string) {
+	var w io.Writer = os.Stdout
 	if wkr := internalGetWorker(); wkr != nil {
 		uniqueWorkerLock.RLock()
 		defer uniqueWorkerLock.RUnlock()
 
-		w := wkr.defaultStdout
-		if !wkr.bufferedStdio && wkr.rootCommand != nil {
+		if wkr.rootCommand != nil {
 			w = wkr.rootCommand.ow
 		}
-
-		if w != nil {
-			_, _ = fmt.Fprintf(w, fmtStr, args...)
-			if !strings.HasSuffix(fmtStr, "\n") {
-				_, _ = fmt.Fprintln(w)
-			}
-		}
-		return
 	}
 
-	_, _ = fmt.Printf(fmtStr, args...)
-	if !strings.HasSuffix(fmtStr, "\n") {
-		fmt.Println()
+	if w != nil {
+		_fpzz(needln, s, w)
+	}
+}
+
+func _fpzz(needln bool, s string, w io.Writer) {
+	_, _ = fmt.Fprintf(w, "%s", s)
+	if needln {
+		_, _ = fmt.Fprintln(w)
 	}
 }
 
 func ffp(of io.Writer, fmtStr string, args ...interface{}) {
-	fp(fmtStr, args...)
-	if of != nil {
-		_, _ = fmt.Fprintf(of, fmtStr, args...)
-		if !strings.HasSuffix(fmtStr, "\n") {
-			_, _ = fmt.Fprintln(of)
-		}
-	}
+	s := fmt.Sprintf(fmtStr, args...)
+	needln := !strings.HasSuffix(fmtStr, "\n")
+	_fpzz(needln, s, of)
 }
 
 func ferr(fmtStr string, args ...interface{}) {
+
+	var w io.Writer = os.Stderr
 	if wkr := internalGetWorker(); wkr != nil {
 		uniqueWorkerLock.RLock()
 		defer uniqueWorkerLock.RUnlock()
 
-		w := wkr.defaultStderr
-		if !wkr.bufferedStdio && wkr.rootCommand != nil {
+		if wkr.bufferedStdio {
 			w = wkr.rootCommand.oerr
+		} else if wkr.defaultStderr != nil {
+			w = wkr.defaultStderr
 		}
-
-		if w != nil {
-			_, _ = fmt.Fprintf(w, fmtStr, args...)
-			if !strings.HasSuffix(fmtStr, "\n") {
-				_, _ = fmt.Fprintln(w)
-			}
-		}
-
-		return
 	}
 
-	_, _ = fmt.Printf(fmtStr, args...)
-	if !strings.HasSuffix(fmtStr, "\n") {
-		fmt.Println()
-	}
+	s := fmt.Sprintf(fmtStr, args...)
+	needln := !strings.HasSuffix(fmtStr, "\n")
+	_fpzz(needln, s, w)
+
 }
 
 // fwrn print the warning message if InDebugging() is true
@@ -731,7 +732,7 @@ GoPrintFlags:
 	return
 }
 
-func (w *ExecWorker) showVersion() {
+func (w *ExecWorker) showVersion(cmd *Command) {
 	if w.globalShowVersion != nil {
 		w.globalShowVersion()
 		return
@@ -750,11 +751,13 @@ func (w *ExecWorker) showVersion() {
 	)
 }
 
-func (w *ExecWorker) showBuildInfo() {
+func (w *ExecWorker) showBuildInfo(cmd *Command) {
 	if w.globalShowBuildInfo != nil {
 		w.globalShowBuildInfo()
 		return
 	}
+
+	initTabStop(defaultTabStop)
 
 	w.printHeader(w.currentHelpPainter, &w.rootCommand.Command)
 
@@ -773,4 +776,7 @@ Build Timestamp: %v
         Githash: %v
     Git Summary: %v
 `, conf.GoVersion, ts, conf.Githash, conf.GitSummary)
+
+	w.currentHelpPainter.FpPrintHelpTailLine(cmd)
+
 }

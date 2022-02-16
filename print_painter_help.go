@@ -48,9 +48,10 @@ func (s *helpPainter) Printf(fmtStr string, args ...interface{}) {
 }
 
 func (s *helpPainter) Print(fmtStr string, args ...interface{}) {
-	s1 := fmt.Sprintf(fmtStr, args...)
-	//s2 := cpt.Translate(s1)
-	fp("%s", s1)
+	//s1 := fmt.Sprintf(fmtStr, args...)
+	////s2 := cpt.Translate(s1)
+	//fpK("%s", s1)
+	fpK(fmtStr, args...)
 }
 
 func (s *helpPainter) FpPrintHeader(command *Command) {
@@ -62,11 +63,12 @@ func (s *helpPainter) FpPrintHeader(command *Command) {
 }
 
 func (s *helpPainter) FpPrintHelpTailLine(command *Command) {
-	if internalGetWorker().enableHelpCommands {
+	w := internalGetWorker()
+	if w.enableHelpCommands {
 		if GetNoColorMode() {
-			s.Printf(fmtTailLineNC, internalGetWorker().helpTailLine)
+			s.Printf(fmtTailLineNC, w.helpTailLine)
 		} else {
-			s.Printf(fmtTailLine, CurrentGroupTitleColor, internalGetWorker().helpTailLine)
+			s.Printf(fmtTailLine, CurrentGroupTitleColor, w.helpTailLine)
 		}
 	}
 }

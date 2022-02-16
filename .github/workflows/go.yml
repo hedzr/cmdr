@@ -76,6 +76,7 @@ jobs:
           parallel: true
 
   build:
+    name: Build the release binaries
     needs: coverage
     #env:
     #  GOPATH: ${{ github.workspace }}
@@ -208,7 +209,7 @@ jobs:
 
   # notifies coveralls that all test jobs are finished
   finish:
-    name: Finish
+    name: Finish Coverage
     needs: coverage
     runs-on: ubuntu-latest
     steps:

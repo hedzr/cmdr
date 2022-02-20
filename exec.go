@@ -8,7 +8,7 @@ import (
 	"github.com/hedzr/log"
 	"github.com/hedzr/log/closers"
 	"github.com/hedzr/logex"
-	"gopkg.in/hedzr/errors.v2"
+	"gopkg.in/hedzr/errors.v3"
 	"os"
 	"strings"
 )
@@ -374,18 +374,20 @@ func (w *ExecWorker) deferRunPostActionOfRootLevel(rootCmd *RootCommand, goComma
 
 func (w *ExecWorker) runPreActionOfRootLevel(rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
 	var preActions = w.gatherPreActions(rootCmd)
-	c := errors.NewContainer("cannot invoke preActions")
+	c := errors.New("cannot invoke preActions")
+	defer c.Defer(&err)
+	//c := errors.NewContainer("cannot invoke preActions")
 	for _, fn := range preActions {
 		if fn != nil {
 			switch e := fn(goCommand, remainArgs); {
 			case IsIgnorableError(e):
 				return e
 			case e != nil:
-				c.Attach(e)
+				_ = c.Attach(e)
 			}
 		}
 	}
-	err = c.Error()
+	//err = c.Error()
 	return
 }
 
@@ -432,14 +434,15 @@ func (w *ExecWorker) checkArgs(rootCmd *RootCommand, goCommand *Command, remainA
 
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) checkRequiredArgs(goCommand *Command, remainArgs []string) (err error) {
-	c := errors.NewContainer("required flag missed")
+	c := errors.New("required flag missed")
+	defer c.Defer(&err)
 
 	cmd := goCommand
 UP:
 	for gn, gv := range cmd.allFlags {
 		for fn, fv := range gv {
 			if fv.Required && fv.times < 1 {
-				c.Attach(errors.New("\n    The required flag %q in group %q missed", fn, gn))
+				_ = c.Attach(errors.New("\n    The required flag %q in group %q missed", fn, gn))
 			}
 		}
 	}
@@ -448,7 +451,7 @@ UP:
 		goto UP
 	}
 
-	err = c.Error()
+	//err = c.Error()
 	return
 }
 

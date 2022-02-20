@@ -4,7 +4,7 @@ package cmdr_test
 
 import (
 	"github.com/hedzr/cmdr"
-	"gopkg.in/hedzr/errors.v2"
+	"gopkg.in/hedzr/errors.v3"
 	"testing"
 	"time"
 )

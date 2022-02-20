@@ -6,7 +6,7 @@ import (
 	"bufio"
 	"crypto/rand"
 	"fmt"
-	"gopkg.in/hedzr/errors.v2"
+	"gopkg.in/hedzr/errors.v3"
 	"io"
 	"io/ioutil"
 	"os"

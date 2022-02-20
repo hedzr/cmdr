@@ -5,7 +5,7 @@ package cmdr
 import (
 	"bytes"
 	"fmt"
-	"gopkg.in/hedzr/errors.v2"
+	"gopkg.in/hedzr/errors.v3"
 	"reflect"
 )
 
@@ -53,33 +53,33 @@ func UnwrapLiveArgsFromCmdrError(err error) (liveArgs []interface{}, e *ErrorFor
 	return
 }
 
-// UnwrapInnerErrorsFromCmdrError try extracting the *ErrorForCmdr object
-// from a given error object, and return the inner errors attached for usages.
-func UnwrapInnerErrorsFromCmdrError(err error) (errs []error) {
-	var e *ErrorForCmdr
-	ok := errors.As(err, &e)
-	if ok && e != nil {
-		errs = []error{e.causer}
-
-	} else {
-		if ewc, ok := err.(interface{ Causes() (errs []error) }); ok {
-			return ewc.Causes()
-		}
-		if ewc, ok := err.(interface{ Cause() (err error) }); ok {
-			return []error{ewc.Cause()}
-		}
-
-		defer func() {
-			recover() // for errors.As v2.1.9 and lower
-		}()
-		var e1 *errors.WithCauses
-		ok = errors.As(err, &e1)
-		if ok && e1 != nil {
-			errs = e1.Causes()
-		}
-	}
-	return
-}
+//// UnwrapInnerErrorsFromCmdrError try extracting the *ErrorForCmdr object
+//// from a given error object, and return the inner errors attached for usages.
+//func UnwrapInnerErrorsFromCmdrError(err error) (errs []error) {
+//	var e *ErrorForCmdr
+//	ok := errors.As(err, &e)
+//	if ok && e != nil {
+//		errs = []error{e.causer}
+//
+//	} else {
+//		if ewc, ok := err.(interface{ Causes() (errs []error) }); ok {
+//			return ewc.Causes()
+//		}
+//		if ewc, ok := err.(interface{ Cause() (err error) }); ok {
+//			return []error{ewc.Cause()}
+//		}
+//
+//		defer func() {
+//			recover() // for errors.As v2.1.9 and lower
+//		}()
+//		var e1 *errors.WithCauses
+//		ok = errors.As(err, &e1)
+//		if ok && e1 != nil {
+//			errs = e1.Causes()
+//		}
+//	}
+//	return
+//}
 
 // IsIgnorableError tests if an error is a *ErrorForCmdr and its Ignorable field is true
 func IsIgnorableError(err error) bool {
@@ -102,28 +102,28 @@ func SetAsAnIgnorableError(err error, ignorable bool) error {
 	return err
 }
 
-// AttachErrorsTo wraps innerErrors into err if it's a *ErrorForCmdr as
-// a container. For the general error object, AttachErrorTo forwards it
-// to hedzr/errors to try to attach the causes.
-func AttachErrorsTo(err error, causes ...error) error {
-	var e *ErrorForCmdr
-	ok := errors.As(err, &e)
-	if ok {
-		e.Attach(causes...)
-	} else if errors.CanAttach(err) {
-		//if z, ok := err.(interface{ Attach(errs ...error) }); ok {
-		//	z.Attach(causes...)
-		//}
-
-		if ewc, ok := err.(interface{ Attach(errs ...error) }); ok {
-			ewc.Attach(causes...)
-		} else if eWC, ok := err.(interface{ Attach(errs ...error) bool }); ok {
-			eWC.Attach(causes...)
-		}
-
-	}
-	return err
-}
+//// AttachErrorsTo wraps innerErrors into err if it's a *ErrorForCmdr as
+//// a container. For the general error object, AttachErrorTo forwards it
+//// to hedzr/errors to try to attach the causes.
+//func AttachErrorsTo(err error, causes ...error) error {
+//	var e *ErrorForCmdr
+//	ok := errors.As(err, &e)
+//	if ok {
+//		e.Attach(causes...)
+//	} else if errors.CanAttach(err) {
+//		//if z, ok := err.(interface{ Attach(errs ...error) }); ok {
+//		//	z.Attach(causes...)
+//		//}
+//
+//		if ewc, ok := err.(interface{ Attach(errs ...error) }); ok {
+//			ewc.Attach(causes...)
+//		} else if eWC, ok := err.(interface{ Attach(errs ...error) bool }); ok {
+//			eWC.Attach(causes...)
+//		}
+//
+//	}
+//	return err
+//}
 
 // AttachLiveArgsTo wraps liveArgs into err if it's a *ErrorForCmdr as
 // a container.

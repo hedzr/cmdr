@@ -8,19 +8,19 @@ go 1.17
 
 //replace github.com/hedzr/logex => ../15.logex
 
-//replace github.com/hedzr/deepcopy => ../30.deepcopy
+//replace gopkg.in/hedzr/errors.v3 => ../05.errors
 
-//replace gopkg.in/hedzr/errors.v2 => ../05.errors
+//replace github.com/hedzr/deepcopy => ../30.deepcopy
 
 require (
 	github.com/BurntSushi/toml v1.0.0
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/hedzr/cmdr-base v0.1.3
-	github.com/hedzr/log v1.5.17
-	github.com/hedzr/logex v1.5.17
+	github.com/hedzr/log v1.5.26
+	github.com/hedzr/logex v1.5.26
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292
-	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd
-	gopkg.in/hedzr/errors.v2 v2.2.0
+	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
+	gopkg.in/hedzr/errors.v3 v3.0.3
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
 

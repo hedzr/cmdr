@@ -11,7 +11,7 @@ import (
 	"github.com/hedzr/log/closers"
 	"github.com/hedzr/log/dir"
 	"github.com/hedzr/log/exec"
-	"gopkg.in/hedzr/errors.v2"
+	"gopkg.in/hedzr/errors.v3"
 	"os"
 	"path"
 	"plugin"

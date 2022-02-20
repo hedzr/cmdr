@@ -7,7 +7,7 @@ package cmdr
 import (
 	"fmt"
 	"github.com/hedzr/cmdr/tool"
-	"gopkg.in/hedzr/errors.v2"
+	"gopkg.in/hedzr/errors.v3"
 	"os"
 	"reflect"
 	"strconv"

@@ -5,7 +5,7 @@
 package cmdr
 
 import (
-	"gopkg.in/hedzr/errors.v2"
+	"gopkg.in/hedzr/errors.v3"
 	"os"
 	"strings"
 )

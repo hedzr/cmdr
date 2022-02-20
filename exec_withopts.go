@@ -9,7 +9,7 @@ import (
 	"github.com/hedzr/cmdr/conf"
 	"github.com/hedzr/log/closers"
 	"github.com/hedzr/log/dir"
-	"gopkg.in/hedzr/errors.v2"
+	"gopkg.in/hedzr/errors.v3"
 	"io"
 	"log"
 	"os"
@@ -564,9 +564,9 @@ func (s *pagerClose) Close() {
 
 func closePager(w *ExecWorker, cmd *exec.Cmd, pager io.WriteCloser) func() {
 	return func() {
-		var err = errors.NewContainer("closePager errors")
-		err.Attach(pager.Close())
-		err.Attach(cmd.Wait())
+		var err = errors.New("closePager errors").
+			Attach(pager.Close()).
+			Attach(cmd.Wait())
 		if !err.IsEmpty() {
 			Logger.Errorf("Close pager errors: %v", err.Error())
 		}

@@ -11,7 +11,7 @@ import (
 	"github.com/hedzr/log/dir"
 	"github.com/hedzr/logex"
 	"github.com/hedzr/logex/build"
-	"gopkg.in/hedzr/errors.v2"
+	"gopkg.in/hedzr/errors.v3"
 	"os"
 	"sort"
 	"strings"

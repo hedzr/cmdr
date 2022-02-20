@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/hedzr/logex"
-	"gopkg.in/hedzr/errors.v2"
+	"gopkg.in/hedzr/errors.v3"
 )
 
 // Worker returns unexported worker for testing

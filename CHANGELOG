@@ -3,6 +3,12 @@
 ## Versions
 
 
+- v1.10.27
+  - upgrade to errors.v3
+
+- v1.10.24
+  - fix: version command, help screen not work
+
 - v1.10.23
   - fix: unknown switch char not an error now
   - imp: refined gen zsh code, and gen shell codes

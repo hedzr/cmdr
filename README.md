@@ -49,7 +49,10 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.10.27 (WIP)
+- v1.10.29 (WIP)
+
+- v1.10.27
+  - upgrade to errors.v3
 
 - v1.10.24
   - fix: version command, help screen not work

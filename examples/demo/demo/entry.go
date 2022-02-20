@@ -20,7 +20,7 @@ func Entry() {
 		// cmdr.WithBuiltinCommands(false, false, false, false, false),
 		// BROKEN since cmdr v1.9: daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
 
-		cmdr.WithLogx(log.NewStdLoggerWith(log.DebugLevel)),
+		cmdr.WithLogx(log.GetLogger()),
 
 		cmdr.WithHelpTabStop(40),
 	); err != nil {

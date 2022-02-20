@@ -17,7 +17,7 @@ func main() {
 		// To disable internal commands and flags, uncomment the following codes
 		cmdr.WithBuiltinCommands(false, false, false, false, true),
 		// daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
-		cmdr.WithLogx(log.NewStdLoggerWith(log.DebugLevel)),
+		cmdr.WithLogx(log.GetLogger()),
 		// cmdr.WithHelpTabStop(40),
 		// cmdr.WithNoColor(true),
 	); err != nil {

@@ -172,7 +172,7 @@ func newError(ignorable bool, srcTemplate error, livedArgs ...interface{}) error
 
 // newErrorWithMsg formats a ErrorForCmdr object
 func newErrorWithMsg(msg string, inners ...error) error {
-	return newErr(msg).Attach(inners...)
+	return newErr(msg).WithErrors(inners...)
 	// return &ErrorForCmdr{Inner: inner, Ignorable: false, Msg: msg}
 }
 

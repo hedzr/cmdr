@@ -383,7 +383,7 @@ func (w *ExecWorker) runPreActionOfRootLevel(rootCmd *RootCommand, goCommand *Co
 			case IsIgnorableError(e):
 				return e
 			case e != nil:
-				_ = c.Attach(e)
+				c.Attach(e)
 			}
 		}
 	}
@@ -442,7 +442,7 @@ UP:
 	for gn, gv := range cmd.allFlags {
 		for fn, fv := range gv {
 			if fv.Required && fv.times < 1 {
-				_ = c.Attach(errors.New("\n    The required flag %q in group %q missed", fn, gn))
+				c.Attach(errors.New("\n    The required flag %q in group %q missed", fn, gn))
 			}
 		}
 	}

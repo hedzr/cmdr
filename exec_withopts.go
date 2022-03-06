@@ -564,9 +564,9 @@ func (s *pagerClose) Close() {
 
 func closePager(w *ExecWorker, cmd *exec.Cmd, pager io.WriteCloser) func() {
 	return func() {
-		var err = errors.New("closePager errors").
-			Attach(pager.Close()).
-			Attach(cmd.Wait())
+		var err = errors.New("closePager errors")
+		err.Attach(pager.Close())
+		err.Attach(cmd.Wait())
 		if !err.IsEmpty() {
 			Logger.Errorf("Close pager errors: %v", err.Error())
 		}

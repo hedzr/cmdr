@@ -88,9 +88,9 @@ func (s *GlobalApp) Init(cmd *cmdr.Command, args []string) (err error) {
 
 	ce := errors.New("")
 	defer ce.Defer(&err)
-	_ = ce.Attach(s.initDB())
-	_ = ce.Attach(s.initCache())
-	_ = ce.Attach(s.initCron())
+	ce.Attach(s.initDB())
+	ce.Attach(s.initCache())
+	ce.Attach(s.initCron())
 
 	// TODO add your basic components initializations here
 

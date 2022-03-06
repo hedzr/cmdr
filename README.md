@@ -49,10 +49,13 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.10.29 (WIP)
+- v1.10.31 (WIP)
+
+- v1.10.29
+  - routine maintenance release
 
 - v1.10.27
-  - upgrade to errors.v3
+  - upgrade to [errors.v3](https://github.com/hedzr/errors)
 
 - v1.10.24
   - fix: version command, help screen not work
@@ -86,7 +89,7 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - CHANGE: use [bgo build-tool](https://github.com/hedzr/bgo) now, Makefile thrown
 
 - v1.10.11
-  - fix: setNx bug at last commit
+  - fix: setNx bug in last commit
   - fix: send 1.10.10 failure
 
 - v1.10.9

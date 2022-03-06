@@ -2,6 +2,12 @@
 
 package main
 
-import "testing"
+import (
+	"github.com/hedzr/cmdr"
+	"testing"
+)
 
-func Test1(t *testing.T) {}
+func Test1(t *testing.T) {
+	cmdr.Set("app.testing", true)
+	main()
+}

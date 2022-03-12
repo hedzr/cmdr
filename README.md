@@ -49,7 +49,10 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.10.31 (WIP)
+- v1.10.32 (WIP)
+
+- v1.10.31
+  - routine maintenance release
 
 - v1.10.30
   - routine maintenance release

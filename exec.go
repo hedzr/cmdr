@@ -450,8 +450,6 @@ UP:
 		cmd = cmd.owner
 		goto UP
 	}
-
-	//err = c.Error()
 	return
 }
 

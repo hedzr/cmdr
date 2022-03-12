@@ -2,6 +2,9 @@
 
 ## Versions
 
+- v1.10.32
+  - fix: processing terminated too fast if global pre-actions return nil
+
 - v1.10.31
   - routine maintenance release
 

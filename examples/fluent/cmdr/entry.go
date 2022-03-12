@@ -3,6 +3,7 @@ package cmdr
 import (
 	"fmt"
 	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/examples/internal"
 	"github.com/hedzr/cmdr/plugin/colortable"
 	"github.com/hedzr/cmdr/plugin/pprof"
 )
@@ -32,6 +33,8 @@ func Entry() {
 		//cmdr.WithLogexPrefix("logger"),
 		//cmdr.WithLogx(build.New(cmdr.NewLoggerConfigWith(true, "logrus", "debug"))),
 		cmdr.WithLogxShort(true, "logrus", "debug"),
+
+		internal.NewAppOption(),
 
 		cmdr.WithWatchMainConfigFileToo(true),
 		// cmdr.WithNoWatchConfigFiles(false),

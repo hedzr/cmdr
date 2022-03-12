@@ -51,6 +51,12 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 
 - v1.10.31 (WIP)
 
+- v1.10.30
+  - routine maintenance release
+  - add: examples/example-app
+  - imp: use relative path in log output
+  - reenable error template
+
 - v1.10.29
   - routine maintenance release
 
@@ -88,60 +94,6 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - imp: name/desc fields of builtin commands and flags
   - CHANGE: use [bgo build-tool](https://github.com/hedzr/bgo) now, Makefile thrown
 
-- v1.10.11
-  - fix: setNx bug in last commit
-  - fix: send 1.10.10 failure
-
-- v1.10.9
-  - fix: setNx with slices merging
-  - fix: aliases might be added to multiple groups
-  - fea: secondary config file locations
-
-- v1.10.8
-  - fix/fea/imp: make cmdr aliases subsystem better
-
-- v1.10.7
-  - fix: generate shell may be lost buffered contents on writing to file
-
-- v1.10.6
-  - fix: internal commands and flags has wrong group declarations since last refactored.
-  - fea: `-o file` for `generate shell` command.
-
-- v1.10.5
-  - fix: logex might crash on a nil skip field
-
-- v1.10.3
-  - last release failed because some deps cannot committed due to weak network
-
-- v1.10.1
-  - move to go1.17 to get a split declaration
-  - fix: added the forgotten long-desc field
-  - fix: transfer proper log-level to hedzr/log if in debug/trace mode
-  - fix/imp: log.ForDir, ForFile
-  - fix: log.LeftPad
-  - fea: added InvokeCommand to run a sub-command from somewhere
-
-- v1.10.0
-  - fix: toggle-group key not sync while set via envvar
-  - imp: speed up by extracting a re compiling code
-  - imp: upgrade deps with more enh-helpers from [hedzr/log](https://github.com/hedzr/log)
-  - imp: yaml indent size
-  - imp: StripOrderPrefix
-  - imp/fix: sync debug/trace mode back to hedzr/log
-  - fix: options after tail args (positional args) might be ignored
-  - fix: ResetOptions not clean up internal hierarchy-list
-  - fea: added `Checkpoints` on _Option Store_  
-    you may save and restore multiple checkpoints for cmdr _Option Store_, so that some temporary changes can be made.
-  - fix/imp: `--man` crashes if manpages not installed - the responding manpage will be generated temporarily and instantly now
-  - add `GitSummary` field into conf package
-  - imp: speed up by reduce get worker
-    - centralize rxxtOptions to store()
-    - flatten backtrace(Flg|Cmd)Names, added dottedPathToCommand
-  - **NOTE**: _the phrase wrapped by backtick(````) in `Description` field will be extracted as `DefaultValuePlaceholder` field automatically, so **beware** this feature._
-  - fea: `-vv` (dup `-v` more than once) will print the hidden commands & flags in help screen NOW.  
-    To take a sight of running `fluent generate --help --verbose -verbose`.
-  - ...
-
 - More details at [CHANGELOG](./CHANGELOG)
 
 ## Features
@@ -154,13 +106,177 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 
 [For Developer](old/Developer.md)
 
-### Import cmdr
+### Fast Guide
 
-With go-modules enabled:
+See [example-app](./tree/master/examples/example-app/)
+
+<details>
+	<summary> Expand to source codes </summary>
 
 ```go
-import "github.com/hedzr/cmdr"
+package main
+
+import (
+	"fmt"
+	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/examples/internal"
+	"github.com/hedzr/cmdr/plugin/pprof"
+	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log"
+	"github.com/hedzr/log/isdelve"
+	"github.com/hedzr/logex/build"
+	"gopkg.in/hedzr/errors.v3"
+)
+
+func main() {
+	Entry()
+}
+
+func Entry() {
+	root := buildRootCmd()
+	if err := cmdr.Exec(root, options...); err != nil {
+		log.Fatalf("error occurs in app running: %+v\n", err)
+	}
+}
+
+func buildRootCmd() (rootCmd *cmdr.RootCommand) {
+	root := cmdr.Root(appName, version).
+		//AddGlobalPreAction(func(cmd *cmdr.Command, args []string) (err error) {
+		//	// cmdr.Set("enable-ueh", true)
+		//	return
+		//}).
+		//AddGlobalPreAction(func(cmd *cmdr.Command, args []string) (err error) {
+		//	//fmt.Printf("# global pre-action 2, exe-path: %v\n", cmdr.GetExecutablePath())
+		//	return
+		//}).
+		//AddGlobalPostAction(func(cmd *cmdr.Command, args []string) {
+		//	//fmt.Println("# global post-action 1")
+		//}).
+		//AddGlobalPostAction(func(cmd *cmdr.Command, args []string) {
+		//	//fmt.Println("# global post-action 2")
+		//}).
+		Copyright(copyright, "hedzr").
+		Description(desc, longDesc).
+		Examples(examples)
+	rootCmd = root.RootCommand()
+
+	// for your biz-logic, constructing an AttachToCmdr(root *cmdr.RootCmdOpt) is recommended.
+	// see our full sample and template repo: https://github.com/hedzr/cmdr-go-starter
+	//core.AttachToCmdr(root.RootCmdOpt())
+
+	// These lines are removable
+
+	cmdr.NewBool(false).
+		Titles("enable-ueh", "ueh").
+		Description("Enables the unhandled exception handler?").
+		AttachTo(root)
+	//cmdrPanic(root)
+	cmdrSoundex(root)
+	//pprof.AttachToCmdr(root.RootCmdOpt())
+	return
+}
+
+func cmdrSoundex(root cmdr.OptCmd) {
+
+	cmdr.NewSubCmd().Titles("soundex", "snd", "sndx", "sound").
+		Description("soundex test").
+		Group("Test").
+		TailPlaceholder("[text1, text2, ...]").
+		Action(func(cmd *cmdr.Command, args []string) (err error) {
+			for ix, s := range args {
+				fmt.Printf("%5d. %s => %s\n", ix, s, tool.Soundex(s))
+			}
+			return
+		}).
+		AttachTo(root)
+
+}
+
+func onUnhandledErrorHandler(err interface{}) {
+	if cmdr.GetBoolR("enable-ueh") {
+		dumpStacks()
+	}
+
+	panic(err) // re-throw it
+}
+
+func dumpStacks() {
+	fmt.Printf("\n\n=== BEGIN goroutine stack dump ===\n%s\n=== END goroutine stack dump ===\n\n", errors.DumpStacksAsString(true))
+}
+
+func init() {
+	options = append(options, cmdr.WithUnhandledErrorHandler(onUnhandledErrorHandler))
+
+	options = append(options,
+		cmdr.WithLogx(build.New(build.NewLoggerConfigWith(
+			defaultDebugEnabled, defaultLoggerBackend, defaultLoggerLevel,
+			log.WithTimestamp(true, "")))))
+
+	options = append(options, cmdr.WithHelpTailLine(`
+# Type '-h'/'-?' or '--help' to get command help screen.
+# Star me if it's helpful: https://github.com/hedzr/cmdr/examples/example-app
+`))
+
+	if isDebugBuild() {
+		options = append(options, pprof.GetCmdrProfilingOptions())
+	}
+
+	// enable '--trace' command line option to toggle a internal trace mode (can be retrieved by cmdr.GetTraceMode())
+	// import "github.com/hedzr/cmdr-addons/pkg/plugins/trace"
+	// trace.WithTraceEnable(defaultTraceEnabled)
+	// Or:
+	optAddTraceOption := cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {
+		cmdr.NewBool(false).
+			Titles("trace", "tr").
+			Description("enable trace mode for tcp/mqtt send/recv data dump", "").
+			//Action(func(cmd *cmdr.Command, args []string) (err error) { println("trace mode on"); cmdr.SetTraceMode(true); return; }).
+			Group(cmdr.SysMgmtGroup).
+			AttachToRoot(root)
+	}, nil)
+	options = append(options, optAddTraceOption)
+	//options = append(options, optAddServerExtOpt«ion)
+
+	// allow and search '.<appname>.yml' at first
+	locations := []string{".$APPNAME.yml"}
+	locations = append(locations, cmdr.GetPredefinedLocations()...)
+	options = append(options, cmdr.WithPredefinedLocations(locations...))
+
+	options = append(options, internal.NewAppOption())
+}
+
+func isDebugBuild() bool { return isdelve.Enabled }
+
+var options []cmdr.ExecOption
+
+//goland:noinspection GoNameStartsWithPackageName
+const (
+	appName   = "example-app"
+	version   = "0.2.5"
+	copyright = "example-app - A devops tool - cmdr series"
+	desc      = "example-app is an effective devops tool. It make an demo application for 'cmdr'"
+	longDesc  = `example-app is an effective devops tool. It make an demo application for 'cmdr'.
+`
+	examples = `
+$ {{.AppName}} gen shell [--bash|--zsh|--fish|--auto]
+  generate bash/shell completion scripts
+$ {{.AppName}} gen man
+  generate linux man page 1
+$ {{.AppName}} --help
+  show help screen.
+$ {{.AppName}} --help --man
+  show help screen in manpage viewer (for linux/darwin).
+`
+	overview = ``
+
+	zero = 0
+
+	defaultTraceEnabled  = true
+	defaultDebugEnabled  = false
+	defaultLoggerLevel   = "debug"
+	defaultLoggerBackend = "logrus"
+)
 ```
+</details>
 
 ### About the Docker build
 

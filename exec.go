@@ -380,9 +380,10 @@ func (w *ExecWorker) runPreActionOfRootLevel(rootCmd *RootCommand, goCommand *Co
 	for _, fn := range preActions {
 		if fn != nil {
 			switch e := fn(goCommand, remainArgs); {
+			case e == nil:
 			case IsIgnorableError(e):
 				return e
-			case e != nil:
+			default:
 				c.Attach(e)
 			}
 		}

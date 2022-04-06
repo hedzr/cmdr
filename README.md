@@ -49,7 +49,11 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.10.35 (WIP)
+- v1.10.36 (WIP)
+  - _
+
+- v1.10.35
+  - fix nil exception while print error sometimes
 
 - v1.10.33
   - routine maintenance release

@@ -2,6 +2,9 @@
 
 ## Versions
 
+- v1.10.35
+  - fix nil exception while print error sometimes
+
 - v1.10.33
   - routine maintenance release
 

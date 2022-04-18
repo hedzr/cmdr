@@ -9,14 +9,11 @@ import (
 )
 
 // NewAddon returns an addon with cmdr.PluginEntry
-func NewAddon() cmdrbase.PluginEntry {
-	return &addon{
-		//
-	}
+func NewAddon() cmdrbase.PluginEntry { //nolint:deadcode,unused
+	return &addon{}
 }
 
-type addon struct {
-}
+type addon struct{}
 
 func (p *addon) AddonTitle() string       { return "demo addon" }
 func (p *addon) AddonDescription() string { return "demo addon desc" }

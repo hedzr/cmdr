@@ -206,10 +206,10 @@ func (s *Options) LoadConfigFile(file string, cft configFileType) (mainFile, sub
 	return
 }
 
-func (s *Options) doWatchConfigFile(enableWatching bool, confDFolderName, dirWatch string, filesWatching []string) (err error) {
+func (s *Options) doWatchConfigFile(enableWatching bool, confDFolderName, dirWatch string, filesWatching []string) (err error) { //nolint:staticcheck
 	if internalGetWorker().watchChildConfigFiles {
 		var dirname string
-		confDFolderName = os.ExpandEnv(".$APPNAME")
+		confDFolderName = os.ExpandEnv(".$APPNAME") //nolint:staticcheck
 		dirname, err = filepath.Abs(confDFolderName)
 		if err == nil && dir.FileExists(dirname) {
 			err = filepath.Walk(dirname, s.visit)
@@ -237,9 +237,9 @@ func (s *Options) loadConfigFile(file string) (err error) {
 	if err == nil {
 		err = s.loopMap("", m)
 	}
-	//if err != nil {
+	// if err != nil {
 	//	return
-	//}
+	// }
 	return
 }
 
@@ -279,21 +279,22 @@ func (s *Options) mergeConfigFile(fr io.Reader, src string, ext string) (err err
 	)
 
 	buf = new(bytes.Buffer)
-	_, err = buf.ReadFrom(fr)
-
-	m = make(map[string]interface{})
-	switch ext {
-	case ".toml", ".ini", ".conf", "toml":
-		err = toml.Unmarshal(buf.Bytes(), &m)
-	case ".json", "json":
-		err = json.Unmarshal(buf.Bytes(), &m)
-	default:
-		err = yaml.Unmarshal(buf.Bytes(), &m)
+	if _, err = buf.ReadFrom(fr); err == nil {
+		m = make(map[string]interface{})
+		switch ext {
+		case ".toml", ".ini", ".conf", "toml":
+			err = toml.Unmarshal(buf.Bytes(), &m)
+		case ".json", "json":
+			err = json.Unmarshal(buf.Bytes(), &m)
+		default:
+			err = yaml.Unmarshal(buf.Bytes(), &m)
+		}
 	}
 
 	if err == nil {
 		err = s.loopMap("", m)
 	}
+
 	if err != nil {
 		ferr("unsatisfied config file `%s` while importing: %v", src, err)
 		return

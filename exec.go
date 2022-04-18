@@ -111,7 +111,7 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 	return
 }
 
-//func (w *ExecWorker) internalExecForV2(pkg *ptpkg, rootCmd *RootCommand, args []string) (last *Command, err error) {
+// func (w *ExecWorker) internalExecForV2(pkg *ptpkg, rootCmd *RootCommand, args []string) (last *Command, err error) {
 //	var (
 //		goCommand    = &rootCmd.Command
 //		stopF, stopC bool
@@ -155,12 +155,12 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 //	err = w.afterInternalExec(pkg, rootCmd, goCommand, args, stopC || pkg.lastCommandHeld)
 //
 //	return
-//}
+// }
 
 func (w *ExecWorker) shouldTerminate(err error) (shouldTerminate bool) {
-	//if err != nil {
+	// if err != nil {
 	shouldTerminate = !IsIgnorableError(err)
-	//}
+	// }
 	return
 }
 
@@ -314,7 +314,7 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 		}
 	}
 
-	if w.noDefaultHelpScreen == false {
+	if !w.noDefaultHelpScreen {
 		rArgs := w.getRemainArgs(pkg, args)
 		err = w.doInvokeHelpScreen(pkg, rootCmd, goCommand, rArgs)
 	}
@@ -376,7 +376,7 @@ func (w *ExecWorker) runPreActionOfRootLevel(rootCmd *RootCommand, goCommand *Co
 	var preActions = w.gatherPreActions(rootCmd)
 	c := errors.New("cannot invoke preActions")
 	defer c.Defer(&err)
-	//c := errors.NewContainer("cannot invoke preActions")
+	// c := errors.NewContainer("cannot invoke preActions")
 	for _, fn := range preActions {
 		if fn != nil {
 			switch e := fn(goCommand, remainArgs); {
@@ -388,7 +388,7 @@ func (w *ExecWorker) runPreActionOfRootLevel(rootCmd *RootCommand, goCommand *Co
 			}
 		}
 	}
-	//err = c.Error()
+	// err = c.Error()
 	return
 }
 
@@ -415,23 +415,23 @@ func (w *ExecWorker) checkArgs(rootCmd *RootCommand, goCommand *Command, remainA
 		err = w.checkRequiredArgs(goCommand, remainArgs)
 	}
 
-	//if err == nil {
+	// if err == nil {
 	//	err = w.checkPrerequisiteArgs(goCommand, remainArgs)
-	//}
+	// }
 
 	if err == nil && w.afterArgsParsed != nil {
 		err = w.afterArgsParsed(goCommand, remainArgs)
-		//; err == ErrShouldBeStopException {
+		// ; err == ErrShouldBeStopException {
 	}
 
 	return
 }
 
-////goland:noinspection GoUnusedParameter
-//func (w *ExecWorker) checkPrerequisiteArgs(goCommand *Command, remainArgs []string) (err error) {
+// //goland:noinspection GoUnusedParameter
+// func (w *ExecWorker) checkPrerequisiteArgs(goCommand *Command, remainArgs []string) (err error) {
 //	c := errors.NewContainer("obligatory flag missed")
 //	return
-//}
+// }
 
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) checkRequiredArgs(goCommand *Command, remainArgs []string) (err error) {

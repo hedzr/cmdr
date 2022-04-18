@@ -19,7 +19,7 @@ import (
 
 func resetOsArgs() {
 	os.Args = []string{}
-	for _, s := range tool.SavedOsArgs {
+	for _, s := range tool.SavedOsArgs { //nolint:gosimple
 		os.Args = append(os.Args, s)
 	}
 }
@@ -184,9 +184,9 @@ func doubleSlice(s interface{}) interface{} {
 	return t.Interface()
 }
 
-func tLog(a ...interface{}) {}
+func tLog(a ...interface{}) {} //nolint:deadcode,unused
 
-//func resetFlagsAndLog(t *testing.T) {
+// func resetFlagsAndLog(t *testing.T) {
 //
 //	// reset all option values
 //	cmdr.Set("kv.port", 8500)
@@ -354,7 +354,7 @@ func tLog(a ...interface{}) {}
 //	cmdr.Set("ms.tags.modify.v", "3s")
 //	tLog(cmdr.GetDuration("app.ms.tags.modify.v"))
 //
-//}
+// }
 
 func postWorks(t *testing.T) {
 	rc := rootCmdForTesting()

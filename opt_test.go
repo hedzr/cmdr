@@ -170,8 +170,8 @@ func TestKiloBytes(t *testing.T) {
 	for _, str := range []string{
 		"8K", "8M", "8G", "8T", "8P", "8E",
 	} {
-		//r:=str[1]
-		n := opts.FromKilobytes(str)
+		var n uint64
+		_ = opts.FromKilobytes(str)
 		n = opts.FromKibiBytes(str)
 		t.Log(n)
 	}
@@ -419,7 +419,7 @@ func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 	c91.Match("")
 	c91.Match("ie91")
 	c91.GetTriggeredTimes()
-	//c9.SetOwner(nil)
+	// c9.SetOwner(nil)
 	c91.Delete()
 
 	c8.SetOwner(nil)
@@ -730,15 +730,15 @@ func TestAlreadyUsed(t *testing.T) {
 
 	testFramework(t, rootBuilder, alreadyUsedTestings)
 
-	//cmdr.ResetOptions()
-	//w := cmdr.InternalResetWorkerForTest()
+	// cmdr.ResetOptions()
+	// w := cmdr.InternalResetWorkerForTest()
 	//
-	//root := createRoot()
+	// root := createRoot()
 	//
-	//var err error
-	//deferFn := prepareConfD(t)
-	//outX, errX := prepareStreams()
-	//defer func() {
+	// var err error
+	// deferFn := prepareConfD(t)
+	// outX, errX := prepareStreams()
+	// defer func() {
 	//
 	//	x := outX.String()
 	//	t.Logf("--------- stdout // %v // %v\n%v", dir.GetExecutableDir(), dir.GetExecutablePath(), x)
@@ -751,12 +751,12 @@ func TestAlreadyUsed(t *testing.T) {
 	//	resetOsArgs()
 	//	deferFn()
 	//
-	//}()
+	// }()
 	//
-	//addDupFlags(root)
+	// addDupFlags(root)
 	//
-	//t.Log("xxx: -------- loops for alreadyUsedTestings")
-	//for sss, verifier := range alreadyUsedTestings {
+	// t.Log("xxx: -------- loops for alreadyUsedTestings")
+	// for sss, verifier := range alreadyUsedTestings {
 	//	//resetFlagsAndLog(t)
 	//	cmdr.ResetRootInWorkerForTest()
 	//	cmdr.ResetOptions()
@@ -770,7 +770,7 @@ func TestAlreadyUsed(t *testing.T) {
 	//	if err = verifier(t); err != nil {
 	//		t.Fatal(err)
 	//	}
-	//}
+	// }
 }
 
 var (

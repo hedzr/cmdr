@@ -71,14 +71,14 @@ type ExecWorker struct {
 	strictMode                  bool    // 'strict-mode'
 	noUnknownCmdTip             bool    // don't invoke unknownOptionHandler while unknown command found
 	noCommandAction             bool    // disable invoking command action even if it's valid
-	noPluggableAddons           bool    //
-	noPluggableExtensions       bool    //
+	noPluggableAddons           bool    //nolint:structcheck,unused
+	noPluggableExtensions       bool    //nolint:structcheck,unused
 	noUseOnSwitchCharHitHandler bool    // don't invoke onSwitchCharHitHandler handler while a '-' found
 	inCompleting                bool    // allow partial matching at last cmdline args
 
 	logexInitialFunctor Handler
 	logexPrefix         string
-	logexSkipFrames     int
+	logexSkipFrames     int //nolint:structcheck,unused
 
 	afterArgsParsed Handler
 
@@ -179,8 +179,8 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 
 		doNotLoadingConfigFiles: false,
 
-		defaultStdout: nil, //bufio.NewWriterSize(os.Stdout, 16384),
-		defaultStderr: nil, //bufio.NewWriterSize(os.Stderr, 16384),
+		defaultStdout: nil, // bufio.NewWriterSize(os.Stdout, 16384),
+		defaultStderr: nil, // bufio.NewWriterSize(os.Stderr, 16384),
 
 		rxxtOptions: newOptions(),
 
@@ -196,9 +196,9 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 
 	w.currentHelpPainter = &helpPainter{worker: w}
 	w._setSwChars(runtime.GOOS)
-	//if runtime.GOOS == "windows" {
+	// if runtime.GOOS == "windows" {
 	//	w.switchCharset = "-/~"
-	//}
+	// }
 
 	uniqueWorker = w
 	return
@@ -210,20 +210,20 @@ func (w *ExecWorker) _setSwChars(os string) {
 	} else {
 		w.switchCharset = "-~"
 	}
-	//if sw, ok := switchCharMap[runtime.GOOS]; ok {
+	// if sw, ok := switchCharMap[runtime.GOOS]; ok {
 	//	w.switchCharset = sw
-	//} else {
+	// } else {
 	//	w.switchCharset = "-~/"
-	//}
+	// }
 }
 
 func init() {
 	onceWorkerInitial.Do(func() {
 
 		noResetWorker = true
-		//switchCharMap = map[string]string{
+		// switchCharMap = map[string]string{
 		//	"windows": "-/~",
-		//}
+		// }
 
 		// create the uniqueWorker first time
 		_ = internalResetWorkerNoLock()
@@ -234,6 +234,6 @@ var onceWorkerInitial sync.Once   // once initializer for some global variables
 var uniqueWorkerLock sync.RWMutex //
 var uniqueWorker *ExecWorker      // NOTE that pointer to uniqueWorker can be updated, it's not an initial-once pointer
 var noResetWorker bool            //
-//var switchCharMap map[string]string //
+// var switchCharMap map[string]string //
 
 const confDFolderNameConst = "conf.d"

@@ -194,9 +194,9 @@ func (ctx *queryShcompContext) rebuildMatchedList(cmd *Command) {
 }
 
 func (ctx *queryShcompContext) deleteFromMatchedList(cmd *Command) {
-	if _, ok := ctx.matchedList[cmd.GetTitleName()]; ok {
-		delete(ctx.matchedList, cmd.GetTitleName())
-	}
+	// if _, ok := ctx.matchedList[cmd.GetTitleName()]; ok {
+	delete(ctx.matchedList, cmd.GetTitleName())
+	// }
 }
 
 func (ctx *queryShcompContext) matchCommandTitle(c *Command, titleChecking string, fuzzy bool) (exact, ok bool) {
@@ -236,7 +236,7 @@ func (ctx *queryShcompContext) doMatchCommandTitle(c *Command, title, titleCheck
 	if fuzzy && strings.HasPrefix(title, titleChecking) {
 		ctx.matchedPrecededList[c.GetTitleName()] = c
 		ok = true
-	} else if noPartialMatching == false && fuzzy && strings.Contains(title, titleChecking) {
+	} else if !noPartialMatching && fuzzy && strings.Contains(title, titleChecking) {
 		ctx.matchedPrecededList[c.GetTitleName()] = c
 		ok = true
 	}
@@ -257,11 +257,11 @@ goUp:
 		}
 
 		if _, ok := ctx.matchFlagTitle(c, titleChecking, sw1, sw2); ok {
-			//if /*ix == len(args)-1-1 && args[ix+1] == "" &&*/ exact {
+			// if /*ix == len(args)-1-1 && args[ix+1] == "" &&*/ exact {
 			//	flgMatched, err = c, nil
-			//} else {
+			// } else {
 			//	err = nil
-			//}
+			// }
 			flgMatched, err = c, nil
 		}
 	}
@@ -342,7 +342,7 @@ const (
 )
 
 func directivesToString(d int) string {
-	//var sb strings.Builder
+	// var sb strings.Builder
 	if d&shellCompDirectiveError != 0 {
 		return "ShellCompDirectiveError"
 	}

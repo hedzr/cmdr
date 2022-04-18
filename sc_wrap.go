@@ -95,7 +95,7 @@ func TrapSignalsEnh(done chan bool, onTrapped func(s os.Signal), signals ...os.S
 		done <- true // stop os signals for-select looper
 	}
 	waiter = func() {
-		for {
+		for { //nolint:gosimple
 			select {
 			case byManual := <-done:
 				if byManual {

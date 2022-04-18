@@ -3,6 +3,7 @@ package cmdr
 import (
 	"fmt"
 	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log"
 	"github.com/hedzr/log/dir"
 	"github.com/hedzr/log/exec"
 	"io"
@@ -42,8 +43,8 @@ func (g *genzsh) Generate(writer io.Writer, fullPath string, cmd *Command, args 
 	// find fpath and write to the target
 
 	_, fpath, _ := exec.RunWithOutput(g.shell, "-c", `echo $fpath`)
-	//Logger.Infof("fpath = %v", fpath)
-	//Logger.Infof("ENV:\n%v", os.Environ())
+	// Logger.Infof("fpath = %v", fpath)
+	// Logger.Infof("ENV:\n%v", os.Environ())
 	//
 	// /usr/local/share/zsh/site-functions
 	// $HOME/.oh-my-zsh/completions
@@ -82,10 +83,10 @@ func (g *genzsh) generateFileIntoWriter(writer io.Writer, fn func(path string, w
 	var wr io.Writer = os.Stdout
 	var f *os.File
 	for _, s := range g.locations {
-		//Logger.Infof("--- checking %s", s)
+		// Logger.Infof("--- checking %s", s)
 		if dir.FileExists(s) {
 			file = path.Join(s, "_"+g.appName)
-			//Logger.Debugf("    try creating %s", file)
+			// Logger.Debugf("    try creating %s", file)
 			if f, err = os.Create(file); err != nil {
 				if !linuxRoot {
 					err = nil
@@ -95,10 +96,10 @@ func (g *genzsh) generateFileIntoWriter(writer io.Writer, fn func(path string, w
 			}
 			Logger.Debugf("    generating %s", file)
 			wr = f
-			//err = fn(file, f)
-			//if !linuxRoot {
+			// err = fn(file, f)
+			// if !linuxRoot {
 			//	break // for non-root user, we break file-writing loop and dump scripts to console too.
-			//}
+			// }
 			break
 		}
 	}
@@ -134,15 +135,19 @@ func (g *genzsh) genZshTo(cmd *Command, args []string, path string, writer io.Wr
 
 	err = genshTplExpand(ctx, "zsh.completion.head", zshCompHead, ctx.theArgs)
 	if err == nil {
-		err = walkFromCommand(&cmd.root.Command, 0, 0, func(cx *Command, index, level int) (err error) {
-			//generate for command cx
-			safeName := g.getZshSubFuncName(cx)
-			if level == 0 {
-				safeName = "_" + g.safeZshFnName(cx.root.AppName)
-			}
-			err = g.genZshFnFromTpl(ctx, safeName, cx)
-			return
-		})
+		err = walkFromCommand(&cmd.root.Command, 0, 0,
+			func(cx *Command, index, level int) (err error) {
+				// generate for command cx
+				safeName := g.getZshSubFuncName(cx)
+				if level == 0 {
+					safeName = "_" + g.safeZshFnName(cx.root.AppName)
+				}
+				err = g.genZshFnFromTpl(ctx, safeName, cx)
+				return
+			})
+		if err != nil {
+			log.Warn(err)
+		}
 
 		err = genshTplExpand(ctx, "zsh.completion.tail", zshCompTail, ctx.theArgs)
 		fmt.Printf(`
@@ -157,9 +162,9 @@ func (g *genzsh) genZshFnFromTpl(ctx *genshCtx, fnName string, cmd *Command) (er
 	if len(cmd.SubCommands) > 0 {
 		err = g.genZshFnByCommand(ctx, fnName, cmd)
 	} else {
-		//if fnName == "__fluent_generate_shell" {
+		// if fnName == "__fluent_generate_shell" {
 		//	print()
-		//}
+		// }
 		err = g.genZshFnFlagsByCommand(ctx, fnName, cmd)
 	}
 	return
@@ -244,13 +249,13 @@ func (g *genzsh) gzt1ForToggleGroups(descCommands *strings.Builder, cmd *Command
 		me := g.gzChkMEForToggleGroup(k, v)
 
 		for ix, c := range v {
-			//var sb strings.Builder
-			//for i, f := range v {
+			// var sb strings.Builder
+			// for i, f := range v {
 			//	if i != ix {
 			//		sb.WriteString(f.GetTitleZshNamesBy(" "))
 			//		sb.WriteString(" ")
 			//	}
-			//}
+			// }
 			g.gzt2(descCommands, cmd, ix, c, me, shortTitleOnly)
 		}
 	}
@@ -258,9 +263,9 @@ func (g *genzsh) gzt1ForToggleGroups(descCommands *strings.Builder, cmd *Command
 
 func (g *genzsh) gzt2(descCommands *strings.Builder, cmd *Command, ix int, f *Flag, mutualExclusives string, shortTitleOnly bool) {
 
-	//if c.Full == "pprof" {
+	// if c.Full == "pprof" {
 	//	println()
-	//}
+	// }
 
 	if len(f.ValidArgs) != 0 {
 		g.gzAction(descCommands, f, "("+strings.Join(f.ValidArgs, " ")+")", mutualExclusives, shortTitleOnly)
@@ -288,14 +293,14 @@ func (g *genzsh) gzt2(descCommands *strings.Builder, cmd *Command, ix int, f *Fl
 				g.zshDescribeFlagNames(f, shortTitleOnly, false), f.GetDescZsh()))
 		}
 	}
-	//if ix != len(cmd.Flags)-1 {
+	// if ix != len(cmd.Flags)-1 {
 	descCommands.WriteString(" \\\n")
-	//}
+	// }
 }
 
-//func (g *genzsh) gzAction(descCommands *strings.Builder, c *Flag, action, mutualExclusives string) {
+// func (g *genzsh) gzAction(descCommands *strings.Builder, c *Flag, action, mutualExclusives string) {
 //	g.gzAction_(descCommands,c, action, mutualExclusives, false)
-//}
+// }
 
 func (g *genzsh) gzAction(descCommands *strings.Builder, f *Flag, action, mutualExclusives string, shortTitleOnly bool) {
 	if f.dblTildeOnly {
@@ -367,12 +372,12 @@ func (g *genzsh) zshDescribeNames(s *Command) string {
 }
 
 func (g *genzsh) zshDescribeFlagNames(s *Flag, shortTitleOnly, longTitleOnly bool) string {
-	//if shortTitleOnly {
+	// if shortTitleOnly {
 	//	return s.GetTitleZshFlagShortName()
-	//}
-	//if longTitleOnly {
+	// }
+	// if longTitleOnly {
 	//	return s.GetTitleZshFlagName()
-	//}
+	// }
 	str := s.GetTitleZshNamesExtBy(",", true, true, shortTitleOnly, longTitleOnly)
 	if strings.Contains(str, ",") {
 		return "{" + str + "}"
@@ -385,14 +390,14 @@ func (g *genzsh) getZshSubFuncName(cmd *Command) (safeFuncName string) {
 	return
 }
 
-//func (g *genzsh) zshTplExpand(ctx *genZshCtx, name, tmplString string, args interface{}) (err error) {
+// func (g *genzsh) zshTplExpand(ctx *genZshCtx, name, tmplString string, args interface{}) (err error) {
 //	var tmpl *template.Template
 //	tmpl, err = template.New(name).Parse(tmplString)
 //	if err == nil {
 //		err = tmpl.Execute(ctx.output, args)
 //	}
 //	return
-//}
+// }
 
 func genshTplExpand(ctx *genshCtx, tmplName, tmplString string, data interface{}) (err error) {
 	var tmpl *template.Template

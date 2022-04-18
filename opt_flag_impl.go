@@ -223,7 +223,6 @@ func (s *optFlagImpl) SetOwner(opt OptCmd) {
 	} else if s.working != nil {
 		s.working.owner = nil
 	}
-	return
 }
 
 func (s *optFlagImpl) OwnerCommand() (opt OptCmd) {

@@ -30,10 +30,10 @@ func TestErrors(t *testing.T) {
 		}
 	}
 
-	//for _, err := range []error{
+	// for _, err := range []error{
 	//	ErrShouldBeStopException,
 	//	AttachErrorsTo(AttachLiveArgsTo(SetAsAnIgnorableError(NewErrorForCmdr("*ErrorForCmdr here"), true), []int{2, 5}, "bad"), io.EOF),
-	//} {
+	// } {
 	//	if IsIgnorableError(err) {
 	//		// ok
 	//		liveArgs, e, ok := UnwrapLiveArgsFromCmdrError(err)
@@ -45,22 +45,22 @@ func TestErrors(t *testing.T) {
 	//	} else {
 	//		t.Fatal(err)
 	//	}
-	//}
+	// }
 	//
-	//// 1.
-	//ec := errors.NewContainer("container of errors")
-	//for _, e := range []error{io.EOF, io.ErrClosedPipe} {
+	// // 1.
+	// ec := errors.NewContainer("container of errors")
+	// for _, e := range []error{io.EOF, io.ErrClosedPipe} {
 	//	ec.Attach(e)
-	//}
-	//errs := UnwrapInnerErrorsFromCmdrError(&ew{(*errors.WithCauses)(ec)})
-	//t.Logf("inner errors are: %v, error is: %v", errs, ec.Error())
+	// }
+	// errs := UnwrapInnerErrorsFromCmdrError(&ew{(*errors.WithCauses)(ec)})
+	// t.Logf("inner errors are: %v, error is: %v", errs, ec.Error())
 	//
-	//// 2.
-	//ewc := errors.WithCause(io.EOF, "*withCauses object here")
-	//if e1 := AttachErrorsTo(ewc, io.EOF, io.ErrShortBuffer); e1 != nil {
+	// // 2.
+	// ewc := errors.WithCause(io.EOF, "*withCauses object here")
+	// if e1 := AttachErrorsTo(ewc, io.EOF, io.ErrShortBuffer); e1 != nil {
 	//	errs = UnwrapInnerErrorsFromCmdrError(e1)
 	//	t.Logf("inner errors are: %v, error is: %v", errs, e1)
-	//}
+	// }
 
 	for _, err := range []error{
 		ErrBadArg, errWrongEnumValue,
@@ -73,12 +73,12 @@ func TestErrors(t *testing.T) {
 	}
 }
 
-type ew struct {
+type ew struct { //nolint:unused
 	msg string
 	// *errors.WithCauses
 }
 
-func (e *ew) Error() string {
+func (e *ew) Error() string { //nolint:unused
 	return e.msg // e.WithCauses.Error().Error()
 }
 
@@ -97,9 +97,9 @@ func TestErrorForCmdr(t *testing.T) {
 	}
 
 	e1 := newErr("test error %d", 2)
-	//if _, ok := e1.(*errors.WithStackInfo); !ok {
+	// if _, ok := e1.(*errors.WithStackInfo); !ok {
 	//	t.Fatal(e1)
-	//}
+	// }
 
 	if _, ok := e.(*errors.WithStackInfo); ok {
 		var et *errors.WithStackInfo

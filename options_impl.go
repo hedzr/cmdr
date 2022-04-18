@@ -63,7 +63,7 @@ func (s *Options) Delete(key string) {
 	val := s.entries[key]
 	a := strings.Split(key, ".")
 	s.deleteWithKey(s.hierarchy, a[0], "", et(a, 1, val))
-	return
+	// return
 }
 
 func (s *Options) deleteWithKey(m map[string]interface{}, key, path string, val interface{}) (ret map[string]interface{}) {
@@ -183,7 +183,7 @@ func ToBool(val interface{}, defaultVal ...bool) (ret bool) {
 }
 
 func toBool(val string, defaultVal ...bool) (ret bool) {
-	//ret = ToBool(val, defaultVal...)
+	// ret = ToBool(val, defaultVal...)
 	switch strings.ToLower(val) {
 	case "1", "y", "t", "yes", "true", "ok", "on":
 		ret = true
@@ -987,7 +987,7 @@ func (s *Options) mergeSlice(v1, v2 interface{}) (v3 interface{}) {
 		return
 	}
 
-	if s.appendMode == false {
+	if !s.appendMode {
 		return v2 // just replace the old value
 	}
 
@@ -1016,16 +1016,16 @@ func (s *Options) mergeSlice(v1, v2 interface{}) (v3 interface{}) {
 
 			// Just for go1.17+
 			//
-			//if x2.Index(i).CanConvert(typ) {
+			// if x2.Index(i).CanConvert(typ) {
 			//	x4 = reflect.Append(x4, x2.Index(i).Convert(typ))
-			//} else {
+			// } else {
 			//	if typ.Kind() == reflect.String {
 			//		str := fmt.Sprintf("%v", x2.Interface())
 			//		x4 = reflect.Append(x4, reflect.ValueOf(str))
 			//	} else {
 			//		ferr("cannot convert '%v' to type: %v", x2.Interface(), typ.Kind())
 			//	}
-			//}
+			// }
 		}
 		v3 = x4.Interface()
 	} else {
@@ -1039,22 +1039,22 @@ func (s *Options) mergeSlice(v1, v2 interface{}) (v3 interface{}) {
 // If v.CanConvert(t) returns true then v.Convert(t) will not panic.
 func canConvert(v reflect.Value, t reflect.Type) bool {
 	vt := v.Type()
-	if !vt.ConvertibleTo(t) {
+	if !vt.ConvertibleTo(t) { //nolint:gosimple
 		return false
 	}
 
 	// go1.17+ only:
 	//
-	//// Currently the only conversion that is OK in terms of type
-	//// but that can panic depending on the value is converting
-	//// from slice to pointer-to-array.
-	//if vt.Kind() == reflect.Slice && t.Kind() == reflect.Ptr && t.Elem().Kind() == reflect.Array {
+	// // Currently the only conversion that is OK in terms of type
+	// // but that can panic depending on the value is converting
+	// // from slice to pointer-to-array.
+	// if vt.Kind() == reflect.Slice && t.Kind() == reflect.Ptr && t.Elem().Kind() == reflect.Array {
 	//	n := t.Elem().Len()
 	//	h := (*unsafeheader.Slice)(v.ptr)
 	//	if n > h.Len {
 	//		return false
 	//	}
-	//}
+	// }
 	return true
 }
 
@@ -1186,35 +1186,41 @@ func et(keys []string, ix int, val interface{}) interface{} {
 	return val
 }
 
-// Flush writes all changes back to the alter config file
+// Flush writes all changes back to the alternative config file
 func (s *Options) Flush() {
 	if len(s.usedAlterConfigFile) > 0 {
-		if fi, err := os.Stat(os.ExpandEnv(s.usedAlterConfigFile)); err == nil && dir.IsModeWriteOwner(fi.Mode()) {
+		var err error
+		var fi os.FileInfo
+		if fi, err = os.Stat(os.ExpandEnv(s.usedAlterConfigFile)); err == nil && dir.IsModeWriteOwner(fi.Mode()) {
 
-			//// str := AsYaml() // s.DumpAsString(false)
-			//var b []byte
-			//var err error
-			//obj := s.GetHierarchyList()
-			//defer handleSerializeError(&err)
-			//b, err = yaml.Marshal(obj)
+			// // str := AsYaml() // s.DumpAsString(false)
+			// var b []byte
+			// var err error
+			// obj := s.GetHierarchyList()
+			// defer handleSerializeError(&err)
+			// b, err = yaml.Marshal(obj)
 
 			var updated bool
 			var m map[string]interface{}
-			//var mc map[string]interface{}
+			// var mc map[string]interface{}
 			m, err = s.loadConfigFileAsMap(s.usedAlterConfigFile)
-			updated, _, err = s.updateMap("", m)
-			if updated && err == nil {
-				var b []byte
-				defer handleSerializeError(&err)
-				b, err = yaml.Marshal(m)
+			if err == nil {
+				updated, _, err = s.updateMap("", m)
+				if updated && err == nil {
+					var b []byte
+					defer handleSerializeError(&err)
+					b, err = yaml.Marshal(m)
 
-				err = ioutil.WriteFile(s.usedAlterConfigFile, b, 0644)
-				if err != nil {
-					log.Errorf("err: %v", err)
-				} else {
-					flog("config file %q updated.", s.usedAlterConfigFile)
+					err = ioutil.WriteFile(s.usedAlterConfigFile, b, 0644)
+					if err == nil {
+						flog("config file %q updated.", s.usedAlterConfigFile)
+					}
 				}
 			}
+		}
+
+		if err != nil {
+			log.Errorf("err: %v", err)
 		}
 	}
 }
@@ -1337,7 +1343,7 @@ retryChecking:
 	tool.SortAsDottedSliceReverse(kSorted)
 
 	for _, k := range kSorted {
-		//flog("mapOrphans: %v => %v", k, v)
+		// flog("mapOrphans: %v => %v", k, v)
 		keys := strings.Split(k, ".")
 		for i := 1; i < len(keys); i++ {
 			ks := strings.Join(keys[:i], ".")

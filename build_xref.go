@@ -66,17 +66,17 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand, args []string) (err error) 
 		// flog("--> buildXref: loadFromPredefinedLocations()")
 
 		// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
-		//if err = w.parsePredefinedLocation(); err != nil {
+		// if err = w.parsePredefinedLocation(); err != nil {
 		//	return
-		//}
+		// }
 		_ = w.parsePredefinedLocation()
 
 		w.rxxtOptions.setToAppendMode()
 
 		// and now, loading the external configuration files
-		err = w.loadFromPredefinedLocations(rootCmd)
-		err = w.loadFromSecondaryLocations(rootCmd)
-		err = w.loadFromAlterLocations(rootCmd)
+		_ = w.loadFromPredefinedLocations(rootCmd)
+		_ = w.loadFromSecondaryLocations(rootCmd)
+		_ = w.loadFromAlterLocations(rootCmd)
 
 		// if len(w.envPrefixes) > 0 {
 		// 	EnvPrefix = w.envPrefixes
@@ -158,7 +158,7 @@ func (w *ExecWorker) _addCommandsForAliasesGroup(root *RootCommand, aliases *ali
 }
 
 func (w *ExecWorker) _toolChkFlags(cc *Command) (err error) {
-	//for _, f := range cc.Flags {
+	// for _, f := range cc.Flags {
 	//	if f.owner == nil {
 	//		f.owner = cc
 	//	}
@@ -176,7 +176,7 @@ func (w *ExecWorker) _toolChkFlags(cc *Command) (err error) {
 	//
 	//		Logger.Errorf("fatal error")
 	//	}
-	//}
+	// }
 	return
 }
 
@@ -296,34 +296,34 @@ func (w *ExecWorker) getInvokeProcAction(from *Command) Handler {
 
 func (w *ExecWorker) getInvokeShellAction(from *Command) Handler {
 	return func(cmd *Command, args []string) (err error) {
-		//cmdParts := strings.Split(from.InvokeShell, " ")
-		//c, args := cmdParts[0], cmdParts[1:]
-		//err = exec.Run(c, args...)
+		// cmdParts := strings.Split(from.InvokeShell, " ")
+		// c, args := cmdParts[0], cmdParts[1:]
+		// err = exec.Run(c, args...)
 
 		// NOTE: cmd == from
 
-		//var a []string
-		//shell := cmd.Shell
-		//if shell == "" {
+		// var a []string
+		// shell := cmd.Shell
+		// if shell == "" {
 		//	if runtime.GOOS == "windows" {
 		//		shell = "powershell.exe"
 		//	} else {
 		//		shell = "/bin/bash"
 		//	}
-		//} else if strings.Contains(shell, "/env ") {
+		// } else if strings.Contains(shell, "/env ") {
 		//	c := strings.Split(shell, " ")
 		//	shell, a = c[0], append(a, c[1:]...)
-		//}
+		// }
 		//
-		//scriptFragments := w.expandTmplWithExecutiveEnv(cmd.InvokeShell, cmd, args)
+		// scriptFragments := w.expandTmplWithExecutiveEnv(cmd.InvokeShell, cmd, args)
 		//
-		//if strings.Contains(shell, "powershell") {
+		// if strings.Contains(shell, "powershell") {
 		//	a = append(a, "-NoProfile", "-NonInteractive", scriptFragments)
-		//} else {
+		// } else {
 		//	a = append(a, "-c", scriptFragments)
-		//}
+		// }
 		//
-		//err = exec.Run(shell, a...)
+		// err = exec.Run(shell, a...)
 
 		return exec.InvokeShellScripts(cmd.InvokeShell,
 			exec.WithScriptExpander(func(source string) string {
@@ -365,8 +365,7 @@ func (w *ExecWorker) buildAddonsCrossRefs(root *RootCommand) {
 		if dir.FileExists(dirExpanded) {
 			err := dir.ForFileMax(dirExpanded, 0, 1, func(depth int, cwd string, fi os.FileInfo) (stop bool, err error) {
 				if !fi.IsDir() {
-					var ok bool // = strings.HasPrefix(fi.Name(), prefix)
-					ok = true
+					var ok = true // = strings.HasPrefix(fi.Name(), prefix)
 					// Logger.Debugf("      -> addons.dir: %v, file: %v", dirExpanded, fi.Name())
 					if ok && dir.IsModeExecAny(fi.Mode()) {
 						err = w._addOnAddIt(fi, root, cwd)
@@ -383,21 +382,20 @@ func (w *ExecWorker) buildAddonsCrossRefs(root *RootCommand) {
 
 func (w *ExecWorker) _addOnAddIt(fi os.FileInfo, root *RootCommand, cwd string) (err error) {
 	if fi.Mode().IsRegular() {
-		//name := fi.Name()[:len(prefix)]
+		// name := fi.Name()[:len(prefix)]
 		name := fi.Name()
 		exe := path.Join(cwd, fi.Name())
-		//if strings.HasPrefix(name, "-") || strings.HasPrefix(name, "_") {
+		// if strings.HasPrefix(name, "-") || strings.HasPrefix(name, "_") {
 		//	name = name[1:]
 		//	Logger.Debugf("      -> addons.dir: %v, file: %v", dirExpanded, fi.Name())
 		err = w._addonAsSubCmd(root, name, exe)
-		//}
+		// }
 	}
 	return
 }
 
 func (w *ExecWorker) _addonAsSubCmd(root *RootCommand, cmdName, cmdPath string) (err error) {
-	var desc string
-	desc = fmt.Sprintf("execute %q", cmdPath)
+	var desc string = fmt.Sprintf("execute %q", cmdPath)
 
 	var p *plugin.Plugin
 	p, err = plugin.Open(cmdPath)
@@ -524,8 +522,7 @@ func (w *ExecWorker) buildExtensionsCrossRefs(root *RootCommand) {
 		if dir.FileExists(dirExpanded) {
 			err := dir.ForFileMax(dirExpanded, 0, 1, func(depth int, cwd string, fi os.FileInfo) (stop bool, err error) {
 				if !fi.IsDir() {
-					var ok bool // = strings.HasPrefix(fi.Name(), prefix)
-					ok = true
+					var ok = true // = strings.HasPrefix(fi.Name(), prefix)
 					// Logger.Debugf("      -> ext.dir: %v, file: %v", dirExpanded, fi.Name())
 					if ok && dir.IsModeExecAny(fi.Mode()) {
 						err = w._addIt(fi, root, cwd)
@@ -542,21 +539,20 @@ func (w *ExecWorker) buildExtensionsCrossRefs(root *RootCommand) {
 
 func (w *ExecWorker) _addIt(fi os.FileInfo, root *RootCommand, cwd string) (err error) {
 	if fi.Mode().IsRegular() {
-		//name := fi.Name()[:len(prefix)]
+		// name := fi.Name()[:len(prefix)]
 		name := fi.Name()
 		exe := path.Join(cwd, fi.Name())
-		//if strings.HasPrefix(name, "-") || strings.HasPrefix(name, "_") {
+		// if strings.HasPrefix(name, "-") || strings.HasPrefix(name, "_") {
 		//	name = name[1:]
 		//	Logger.Debugf("      -> addons.dir: %v, file: %v", dirExpanded, fi.Name())
 		w._addAsSubCmd(&root.Command, name, exe)
-		//}
+		// }
 	}
 	return
 }
 
 func (w *ExecWorker) _addAsSubCmd(parent *Command, cmdName, cmdPath string) {
-	var desc string
-	desc = fmt.Sprintf("execute %q", cmdPath)
+	var desc string = fmt.Sprintf("execute %q", cmdPath)
 	if _, ok := parent.allCmds[ExtGroup]; !ok {
 		parent.allCmds[ExtGroup] = make(map[string]*Command)
 	}
@@ -696,8 +692,8 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 			})
 			root.plainShortFlags["?"] = root.allFlags[SysMgmtGroup]["help"]
 
-			//w._intFlgAdd(root, "help-zsh", "Show help with zsh completion format, or others", func(ff *Flag) { ff.DefaultValuePlaceholder = "LEVEL" })
-			//w._intFlgAdd(root, "help-bash", "Show help with bash completion format, or others", func(ff *Flag) { ff.DefaultValuePlaceholder = "LEVEL" })
+			// w._intFlgAdd(root, "help-zsh", "Show help with zsh completion format, or others", func(ff *Flag) { ff.DefaultValuePlaceholder = "LEVEL" })
+			// w._intFlgAdd(root, "help-bash", "Show help with bash completion format, or others", func(ff *Flag) { ff.DefaultValuePlaceholder = "LEVEL" })
 
 			m := map[string]bool{
 				"linux": true, "darwin": true,
@@ -722,8 +718,8 @@ func (w *ExecWorker) attachHelpCommands(root *RootCommand) {
 						}
 						return ErrShouldBeStopException
 					}
-					//ff.Hidden = false
-					//ff.dblTildeOnly = true
+					// ff.Hidden = false
+					// ff.dblTildeOnly = true
 				})
 			}
 
@@ -829,7 +825,7 @@ func (w *ExecWorker) attachGeneratorsCommands(root *RootCommand) {
 		found := false
 		for _, sc := range root.SubCommands {
 			if sc.Full == "generate" { // generatorCommands.Full {
-				found = true
+				found = true //nolint:ineffassign
 				return
 			}
 		}
@@ -846,7 +842,7 @@ func (w *ExecWorker) attachGeneratorsCommands(root *RootCommand) {
 - more...
 
 			`
-				//- markdown generator
+				// - markdown generator
 
 				cx1.Examples = `
 $ {{.AppName}} gen sh --bash
@@ -858,16 +854,16 @@ $ {{.AppName}} gen sh
 $ {{.AppName}} gen man
 			generate linux manual (man page)
 			`
-				//$ {{.AppName}} gen doc
-				//generate document, default markdown.
-				//$ {{.AppName}} gen doc --markdown
-				//generate markdown.
-				//$ {{.AppName}} gen doc --pdf
-				//generate pdf.
-				//$ {{.AppName}} gen markdown
-				//generate markdown.
-				//$ {{.AppName}} gen pdf
-				//generate pdf.
+				// $ {{.AppName}} gen doc
+				// generate document, default markdown.
+				// $ {{.AppName}} gen doc --markdown
+				// generate markdown.
+				// $ {{.AppName}} gen doc --pdf
+				// generate pdf.
+				// $ {{.AppName}} gen markdown
+				// generate markdown.
+				// $ {{.AppName}} gen pdf
+				// generate pdf.
 
 				w._cmdAdd1(cx1, "shell", "Generate the bash/zsh auto-completion script or install it.", func(cx *Command) {
 					cx.Short = "s"

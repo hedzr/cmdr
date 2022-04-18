@@ -357,7 +357,7 @@ func (s *optCommandImpl) NewFlagV(defaultValue interface{}, titles ...string) (o
 	return
 }
 
-//func (s *optCommandImpl) NewSubCommand(titles ...string) (opt OptCmd) {
+// func (s *optCommandImpl) NewSubCommand(titles ...string) (opt OptCmd) {
 //	cmd := &Command{root: internalGetWorker().rootCommand}
 //
 //	optCtx.current = cmd
@@ -376,7 +376,7 @@ func (s *optCommandImpl) NewFlagV(defaultValue interface{}, titles ...string) (o
 //		}
 //	}
 //	return
-//}
+// }
 
 func (s *optCommandImpl) OwnerCommand() (opt OptCmd) {
 	opt = s.parent
@@ -392,7 +392,6 @@ func (s *optCommandImpl) SetOwner(opt OptCmd) {
 			s.working.owner = nil
 		}
 	}
-	return
 }
 
 func (s *optCommandImpl) RootCommand() (root *RootCommand) {

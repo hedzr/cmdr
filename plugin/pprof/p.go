@@ -57,7 +57,7 @@ type profile struct {
 	memProfileType string
 }
 
-//var cpuProfile, memProfile string
+// var cpuProfile, memProfile string
 
 // EnableCPUProfile enables cpu profiling.
 // And review the pprof result in a web ui:
@@ -123,7 +123,7 @@ func (s *profile) enableCPUProfile(profilePath string) (closer func()) {
 		log.Debugf("profile: cpu profiling enabled, %s", fn)
 		closer = func() {
 			pprof.StopCPUProfile()
-			f.Close()
+			_ = f.Close()
 			log.Debugf("profile: cpu profiling disabled, %s", fn)
 		}
 	}
@@ -145,8 +145,8 @@ func (s *profile) enableMemProfile(profilePath string) (closer func()) {
 		}
 		log.Debugf("profile: memory profiling enabled (rate %d), %s", runtime.MemProfileRate, fn)
 		closer = func() {
-			pprof.Lookup(s.memProfileType).WriteTo(f, 0)
-			f.Close()
+			_ = pprof.Lookup(s.memProfileType).WriteTo(f, 0)
+			_ = f.Close()
 			runtime.MemProfileRate = old
 			log.Debugf("profile: memory profiling disabled, %s", fn)
 		}
@@ -166,9 +166,9 @@ func (s *profile) enableMutexProfile(profilePath string) (closer func()) {
 		log.Debugf("profile: mutex profiling enabled, %s", fn)
 		closer = func() {
 			if mp := pprof.Lookup("mutex"); mp != nil {
-				mp.WriteTo(f, 0)
+				_ = mp.WriteTo(f, 0)
 			}
-			f.Close()
+			_ = f.Close()
 			runtime.SetMutexProfileFraction(0)
 			log.Debugf("profile: mutex profiling disabled, %s", fn)
 		}
@@ -187,8 +187,8 @@ func (s *profile) enableBlockProfile(profilePath string) (closer func()) {
 		runtime.SetBlockProfileRate(1)
 		log.Debugf("profile: block profiling enabled, %s", fn)
 		closer = func() {
-			pprof.Lookup("block").WriteTo(f, 0)
-			f.Close()
+			_ = pprof.Lookup("block").WriteTo(f, 0)
+			_ = f.Close()
 			runtime.SetBlockProfileRate(0)
 			log.Debugf("profile: block profiling disabled, %s", fn)
 		}
@@ -208,9 +208,9 @@ func (s *profile) enableThreadCreateProfile(profilePath string) (closer func()) 
 		log.Debugf("profile: thread creation profiling enabled, %s", fn)
 		closer = func() {
 			if mp := pprof.Lookup("threadcreate"); mp != nil {
-				mp.WriteTo(f, 0)
+				_ = mp.WriteTo(f, 0)
 			}
-			f.Close()
+			_ = f.Close()
 			log.Debugf("profile: thread creation profiling disabled, %s", fn)
 		}
 	}
@@ -252,9 +252,9 @@ func (s *profile) enableGoRoutineProfile(profilePath string) (closer func()) {
 		log.Debugf("profile: goroutine profiling enabled, %s", fn)
 		closer = func() {
 			if mp := pprof.Lookup("goroutine"); mp != nil {
-				mp.WriteTo(f, 0)
+				_ = mp.WriteTo(f, 0)
 			}
-			f.Close()
+			_ = f.Close()
 			log.Debugf("profile: goroutine profiling disabled, %s", fn)
 		}
 	}

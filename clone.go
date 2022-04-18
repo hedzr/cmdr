@@ -54,9 +54,9 @@ func CloneViaGob(to, from interface{}) (err error) {
 		return
 	}
 	err = dec.Decode(to)
-	//if err != nil {
+	// if err != nil {
 	//	return
-	//}
+	// }
 	return
 }
 
@@ -165,7 +165,7 @@ func (s *copierImpl) copyAll(amount int, isSlice bool, from, to reflect.Value, f
 
 func safetyTargetStruct(dest reflect.Value, fromType reflect.Type, ignoreNames []string) {
 	if fromKind := fromType.Kind(); fromKind != reflect.Struct {
-		if fromKind == reflect.Array {
+		if fromKind == reflect.Array { //nolint:staticcheck
 			// array of struct?
 		}
 		return
@@ -377,14 +377,14 @@ func equalArray(to, from reflect.Value) bool {
 	if from.Len() == 0 {
 		return true
 	}
-	//for i := 0; i < from.Len(); i++ {
+	// for i := 0; i < from.Len(); i++ {
 	//	if !equal(from.Slice(i, i+1), to.Slice(i, i+1)) {
 	//		return false
 	//	}
-	//}
-	//return true
+	// }
+	// return true
 
-	if from.Type().Elem().Comparable() == false {
+	if !from.Type().Elem().Comparable() {
 		return false
 	}
 
@@ -406,7 +406,7 @@ func equalSlice(to, from reflect.Value) bool {
 		return true
 	}
 
-	if from.Type().Elem().Comparable() == false {
+	if !from.Type().Elem().Comparable() {
 		return false
 	}
 
@@ -466,12 +466,12 @@ func (s *copierImpl) setCvt(to, from reflect.Value) {
 			if equal(to, from) {
 				if s.ZeroIfEqualsFrom {
 					setDefault(to)
-				} else if s.IgnoreIfNotEqual == false {
+				} else if !s.IgnoreIfNotEqual {
 					to.Set(from.Convert(to.Type()))
 				}
 				// else ignore it
 			} else {
-				if s.IgnoreIfNotEqual == false || isNil(to) || IsZero(to) {
+				if !s.IgnoreIfNotEqual || isNil(to) || IsZero(to) {
 					to.Set(from.Convert(to.Type()))
 				}
 			}

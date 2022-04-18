@@ -103,7 +103,7 @@ func Launch(cmd string, args ...string) (err error) {
 	err = c.Run()
 
 	if err != nil {
-		if _, isExitError := err.(*exec.ExitError); isExitError {
+		if _, isExitError := err.(*exec.ExitError); isExitError { //nolint:gosimple
 			err = nil
 		}
 	}
@@ -191,10 +191,10 @@ func stripPrefix(s, p string) string {
 func StripOrderPrefix(s string) string {
 	a := xre.FindStringSubmatch(s)
 	return a[2]
-	//if xre.MatchString(s) {
+	// if xre.MatchString(s) {
 	//	s = s[strings.Index(s, ".")+1:]
-	//}
-	//return s
+	// }
+	// return s
 }
 
 // HasOrderPrefix tests whether an order prefix is present or not.
@@ -245,7 +245,7 @@ var SavedOsArgs []string
 func init() {
 	if SavedOsArgs == nil {
 		// bug: can't copt slice to slice: _ = StandardCopier.Copy(&SavedOsArgs, &os.Args)
-		for _, s := range os.Args {
+		for _, s := range os.Args { //nolint:gosimple
 			SavedOsArgs = append(SavedOsArgs, s)
 		}
 	}

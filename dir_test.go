@@ -17,12 +17,12 @@ import (
 	"testing"
 )
 
-//// TestIsDirectory tests more
-////
-//// usage:
-////   go test ./... -v -test.run '^TestIsDirectory$'
-////
-//func TestIsDirectory(t *testing.T) {
+// // TestIsDirectory tests more
+// //
+// // usage:
+// //   go test ./... -v -test.run '^TestIsDirectory$'
+// //
+// func TestIsDirectory(t *testing.T) {
 //	t.Logf("osargs[0] = %v", os.Args[0])
 //	t.Logf("InTesting: %v", cmdr.InTesting())
 //	t.Logf("InDebugging: %v", cmdr.InDebugging())
@@ -41,7 +41,7 @@ import (
 //	if yes, err := cmdr.IsRegularFile("./doc.go"); !yes {
 //		t.Fatal(err)
 //	}
-//}
+// }
 
 func TestDumpers(t *testing.T) {
 
@@ -115,7 +115,7 @@ func TestMatch(t *testing.T) {
 	t.Log("xxx: -------- loops for execTestingsMatch")
 	for sss, verifier := range execTestingsMatch {
 		cmdr.InternalResetWorkerForTest()
-		//resetFlagsAndLog(t)
+		// resetFlagsAndLog(t)
 		cmdr.ResetOptions()
 
 		// cmdr.ShouldIgnoreWrongEnumValue = true
@@ -156,7 +156,7 @@ func TestWrongEnum(t *testing.T) {
 	testFramework(t, rootCmdForTesting, execTestingsWronEnum)
 }
 
-//func TestHeadLike(t *testing.T) {
+// func TestHeadLike(t *testing.T) {
 //
 //	cmdr.ResetOptions()
 //	cmdr.InternalResetWorkerForTest()
@@ -229,7 +229,7 @@ func TestWrongEnum(t *testing.T) {
 //		}
 //	}
 //
-//}
+// }
 
 func TestComplexOpt1(t *testing.T) {
 	var rootCmdX = func() *cmdr.RootCommand {
@@ -262,7 +262,7 @@ func TestComplexOpt1(t *testing.T) {
 	testFramework(t, rootCmdX, commands)
 }
 
-//func TestComplexOpt(t *testing.T) {
+// func TestComplexOpt(t *testing.T) {
 //	defer logex.CaptureLog(t).Release()
 //	if tool.SavedOsArgs == nil {
 //		tool.SavedOsArgs = os.Args
@@ -325,7 +325,7 @@ func TestComplexOpt1(t *testing.T) {
 //			}
 //		}
 //	}
-//}
+// }
 
 func TestTildeOptionsAndToggleGroupBranch1(t *testing.T) {
 	var rootCmdX = func() *cmdr.RootCommand {
@@ -378,7 +378,7 @@ func TestTildeOptionsAndToggleGroupBranch1(t *testing.T) {
 	testFramework(t, rootCmdX, commands)
 }
 
-//func TestTildeOptionsAndToggleGroupBranch(t *testing.T) {
+// func TestTildeOptionsAndToggleGroupBranch(t *testing.T) {
 //	defer logex.CaptureLog(t).Release()
 //	if tool.SavedOsArgs == nil {
 //		tool.SavedOsArgs = os.Args
@@ -456,7 +456,7 @@ func TestTildeOptionsAndToggleGroupBranch1(t *testing.T) {
 //			}
 //		}
 //	}
-//}
+// }
 
 func TestHandlerPassThru1(t *testing.T) {
 	var rootCmdX = func() *cmdr.RootCommand {
@@ -516,7 +516,7 @@ func TestHandlerPassThru1(t *testing.T) {
 	testFramework(t, rootCmdX, commands)
 }
 
-//func TestHandlerPassThru(t *testing.T) {
+// func TestHandlerPassThru(t *testing.T) {
 //	defer logex.CaptureLog(t).Release()
 //	if tool.SavedOsArgs == nil {
 //		tool.SavedOsArgs = os.Args
@@ -611,7 +611,7 @@ func TestHandlerPassThru1(t *testing.T) {
 //			}
 //		}
 //	}
-//}
+// }
 
 func testFramework(t *testing.T, rootCommand func() *cmdr.RootCommand, cases testCases, opts ...cmdr.ExecOption) {
 
@@ -629,8 +629,8 @@ func testFramework(t *testing.T, rootCommand func() *cmdr.RootCommand, cases tes
 		os.Args = tool.SavedOsArgs
 	}()
 
-	//cmdr.ResetOptions()
-	//cmdr.InternalResetWorkerForTest()
+	// cmdr.ResetOptions()
+	// cmdr.InternalResetWorkerForTest()
 
 	var err error
 	var cmd *cmdr.Command
@@ -644,10 +644,10 @@ func testFramework(t *testing.T, rootCommand func() *cmdr.RootCommand, cases tes
 
 	var copyOfRootCommand *cmdr.RootCommand
 	resetRootCommand := func() { // not yet
-		//copyOfRootCommand = new(cmdr.RootCommand)
-		//if err := cmdr.CloneViaGob(copyOfRootCommand, rootCommand); err != nil {
+		// copyOfRootCommand = new(cmdr.RootCommand)
+		// if err := cmdr.CloneViaGob(copyOfRootCommand, rootCommand); err != nil {
 		//	t.Fatal(err)
-		//}
+		// }
 		copyOfRootCommand = rootCommand()
 	}
 	t.Log("root.Name")
@@ -682,11 +682,11 @@ func testFramework(t *testing.T, rootCommand func() *cmdr.RootCommand, cases tes
 		println("xxx: ***: ", sss)
 
 		w := cmdr.Worker3(copyOfRootCommand)
-		//w.AddOnAfterXrefBuilt(func(root *cmdr.RootCommand, args []string) {})
-		//w.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {})
+		// w.AddOnAfterXrefBuilt(func(root *cmdr.RootCommand, args []string) {})
+		// w.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {})
 		cmdr.WithUnhandledErrorHandler(onUnhandledErrorHandler)(w)
 		cmdr.WithInternalOutputStreams(outBuf, errBuf)(w)
-		//cmdr.WithIgnoreWrongEnumValue(true)(w)
+		// cmdr.WithIgnoreWrongEnumValue(true)(w)
 		for _, opt := range opts {
 			opt(w)
 		}
@@ -734,7 +734,7 @@ var (
 			if e == nil {
 				return errors.New("expecting an 'unexpected enumerable value' exception threw for command-line: 'consul-tags server -e oil'")
 			}
-			if strings.Index(e.Error(), "unexpected enumerable value") >= 0 {
+			if strings.Contains(e.Error(), "unexpected enumerable value") {
 				println("unexpected enumerable value found. This is a test, not an error.")
 				return nil
 			}

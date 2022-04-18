@@ -20,7 +20,7 @@ import (
 //
 
 const (
-	defaultTimestampFormat = time.RFC3339
+	defaultTimestampFormat = time.RFC3339 //nolint:deadcode,unused,varcheck
 
 	// https://en.wikipedia.org/wiki/ANSI_escape_code
 	// https://zh.wikipedia.org/wiki/ANSI%E8%BD%AC%E4%B9%89%E5%BA%8F%E5%88%97
@@ -154,7 +154,7 @@ func (c *colorPrintTranslator) translateTo(root *html.Node, s string, initialSta
 	var sb strings.Builder
 	var walker func(node *html.Node, level int)
 	colorize := c.colorize(&sb, states, &walker)
-	//nilfn := func(node *html.Node, level int) {}
+	// nilfn := func(node *html.Node, level int) {}
 	colorizeIt := func(clr int) func(node *html.Node, level int) {
 		return func(node *html.Node, level int) {
 			colorize(node, clr, "", level)
@@ -193,15 +193,15 @@ func (c *colorPrintTranslator) translateTo(root *html.Node, s string, initialSta
 				colorize(node, 51, "51;1", level)
 				return
 			default:
-				//Logger.Debugf("%v, %v, lvl #%d\n", node.Type, node.Data, level)
-				//sb.WriteString(node.Data)
+				// Logger.Debugf("%v, %v, lvl #%d\n", node.Type, node.Data, level)
+				// sb.WriteString(node.Data)
 			}
 		case html.TextNode:
-			//Logger.Debugf("%v, %v, lvl #%d\n", node.Type, node.Data, level)
+			// Logger.Debugf("%v, %v, lvl #%d\n", node.Type, node.Data, level)
 			sb.WriteString(node.Data)
 			return
 		default:
-			//sb.WriteString(node.Data)
+			// sb.WriteString(node.Data)
 		}
 
 		for child := node.FirstChild; child != nil; child = child.NextSibling {

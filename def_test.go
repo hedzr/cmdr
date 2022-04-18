@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/hedzr/cmdr"
+	"github.com/hedzr/log"
 	"github.com/hedzr/log/dir"
 	"github.com/hedzr/logex"
 	"github.com/hedzr/logex/build"
@@ -24,7 +25,7 @@ func TestSingleCommandLine1(t *testing.T) {
 
 	lc := cmdr.NewLoggerConfig()
 
-	//copyRootCmd = rootCmdForTesting
+	// copyRootCmd = rootCmdForTesting
 	var err error
 	defer func() {
 		_ = os.Remove(".tmp.1.json")
@@ -84,9 +85,9 @@ func TestSingleCommandLine1(t *testing.T) {
 		cmdr.WithNoColor(true),          // since v1.6.2
 		cmdr.WithNoEnvOverrides(true),   // since v1.6.2
 		cmdr.WithStrictMode(true),       // since v1.6.2
-		//cmdr.WithLogex(cmdr.DebugLevel), // since v1.6.5
-		//cmdr.WithLogexSkipFrames(1),     // since v1.6.5
-		//cmdr.WithLogexPrefix(""),        // since v1.6.5
+		// cmdr.WithLogex(cmdr.DebugLevel), // since v1.6.5
+		// cmdr.WithLogexSkipFrames(1),     // since v1.6.5
+		// cmdr.WithLogexPrefix(""),        // since v1.6.5
 		cmdr.WithNoDefaultHelpScreen(true),
 		cmdr.WithEnvVarMap(map[string]func() string{
 			"EXT": func() string {
@@ -129,7 +130,7 @@ More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-
 	)
 
 	cmdr.InternalResetWorkerForTest()
-	//resetFlagsAndLog(t)
+	// resetFlagsAndLog(t)
 	resetOsArgs()
 	cmdr.ResetOptions()
 	_ = cmdr.ExecWithForTest(rootCmdForTesting(), nil, nil)
@@ -142,6 +143,7 @@ More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-
 	cmdr.AsToml()
 	if err = cmdr.SaveAsToml(".tmp.1.toml"); err != nil {
 		// t.Fatal("dump toml failed", err)
+		log.Warn("dump toml failed", err)
 	}
 	// _ = os.Remove(".tmp.json")
 
@@ -152,15 +154,15 @@ More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-
 	// 	return
 	// })
 	cmdr.InternalResetWorkerForTest()
-	//resetFlagsAndLog(t)
+	// resetFlagsAndLog(t)
 	resetOsArgs()
 	cmdr.ResetOptions()
 
 	cmdr.AddOnConfigLoadedListener(&cfgLoaded{})
 	_ = cmdr.ExecWithForTest(rootCmdForTesting(), func(root *cmdr.RootCommand, args []string) {
-		return
+		// return
 	}, func(root *cmdr.RootCommand, args []string) {
-		return
+		// return
 	})
 
 	resetOsArgs()
@@ -168,19 +170,25 @@ More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-
 
 func test1(w *cmdr.ExecWorker) {
 	defer func() {
-		recover()
+		if e := recover(); e != nil {
+			log.Error(e)
+		}
 	}()
 	cmdr.WithToggleGroupChoicerNewStyle("zzz", " x", "  ")(w)
 }
 func test2(w *cmdr.ExecWorker) {
 	defer func() {
-		recover()
+		if e := recover(); e != nil {
+			log.Error(e)
+		}
 	}()
 	cmdr.WithToggleGroupChoicerStyle("")(w)
 }
 func test3(w *cmdr.ExecWorker) {
 	defer func() {
-		recover()
+		if e := recover(); e != nil {
+			log.Error(e)
+		}
 	}()
 	cmdr.WithToggleGroupChoicerStyle("xxx")(w)
 }
@@ -206,11 +214,11 @@ func test4(w *cmdr.ExecWorker) {
 
 func TestSingleCommandLine2(t *testing.T) {
 	w := cmdr.InternalResetWorkerForTest()
-	//resetFlagsAndLog(t)
+	// resetFlagsAndLog(t)
 	resetOsArgs()
 	cmdr.ResetOptions()
 
-	//copyRootCmd = rootCmdForTesting
+	// copyRootCmd = rootCmdForTesting
 	defer func() {
 		_ = os.Remove(".tmp.1.json")
 		_ = os.Remove(".tmp.1.yaml")
@@ -228,7 +236,7 @@ func TestSingleCommandLine2(t *testing.T) {
 func TestUnknownHandler(t *testing.T) {
 	defer logex.CaptureLog(t).Release()
 
-	//copyRootCmd = rootCmdForTesting
+	// copyRootCmd = rootCmdForTesting
 
 	cmdr.InternalResetWorkerForTest()
 	cmdr.ResetOptions()
@@ -316,7 +324,7 @@ func TestErrorForCmdr(t *testing.T) {
 
 func testErrorForCmdr(t *testing.T, e *cmdr.ErrorForCmdr, fn func(t *testing.T, e *cmdr.ErrorForCmdr)) {
 	defer func() {
-		if e := recover(); e != nil {
+		if e := recover(); e != nil { //nolint:staticcheck
 			//
 		}
 	}()
@@ -325,7 +333,7 @@ func testErrorForCmdr(t *testing.T, e *cmdr.ErrorForCmdr, fn func(t *testing.T, 
 }
 
 func TestConfigOption(t *testing.T) {
-	//copyRootCmd = rootCmdForTesting
+	// copyRootCmd = rootCmdForTesting
 	cmdr.ResetOptions()
 	cmdr.InternalResetWorkerForTest()
 
@@ -357,7 +365,7 @@ func TestConfigOption(t *testing.T) {
 }
 
 func TestStrictMode(t *testing.T) {
-	//copyRootCmd = rootCmdForTesting
+	// copyRootCmd = rootCmdForTesting
 	cmdr.ResetOptions()
 	cmdr.InternalResetWorkerForTest()
 	os.Args = []string{"consul-tags", "ms", "tags", "add", "--strict-mode"}
@@ -385,7 +393,7 @@ func TestStrictMode(t *testing.T) {
 }
 
 func TestTreeDump(t *testing.T) {
-	//copyRootCmd = rootCmdForTesting
+	// copyRootCmd = rootCmdForTesting
 
 	cmdr.InternalResetWorkerForTest()
 	cmdr.ResetOptions()
@@ -402,17 +410,17 @@ func TestTreeDump(t *testing.T) {
 		}
 		resetOsArgs()
 		cmdr.ResetOptions()
-		//resetFlagsAndLog(t)
+		// resetFlagsAndLog(t)
 	}
 }
 
 func TestVersionCommand(t *testing.T) {
-	//copyRootCmd = rootCmdForTesting
+	// copyRootCmd = rootCmdForTesting
 
 	cmdr.InternalResetWorkerForTest()
 	cmdr.ResetOptions()
 	cmdr.Set("no-watch-conf-dir", true)
-	//resetFlagsAndLog(t)
+	// resetFlagsAndLog(t)
 
 	for _, args := range [][]string{
 		{"consul-tags", "version"},
@@ -428,14 +436,14 @@ func TestVersionCommand(t *testing.T) {
 		resetOsArgs()
 		cmdr.ResetOptions()
 		cmdr.InternalResetWorkerForTest()
-		//resetFlagsAndLog(t)
+		// resetFlagsAndLog(t)
 	}
 
 	resetOsArgs()
 }
 
 func TestGlobalShow(t *testing.T) {
-	//copyRootCmd = rootCmdForTesting
+	// copyRootCmd = rootCmdForTesting
 	// cmdr.SetInternalOutputStreams(nil, nil)
 
 	cmdr.InternalResetWorkerForTest()
@@ -461,7 +469,7 @@ func TestGlobalShow(t *testing.T) {
 
 	cmdr.ResetOptions()
 	cmdr.Set("no-watch-conf-dir", true)
-	//resetFlagsAndLog(t)
+	// resetFlagsAndLog(t)
 
 	os.Args = []string{"consul-tags", "--build-info"}
 	// if err := cmdr.Exec(rootCmdForTesting); err != nil {
@@ -483,7 +491,7 @@ func TestGlobalShow(t *testing.T) {
 }
 
 func TestPP(t *testing.T) {
-	//copyRootCmd = rootCmdForTesting
+	// copyRootCmd = rootCmdForTesting
 
 	cmdr.InternalResetWorkerForTest()
 	cmdr.ResetOptions()
@@ -536,28 +544,28 @@ func TestGetSectionFrom(t *testing.T) {
 		t.Fatal(sc.Enum)
 	}
 
-	//resetFlagsAndLog(t)
+	// resetFlagsAndLog(t)
 }
 
 func TestBacktraceCmdNames(t *testing.T) {
-	//w:=cmdr.Worker()
-	//strings.ReplaceAll(w.backtraceCmdNames(cmd, false), ".", "-")
+	// w:=cmdr.Worker()
+	// strings.ReplaceAll(w.backtraceCmdNames(cmd, false), ".", "-")
 
-	//copyRootCmd = rootCmdForTesting
+	// copyRootCmd = rootCmdForTesting
 	var commands = []struct{ cmdline, result, verboseResult string }{
 		{"consul-tags ms tags ls", "microservices.tags.list", "microservices.tags.[ls|list|l|lst|dir]"},
 		{"consul-tags ms", "microservices", "[ms|microservice|micro-service]"},
 		{"consul-tags", "consul-tags", ""},
 	}
 	for _, cc := range commands {
-		//resetFlagsAndLog(t)
+		// resetFlagsAndLog(t)
 		resetOsArgs()
 		cmdr.ResetOptions()
 		cmdr.InternalResetWorkerForTest()
 		t.Logf("-> --- command-line: %v", cc)
 		os.Args = strings.Split(cc.cmdline, " ")
 		// cmdr.SetInternalOutputStreams(nil, nil)
-		//var last *cmdr.Command
+		// var last *cmdr.Command
 		if last, err := cmdr.Worker().InternalExecFor(rootCmdForTesting(), os.Args); err != nil {
 			t.Fatal(err)
 		} else {
@@ -580,7 +588,7 @@ func TestBacktraceCmdNames(t *testing.T) {
 }
 
 func TestCompactFlag(t *testing.T) {
-	//copyRootCmd = rootCmdForTesting
+	// copyRootCmd = rootCmdForTesting
 	var commands = []string{
 		"consul-tags -? -vD kv backup --prefix'' --help ~~debug",
 		"consul-tags -? ~~debug",
@@ -620,7 +628,7 @@ func TestCmdrClone(t *testing.T) {
 	}
 
 	vc := new(*cmdr.RootCommand)
-	//flags := *cmdr.Clone(&consulConnectFlags, &[]*cmdr.Flag{}).(*[]*cmdr.Flag)
+	// flags := *cmdr.Clone(&consulConnectFlags, &[]*cmdr.Flag{}).(*[]*cmdr.Flag)
 	ret := cmdr.Clone(rc, vc)
 	t.Log(ret)
 }
@@ -686,7 +694,7 @@ func TestExec(t *testing.T) {
 
 	}()
 
-	//copyRootCmd = rootCmdForTesting
+	// copyRootCmd = rootCmdForTesting
 	rc := rootCmdForTesting()
 	_ = cmdr.RootFrom(rc)
 
@@ -699,7 +707,7 @@ func TestExec(t *testing.T) {
 	for _, sss := range keys {
 		verifier := execTestings[sss]
 
-		//resetFlagsAndLog(t)
+		// resetFlagsAndLog(t)
 		cmdr.ResetOptions()
 		cmdr.ResetRootInWorkerForTest()
 		w := cmdr.InternalResetWorkerForTest()
@@ -713,11 +721,11 @@ func TestExec(t *testing.T) {
 			// })
 			// cmdr.SetCustomShowBuildInfo(func() {
 			// })
-			//} else if sss == "consul-tags -vD kv backup --prefix'4' ~~debug -h -?" {
+			// } else if sss == "consul-tags -vD kv backup --prefix'4' ~~debug -h -?" {
 			//	fmt.Println("xx*: ***: ", sss)
-			//} else if sss == "consul-tags services kx1" {
+			// } else if sss == "consul-tags services kx1" {
 			//	fmt.Println("xx*: ***: ", sss)
-			//} else if sss == "consul-tags -vD kv backup --prefix'4' -?" { // something wrong 2 (4). |8500|/|true|false|true|true
+			// } else if sss == "consul-tags -vD kv backup --prefix'4' -?" { // something wrong 2 (4). |8500|/|true|false|true|true
 			//	fmt.Println("xx*: ***: ", sss)
 		} else if sss == "consul-tags -vD kv backup --prefix'4' ~~debug -?" {
 			fmt.Println("xx*: ***: ", sss)
@@ -1098,7 +1106,7 @@ func kvCommandsGet() *cmdr.Command {
 					return
 				},
 				PostAction: func(cmd *cmdr.Command, args []string) {
-					return
+					// return
 				},
 			},
 			{
@@ -1582,7 +1590,7 @@ func rootCmdForTesting() (root *cmdr.RootCommand) {
 				return
 			},
 			PostAction: func(cmd *cmdr.Command, args []string) {
-				return
+				// return
 			},
 			SubCommands: []*cmdr.Command{
 				// dnsCommands,
@@ -1635,12 +1643,12 @@ var (
 		"consul-tags pwd": func(t *testing.T, c *cmdr.Command, e error) error {
 			return nil
 		},
-		//"consul-tags --help --help-zsh 1": func(t *testing.T, c *cmdr.Command, e error) error {
+		// "consul-tags --help --help-zsh 1": func(t *testing.T, c *cmdr.Command, e error) error {
 		//	return nil
-		//},
-		//"consul-tags --help --help-bash": func(t *testing.T, c *cmdr.Command, e error) error {
+		// },
+		// "consul-tags --help --help-bash": func(t *testing.T, c *cmdr.Command, e error) error {
 		//	return nil
-		//},
+		// },
 		"consul-tags ms dr --help": func(t *testing.T, c *cmdr.Command, e error) error {
 			return nil
 		},
@@ -1678,11 +1686,11 @@ var (
 			fmt.Println("consul-tags kv b -------- no errors")
 			return nil
 		},
-		//"consul-tags -t3 -s 5 kv b --help-zsh 2 ~~": func(t *testing.T, c *cmdr.Command, e error) error {
+		// "consul-tags -t3 -s 5 kv b --help-zsh 2 ~~": func(t *testing.T, c *cmdr.Command, e error) error {
 		//	// gocov Command.PrintXXX
 		//	fmt.Println("consul-tags -t3 -s5 -pp kv b ~~ -------- no errors")
 		//	return nil
-		//},
+		// },
 		"consul-tags server --help": func(t *testing.T, c *cmdr.Command, e error) error {
 			fmt.Println("consul-tags server --help -------- no errors")
 			return nil
@@ -1761,6 +1769,6 @@ var (
 
 	// testing rootCmdForTesting
 
-	//copyRootCmd *cmdr.RootCommand
+	// copyRootCmd *cmdr.RootCommand
 
 )

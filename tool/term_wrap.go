@@ -9,9 +9,13 @@ package tool
 
 import (
 	"fmt"
-	"golang.org/x/crypto/ssh/terminal"
 	"syscall"
 	"unsafe"
+
+	"golang.org/x/crypto/ssh/terminal" //nolint:staticcheck
+	// NOTE:
+	//   SA1019: package golang.org/x/crypto/ssh/terminal is deprecated: this package moved to golang.org/x/term.
+	// Here we keep old reference for backward-compatibility to go1.11 (even lower)
 )
 
 // ReadPassword reads the password from stdin with safe protection

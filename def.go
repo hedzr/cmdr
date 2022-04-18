@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	appNameDefault = "cmdr"
+	appNameDefault = "cmdr" //nolint:deadcode,unused,varcheck
 
 	// UnsortedGroup for commands and flags
 	UnsortedGroup = "zzzg.unsorted"
@@ -48,8 +48,16 @@ type (
 		// word string. example for flag: "addr" -> "--addr"
 		Full string `yaml:"title,omitempty" json:"title,omitempty"`
 		// Aliases are the more synonyms
-		Aliases []string `yaml:"aliases,flow,omitempty" json:"aliases,flow,omitempty"`
-		// Group group name
+		Aliases []string `yaml:"aliases,flow,omitempty" json:"aliases,omitempty"`
+		// Group specify a group name,
+		// A special prefix could sort it, has a form like `[0-9a-zA-Z]+\.`.
+		// The prefix will be removed from help screen.
+		// Some examples are:
+		//    "A001.Host Params"
+		//    "A002.User Params"
+		//
+		// If ToggleGroup specified, Group field can be omitted because we will copy
+		// from there.
 		Group string `yaml:"group,omitempty" json:"group,omitempty"`
 
 		owner *Command
@@ -70,7 +78,7 @@ type (
 		// cmd 是 flag 被识别时已经得到的子命令
 		Action Handler `yaml:"-" json:"-"`
 
-		onMatched Handler
+		onMatched Handler //nolint:structcheck //todo is onMatch used?
 	}
 
 	// Handler handles the event on a subcommand matched
@@ -186,7 +194,7 @@ type (
 
 		// EnvVars give a list to bind to environment variables manually
 		// it'll take effects since v1.6.9
-		EnvVars []string `yaml:"envvars,flow,omitempty" json:"envvars,flow,omitempty"`
+		EnvVars []string `yaml:"envvars,flow,omitempty" json:"envvars,omitempty"`
 
 		// HeadLike enables a free-hand option like `head -3`.
 		//

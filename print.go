@@ -18,21 +18,21 @@ import (
 	"unicode"
 )
 
-//func fp00(args ...interface{}) {
+// func fp00(args ...interface{}) {
 //	if w := internalGetWorker().rootCommand.ow; w != nil {
 //		_, _ = fmt.Fprint(w, args...)
 //	} else {
 //		_, _ = fmt.Printf(args...)
 //	}
-//}
+// }
 
-//func fp0_(fmtStr string, args ...interface{}) {
+// func fp0_(fmtStr string, args ...interface{}) {
 //	if w := internalGetWorker().rootCommand.ow; w != nil {
 //		_, _ = fmt.Fprintf(w, fmtStr, args...)
 //	} else {
 //		_, _ = fmt.Printf(fmtStr, args...)
 //	}
-//}
+// }
 
 func fp(fmtStr string, args ...interface{}) {
 
@@ -251,8 +251,8 @@ func (w *ExecWorker) printHelpZshCommands(command *Command, justFlags bool) {
 				x.WriteString(fmt.Sprintf("%v:'%v' \n", n, tool.EscapeCompletionTitle(cx.Description)))
 			}
 		}
-		//x.WriteString(fmt.Sprintf("%d: :((", GetIntP(w.getPrefix(), "help-zsh")))
-		//for _, cx := range command.SubCommands {
+		// x.WriteString(fmt.Sprintf("%d: :((", GetIntP(w.getPrefix(), "help-zsh")))
+		// for _, cx := range command.SubCommands {
 		//	for _, n := range cx.GetExpandableNamesArray() {
 		//		x.WriteString(fmt.Sprintf(`%v:'%v' `, n, cx.Description))
 		//	}
@@ -261,8 +261,8 @@ func (w *ExecWorker) printHelpZshCommands(command *Command, justFlags bool) {
 		//
 		//	// fp(`%v:%v`, cx.GetExpandableNames(), cx.Description)
 		//	// printHelpZshCommands(cx)
-		//}
-		//x.WriteString("))")
+		// }
+		// x.WriteString("))")
 		directive := 4
 		x.WriteString(fmt.Sprintf(":%d\n", directive))
 		fp("%v", x.String())
@@ -368,11 +368,11 @@ func getTextPiece(str string, start, want int) (text, ending string) {
 	var tryPos int
 	type controls struct {
 		pos    int
-		esclen int
+		esclen int //nolint:structcheck,unused
 		seq    string
 	}
 	var escapeSeqs []controls
-	for _, c := range src {
+	for _, c := range src { //nolint:gosimple,staticcheck
 		if c == '\x1b' {
 			tryEscape, tryAnsiColor = true, false
 			tryPos = len([]rune(sb.String()))
@@ -461,13 +461,13 @@ func (w *ExecWorker) prFlags(p Painter, command *Command, s2 []aGroupedSections,
 		if len(s1.sections) > 0 {
 			p.FpFlagsTitle(command, nil, s1.title)
 			for _, s := range s1.sections {
-				//p.FpCommandsGroupTitle(s.title)
+				// p.FpCommandsGroupTitle(s.title)
 				p.FpFlagsGroupTitle(s.title, s.isToggleGroup)
 
-				//fmtStr := fmt.Sprintf("%%-%dv%%v\n", maxL+2)
-				//for i, l := range s.bufLL {
+				// fmtStr := fmt.Sprintf("%%-%dv%%v\n", maxL+2)
+				// for i, l := range s.bufLL {
 				//	p.Print(fmtStr, l.String(), s.bufLR[i].String())
-				//}
+				// }
 
 				fmtStrL, fmtStrR, fmtStrMR := fmt.Sprintf("%%-%dv", maxL+2), "%v\u001B[0m\n", fmt.Sprintf("%%%dv\x1b[%dm%%v%%v\u001B[0m\n", maxL+2, CurrentDeprecatedColor)
 				for i, l := range s.bufLL {
@@ -519,18 +519,18 @@ func (w *ExecWorker) printHelpSection(p Painter, command *Command, justFlags boo
 
 	cols, _ := tool.GetTtySize()
 	if cols <= 0 || cols > 512 {
-		//fmt.Printf("\n\ncols = %v, maxL = %v\n\n\n", cols, maxL)
+		// fmt.Printf("\n\ncols = %v, maxL = %v\n\n\n", cols, maxL)
 		maxR = findMaxR2(s2, findMaxR(s1, 0))
 		cols = maxL + maxR + 2
 		if cols < 80 {
 			cols = 80
 		}
-		//fmt.Printf("\n\ncols = %v, maxL = %v\n\n\n", cols, maxL)
+		// fmt.Printf("\n\ncols = %v, maxL = %v\n\n\n", cols, maxL)
 	}
 	w.prCommands(p, command, s1, maxL, cols)
 	w.prFlags(p, command, s2, maxL, cols)
 
-	return
+	// return
 }
 
 func getSortedKeysFromCmdGroupedMap(m map[string]map[string]*Command) (k0 []string) {
@@ -555,14 +555,14 @@ func getSortedKeysFromCmdMap(groups map[string]*Command) (k1 []string) {
 	return
 }
 
-//func getSortedKeysFromBaseOptMap(groups map[string]*BaseOpt) (k1 []string) {
+// func getSortedKeysFromBaseOptMap(groups map[string]*BaseOpt) (k1 []string) {
 //	k1 = make([]string, 0)
 //	for k := range groups {
 //		k1 = append(k1, k)
 //	}
 //	sort.Strings(k1)
 //	return
-//}
+// }
 
 type aSection struct {
 	title         string
@@ -598,7 +598,7 @@ func printHelpCommandSection(p Painter, command *Command, justFlags bool) (secti
 			g := command.allCmds[group]
 			if len(g) > 0 {
 				var section aSection
-				section.title = group //[nm].GetTitleName()
+				section.title = group // [nm].GetTitleName()
 				for _, nm := range getSortedKeysFromCmdMap(g) {
 					bufL, bufR := p.FpCommandsLine(g[nm])
 					if bufL.Len() > 0 && bufR.Len() > 0 {

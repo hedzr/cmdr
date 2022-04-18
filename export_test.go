@@ -165,13 +165,13 @@ func TestFlag(t *testing.T) {
 	in = bytes.NewBufferString("\n")
 	t.Log(tool.PressAnyKeyToContinue(in))
 
-	isTypeFloat(reflect.TypeOf(8).Kind())
-	isTypeFloat(reflect.TypeOf(8.9).Kind())
+	_ = isTypeFloat(reflect.TypeOf(8).Kind())
+	_ = isTypeFloat(reflect.TypeOf(8.9).Kind())
 
-	isTypeComplex(reflect.TypeOf(8).Kind())
-	isTypeComplex(reflect.TypeOf(8.9).Kind())
-	isTypeComplex(reflect.TypeOf(8.9 + 0i).Kind())
-	isTypeComplex(reflect.TypeOf(8.9 - 2i).Kind())
+	_ = isTypeComplex(reflect.TypeOf(8).Kind())
+	_ = isTypeComplex(reflect.TypeOf(8.9).Kind())
+	_ = isTypeComplex(reflect.TypeOf(8.9 + 0i).Kind())
+	_ = isTypeComplex(reflect.TypeOf(8.9 - 2i).Kind())
 
 	x := tool.SavedOsArgs
 	defer func() {
@@ -211,7 +211,7 @@ func TestFlag(t *testing.T) {
 	})
 }
 
-func dumpStacks() {
+func dumpStacks() { //nolint:deadcode,unused
 	fmt.Printf("=== BEGIN goroutine stack dump ===\n%s\n=== END goroutine stack dump ===\n", errors.DumpStacksAsString(true))
 }
 
@@ -447,7 +447,7 @@ func TestBuildAliasesCrossRefsErrBranch(t *testing.T) {
 	root.Shell = ""
 	_ = h(root, []string{"1", "2"})
 
-	//_ = InvokeCommand("cc")
+	// _ = InvokeCommand("cc")
 
 }
 
@@ -576,10 +576,10 @@ func TestWithShellCompletionPrivates(t *testing.T) {
 	withShellCompletionPartialMatch(true)(Worker())
 }
 
-//// GetWithLogexInitializer _
-//func (w *ExecWorker) GetWithLogexInitializer(lvl Level, opts ...logex.Option) Handler {
+// // GetWithLogexInitializer _
+// func (w *ExecWorker) GetWithLogexInitializer(lvl Level, opts ...logex.Option) Handler {
 //	return w.getWithLogexInitializer(lvl, opts...)
-//}
+// }
 
 func (pkg *ptpkg) setOwnerForTest(cmd *Command) {
 	if pkg.flg != nil {

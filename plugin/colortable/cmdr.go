@@ -20,7 +20,6 @@ func WithColorTableCommand(dottedCommand ...string) cmdr.ExecOption {
 }
 
 func addTo(rr cmdr.OptCmd, root *cmdr.RootCmdOpt) {
-
 	c := cmdr.NewSubCmd()
 
 	c.Titles("color-table", "ct").
@@ -51,13 +50,12 @@ func addTo(rr cmdr.OptCmd, root *cmdr.RootCmdOpt) {
 		Hidden(true).
 		AttachTo(c)
 
-	//root.AddGlobalPreAction(onCommandInvoking)
-	//root.AddGlobalPostAction(afterCommandInvoked)
-
+	// root.AddGlobalPreAction(onCommandInvoking)
+	// root.AddGlobalPostAction(afterCommandInvoked)
 }
 
 func printColorTable(cmd *cmdr.Command, args []string) (err error) {
-	//println("yes")
+	// println("yes")
 
 	var table = []struct {
 		name   string
@@ -106,7 +104,6 @@ func printColorTable24(table []struct {
 		}
 		fmt.Println()
 	}
-	return
 }
 
 func printColorTable4(table []struct {
@@ -146,7 +143,6 @@ func printColorTable4(table []struct {
 
 		fmt.Println()
 	}
-	return
 }
 
 var hidden bool

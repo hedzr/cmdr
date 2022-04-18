@@ -50,8 +50,8 @@ func (w *ExecWorker) checkMoreLocations(rootCmd *RootCommand) (err error) {
 		if b {
 			w.predefinedLocations = append(w.predefinedLocations, a3)
 		}
-		b = dir.FileExists(a4)
-		if b {
+		b = dir.FileExists(a4) //nolint:staticcheck
+		if b {                 //nolint:staticcheck
 			//
 		}
 	}
@@ -59,14 +59,14 @@ func (w *ExecWorker) checkMoreLocations(rootCmd *RootCommand) (err error) {
 }
 
 func (w *ExecWorker) loadFromPredefinedLocations(rootCmd *RootCommand) (err error) {
-	err = w.checkMoreLocations(w.rootCommand)
+	_ = w.checkMoreLocations(w.rootCommand)
 
 	var mainFile, subDir string
 	mainFile, subDir, err = w.loadFromLocations(rootCmd, w.getExpandedPredefinedLocations(), mainConfigFiles)
 	if err == nil {
 		conf.CfgFile = mainFile
 		flog("--> preprocess / buildXref / loadFromPredefinedLocations: %q loaded (CFG_DIR=%v)", mainFile, subDir)
-		//flog("--> loadFromPredefinedLocations(): %q loaded", fn)
+		// flog("--> loadFromPredefinedLocations(): %q loaded", fn)
 	}
 	return
 }
@@ -75,9 +75,9 @@ func (w *ExecWorker) loadFromSecondaryLocations(rootCmd *RootCommand) (err error
 	var mainFile, subDir string
 	mainFile, subDir, err = w.loadFromLocations(rootCmd, w.getExpandedSecondaryLocations(), secondaryConfigFiles)
 	if err == nil {
-		//conf.CfgFile = mainFile
+		// conf.CfgFile = mainFile
 		flog("--> preprocess / buildXref / loadFromSecondaryLocations: %q loaded (CFG_DIR_2NDRY=%v)", mainFile, subDir)
-		//flog("--> loadFromPredefinedLocations(): %q loaded", fn)
+		// flog("--> loadFromPredefinedLocations(): %q loaded", fn)
 	}
 	return
 }

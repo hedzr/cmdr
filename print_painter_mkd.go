@@ -198,8 +198,7 @@ func (s *markdownPainter) FpExamplesLine(command *Command) {
 }
 
 func (s *markdownPainter) FpCommandsTitle(command *Command) {
-	var title string
-	title = "SUB-COMMANDS"
+	var title = "SUB-COMMANDS"
 	// if command.HasParent() {
 	// 	title = "Commands"
 	// } else {

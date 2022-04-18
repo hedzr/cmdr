@@ -228,7 +228,7 @@ func IntVar(p *int, name string, value int, usage string, options ...Option) {
 	})
 }
 
-func isTypeUint(kind reflect.Kind) bool {
+func isTypeUint(kind reflect.Kind) bool { //nolint:deadcode,unused
 	switch kind {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return true
@@ -237,7 +237,7 @@ func isTypeUint(kind reflect.Kind) bool {
 	}
 }
 
-func isTypeSInt(kind reflect.Kind) bool {
+func isTypeSInt(kind reflect.Kind) bool { //nolint:deadcode,unused
 	switch kind {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return true

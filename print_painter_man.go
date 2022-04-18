@@ -184,8 +184,7 @@ func (s *manPainter) FpExamplesLine(command *Command) {
 }
 
 func (s *manPainter) FpCommandsTitle(command *Command) {
-	var title string
-	title = "COMMANDS AND SUB-COMMANDS"
+	var title string = "COMMANDS AND SUB-COMMANDS"
 	// if command.HasParent() {
 	// 	title = "Commands"
 	// } else {
@@ -230,7 +229,7 @@ func (s *manPainter) FpFlagsGroupTitle(group string, isToggleGroup bool) {
 }
 
 func (s *manPainter) FpFlagsLine(command *Command, flag *Flag, maxShort int, defValStr string) (bufL, bufR bytes.Buffer) {
-	//s.Printf(".TP\n.BI %s\n%s\n%s\n", manWs(flag.GetTitleFlagNames()), flag.Description, defValStr)
+	// s.Printf(".TP\n.BI %s\n%s\n%s\n", manWs(flag.GetTitleFlagNames()), flag.Description, defValStr)
 	s.bufPrintf(&bufL, ".TP\n.BI %s", manWs(flag.GetTitleFlagNames()))
 	s.bufPrintf(&bufR, "\n%s\n%s\n", flag.Description, defValStr)
 	return

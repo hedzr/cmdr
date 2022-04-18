@@ -213,7 +213,6 @@ func afterCommandInvoked(cmd *cmdr.Command, args []string) {
 	if closer != nil {
 		closer()
 	}
-	return
 }
 
 func init() {

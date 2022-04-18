@@ -2,9 +2,10 @@ package cmdr
 
 import (
 	"bufio"
-	cmdrBase "github.com/hedzr/cmdr-base"
 	"runtime"
 	"sync"
+
+	cmdrBase "github.com/hedzr/cmdr-base"
 )
 
 // ExecWorker is a core logic worker and holder
@@ -207,7 +208,7 @@ func (w *ExecWorker) _setSwChars(os string) {
 	if os == "windows" {
 		w.switchCharset = "-/~"
 	} else {
-		w.switchCharset = "-~/"
+		w.switchCharset = "-~"
 	}
 	//if sw, ok := switchCharMap[runtime.GOOS]; ok {
 	//	w.switchCharset = sw

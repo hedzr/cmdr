@@ -41,11 +41,12 @@ const (
 type (
 	// BaseOpt is base of `Command`, `Flag`
 	BaseOpt struct {
+		// Name is reserved for internal purpose.
 		Name string `yaml:"name,omitempty" json:"name,omitempty"`
-		// Short rune. short option/command name.
+		// Short 'rune' string. short option/command name.
 		// single char. example for flag: "a" -> "-a"
 		Short string `yaml:"short-name,omitempty" json:"short-name,omitempty"`
-		// Full full/long option/command name.
+		// Full is a full/long form flag/command title name.
 		// word string. example for flag: "addr" -> "--addr"
 		Full string `yaml:"title,omitempty" json:"title,omitempty"`
 		// Aliases are the more synonyms
@@ -53,6 +54,7 @@ type (
 		// Group specify a group name,
 		// A special prefix could sort it, has a form like `[0-9a-zA-Z]+\.`.
 		// The prefix will be removed from help screen.
+		//
 		// Some examples are:
 		//    "A001.Host Params"
 		//    "A002.User Params"
@@ -71,7 +73,8 @@ type (
 		Hidden          bool   `yaml:"hidden,omitempty" json:"hidden,omitempty"`
 		VendorHidden    bool   `yaml:"vendor-hidden,omitempty" json:"vendor-hidden,omitempty"`
 
-		// Deprecated is a version string just like '0.5.9' or 'v0.5.9', that means this command/flag was/will be deprecated since `v0.5.9`.
+		// Deprecated is a version string just like '0.5.9' or 'v0.5.9', that
+		// means this command/flag was/will be deprecated since `v0.5.9`.
 		Deprecated string `yaml:"deprecated,omitempty" json:"deprecated,omitempty"`
 
 		// Action is callback for the last recognized command/sub-command.

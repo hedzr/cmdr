@@ -35,12 +35,12 @@ type (
 		// and digits. Such as:
 		//     "zzzz.", "0001.", "700.", "A1." ...
 		Titles(long, short string, aliases ...string) (opt OptFlag)
-		// Short gives short sub-command title in string representation.
+		// Short gives a short form sub-command title in string representation.
 		//
 		// A short command title is often one char, sometimes it can be
 		// two chars, but even more is allowed.
 		Short(short string) (opt OptFlag)
-		// Long gives long flag title, we call it 'Full Title' too.
+		// Long gives a long form flag title, we call it 'Full Title' too.
 		//
 		// A long title should be one or more words in english, separated
 		// by short hypen ('-'), for example 'auto-increment'.
@@ -54,7 +54,9 @@ type (
 		Name(name string) (opt OptFlag)
 		// Aliases give more choices for a command.
 		Aliases(ss ...string) (opt OptFlag)
+		// Description gives normal and long form description of a flag.
 		Description(oneLineDesc string, longDesc ...string) (opt OptFlag)
+		// Examples gives text to be shown in a section in the help screen.
 		Examples(examples string) (opt OptFlag)
 		// Group provides flag group name.
 		//
@@ -190,17 +192,18 @@ type (
 		//
 		// It's avaiable for building time.
 		OwnerCommand() (opt OptCmd)
+		// SetOwner just work for internal purpose
 		SetOwner(opt OptCmd)
 
 		RootCommand() *RootCommand
 
 		ToFlag() *Flag
 
-		// AttachTo attach as a flag of `opt` OptCmd object
+		// AttachTo attaches itself as a flag of `opt` OptCmd object
 		AttachTo(parent OptCmd) (opt OptFlag)
-		// AttachToCommand attach as a flag of *Command object
+		// AttachToCommand attaches itself as a flag of *Command object
 		AttachToCommand(cmd *Command) (opt OptFlag)
-		// AttachToRoot attach as a flag of *RootCommand object
+		// AttachToRoot attaches itself as a flag of *RootCommand object
 		AttachToRoot(root *RootCommand) (opt OptFlag)
 
 		OnSet
@@ -218,12 +221,12 @@ type (
 		// "zzzz.", "0001.", "700.", "A1." ...
 		//
 		Titles(long, short string, aliases ...string) (opt OptCmd)
-		// Short gives short sub-command title in string representation.
+		// Short gives a short form sub-command title in string representation.
 		//
 		// A short command title is often one char, sometimes it can be
 		// two chars, but even more is allowed.
 		Short(short string) (opt OptCmd)
-		// Long gives long sub-command title, we call it 'Full Title' too.
+		// Long gives a long form sub-command title, we call it 'Full Title' too.
 		//
 		// A long title should be one or more words in english, separated
 		// by short hypen ('-'), for example 'create-new-account'.
@@ -245,9 +248,11 @@ type (
 		// and digits. Such as:
 		//     "zzzz.", "0001.", "700.", "A1." ...
 		Name(name string) (opt OptCmd)
-		// Aliases give more choices for a command.
+		// Aliases gives more choices for a command.
 		Aliases(ss ...string) (opt OptCmd)
+		// Description gives normal and long form description of a command.
 		Description(oneLine string, long ...string) (opt OptCmd)
+		// Examples gives text to be shown in a section in the help screen.
 		Examples(examples string) (opt OptCmd)
 		// Group provides command group name.
 		//
@@ -347,9 +352,9 @@ type (
 
 		// OwnerCommand returns the parent command in OptCmd form.
 		//
-		// It's avaiable for building time.
+		// It's available for building time.
 		OwnerCommand() (opt OptCmd)
-		//
+		// SetOwner just work for internal purpose
 		SetOwner(opt OptCmd)
 
 		RootCommand() *RootCommand
@@ -357,11 +362,21 @@ type (
 
 		ToCommand() *Command
 
+		// AddOptFlag _
+		//
+		// Deprecated since v1.10.36
 		AddOptFlag(flag OptFlag)
+		// AddFlag _
+		//
+		// Deprecated since v1.10.36
 		AddFlag(flag *Flag)
-		// AddOptCmd adds 'opt' OptCmd as a sub-command
+		// AddOptCmd adds 'opt' OptCmd as a sub-command.
+		//
+		// Deprecated since v1.10.36
 		AddOptCmd(opt OptCmd)
-		// AddCommand adds a *Command as a sub-command
+		// AddCommand adds a *Command as a sub-command.
+		//
+		// Deprecated since v1.10.36
 		AddCommand(cmd *Command)
 
 		// AttachTo attaches itself as a sub-command of 'opt' OptCmd object
@@ -374,7 +389,7 @@ type (
 
 	// OnSet interface
 	OnSet interface {
-		// OnSet will be callback'd after this flag parsed
+		// OnSet will be callback'd once the flag parsed
 		OnSet(f func(keyPath string, value interface{})) (opt OptFlag)
 	}
 

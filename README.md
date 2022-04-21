@@ -47,67 +47,19 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 ## News
 
 - docs (WIP):
-	- english documentation NOT completed yet
-	- documentation at: https://hedzr.github.io/cmdr-docs/
+    - english documentation NOT completed yet
+    - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.10.36 (WIP)
-	- _
+- v1.10.47 (WIP)
+  - _
+
+- v1.10.40
+    - imp: parse the flag switch chars better
+    - fix: dead-loop for positional args starts with '~/'
+    - fea: FORCE_DEFAULT_ACTION for initial time, prints info with builtin defaultAction even if the valid command Action found. 
 
 - v1.10.35
-	- fix nil exception while print error sometimes
-
-- v1.10.33
-	- routine maintenance release
-
-- v1.10.32
-	- fix: processing terminated too fast if global pre-actions return nil
-
-- v1.10.31
-	- routine maintenance release
-
-- v1.10.30
-	- routine maintenance release
-	- add: examples/example-app
-	- imp: use relative path in log output
-	- reenable error template
-
-- v1.10.29
-	- routine maintenance release
-
-- v1.10.27
-	- upgrade to [errors.v3](https://github.com/hedzr/errors)
-
-- v1.10.24
-	- fix: version command, help screen not work
-
-- v1.10.23
-	- fix: unknown switch char not an error now
-	- imp: refined gen zsh code, and gen shell codes
-	- fea: support fish-shell completion generating now
-	- fea: added root.`RunAsSubCommand`, treat 'app' as a synonym of 'app subcmd1 subcmd2'
-	- imp/fix/fea: clarify the slice append or replace mode - SetNx & `SetNxOverwrite` for Option Store
-	- fea: added `VendorHidden` field for when you wanna a never shown flag or command
-	- fea: conf package - add `Serial`, `SerialString` for CI tool
-	- imp: erase man1 folder after `--man`
-	- fix/imp: prints description with color escaped, when multiline
-	- fix: restore Match() but with new name MatchAndTest()
-	- fix: high-order fn hold the older copy, so pass it by holding a pointer to original variable
-	- imp: review most of the tests
-	- NOTE: cleanup the deprecated codes [`cmd.NewFlagV`,`cmd.NewFlag`, `cmd.NewSubCommand`, ...]
-	- fea: more completion supports
-
-- v1.10.19
-	- temporary build for earlier testing
-	- confirmed: backward compatible with go1.12
-
-- v1.10.13
-	- fix/imp: adapt windir to *nix name to fit for generic config file loading
-	- fea/imp: improved Aliases algor, support more tmpl var substitute
-	- fix: fallback the unknown type as string type
-	- fea: add flag to control whether write the changes back to alternative config file or
-	  not, `WithAlterConfigAutoWriteBack`
-	- imp: name/desc fields of builtin commands and flags
-	- CHANGE: use [bgo build-tool](https://github.com/hedzr/bgo) now, Makefile thrown
+    - fix nil exception while print error sometimes
 
 - More details at [CHANGELOG](./CHANGELOG)
 
@@ -123,7 +75,7 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 
 ### Fast Guide
 
-See [example-app](./tree/master/examples/example-app/)
+See [example-app](https://github.com/hedzr/cmdr/tree/master/examples/example-app/), [examples/](https://github.com/hedzr/cmdr/tree/master/examples/), and [**cmdr-examples**](https://github.com/hedzr/cmdr-examples)
 
 <details>
 	<summary> Expand to source codes </summary>
@@ -156,20 +108,20 @@ func Entry() {
 
 func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 	root := cmdr.Root(appName, version).
-		//AddGlobalPreAction(func(cmd *cmdr.Command, args []string) (err error) {
+		// AddGlobalPreAction(func(cmd *cmdr.Command, args []string) (err error) {
 		//	// cmdr.Set("enable-ueh", true)
 		//	return
-		//}).
-		//AddGlobalPreAction(func(cmd *cmdr.Command, args []string) (err error) {
+		// }).
+		// AddGlobalPreAction(func(cmd *cmdr.Command, args []string) (err error) {
 		//	//fmt.Printf("# global pre-action 2, exe-path: %v\n", cmdr.GetExecutablePath())
 		//	return
-		//}).
-		//AddGlobalPostAction(func(cmd *cmdr.Command, args []string) {
+		// }).
+		// AddGlobalPostAction(func(cmd *cmdr.Command, args []string) {
 		//	//fmt.Println("# global post-action 1")
-		//}).
-		//AddGlobalPostAction(func(cmd *cmdr.Command, args []string) {
+		// }).
+		// AddGlobalPostAction(func(cmd *cmdr.Command, args []string) {
 		//	//fmt.Println("# global post-action 2")
-		//}).
+		// }).
 		Copyright(copyright, "hedzr").
 		Description(desc, longDesc).
 		Examples(examples)
@@ -177,7 +129,7 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 
 	// for your biz-logic, constructing an AttachToCmdr(root *cmdr.RootCmdOpt) is recommended.
 	// see our full sample and template repo: https://github.com/hedzr/cmdr-go-starter
-	//core.AttachToCmdr(root.RootCmdOpt())
+	// core.AttachToCmdr(root.RootCmdOpt())
 
 	// These lines are removable
 
@@ -185,9 +137,9 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 		Titles("enable-ueh", "ueh").
 		Description("Enables the unhandled exception handler?").
 		AttachTo(root)
-	//cmdrPanic(root)
+	// cmdrPanic(root)
 	cmdrSoundex(root)
-	//pprof.AttachToCmdr(root.RootCmdOpt())
+	// pprof.AttachToCmdr(root.RootCmdOpt())
 	return
 }
 
@@ -244,12 +196,12 @@ func init() {
 		cmdr.NewBool(false).
 			Titles("trace", "tr").
 			Description("enable trace mode for tcp/mqtt send/recv data dump", "").
-			//Action(func(cmd *cmdr.Command, args []string) (err error) { println("trace mode on"); cmdr.SetTraceMode(true); return; }).
+			// Action(func(cmd *cmdr.Command, args []string) (err error) { println("trace mode on"); cmdr.SetTraceMode(true); return; }).
 			Group(cmdr.SysMgmtGroup).
 			AttachToRoot(root)
 	}, nil)
 	options = append(options, optAddTraceOption)
-	//options = append(options, optAddServerExtOpt«ion)
+	// options = append(options, optAddServerExtOpt«ion)
 
 	// allow and search '.<appname>.yml' at first
 	locations := []string{".$APPNAME.yml"}
@@ -294,56 +246,26 @@ $ {{.AppName}} --help --man
 
 </details>
 
-### About the Docker build
+### Tips for Building Your App
 
-Here is a docker build for cmdr/examples/fluent so that you can run it without go building or downloading the release
-files:
+As building your app with cmdr, some build tags are suggested:
 
 ```bash
-# from Docker Hub:
-$ docker run -it --rm hedzr/cmdr-fluent
-$ docker run -it --rm hedzr/cmdr-fluent --help
+export GIT_REVISION="$(git rev-parse --short HEAD)"
+export GIT_SUMMARY="$(git describe --tags --dirty --always)"
+export GOVERSION="$(go version)"
+export BUILDTIME="$(date -u '+%Y-%m-%d_%H-%M-%S')"
+export VERSION="$(grep -E "Version[ \t]+=[ \t]+" doc.go|grep -Eo "[0-9.]+")"
+export W_PKG="github.com/hedzr/cmdr/conf"
+export LDFLAGS="-s -w \
+    -X '$W_PKG.Githash=$GIT_REVISION' \
+    -X '$W_PKG.GitSummary=$GIT_SUMMARY' \
+    -X '$W_PKG.GoVersion=$GOVERSION' \
+    -X '$W_PKG.Buildstamp=$BUILDTIME' \
+    -X '$W_PKG.Version=$VERSION'"
 
-# from Github Packages (please following the guide of GitHub Packages Site):
-$ docker run -it --rm docker.pkg.github.com/hedzr/cmdr/cmdr-fluent
-$ docker run -it --rm docker.pkg.github.com/hedzr/cmdr/cmdr-fluent --help
+go build -v -ldflags "$LDFLAGS" -o ./bin/your-app ./your-app/
 ```
-
-### Examples
-
-1. [**short**](./examples/short/README.md)  
-   simple codes with structured data style.
-
-2. [demo](./examples/demo/README.md)  
-   normal demo with external config files.
-
-3. [wget-demo](./examples/wget-demo/README.md)  
-   partial-covered for GNU `wget`.
-
-4. [fluent](./examples/fluent)  
-   demostrates how to define your command-ui with the fluent api style.
-
-5. [ffdemo](./examples/ffdemo)
-
-   a demo to show you how to migrate from go `flag` smoothly.
-
-6. [cmdr-http2](https://github.com/hedzr/cmdr-http2)  
-   http2 server with daemon supports, graceful shutdown
-
-7. [awesome-tool](https://github.com/hedzr/awesome-tool)  
-   `awesome-tool` is a cli app that fetch the repo stars and generate a markdown summary, accordingly with most of
-   awesome-xxx list in github (such as awesome-go).
-
-**See Also the examples index: [Examples.md](old/Examples.md)** _(zh-cn
-TODO: [Examples.zh-cn.md](old/Examples.zh-cn.md))_
-
-## Uses
-
-- https://github.com/hedzr/consul-tags
-- https://github.com/hedzr/ini-op
-- https://github.com/hedzr/awesome-tool
-- austr
-- Issue me to adding yours
 
 ## Contrib
 

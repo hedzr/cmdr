@@ -212,7 +212,7 @@ func (c *Command) GetExpandableNames() string {
 // GetParentName returns the owner command name
 func (c *Command) GetParentName() string {
 	if c.owner != nil {
-		//return c.owner.GetName()
+		// return c.owner.GetName()
 		if len(c.owner.Name) > 0 {
 			return c.owner.Name
 		}

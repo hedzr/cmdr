@@ -53,9 +53,9 @@ func UnwrapLiveArgsFromCmdrError(err error) (liveArgs []interface{}, e *ErrorFor
 	return
 }
 
-//// UnwrapInnerErrorsFromCmdrError try extracting the *ErrorForCmdr object
-//// from a given error object, and return the inner errors attached for usages.
-//func UnwrapInnerErrorsFromCmdrError(err error) (errs []error) {
+// // UnwrapInnerErrorsFromCmdrError try extracting the *ErrorForCmdr object
+// // from a given error object, and return the inner errors attached for usages.
+// func UnwrapInnerErrorsFromCmdrError(err error) (errs []error) {
 //	var e *ErrorForCmdr
 //	ok := errors.As(err, &e)
 //	if ok && e != nil {
@@ -79,7 +79,7 @@ func UnwrapLiveArgsFromCmdrError(err error) (liveArgs []interface{}, e *ErrorFor
 //		}
 //	}
 //	return
-//}
+// }
 
 // IsIgnorableError tests if an error is a *ErrorForCmdr and its Ignorable field is true
 func IsIgnorableError(err error) bool {
@@ -102,10 +102,10 @@ func SetAsAnIgnorableError(err error, ignorable bool) error {
 	return err
 }
 
-//// AttachErrorsTo wraps innerErrors into err if it's a *ErrorForCmdr as
-//// a container. For the general error object, AttachErrorTo forwards it
-//// to hedzr/errors to try to attach the causes.
-//func AttachErrorsTo(err error, causes ...error) error {
+// // AttachErrorsTo wraps innerErrors into err if it's a *ErrorForCmdr as
+// // a container. For the general error object, AttachErrorTo forwards it
+// // to hedzr/errors to try to attach the causes.
+// func AttachErrorsTo(err error, causes ...error) error {
 //	var e *ErrorForCmdr
 //	ok := errors.As(err, &e)
 //	if ok {
@@ -123,7 +123,7 @@ func SetAsAnIgnorableError(err error, ignorable bool) error {
 //
 //	}
 //	return err
-//}
+// }
 
 // AttachLiveArgsTo wraps liveArgs into err if it's a *ErrorForCmdr as
 // a container.
@@ -204,8 +204,8 @@ func withIgnorable(ignorable bool, err error, message string, args ...interface{
 		causer:    err,
 		msg:       message,
 	}
-	//n := errors.WithStack(err).(*errors.WithStackInfo)
-	//return n.SetCause(err)
+	// n := errors.WithStack(err).(*errors.WithStackInfo)
+	// return n.SetCause(err)
 	return errors.WithStack(err)
 }
 

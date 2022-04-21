@@ -25,13 +25,13 @@ func Entry() {
 		// To disable internal commands and flags, uncomment the following codes
 		// cmdr.WithBuiltinCommands(false, false, false, false, false),
 
-		//cmdr.WithHelpTabStop(41),
+		// cmdr.WithHelpTabStop(41),
 		// daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
 
 		// integrate with logex library
-		//cmdr.WithLogex(cmdr.DebugLevel),
-		//cmdr.WithLogexPrefix("logger"),
-		//cmdr.WithLogx(build.New(cmdr.NewLoggerConfigWith(true, "logrus", "debug"))),
+		// cmdr.WithLogex(cmdr.DebugLevel),
+		// cmdr.WithLogexPrefix("logger"),
+		// cmdr.WithLogx(build.New(cmdr.NewLoggerConfigWith(true, "logrus", "debug"))),
 		cmdr.WithLogxShort(true, "logrus", "debug"),
 
 		internal.NewAppOption(),
@@ -221,9 +221,9 @@ func msCommand(root cmdr.OptCmd) {
 		Description("add tags").
 		Deprecated("0.2.1").
 		Group("").
-		//Action(func(cmd *cmdr.Command, args []string) (err error) {
+		// Action(func(cmd *cmdr.Command, args []string) (err error) {
 		//	return
-		//}).
+		// }).
 		AttachTo(msTagsCmd)
 
 	cmdr.NewStringSlice().Titles("list", "ls", "l", "lst", "dir").
@@ -235,17 +235,17 @@ func msCommand(root cmdr.OptCmd) {
 	c1 := cmdr.NewSubCmd().Titles("check", "c", "chk").
 		Description("[sub] check").
 		Group("").
-		//Action(func(cmd *cmdr.Command, args []string) (err error) {
+		// Action(func(cmd *cmdr.Command, args []string) (err error) {
 		//	return
-		//}).
+		// }).
 		AttachTo(tagsAdd)
 
 	c2 := cmdr.NewSubCmd().Titles("check-point", "pt", "chk-pt").
 		Description("[sub][sub] checkpoint").
 		Group("").
-		//Action(func(cmd *cmdr.Command, args []string) (err error) {
+		// Action(func(cmd *cmdr.Command, args []string) (err error) {
 		//	return
-		//}).
+		// }).
 		AttachTo(c1)
 
 	cmdr.NewStringSlice().Titles("add", "a", "add-list").
@@ -288,9 +288,9 @@ func msCommand(root cmdr.OptCmd) {
 	cmdr.NewSubCmd().Titles("check-out", "out", "chk-out").
 		Description("[sub][sub] check-out").
 		Group("").
-		//Action(func(cmd *cmdr.Command, args []string) (err error) {
+		// Action(func(cmd *cmdr.Command, args []string) (err error) {
 		//	return
-		//}).
+		// }).
 		AttachTo(c3)
 
 	// ms tags rm
@@ -298,9 +298,9 @@ func msCommand(root cmdr.OptCmd) {
 	tagsRm := cmdr.NewSubCmd().Titles("rm", "r", "remove", "delete", "del", "erase").
 		Description("remove tags").
 		Group("").
-		//Action(func(cmd *cmdr.Command, args []string) (err error) {
+		// Action(func(cmd *cmdr.Command, args []string) (err error) {
 		//	return
-		//}).
+		// }).
 		AttachTo(msTagsCmd)
 
 	cmdr.NewStringSlice().Titles("list", "ls", "l", "lst", "dir").

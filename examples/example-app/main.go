@@ -25,20 +25,20 @@ func Entry() {
 
 func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 	root := cmdr.Root(appName, version).
-		//AddGlobalPreAction(func(cmd *cmdr.Command, args []string) (err error) {
+		// AddGlobalPreAction(func(cmd *cmdr.Command, args []string) (err error) {
 		//	// cmdr.Set("enable-ueh", true)
 		//	return
-		//}).
-		//AddGlobalPreAction(func(cmd *cmdr.Command, args []string) (err error) {
+		// }).
+		// AddGlobalPreAction(func(cmd *cmdr.Command, args []string) (err error) {
 		//	//fmt.Printf("# global pre-action 2, exe-path: %v\n", cmdr.GetExecutablePath())
 		//	return
-		//}).
-		//AddGlobalPostAction(func(cmd *cmdr.Command, args []string) {
+		// }).
+		// AddGlobalPostAction(func(cmd *cmdr.Command, args []string) {
 		//	//fmt.Println("# global post-action 1")
-		//}).
-		//AddGlobalPostAction(func(cmd *cmdr.Command, args []string) {
+		// }).
+		// AddGlobalPostAction(func(cmd *cmdr.Command, args []string) {
 		//	//fmt.Println("# global post-action 2")
-		//}).
+		// }).
 		Copyright(copyright, "hedzr").
 		Description(desc, longDesc).
 		Examples(examples)
@@ -46,7 +46,7 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 
 	// for your biz-logic, constructing an AttachToCmdr(root *cmdr.RootCmdOpt) is recommended.
 	// see our full sample and template repo: https://github.com/hedzr/cmdr-go-starter
-	//core.AttachToCmdr(root.RootCmdOpt())
+	// core.AttachToCmdr(root.RootCmdOpt())
 
 	// These lines are removable
 
@@ -54,9 +54,9 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 		Titles("enable-ueh", "ueh").
 		Description("Enables the unhandled exception handler?").
 		AttachTo(root)
-	//cmdrPanic(root)
+	// cmdrPanic(root)
 	cmdrSoundex(root)
-	//pprof.AttachToCmdr(root.RootCmdOpt())
+	// pprof.AttachToCmdr(root.RootCmdOpt())
 	return
 }
 
@@ -113,12 +113,12 @@ func init() {
 		cmdr.NewBool(false).
 			Titles("trace", "tr").
 			Description("enable trace mode for tcp/mqtt send/recv data dump", "").
-			//Action(func(cmd *cmdr.Command, args []string) (err error) { println("trace mode on"); cmdr.SetTraceMode(true); return; }).
+			// Action(func(cmd *cmdr.Command, args []string) (err error) { println("trace mode on"); cmdr.SetTraceMode(true); return; }).
 			Group(cmdr.SysMgmtGroup).
 			AttachToRoot(root)
 	}, nil)
 	options = append(options, optAddTraceOption)
-	//options = append(options, optAddServerExtOpt«ion)
+	// options = append(options, optAddServerExtOpt«ion)
 
 	// allow and search '.<appname>.yml' at first
 	locations := []string{".$APPNAME.yml"}

@@ -38,20 +38,20 @@ func (s *helpPainter) Results() (res []byte) {
 
 func (s *helpPainter) bufPrintf(sb *bytes.Buffer, fmtStr string, args ...interface{}) {
 	s1 := fmt.Sprintf(fmtStr, args...)
-	//s2 := cpt.Translate(s1)
+	// s2 := cpt.Translate(s1)
 	_, _ = sb.WriteString(s1)
 }
 
 func (s *helpPainter) Printf(fmtStr string, args ...interface{}) {
 	s1 := fmt.Sprintf(fmtStr, args...)
-	//s2 := cpt.Translate(s1)
+	// s2 := cpt.Translate(s1)
 	fp("%s", s1)
 }
 
 func (s *helpPainter) Print(fmtStr string, args ...interface{}) {
-	//s1 := fmt.Sprintf(fmtStr, args...)
-	////s2 := cpt.Translate(s1)
-	//fpK("%s", s1)
+	// s1 := fmt.Sprintf(fmtStr, args...)
+	// //s2 := cpt.Translate(s1)
+	// fpK("%s", s1)
 	fpK(fmtStr, args...)
 }
 
@@ -113,9 +113,9 @@ func (s *helpPainter) FpExamplesTitle(command *Command, title string) {
 func (s *helpPainter) FpExamplesLine(command *Command) {
 	str := tplApply(command.Examples, command.root)
 	s.Printf("%v", exec.LeftPad(cpt.stripLeftTabs(str), 4))
-	//for _, line := range strings.Split(str, "\n") {
+	// for _, line := range strings.Split(str, "\n") {
 	//	s.Printf("    %v", line)
-	//}
+	// }
 }
 
 func (s *helpPainter) FpCommandsTitle(command *Command) {
@@ -312,15 +312,15 @@ func (s *helpPainter) printTGC(flg *Flag, bufL, bufR *bytes.Buffer) {
 		} else {
 			s.bufPrintf(bufR, tgcMap[tgcStyle][vv])
 		}
-		//if runtime.GOOS == "windows" {
+		// if runtime.GOOS == "windows" {
 		//	if vv {
 		//		s.bufPrintf(bufR, "(x) ")
 		//	} else {
 		//		s.bufPrintf(bufR, "( ) ")
 		//	}
-		//} else {
+		// } else {
 		//	s.bufPrintf(bufR, tgcMap[tgcStyle][vv])
-		//}
+		// }
 	}
 }
 
@@ -382,11 +382,11 @@ const (
 Type '-h'/'-?' or '--help' to get command help screen. 
 More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-info', '--no-color', '--strict-mode', '--no-env-overrides'...`
 
-	//blackhexagon       = '⬢' // U+2B22
-	//whitehexagon       = '⬡' // U+2B21
-	//cir                = '○' // U+25CB, &cir; ⭘○
-	//blacktriangleright = '▸' // U+25B8, &blacktriangleright;
-	//triangleright      = '▹' // U+25B9, &triangleright;
+	// blackhexagon       = '⬢' // U+2B22
+	// whitehexagon       = '⬡' // U+2B21
+	// cir                = '○' // U+25CB, &cir; ⭘○
+	// blacktriangleright = '▸' // U+25B8, &blacktriangleright;
+	// triangleright      = '▹' // U+25B9, &triangleright;
 )
 
 // tgcMap holds a map of the toggle-group choice flag characters
@@ -401,5 +401,5 @@ var tgcMap = map[string]map[bool]string{
 	},
 }
 
-//var tgcStyle = "triangle-right"
+// var tgcStyle = "triangle-right"
 var tgcStyle = "hexagon"

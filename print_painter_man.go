@@ -184,7 +184,7 @@ func (s *manPainter) FpExamplesLine(command *Command) {
 }
 
 func (s *manPainter) FpCommandsTitle(command *Command) {
-	var title string = "COMMANDS AND SUB-COMMANDS"
+	var title = "COMMANDS AND SUB-COMMANDS"
 	// if command.HasParent() {
 	// 	title = "Commands"
 	// } else {

@@ -36,7 +36,7 @@ var (
 	//     },
 	//     "name": "352 South Mountain Road, Wallkill, NY 12589, USA"
 	// }`
-	latitude, longitude float64 = 41.6802456, -74.2370183
+	latitude, longitude = 41.6802456, -74.2370183
 )
 
 // var servers []*grpc.Server

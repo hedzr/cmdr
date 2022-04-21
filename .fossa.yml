@@ -8,19 +8,19 @@ cli:
   project: git@github.com:hedzr/cmdr.git
 analyze:
   modules:
-  - name: github.com/hedzr/cmdr
-    type: go
-    target: github.com/hedzr/cmdr
-    path: .
-  - name: github.com/hedzr/cmdr/tool
-    type: go
-    target: github.com/hedzr/cmdr/tool
-    path: tool
-  - name: github.com/hedzr/cmdr/plugin/pprof
-    type: go
-    target: github.com/hedzr/cmdr/plugin/pprof
-    path: plugin/pprof
-  - name: github.com/hedzr/cmdr/flag
-    type: go
-    target: github.com/hedzr/cmdr/flag
-    path: flag
+    - name: github.com/hedzr/cmdr
+      type: go
+      target: github.com/hedzr/cmdr
+      path: .
+    - name: github.com/hedzr/cmdr/tool
+      type: go
+      target: github.com/hedzr/cmdr/tool
+      path: tool
+    - name: github.com/hedzr/cmdr/plugin/pprof
+      type: go
+      target: github.com/hedzr/cmdr/plugin/pprof
+      path: plugin/pprof
+    - name: github.com/hedzr/cmdr/flag
+      type: go
+      target: github.com/hedzr/cmdr/flag
+      path: flag

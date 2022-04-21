@@ -23,7 +23,8 @@ We made many enhancements beyond the standard library `flag`.
 There is a fully-functional `Options Store` (configurations) for your
 hierarchical configuration dataset too.
 
-The .netCore version [Cmdr.Core](https://github.com/hedzr/Cmdr.Core) is available now. And, a cxx version [`cmdr-cxx`](https://github.com/hedzr/cmdr-cxx) was pre-released just now (Happy Spring Festival 2021).
+The .netCore version [Cmdr.Core](https://github.com/hedzr/Cmdr.Core) is available now. And, a cxx
+version [`cmdr-cxx`](https://github.com/hedzr/cmdr-cxx) was pre-released just now (Happy Spring Festival 2021).
 
 ![ee99d078e2f7](https://user-images.githubusercontent.com/12786150/72876202-f49ee500-3d30-11ea-9de0-434bf8decf90.gif)
 
@@ -46,66 +47,67 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 ## News
 
 - docs (WIP):
-  - english documentation NOT completed yet
-  - documentation at: https://hedzr.github.io/cmdr-docs/
+	- english documentation NOT completed yet
+	- documentation at: https://hedzr.github.io/cmdr-docs/
 
 - v1.10.36 (WIP)
-  - _
+	- _
 
 - v1.10.35
-  - fix nil exception while print error sometimes
+	- fix nil exception while print error sometimes
 
 - v1.10.33
-  - routine maintenance release
+	- routine maintenance release
 
 - v1.10.32
-  - fix: processing terminated too fast if global pre-actions return nil
+	- fix: processing terminated too fast if global pre-actions return nil
 
 - v1.10.31
-  - routine maintenance release
+	- routine maintenance release
 
 - v1.10.30
-  - routine maintenance release
-  - add: examples/example-app
-  - imp: use relative path in log output
-  - reenable error template
+	- routine maintenance release
+	- add: examples/example-app
+	- imp: use relative path in log output
+	- reenable error template
 
 - v1.10.29
-  - routine maintenance release
+	- routine maintenance release
 
 - v1.10.27
-  - upgrade to [errors.v3](https://github.com/hedzr/errors)
+	- upgrade to [errors.v3](https://github.com/hedzr/errors)
 
 - v1.10.24
-  - fix: version command, help screen not work
+	- fix: version command, help screen not work
 
 - v1.10.23
-  - fix: unknown switch char not an error now
-  - imp: refined gen zsh code, and gen shell codes
-  - fea: support fish-shell completion generating now
-  - fea: added root.`RunAsSubCommand`, treat 'app' as a synonym of 'app subcmd1 subcmd2'
-  - imp/fix/fea: clarify the slice append or replace mode - SetNx & `SetNxOverwrite` for Option Store
-  - fea: added `VendorHidden` field for when you wanna a never shown flag or command
-  - fea: conf package - add `Serial`, `SerialString` for CI tool
-  - imp: erase man1 folder after `--man`
-  - fix/imp: prints description with color escaped, when multiline
-  - fix: restore Match() but with new name MatchAndTest()
-  - fix: high-order fn hold the older copy, so pass it by holding a pointer to original variable
-  - imp: review most of the tests
-  - NOTE: cleanup the deprecated codes [`cmd.NewFlagV`,`cmd.NewFlag`, `cmd.NewSubCommand`, ...]
-  - fea: more completion supports
+	- fix: unknown switch char not an error now
+	- imp: refined gen zsh code, and gen shell codes
+	- fea: support fish-shell completion generating now
+	- fea: added root.`RunAsSubCommand`, treat 'app' as a synonym of 'app subcmd1 subcmd2'
+	- imp/fix/fea: clarify the slice append or replace mode - SetNx & `SetNxOverwrite` for Option Store
+	- fea: added `VendorHidden` field for when you wanna a never shown flag or command
+	- fea: conf package - add `Serial`, `SerialString` for CI tool
+	- imp: erase man1 folder after `--man`
+	- fix/imp: prints description with color escaped, when multiline
+	- fix: restore Match() but with new name MatchAndTest()
+	- fix: high-order fn hold the older copy, so pass it by holding a pointer to original variable
+	- imp: review most of the tests
+	- NOTE: cleanup the deprecated codes [`cmd.NewFlagV`,`cmd.NewFlag`, `cmd.NewSubCommand`, ...]
+	- fea: more completion supports
 
 - v1.10.19
-  - temporary build for earlier testing
-  - confirmed: backward compatible with go1.12
+	- temporary build for earlier testing
+	- confirmed: backward compatible with go1.12
 
 - v1.10.13
-  - fix/imp: adapt windir to *nix name to fit for generic config file loading
-  - fea/imp: improved Aliases algor, support more tmpl var substitute
-  - fix: fallback the unknown type as string type
-  - fea: add flag to control whether write the changes back to alternative config file or not, `WithAlterConfigAutoWriteBack`
-  - imp: name/desc fields of builtin commands and flags
-  - CHANGE: use [bgo build-tool](https://github.com/hedzr/bgo) now, Makefile thrown
+	- fix/imp: adapt windir to *nix name to fit for generic config file loading
+	- fea/imp: improved Aliases algor, support more tmpl var substitute
+	- fix: fallback the unknown type as string type
+	- fea: add flag to control whether write the changes back to alternative config file or
+	  not, `WithAlterConfigAutoWriteBack`
+	- imp: name/desc fields of builtin commands and flags
+	- CHANGE: use [bgo build-tool](https://github.com/hedzr/bgo) now, Makefile thrown
 
 - More details at [CHANGELOG](./CHANGELOG)
 
@@ -289,11 +291,13 @@ $ {{.AppName}} --help --man
 	defaultLoggerBackend = "logrus"
 )
 ```
+
 </details>
 
 ### About the Docker build
 
-Here is a docker build for cmdr/examples/fluent so that you can run it without go building or downloading the release files:
+Here is a docker build for cmdr/examples/fluent so that you can run it without go building or downloading the release
+files:
 
 ```bash
 # from Docker Hub:
@@ -327,17 +331,19 @@ $ docker run -it --rm docker.pkg.github.com/hedzr/cmdr/cmdr-fluent --help
    http2 server with daemon supports, graceful shutdown
 
 7. [awesome-tool](https://github.com/hedzr/awesome-tool)  
-   `awesome-tool` is a cli app that fetch the repo stars and generate a markdown summary, accordingly with most of awesome-xxx list in github (such as awesome-go).
+   `awesome-tool` is a cli app that fetch the repo stars and generate a markdown summary, accordingly with most of
+   awesome-xxx list in github (such as awesome-go).
 
-**See Also the examples index: [Examples.md](old/Examples.md)** _(zh-cn TODO: [Examples.zh-cn.md](old/Examples.zh-cn.md))_
+**See Also the examples index: [Examples.md](old/Examples.md)** _(zh-cn
+TODO: [Examples.zh-cn.md](old/Examples.zh-cn.md))_
 
 ## Uses
 
--   https://github.com/hedzr/consul-tags
--   https://github.com/hedzr/ini-op
--   https://github.com/hedzr/awesome-tool
--   austr
--   Issue me to adding yours
+- https://github.com/hedzr/consul-tags
+- https://github.com/hedzr/ini-op
+- https://github.com/hedzr/awesome-tool
+- austr
+- Issue me to adding yours
 
 ## Contrib
 
@@ -345,7 +351,8 @@ _Feel free to issue me bug reports and fixes. Many thanks to all contributors._
 
 ## Thanks to JODL
 
-Thanks to [JetBrains](https://www.jetbrains.com/?from=cmdr) for donating product licenses to help develop **cmdr** [![jetbrains](https://gist.githubusercontent.com/hedzr/447849cb44138885e75fe46f1e35b4a0/raw/bedfe6923510405ade4c034c5c5085487532dee4/jetbrains-variant-4.svg)](https://www.jetbrains.com/?from=hedzr/cmdr)
+Thanks to [JetBrains](https://www.jetbrains.com/?from=cmdr) for donating product licenses to help develop **
+cmdr** [![jetbrains](https://gist.githubusercontent.com/hedzr/447849cb44138885e75fe46f1e35b4a0/raw/bedfe6923510405ade4c034c5c5085487532dee4/jetbrains-variant-4.svg)](https://www.jetbrains.com/?from=hedzr/cmdr)
 
 [![goland](https://gist.githubusercontent.com/hedzr/447849cb44138885e75fe46f1e35b4a0/raw/ca8ac2694906f5650d585263dbabfda52072f707/logo-goland.svg)](https://www.jetbrains.com/?from=hedzr/cmdr)
 

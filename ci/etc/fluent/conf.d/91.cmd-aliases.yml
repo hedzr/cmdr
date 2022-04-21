@@ -1,4 +1,3 @@
-
 app:
 
   aliases:
@@ -25,10 +24,10 @@ app:
             shell: /bin/bash                # or /usr/bin/env bash|zsh|...
             desc: list the services
           - title: start
-            flags: []
+            flags: [ ]
             desc: start a service
           - title: stop
-            flags: []
+            flags: [ ]
             desc: stop a service
           - title: git-version
             invoke-proc: git describe --tags --abbrev=0

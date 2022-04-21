@@ -68,7 +68,7 @@ func (f *Flag) GetTitleZshNamesExtBy(delimChar string, allowPrefix, quoted, shor
 	prefix, suffix := "", ""
 	if _, ok := f.DefaultValue.(bool); !ok {
 		suffix = "="
-		//} else if _, ok := s.DefaultValue.(bool); ok {
+		// } else if _, ok := s.DefaultValue.(bool); ok {
 		//	suffix = "-"
 	}
 	if allowPrefix && !f.justOnce {

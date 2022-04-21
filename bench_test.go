@@ -27,7 +27,7 @@ func benchmarkGetStringR(lock bool, b *testing.B) {
 	resetOsArgs()
 	cmdr.ResetOptions()
 
-	//copyRootCmd := rootCmdForTesting
+	// copyRootCmd := rootCmdForTesting
 	cmdr.Set("no-watch-conf-dir", true)
 	cmdr.Set("server.deps.kafka.devel.peers", []string{"192.168.0.11", "192.168.0.12", "192.168.0.13"})
 	cmdr.Set("server.deps.kafka.devel.id", "default-kafka")
@@ -61,7 +61,7 @@ func prepare(lock bool, b *testing.B) {
 	resetOsArgs()
 	cmdr.ResetOptions()
 
-	//copyRootCmd = rootCmdForTesting
+	// copyRootCmd = rootCmdForTesting
 	cmdr.Set("no-watch-conf-dir", true)
 	cmdr.Set("server.deps.kafka.devel.peers", []string{"192.168.0.11", "192.168.0.12", "192.168.0.13"})
 	cmdr.Set("server.deps.kafka.devel.id", "default-kafka")

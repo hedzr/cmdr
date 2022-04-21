@@ -1,5 +1,3 @@
-
-
 ### For Developer
 
 To build and test `cmdr`:

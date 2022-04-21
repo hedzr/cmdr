@@ -34,20 +34,20 @@ func (s *GlobalApp) AppTag() string { return sel(conf.ServerTag, conf.ServerID, 
 // CmdrVersion returns app tag name (app name or service id)
 func (s *GlobalApp) CmdrVersion() string { return sel(cmdr.GetString("cmdr.Version"), cmdr.Version) } // appTag: appName or serviceID
 
-//// AppTitle returns app title line
-//func (s *GlobalApp) AppTitle() string { return cmdr.GetStringR("app-title") }
+// // AppTitle returns app title line
+// func (s *GlobalApp) AppTitle() string { return cmdr.GetStringR("app-title") }
 
-//// AppModuleName returns app module name
-//func (s *GlobalApp) AppModuleName() string { return cmdr.GetStringR("app-module-name") }
+// // AppModuleName returns app module name
+// func (s *GlobalApp) AppModuleName() string { return cmdr.GetStringR("app-module-name") }
 
 // DBX returns DB layer (wrapped on GORM)
-//func (s *GlobalApp) DBX() dbl.DB { return s.dbx }
+// func (s *GlobalApp) DBX() dbl.DB { return s.dbx }
 
 // GormDB returns the underlying GORM DB object in DB layer (for fast, simple coding)
-//func (s *GlobalApp) GormDB() *gorm.DB { return s.dbx.DBE() }
+// func (s *GlobalApp) GormDB() *gorm.DB { return s.dbx.DBE() }
 
 // Cache returns Cache/Redis Service
-//func (s *GlobalApp) Cache() *cache.Hub { return s.cache }
+// func (s *GlobalApp) Cache() *cache.Hub { return s.cache }
 
 func sel(ss ...string) (ret string) {
 	for _, s := range ss {
@@ -76,9 +76,9 @@ type GlobalApp struct {
 	muInit sync.RWMutex
 	cmd    *cmdr.Command
 
-	//dbx    dbl.DB
-	//cache  *cache.Hub
-	//cron   cron.Jobs
+	// dbx    dbl.DB
+	// cache  *cache.Hub
+	// cron   cron.Jobs
 }
 
 var onceForApp sync.Once
@@ -99,10 +99,10 @@ func NewAppOption() cmdr.ExecOption {
 	return func(w *cmdr.ExecWorker) {
 		cmdr.WithGlobalPreActions(appUniqueInstance.Init)(w) // appUniqueInstance will be closed automatically
 
-		//no need to do:
-		//cmdr.WithGlobalPostActions(func(cmd *cmdr.Command, args []string) { appUniqueInstance.Close() })(w)
+		// no need to do:
+		// cmdr.WithGlobalPostActions(func(cmd *cmdr.Command, args []string) { appUniqueInstance.Close() })(w)
 
-		//cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {
+		// cmdr.WithXrefBuildingHooks(func(root *cmdr.RootCommand, args []string) {
 		//	cmdr.NewBool(false).
 		//		Titles("trace", "tr").
 		//		Description("enable trace mode for tcp/mqtt send/recv data dump", "").
@@ -113,7 +113,7 @@ func NewAppOption() cmdr.ExecOption {
 		//		//}).
 		//		Group(cmdr.SysMgmtGroup).
 		//		AttachToRoot(root)
-		//}, nil)
+		// }, nil)
 	}
 }
 
@@ -143,9 +143,9 @@ func (s *GlobalApp) initCron() (err error) {
 	s.muInit.Lock()
 	defer s.muInit.Unlock()
 
-	//if s.cron == nil {
+	// if s.cron == nil {
 	//	s.cron = cron.New().AddToPeripheral(&s.Basic)
-	//}
+	// }
 
 	return
 }
@@ -154,9 +154,9 @@ func (s *GlobalApp) initCache() (err error) {
 	s.muInit.Lock()
 	defer s.muInit.Unlock()
 
-	//if s.cache == nil {
+	// if s.cache == nil {
 	//	s.cache = cache.New().AddToPeripheral(&s.Basic)
-	//}
+	// }
 
 	return
 }

@@ -395,7 +395,7 @@ func (w *ExecWorker) _addOnAddIt(fi os.FileInfo, root *RootCommand, cwd string) 
 }
 
 func (w *ExecWorker) _addonAsSubCmd(root *RootCommand, cmdName, cmdPath string) (err error) {
-	var desc string = fmt.Sprintf("execute %q", cmdPath)
+	var desc = fmt.Sprintf("execute %q", cmdPath)
 
 	var p *plugin.Plugin
 	p, err = plugin.Open(cmdPath)
@@ -552,7 +552,7 @@ func (w *ExecWorker) _addIt(fi os.FileInfo, root *RootCommand, cwd string) (err 
 }
 
 func (w *ExecWorker) _addAsSubCmd(parent *Command, cmdName, cmdPath string) {
-	var desc string = fmt.Sprintf("execute %q", cmdPath)
+	var desc = fmt.Sprintf("execute %q", cmdPath)
 	if _, ok := parent.allCmds[ExtGroup]; !ok {
 		parent.allCmds[ExtGroup] = make(map[string]*Command)
 	}
@@ -981,7 +981,7 @@ const shTypeGroup = "ShellType"
 const tgDocType = "DocType"
 
 // enableShellCompletionCommand _
-var enableShellCompletionCommand bool = true
+var enableShellCompletionCommand = true
 
 func (w *ExecWorker) _boolFlgAdd(root *RootCommand, full, desc, group string, adding func(ff *Flag)) {
 	w._boolFlgAdd1(&root.Command, full, desc, group, adding)

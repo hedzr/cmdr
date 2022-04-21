@@ -14,32 +14,32 @@ var (
 //			Aliases:     []string{"gen"},
 //			Description: "generators for this app.",
 //			LongDescription: `
-//[cmdr] includes multiple generators like:
+// [cmdr] includes multiple generators like:
 //
-//- linux man page generator
-//- shell completion script generator
-//- markdown generator
-//- more...
+// - linux man page generator
+// - shell completion script generator
+// - markdown generator
+// - more...
 //
 //			`,
 //			Examples: `
-//$ {{.AppName}} gen sh --bash
+// $ {{.AppName}} gen sh --bash
 //			generate bash completion script
-//$ {{.AppName}} gen shell --auto
+// $ {{.AppName}} gen shell --auto
 //			generate shell completion script with detecting on current shell environment.
-//$ {{.AppName}} gen sh
+// $ {{.AppName}} gen sh
 //			generate shell completion script with detecting on current shell environment.
-//$ {{.AppName}} gen man
+// $ {{.AppName}} gen man
 //			generate linux manual (man page)
-//$ {{.AppName}} gen doc
+// $ {{.AppName}} gen doc
 //			generate document, default markdown.
-//$ {{.AppName}} gen doc --markdown
+// $ {{.AppName}} gen doc --markdown
 //			generate markdown.
-//$ {{.AppName}} gen doc --pdf
+// $ {{.AppName}} gen doc --pdf
 //			generate pdf.
-//$ {{.AppName}} gen markdown
+// $ {{.AppName}} gen markdown
 //			generate markdown.
-//$ {{.AppName}} gen pdf
+// $ {{.AppName}} gen pdf
 //			generate pdf.
 //			`,
 //		},

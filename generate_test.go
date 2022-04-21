@@ -17,7 +17,7 @@ func TestWithShellCompletionXXX(t *testing.T) {
 
 	w := cmdr.Worker()
 	cmdr.WithShellCompletionCommandEnabled(true)(w)
-	//cmdr.withShellCompletionPartialMatch(true)(w)
+	// cmdr.withShellCompletionPartialMatch(true)(w)
 }
 
 func TestGenShell1(t *testing.T) {
@@ -75,7 +75,7 @@ func TestGenShell1(t *testing.T) {
 }
 
 func TestForGenerateCommands(t *testing.T) {
-	//copyRootCmd = rootCmdForTesting
+	// copyRootCmd = rootCmdForTesting
 
 	cmdr.InternalResetWorkerForTest()
 	cmdr.ResetOptions()
@@ -130,7 +130,7 @@ func TestForGenerateCommands(t *testing.T) {
 }
 
 func TestForGenerateDoc(t *testing.T) {
-	//copyRootCmd = rootCmdForTesting
+	// copyRootCmd = rootCmdForTesting
 
 	cmdr.InternalResetWorkerForTest()
 	cmdr.ResetOptions()
@@ -156,7 +156,7 @@ func TestForGenerateDoc(t *testing.T) {
 }
 
 func TestForGenerateMan(t *testing.T) {
-	//copyRootCmd = rootCmdForTesting
+	// copyRootCmd = rootCmdForTesting
 
 	cmdr.InternalResetWorkerForTest()
 	cmdr.ResetOptions()
@@ -183,7 +183,7 @@ func TestForGenerateMan(t *testing.T) {
 }
 
 func TestCompleteCommandAndQuery(t *testing.T) {
-	//copyRootCmd = rootCmdForTesting
+	// copyRootCmd = rootCmdForTesting
 	var commands = []string{
 		"consul-tags __complete ''",
 		"consul-tags __complete se",
@@ -206,7 +206,7 @@ func TestCompleteCommandAndQuery(t *testing.T) {
 		for i, arg := range os.Args {
 			if v, _, vn, _ := strconv.UnquoteChar(arg, '\''); v == 0 {
 				os.Args[i] = vn
-				//t.Logf("-> --- cmdline: %v, %v", v, mb)
+				// t.Logf("-> --- cmdline: %v, %v", v, mb)
 			}
 		}
 		// cmdr.SetInternalOutputStreams(nil, nil)
@@ -218,22 +218,22 @@ func TestCompleteCommandAndQuery(t *testing.T) {
 		t.Log("-> --- ended.")
 	}
 
-	//if cmdr.GetHitCountByDottedPath("retry") != 1 {
+	// if cmdr.GetHitCountByDottedPath("retry") != 1 {
 	//	t.Error("bad 1")
-	//}
-	//if count := cmdr.GetHitCountByDottedPath("microservices"); count != 0 {
+	// }
+	// if count := cmdr.GetHitCountByDottedPath("microservices"); count != 0 {
 	//	t.Errorf("bad 2: got %v", count)
-	//}
-	//if cmdr.GetHitCountByDottedPath("verbose") != 3 {
+	// }
+	// if cmdr.GetHitCountByDottedPath("verbose") != 3 {
 	//	t.Error("bad 3")
-	//}
-	//if _, ff := cmdr.DottedPathToCommandOrFlag("verbose", nil); ff == nil {
+	// }
+	// if _, ff := cmdr.DottedPathToCommandOrFlag("verbose", nil); ff == nil {
 	//	t.Error("bad 3.2")
-	//} else if ff.GetHitStr() != "v" {
+	// } else if ff.GetHitStr() != "v" {
 	//	t.Error("bad 3.3")
-	//}
-	//cmdr.GetHitCommands()
-	//cmdr.GetHitFlags()
+	// }
+	// cmdr.GetHitCommands()
+	// cmdr.GetHitFlags()
 
 	t.Log("-> ok end 1.1")
 	resetOsArgs()

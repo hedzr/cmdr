@@ -35,20 +35,20 @@ func TestLevels(t *testing.T) {
 }
 
 func TestLog(t *testing.T) {
-	//var rootCmdX = &cmdr.RootCommand{
+	// var rootCmdX = &cmdr.RootCommand{
 	//	Command: cmdr.Command{
 	//		BaseOpt: cmdr.BaseOpt{
 	//			Name: "consul-tags",
 	//		},
 	//	},
-	//}
+	// }
 	//
-	//for _, x := range []string{"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "PANIC", "OFF", "XX"} {
+	// for _, x := range []string{"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "PANIC", "OFF", "XX"} {
 	//	cmdr.Set("logger.level", x)
 	//	_ = cmdr.Worker().GetWithLogexInitializer(cmdr.DebugLevel)(&rootCmdX.Command, []string{})
-	//}
+	// }
 	//
-	//cmdr.Set("logger.target", "journal")
-	//cmdr.Set("logger.format", "json")
-	//_ = cmdr.Worker().GetWithLogexInitializer(cmdr.DebugLevel)(&rootCmdX.Command, []string{})
+	// cmdr.Set("logger.target", "journal")
+	// cmdr.Set("logger.format", "json")
+	// _ = cmdr.Worker().GetWithLogexInitializer(cmdr.DebugLevel)(&rootCmdX.Command, []string{})
 }

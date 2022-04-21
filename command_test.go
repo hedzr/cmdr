@@ -67,7 +67,7 @@ func TestRootCmdOpt_RunAsSubCommand(t *testing.T) {
 
 		"consul-tags -p8500 --prefix=1 --prefix2 -ui123 --uint 2 -dur3h -flt 9.8 --uint 139 --prefix 3": func(t *testing.T, c *cmdr.Command, e error) (err error) {
 			// all ok,
-			//err = cmdr.InvokeCommand("microservices.tags")
+			// err = cmdr.InvokeCommand("microservices.tags")
 
 			if cmdr.GetInt("app.ms.tags.port") != 8500 || cmdr.GetString("app.ms.tags.prefix") != "3" ||
 				cmdr.GetUint("app.ms.tags.uint") != uint(139) || cmdr.GetFloat32("app.ms.tags.float") != 9.8 ||

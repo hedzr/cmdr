@@ -40,7 +40,7 @@ func WithLogxShort(enabled bool, backend, level string) ExecOption {
 }
 
 // Logger for cmdr
-var Logger log.Logger = log.NewDummyLogger()
+var Logger = log.NewDummyLogger()
 
 // SetLogger transfer an instance into log package-level value
 func SetLogger(l log.Logger) {
@@ -49,51 +49,51 @@ func SetLogger(l log.Logger) {
 	Set("logger-level", int(l.GetLevel()))
 }
 
-//// WithLogex enables github.com/hedzr/logex integration
-////
-//// Deprecated since v1.7.7, replace with WithLogx().
-//func WithLogex(lvl Level, opts ...logex.Option) ExecOption {
+// // WithLogex enables github.com/hedzr/logex integration
+// //
+// // Deprecated since v1.7.7, replace with WithLogx().
+// func WithLogex(lvl Level, opts ...logex.Option) ExecOption {
 //	return func(w *ExecWorker) {
 //		w.logexInitialFunctor = w.getWithLogexInitializer(lvl, opts...)
 //	}
-//}
+// }
 //
-//// WithLogexSkipFrames specify the skip frames to lookup the caller
-////
-//// Deprecated since v1.7.6, replace with WithLogx().
-//func WithLogexSkipFrames(skipFrames int) ExecOption {
+// // WithLogexSkipFrames specify the skip frames to lookup the caller
+// //
+// // Deprecated since v1.7.6, replace with WithLogx().
+// func WithLogexSkipFrames(skipFrames int) ExecOption {
 //	return func(w *ExecWorker) {
 //		w.logexSkipFrames = skipFrames
 //	}
-//}
+// }
 //
-//// WithLogexPrefix specify a prefix string PS.
-////
-//// In cmdr options store, we will load the logging options under this key path:
-////
-////    app:
-////      logger:
-////        level:  DEBUG            # panic, fatal, error, warn, info, debug, trace, off
-////        format: text             # text, json, logfmt
-////        target: default          # default, todo: journal
-////
-//// As showing above, the default prefix is "logger".
-//// You can replace it with yours, via WithLogexPrefix().
-//// For example, when you compose WithLogexPrefix("logging"), the following entries would be applied:
-////
-////    app:
-////      logging:
-////        level:  DEBUG
-////        format:
-////        target:
-////
-////
-//// Deprecated since v1.7.6, replace with WithLogx().
-//func WithLogexPrefix(prefix string) ExecOption {
+// // WithLogexPrefix specify a prefix string PS.
+// //
+// // In cmdr options store, we will load the logging options under this key path:
+// //
+// //    app:
+// //      logger:
+// //        level:  DEBUG            # panic, fatal, error, warn, info, debug, trace, off
+// //        format: text             # text, json, logfmt
+// //        target: default          # default, todo: journal
+// //
+// // As showing above, the default prefix is "logger".
+// // You can replace it with yours, via WithLogexPrefix().
+// // For example, when you compose WithLogexPrefix("logging"), the following entries would be applied:
+// //
+// //    app:
+// //      logging:
+// //        level:  DEBUG
+// //        format:
+// //        target:
+// //
+// //
+// // Deprecated since v1.7.6, replace with WithLogx().
+// func WithLogexPrefix(prefix string) ExecOption {
 //	return func(w *ExecWorker) {
 //		w.logexPrefix = prefix
 //	}
-//}
+// }
 
 // GetLoggerLevel returns the current logger level after parsed.
 func GetLoggerLevel() Level {
@@ -132,7 +132,7 @@ func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.Option) (err error
 	return
 }
 
-//func (w *ExecWorker) getWithLogexInitializer(lvl Level, opts ...logex.Option) Handler {
+// func (w *ExecWorker) getWithLogexInitializer(lvl Level, opts ...logex.Option) Handler {
 //	return func(cmd *Command, args []string) (err error) {
 //
 //		if len(w.logexPrefix) == 0 {
@@ -184,7 +184,7 @@ func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.Option) (err error
 //
 //		return
 //	}
-//}
+// }
 
 // InDebugging return the status if cmdr was built with debug mode / or the app running under a debugger attached.
 //
@@ -229,7 +229,7 @@ func IsDebuggerAttached() bool {
 // InTesting detects whether is running under go test mode
 func InTesting() bool {
 	return log.InTestingT(tool.SavedOsArgs)
-	//if !strings.HasSuffix(tool.SavedOsArgs[0], ".test") &&
+	// if !strings.HasSuffix(tool.SavedOsArgs[0], ".test") &&
 	//	!strings.Contains(tool.SavedOsArgs[0], "/T/___Test") {
 	//
 	//	// [0] = /var/folders/td/2475l44j4n3dcjhqbmf3p5l40000gq/T/go-build328292371/b001/exe/main
@@ -242,8 +242,8 @@ func InTesting() bool {
 	//	}
 	//	return false
 	//
-	//}
-	//return true
+	// }
+	// return true
 }
 
 // InDevelopingTime detects whether is in developing time.

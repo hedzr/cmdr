@@ -13,9 +13,9 @@ func fsWatcherRoutine(s *Options, configDir string, filesWatching []string, init
 	initWG.Done() // done initializing the watch in this go routine, so the parent routine can move on...
 }
 
-//func fsWatchRunner(s *Options, configDir string, watcher *fsnotify.Watcher, eventsWG *sync.WaitGroup) {
+// func fsWatchRunner(s *Options, configDir string, watcher *fsnotify.Watcher, eventsWG *sync.WaitGroup) {
 //	// eventsWG.Done()
-//}
+// }
 
 // stopExitingChannelForFsWatcher stop fs watcher explicitly
 func stopExitingChannelForFsWatcher() {

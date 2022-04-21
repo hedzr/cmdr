@@ -92,8 +92,8 @@ fi; fi
 					//					err = tmpl.Execute(f, cmd.root)
 					//					if err == nil {
 					//						fmt.Printf(`''%v generated.
-					//Re-login to enable the new bash completion script.
-					//`, file)
+					// Re-login to enable the new bash completion script.
+					// `, file)
 					//					}
 					//					if !linuxRoot {
 					//						break // for non-root user, we break file-writing loop and dump scripts to console too.

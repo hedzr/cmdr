@@ -1,7 +1,7 @@
 //go:build !delve && !test
 // +build !delve,!test
 
-//go/:build delve || test
+// go/:build delve || test
 // +/build delve test
 
 package cmdr
@@ -38,7 +38,7 @@ func cmdrMoreCommandsForTest(root cmdr.OptCmd) {
 	cmdrMultiLevelTest(root)
 	cmdrManyCommandsTest(root)
 
-	//pprof.AttachToCmdr(root.RootCmdOpt())
+	// pprof.AttachToCmdr(root.RootCmdOpt())
 }
 
 func tgCommand(root cmdr.OptCmd) {
@@ -56,10 +56,10 @@ func tgCommand(root cmdr.OptCmd) {
 			fmt.Printf("> STDIN MODE: %v \n", cmdr.GetBoolR("mx-test.stdin"))
 			fmt.Println()
 
-			//logrus.Debug("debug")
-			//logrus.Info("debug")
-			//logrus.Warning("debug")
-			//logrus.WithField(logex.SKIP, 1).Warningf("dsdsdsds")
+			// logrus.Debug("debug")
+			// logrus.Info("debug")
+			// logrus.Warning("debug")
+			// logrus.WithField(logex.SKIP, 1).Warningf("dsdsdsds")
 
 			return
 		}).
@@ -145,10 +145,10 @@ func mxCommand(root cmdr.OptCmd) {
 			fmt.Printf("> STDIN MODE: %v \n", cmdr.GetBoolR("mx-test.stdin"))
 			fmt.Println()
 
-			//logrus.Debug("debug")
-			//logrus.Info("debug")
-			//logrus.Warning("debug")
-			//logrus.WithField(logex.SKIP, 1).Warningf("dsdsdsds")
+			// logrus.Debug("debug")
+			// logrus.Info("debug")
+			// logrus.Warning("debug")
+			// logrus.WithField(logex.SKIP, 1).Warningf("dsdsdsds")
 
 			if cmdr.GetBoolR("mx-test.stdin") {
 				fmt.Println("> Type your contents here, press Ctrl-D to end it:")
@@ -363,11 +363,11 @@ func cmdrMultiLevelTest(root cmdr.OptCmd) {
 		Titles("mls", "mls").
 		Description("multi-level subcommands test").
 		Group("Test").
-		//Sets(func(cmd cmdr.OptCmd) {
+		// Sets(func(cmd cmdr.OptCmd) {
 		//	cmdrAddFlags(cmd)
-		//}).
+		// }).
 		AttachTo(root)
-	//cmd := root.NewSubCommand("mls", "mls").
+	// cmd := root.NewSubCommand("mls", "mls").
 	//	Description("multi-level subcommands test").
 	//	Group("Test")
 	cmdrAddFlags(cmd)
@@ -391,7 +391,7 @@ func cmdrMultiLevel(parent cmdr.OptCmd, depth int) {
 
 		cc := cmdr.NewSubCmd().
 			Titles(t, fmt.Sprintf("sc%v", i)).
-			//cc := parent.NewSubCommand(t, fmt.Sprintf("sc%v", i)).
+			// cc := parent.NewSubCommand(t, fmt.Sprintf("sc%v", i)).
 			Description(fmt.Sprintf("subcommands %v.sc%v test", ttl, i)).
 			Group("Test").
 			AttachTo(parent)

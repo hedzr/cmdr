@@ -4,7 +4,7 @@ go:
   - tip
 
 install:
-#  - go get -d -v ./...
+  #  - go get -d -v ./...
   - go mod download
 
 script:

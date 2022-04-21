@@ -213,7 +213,7 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 			return
 		}
 
-		//if pkg.flg.Action != nil {
+		// if pkg.flg.Action != nil {
 		//	if err = pkg.flg.Action(goCommand, w.tmpGetRemainArgs(pkg, args)); err == ErrShouldBeStopException {
 		//		stop = true
 		//		err = nil
@@ -221,7 +221,7 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 		//	} else if err != nil {
 		//		return
 		//	}
-		//}
+		// }
 
 		if isBool(pkg.flg.DefaultValue) || isNil1(pkg.flg.DefaultValue) {
 			flog("    .  . [tryToggleGroup] %q = %v", pkg.fn, pkg.val)

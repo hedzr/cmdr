@@ -190,7 +190,7 @@ func TestCopyTwoStruct(t *testing.T) {
 
 func TestCopyStruct(t *testing.T) {
 	var fakeAge int32 = 12
-	var born int = 7
+	var born = 7
 	var bornU uint = 7
 	var sz = "dablo"
 	user := User{Name: "Faked"}

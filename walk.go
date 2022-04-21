@@ -67,7 +67,7 @@ Description: %q
 		%v: %v`, kp, v)
 	}
 
-	//println()
+	// println()
 
 	w := internalGetWorker()
 	initTabStop(defaultTabStop)

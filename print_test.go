@@ -51,15 +51,15 @@ func TestParseHtml(t *testing.T) {
 				sb.WriteString("\x1b[0m")
 				return
 			default:
-				//Logger.Debugf("%v, %v, lvl #%d\n", node.Type, node.Data, level)
-				//sb.WriteString(node.Data)
+				// Logger.Debugf("%v, %v, lvl #%d\n", node.Type, node.Data, level)
+				// sb.WriteString(node.Data)
 			}
 		case html.TextNode:
-			//Logger.Debugf("%v, %v, lvl #%d\n", node.Type, node.Data, level)
+			// Logger.Debugf("%v, %v, lvl #%d\n", node.Type, node.Data, level)
 			sb.WriteString(node.Data)
 			return
 		default:
-			//sb.WriteString(node.Data)
+			// sb.WriteString(node.Data)
 		}
 
 		for child := node.FirstChild; child != nil; child = child.NextSibling {

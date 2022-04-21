@@ -262,11 +262,11 @@ func (c *colorPrintTranslator) stripLeftTabs(s string) string {
 func (c *colorPrintTranslator) stripLeftTabsOnly(s string) string {
 
 	var lines []string
-	var tabs int = 1000
+	var tabs = 1000
 	var emptyLines []int
 	var sb strings.Builder
 	var line int
-	var noLastLF bool = !strings.HasSuffix(s, "\n")
+	var noLastLF = !strings.HasSuffix(s, "\n")
 
 	scanner := bufio.NewScanner(bufio.NewReader(strings.NewReader(s)))
 	for scanner.Scan() {

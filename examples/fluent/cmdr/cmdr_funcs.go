@@ -7,14 +7,14 @@ import (
 
 func attachModifyFlags(cmd cmdr.OptCmd) {
 	cmdr.NewString("=").Titles("delim", "d").
-		//cmd.NewFlagV("=", "delim", "d").
+		// cmd.NewFlagV("=", "delim", "d").
 		Description("delimiter char in `non-plain` mode.").
 		Placeholder("").
 		CompletionJustOnce(true).
 		AttachTo(cmd)
 
 	cmdr.NewBool().Titles("clear", "c").
-		//cmd.NewFlagV(false, "clear", "c").
+		// cmd.NewFlagV(false, "clear", "c").
 		Description("clear all tags.").
 		Placeholder("").
 		Group("Operate").
@@ -22,35 +22,35 @@ func attachModifyFlags(cmd cmdr.OptCmd) {
 		AttachTo(cmd)
 
 	cmdr.NewBool().Titles("string", "g", "string-mode").
-		//cmd.NewFlagV(false, "string", "g", "string-mode").
+		// cmd.NewFlagV(false, "string", "g", "string-mode").
 		Description("In 'String Mode', default will be disabled: default, a tag string will be split by comma(,), and treated as a string list.").
 		Placeholder("").
 		ToggleGroup("Mode").
 		AttachTo(cmd)
 
 	cmdr.NewBool().Titles("meta", "m", "meta-mode").
-		//cmd.NewFlagV(false, "meta", "m", "meta-mode").
+		// cmd.NewFlagV(false, "meta", "m", "meta-mode").
 		Description("In 'Meta Mode', service 'NodeMeta' field will be updated instead of 'Tags'. (--plain assumed false).").
 		Placeholder("").
 		ToggleGroup("Mode").
 		AttachTo(cmd)
 
 	cmdr.NewBool().Titles("both", "2", "both-mode").
-		//cmd.NewFlagV(false, "both", "2", "both-mode").
+		// cmd.NewFlagV(false, "both", "2", "both-mode").
 		Description("In 'Both Mode', both of 'NodeMeta' and 'Tags' field will be updated.").
 		Placeholder("").
 		ToggleGroup("Mode").
 		AttachTo(cmd)
 
 	cmdr.NewBool().Titles("plain", "p", "plain-mode").
-		//cmd.NewFlagV(false, "plain", "p", "plain-mode").
+		// cmd.NewFlagV(false, "plain", "p", "plain-mode").
 		Description("In 'Plain Mode', a tag be NOT treated as `key=value` or `key:value`, and modify with the `key`.").
 		Placeholder("").
 		ToggleGroup("Mode").
 		AttachTo(cmd)
 
 	cmdr.NewBool().Titles("tag", "t", "tag-mode").
-		//cmd.NewFlagV(true, "tag", "t", "tag-mode").
+		// cmd.NewFlagV(true, "tag", "t", "tag-mode").
 		Description("In 'Tag Mode', a tag be treated as `key=value` or `key:value`, and modify with the `key`.").
 		Placeholder("").
 		ToggleGroup("Mode").
@@ -61,7 +61,7 @@ func attachModifyFlags(cmd cmdr.OptCmd) {
 func attachConsulConnectFlags(cmd cmdr.OptCmd) {
 
 	cmdr.NewString("localhost").Titles("addr", "a").
-		//cmd.NewFlagV("localhost", "addr", "a").
+		// cmd.NewFlagV("localhost", "addr", "a").
 		Description("Consul ip/host and port: HOST[:PORT] (No leading 'http(s)://')", ``).
 		Placeholder("HOST[:PORT]").
 		Group("Consul").
@@ -102,7 +102,7 @@ func attachConsulConnectFlags(cmd cmdr.OptCmd) {
 		Group("Consul").
 		AttachTo(cmd)
 	cmdr.NewString().Titles("password", "pw", "passwd", "pass", "pwd").
-		//cmd.NewFlagV("", "password", "pw", "passwd", "pass", "pwd").
+		// cmd.NewFlagV("", "password", "pw", "passwd", "pass", "pwd").
 		Description("HTTP Basic auth password", ``).
 		Placeholder("PASSWORD").
 		Group("Consul").

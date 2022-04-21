@@ -143,18 +143,18 @@ type (
 		//
 		// Deprecated since v1.6.50, we recommend the new form:
 		//    cmdr.NewBool(false).Titles(...)...AttachTo(ownerCmd)
-		//NewFlag(typ OptFlagType) (opt OptFlag)
+		// NewFlag(typ OptFlagType) (opt OptFlag)
 		// NewFlagV create a new flag object and return it for further operations.
 		// the titles in arguments MUST be: longTitle, [shortTitle, [aliasTitles...]]
 		//
 		// Deprecated since v1.6.50, we recommend the new form:
 		//    cmdr.NewBool(false).Titles(...)...AttachTo(ownerCmd)
-		//NewFlagV(defaultValue interface{}, titles ...string) (opt OptFlag)
+		// NewFlagV(defaultValue interface{}, titles ...string) (opt OptFlag)
 		// NewSubCommand make a new sub-command optcmd object with optional titles.
 		// the titles in arguments MUST be: longTitle, [shortTitle, [aliasTitles...]]
 		//
 		// Deprecated since v1.6.50
-		//NewSubCommand(titles ...string) (opt OptCmd)
+		// NewSubCommand(titles ...string) (opt OptCmd)
 
 		OwnerCommand() (opt OptCmd)
 		SetOwner(opt OptCmd)

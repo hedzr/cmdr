@@ -90,7 +90,7 @@ func (w *ExecWorker) cmdMatched(pkg *ptpkg, goCommand *Command, args []string) (
 
 func (w *ExecWorker) flagsPrepare(pkg *ptpkg, goCommand **Command, args []string) (stop bool, err error) {
 	if len(pkg.a) > 1 {
-		if strings.Contains(w.switchCharset, pkg.a[1:2]) { // '--', '~~', '//'
+		if strings.Contains(w.switchCharset[switchCharsetWidth:], pkg.a[1:2]) { // '--', '~~', '/'
 			if len(pkg.a) == 2 {
 				// disableParser = true // '--': ignore the following args // PassThrough hit!
 				stop = true

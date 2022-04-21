@@ -301,8 +301,26 @@ func (w *ExecWorker) printHelpUsages(p Painter, command *Command) {
 			cmds += " "
 		}
 
-		p.FpUsagesLine(command, "", w.rootCommand.Name, cmds, ttl, command.TailPlaceHolder)
+		ph := getph1st(command)
+		p.FpUsagesLine(command, "", w.rootCommand.Name, cmds, ttl, ph)
 	}
+}
+
+func getph1st(c *Command) string {
+	if c.TailPlaceHolder != "" {
+		return c.TailPlaceHolder
+	}
+	if len(c.TailPlaceHolders) > 0 {
+		return c.TailPlaceHolders[0]
+	}
+	return ""
+}
+
+func getphtail(c *Command) string {
+	if len(c.TailPlaceHolders) > 0 {
+		return strings.Join(c.TailPlaceHolders[1:], " ")
+	}
+	return ""
 }
 
 func (w *ExecWorker) printHelpDescription(p Painter, command *Command) {

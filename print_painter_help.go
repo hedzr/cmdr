@@ -86,12 +86,10 @@ func (s *helpPainter) FpUsagesLine(command *Command, fmt, appName, cmdList, cmds
 	} else {
 		cmdList = " " + cmdList
 	}
-	if len(tailPlaceHolder) > 0 {
-		tailPlaceHolder = command.TailPlaceHolder
-	} else {
+	if tailPlaceHolder == "" {
 		tailPlaceHolder = "[tail args...]"
 	}
-	s.Printf("    %s%v%s%s [Options] [Parent/Global Options]"+fmt, appName, cmdList, cmdsTitle, tailPlaceHolder)
+	s.Printf("    %s%v%s%s [Options] [Parent/Global Options] %s"+fmt, appName, cmdList, cmdsTitle, tailPlaceHolder, getphtail(command))
 }
 
 func (s *helpPainter) FpDescTitle(command *Command, title string) {

@@ -304,7 +304,23 @@ type (
 		// NOTE that RootCommand.PostAction will be invoked too.
 		PostAction(post Invoker) (opt OptCmd)
 
-		TailPlaceholder(placeholder string) (opt OptCmd)
+		// TailPlaceholder gives two places to place the placeholders.
+		// It looks like the following form:
+		//
+		//     austr dns add <placeholder-1st> [Options] [Parent/Global Options] <placeholders-more...>
+		//
+		// As shown, you may specify at:
+		//
+		// - before '[Options] [Parent/Global Options]'
+		// - after '[Options] [Parent/Global Options]'
+		//
+		// In TailPlaceHolders slice, [0] is `placeholder-1st``, and others
+		// are `placeholders-more`.
+		//
+		// Others:
+		//   TailArgsText string [no plan]
+		//   TailArgsDesc string [no plan]
+		TailPlaceholder(placeholders ...string) (opt OptCmd)
 
 		// Sets _
 		//

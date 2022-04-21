@@ -5,9 +5,10 @@
 package cmdr
 
 import (
-	"github.com/hedzr/cmdr/tool"
 	"reflect"
 	"time"
+
+	"github.com/hedzr/cmdr/tool"
 )
 
 type optCommandImpl struct {
@@ -161,9 +162,10 @@ func (s *optCommandImpl) PostAction(post Invoker) (opt OptCmd) {
 	return s
 }
 
-func (s *optCommandImpl) TailPlaceholder(placeholder string) (opt OptCmd) {
+func (s *optCommandImpl) TailPlaceholder(placeholders ...string) (opt OptCmd) {
 	// s.workingFlag.ExternalTool = envKeyName
-	s.working.TailPlaceHolder = placeholder
+	s.working.TailPlaceHolder = placeholders[0]
+	s.working.TailPlaceHolders = placeholders
 	return s
 }
 

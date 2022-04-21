@@ -32,10 +32,14 @@ type ptpkg struct {
 	suffix            uint8
 	unknownCmds       []string
 	unknownFlags      []string
-	remainArgs        []string
-	aliasCommand      *Command
+	// historyCommands   []*Command
+	// historyFlags      []*Flag
+	remainArgs   []string
+	aliasCommand *Command
 }
 
+// func (pkg *ptpkg) pushHistoryCommand(c *Command) {    pkg.historyCommands = append(pkg.historyCommands, c)}
+// func (pkg *ptpkg) pushHistoryFlag(f *Flag)            { pkg.historyFlags = append(pkg.historyFlags, f) }
 func (pkg *ptpkg) store() *Options                    { return currentOptions() }
 func (pkg *ptpkg) storeFrom(wkr *ExecWorker) *Options { return wkr.rxxtOptions }
 

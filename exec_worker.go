@@ -204,11 +204,23 @@ func internalResetWorkerNoLock() (w *ExecWorker) {
 	return
 }
 
+const (
+	switchCharsetWidth = 8 //
+)
+
 func (w *ExecWorker) _setSwChars(os string) {
 	if os == "windows" {
-		w.switchCharset = "-/~"
+		w.switchCharset = "--~/     -~     "
 	} else {
-		w.switchCharset = "-~"
+		// switchCharset has two pieces with same width switchCharsetWidth.
+		//
+		// 1st piece: "--~     " to match the first flag leading char
+		// 2nd piece: " -~     " to match the second flag leading char
+		//
+		// The settings assume 3 leading chars: "- ", "--", "~~",
+		// A whitespace assumes no more chars so "- " means a short flag
+		// leading.
+		w.switchCharset = "--~      -~     "
 	}
 	// if sw, ok := switchCharMap[runtime.GOOS]; ok {
 	//	w.switchCharset = sw

@@ -217,12 +217,29 @@ func (w *ExecWorker) internalExecFor(pkg *ptpkg, rootCmd *RootCommand, args []st
 
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args *[]string) (matched, stopC, stopF bool, err error) {
+	// find valid flag prefix: -, --, ~~, /,
+	var flagLeadingFound bool = true
+	if len(pkg.a) > 0 {
+		ofs := strings.Index(w.switchCharset[0:switchCharsetWidth], pkg.a[0:1])
+		if ofs < 0 || ofs >= switchCharsetWidth {
+			flagLeadingFound = false
+		}
+		if flagLeadingFound && len(pkg.a) > 1 {
+			if pkg.a[1] != w.switchCharset[switchCharsetWidth+ofs] && w.switchCharset[switchCharsetWidth+ofs] != ' ' {
+				flagLeadingFound = false
+			}
+		}
+	}
 
-	if len(pkg.a) > 0 && strings.Contains(w.switchCharset, pkg.a[0:1]) { // pkg.a[0] == '/' ||
+	if flagLeadingFound { // len(pkg.a) > 0 && strings.Contains(w.switchCharset[0:switchCharsetWidth], pkg.a[0:1]) { // pkg.a[0] == '/' ||
 		if len(pkg.a) == 1 {
 			matched, stopF, err = w.switchCharMatching(pkg, goCommand, *args)
 			return
 		}
+		// if matched, stopC, stopF, err = w.xxTestCmdFlags(pkg, goCommand, rootCmd, args); matched {
+		// 	pkg.pushHistoryFlag(pkg.flg)
+		// }
+		// return
 		return w.xxTestCmdFlags(pkg, goCommand, rootCmd, args)
 	}
 
@@ -238,9 +255,11 @@ func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCom
 	// if matched, stop, err = cmdMatching(pkg, goCommand, args); stop || err != nil {
 	// 	return
 	// }
-	matched, stopC, err = w.cmdMatching(pkg, goCommand, *args)
-	if matched && len((*goCommand).presetCmdLines) > 0 && (*goCommand).Invoke != "" {
-		w.updateArgs(pkg, goCommand, rootCmd, args)
+	if matched, stopC, err = w.cmdMatching(pkg, goCommand, *args); matched {
+		if len((*goCommand).presetCmdLines) > 0 && (*goCommand).Invoke != "" {
+			w.updateArgs(pkg, goCommand, rootCmd, args)
+		}
+		// pkg.pushHistoryCommand(*goCommand)
 	}
 
 	return

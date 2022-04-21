@@ -6,8 +6,9 @@ package cmdr
 
 import (
 	"bufio"
-	"github.com/hedzr/logex"
 	"sync"
+
+	"github.com/hedzr/logex"
 
 	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log"
@@ -106,9 +107,25 @@ type (
 		//
 		//     austr dns add <host-fqdn> <ipv4/6> [Options] [Parent/Global Options]
 		//
+		// Deprecated since v1.10.36+, use TailPlaceHolders is recommended
 		TailPlaceHolder string `yaml:"tail-placeholder,omitempty" json:"tail-placeholder,omitempty"`
-		// TailArgsText string
-		// TailArgsDesc string
+		// TailPlaceHolders gives two places to place the placeholders.
+		// It looks like the following form:
+		//
+		//     austr dns add <placeholder1st> [Options] [Parent/Global Options] <placeholders more...>
+		//
+		// As shown, you may specify at:
+		//
+		// - before '[Options] [Parent/Global Options]'
+		// - after '[Options] [Parent/Global Options]'
+		//
+		// In TailPlaceHolders slice, [0] is `placeholder1st``, and others
+		// are `placeholders more``.
+		//
+		// Others:
+		//   TailArgsText string [no plan]
+		//   TailArgsDesc string [no plan]
+		TailPlaceHolders []string ``
 
 		root            *RootCommand
 		allCmds         map[string]map[string]*Command // key1: Commnad.Group, key2: Command.Full

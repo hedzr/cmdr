@@ -4,7 +4,11 @@
 
 package cmdr
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+	"strings"
+)
 
 // WalkAllCommands loops for all commands, starting from root.
 func WalkAllCommands(walk func(cmd *Command, index, level int) (err error)) (err error) {
@@ -52,19 +56,26 @@ var (
 	defaultAction       = defaultActionImpl
 )
 
+func isForceDefaultAction() bool { return toBool(os.Getenv("FORCE_DEFAULT_ACTION")) }
+
 func defaultActionImpl(cmd *Command, args []string) (err error) {
 	fmt.Printf(`
-    Command: %v
-Description: %q
-       Args: %v
-      Flags:
+ Command-Line: %v
+      Command: %v
+  Description: %q
+         Args: %v
+        Flags:
 `,
-		cmd.GetDottedNamePath(), cmd.Description, args)
+		strings.Join(os.Args, " "),
+		cmd.GetDottedNamePath(),
+		cmd.Description,
+		args)
+
 	for _, f := range GetHitFlags() {
 		kp := f.GetDottedNamePath()
 		v := GetR(kp)
 		fmt.Printf(`
-		%v: %v`, kp, v)
+	- %q: %#v`, kp, v)
 	}
 
 	// println()

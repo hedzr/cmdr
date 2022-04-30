@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"gopkg.in/hedzr/errors.v3"
 	"io"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"regexp"
@@ -149,7 +150,7 @@ func launchEditorWith(editor, filename string) (content []byte, err error) {
 		}
 	}
 
-	content, err = os.ReadFile(filename)
+	content, err = ioutil.ReadFile(filename)
 	if err != nil {
 		return []byte{}, nil
 	}

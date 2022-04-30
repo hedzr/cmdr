@@ -725,6 +725,11 @@ func WithAfterArgsParsed(hookFunc Handler) ExecOption {
 //
 // Default line is:
 //   "\nType '-h' or '--help' to get command help screen."
+//
+// Tiny html codes are supported, such as:
+//     b/strong, i/cite, u, code/kbd, mark, del, font
+// These tags are parsed but ignored:
+//     html, head, body
 func WithHelpTailLine(line string) ExecOption {
 	return func(w *ExecWorker) {
 		w.helpTailLine = line

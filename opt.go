@@ -55,8 +55,18 @@ type (
 		// Aliases give more choices for a command.
 		Aliases(ss ...string) (opt OptFlag)
 		// Description gives normal and long form description of a flag.
+		//
+		// Tiny html codes are supported, such as:
+		//     b/strong, i/cite, u, code/kbd, mark, del, font
+		// These tags are parsed but ignored:
+		//     html, head, body
 		Description(oneLineDesc string, longDesc ...string) (opt OptFlag)
 		// Examples gives text to be shown in a section in the help screen.
+		//
+		// Tiny html codes are supported, such as:
+		//     b/strong, i/cite, u, code/kbd, mark, del, font
+		// These tags are parsed but ignored:
+		//     html, head, body
 		Examples(examples string) (opt OptFlag)
 		// Group provides flag group name.
 		//
@@ -138,16 +148,21 @@ type (
 		ToggleGroup(group string) (opt OptFlag)
 		// DefaultValue needs an exact typed 'val'.
 		//
-		// IMPORTANT: cmdr interprets value type of an option based
+		// IMPORTANT: cmdr interprets value-type of an option based
 		// on the underlying default value set.
 		DefaultValue(val interface{}, placeholder string) (opt OptFlag)
+		// Placeholder _
+		// Deprecated since v1.10.40
 		Placeholder(placeholder string) (opt OptFlag)
+		// CompletionActionStr for zsh completion
 		CompletionActionStr(s string) (opt OptFlag)
 		// CompletionMutualExclusiveFlags is a slice of flag full/long titles
 		CompletionMutualExclusiveFlags(flags ...string) (opt OptFlag)
 		// CompletionPrerequisitesFlags is a slice of flag full/long titles
 		CompletionPrerequisitesFlags(flags ...string) (opt OptFlag)
+		// CompletionJustOnce for zsh completion
 		CompletionJustOnce(once bool) (opt OptFlag)
+		// CompletionCircuitBreak for zsh completion
 		CompletionCircuitBreak(once bool) (opt OptFlag)
 		// DoubleTildeOnly requests only the form is okay when the
 		// double tilde chars ('~~') leads the flag.
@@ -251,8 +266,18 @@ type (
 		// Aliases gives more choices for a command.
 		Aliases(ss ...string) (opt OptCmd)
 		// Description gives normal and long form description of a command.
+		//
+		// Tiny html codes are supported, such as:
+		//     b/strong, i/cite, u, code/kbd, mark, del, font
+		// These tags are parsed but ignored:
+		//     html, head, body
 		Description(oneLine string, long ...string) (opt OptCmd)
 		// Examples gives text to be shown in a section in the help screen.
+		//
+		// Tiny html codes are supported, such as:
+		//     b/strong, i/cite, u, code/kbd, mark, del, font
+		// These tags are parsed but ignored:
+		//     html, head, body
 		Examples(examples string) (opt OptCmd)
 		// Group provides command group name.
 		//

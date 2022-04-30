@@ -69,7 +69,7 @@ func (s *helpPainter) FpPrintHelpTailLine(command *Command) {
 		if GetNoColorMode() {
 			s.Printf(fmtTailLineNC, w.helpTailLine)
 		} else {
-			s.Printf(fmtTailLine, CurrentGroupTitleColor, w.helpTailLine)
+			s.Printf(fmtTailLine, CurrentGroupTitleColor, cpt.stripLeftTabs(w.helpTailLine))
 		}
 	}
 }
@@ -98,7 +98,7 @@ func (s *helpPainter) FpDescTitle(command *Command, title string) {
 
 func (s *helpPainter) FpDescLine(command *Command) {
 	desc := command.Description
-	if command.LongDescription != "" {
+	if len(command.LongDescription) > len(desc) {
 		desc = command.LongDescription
 	}
 	s.Printf("%v", exec.LeftPad(cpt.stripLeftTabs(desc), 4))

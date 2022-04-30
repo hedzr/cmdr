@@ -5,7 +5,6 @@ package tool
 import "testing"
 
 func TestStripQuotes(t *testing.T) {
-
 	for _, tc := range []struct {
 		src      string
 		expected string
@@ -24,7 +23,6 @@ func TestStripQuotes(t *testing.T) {
 			t.Fatalf("StripQuotes(%q): expect %q, but got %q", tc.src, tc.expected, tgt)
 		}
 	}
-
 }
 
 func TestStripTty(t *testing.T) {

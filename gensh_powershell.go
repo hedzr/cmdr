@@ -6,7 +6,6 @@ import (
 )
 
 func (w *ExecWorker) genShellPowershell(writer io.Writer, fullPath string, cmd *Command, args []string) (err error) {
-
 	var gen = gensh{
 		ext: "ps",
 		tplm: map[whatTpl]string{

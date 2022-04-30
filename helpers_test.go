@@ -11,7 +11,6 @@ import (
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log/dir"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"testing"
@@ -19,7 +18,7 @@ import (
 
 func resetOsArgs() {
 	os.Args = []string{}
-	for _, s := range tool.SavedOsArgs { //nolint:gosimple
+	for _, s := range tool.SavedOsArgs { //nolint:gosimple //keep it
 		os.Args = append(os.Args, s)
 	}
 }
@@ -65,7 +64,7 @@ func (s *cfgLoaded) OnConfigReloaded() {
 func cfg(t *testing.T, clcl cmdr.ConfigReloaded) {
 	cmdr.AddOnConfigLoadedListener(clcl)
 
-	_ = ioutil.WriteFile(".tmp.yaml", []byte(`
+	_ = os.WriteFile(".tmp.yaml", []byte(`
 app:
   debug: false
   ms:
@@ -125,17 +124,17 @@ app:
             toggle-group:
             desc: specify the name of a service
 
-`), 0644)
+`), 0o600)
 	_ = dir.EnsureDir("conf.d")
 
-	_ = ioutil.WriteFile("conf.d/tmp.yaml", []byte(`
+	_ = os.WriteFile("conf.d/tmp.yaml", []byte(`
 app:
   debug: false
   ms:
     tags:
       modify:
         wed: [3, 4]
-`), 0644)
+`), 0o600)
 	// _ = cmdr.LoadConfigFile(".tmp.json")
 	// _ = cmdr.LoadConfigFile(".tmp.toml")
 	if _, _, err := cmdr.LoadConfigFile(".tmp.yaml"); err != nil {
@@ -144,17 +143,16 @@ app:
 
 	t.Logf("%v, %v", cmdr.GetUsedConfigFile(), cmdr.GetUsedConfigSubDir())
 	t.Logf("%v, %v", cmdr.CurrentOptions(), cmdr.GetUsingConfigFiles())
-	_ = ioutil.WriteFile("conf.d/tmp.yaml", []byte(`
+	_ = os.WriteFile("conf.d/tmp.yaml", []byte(`
 app:
   debug: true
   ms:
     tags:
       modify:
         wed: [3, 4]
-`), 0644)
-	_ = ioutil.WriteFile("conf.d/tmp.json", []byte(`{"app":{"debug":false}}`), 0644)
-	_ = ioutil.WriteFile("conf.d/tmp.toml", []byte(``), 0644)
-
+`), 0o600)
+	_ = os.WriteFile("conf.d/tmp.json", []byte(`{"app":{"debug":false}}`), 0o600)
+	_ = os.WriteFile("conf.d/tmp.toml", []byte(``), 0o600)
 }
 
 type testStruct struct {
@@ -184,7 +182,7 @@ func doubleSlice(s interface{}) interface{} {
 	return t.Interface()
 }
 
-func tLog(a ...interface{}) {} //nolint:deadcode,unused
+func tLog(a ...interface{}) {} //nolint:deadcode,unused //keep it
 
 // func resetFlagsAndLog(t *testing.T) {
 //
@@ -367,10 +365,8 @@ func postWorks(t *testing.T) {
 	}
 	if cx := cmdr.FindSubCommandRecursive("modify", &rc.Command); cx == nil {
 		t.Fatal("cannot find `tags`")
-	} else {
-		if cmdr.FindFlag("spasswd", cx) != nil {
-			t.Fatal("should not find `spasswd` for 'ms tags modify'")
-		}
+	} else if cmdr.FindFlag("spasswd", cx) != nil {
+		t.Fatal("should not find `spasswd` for 'ms tags modify'")
 	}
 	if cmdr.FindFlag("spasswd", &rc.Command) == nil {
 		t.Fatal("cannot find `spasswd`")

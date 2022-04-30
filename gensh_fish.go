@@ -7,7 +7,6 @@ import (
 )
 
 func (w *ExecWorker) genShellFish(writer io.Writer, fullPath string, cmd *Command, args []string) (err error) {
-
 	var gen = gensh{
 		ext: "fish",
 		tplm: map[whatTpl]string{

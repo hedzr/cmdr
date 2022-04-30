@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"gopkg.in/hedzr/errors.v3"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"regexp"
@@ -103,7 +102,7 @@ func Launch(cmd string, args ...string) (err error) {
 	err = c.Run()
 
 	if err != nil {
-		if _, isExitError := err.(*exec.ExitError); isExitError { //nolint:gosimple
+		if _, isExitError := err.(*exec.ExitError); isExitError { //nolint:gosimple,errorlint //like it
 			err = nil
 		}
 	}
@@ -132,7 +131,7 @@ func LaunchEditor(editor string) (content []byte, err error) {
 }
 
 // LaunchEditorWith launches the specified editor with a filename
-func LaunchEditorWith(editor string, filename string) (content []byte, err error) {
+func LaunchEditorWith(editor, filename string) (content []byte, err error) {
 	return launchEditorWith(editor, filename)
 }
 
@@ -144,12 +143,13 @@ func launchEditorWith(editor, filename string) (content []byte, err error) {
 	err = cmd.Run()
 
 	if err != nil {
-		if _, isExitError := err.(*exec.ExitError); !isExitError {
+		var _t0 *exec.ExitError
+		if isExitError := errors.Is(err, _t0); !isExitError {
 			return
 		}
 	}
 
-	content, err = ioutil.ReadFile(filename)
+	content, err = os.ReadFile(filename)
 	if err != nil {
 		return []byte{}, nil
 	}
@@ -245,7 +245,7 @@ var SavedOsArgs []string
 func init() {
 	if SavedOsArgs == nil {
 		// bug: can't copt slice to slice: _ = StandardCopier.Copy(&SavedOsArgs, &os.Args)
-		for _, s := range os.Args { //nolint:gosimple
+		for _, s := range os.Args { //nolint:gosimple //like it
 			SavedOsArgs = append(SavedOsArgs, s)
 		}
 	}

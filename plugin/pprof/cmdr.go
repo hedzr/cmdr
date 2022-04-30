@@ -149,7 +149,6 @@ func addTo(root *cmdr.RootCmdOpt) {
 
 	if len(sTypes) == 0 {
 		sTypes = append(sTypes, "cpu", "mem", "mutex") //	"block", "trace", "thread-create", "go-routine"
-
 	}
 	cmdr.NewStringSlice(sTypes...).
 		Titles("profiling-types", "pt").

@@ -5,7 +5,7 @@ import "math/rand"
 // RandomStringPure generate a random string with length specified.
 func RandomStringPure(length int) (result string) {
 	buf := make([]byte, length)
-	if _, err := rand.Read(buf); err == nil {
+	if _, err := rand.Read(buf); err == nil { //nolint:gosec //like it
 		result = string(buf)
 	}
 	return

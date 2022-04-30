@@ -8,7 +8,6 @@ import (
 	"github.com/hedzr/log"
 	"github.com/hedzr/log/dir"
 	"gopkg.in/yaml.v3"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"sort"
@@ -75,14 +74,15 @@ func (s *Options) deleteWithKey(m map[string]interface{}, key, path string, val 
 
 	if z, ok := m[key]; ok {
 		if zm, ok := z.(map[string]interface{}); ok {
-			if vm, ok := val.(map[string]interface{}); ok {
+			switch vm := val.(type) {
+			case map[string]interface{}:
 				for k, v := range vm {
 					zm = s.deleteWithKey(zm, k, path, v)
 				}
 				// delete(m, key)
 				// delete(s.entries, path)
 				return
-			} else if vm, ok := val.(map[interface{}]interface{}); ok {
+			case map[interface{}]interface{}:
 				for k, v := range vm {
 					kk, ok := k.(string)
 					if !ok {
@@ -479,18 +479,19 @@ func (s *Options) GetStringSlice(key string, defaultVal ...string) (ir []string)
 		case reflect.String:
 			ir = strings.Split(os.ExpandEnv(v.(string)), ",")
 		case reflect.Slice:
-			if r, ok := v.([]string); ok {
+			switch rr := v.(type) {
+			case []string:
 				// ir = r
-				for _, xx := range r {
+				for _, xx := range rr {
 					ir = append(ir, os.ExpandEnv(xx))
 				}
-			} else if ri, ok := v.([]int); ok {
-				for _, rii := range ri {
+			case []int:
+				for _, rii := range rr {
 					ir = append(ir, os.ExpandEnv(strconv.Itoa(rii)))
 				}
-			} else if ri, ok := v.([]byte); ok {
-				ir = strings.Split(os.ExpandEnv(string(ri)), ",")
-			} else {
+			case []byte:
+				ir = strings.Split(os.ExpandEnv(string(rr)), ",")
+			default:
 				for i := 0; i < vvv.Len(); i++ {
 					ir = append(ir, os.ExpandEnv(fmt.Sprintf("%v", vvv.Index(i).Interface())))
 				}
@@ -523,18 +524,33 @@ func (s *Options) GetIntSlice(key string, defaultVal ...int) (ir []int) {
 		case reflect.String:
 			ir = stringSliceToIntSlice(strings.Split(v.(string), ","))
 		case reflect.Slice:
-			if r, ok := v.([]string); ok {
-				ir = stringSliceToIntSlice(r)
-			} else if ri, ok := v.([]int); ok {
-				ir = ri
-			} else if ri, ok := v.([]int64); ok {
-				ir = int64SliceToIntSlice(ri)
-			} else if ri, ok := v.([]uint64); ok {
-				ir = uint64SliceToIntSlice(ri)
-			} else if ri, ok := v.([]byte); ok {
-				xx := strings.Split(string(ri), ",")
+			switch rr := v.(type) {
+			case []string:
+				ir = stringSliceToIntSlice(rr)
+			case []int:
+				ir = rr
+			case []int8:
+				ir = int8SliceToIntSlice(rr)
+			case []int16:
+				ir = int16SliceToIntSlice(rr)
+			case []int32:
+				ir = int32SliceToIntSlice(rr)
+			case []int64:
+				ir = int64SliceToIntSlice(rr)
+			case []uint:
+				ir = uintSliceToIntSlice(rr)
+			// case []uint8:
+			// 	ir = uint8SliceToIntSlice(rr)
+			case []uint16:
+				ir = uint16SliceToIntSlice(rr)
+			case []uint32:
+				ir = uint32SliceToIntSlice(rr)
+			case []uint64:
+				ir = uint64SliceToIntSlice(rr)
+			case []byte:
+				xx := strings.Split(string(rr), ",")
 				ir = stringSliceToIntSlice(xx)
-			} else {
+			default:
 				var xx []string
 				for i := 0; i < vvv.Len(); i++ {
 					xx = append(xx, fmt.Sprintf("%v", vvv.Index(i).Interface()))
@@ -566,18 +582,33 @@ func (s *Options) GetInt64Slice(key string, defaultVal ...int64) (ir []int64) {
 		case reflect.String:
 			ir = stringSliceToInt64Slice(strings.Split(v.(string), ","))
 		case reflect.Slice:
-			if r, ok := v.([]string); ok {
-				ir = stringSliceToInt64Slice(r)
-			} else if ri, ok := v.([]int); ok {
-				ir = intSliceToInt64Slice(ri)
-			} else if ri, ok := v.([]int64); ok {
-				ir = ri
-			} else if ri, ok := v.([]uint64); ok {
-				ir = uint64SliceToInt64Slice(ri)
-			} else if ri, ok := v.([]byte); ok {
-				xx := strings.Split(string(ri), ",")
+			switch rr := v.(type) {
+			case []string:
+				ir = stringSliceToInt64Slice(rr)
+			case []int:
+				ir = intSliceToInt64Slice(rr)
+			case []int8:
+				ir = int8SliceToInt64Slice(rr)
+			case []int16:
+				ir = int16SliceToInt64Slice(rr)
+			case []int32:
+				ir = int32SliceToInt64Slice(rr)
+			case []int64:
+				ir = rr
+			case []uint:
+				ir = uintSliceToInt64Slice(rr)
+			// case []uint8:
+			// 	ir = uint8SliceToInt64Slice(rr)
+			case []uint16:
+				ir = uint16SliceToInt64Slice(rr)
+			case []uint32:
+				ir = uint32SliceToInt64Slice(rr)
+			case []uint64:
+				ir = uint64SliceToInt64Slice(rr)
+			case []byte:
+				xx := strings.Split(string(rr), ",")
 				ir = stringSliceToInt64Slice(xx)
-			} else {
+			default:
 				var xx []string
 				for i := 0; i < vvv.Len(); i++ {
 					xx = append(xx, fmt.Sprintf("%v", vvv.Index(i).Interface()))
@@ -609,18 +640,31 @@ func (s *Options) GetUint64Slice(key string, defaultVal ...uint64) (ir []uint64)
 		case reflect.String:
 			ir = stringSliceToUint64Slice(strings.Split(v.(string), ","))
 		case reflect.Slice:
-			if r, ok := v.([]string); ok {
-				ir = stringSliceToUint64Slice(r)
-			} else if ri, ok := v.([]int); ok {
-				ir = intSliceToUint64Slice(ri)
-			} else if ri, ok := v.([]int64); ok {
-				ir = int64SliceToUint64Slice(ri)
-			} else if ri, ok := v.([]uint64); ok {
-				ir = ri
-			} else if ri, ok := v.([]byte); ok {
-				xx := strings.Split(string(ri), ",")
+			switch rr := v.(type) {
+			case []string:
+				ir = stringSliceToUint64Slice(rr)
+			case []int:
+				ir = intSliceToUint64Slice(rr)
+			case []int8:
+				ir = int8SliceToUint64Slice(rr)
+			case []int16:
+				ir = int16SliceToUint64Slice(rr)
+			case []int32:
+				ir = int32SliceToUint64Slice(rr)
+			case []int64:
+				ir = int64SliceToUint64Slice(rr)
+			case []uint:
+				ir = uintSliceToUint64Slice(rr)
+			case []uint16:
+				ir = uint16SliceToUint64Slice(rr)
+			case []uint32:
+				ir = uint32SliceToUint64Slice(rr)
+			case []uint64:
+				ir = rr
+			case []byte:
+				xx := strings.Split(string(rr), ",")
 				ir = stringSliceToUint64Slice(xx)
-			} else {
+			default:
 				var xx []string
 				for i := 0; i < vvv.Len(); i++ {
 					xx = append(xx, fmt.Sprintf("%v", vvv.Index(i).Interface()))
@@ -677,8 +721,7 @@ func (s *Options) GetStringNoExpand(key string, defaultVal ...string) (ret strin
 	if v, ok := s.entries[key]; ok {
 		switch reflect.ValueOf(v).Kind() {
 		case reflect.String:
-			ret = v.(string)
-			if len(ret) == 0 {
+			if ret, ok = v.(string); ok && ret == "" {
 				for _, v := range defaultVal {
 					ret = v
 				}
@@ -699,6 +742,43 @@ func (s *Options) GetStringNoExpand(key string, defaultVal ...string) (ret strin
 	}
 	return
 }
+func (s *Options) oneenv(rootCmd *RootCommand, prefix, key string) {
+	ek := s.envKey(key)
+	if v, ok := os.LookupEnv(ek); ok {
+		if strings.HasPrefix(key, prefix) {
+			s.Set(key[len(prefix)+1:], v)
+		} else {
+			s.Set(key, v)
+		}
+	}
+	// Logger.Printf("buildAutomaticEnv: %v", key)
+	if flg := s.lookupFlag(key, rootCmd); flg != nil {
+		// flog("    [cmdr] lookupFlag for %q: %v", key, flg.GetTitleName())
+		//
+		// if key == "app.mx-test.test" {
+		// 	Logger.Debugf("                 : flag=%+v", flg)
+		// }
+		for _, ek = range flg.EnvVars {
+			if v, ok := os.LookupEnv(ek); ok { //nolint:gocritic //can't reduce
+				// flog("    [cmdr][buildAutomaticEnv] envvar %q found (flg=%v): %v", ek, flg.GetTitleName(), v)
+				k := key
+				if !strings.HasPrefix(k, prefix) {
+					k = wrapWithRxxtPrefix(key)
+				}
+				// Logger.Printf("setnx: %v <-- %v", key, v)
+				s.setNxNoLock(k, v)
+				if flg.ToggleGroup != "" {
+					s.tryResetOthersInTG(flg, k)
+				}
+				// Logger.Printf("setnx: %v", s.GetString(key))
+
+				if flg.onSet != nil {
+					flg.onSet(key, v)
+				}
+			}
+		}
+	}
+}
 
 func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 	// Logger.SetLevel(logrus.DebugLevel)
@@ -712,41 +792,7 @@ func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 	// prefix := strings.Join(EnvPrefix,"_")
 	prefix := internalGetWorker().getPrefix() // strings.Join(RxxtPrefix, ".")
 	for key := range s.entries {
-		ek := s.envKey(key)
-		if v, ok := os.LookupEnv(ek); ok {
-			if strings.HasPrefix(key, prefix) {
-				s.Set(key[len(prefix)+1:], v)
-			} else {
-				s.Set(key, v)
-			}
-		}
-		// Logger.Printf("buildAutomaticEnv: %v", key)
-		if flg := s.lookupFlag(key, rootCmd); flg != nil {
-			// flog("    [cmdr] lookupFlag for %q: %v", key, flg.GetTitleName())
-			//
-			// if key == "app.mx-test.test" {
-			// 	Logger.Debugf("                 : flag=%+v", flg)
-			// }
-			for _, ek := range flg.EnvVars {
-				if v, ok := os.LookupEnv(ek); ok {
-					// flog("    [cmdr][buildAutomaticEnv] envvar %q found (flg=%v): %v", ek, flg.GetTitleName(), v)
-					k := key
-					if !strings.HasPrefix(k, prefix) {
-						k = wrapWithRxxtPrefix(key)
-					}
-					// Logger.Printf("setnx: %v <-- %v", key, v)
-					s.setNxNoLock(k, v)
-					if flg.ToggleGroup != "" {
-						s.tryResetOthersInTG(flg, k)
-					}
-					// Logger.Printf("setnx: %v", s.GetString(key))
-
-					if flg.onSet != nil {
-						flg.onSet(key, v)
-					}
-				}
-			}
-		}
+		s.oneenv(rootCmd, prefix, key)
 	}
 
 	// // fmt.Printf("EXE = %v, PWD = %v, CURRDIR = %v\n", GetExecutableDir(), os.Getenv("PWD"), GetCurrentDir())
@@ -771,16 +817,18 @@ func (s *Options) tryResetOthersInTG(flg *Flag, fullKey string) {
 	}
 
 	for _, c := range tgs[flg.ToggleGroup] {
-		if c != flg {
-			k1 := strings.Split(fullKey, ".")
-			k1[len(k1)-1] = c.Full
-			k2 := strings.Join(k1, ".")
-			s.setNxNoLock(k2, false)
+		if c == flg {
+			continue
+		}
 
-			if f := s.lookupFlag(k2, flg.owner.GetRoot()); f != nil {
-				f.DefaultValueType = "bool"
-				f.DefaultValue = false
-			}
+		k1 := strings.Split(fullKey, ".")
+		k1[len(k1)-1] = c.Full
+		k2 := strings.Join(k1, ".")
+		s.setNxNoLock(k2, false)
+
+		if f := s.lookupFlag(k2, flg.owner.GetRoot()); f != nil {
+			f.DefaultValueType = "bool"
+			f.DefaultValue = false
 		}
 	}
 
@@ -899,8 +947,10 @@ func (s *Options) setNxNoLock(key string, val interface{}) (oldVal interface{}, 
 	oldVal = s.entries[key]
 	leaf := isLeaf(oldVal, val)
 	if leaf {
-		comparable := (oldVal == nil || oldVal != nil && reflect.TypeOf(oldVal).Comparable()) && (val == nil || (val != nil && reflect.TypeOf(val).Comparable()))
-		if comparable && oldVal != val {
+		iscomparable := (oldVal == nil || oldVal != nil &&
+			reflect.TypeOf(oldVal).Comparable()) &&
+			(val == nil || (val != nil && reflect.TypeOf(val).Comparable()))
+		if iscomparable && oldVal != val {
 			s.entries[key] = val
 			a := strings.Split(key, ".")
 			s.mergeMap(s.hierarchy, a[0], "", et(a, 1, val))
@@ -1039,7 +1089,7 @@ func (s *Options) mergeSlice(v1, v2 interface{}) (v3 interface{}) {
 // If v.CanConvert(t) returns true then v.Convert(t) will not panic.
 func canConvert(v reflect.Value, t reflect.Type) bool {
 	vt := v.Type()
-	if !vt.ConvertibleTo(t) { //nolint:gosimple
+	if !vt.ConvertibleTo(t) { //nolint:gosimple //keep it
 		return false
 	}
 
@@ -1090,14 +1140,15 @@ func (s *Options) mergeMap(hierarchy map[string]interface{}, key, path string, v
 
 	if z, ok := hierarchy[key]; ok {
 		if zm, ok := z.(map[string]interface{}); ok {
-			if vm, ok := val.(map[string]interface{}); ok {
+			switch vm := val.(type) {
+			case map[string]interface{}:
 				for k, v := range vm {
 					zm = s.mergeMap(zm, k, path, v)
 				}
 				// hierarchy[key] = zm
 				// s.entries[path] = zm
 				val = zm
-			} else if vm, ok := val.(map[interface{}]interface{}); ok {
+			case map[interface{}]interface{}:
 				for k, v := range vm {
 					kk, ok := k.(string)
 					if !ok {
@@ -1135,8 +1186,9 @@ func (s *Options) mmset(m map[string]interface{}, key, path string, val interfac
 		}
 	}
 	if leaf {
-		comparable := oldval != nil && reflect.TypeOf(oldval).Comparable() && val != nil && reflect.TypeOf(val).Comparable()
-		if comparable {
+		iscomparable := oldval != nil && reflect.TypeOf(oldval).Comparable() &&
+			val != nil && reflect.TypeOf(val).Comparable()
+		if iscomparable {
 			if oldval != val {
 				// defer s.rw.Unlock()
 				// s.rw.Lock()
@@ -1192,7 +1244,6 @@ func (s *Options) Flush() {
 		var err error
 		var fi os.FileInfo
 		if fi, err = os.Stat(os.ExpandEnv(s.usedAlterConfigFile)); err == nil && dir.IsModeWriteOwner(fi.Mode()) {
-
 			// // str := AsYaml() // s.DumpAsString(false)
 			// var b []byte
 			// var err error
@@ -1211,7 +1262,7 @@ func (s *Options) Flush() {
 					defer handleSerializeError(&err)
 					b, err = yaml.Marshal(m)
 
-					err = ioutil.WriteFile(s.usedAlterConfigFile, b, 0644)
+					err = os.WriteFile(s.usedAlterConfigFile, b, 0o600)
 					if err == nil {
 						flog("config file %q updated.", s.usedAlterConfigFile)
 					}
@@ -1225,21 +1276,24 @@ func (s *Options) Flush() {
 	}
 }
 
-func (s *Options) updateMap(kDot string, m map[string]interface{}) (updated bool, mc map[string]interface{}, err error) {
+func (s *Options) updateMap(keyDot string, m map[string]interface{}) (updated bool, mc map[string]interface{}, err error) {
 	for k, v := range m {
-		key := mxIx(kDot, k)
+		key := mxIx(keyDot, k)
 		if v == nil {
+			continue
 			// mc[k], m[k] = v, v
 			// nothing to do
-		} else if vm, ok := v.(map[interface{}]interface{}); ok {
+		}
+		switch vm := v.(type) {
+		case map[interface{}]interface{}:
 			if err = s.updateIxMap(key, vm); err != nil {
 				return
 			}
-		} else if vm, ok := v.(map[string]interface{}); ok {
+		case map[string]interface{}:
 			if updated, mc, err = s.updateMap(key, vm); err != nil {
 				return
 			}
-		} else {
+		default:
 			if sv, ok := s.entries[key]; ok {
 				tsv, tv := reflect.TypeOf(sv), reflect.TypeOf(v)
 				ne := !tsv.Comparable() || !tv.Comparable()
@@ -1277,44 +1331,45 @@ func (s *Options) Reset() {
 }
 
 func mx(pre, k string) string {
-	if len(pre) == 0 {
+	if pre == "" {
 		return k
 	}
 	return pre + "." + k
 }
 
 func mxIx(pre string, k interface{}) string {
-	if len(pre) == 0 {
+	if pre == "" {
 		return fmt.Sprintf("%v", k)
 	}
 	return fmt.Sprintf("%v.%v", pre, k)
 }
 
-func (s *Options) loopMapMap(kDot string, m map[string]map[string]interface{}) (err error) {
+func (s *Options) loopMapMap(keyDot string, m map[string]map[string]interface{}) (err error) {
 	for k, v := range m {
-		if err = s.loopMap(mx(kDot, k), v); err != nil {
+		if err = s.loopMap(mx(keyDot, k), v); err != nil {
 			return
 		}
 	}
 	return
 }
 
-func (s *Options) loopMap(kDot string, m map[string]interface{}) (err error) {
+func (s *Options) loopMap(keyDot string, m map[string]interface{}) (err error) {
 	defer s.mapOrphans()
 	for k, v := range m {
-		if vm, ok := v.(map[interface{}]interface{}); ok {
-			key := mx(kDot, k)
+		switch vm := v.(type) {
+		case map[interface{}]interface{}:
+			key := mx(keyDot, k)
 			if err = s.loopIxMap(key, vm); err != nil {
 				return
 			}
-		} else if vm1, ok1 := v.(map[string]interface{}); ok1 {
-			key := mx(kDot, k)
-			if err = s.loopMap(key, vm1); err != nil {
+		case map[string]interface{}:
+			key := mx(keyDot, k)
+			if err = s.loopMap(key, vm); err != nil {
 				return
 			}
-		} else {
+		default:
 			// s.SetNx(mx(kDot, k), v)
-			key := mxIx(kDot, k)
+			key := mxIx(keyDot, k)
 			if oldVal, modified := s.setNx(key, v); modified {
 				s.rw.Lock()
 				v = s.entries[key]
@@ -1336,13 +1391,13 @@ func (s *Options) mapOrphans() {
 	}
 
 retryChecking:
-	var kSorted []string
+	var keysSorted []string
 	for k := range s.entries {
-		kSorted = append(kSorted, k)
+		keysSorted = append(keysSorted, k)
 	}
-	tool.SortAsDottedSliceReverse(kSorted)
+	tool.SortAsDottedSliceReverse(keysSorted)
 
-	for _, k := range kSorted {
+	for _, k := range keysSorted {
 		// flog("mapOrphans: %v => %v", k, v)
 		keys := strings.Split(k, ".")
 		for i := 1; i < len(keys); i++ {
@@ -1364,11 +1419,11 @@ retryChecking:
 	}
 
 	if InDebugging() {
-		kSorted = nil
+		keysSorted = nil
 		for k := range s.entries {
-			kSorted = append(kSorted, k)
+			keysSorted = append(keysSorted, k)
 		}
-		tool.SortAsDottedSliceReverse(kSorted)
+		tool.SortAsDottedSliceReverse(keysSorted)
 		flog("mapOrphans: END")
 	}
 }
@@ -1404,9 +1459,9 @@ func (s *Options) DumpAsString(showType bool) (str string) {
 
 	for _, k := range k3 {
 		if showType {
-			str = str + fmt.Sprintf("%-48v => %v (%T)\n", k, s.entries[k], s.entries[k])
+			str += fmt.Sprintf("%-48v => %v (%T)\n", k, s.entries[k], s.entries[k])
 		} else {
-			str = str + fmt.Sprintf("%-48v => %v\n", k, s.entries[k])
+			str += fmt.Sprintf("%-48v => %v\n", k, s.entries[k])
 		}
 	}
 	str += "---------------------------------\n"

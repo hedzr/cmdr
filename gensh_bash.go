@@ -9,6 +9,7 @@ import (
 	"text/template"
 )
 
+//nolint:funlen,gocognit //for test
 func (w *ExecWorker) genShellBash(writer io.Writer, fullPath string, cmd *Command, args []string) (err error) {
 	var tmpl *template.Template
 	tmpl, err = template.New("bash.completion").Parse(`
@@ -76,7 +77,7 @@ fi; fi
 
 		if writer == nil {
 			for _, s := range []string{"/etc/bash_completion.d", "/usr/local/etc/bash_completion.d", "/tmp"} {
-				if dir.FileExists(s) {
+				if dir.FileExists(s) { //nolint:gocritic //like it
 					file := path.Join(s, cmd.root.AppName)
 					var f *os.File
 					if f, err = os.Create(file); err != nil {
@@ -99,7 +100,6 @@ fi; fi
 					//						break // for non-root user, we break file-writing loop and dump scripts to console too.
 					//					}
 					//					return
-
 				}
 			}
 		}
@@ -120,7 +120,6 @@ fi; fi
 # Re-login to enable the new bash completion script.
 `, fullPath)
 			}
-
 		}
 	}
 	return

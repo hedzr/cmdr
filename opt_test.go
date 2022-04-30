@@ -151,7 +151,6 @@ func TestFluentAPIDefault(t *testing.T) {
 	cmdr.NewFloat64(0)
 	cmdr.NewComplex64(0)
 	cmdr.NewComplex128(0)
-
 }
 
 func TestAsXXX(t *testing.T) {
@@ -177,6 +176,7 @@ func TestKiloBytes(t *testing.T) {
 	}
 }
 
+//nolint:funlen //for test
 func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 	root := cmdr.Root("aa", "1.0.1").
 		AddGlobalPreAction(func(cmd *cmdr.Command, args []string) (err error) {
@@ -430,6 +430,7 @@ func createRootOld() (rootOpt *cmdr.RootCmdOpt) {
 	return root
 }
 
+//nolint:funlen //for test
 func createRoot() (rootOpt *cmdr.RootCmdOpt) {
 	root := cmdr.Root("aa", "1.0.1").
 		Header("aa - test for cmdr - no version - hedzr").
@@ -680,16 +681,14 @@ func addDupFlags(root *cmdr.RootCmdOpt) {
 			Description: "",
 		},
 		DefaultValue: false,
-	})
-	co.Flags = append(co.Flags, &cmdr.Flag{
+	}, &cmdr.Flag{
 		BaseOpt: cmdr.BaseOpt{
 			Name:        "retry-tt",
 			Group:       "",
 			Description: "",
 		},
 		DefaultValue: false,
-	})
-	co.Flags = append(co.Flags, &cmdr.Flag{
+	}, &cmdr.Flag{
 		BaseOpt: cmdr.BaseOpt{
 			Name:        "retry-tt-not-dup",
 			Group:       "",
@@ -707,18 +706,17 @@ func addDupFlags(root *cmdr.RootCmdOpt) {
 			Group:           "",
 			Description:     "",
 			LongDescription: "",
-		},
-	})
-	r.SubCommands = append(r.SubCommands, &cmdr.Command{
-		BaseOpt: cmdr.BaseOpt{
-			Name:            "micro-service",
-			Short:           "",
-			Full:            "",
-			Group:           "",
-			Description:     "",
-			LongDescription: "",
-		},
-	})
+		}},
+		&cmdr.Command{
+			BaseOpt: cmdr.BaseOpt{
+				Name:            "micro-service",
+				Short:           "",
+				Full:            "",
+				Group:           "",
+				Description:     "",
+				LongDescription: "",
+			}},
+	)
 }
 
 func TestAlreadyUsed(t *testing.T) {

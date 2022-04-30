@@ -79,7 +79,7 @@ func (s *copierImpl) SetEachFieldAlways(b bool) Copier {
 }
 
 // Copy copy things
-func (s *copierImpl) Copy(toValue interface{}, fromValue interface{}, ignoreNames ...string) (err error) {
+func (s *copierImpl) Copy(toValue, fromValue interface{}, ignoreNames ...string) (err error) {
 	var (
 		isSlice bool
 		amount  = 1
@@ -165,7 +165,7 @@ func (s *copierImpl) copyAll(amount int, isSlice bool, from, to reflect.Value, f
 
 func safetyTargetStruct(dest reflect.Value, fromType reflect.Type, ignoreNames []string) {
 	if fromKind := fromType.Kind(); fromKind != reflect.Struct {
-		if fromKind == reflect.Array { //nolint:staticcheck
+		if fromKind == reflect.Array { //nolint:staticcheck //keep it
 			// array of struct?
 		}
 		return
@@ -196,8 +196,9 @@ func safetyTargetStruct(dest reflect.Value, fromType reflect.Type, ignoreNames [
 }
 
 func (s *copierImpl) copyFieldToField(dest, source reflect.Value, fromType reflect.Type, ignoreNames []string) error {
-	var names []string
+	var names []string //nolint:prealloc //can't prealloc
 	var name string
+
 	defer func() {
 		if e := recover(); e != nil {
 			log.Errorf("failed on copying field %q : %v", name, e)
@@ -227,21 +228,37 @@ func (s *copierImpl) copyFieldToField(dest, source reflect.Value, fromType refle
 					}
 				}
 			} else {
-				// try to set to method
-				var toMethod reflect.Value
-				if dest.CanAddr() {
-					toMethod = dest.Addr().MethodByName(name)
-				} else {
-					toMethod = dest.MethodByName(name)
-				}
+				s.mtdcall(&dest, name, fromField)
 
-				if toMethod.IsValid() && toMethod.Type().NumIn() == 1 && fromField.Type().AssignableTo(toMethod.Type().In(0)) {
-					toMethod.Call([]reflect.Value{fromField})
-				}
+				// // try to set to method
+				// var toMethod reflect.Value
+				// if dest.CanAddr() {
+				// 	toMethod = dest.Addr().MethodByName(name)
+				// } else {
+				// 	toMethod = dest.MethodByName(name)
+				// }
+				//
+				// if toMethod.IsValid() && toMethod.Type().NumIn() == 1 && fromField.Type().AssignableTo(toMethod.Type().In(0)) {
+				// 	toMethod.Call([]reflect.Value{fromField})
+				// }
 			}
 		}
 	}
 	return nil
+}
+
+func (s *copierImpl) mtdcall(dest *reflect.Value, name string, fromField reflect.Value) {
+	// try to set to method
+	var toMethod reflect.Value
+	if dest.CanAddr() {
+		toMethod = dest.Addr().MethodByName(name)
+	} else {
+		toMethod = dest.MethodByName(name)
+	}
+
+	if toMethod.IsValid() && toMethod.Type().NumIn() == 1 && fromField.Type().AssignableTo(toMethod.Type().In(0)) {
+		toMethod.Call([]reflect.Value{fromField})
+	}
 }
 
 func (s *copierImpl) copyMethodToField(dest, source reflect.Value, toType reflect.Type) error {
@@ -498,7 +515,7 @@ func (s *copierImpl) set(to, from reflect.Value) bool {
 			to = to.Elem()
 		}
 
-		if from.Type().ConvertibleTo(to.Type()) {
+		if from.Type().ConvertibleTo(to.Type()) { //nolint:gocritic //like it
 			s.setCvt(to, from)
 			// } else if scanner, ok := to.Addr().Interface().(sql.Scanner); ok {
 			// 	err := scanner.Scan(from.Interface())

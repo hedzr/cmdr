@@ -155,11 +155,11 @@ type ErrorForCmdr struct {
 func newError(ignorable bool, srcTemplate error, livedArgs ...interface{}) error {
 	// log.Printf("--- newError: sourceTemplate args: %v", livedArgs)
 	var e error
-	switch v := srcTemplate.(type) {
+	switch v := srcTemplate.(type) { //nolint:errorlint //like it
 	case *ErrorForCmdr:
 		e = v.FormatNew(ignorable, livedArgs...)
 	case *errors.WithStackInfo:
-		if ex, ok := v.Cause().(*ErrorForCmdr); ok {
+		if ex, ok := v.Cause().(*ErrorForCmdr); ok { //nolint:errorlint //like it
 			e = ex.FormatNew(ignorable, livedArgs...)
 		}
 	}
@@ -186,12 +186,12 @@ func newErrorWithMsg(msg string, inners ...error) error {
 // newErr creates a *errors.WithStackInfo object
 func newErr(msg string, args ...interface{}) *errors.WithStackInfo {
 	// return &ErrorForCmdr{ExtErr: *errors.New(msg, args...)}
-	return withIgnorable(false, nil, msg, args...).(*errors.WithStackInfo)
+	return withIgnorable(false, nil, msg, args...).(*errors.WithStackInfo) //nolint:errorlint //like it
 }
 
 // newErrTmpl creates a *errors.WithStackInfo object
 func newErrTmpl(tmpl string) *errors.WithStackInfo {
-	return withIgnorable(false, nil, tmpl).(*errors.WithStackInfo)
+	return withIgnorable(false, nil, tmpl).(*errors.WithStackInfo) //nolint:errorlint //like it
 }
 
 // withIgnorable formats a wrapped error object with error code.
@@ -233,8 +233,8 @@ func (w *ErrorForCmdr) Error() string {
 // 	   fmt.Printf("%+v\n", err4)
 //
 func (w *ErrorForCmdr) FormatNew(ignorable bool, livedArgs ...interface{}) *errors.WithStackInfo {
-	x := withIgnorable(ignorable, w.causer, w.msg, livedArgs...).(*errors.WithStackInfo)
-	x.Cause().(*ErrorForCmdr).liveArgs = livedArgs
+	x := withIgnorable(ignorable, w.causer, w.msg, livedArgs...).(*errors.WithStackInfo) //nolint:errcheck,errorlint //like it
+	x.Cause().(*ErrorForCmdr).liveArgs = livedArgs                                       //nolint:errcheck,errorlint //like it
 	return x
 }
 
@@ -280,7 +280,7 @@ func (w *ErrorForCmdr) As(target interface{}) bool {
 			val.Elem().Set(reflect.ValueOf(err))
 			return true
 		}
-		if x, ok := err.(interface{ As(interface{}) bool }); ok && x.As(target) {
+		if x, ok := err.(interface{ As(interface{}) bool }); ok && x.As(target) { //nolint:errorlint //like it
 			return true
 		}
 		err = errors.Unwrap(err)
@@ -291,15 +291,15 @@ func (w *ErrorForCmdr) As(target interface{}) bool {
 // Is reports whether any error in err's chain matches target.
 func (w *ErrorForCmdr) Is(target error) bool {
 	if target == nil {
-		return w.causer == target
+		return w.causer == target //nolint:errorlint //like it
 	}
 
 	isComparable := reflect.TypeOf(target).Comparable()
 	for {
-		if isComparable && w.causer == target {
+		if isComparable && w.causer == target { //nolint:errorlint //like it
 			return true
 		}
-		if x, ok := w.causer.(interface{ Is(error) bool }); ok && x.Is(target) {
+		if x, ok := w.causer.(interface{ Is(error) bool }); ok && x.Is(target) { //nolint:errorlint //like it
 			return true
 		}
 		// TODO: consider supporting target.Is(err). This would allow

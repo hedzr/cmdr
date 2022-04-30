@@ -45,7 +45,7 @@ type User struct {
 	// Feat     []byte
 }
 
-func (user User) DoubleAge() int32 {
+func (user User) DoubleAge() int32 { //nolint:gocritic //for test
 	return 2 * user.Age
 }
 
@@ -76,7 +76,7 @@ type Employee struct {
 	Times     int16
 	Born      *int
 	BornU     *uint
-	flags     []byte //nolint:structcheck,unused
+	flags     []byte //nolint:structcheck,unused //keep it
 	Bool1     bool
 	Bool2     bool
 	Ro        []int
@@ -147,7 +147,7 @@ func (employee *Employee) Role(role string) {
 	employee.SuperRule = "Super " + role
 }
 
-func checkEmployee(employee Employee, user User, t *testing.T, testCase string) {
+func checkEmployee(employee *Employee, user *User, t *testing.T, testCase string) {
 	if employee.Name != user.Name {
 		t.Errorf("%v: Name haven't been copied correctly.", testCase)
 	}
@@ -214,20 +214,20 @@ func TestCopyStruct(t *testing.T) {
 	if err != nil {
 		t.Errorf("%v", err)
 	}
-	checkEmployee(employee, user, t, "Copy From Ptr To Ptr")
+	checkEmployee(&employee, &user, t, "Copy From Ptr To Ptr")
 
 	employee2 := Employee{}
 	_ = cmdr.StandardCopier.Copy(&employee2, user)
-	checkEmployee(employee2, user, t, "Copy From Struct To Ptr")
+	checkEmployee(&employee2, &user, t, "Copy From Struct To Ptr")
 
 	employee3 := Employee{}
 	ptrToUser := &user
 	_ = cmdr.StandardCopier.Copy(&employee3, &ptrToUser)
-	checkEmployee(employee3, user, t, "Copy From Double Ptr To Ptr")
+	checkEmployee(&employee3, &user, t, "Copy From Double Ptr To Ptr")
 
 	employee4 := &Employee{}
 	_ = cmdr.StandardCopier.Copy(&employee4, user)
-	checkEmployee(*employee4, user, t, "Copy From Ptr To Double Ptr")
+	checkEmployee(employee4, &user, t, "Copy From Ptr To Double Ptr")
 }
 
 func TestCopyFromStructToSlice(t *testing.T) {
@@ -241,28 +241,28 @@ func TestCopyFromStructToSlice(t *testing.T) {
 	if _ = cmdr.StandardCopier.Copy(&employees, &user); len(employees) != 1 {
 		t.Errorf("Should only have one elem when copy struct to slice")
 	} else {
-		checkEmployee(employees[0], user, t, "Copy From Struct To Slice Ptr")
+		checkEmployee(&employees[0], &user, t, "Copy From Struct To Slice Ptr")
 	}
 
 	employees2 := &[]Employee{}
 	if _ = cmdr.StandardCopier.Copy(&employees2, user); len(*employees2) != 1 {
 		t.Errorf("Should only have one elem when copy struct to slice")
 	} else {
-		checkEmployee((*employees2)[0], user, t, "Copy From Struct To Double Slice Ptr")
+		checkEmployee(&(*employees2)[0], &user, t, "Copy From Struct To Double Slice Ptr")
 	}
 
-	employees3 := []*Employee{}
+	var employees3 []*Employee
 	if _ = cmdr.StandardCopier.Copy(&employees3, user); len(employees3) != 1 {
 		t.Errorf("Should only have one elem when copy struct to slice")
 	} else {
-		checkEmployee(*(employees3[0]), user, t, "Copy From Struct To Ptr Slice Ptr")
+		checkEmployee(employees3[0], &user, t, "Copy From Struct To Ptr Slice Ptr")
 	}
 
 	employees4 := &[]*Employee{}
 	if _ = cmdr.StandardCopier.Copy(&employees4, user); len(*employees4) != 1 {
 		t.Errorf("Should only have one elem when copy struct to slice")
 	} else {
-		checkEmployee(*((*employees4)[0]), user, t, "Copy From Struct To Double Ptr Slice Ptr")
+		checkEmployee((*employees4)[0], &user, t, "Copy From Struct To Double Ptr Slice Ptr")
 	}
 }
 
@@ -273,32 +273,32 @@ func TestCopyFromSliceToSlice(t *testing.T) {
 	if _ = cmdr.StandardCopier.Copy(&employees, users); len(employees) != 2 {
 		t.Errorf("Should have two elems when copy slice to slice")
 	} else {
-		checkEmployee(employees[0], users[0], t, "Copy From Slice To Slice Ptr @ 1")
-		checkEmployee(employees[1], users[1], t, "Copy From Slice To Slice Ptr @ 2")
+		checkEmployee(&employees[0], &users[0], t, "Copy From Slice To Slice Ptr @ 1")
+		checkEmployee(&employees[1], &users[1], t, "Copy From Slice To Slice Ptr @ 2")
 	}
 
 	employees2 := &[]Employee{}
 	if _ = cmdr.StandardCopier.Copy(&employees2, &users); len(*employees2) != 2 {
 		t.Errorf("Should have two elems when copy slice to slice")
 	} else {
-		checkEmployee((*employees2)[0], users[0], t, "Copy From Slice Ptr To Double Slice Ptr @ 1")
-		checkEmployee((*employees2)[1], users[1], t, "Copy From Slice Ptr To Double Slice Ptr @ 2")
+		checkEmployee(&(*employees2)[0], &users[0], t, "Copy From Slice Ptr To Double Slice Ptr @ 1")
+		checkEmployee(&(*employees2)[1], &users[1], t, "Copy From Slice Ptr To Double Slice Ptr @ 2")
 	}
 
 	var employees3 []*Employee
 	if _ = cmdr.StandardCopier.Copy(&employees3, users); len(employees3) != 2 {
 		t.Errorf("Should have two elems when copy slice to slice")
 	} else {
-		checkEmployee(*(employees3[0]), users[0], t, "Copy From Slice To Ptr Slice Ptr @ 1")
-		checkEmployee(*(employees3[1]), users[1], t, "Copy From Slice To Ptr Slice Ptr @ 2")
+		checkEmployee(employees3[0], &users[0], t, "Copy From Slice To Ptr Slice Ptr @ 1")
+		checkEmployee(employees3[1], &users[1], t, "Copy From Slice To Ptr Slice Ptr @ 2")
 	}
 
 	employees4 := &[]*Employee{}
 	if _ = cmdr.StandardCopier.Copy(&employees4, users); len(*employees4) != 2 {
 		t.Errorf("Should have two elems when copy slice to slice")
 	} else {
-		checkEmployee(*((*employees4)[0]), users[0], t, "Copy From Slice Ptr To Double Ptr Slice Ptr @ 1")
-		checkEmployee(*((*employees4)[1]), users[1], t, "Copy From Slice Ptr To Double Ptr Slice Ptr @ 2")
+		checkEmployee((*employees4)[0], &users[0], t, "Copy From Slice Ptr To Double Ptr Slice Ptr @ 1")
+		checkEmployee((*employees4)[1], &users[1], t, "Copy From Slice Ptr To Double Ptr Slice Ptr @ 2")
 	}
 }
 

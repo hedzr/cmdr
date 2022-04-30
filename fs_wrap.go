@@ -46,6 +46,7 @@ func fsWatcherRoutine(s *Options, configDir string, filesWatching []string, init
 	}
 }
 
+//nolint:funlen,gocognit //single
 func fsWatchRunner(s *Options, configDir string, filesWatching []string, watcher *fsnotify.Watcher, eventsWG *sync.WaitGroup) {
 	defer func() {
 		// effw.Lock()

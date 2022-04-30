@@ -9,7 +9,6 @@ import (
 
 // helpSystemAction is __complete command handler.
 func (w *ExecWorker) helpSystemAction(cmdComplete *Command, args []string) (err error) {
-
 	var (
 		ctx = &queryShcompContext{
 			w:           w,
@@ -29,7 +28,6 @@ func (w *ExecWorker) helpSystemAction(cmdComplete *Command, args []string) (err 
 
 	err = ctx.lookupForHelpSystem(cmdComplete, args)
 	if IsIgnorableError(err) {
-
 		if hit := cmdComplete.GetHitStr(); hit == "help" || hit == "h" {
 			if ctx.matchedCmd != nil {
 				w.printHelp(ctx.matchedCmd, false)
@@ -78,7 +76,6 @@ Args: %v
 			x.WriteString(fmt.Sprintf("%v\t%v\n", k, cptLocal.Translate(c.Description, BgNormal)))
 			count++
 		}
-
 	}
 	return
 }
@@ -136,8 +133,8 @@ func (ctx *queryShcompContext) lookupForHelpSystem(cmdComplete *Command, args []
 				// for commandline: app __complete generate ''
 				ll := len(list)
 				if ll >= 1 {
-					for i := ll - 1; i >= 0; i-- {
-						ctx.deleteFromMatchedList(list[i])
+					for i1 := ll - 1; i1 >= 0; i1-- {
+						ctx.deleteFromMatchedList(list[i1])
 					}
 				}
 				ctx.rebuildMatchedList(list[ll-1])
@@ -310,13 +307,14 @@ func (ctx *queryShcompContext) matchShortFlagTitle(c *Flag, titleChecking string
 
 func (ctx *queryShcompContext) matchLongFlagTitle(c *Flag, titleChecking string) (exact, ok bool) {
 	t := titleChecking[2:]
-	if c.Full == t {
+	switch {
+	case c.Full == t:
 		ctx.matchedFlagList["--"+c.GetTitleName()] = c
 		exact, ok = true, true
-	} else if strings.HasPrefix(c.Full, t) {
+	case strings.HasPrefix(c.Full, t):
 		ctx.matchedPrecededFlagList["--"+c.GetTitleName()] = c
 		ok = true
-	} else {
+	default:
 		for _, st := range c.Aliases {
 			if st == t {
 				ctx.matchedFlagList["--"+c.GetTitleName()] = c

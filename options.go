@@ -12,7 +12,6 @@ import (
 	"github.com/BurntSushi/toml"
 	"gopkg.in/hedzr/errors.v3"
 	"gopkg.in/yaml.v3"
-	"io/ioutil"
 	"os"
 	"strings"
 	"time"
@@ -664,13 +663,13 @@ func (w *ExecWorker) wrapWithRxxtPrefix(key string) string {
 		return key
 	}
 	p := w.getPrefix() // strings.Join(RxxtPrefix, ".")
-	if len(key) == 0 {
+	if key == "" {
 		return p
 	}
 	return p + "." + key
 }
 
-// Set set the value of an `Option` key (with prefix auto-wrap). The key MUST not have an `app` prefix. eg:
+// Set sets the value of an `Option` key (with prefix auto-wrap). The key MUST not have an `app` prefix. eg:
 //
 //   cmdr.Set("logger.level", "DEBUG")
 //   cmdr.Set("ms.tags.port", 8500)
@@ -764,7 +763,7 @@ func SaveAsYaml(filename string) (err error) {
 	var b []byte
 	b, err = AsYamlExt()
 	if err == nil {
-		err = ioutil.WriteFile(filename, b, 0644)
+		err = os.WriteFile(filename, b, 0o600)
 	}
 	return
 }
@@ -790,7 +789,7 @@ func AsJSONExt(prettyFormat bool) (b []byte, err error) {
 // SaveAsJSON to Save all config entries as a json file
 func SaveAsJSON(filename string) (err error) {
 	b := AsJSON()
-	err = ioutil.WriteFile(filename, b, 0644)
+	err = os.WriteFile(filename, b, 0o600)
 	return
 }
 
@@ -799,7 +798,7 @@ func SaveAsJSONExt(filename string, prettyFormat bool) (err error) {
 	var b []byte
 	b, err = AsJSONExt(prettyFormat)
 	if err == nil {
-		err = ioutil.WriteFile(filename, b, 0644)
+		err = os.WriteFile(filename, b, 0o600)
 	}
 	return
 }
@@ -834,12 +833,11 @@ func SaveObjAsToml(obj interface{}, filename string) (err error) {
 	var f *os.File
 	f, err = os.Create(filename)
 	if err == nil {
-
 		defer handleSerializeError(&err)
 		e := toml.NewEncoder(bufio.NewWriter(f))
 		err = e.Encode(obj)
 
-		// err = ioutil.WriteFile(filename, b, 0644)
+		// err = os.WriteFile(filename, b, 0o600)
 	}
 	return
 }
@@ -849,17 +847,19 @@ func GetHierarchyList() map[string]interface{} {
 	return currentOptions().GetHierarchyList()
 }
 
-func handleSerializeError(err *error) {
+func handleSerializeError(err *error) { //nolint:gocritic //can't opt
 	if v := recover(); v != nil {
-		if e, ok := v.(error); ok {
-			*err = e
-		} else if s, ok := v.(string); ok {
-			*err = errors.New(s)
-			// if s == "cannot marshal type: complex128" {
-			// 	err = errors.New(s)
-			// }
-		} else {
-			panic(v)
-		}
+		*err = errors.New("unexpected unknown error handled").WithData(v)
+		// switch e := v.(type) {
+		// case error:
+		// 	*err = e
+		// case string:
+		// 	*err = errors.New(e)
+		// // if s == "cannot marshal type: complex128" {
+		// // 	err = errors.New(e)
+		// // }
+		// default:
+		// 	panic(v)
+		// }
 	}
 }

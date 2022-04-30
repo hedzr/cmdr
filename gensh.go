@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/hedzr/log/dir"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -29,7 +28,7 @@ func genShell(cmd *Command, args []string) (err error) {
 			filePath = path.Join(dirname, filename)
 		}
 		var f *os.File
-		if f, err = os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0644); err == nil {
+		if f, err = os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0o644); err == nil {
 			ww := bufio.NewWriter(f)
 			defer func() {
 				err = ww.Flush()
@@ -75,11 +74,12 @@ func (w *ExecWorker) gsWhat(cmd *Command) (what string) {
 	what = GetStringRP(cmd.GetDottedNamePath(), shTypeGroup, "")
 	if what == "" || what == "auto" {
 		shell := os.Getenv("SHELL")
-		if strings.HasSuffix(shell, "/zsh") {
+		switch {
+		case strings.HasSuffix(shell, "/zsh"):
 			what = "zsh"
-		} else if strings.HasSuffix(shell, "/bash") {
+		case strings.HasSuffix(shell, "/bash"):
 			what = "bash"
-		} else {
+		default:
 			what = path.Base(shell)
 		}
 	}
@@ -202,7 +202,6 @@ func (g *gensh) Generate(writer io.Writer, fullPath string, cmd *Command, args [
 }
 
 func (g *gensh) genTo(writer io.Writer, cmd *Command, args []string) (err error) {
-
 	var ctx = &genshCtx{
 		cmd: cmd,
 		theArgs: &internalShellTemplateArgs{
@@ -217,11 +216,8 @@ func (g *gensh) genTo(writer io.Writer, cmd *Command, args []string) (err error)
 	err = genshTplExpand(ctx, "completion.head", g.tplm[wtHeader], ctx.theArgs)
 
 	if err == nil {
-
 		err = genshTplExpand(ctx, "completion.body", g.tplm[wtBody], ctx.theArgs)
-
 		if err == nil {
-
 			err = genshTplExpand(ctx, "completion.tail", g.tplm[wtTail], ctx.theArgs)
 
 			if g.fullPath != "-" {
@@ -290,7 +286,7 @@ func genManualForCommand(cmd *Command) (fn string, err error) {
 	fn = fmt.Sprintf("%s/%v.1", dirname, fn)
 
 	w.paintFromCommand(painter, cmd, false)
-	if err = ioutil.WriteFile(fn, painter.Results(), 0644); err == nil {
+	if err = os.WriteFile(fn, painter.Results(), 0o600); err == nil {
 		log.Printf("%q generated...", fn)
 	}
 	return
@@ -323,7 +319,7 @@ func genManual(command *Command, args []string) (err error) {
 		fn = fmt.Sprintf("%s/%v.1", dirname, fn)
 
 		w.paintFromCommand(painter, cmd, false)
-		if err = ioutil.WriteFile(fn, painter.Results(), 0644); err == nil {
+		if err = os.WriteFile(fn, painter.Results(), 0o600); err == nil {
 			log.Printf("'%v' generated...", fn)
 		}
 		return
@@ -353,13 +349,13 @@ func genDoc(command *Command, args []string) (err error) {
 	// case "tex":
 	// 	painter = newMarkdownPainter()
 	default: // , "doc", "d"
-		if GetBoolP(prefix, "markdown") {
+		if GetBoolP(prefix, "markdown") { //nolint:gocritic //like it
 			painter = newMarkdownPainter()
-		} else if GetBoolP(prefix, "pdf") {
+		} else if GetBoolP(prefix, "pdf") { //nolint:gocritic //like it
 			painter = newMarkdownPainter()
 			// } else if GetBoolP(prefix, "tex") {
 			// 	painter = newMarkdownPainter()
-		} else {
+		} else { //nolint:gocritic //like it
 			painter = newMarkdownPainter()
 		}
 	}
@@ -385,7 +381,7 @@ func genDoc(command *Command, args []string) (err error) {
 		fn = fmt.Sprintf("%s/%v.md", dirname, fn)
 
 		w.paintFromCommand(painter, cmd, false)
-		if err = ioutil.WriteFile(fn, painter.Results(), 0644); err == nil {
+		if err = os.WriteFile(fn, painter.Results(), 0o600); err == nil {
 			log.Printf("'%v' generated...", fn)
 		}
 		return

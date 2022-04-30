@@ -59,7 +59,7 @@ func FindFlagRecursive(longName string, cmd *Command) (res *Flag) {
 //
 
 func manBr(s string) string {
-	var lines []string
+	var lines []string //nolint:prealloc //can't prealloc
 	for _, l := range strings.Split(s, "\n") {
 		lines = append(lines, l+"\n.br")
 	}
@@ -83,10 +83,10 @@ func manExamples(s string, data interface{}) string {
 			lines = append(lines, `.TP \w'{{.AppName}}\ 'u
 .BI {{.AppName}} \ `+manWs(l[14:]))
 		} else {
-			if len(lastLine) == 0 {
+			if lastLine == "" {
 				lastLine = strings.TrimSpace(l)
 				// ignore multiple empty lines, compat them as one line.
-				if len(lastLine) != 0 {
+				if lastLine != "" {
 					lines = append(lines, lastLine+"\n.br")
 				}
 			} else {
@@ -144,12 +144,12 @@ func (w *ExecWorker) ow() {
 }
 
 func (w *ExecWorker) syncRootCommand() {
-	if len(conf.AppName) == 0 {
+	if conf.AppName == "" {
 		conf.AppName = w.rootCommand.AppName
 		conf.Version = w.rootCommand.Version
 	}
 	_ = os.Setenv("APPNAME", conf.AppName)
-	if len(conf.Buildstamp) == 0 {
+	if conf.Buildstamp == "" {
 		conf.Buildstamp = time.Now().Format(time.RFC1123)
 	}
 

@@ -1,0 +1,159 @@
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+  goconst:
+    min-len: 2
+    min-occurrences: 3
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disabled-checks:
+      - commentedOutCode
+  govet:
+    check-shadowing: true
+  nolintlint:
+    require-explanation: true
+    require-specific: true
+  golint:
+    min-confidence: 0
+  gocyclo:
+    min-complexity: 25
+  maligned:
+    suggest-new: true
+  dupl:
+    threshold: 200
+  funlen:
+    lines: 100
+    statements: 50
+
+run:
+  issues-exit-code: 1
+  skip-dirs:
+    - playground
+    - fixtures
+    - testdata
+
+linters:
+  disable-all: true
+  enable:
+    #/- bodyclose
+    #- deadcode
+    - depguard
+    - dogsled
+    - dupl
+    - errcheck
+    - errorlint
+    #- exhaustive
+    - exportloopref
+    - funlen
+    - goconst
+    #- gocritic
+    - gofmt
+    #- goimports
+    #- gomnd
+    - gocognit
+    - gocritic
+    - gocyclo
+    - goprintffuncname
+    - gosec
+    #/- gosimple
+    - govet
+    - ineffassign
+    #/- interfacer
+    #- maligned
+    - misspell
+    #- nolintlint
+    #- nakedret
+    - prealloc
+    - predeclared
+    - revive
+    #/- staticcheck
+    #- structcheck
+    #/- stylecheck
+    #- thelper
+    #/- tparallel
+    #- typecheck
+    - unconvert
+    #- unparam
+    - varcheck
+    - whitespace
+    #- wsl
+
+#linters:
+#  enable:
+#    - bodyclose
+#    - dogsled
+#    - errcheck
+#    - errname
+#    - errorlint
+#    #    - exhaustive
+#    #    - exportloopref
+#    #    - funlen
+#    #    - gochecknoinits
+#    #    - goconst
+#    #    - gocritic
+#    #    - gocyclo
+#    #    - gofmt
+#    # - golint
+#    - gocritic
+#    # - goimports
+#    - gosec
+#    - stylecheck
+#    - unconvert
+#  disable:
+#    - maligned
+#    - unparam
+#    - lll
+#    - gochecknoinits
+#    - gochecknoglobals
+#    - dupl
+#    - deadcode
+#    - nakedret
+#    - structcheck
+#
+#  enable:
+#    - bodyclose
+#    - deadcode
+#    - dogsled
+#    - dupl
+#    - errcheck
+#    - errname
+#    - errorlint
+#    - exhaustive
+#    - exportloopref
+#    - funlen
+#    - gochecknoinits
+#    - goconst
+#    - gocritic
+#    - gocyclo
+#    - gofmt
+#    - goimports
+#    - gomnd
+#    - goprintffuncname
+#    - gosec
+#    - gosimple
+#    - govet
+#    - ifshort
+#    - ineffassign
+#    # - lll
+#    - makezero
+#    - misspell
+#    - nakedret
+#    - noctx
+#    - nolintlint
+#    - revive
+#    - staticcheck
+#    - structcheck
+#    - stylecheck
+#    # - testpackage
+#    - typecheck
+#    - unconvert
+#    - unparam
+#    - unused
+#    - varcheck
+#    - whitespace
+

@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	appNameDefault = "cmdr" //nolint:deadcode,unused,varcheck
+	appNameDefault = "cmdr" //nolint:deadcode,unused,varcheck //keep it
 
 	// UnsortedGroup for commands and flags
 	UnsortedGroup = "zzzg.unsorted"

@@ -176,7 +176,7 @@ func (c *Command) GetTriggeredTimes() int {
 
 // GetQuotedGroupName returns the group name quoted string.
 func (c *Command) GetQuotedGroupName() string {
-	if len(strings.TrimSpace(c.Group)) == 0 {
+	if strings.TrimSpace(c.Group) == "" {
 		return ""
 	}
 	i := strings.Index(c.Group, ".")

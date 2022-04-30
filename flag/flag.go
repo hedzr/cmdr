@@ -228,7 +228,7 @@ func IntVar(p *int, name string, value int, usage string, options ...Option) {
 	})
 }
 
-func isTypeUint(kind reflect.Kind) bool { //nolint:deadcode,unused
+func isTypeUint(kind reflect.Kind) bool { //nolint:deadcode,unused //keep it
 	switch kind {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return true
@@ -237,7 +237,7 @@ func isTypeUint(kind reflect.Kind) bool { //nolint:deadcode,unused
 	}
 }
 
-func isTypeSInt(kind reflect.Kind) bool { //nolint:deadcode,unused
+func isTypeSInt(kind reflect.Kind) bool { //nolint:deadcode,unused //keep it
 	switch kind {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return true
@@ -277,9 +277,9 @@ func Int64Var(p *int64, name string, value int64, usage string, options ...Optio
 	f.OnSet(func(keyPath string, val interface{}) {
 		switch reflect.ValueOf(val).Kind() {
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			*p = int64(val.(uint64))
+			*p = int64(val.(uint64)) //nolint:errcheck //like it
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			*p = int64(val.(int64))
+			*p = val.(int64) //nolint:errcheck //like it
 		}
 	})
 }
@@ -353,9 +353,9 @@ func Uint64Var(p *uint64, name string, value uint64, usage string, options ...Op
 	f.OnSet(func(keyPath string, val interface{}) {
 		switch reflect.ValueOf(val).Kind() {
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			*p = uint64(val.(uint64))
+			*p = val.(uint64) //nolint:errcheck //like it
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			*p = uint64(val.(int64))
+			*p = uint64(val.(int64)) //nolint:errcheck //like it
 		}
 	})
 }
@@ -371,7 +371,7 @@ func Uint64(name string, value uint64, usage string, options ...Option) *uint64 
 
 // StringVar defines a string flag with specified name, default value, and usage string.
 // The argument p points to a string variable in which to store the value of the flag.
-func StringVar(p *string, name string, value string, usage string, options ...Option) {
+func StringVar(p *string, name, value, usage string, options ...Option) {
 	// CommandLine.Var(newStringValue(value, p), name, usage)
 
 	*p = value
@@ -397,7 +397,7 @@ func StringVar(p *string, name string, value string, usage string, options ...Op
 
 // String defines a string flag with specified name, default value, and usage string.
 // The return value is the address of a string variable that stores the value of the flag.
-func String(name string, value string, usage string, options ...Option) *string {
+func String(name, value, usage string, options ...Option) *string {
 	// return CommandLine.String(name, value, usage)
 	var p = new(string)
 	StringVar(p, name, value, usage, options...)

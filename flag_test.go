@@ -14,10 +14,10 @@ func TestFlag_EqualTo(t *testing.T) {
 	}
 
 	c1.EqualTo(cmd)
+
 	cmd.EqualTo(c1)
 	cmd.GetDescZsh()
 	cmd.GetTitleZshFlagName()
-
 }
 
 func TestFlag_Delete(t *testing.T) {
@@ -35,7 +35,6 @@ func TestFlag_Delete(t *testing.T) {
 }
 
 func TestCommand_Delete(t *testing.T) {
-
 	cmd := &Command{
 		BaseOpt: BaseOpt{
 			Name: "",

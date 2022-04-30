@@ -13,7 +13,6 @@ import (
 	"gopkg.in/hedzr/errors.v3"
 	"gopkg.in/yaml.v3"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -126,13 +125,17 @@ const (
 	mainConfigFiles configFileType = iota
 	secondaryConfigFiles
 	alterConfigFile
+
+	jsonSuffixString = ".json"
+	tomlSuffixString = ".toml"
+	confSuffixString = ".conf"
+	iniSuffixString  = ".ini"
 )
 
 // LoadConfigFile loads a yaml config file and merge the settings
 // into `rxxtOptions`
 // and load files in the `conf.d` child directory too.
 func (s *Options) LoadConfigFile(file string, cft configFileType) (mainFile, subDir string, err error) {
-
 	defer func() {
 		s.batchMerging = false
 		s.mapOrphans()
@@ -206,10 +209,10 @@ func (s *Options) LoadConfigFile(file string, cft configFileType) (mainFile, sub
 	return
 }
 
-func (s *Options) doWatchConfigFile(enableWatching bool, confDFolderName, dirWatch string, filesWatching []string) (err error) { //nolint:staticcheck
+func (s *Options) doWatchConfigFile(enableWatching bool, confDFolderName, dirWatch string, filesWatching []string) (err error) { //nolint:staticcheck //likw it
 	if internalGetWorker().watchChildConfigFiles {
 		var dirname string
-		confDFolderName = os.ExpandEnv(".$APPNAME") //nolint:staticcheck
+		confDFolderName = os.ExpandEnv(".$APPNAME") //nolint:staticcheck //like it
 		dirname, err = filepath.Abs(confDFolderName)
 		if err == nil && dir.FileExists(dirname) {
 			err = filepath.Walk(dirname, s.visit)
@@ -249,11 +252,11 @@ func (s *Options) loadConfigFileAsMap(file string) (m map[string]interface{}, er
 		mm map[string]map[string]interface{}
 	)
 
-	b, _ = ioutil.ReadFile(file)
+	b, _ = os.ReadFile(file)
 
 	m = make(map[string]interface{})
 	switch path.Ext(file) {
-	case ".toml", ".ini", ".conf", "toml":
+	case tomlSuffixString, iniSuffixString, confSuffixString, "toml":
 		mm = make(map[string]map[string]interface{})
 		err = toml.Unmarshal(b, &mm)
 		if err == nil {
@@ -264,7 +267,7 @@ func (s *Options) loadConfigFileAsMap(file string) (m map[string]interface{}, er
 		}
 		return
 
-	case ".json", "json":
+	case jsonSuffixString, "json":
 		err = json.Unmarshal(b, &m)
 	default:
 		err = yaml.Unmarshal(b, &m)
@@ -272,7 +275,7 @@ func (s *Options) loadConfigFileAsMap(file string) (m map[string]interface{}, er
 	return
 }
 
-func (s *Options) mergeConfigFile(fr io.Reader, src string, ext string) (err error) {
+func (s *Options) mergeConfigFile(fr io.Reader, src, ext string) (err error) {
 	var (
 		m   map[string]interface{}
 		buf *bytes.Buffer
@@ -282,9 +285,9 @@ func (s *Options) mergeConfigFile(fr io.Reader, src string, ext string) (err err
 	if _, err = buf.ReadFrom(fr); err == nil {
 		m = make(map[string]interface{})
 		switch ext {
-		case ".toml", ".ini", ".conf", "toml":
+		case tomlSuffixString, iniSuffixString, confSuffixString, "toml":
 			err = toml.Unmarshal(buf.Bytes(), &m)
-		case ".json", "json":
+		case jsonSuffixString, "json":
 			err = json.Unmarshal(buf.Bytes(), &m)
 		default:
 			err = yaml.Unmarshal(buf.Bytes(), &m)
@@ -303,17 +306,17 @@ func (s *Options) mergeConfigFile(fr io.Reader, src string, ext string) (err err
 	return
 }
 
-func (s *Options) visit(path string, f os.FileInfo, e error) (err error) {
-	// fmt.Printf("Visited: %s, e: %v\n", path, e)
-	flog("    visiting: %v, e: %v", path, e)
+func (s *Options) visit(pathname string, f os.FileInfo, e error) (err error) {
+	// fmt.Printf("Visited: %s, e: %v\n", pathname, e)
+	flog("    visiting: %v, e: %v", pathname, e)
 	err = e
 	if f != nil && !f.IsDir() && e == nil {
 		// log.Infof("    path: %v, ext: %v", path, filepath.Ext(path))
-		ext := filepath.Ext(path)
+		ext := filepath.Ext(pathname)
 		switch ext {
-		case ".yml", ".yaml", ".json", ".toml", ".ini", ".conf": // , "yml", "yaml":
+		case ".yml", ".yaml", jsonSuffixString, tomlSuffixString, iniSuffixString, confSuffixString: // , "yml", "yaml":
 			var file *os.File
-			file, err = os.Open(path)
+			file, err = os.Open(pathname)
 			// if err != nil {
 			// log.Warnf("ERROR: os.Open() returned %v", err)
 			// } else {
@@ -321,12 +324,12 @@ func (s *Options) visit(path string, f os.FileInfo, e error) (err error) {
 				defer file.Close()
 				flog("    visited and merging: %v", file.Name())
 				if err = s.mergeConfigFile(bufio.NewReader(file), file.Name(), ext); err != nil {
-					err = errors.New("error in merging config file '%s': %v", path, err)
+					err = errors.New("error in merging config file '%s': %v", pathname, err)
 					return
 				}
-				s.configFiles = uniAddStr(s.configFiles, path)
+				s.configFiles = uniAddStr(s.configFiles, pathname)
 			} else {
-				err = errors.New("error in merging config file '%s': %v", path, err)
+				err = errors.New("error in merging config file '%s': %v", pathname, err)
 			}
 		}
 	}
@@ -351,7 +354,7 @@ func (s *Options) watchConfigDir(configDir string, filesWatching []string) {
 		return
 	}
 
-	if len(configDir) == 0 || len(filesWatching) == 0 {
+	if configDir == "" || len(filesWatching) == 0 {
 		return
 	}
 
@@ -365,7 +368,7 @@ func (s *Options) watchConfigDir(configDir string, filesWatching []string) {
 }
 
 func testCfgSuffix(name string) bool {
-	for _, suf := range []string{".yaml", ".yml", ".json", ".toml", ".ini", ".conf"} {
+	for _, suf := range []string{".yaml", ".yml", jsonSuffixString, tomlSuffixString, iniSuffixString, confSuffixString} {
 		if strings.HasSuffix(name, suf) {
 			return true
 		}

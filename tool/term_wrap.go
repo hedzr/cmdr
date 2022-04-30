@@ -12,11 +12,14 @@ import (
 	"syscall"
 	"unsafe"
 
-	"golang.org/x/crypto/ssh/terminal" //nolint:staticcheck
-	// NOTE:
-	//   SA1019: package golang.org/x/crypto/ssh/terminal is deprecated: this package moved to golang.org/x/term.
-	// Here we keep old reference for backward-compatibility to go1.11 (even lower)
+	"golang.org/x/crypto/ssh/terminal"
 )
+
+// NOTE:
+//   SA1019: package golang.org/x/crypto/ssh/terminal is deprecated: this package moved to golang.org/x/term.
+// Here we keep old reference for backward-compatibility to go1.11 (even lower)
+
+//
 
 // ReadPassword reads the password from stdin with safe protection
 func ReadPassword() (text string, err error) {
@@ -36,7 +39,7 @@ func GetTtySize() (cols, rows int) {
 	var sz struct {
 		rows, cols, xPixels, yPixels uint16
 	}
-	_, _, _ = syscall.Syscall(syscall.SYS_IOCTL,
+	_, _, _ = syscall.Syscall(syscall.SYS_IOCTL, //nolint:dogsled //like it
 		uintptr(syscall.Stdout),
 		uintptr(syscall.TIOCGWINSZ),
 		uintptr(unsafe.Pointer(&sz)))

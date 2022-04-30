@@ -27,7 +27,7 @@ func walkFromCommand(cmd *Command, index, level int, walk func(cmd *Command, ind
 	if err == nil {
 		for ix, cc := range cmd.SubCommands {
 			if err = walkFromCommand(cc, ix, level+1, walk); err != nil {
-				if err == ErrShouldBeStopException {
+				if err == ErrShouldBeStopException { //nolint:errorlint //like it
 					err = nil // not an error
 				}
 				return

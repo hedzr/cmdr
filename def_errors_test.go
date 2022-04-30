@@ -73,12 +73,12 @@ func TestErrors(t *testing.T) {
 	}
 }
 
-type ew struct { //nolint:unused
+type ew struct { //nolint:unused //for test
 	msg string
 	// *errors.WithCauses
 }
 
-func (e *ew) Error() string { //nolint:unused
+func (e *ew) Error() string { //nolint:unused //for test
 	return e.msg // e.WithCauses.Error().Error()
 }
 
@@ -92,7 +92,7 @@ func TestErrorForCmdr(t *testing.T) {
 	t.Logf("a is: %v, %T", a, a)
 
 	e := newError(false, a)
-	if _, ok := e.(*errors.WithStackInfo); !ok {
+	if _, ok := e.(*errors.WithStackInfo); !ok { //nolint:errorlint //for test
 		t.Fatal(e)
 	}
 
@@ -101,7 +101,7 @@ func TestErrorForCmdr(t *testing.T) {
 	//	t.Fatal(e1)
 	// }
 
-	if _, ok := e.(*errors.WithStackInfo); ok {
+	if _, ok := e.(*errors.WithStackInfo); ok { //nolint:errorlint //for test
 		var et *errors.WithStackInfo
 		if !errors.As(e, &et) {
 			t.Fatal("cannot errors.As(e, -> *errors.WithStackInfo)")
@@ -113,8 +113,8 @@ func TestErrorForCmdr(t *testing.T) {
 	errors.Is(e, nil)
 
 	t.Logf("e has Causer: %v / %v | unwrapped: %v | ",
-		e.(*errors.WithStackInfo).Cause(),
-		e.Error(), // errors.Cause(e),
+		e.(*errors.WithStackInfo).Cause(), //nolint:errorlint //for test
+		e.Error(),                         // errors.Cause(e),
 		errors.Unwrap(e),
 	)
 	t.Logf("e1 is: %v, %T", e1, e1)

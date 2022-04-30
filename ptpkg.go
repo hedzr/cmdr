@@ -262,7 +262,8 @@ func (pkg *ptpkg) tryExtractingValue(args []string) (err error) {
 }
 
 func (pkg *ptpkg) tryExtractingOthers(args []string, kind reflect.Kind) (err error) {
-	if isTypeSInt(kind) {
+	switch {
+	case isTypeSInt(kind):
 		if _, ok := pkg.flg.DefaultValue.(time.Duration); ok {
 			if err = pkg.processTypeDuration(args); err != nil {
 				ferr("wrong time.Duration: flag=%v, value=%v", pkg.fn, pkg.val)
@@ -272,15 +273,14 @@ func (pkg *ptpkg) tryExtractingOthers(args []string, kind reflect.Kind) (err err
 			return
 		}
 		err = pkg.processTypeInt(args)
-	} else if isTypeUint(kind) {
+	case isTypeUint(kind):
 		err = pkg.processTypeUint(args)
-	} else if isTypeFloat(kind) {
+	case isTypeFloat(kind):
 		err = pkg.processTypeFloat(args)
-	} else if isTypeComplex(kind) {
+	case isTypeComplex(kind):
 		err = pkg.processTypeComplex(args)
-	} else {
+	default:
 		fwrn("Unacceptable default value kind=%v", kind)
-		// try parsing as a string
 		err = pkg.processTypeString(args)
 	}
 	return
@@ -288,11 +288,12 @@ func (pkg *ptpkg) tryExtractingOthers(args []string, kind reflect.Kind) (err err
 
 func (pkg *ptpkg) tryExtractingSliceValue(args []string) (err error) {
 	typ := reflect.TypeOf(pkg.flg.DefaultValue).Elem()
-	if typ.Kind() == reflect.String {
+	switch {
+	case typ.Kind() == reflect.String:
 		err = pkg.processTypeStringSlice(args)
-	} else if isTypeSInt(typ.Kind()) {
+	case isTypeSInt(typ.Kind()):
 		err = pkg.processTypeIntSlice(args)
-	} else if isTypeUint(typ.Kind()) {
+	case isTypeUint(typ.Kind()):
 		err = pkg.processTypeUintSlice(args)
 	}
 	return
@@ -301,11 +302,12 @@ func (pkg *ptpkg) tryExtractingSliceValue(args []string) (err error) {
 func (pkg *ptpkg) tryExtractingBoolValue() (err error) {
 	// bool flag, -D+, -D-
 
-	if pkg.suffix == '+' {
+	switch {
+	case pkg.suffix == '+':
 		pkg.flg.DefaultValue = true
-	} else if pkg.suffix == '-' {
+	case pkg.suffix == '-':
 		pkg.flg.DefaultValue = false
-	} else {
+	default:
 		pkg.flg.DefaultValue = true
 	}
 
@@ -317,16 +319,17 @@ func (pkg *ptpkg) tryExtractingBoolValue() (err error) {
 
 func (pkg *ptpkg) preprocessPkg(args []string) (err error) {
 	if !pkg.assigned {
-		if len(pkg.savedVal) > 0 {
+		switch {
+		case len(pkg.savedVal) > 0:
 			pkg.val = pkg.savedVal
 			pkg.savedVal = ""
-		} else if len(pkg.savedFn) > 0 {
+		case len(pkg.savedFn) > 0:
 			pkg.val = pkg.savedFn
 			pkg.savedFn = ""
-		} else {
+		default:
 			yes := false
 			if pkg.i < len(args)-1 {
-				if len(args[pkg.i+1]) == 0 {
+				if args[pkg.i+1] == "" {
 					yes = true
 				} else if args[pkg.i+1][0] != '-' && (args[pkg.i+1][0] != '~' || args[pkg.i+1][1] != '~') {
 					yes = true
@@ -336,7 +339,7 @@ func (pkg *ptpkg) preprocessPkg(args []string) (err error) {
 				pkg.i++
 				pkg.val = args[pkg.i]
 			} else {
-				if len(pkg.flg.ExternalTool) > 0 {
+				if pkg.flg.ExternalTool != "" {
 					err = pkg.processExternalTool()
 				} else if GetStrictMode() {
 					err = errors.New("unexpected end of command line [i=%v,args=(%v)], need more args for %v", pkg.i, args, pkg)
@@ -365,7 +368,7 @@ func (pkg *ptpkg) processExternalTool() (err error) {
 
 	default:
 		editor := os.Getenv(pkg.flg.ExternalTool)
-		if len(editor) == 0 {
+		if editor == "" {
 			editor = DefaultEditor
 		}
 		var content []byte
@@ -509,7 +512,6 @@ func (pkg *ptpkg) processTypeString(args []string) (err error) {
 		var keyPath = backtraceFlagNames(pkg.flg)
 		pkg.xxSet(keyPath, v, false)
 		pkg.found = true
-
 	}
 	return
 }

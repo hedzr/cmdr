@@ -200,7 +200,7 @@ func (w *ExecWorker) internalExecFor(pkg *ptpkg, rootCmd *RootCommand, args []st
 			if matched && pkg.flg == nil {
 				break
 			}
-			if !matched && (pkg.lastCommandHeld || len((*goCommand).SubCommands) == 0) {
+			if !matched && (pkg.lastCommandHeld || len(goCommand.SubCommands) == 0) {
 				break
 			}
 			return
@@ -218,7 +218,7 @@ func (w *ExecWorker) internalExecFor(pkg *ptpkg, rootCmd *RootCommand, args []st
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args *[]string) (matched, stopC, stopF bool, err error) {
 	// find valid flag prefix: -, --, ~~, /,
-	var flagLeadingFound bool = true
+	var flagLeadingFound = true
 	if len(pkg.a) > 0 {
 		ofs := strings.Index(w.switchCharset[0:switchCharsetWidth], pkg.a[0:1])
 		if ofs < 0 || ofs >= switchCharsetWidth {
@@ -311,7 +311,6 @@ func (w *ExecWorker) updateArgs(pkg *ptpkg, goCommand **Command, rootCmd *RootCo
 
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string, stopC bool) (err error) {
-
 	flog("--> afterInternalExec: trace=%v/logex:%v, debug=%v/logex:%v, indebugging:%v",
 		GetTraceMode(), logex.GetTraceMode(), GetDebugMode(), logex.GetDebugMode(),
 		logex.InDebugging())
@@ -341,14 +340,12 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 }
 
 func (w *ExecWorker) doInvokeHelpScreen(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
-
 	defer w.deferRunPostActionOfRootLevel(rootCmd, goCommand, remainArgs)()
 	err = w.runPreActionOfRootLevel(rootCmd, goCommand, remainArgs)
 	if err == nil {
 		w.printHelp(goCommand, pkg.needFlagsHelp)
 	}
 	return
-
 }
 
 func (w *ExecWorker) doInvokeCommand(rootCmd *RootCommand, action Handler, goCommand *Command, remainArgs []string) (err error) {
@@ -418,13 +415,13 @@ func (w *ExecWorker) gatherPreActions(rootCmd *RootCommand) (preActions []Handle
 }
 
 func (w *ExecWorker) gatherPostActions(rootCmd *RootCommand) (postActions []Invoker) {
-	postActions = append(rootCmd.PostActions, rootCmd.PostAction)
+	postActions = append(postActions, rootCmd.PostActions...)
+	postActions = append(postActions, rootCmd.PostAction)
 	return
 }
 
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) checkArgs(rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
-
 	if w.logexInitialFunctor != nil {
 		err = w.logexInitialFunctor(goCommand, remainArgs)
 		// ; err == ErrShouldBeStopException {
@@ -541,11 +538,12 @@ func (w *ExecWorker) invokeCommand(rootCmd *RootCommand, action Handler, goComma
 
 				// fmt.Printf("recover success. error: %v", ex)
 				unhandledErrorHandler(ex)
-				if e, ok := ex.(error); ok {
-					err = e
-				} else {
-					err = errors.New("unexpected unknown error handled")
-				}
+				err = errors.New("unexpected unknown error handled").WithData(ex)
+				// if e, ok := ex.(error); ok {
+				// 	err = e
+				// } else {
+				// 	err = errors.New("unexpected unknown error handled")
+				// }
 			}
 		}()
 	}

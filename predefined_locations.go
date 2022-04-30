@@ -16,18 +16,20 @@ func (w *ExecWorker) parsePredefinedLocation() (err error) {
 	// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
 	if ix, str, yes := partialContains(os.Args, "--config"); yes {
 		var location string
-		if i := strings.Index(str, "="); i > 0 {
+		i := strings.Index(str, "=")
+		switch {
+		case i > 0:
 			location = str[i+1:]
-		} else if len(str) > 8 {
+		case len(str) > 8:
 			location = str[8:]
-		} else if ix+1 < len(os.Args) {
+		case ix+1 < len(os.Args):
 			location = os.Args[ix+1]
 		}
 
 		location = tool.StripQuotes(location)
 		flog("--> preprocess / buildXref / parsePredefinedLocation: %q", location)
 
-		if len(location) > 0 && dir.FileExists(location) {
+		if location != "" && dir.FileExists(location) {
 			if yes, err = dir.IsDirectory(location); yes {
 				if dir.FileExists(path.Join(location, w.confDFolderName)) {
 					setPredefinedLocations(location + "/%s.yml")
@@ -50,8 +52,8 @@ func (w *ExecWorker) checkMoreLocations(rootCmd *RootCommand) (err error) {
 		if b {
 			w.predefinedLocations = append(w.predefinedLocations, a3)
 		}
-		b = dir.FileExists(a4) //nolint:staticcheck
-		if b {                 //nolint:staticcheck
+		b = dir.FileExists(a4) //nolint:staticcheck //keep it
+		if b {                 //nolint:staticcheck //keep it
 			//
 		}
 	}

@@ -267,7 +267,7 @@ type ProfOpt func(*profile)
 // Start constructs any profiling sessions from `types`.
 // `types` is a OR-combined ProfType value, it looks like CPUProf | MemProf.
 //
-func Start(types ProfType, opts ...ProfOpt) (Stop func()) {
+func Start(types ProfType, opts ...ProfOpt) (stop func()) {
 	p := &profile{
 		path:                 ".",
 		cpuProfName:          "cpu.prof",
@@ -318,7 +318,7 @@ func Start(types ProfType, opts ...ProfOpt) (Stop func()) {
 		closers = append(closers, c)
 	}
 
-	Stop = func() {
+	stop = func() {
 		for _, c := range closers {
 			c()
 		}

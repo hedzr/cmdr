@@ -205,7 +205,7 @@ type (
 
 		// OwnerCommand returns the parent command in OptCmd form.
 		//
-		// It's avaiable for building time.
+		// It's available for building time.
 		OwnerCommand() (opt OptCmd)
 		// SetOwner just work for internal purpose
 		SetOwner(opt OptCmd)

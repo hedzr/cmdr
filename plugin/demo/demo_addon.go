@@ -9,7 +9,7 @@ import (
 )
 
 // NewAddon returns an addon with cmdr.PluginEntry
-func NewAddon() cmdrbase.PluginEntry { //nolint:deadcode,unused
+func NewAddon() cmdrbase.PluginEntry { //nolint:deadcode,unused //like it
 	return &addon{}
 }
 

@@ -18,7 +18,7 @@ func (f *Flag) GetTriggeredTimes() int {
 // GetDescZsh temp
 func (f *Flag) GetDescZsh() (desc string) {
 	desc = f.Description
-	if len(desc) == 0 {
+	if desc == "" {
 		desc = tool.EraseAnyWSs(f.GetTitleZshFlagName())
 	}
 	// desc = replaceAll(desc, " ", "\\ ")
@@ -125,7 +125,7 @@ func (f *Flag) GetTitleFlagNamesBy(delimChar string) string {
 func (f *Flag) GetTitleFlagNamesByMax(delimChar string, maxShort int) string {
 	var sb strings.Builder
 
-	if len(f.Short) == 0 {
+	if f.Short == "" {
 		// if no flag.Short,
 		sb.WriteString(strings.Repeat(" ", maxShort))
 	} else {
@@ -137,7 +137,7 @@ func (f *Flag) GetTitleFlagNamesByMax(delimChar string, maxShort int) string {
 		}
 	}
 
-	if len(f.Short) == 0 {
+	if f.Short == "" {
 		sb.WriteRune(' ')
 		sb.WriteRune(' ')
 	}

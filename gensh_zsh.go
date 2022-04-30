@@ -84,7 +84,7 @@ func (g *genzsh) generateFileIntoWriter(writer io.Writer, fn func(path string, w
 	var f *os.File
 	for _, s := range g.locations {
 		// Logger.Infof("--- checking %s", s)
-		if dir.FileExists(s) {
+		if dir.FileExists(s) { //nolint:gocritic //like it
 			file = path.Join(s, "_"+g.appName)
 			// Logger.Debugf("    try creating %s", file)
 			if f, err = os.Create(file); err != nil {
@@ -121,7 +121,7 @@ func (g *genzsh) genShellZshHO(cmd *Command, args []string) func(path string, wr
 	}
 }
 
-func (g *genzsh) genZshTo(cmd *Command, args []string, path string, writer io.Writer) (err error) {
+func (g *genzsh) genZshTo(cmd *Command, args []string, filepath string, writer io.Writer) (err error) {
 	ctx := &genshCtx{
 		cmd: cmd,
 		theArgs: &internalShellTemplateArgs{
@@ -153,7 +153,7 @@ func (g *genzsh) genZshTo(cmd *Command, args []string, path string, writer io.Wr
 		fmt.Printf(`
 # %q generated.
 # Re-login to enable the new zsh completion script.
-`, path)
+`, filepath)
 	}
 	return
 }
@@ -262,28 +262,28 @@ func (g *genzsh) gzt1ForToggleGroups(descCommands *strings.Builder, cmd *Command
 }
 
 func (g *genzsh) gzt2(descCommands *strings.Builder, cmd *Command, ix int, f *Flag, mutualExclusives string, shortTitleOnly bool) {
-
 	// if c.Full == "pprof" {
 	//	println()
 	// }
 
-	if len(f.ValidArgs) != 0 {
+	switch {
+	case len(f.ValidArgs) != 0:
 		g.gzAction(descCommands, f, "("+strings.Join(f.ValidArgs, " ")+")", mutualExclusives, shortTitleOnly)
-	} else if f.DefaultValuePlaceholder == "FILE" {
+	case f.DefaultValuePlaceholder == "FILE":
 		act := "_files"
 		if f.actionStr != "" {
 			act += " -g " + strconv.Quote(f.actionStr)
 		}
 		g.gzAction(descCommands, f, act, mutualExclusives, shortTitleOnly)
-	} else if f.DefaultValuePlaceholder == "DIR" {
+	case f.DefaultValuePlaceholder == "DIR":
 		g.gzAction(descCommands, f, "_files -/", mutualExclusives, shortTitleOnly)
-	} else if f.DefaultValuePlaceholder == "USER" {
+	case f.DefaultValuePlaceholder == "USER":
 		g.gzAction(descCommands, f, "_users", mutualExclusives, shortTitleOnly)
-	} else if f.DefaultValuePlaceholder == "GROUP" {
+	case f.DefaultValuePlaceholder == "GROUP":
 		g.gzAction(descCommands, f, "_groups", mutualExclusives, shortTitleOnly)
-	} else if f.DefaultValuePlaceholder == "INTERFACES" {
+	case f.DefaultValuePlaceholder == "INTERFACES":
 		g.gzAction(descCommands, f, "_net_interfaces", mutualExclusives, shortTitleOnly)
-	} else {
+	default:
 		mutualExclusives = g.gzChkME(f, mutualExclusives)
 		if mutualExclusives != "" {
 			descCommands.WriteString(fmt.Sprintf("                \"($I %v)\"%v'[%v]'",
@@ -330,7 +330,8 @@ func (g *genzsh) gzAction(descCommands *strings.Builder, f *Flag, action, mutual
 func (g *genzsh) gzChkME(f *Flag, mutualExclusives string) string {
 	const quoted = false
 	if mutualExclusives == "" {
-		if len(f.mutualExclusives) > 0 {
+		switch {
+		case len(f.mutualExclusives) > 0:
 			var sb strings.Builder
 			for _, t := range f.mutualExclusives {
 				if tgt, ok := f.owner.plainLongFlags[t]; ok {
@@ -339,9 +340,9 @@ func (g *genzsh) gzChkME(f *Flag, mutualExclusives string) string {
 			}
 			sb.WriteString(f.GetTitleZshNamesExtBy(" ", false, quoted, false, false))
 			mutualExclusives = strings.TrimRight(sb.String(), " ")
-		} else if f.circuitBreak {
+		case f.circuitBreak:
 			mutualExclusives = "- *"
-		} else {
+		default:
 			mutualExclusives = f.GetTitleZshNamesExtBy(" ", false, quoted, false, false)
 		}
 	}

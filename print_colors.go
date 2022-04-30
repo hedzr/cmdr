@@ -20,7 +20,7 @@ import (
 //
 
 const (
-	defaultTimestampFormat = time.RFC3339 //nolint:deadcode,unused,varcheck
+	defaultTimestampFormat = time.RFC3339 //nolint:deadcode,unused,varcheck //keep it
 
 	// https://en.wikipedia.org/wiki/ANSI_escape_code
 	// https://zh.wikipedia.org/wiki/ANSI%E8%BD%AC%E4%B9%89%E5%BA%8F%E5%88%97
@@ -260,7 +260,6 @@ func (c *colorPrintTranslator) stripLeftTabs(s string) string {
 }
 
 func (c *colorPrintTranslator) stripLeftTabsOnly(s string) string {
-
 	var lines []string
 	var tabs = 1000
 	var emptyLines []int
@@ -290,10 +289,11 @@ func (c *colorPrintTranslator) stripLeftTabsOnly(s string) string {
 
 	pad := strings.Repeat("\t", tabs)
 	for i, str := range lines {
-		if strings.HasPrefix(str, pad) {
+		switch {
+		case strings.HasPrefix(str, pad):
 			sb.WriteString(str[tabs:])
-		} else if inIntSlice(i, emptyLines) {
-		} else {
+		case inIntSlice(i, emptyLines):
+		default:
 			sb.WriteString(str)
 		}
 		if noLastLF && i == len(lines)-1 {

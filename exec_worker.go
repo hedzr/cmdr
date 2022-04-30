@@ -71,14 +71,14 @@ type ExecWorker struct {
 	strictMode                  bool    // 'strict-mode'
 	noUnknownCmdTip             bool    // don't invoke unknownOptionHandler while unknown command found
 	noCommandAction             bool    // disable invoking command action even if it's valid
-	noPluggableAddons           bool    //nolint:structcheck,unused
-	noPluggableExtensions       bool    //nolint:structcheck,unused
+	noPluggableAddons           bool    //nolint:structcheck,unused //keep it
+	noPluggableExtensions       bool    //nolint:structcheck,unused //keep it
 	noUseOnSwitchCharHitHandler bool    // don't invoke onSwitchCharHitHandler handler while a '-' found
 	inCompleting                bool    // allow partial matching at last cmdline args
 
 	logexInitialFunctor Handler
 	logexPrefix         string
-	logexSkipFrames     int //nolint:structcheck,unused
+	logexSkipFrames     int //nolint:structcheck,unused //keep it
 
 	afterArgsParsed Handler
 
@@ -231,7 +231,6 @@ func (w *ExecWorker) _setSwChars(os string) {
 
 func init() {
 	onceWorkerInitial.Do(func() {
-
 		noResetWorker = true
 		// switchCharMap = map[string]string{
 		//	"windows": "-/~",

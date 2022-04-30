@@ -62,7 +62,7 @@ func (s *manPainter) bufPrintf(buf *bytes.Buffer, fmtStr string, args ...interfa
 	str := fmt.Sprintf(fmtStr, args...)
 	str = replaceAll(str, "-", `\-`)
 	str = replaceAll(str, "`cmdr`", `\fBcmdr\fP`)
-	_, _ = buf.Write([]byte(cptNC.Translate(str, 0)))
+	_, _ = buf.WriteString(cptNC.Translate(str, 0))
 }
 
 type manHdrData struct {
@@ -136,12 +136,12 @@ func (s *manPainter) FpUsagesTitle(command *Command, title string) {
 	// fp("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", bgDim, darkColor, normalize(group))
 }
 
-func (s *manPainter) FpUsagesLine(command *Command, fmt, appName, cmdList, cmdsTitle, tailPlaceHolder string) {
+func (s *manPainter) FpUsagesLine(command *Command, format, appName, cmdList, cmdsTitle, tailPlaceHolder string) {
 	if !command.IsRoot() {
 		if tailPlaceHolder == "" {
 			tailPlaceHolder = "[tail args...]"
 		}
-		s.Printf(".PP\n\\fB%s\\fP %v%s%s [Options] [Parent/Global Options]"+getphtail(command)+fmt+"\n\n", appName, cmdList, cmdsTitle, tailPlaceHolder)
+		s.Printf(".PP\n\\fB%s\\fP %v%s%s [Options] [Parent/Global Options]"+getphtail(command)+format+"\n\n", appName, cmdList, cmdsTitle, tailPlaceHolder)
 	}
 }
 

@@ -1,7 +1,6 @@
 // Copyright © 2020 Hedzr Yeh.
 
 //go:build go1.12
-// +build go1.12
 
 package cmdr
 
@@ -10,8 +9,8 @@ import (
 	"strings"
 )
 
-func replaceAll(s, old, new string) string {
-	return strings.Replace(s, old, new, -1)
+func replaceAll(s, old, newstr string) string {
+	return strings.ReplaceAll(s, old, newstr)
 }
 
 func isNil(to reflect.Value) bool {

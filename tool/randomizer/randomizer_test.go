@@ -25,7 +25,7 @@ func BenchmarkRandomizer(b *testing.B) {
 
 func BenchmarkRandomizerHiRes(b *testing.B) {
 	var result uint64
-	r := randomizer.New().(randomizer.HiresRandomizer)
+	r := randomizer.New().(randomizer.HiresRandomizer) //nolint:errcheck //like it
 	for n := 0; n < b.N; n++ {
 		result = r.HiresNextIn(9139)
 	}
@@ -35,14 +35,14 @@ func BenchmarkRandomizerHiRes(b *testing.B) {
 func BenchmarkGlobal(b *testing.B) {
 	var result int
 	for n := 0; n < b.N; n++ {
-		result = rand.Intn(9139)
+		result = rand.Intn(9139) //nolint:gosec //like it
 	}
 	b.Logf("end of: %v", result)
 }
 
 func BenchmarkNative(b *testing.B) {
 	var result int
-	random := rand.New(rand.NewSource(time.Now().UnixNano()))
+	random := rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec //like it
 	for n := 0; n < b.N; n++ {
 		result = random.Intn(9139)
 	}

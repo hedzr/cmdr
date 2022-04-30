@@ -10,6 +10,10 @@ import (
 	"strings"
 )
 
+const (
+	doubleTildeString = "~~"
+)
+
 func (w *ExecWorker) switchCharMatching(pkg *ptpkg, goCommand **Command, args []string) (matched, stop bool, err error) {
 	// pkg.needHelp = true
 	// pkg.needFlagsHelp = true
@@ -229,7 +233,7 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 		}
 
 		if !pkg.assigned {
-			if len(pkg.savedFn) > 0 && len(pkg.savedVal) == 0 {
+			if pkg.savedFn != "" && pkg.savedVal == "" {
 				pkg.fn = pkg.savedFn[0:1]
 				pkg.savedFn = pkg.savedFn[1:]
 				// goto GO_UP
@@ -272,7 +276,7 @@ func (w *ExecWorker) checkFlagCanBeHere(pkg *ptpkg) (err error) {
 
 func (w *ExecWorker) checkDblTildeStatus(pkg *ptpkg) (err error) {
 	if pkg.flg.dblTildeOnly {
-		if pkg.a[:2] != "~~" {
+		if pkg.a[:2] != doubleTildeString {
 			err = errors.New("a Flag '~~%v' request double tilde prefix only", pkg.flg.GetTitleName())
 		}
 	}

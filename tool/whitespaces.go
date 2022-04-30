@@ -35,21 +35,20 @@ func StripQuotes(s string) string {
 }
 
 func trimQuotes(s string) string {
-	if s[0] == '\'' {
+	switch {
+	case s[0] == '\'':
 		if s[len(s)-1] == '\'' {
 			return s[1 : len(s)-1]
 		}
 		return s[1:]
-
-	} else if s[0] == '"' {
+	case s[0] == '"':
 		if s[len(s)-1] == '"' {
 			return s[1 : len(s)-1]
 		}
 		return s[1:]
-
-	} else if s[len(s)-1] == '\'' {
+	case s[len(s)-1] == '\'':
 		return s[0 : len(s)-1]
-	} else if s[len(s)-1] == '"' {
+	case s[len(s)-1] == '"':
 		return s[0 : len(s)-1]
 	}
 	return s

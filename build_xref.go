@@ -95,7 +95,6 @@ func (w *ExecWorker) buildXref(rootCmd *RootCommand, args []string) (err error) 
 		}
 
 		w.buildAliasesCrossRefs(rootCmd)
-
 	}
 
 	flog("--> after-config-file-loading")
@@ -395,6 +394,12 @@ func (w *ExecWorker) _addOnAddIt(fi os.FileInfo, root *RootCommand, cwd string) 
 }
 
 func (w *ExecWorker) _addonAsSubCmd(root *RootCommand, cmdName, cmdPath string) (err error) {
+	defer func() {
+		if e := recover(); e != nil {
+			err = errors.New("wrapped error").WithData(e)
+		}
+	}()
+
 	var desc = fmt.Sprintf("execute %q", cmdPath)
 
 	var p *plugin.Plugin
@@ -409,9 +414,11 @@ func (w *ExecWorker) _addonAsSubCmd(root *RootCommand, cmdName, cmdPath string) 
 		return
 	}
 
-	newAddonEntryFunc := newAddonSymbol.(func() cmdrbase.PluginEntry)
-	newAddon := newAddonEntryFunc()
-	w.addons = append(w.addons, newAddon)
+	var newAddon cmdrbase.PluginEntry
+	if newAddonEntryFunc, ok := newAddonSymbol.(func() cmdrbase.PluginEntry); ok {
+		newAddon = newAddonEntryFunc()
+		w.addons = append(w.addons, newAddon)
+	}
 
 	// add command into .
 	err = w._addonAddCmd(&root.Command, cmdName, desc, newAddon, newAddon)
@@ -820,13 +827,14 @@ func (w *ExecWorker) attachCmdrCommands(root *RootCommand) {
 	}
 }
 
+//nolint:funlen //for test
 func (w *ExecWorker) attachGeneratorsCommands(root *RootCommand) {
 	if w.enableGenerateCommands {
 		found := false
 		for _, sc := range root.SubCommands {
 			if sc.Full == "generate" { // generatorCommands.Full {
-				found = true //nolint:ineffassign
-				return
+				found = true
+				break
 			}
 		}
 		if !found {
@@ -874,7 +882,7 @@ $ {{.AppName}} gen man
 					w._stringFlgAdd1(cx, "dir", "The output directory", "Output", func(ff *Flag) {
 						ff.Short = "d"
 						ff.DefaultValue = "."
-						ff.DefaultValuePlaceholder = "DIR"
+						ff.DefaultValuePlaceholder = dirString
 						ff.Hidden = false
 					})
 
@@ -935,7 +943,7 @@ $ {{.AppName}} gen man
 					w._stringFlgAdd1(cx, "dir", "The output directory", "Output", func(ff *Flag) {
 						ff.Short = "d"
 						ff.DefaultValue = "./man1"
-						ff.DefaultValuePlaceholder = "DIR"
+						ff.DefaultValuePlaceholder = dirString
 						ff.Hidden = false
 					})
 				})
@@ -949,7 +957,7 @@ $ {{.AppName}} gen man
 					w._stringFlgAdd1(cx, "dir", "The output directory", "Output", func(ff *Flag) {
 						ff.Short = "d"
 						ff.DefaultValue = "./docs"
-						ff.DefaultValuePlaceholder = "DIR"
+						ff.DefaultValuePlaceholder = dirString
 						ff.Hidden = false
 					})
 					w._boolFlgAdd1(cx, "markdown", "To generate a markdown file", tgDocType, func(ff *Flag) {
@@ -972,13 +980,17 @@ $ {{.AppName}} gen man
 					})
 				})
 			})
-
 		}
 	}
 }
 
-const shTypeGroup = "ShellType"
-const tgDocType = "DocType"
+const (
+	shTypeGroup = "ShellType"
+
+	tgDocType = "DocType"
+
+	dirString = "DIR"
+)
 
 // enableShellCompletionCommand _
 var enableShellCompletionCommand = true
@@ -1176,14 +1188,14 @@ func (w *ExecWorker) _buildCrossRefs(cmd *Command, root *RootCommand) {
 	for _, flg := range cmd.Flags {
 		flg.owner = cmd
 
-		if len(flg.ToggleGroup) > 0 {
-			if len(flg.Group) == 0 {
+		if flg.ToggleGroup != "" {
+			if flg.Group == "" {
 				flg.Group = flg.ToggleGroup
 			}
 			tgs[flg.ToggleGroup] = true
 		}
 
-		if b := bre.Find([]byte(flg.Description)); len(flg.DefaultValuePlaceholder) == 0 && len(b) > 2 {
+		if b := bre.Find([]byte(flg.Description)); flg.DefaultValuePlaceholder == "" && len(b) > 2 {
 			ph := strings.ToUpper(strings.Trim(string(b), "`"))
 			flg.DefaultValuePlaceholder = ph
 		}
@@ -1220,7 +1232,7 @@ func (w *ExecWorker) _buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagN
 			stringFlagNames[sz] = true
 		}
 	}
-	if len(flg.Group) == 0 {
+	if flg.Group == "" {
 		flg.Group = UnsortedGroup
 	}
 	if _, ok := cmd.allFlags[flg.Group]; !ok {
@@ -1239,21 +1251,21 @@ func (w *ExecWorker) _buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagN
 }
 
 func (w *ExecWorker) forFlagNames(flg *Flag, cmd *Command, singleFlagNames, stringFlagNames map[string]bool) {
-	if len(flg.Short) != 0 {
+	if flg.Short != "" {
 		if _, ok := singleFlagNames[flg.Short]; ok {
 			ferr("\nNOTE: flag char '%v' has been used. (command: %v)", flg.Short, backtraceCmdNames(cmd, false))
 		} else {
 			singleFlagNames[flg.Short] = true
 		}
 	}
-	if len(flg.Full) != 0 {
+	if flg.Full != "" {
 		if _, ok := stringFlagNames[flg.Full]; ok {
 			ferr("\nNOTE: flag '%v' has been used. (command: %v)", flg.Full, backtraceCmdNames(cmd, false))
 		} else {
 			stringFlagNames[flg.Full] = true
 		}
 	}
-	if len(flg.Short) == 0 && len(flg.Full) == 0 && len(flg.Name) != 0 {
+	if flg.Short == "" && flg.Full == "" && flg.Name != "" {
 		if _, ok := stringFlagNames[flg.Name]; ok {
 			ferr("\nNOTE: flag '%v' has been used. (command: %v)", flg.Name, backtraceCmdNames(cmd, false))
 		} else {
@@ -1266,7 +1278,7 @@ func (w *ExecWorker) _buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames,
 	w.forCommandNames(cx, cmd, singleCmdNames, stringCmdNames)
 
 	for _, sz := range cx.Aliases {
-		if len(sz) != 0 {
+		if sz != "" {
 			if _, ok := stringCmdNames[sz]; ok {
 				ferr("\nNOTE: command alias name '%v' has been used. (command: %v)", sz, backtraceCmdNames(cmd, false))
 			} else {
@@ -1275,7 +1287,7 @@ func (w *ExecWorker) _buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames,
 		}
 	}
 
-	if len(cx.Group) == 0 {
+	if cx.Group == "" {
 		cx.Group = UnsortedGroup
 	}
 	if _, ok := cmd.allCmds[cx.Group]; !ok {
@@ -1288,21 +1300,21 @@ func (w *ExecWorker) _buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames,
 }
 
 func (w *ExecWorker) forCommandNames(cx, cmd *Command, singleCmdNames, stringCmdNames map[string]bool) {
-	if len(cx.Short) != 0 {
+	if cx.Short != "" {
 		if _, ok := singleCmdNames[cx.Short]; ok {
 			ferr("\nNOTE: command char '%v' has been used. (command: %v)", cx.Short, backtraceCmdNames(cmd, false))
 		} else {
 			singleCmdNames[cx.Short] = true
 		}
 	}
-	if len(cx.Full) != 0 {
+	if cx.Full != "" {
 		if _, ok := stringCmdNames[cx.Full]; ok {
 			ferr("\nNOTE: command '%v' has been used. (command: %v)", cx.Full, backtraceCmdNames(cmd, false))
 		} else {
 			stringCmdNames[cx.Full] = true
 		}
 	}
-	if len(cx.Short) == 0 && len(cx.Full) == 0 && len(cx.Name) != 0 {
+	if cx.Short == "" && cx.Full == "" && cx.Name != "" {
 		if _, ok := stringCmdNames[cx.Name]; ok {
 			ferr("\nNOTE: command '%v' has been used. (command: %v)", cx.Name, backtraceCmdNames(cmd, false))
 		} else {

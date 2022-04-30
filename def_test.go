@@ -20,6 +20,7 @@ import (
 	"time"
 )
 
+//nolint:funlen //for test
 func TestSingleCommandLine1(t *testing.T) {
 	defer logex.CaptureLog(t).Release()
 
@@ -304,7 +305,6 @@ func TestUnknownHandler(t *testing.T) {
 	resetOsArgs()
 	cmdr.ResetOptions()
 	cmdr.InternalResetWorkerForTest()
-
 }
 
 func TestErrorForCmdr(t *testing.T) {
@@ -324,7 +324,7 @@ func TestErrorForCmdr(t *testing.T) {
 
 func testErrorForCmdr(t *testing.T, e *cmdr.ErrorForCmdr, fn func(t *testing.T, e *cmdr.ErrorForCmdr)) {
 	defer func() {
-		if e := recover(); e != nil { //nolint:staticcheck
+		if e := recover(); e != nil { //nolint:staticcheck //keep it
 			//
 		}
 	}()
@@ -518,15 +518,14 @@ func TestPP(t *testing.T) {
 }
 
 func TestReflectOfSlice(t *testing.T) {
-	xs := doubleSlice([]string{"foo", "bar"}).([]string)
+	xs := doubleSlice([]string{"foo", "bar"}).([]string) //nolint:errcheck //for test
 	fmt.Println("data =", xs, "len =", len(xs), "cap =", cap(xs))
 
-	ys := doubleSlice([]int{3, 1, 4}).([]int)
+	ys := doubleSlice([]int{3, 1, 4}).([]int) //nolint:errcheck //for test
 	fmt.Println("data =", ys, "len =", len(ys), "cap =", cap(ys))
 }
 
 func TestGetSectionFrom(t *testing.T) {
-
 	cmdr.Set("debug", true)
 	ac := new(testStruct)
 	_ = cmdr.GetSectionFrom("debug", &ac) // for app.debug
@@ -670,7 +669,6 @@ func TestExec(t *testing.T) {
 	outX, errX := prepareStreams()
 
 	defer func() {
-
 		postWorks(t)
 
 		x := outX.String()
@@ -691,7 +689,6 @@ func TestExec(t *testing.T) {
 
 		resetOsArgs()
 		deferFn()
-
 	}()
 
 	// copyRootCmd = rootCmdForTesting
@@ -747,11 +744,10 @@ func TestExec(t *testing.T) {
 		}
 
 		// cmdr.InternalResetWorkerForTest()
-
 	}
-
 }
 
+//nolint:funlen //for test
 func consulConnectFlagsGet() []*cmdr.Flag {
 	consulConnectFlags := []*cmdr.Flag{
 		{
@@ -867,6 +863,7 @@ func consulConnectFlagsGet() []*cmdr.Flag {
 	return consulConnectFlags
 }
 
+//nolint:funlen //for test
 func serverCommandsGet() *cmdr.Command {
 	serverCommands := &cmdr.Command{
 		BaseOpt: cmdr.BaseOpt{
@@ -1038,6 +1035,7 @@ func serverCommandsGet() *cmdr.Command {
 	return serverCommands
 }
 
+//nolint:funlen //for test
 func kvCommandsGet() *cmdr.Command {
 	kvCommands := &cmdr.Command{
 		BaseOpt: cmdr.BaseOpt{
@@ -1083,7 +1081,8 @@ func kvCommandsGet() *cmdr.Command {
 							return errors.New("failed: GetParentName() is wrong")
 						}
 						if cmd.GetOwner().GetSubCommandNamesBy(",") != "b,backup,bk,bf,bkp,r,restore,ls,list" {
-							return errors.New(fmt.Sprintf("failed: GetSubCommandNamesBy() is wrong: '%s'", cmd.GetOwner().GetSubCommandNamesBy(",")))
+							return errors.New("failed: GetSubCommandNamesBy() is wrong: '%s'",
+								cmd.GetOwner().GetSubCommandNamesBy(","))
 						}
 
 						cmd.PrintHelp(true)
@@ -1148,6 +1147,7 @@ func kvCommandsGet() *cmdr.Command {
 	return kvCommands
 }
 
+//nolint:funlen //for test
 func tagsCommandsGet() *cmdr.Command {
 	tagsCommands := &cmdr.Command{
 		BaseOpt: cmdr.BaseOpt{
@@ -1329,6 +1329,7 @@ func tagsCommandsGet() *cmdr.Command {
 	return tagsCommands
 }
 
+//nolint:funlen //for test
 func msCommandsGet() *cmdr.Command {
 	msCommands := &cmdr.Command{
 		BaseOpt: cmdr.BaseOpt{
@@ -1453,8 +1454,8 @@ func msCommandsGet() *cmdr.Command {
 	return msCommands
 }
 
+//nolint:funlen //for test
 func rootCmdForTesting() (root *cmdr.RootCommand) {
-
 	serverCommands := serverCommandsGet()
 
 	kvCommands := kvCommandsGet()
@@ -1496,7 +1497,7 @@ func rootCmdForTesting() (root *cmdr.RootCommand) {
 								err = errors.New("err ss.GetTitleZshFlagNamesArray()")
 							}
 							flg = cmd.Flags[1]
-							if len(flg.GetDescZsh()) == 0 {
+							if flg.GetDescZsh() == "" {
 								err = errors.New("err sss.GetDescZsh()")
 							}
 							if flg.GetTitleZshNamesBy(",", false, false) == "" {
@@ -1506,7 +1507,7 @@ func rootCmdForTesting() (root *cmdr.RootCommand) {
 								err = errors.New("err ss.GetTitleZshFlagNamesArray()")
 							}
 							flg = cmd.Flags[2]
-							if len(flg.GetDescZsh()) == 0 {
+							if flg.GetDescZsh() == "" {
 								err = errors.New("err ssss.GetDescZsh()")
 							}
 							if flg.GetTitleZshFlagName() == "" {

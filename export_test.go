@@ -123,6 +123,7 @@ func TestTplApply(t *testing.T) {
 
 func tLog(a ...interface{}) {}
 
+//nolint:funlen //for test
 func TestFlag(t *testing.T) {
 	ResetOptions()
 	ResetRootInWorkerForTest()
@@ -211,7 +212,7 @@ func TestFlag(t *testing.T) {
 	})
 }
 
-func dumpStacks() { //nolint:deadcode,unused
+func dumpStacks() { //nolint:deadcode,unused //keep it
 	fmt.Printf("=== BEGIN goroutine stack dump ===\n%s\n=== END goroutine stack dump ===\n", errors.DumpStacksAsString(true))
 }
 
@@ -448,7 +449,6 @@ func TestBuildAliasesCrossRefsErrBranch(t *testing.T) {
 	_ = h(root, []string{"1", "2"})
 
 	// _ = InvokeCommand("cc")
-
 }
 
 func TestAliasActions(t *testing.T) {
@@ -468,7 +468,6 @@ func TestAliasActions(t *testing.T) {
 }
 
 func TestColorPrintTool(t *testing.T) {
-
 	for _, s := range []string{
 		"black", "red", "green", "yellow", "blue", "magenta", "cyan",
 		"lightgray", "light-gray", "darkgray", "dark-gray", "lightred", "light-red",
@@ -480,10 +479,10 @@ func TestColorPrintTool(t *testing.T) {
 	}
 	_ = cpt._sz("")
 	_ = cpt._ss("\x1b[2m")
-
 }
 
 // TestSliceConverters _
+//nolint:funlen //for test
 func TestSliceConverters(t *testing.T) {
 	stringSliceToInt64Slice([]string{"x"})
 	intSliceToUint64Slice([]int{1})
@@ -658,7 +657,6 @@ func MatchForTest(inputCommandlineWithoutArg0 string, opts ...ExecOption) (last 
 }
 
 func TestNewError(t *testing.T) {
-
 	errWrongEnumValue := newErrTmpl("unexpected enumerable value '%s' for option '%s', under command '%s'")
 
 	err := newError(false, errWrongEnumValue, "ds", "head", "server")
@@ -678,11 +676,11 @@ func TestNewError(t *testing.T) {
 		t.Fatal("As() failed: expect it is a os.PathError{}")
 	}
 
-	if !err.(*errors.WithStackInfo).As(&perr) {
+	if !err.(*errors.WithStackInfo).As(&perr) { //nolint:errorlint //for test only
 		t.Fatal("As() failed: expect it is a os.PathError{}")
 	}
 
-	if !err.(*errors.WithStackInfo).Is(perr) {
+	if !err.(*errors.WithStackInfo).Is(perr) { //nolint:errorlint //for test only
 		t.Fatal("As() failed: expect it is a os.PathError{}")
 	}
 
@@ -760,7 +758,6 @@ func TestWorkerAddIt(t *testing.T) {
 	w._intFlgAdd(rootCmdX, "full", "full", "full", func(ff *Flag) {})
 	w._intFlgAdd(rootCmdX, "full1", "full1", "", func(ff *Flag) {})
 	w._intFlgAdd(rootCmdX, "full1", "full1", "", func(ff *Flag) {})
-
 }
 
 type p1 struct{}
@@ -795,7 +792,7 @@ func (f *f1) Action() (err error)       { return nil }
 
 type a1 struct{}
 
-func (a *a1) Name() string                      { return "addon1" }
+func (a *a1) Name() string                      { return "addon1" } //nolint:goconst //keep it
 func (a *a1) ShortName() string                 { return "a1" }
 func (a *a1) Aliases() []string                 { return []string{"a1a1"} }
 func (a *a1) Description() string               { return "addon1" }
@@ -808,7 +805,6 @@ func (a *a1) AddonCopyright() string            { return "addon1" }
 func (a *a1) AddonVersion() string              { return "addon1" }
 
 func TestWorkerHelpSystemPrint(t *testing.T) {
-
 	InternalResetWorkerForTest()
 	ResetOptions()
 

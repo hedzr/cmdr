@@ -13,7 +13,6 @@ import (
 )
 
 func TestHumanReadableSizes(t *testing.T) {
-
 	s := &cmdr.Options{}
 
 	for _, tc := range []struct {
@@ -60,7 +59,6 @@ func TestHumanReadableSizes(t *testing.T) {
 			t.Fatalf("StripQuotes(%q): expect %v, but got %v", tc.src, tc.expected, tgt)
 		}
 	}
-
 }
 
 func TestComplex(t *testing.T) {

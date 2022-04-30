@@ -44,11 +44,9 @@ import (
 // }
 
 func TestDumpers(t *testing.T) {
-
 	if cmdr.DumpAsString() == "" {
 		t.Fatal("fatal DumpAsString")
 	}
-
 }
 
 func TestMatchPreQ(t *testing.T) {
@@ -63,8 +61,8 @@ func TestMatchPreQ(t *testing.T) {
 	t.Logf("%q", strings.Split("server start  ", " "))
 }
 
+//nolint:funlen //for test
 func TestMatch(t *testing.T) {
-
 	cmdr.ResetOptions()
 	cmdr.InternalResetWorkerForTest()
 
@@ -93,7 +91,6 @@ func TestMatch(t *testing.T) {
 	t.Log("root.Name")
 
 	defer func() {
-
 		postWorks(t)
 
 		if errX.Len() > 0 {
@@ -131,7 +128,7 @@ func TestMatch(t *testing.T) {
 				return
 			}),
 		); err != nil {
-			if e, ok := err.(*cmdr.ErrorForCmdr); !ok || !e.Ignorable {
+			if e, ok := err.(*cmdr.ErrorForCmdr); !ok || !e.Ignorable { //nolint:errorlint //like it
 				t.Fatal(err)
 			}
 		}
@@ -145,7 +142,6 @@ func TestMatch(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-
 }
 
 func TestHeadLike1(t *testing.T) {
@@ -613,14 +609,12 @@ func TestHandlerPassThru1(t *testing.T) {
 //	}
 // }
 
+//nolint:funlen //for test
 func testFramework(t *testing.T, rootCommand func() *cmdr.RootCommand, cases testCases, opts ...cmdr.ExecOption) {
-
 	defer logex.CaptureLog(t).Release()
 
 	deferFn := prepareConfD(t)
-	defer func() {
-		deferFn()
-	}()
+	defer deferFn()
 
 	if tool.SavedOsArgs == nil {
 		tool.SavedOsArgs = os.Args
@@ -653,7 +647,6 @@ func testFramework(t *testing.T, rootCommand func() *cmdr.RootCommand, cases tes
 	t.Log("root.Name")
 
 	defer func() {
-
 		postWorks(t)
 
 		if errBuf.Buffered() > 0 {
@@ -706,7 +699,6 @@ func testFramework(t *testing.T, rootCommand func() *cmdr.RootCommand, cases tes
 			}
 		}
 	}
-
 }
 
 type testCases map[string]func(t *testing.T, c *cmdr.Command, e error) (err error)
@@ -746,7 +738,7 @@ var (
 		"consul-tags server -e orange": func(t *testing.T, c *cmdr.Command, e error) (err error) {
 			if cmdr.GetStringR("server.enum") != "orange" {
 				println("unexpected enumerable value found. This is an error")
-				return errors.New("unexpected enumerable value '%v' found. This is an error.",
+				return errors.New("unexpected enumerable value '%v' found. This is an error",
 					cmdr.GetStringR("server.enum"))
 			}
 			return e

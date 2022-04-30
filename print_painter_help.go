@@ -56,7 +56,7 @@ func (s *helpPainter) Print(fmtStr string, args ...interface{}) {
 }
 
 func (s *helpPainter) FpPrintHeader(command *Command) {
-	if len(command.root.Header) == 0 {
+	if command.root.Header == "" {
 		s.Printf("%v by %v - v%v", command.root.Copyright, command.root.Author, command.root.Version)
 	} else {
 		s.Printf("%v", command.root.Header)
@@ -80,16 +80,16 @@ func (s *helpPainter) FpUsagesTitle(command *Command, title string) {
 	// fp("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", BgDim, DarkColor, StripOrderPrefix(group))
 }
 
-func (s *helpPainter) FpUsagesLine(command *Command, fmt, appName, cmdList, cmdsTitle, tailPlaceHolder string) {
+func (s *helpPainter) FpUsagesLine(command *Command, format, appName, cmdList, cmdsTitle, tailPlaceHolder string) {
 	if strings.HasPrefix(cmdList, appName) {
 		appName = ""
 	} else {
 		cmdList = " " + cmdList
 	}
 	if tailPlaceHolder == "" {
-		tailPlaceHolder = "[tail args...]"
+		tailPlaceHolder = defaultTailPlaceholder
 	}
-	s.Printf("    %s%v%s%s [Options] [Parent/Global Options] %s"+fmt, appName, cmdList, cmdsTitle, tailPlaceHolder, getphtail(command))
+	s.Printf("    %s%v%s%s [Options] [Parent/Global Options] %s"+format, appName, cmdList, cmdsTitle, tailPlaceHolder, getphtail(command))
 }
 
 func (s *helpPainter) FpDescTitle(command *Command, title string) {
@@ -385,6 +385,8 @@ More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-
 	// cir                = '○' // U+25CB, &cir; ⭘○
 	// blacktriangleright = '▸' // U+25B8, &blacktriangleright;
 	// triangleright      = '▹' // U+25B9, &triangleright;
+
+	defaultTailPlaceholder = "[tail args...]"
 )
 
 // tgcMap holds a map of the toggle-group choice flag characters

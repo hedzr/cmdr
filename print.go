@@ -35,11 +35,9 @@ import (
 // }
 
 func fp(fmtStr string, args ...interface{}) {
-
 	s := fmt.Sprintf(fmtStr, args...)
 	needln := !strings.HasSuffix(s, "\n")
 	_fpz(needln, s)
-
 }
 
 func fpK(fmtStr string, args ...interface{}) {
@@ -65,7 +63,6 @@ func _fpz(needln bool, s string) {
 	} else {
 		_fpzz(needln, s, w)
 	}
-
 }
 
 func _fpzz(needln bool, s string, w io.Writer) {
@@ -82,7 +79,6 @@ func ffp(of io.Writer, fmtStr string, args ...interface{}) {
 }
 
 func ferr(fmtStr string, args ...interface{}) {
-
 	var w io.Writer = os.Stderr
 	if wkr := internalGetWorker(); wkr != nil {
 		uniqueWorkerLock.RLock()
@@ -100,13 +96,11 @@ func ferr(fmtStr string, args ...interface{}) {
 			needln := !strings.HasSuffix(fmtStr, "\n")
 			_fpzz(needln, s, w)
 		}
-
 	} else {
 		s := fmt.Sprintf(fmtStr, args...)
 		needln := !strings.HasSuffix(fmtStr, "\n")
 		_fpzz(needln, s, w)
 	}
-
 }
 
 // fwrn print the warning message if InDebugging() is true
@@ -156,12 +150,12 @@ func (w *ExecWorker) printHelp(command *Command, justFlags bool) {
 	// fluent -nc --help-zsh 1   # print _arguments array for sub-commands level 1
 	// fluent -nc --help-zsh 2   # print _arguments array for sub-commands level 2
 	// fluent Ø ms tags, ...
-	if GetIntR("help-zsh") > 0 {
+	switch {
+	case GetIntR("help-zsh") > 0:
 		w.printHelpZsh(command, justFlags)
-	} else if GetBoolR("help-bash") {
-		// TODO for bash
+	case GetBoolR("help-bash"):
 		w.printHelpZsh(command, justFlags)
-	} else {
+	default:
 		w.paintFromCommand(w.currentHelpPainter, command, justFlags)
 	}
 
@@ -284,7 +278,7 @@ func (w *ExecWorker) printHelpZshCommands(command *Command, justFlags bool) {
 }
 
 func (w *ExecWorker) printHelpUsages(p Painter, command *Command) {
-	if len(w.rootCommand.Header) == 0 || !command.IsRoot() {
+	if w.rootCommand.Header == "" || !command.IsRoot() {
 		p.FpUsagesTitle(command, "Usages")
 
 		ttl := "[Commands] "
@@ -386,11 +380,11 @@ func getTextPiece(str string, start, want int) (text, ending string) {
 	var tryPos int
 	type controls struct {
 		pos    int
-		esclen int //nolint:structcheck,unused
+		esclen int //nolint:structcheck,unused //keep it
 		seq    string
 	}
 	var escapeSeqs []controls
-	for _, c := range src { //nolint:gosimple,staticcheck
+	for _, c := range src { //nolint:gosimple,staticcheck //no problem
 		if c == '\x1b' {
 			tryEscape, tryAnsiColor = true, false
 			tryPos = len([]rune(sb.String()))
@@ -608,6 +602,27 @@ func countOfCommandsItems(p Painter, command *Command, justFlags bool) (count in
 	return
 }
 
+func lpgrp(p Painter, group string, g map[string]*Command) (sections []aSection) {
+	var section aSection
+	section.title = group // [nm].GetTitleName()
+	for _, nm := range getSortedKeysFromCmdMap(g) {
+		bufL, bufR := p.FpCommandsLine(g[nm])
+		if bufL.Len() > 0 && bufR.Len() > 0 {
+			section.bufLL, section.bufLR = append(section.bufLL, bufL), append(section.bufLR, bufR)
+			if section.maxL < bufL.Len() {
+				section.maxL = bufL.Len()
+			}
+			if section.maxR < bufR.Len() {
+				section.maxR = bufR.Len()
+			}
+		}
+	}
+	if section.maxL > 0 {
+		sections = append(sections, section)
+	}
+	return
+}
+
 func printHelpCommandSection(p Painter, command *Command, justFlags bool) (sections []aSection) {
 	count := countOfCommandsItems(p, command, justFlags)
 	if count > 0 {
@@ -615,23 +630,24 @@ func printHelpCommandSection(p Painter, command *Command, justFlags bool) (secti
 		for _, group := range k0 {
 			g := command.allCmds[group]
 			if len(g) > 0 {
-				var section aSection
-				section.title = group // [nm].GetTitleName()
-				for _, nm := range getSortedKeysFromCmdMap(g) {
-					bufL, bufR := p.FpCommandsLine(g[nm])
-					if bufL.Len() > 0 && bufR.Len() > 0 {
-						section.bufLL, section.bufLR = append(section.bufLL, bufL), append(section.bufLR, bufR)
-						if section.maxL < bufL.Len() {
-							section.maxL = bufL.Len()
-						}
-						if section.maxR < bufR.Len() {
-							section.maxR = bufR.Len()
-						}
-					}
-				}
-				if section.maxL > 0 {
-					sections = append(sections, section)
-				}
+				sections = append(sections, lpgrp(p, group, g)...)
+				// var section aSection
+				// section.title = group // [nm].GetTitleName()
+				// for _, nm := range getSortedKeysFromCmdMap(g) {
+				// 	bufL, bufR := p.FpCommandsLine(g[nm])
+				// 	if bufL.Len() > 0 && bufR.Len() > 0 {
+				// 		section.bufLL, section.bufLR = append(section.bufLL, bufL), append(section.bufLR, bufR)
+				// 		if section.maxL < bufL.Len() {
+				// 			section.maxL = bufL.Len()
+				// 		}
+				// 		if section.maxR < bufR.Len() {
+				// 			section.maxR = bufR.Len()
+				// 		}
+				// 	}
+				// }
+				// if section.maxL > 0 {
+				// 	sections = append(sections, section)
+				// }
 			}
 		}
 	}
@@ -809,5 +825,4 @@ Build Timestamp: %v
 `, conf.GoVersion, ts, conf.Githash, conf.GitSummary)
 
 	w.currentHelpPainter.FpPrintHelpTailLine(cmd)
-
 }

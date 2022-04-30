@@ -4,7 +4,7 @@
 
 package cmdr
 
-var (
+var ( //nolint:gocritic //like it
 //	generatorCommands = &Command{
 //		BaseOpt: BaseOpt{
 //			// Name:        "generators",

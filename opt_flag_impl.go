@@ -88,7 +88,7 @@ func (s *optFlagImpl) Description(oneLineDesc string, longDesc ...string) (opt O
 	for _, long := range longDesc {
 		s.working.LongDescription = long
 
-		if len(s.working.Description) == 0 {
+		if s.working.Description == "" {
 			s.working.Description = long
 		}
 	}

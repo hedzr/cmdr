@@ -61,7 +61,8 @@ const (
 )
 
 var hundred = big.NewInt(100)
-var seededRand = mrand.New(mrand.NewSource(time.Now().UTC().UnixNano()))
+var seededRand = mrand.New(mrand.NewSource(time.Now().UTC().UnixNano())) //nolint:gosec //like it
+// var seededRand = rand.New(mrand.NewSource(time.Now().UTC().UnixNano()))
 var mu sync.Mutex
 
 func (r *randomizer) Next() int {

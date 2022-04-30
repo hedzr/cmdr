@@ -10,7 +10,6 @@ import (
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log/dir"
-	"io/ioutil"
 	"os"
 	"path"
 	"testing"
@@ -75,21 +74,21 @@ func TestSetGetStringSlice(t *testing.T) {
 	cmdr.Set("A", []int{3, 7})
 
 	oo := cmdr.GetStringSlice("app.A")
-	if "3" != oo[0] || "7" != oo[1] {
+	if oo[0] != "3" || oo[1] != "7" {
 		t.Fatal("wrong GetStringSlice on int slice")
 	}
 	oo = cmdr.GetStringSliceR("A")
-	if "3" != oo[0] || "7" != oo[1] {
+	if oo[0] != "3" || oo[1] != "7" {
 		t.Fatal("wrong GetStringSliceR on int slice")
 	}
 
 	cmdr.Set("A", "3,7")
 	oo = cmdr.GetStringSlice("app.A")
-	if "3" != oo[0] || "7" != oo[1] {
+	if oo[0] != "3" || oo[1] != "7" {
 		t.Fatal("wrong GetStringSlice on int slice")
 	}
 	oo = cmdr.GetStringSliceR("A")
-	if "3" != oo[0] || "7" != oo[1] {
+	if oo[0] != "3" || oo[1] != "7" {
 		t.Fatal("wrong GetStringSliceR on int slice")
 	}
 }
@@ -97,31 +96,31 @@ func TestSetGetStringSlice(t *testing.T) {
 func TestSetGetStringSlice2(t *testing.T) {
 	cmdr.Set("A", []float32{3, 7})
 	oo := cmdr.GetStringSlice("app.A")
-	if "3" != oo[0] || "7" != oo[1] {
+	if oo[0] != "3" || oo[1] != "7" {
 		t.Fatal("wrong GetStringSlice on int slice")
 	}
 	oo = cmdr.GetStringSliceR("A")
-	if "3" != oo[0] || "7" != oo[1] {
+	if oo[0] != "3" || oo[1] != "7" {
 		t.Fatal("wrong GetStringSliceR on int slice")
 	}
 
 	cmdr.Set("A", []byte("3,7"))
 	oo = cmdr.GetStringSlice("app.A")
-	if "3" != oo[0] || "7" != oo[1] {
+	if oo[0] != "3" || oo[1] != "7" {
 		t.Fatal("wrong GetStringSlice on int slice")
 	}
 	oo = cmdr.GetStringSliceR("A")
-	if "3" != oo[0] || "7" != oo[1] {
+	if oo[0] != "3" || oo[1] != "7" {
 		t.Fatal("wrong GetStringSliceR on int slice")
 	}
 
 	cmdr.Set("A", 99)
 	oo = cmdr.GetStringSlice("app.A")
-	if "99" != oo[0] {
+	if oo[0] != "99" {
 		t.Fatal("wrong GetStringSlice on int slice")
 	}
 	oo = cmdr.GetStringSliceR("A")
-	if "99" != oo[0] {
+	if oo[0] != "99" {
 		t.Fatal("wrong GetStringSliceR on int slice")
 	}
 }
@@ -131,31 +130,31 @@ func TestSetGetIntSlice(t *testing.T) {
 
 	cmdr.Set("A", []string{"3", "7"})
 	oi := cmdr.GetIntSlice("app.A")
-	if 3 != oi[0] || 7 != oi[1] {
+	if oi[0] != 3 || oi[1] != 7 {
 		t.Fatal("wrong GetIntSlice on int slice 1 ")
 	}
 	oi = cmdr.GetIntSliceR("A")
-	if 3 != oi[0] || 7 != oi[1] {
+	if oi[0] != 3 || oi[1] != 7 {
 		t.Fatal("wrong GetIntSliceR on int slice 1 ")
 	}
 
 	cmdr.Set("A", []int{3, 7})
 	oi = cmdr.GetIntSlice("app.A")
-	if 3 != oi[0] || 7 != oi[1] {
+	if oi[0] != 3 || oi[1] != 7 {
 		t.Fatal("wrong GetIntSlice on int slice 1 ")
 	}
 	oi = cmdr.GetIntSliceR("A")
-	if 3 != oi[0] || 7 != oi[1] {
+	if oi[0] != 3 || oi[1] != 7 {
 		t.Fatal("wrong GetIntSliceR on int slice 1 ")
 	}
 
 	cmdr.Set("A", "3,7")
 	oi = cmdr.GetIntSlice("app.A")
-	if 3 != oi[0] || 7 != oi[1] {
+	if oi[0] != 3 || oi[1] != 7 {
 		t.Fatal("wrong GetIntSlice on int slice 2")
 	}
 	oi = cmdr.GetIntSliceR("A")
-	if 3 != oi[0] || 7 != oi[1] {
+	if oi[0] != 3 || oi[1] != 7 {
 		t.Fatal("wrong GetIntSliceR on int slice 2")
 	}
 }
@@ -165,41 +164,41 @@ func TestSetGetIntSlice2(t *testing.T) {
 
 	cmdr.Set("A", []float32{3, 7})
 	oi := cmdr.GetIntSlice("app.A")
-	if 3 != oi[0] || 7 != oi[1] {
+	if oi[0] != 3 || oi[1] != 7 {
 		t.Fatal("wrong GetIntSlice on int slice 3")
 	}
 	oi = cmdr.GetIntSliceR("A")
-	if 3 != oi[0] || 7 != oi[1] {
+	if oi[0] != 3 || oi[1] != 7 {
 		t.Fatal("wrong GetIntSliceR on int slice 3")
 	}
 
 	cmdr.Set("A", []byte("3,7"))
 	oi = cmdr.GetIntSlice("app.A")
-	if 3 != oi[0] || 7 != oi[1] {
+	if oi[0] != 3 || oi[1] != 7 {
 		t.Fatal("wrong GetIntSlice on int slice 4")
 	}
 	oi = cmdr.GetIntSliceR("A")
-	if 3 != oi[0] || 7 != oi[1] {
+	if oi[0] != 3 || oi[1] != 7 {
 		t.Fatal("wrong GetIntSliceR on int slice 4")
 	}
 
 	cmdr.Set("A", "99")
 	oi = cmdr.GetIntSlice("app.A")
-	if 99 != oi[0] {
+	if oi[0] != 99 {
 		t.Fatal("wrong GetIntSlice on int slice 5")
 	}
 	oi = cmdr.GetIntSliceR("A")
-	if 99 != oi[0] {
+	if oi[0] != 99 {
 		t.Fatal("wrong GetIntSliceR on int slice 5")
 	}
 
 	cmdr.Set("A", 99)
 	oi = cmdr.GetIntSlice("app.A")
-	if 99 != oi[0] {
+	if oi[0] != 99 {
 		t.Fatal("wrong GetIntSlice on int slice 5")
 	}
 	oi = cmdr.GetIntSliceR("A")
-	if 99 != oi[0] {
+	if oi[0] != 99 {
 		t.Fatal("wrong GetIntSliceR on int slice 5")
 	}
 }
@@ -259,7 +258,7 @@ func TestTomlLoad(t *testing.T) {
 		meta   toml.MetaData
 	)
 
-	if err = ioutil.WriteFile(".tmp.toml", tomlSample, 0644); err != nil {
+	if err = os.WriteFile(".tmp.toml", tomlSample, 0o600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -290,7 +289,6 @@ func TestTomlLoad(t *testing.T) {
 	// if err = cmdr.LoadConfigFile(".tmp.toml"); err != nil {
 	// 	t.Fatal(err)
 	// }
-
 }
 
 func TestConfigFiles(t *testing.T) {
@@ -315,9 +313,9 @@ func TestConfigFiles(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_ = ioutil.WriteFile(".tmp.yaml", []byte(`
+	_ = os.WriteFile(".tmp.yaml", []byte(`
 app'x':"
-`), 0644)
+`), 0o600)
 
 	// try loading cfg again for gocov
 	if _, _, err = cmdr.LoadConfigFile(".tmp.yaml"); err == nil {
@@ -325,32 +323,32 @@ app'x':"
 	}
 	_ = os.Remove(".tmp.yaml")
 
-	_ = ioutil.WriteFile(".tmp.json", []byte(`{"app":{"debug":errrrr}}`), 0644)
+	_ = os.WriteFile(".tmp.json", []byte(`{"app":{"debug":errrrr}}`), 0o600)
 	if _, _, err = cmdr.LoadConfigFile(".tmp.json"); err == nil {
 		t.Fatal(err)
 	}
 
-	_ = ioutil.WriteFile(".tmp.json", []byte(`{"app":{"debug":false}}`), 0644)
+	_ = os.WriteFile(".tmp.json", []byte(`{"app":{"debug":false}}`), 0o600)
 	// try loading cfg again for gocov
 	if _, _, err = cmdr.LoadConfigFile(".tmp.json"); err != nil {
 		t.Fatal(err)
 	}
 	_ = os.Remove(".tmp.json")
 
-	_ = ioutil.WriteFile(".tmp.toml", []byte(`
+	_ = os.WriteFile(".tmp.toml", []byte(`
 runmode=devel
-`), 0644)
+`), 0o600)
 	if _, _, err = cmdr.LoadConfigFile(".tmp.toml"); err == nil {
 		t.Fatal(err)
 	}
 
-	_, _, _ = cmdr.LoadConfigFile(".tmp.x.toml")
+	_, _, _ = cmdr.LoadConfigFile(".tmp.x.toml") //nolint:dogsled //keep it
 
-	_ = ioutil.WriteFile(".tmp.toml", []byte(`
+	_ = os.WriteFile(".tmp.toml", []byte(`
 runmode="devel"
 [app]
 debug=true
-`), 0644)
+`), 0o600)
 	// try loading cfg again for gocov
 	if _, _, err = cmdr.LoadConfigFile(".tmp.toml"); err != nil {
 		t.Fatal(err)
@@ -421,7 +419,6 @@ func TestNoColorMode(t *testing.T) {
 	cmdr.GetFlagHitCountRecursively("verbose1")
 	cmdr.GetHitCountByDottedPath("verbose")
 	cmdr.GetHitCountByDottedPath("verbose1")
-
 }
 
 func TestBaseOpt(t *testing.T) {
@@ -443,12 +440,10 @@ func TestBaseOpt(t *testing.T) {
 
 func TestHitCountAndTitle(t *testing.T) {
 	testFramework(t, rootCmdForTesting, testCases{
-
 		// for defaultActionImpl
 		"consul-tags kv": nil,
 
 		"consul-tags ms tags a --retry=1 -vqvv --list": func(t *testing.T, c *cmdr.Command, e error) (err error) {
-
 			if count := cmdr.GetHitCountByDottedPath("microservices.tags.add"); count != 1 {
 				t.Errorf("bad 1: got %v", count)
 			} else if cc, _ := cmdr.DottedPathToCommandOrFlag("microservices.tags.add", nil); cc == nil {

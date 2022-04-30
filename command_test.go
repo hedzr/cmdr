@@ -55,7 +55,6 @@ func TestCommand_GetName(t *testing.T) {
 	if a != "a" {
 		t.Fatal("want 'a'")
 	}
-
 }
 
 func TestRootCmdOpt_RunAsSubCommand(t *testing.T) {

@@ -22,13 +22,13 @@ func (s *BaseOpt) GetHitStr() string {
 
 // GetTitleName returns name/full/short string
 func (s *BaseOpt) GetTitleName() string {
-	if len(s.Name) != 0 {
+	if s.Name != "" {
 		return s.Name
 	}
-	if len(s.Full) > 0 {
+	if s.Full != "" {
 		return s.Full
 	}
-	if len(s.Short) > 0 {
+	if s.Short != "" {
 		return s.Short
 	}
 	// for _, ss := range s.Aliases {
@@ -47,10 +47,10 @@ func (s *BaseOpt) GetTitleNamesArray() []string {
 // GetTitleNamesArrayMainly returns short,full names
 func (s *BaseOpt) GetTitleNamesArrayMainly() []string {
 	var a []string
-	if len(s.Short) != 0 {
+	if s.Short != "" {
 		a = uniAddStr(a, s.Short)
 	}
-	if len(s.Full) > 0 {
+	if s.Full != "" {
 		a = uniAddStr(a, s.Full)
 	}
 	return a
@@ -59,7 +59,7 @@ func (s *BaseOpt) GetTitleNamesArrayMainly() []string {
 // GetShortTitleNamesArray returns short name as an array
 func (s *BaseOpt) GetShortTitleNamesArray() []string {
 	var a []string
-	if len(s.Short) != 0 {
+	if s.Short != "" {
 		a = uniAddStr(a, s.Short)
 	}
 	return a
@@ -68,7 +68,7 @@ func (s *BaseOpt) GetShortTitleNamesArray() []string {
 // GetLongTitleNamesArray returns long name and aliases as an array
 func (s *BaseOpt) GetLongTitleNamesArray() []string {
 	var a []string
-	if len(s.Full) > 0 {
+	if s.Full != "" {
 		a = uniAddStr(a, s.Full)
 	}
 	a = uniAddStrs(a, s.Aliases...)
@@ -96,10 +96,10 @@ func (s *BaseOpt) GetTitleZshNames() string {
 
 // GetTitleZshNamesBy temp
 func (s *BaseOpt) GetTitleZshNamesBy(delimChar string) (str string) {
-	if len(s.Short) != 0 {
+	if s.Short != "" {
 		str += s.Short + delimChar
 	}
-	if len(s.Full) > 0 {
+	if s.Full != "" {
 		str += s.Full
 	}
 	return
@@ -108,7 +108,7 @@ func (s *BaseOpt) GetTitleZshNamesBy(delimChar string) (str string) {
 // GetDescZsh temp
 func (s *BaseOpt) GetDescZsh() (desc string) {
 	desc = s.Description
-	if len(desc) == 0 {
+	if desc == "" {
 		desc = tool.EraseAnyWSs(s.GetTitleZshNames())
 	}
 	// desc = replaceAll(desc, " ", "\\ ")

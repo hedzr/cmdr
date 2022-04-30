@@ -57,7 +57,7 @@ func WithToggleGroupChoicerStyle(style string) ExecOption {
 //
 // For `ToggleGroup Choicer` and its style, see also:
 // https://github.com/hedzr/cmdr/issues/1#issuecomment-968247546
-func WithToggleGroupChoicerNewStyle(style string, trueChoicer, falseChoicer string) ExecOption {
+func WithToggleGroupChoicerNewStyle(style, trueChoicer, falseChoicer string) ExecOption {
 	return func(w *ExecWorker) {
 		if _, ok := tgcMap[style]; !ok {
 			tgcMap[style] = map[bool]string{
@@ -171,7 +171,7 @@ func WithEnvVarMap(varToValue map[string]func() string) ExecOption {
 			varToValue = make(map[string]func() string)
 		}
 		w.envVarToValueMap = varToValue
-		testAndSetMap(w.envVarToValueMap, "THIS", func() string { return dir.GetExecutableDir() })
+		testAndSetMap(w.envVarToValueMap, "THIS", dir.GetExecutableDir)
 		testAndSetMap(w.envVarToValueMap, "APPNAME", func() string { return conf.AppName })
 		testAndSetMap(w.envVarToValueMap, "APP_NAME", func() string { return conf.AppName })
 		testAndSetMap(w.envVarToValueMap, "CFG_DIR", func() string { return path.Dir(GetUsedConfigFile()) })

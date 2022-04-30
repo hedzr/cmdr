@@ -17,7 +17,7 @@ require (
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/hedzr/cmdr-base v0.1.3
 	github.com/hedzr/log v1.5.51
-	github.com/hedzr/logex v1.5.51
+	github.com/hedzr/logex v1.5.52
 	golang.org/x/crypto v0.0.0-20211215165025-cf75a172585e
 	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d
 	gopkg.in/hedzr/errors.v3 v3.0.21

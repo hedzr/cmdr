@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/BurntSushi/toml"
+	"github.com/hedzr/log/dir"
 	"gopkg.in/hedzr/errors.v3"
 	"gopkg.in/yaml.v3"
 	"os"
@@ -763,7 +764,7 @@ func SaveAsYaml(filename string) (err error) {
 	var b []byte
 	b, err = AsYamlExt()
 	if err == nil {
-		err = os.WriteFile(filename, b, 0o600)
+		err = dir.WriteFile(filename, b, 0o600)
 	}
 	return
 }
@@ -789,7 +790,7 @@ func AsJSONExt(prettyFormat bool) (b []byte, err error) {
 // SaveAsJSON to Save all config entries as a json file
 func SaveAsJSON(filename string) (err error) {
 	b := AsJSON()
-	err = os.WriteFile(filename, b, 0o600)
+	err = dir.WriteFile(filename, b, 0o600)
 	return
 }
 
@@ -798,7 +799,7 @@ func SaveAsJSONExt(filename string, prettyFormat bool) (err error) {
 	var b []byte
 	b, err = AsJSONExt(prettyFormat)
 	if err == nil {
-		err = os.WriteFile(filename, b, 0o600)
+		err = dir.WriteFile(filename, b, 0o600)
 	}
 	return
 }

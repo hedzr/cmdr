@@ -286,7 +286,7 @@ func genManualForCommand(cmd *Command) (fn string, err error) {
 	fn = fmt.Sprintf("%s/%v.1", dirname, fn)
 
 	w.paintFromCommand(painter, cmd, false)
-	if err = os.WriteFile(fn, painter.Results(), 0o600); err == nil {
+	if err = dir.WriteFile(fn, painter.Results(), 0o600); err == nil {
 		log.Printf("%q generated...", fn)
 	}
 	return
@@ -319,7 +319,7 @@ func genManual(command *Command, args []string) (err error) {
 		fn = fmt.Sprintf("%s/%v.1", dirname, fn)
 
 		w.paintFromCommand(painter, cmd, false)
-		if err = os.WriteFile(fn, painter.Results(), 0o600); err == nil {
+		if err = dir.WriteFile(fn, painter.Results(), 0o600); err == nil {
 			log.Printf("'%v' generated...", fn)
 		}
 		return
@@ -381,7 +381,7 @@ func genDoc(command *Command, args []string) (err error) {
 		fn = fmt.Sprintf("%s/%v.md", dirname, fn)
 
 		w.paintFromCommand(painter, cmd, false)
-		if err = os.WriteFile(fn, painter.Results(), 0o600); err == nil {
+		if err = dir.WriteFile(fn, painter.Results(), 0o600); err == nil {
 			log.Printf("'%v' generated...", fn)
 		}
 		return

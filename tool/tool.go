@@ -6,9 +6,9 @@ import (
 	"bufio"
 	"crypto/rand"
 	"fmt"
+	"github.com/hedzr/log/dir"
 	"gopkg.in/hedzr/errors.v3"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"regexp"
@@ -150,7 +150,7 @@ func launchEditorWith(editor, filename string) (content []byte, err error) {
 		}
 	}
 
-	content, err = ioutil.ReadFile(filename)
+	content, err = dir.ReadFile(filename)
 	if err != nil {
 		return []byte{}, nil
 	}

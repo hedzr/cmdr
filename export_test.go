@@ -10,15 +10,14 @@ import (
 	"fmt"
 	cmdrbase "github.com/hedzr/cmdr-base"
 	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log/dir"
 	"io"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/hedzr/logex"
 	"gopkg.in/hedzr/errors.v3"
 )
 
@@ -217,7 +216,7 @@ func dumpStacks() { //nolint:deadcode,unused //keep it
 }
 
 func TestHandlePanic(t *testing.T) {
-	defer logex.CaptureLog(t).Release()
+	// defer logex.CaptureLog(t).Release()
 	if tool.SavedOsArgs == nil {
 		tool.SavedOsArgs = os.Args
 	}
@@ -309,7 +308,7 @@ func TestNewOptions(t *testing.T) {
 }
 
 func TestUnknownXXX(t *testing.T) {
-	defer logex.CaptureLog(t).Release()
+	// defer logex.CaptureLog(t).Release()
 
 	// // RaiseInterrupt(t, 16)
 	// go func() {
@@ -733,7 +732,7 @@ func TestWorkerAddIt(t *testing.T) {
 
 	w := Worker()
 
-	f, err := ioutil.TempFile("", "example")
+	f, err := dir.TempFile("", "example")
 	// f, err := os.CreateTemp("", "example") // go 1.17+ only
 	if err != nil {
 		t.Errorf("err: %v", err)

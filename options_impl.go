@@ -1262,7 +1262,7 @@ func (s *Options) Flush() {
 					defer handleSerializeError(&err)
 					b, err = yaml.Marshal(m)
 
-					err = os.WriteFile(s.usedAlterConfigFile, b, 0o600)
+					err = dir.WriteFile(s.usedAlterConfigFile, b, 0o600)
 					if err == nil {
 						flog("config file %q updated.", s.usedAlterConfigFile)
 					}

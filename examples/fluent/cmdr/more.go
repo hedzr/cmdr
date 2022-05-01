@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log/dir"
 	"golang.org/x/crypto/ssh/terminal"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -153,7 +153,7 @@ func mxCommand(root cmdr.OptCmd) {
 			if cmdr.GetBoolR("mx-test.stdin") {
 				fmt.Println("> Type your contents here, press Ctrl-D to end it:")
 				var data []byte
-				data, err = ioutil.ReadAll(os.Stdin)
+				data, err = dir.ReadAll(os.Stdin)
 				if err != nil {
 					cmdr.Logger.Printf("error: %+v", err)
 					return

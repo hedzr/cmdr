@@ -252,7 +252,7 @@ func (s *Options) loadConfigFileAsMap(file string) (m map[string]interface{}, er
 		mm map[string]map[string]interface{}
 	)
 
-	b, _ = os.ReadFile(file)
+	b, _ = dir.ReadFile(file)
 
 	m = make(map[string]interface{})
 	switch path.Ext(file) {

@@ -64,7 +64,7 @@ func (s *cfgLoaded) OnConfigReloaded() {
 func cfg(t *testing.T, clcl cmdr.ConfigReloaded) {
 	cmdr.AddOnConfigLoadedListener(clcl)
 
-	_ = os.WriteFile(".tmp.yaml", []byte(`
+	_ = dir.WriteFile(".tmp.yaml", []byte(`
 app:
   debug: false
   ms:
@@ -127,7 +127,7 @@ app:
 `), 0o600)
 	_ = dir.EnsureDir("conf.d")
 
-	_ = os.WriteFile("conf.d/tmp.yaml", []byte(`
+	_ = dir.WriteFile("conf.d/tmp.yaml", []byte(`
 app:
   debug: false
   ms:
@@ -143,7 +143,7 @@ app:
 
 	t.Logf("%v, %v", cmdr.GetUsedConfigFile(), cmdr.GetUsedConfigSubDir())
 	t.Logf("%v, %v", cmdr.CurrentOptions(), cmdr.GetUsingConfigFiles())
-	_ = os.WriteFile("conf.d/tmp.yaml", []byte(`
+	_ = dir.WriteFile("conf.d/tmp.yaml", []byte(`
 app:
   debug: true
   ms:
@@ -151,8 +151,8 @@ app:
       modify:
         wed: [3, 4]
 `), 0o600)
-	_ = os.WriteFile("conf.d/tmp.json", []byte(`{"app":{"debug":false}}`), 0o600)
-	_ = os.WriteFile("conf.d/tmp.toml", []byte(``), 0o600)
+	_ = dir.WriteFile("conf.d/tmp.json", []byte(`{"app":{"debug":false}}`), 0o600)
+	_ = dir.WriteFile("conf.d/tmp.toml", []byte(``), 0o600)
 }
 
 type testStruct struct {

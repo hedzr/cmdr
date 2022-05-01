@@ -258,7 +258,7 @@ func TestTomlLoad(t *testing.T) {
 		meta   toml.MetaData
 	)
 
-	if err = os.WriteFile(".tmp.toml", tomlSample, 0o600); err != nil {
+	if err = dir.WriteFile(".tmp.toml", tomlSample, 0o600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -313,7 +313,7 @@ func TestConfigFiles(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_ = os.WriteFile(".tmp.yaml", []byte(`
+	_ = dir.WriteFile(".tmp.yaml", []byte(`
 app'x':"
 `), 0o600)
 
@@ -323,19 +323,19 @@ app'x':"
 	}
 	_ = os.Remove(".tmp.yaml")
 
-	_ = os.WriteFile(".tmp.json", []byte(`{"app":{"debug":errrrr}}`), 0o600)
+	_ = dir.WriteFile(".tmp.json", []byte(`{"app":{"debug":errrrr}}`), 0o600)
 	if _, _, err = cmdr.LoadConfigFile(".tmp.json"); err == nil {
 		t.Fatal(err)
 	}
 
-	_ = os.WriteFile(".tmp.json", []byte(`{"app":{"debug":false}}`), 0o600)
+	_ = dir.WriteFile(".tmp.json", []byte(`{"app":{"debug":false}}`), 0o600)
 	// try loading cfg again for gocov
 	if _, _, err = cmdr.LoadConfigFile(".tmp.json"); err != nil {
 		t.Fatal(err)
 	}
 	_ = os.Remove(".tmp.json")
 
-	_ = os.WriteFile(".tmp.toml", []byte(`
+	_ = dir.WriteFile(".tmp.toml", []byte(`
 runmode=devel
 `), 0o600)
 	if _, _, err = cmdr.LoadConfigFile(".tmp.toml"); err == nil {
@@ -344,7 +344,7 @@ runmode=devel
 
 	_, _, _ = cmdr.LoadConfigFile(".tmp.x.toml") //nolint:dogsled //keep it
 
-	_ = os.WriteFile(".tmp.toml", []byte(`
+	_ = dir.WriteFile(".tmp.toml", []byte(`
 runmode="devel"
 [app]
 debug=true

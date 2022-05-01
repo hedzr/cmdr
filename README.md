@@ -50,8 +50,14 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
     - english documentation NOT completed yet
     - documentation at: https://hedzr.github.io/cmdr-docs/
 
-- v1.10.47 (WIP)
-  - _
+- v1.10.49 (WIP)
+
+- v1.10.47
+  - fea: added tiny html code supports for tail-line (`cmdr.WithHelpTailLine(line)`).
+    > html in Description, Examples works too.
+  - more godoc
+  - lots of lint and review
+  - wrap ioutil/os.ReadFile and similar functions for crossing go111-118, with hedzr/log.dir.ReadFile...
 
 - v1.10.40
     - imp: parse the flag switch chars better

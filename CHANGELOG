@@ -2,6 +2,13 @@
 
 ## Versions
 
+- v1.10.47
+  - fea: added tiny html code supports for tail-line (`cmdr.WithHelpTailLine(line)`).
+    > html in Description, Examples works too.
+  - more godoc
+  - lots of lint and review
+  - wrap ioutil/os.ReadFile and similar functions for crossing go111-118, with hedzr/log.dir.ReadFile...
+
 - v1.10.40
     - imp: parse the flag switch chars better
     - fix: dead-loop for positional args starts with '~/'

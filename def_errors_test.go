@@ -3,8 +3,9 @@
 package cmdr
 
 import (
-	"gopkg.in/hedzr/errors.v3"
 	"testing"
+
+	"gopkg.in/hedzr/errors.v3"
 )
 
 func TestErrors(t *testing.T) {

@@ -5,12 +5,13 @@
 package cmdr
 
 import (
+	"os"
+	"strings"
+
 	"github.com/hedzr/log"
 	"github.com/hedzr/log/closers"
 	"github.com/hedzr/logex"
 	"gopkg.in/hedzr/errors.v3"
-	"os"
-	"strings"
 )
 
 // Exec is main entry of `cmdr`.
@@ -39,7 +40,7 @@ func Exec(rootCmd *RootCommand, opts ...ExecOption) (err error) {
 
 // InternalExecFor is an internal helper, esp for debugging
 func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last *Command, err error) {
-	var pkg = new(ptpkg)
+	pkg := new(ptpkg)
 
 	if w.rootCommand == nil {
 		w.setupRootCommand(rootCmd)
@@ -218,7 +219,7 @@ func (w *ExecWorker) internalExecFor(pkg *ptpkg, rootCmd *RootCommand, args []st
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) xxTestCmd(pkg *ptpkg, goCommand **Command, rootCmd *RootCommand, args *[]string) (matched, stopC, stopF bool, err error) {
 	// find valid flag prefix: -, --, ~~, /,
-	var flagLeadingFound = true
+	flagLeadingFound := true
 	if len(pkg.a) > 0 {
 		ofs := strings.Index(w.switchCharset[0:switchCharsetWidth], pkg.a[0:1])
 		if ofs < 0 || ofs >= switchCharsetWidth {
@@ -389,7 +390,7 @@ func (w *ExecWorker) deferRunPostActionOfRootLevel(rootCmd *RootCommand, goComma
 }
 
 func (w *ExecWorker) runPreActionOfRootLevel(rootCmd *RootCommand, goCommand *Command, remainArgs []string) (err error) {
-	var preActions = w.gatherPreActions(rootCmd)
+	preActions := w.gatherPreActions(rootCmd)
 	c := errors.New("cannot invoke preActions")
 	defer c.Defer(&err)
 	// c := errors.NewContainer("cannot invoke preActions")

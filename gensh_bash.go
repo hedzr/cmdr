@@ -2,11 +2,12 @@ package cmdr
 
 import (
 	"fmt"
-	"github.com/hedzr/log/dir"
 	"io"
 	"os"
 	"path"
 	"text/template"
+
+	"github.com/hedzr/log/dir"
 )
 
 //nolint:funlen,gocognit //for test

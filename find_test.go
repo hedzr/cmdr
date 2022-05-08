@@ -3,10 +3,11 @@
 package cmdr_test
 
 import (
-	"github.com/hedzr/cmdr"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/hedzr/cmdr"
 )
 
 func TestFinds(t *testing.T) {
@@ -17,7 +18,7 @@ func TestFinds(t *testing.T) {
 	cmdr.Set("no-watch-conf-dir", true)
 
 	// copyRootCmd = rootCmdForTesting
-	var rootCmdX = &cmdr.RootCommand{
+	rootCmdX := &cmdr.RootCommand{
 		Command: cmdr.Command{
 			BaseOpt: cmdr.BaseOpt{
 				Name: "consul-tags",
@@ -26,7 +27,7 @@ func TestFinds(t *testing.T) {
 	}
 	t.Log("rootCmdForTesting", rootCmdX)
 
-	var commands = []string{
+	commands := []string{
 		"consul-tags --help -q",
 	}
 	for _, cc := range commands {

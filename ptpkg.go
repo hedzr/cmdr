@@ -6,13 +6,14 @@ package cmdr
 
 import (
 	"fmt"
-	"github.com/hedzr/cmdr/tool"
-	"gopkg.in/hedzr/errors.v3"
 	"os"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/hedzr/cmdr/tool"
+	"gopkg.in/hedzr/errors.v3"
 )
 
 type ptpkg struct {
@@ -66,7 +67,7 @@ func (pkg *ptpkg) tryToggleGroup() {
 		wkr := internalGetWorker()
 		for _, f := range pkg.flg.owner.Flags {
 			if f.ToggleGroup == tg && (isBool(f.DefaultValue) || isNil1(f.DefaultValue)) {
-				var store = pkg.storeFrom(wkr)
+				store := pkg.storeFrom(wkr)
 				if f != pkg.flg {
 					store.Set(backtraceFlagNames(f), false)
 					f.DefaultValue = false
@@ -218,7 +219,7 @@ func (pkg *ptpkg) matchLongestShortFlag(cc *Command, a string, startPos int) (i 
 		fn    string
 	}
 	var matched []MS
-	var longest = -1
+	longest := -1
 	for i = len(a); i > startPos; i-- {
 		fn := a[startPos:i]
 		if _, ok := cc.plainShortFlags[fn]; ok {
@@ -311,8 +312,8 @@ func (pkg *ptpkg) tryExtractingBoolValue() (err error) {
 		pkg.flg.DefaultValue = true
 	}
 
-	var v = pkg.flg.DefaultValue
-	var keyPath = backtraceFlagNames(pkg.flg)
+	v := pkg.flg.DefaultValue
+	keyPath := backtraceFlagNames(pkg.flg)
 	pkg.xxSet(keyPath, v, false)
 	return
 }
@@ -416,7 +417,7 @@ func (pkg *ptpkg) processTypeDuration(args []string) (err error) {
 		v, err = time.ParseDuration(pkg.val)
 		if err == nil {
 			// flog("    .  . [duration] %q => %v", pkg.val, v)
-			var keyPath = backtraceFlagNames(pkg.flg)
+			keyPath := backtraceFlagNames(pkg.flg)
 			pkg.xxSet(keyPath, v, false)
 		}
 	}
@@ -435,7 +436,7 @@ func (pkg *ptpkg) processTypeIntCore(args []string) (err error) {
 		err = errors.New("wrong number (int): flag=%v, number=%v, inner error is: %v", pkg.fn, pkg.val, err)
 	}
 
-	var keyPath = backtraceFlagNames(pkg.flg)
+	keyPath := backtraceFlagNames(pkg.flg)
 	pkg.xxSet(keyPath, v, false)
 	return
 }
@@ -450,7 +451,7 @@ func (pkg *ptpkg) processTypeUint(args []string) (err error) {
 			return
 		}
 
-		var keyPath = backtraceFlagNames(pkg.flg)
+		keyPath := backtraceFlagNames(pkg.flg)
 		pkg.xxSet(keyPath, v, false)
 	}
 	return
@@ -466,7 +467,7 @@ func (pkg *ptpkg) processTypeFloat(args []string) (err error) {
 			return
 		}
 
-		var keyPath = backtraceFlagNames(pkg.flg)
+		keyPath := backtraceFlagNames(pkg.flg)
 		pkg.xxSet(keyPath, v, false)
 	}
 	return
@@ -482,7 +483,7 @@ func (pkg *ptpkg) processTypeComplex(args []string) (err error) {
 			return
 		}
 
-		var keyPath = backtraceFlagNames(pkg.flg)
+		keyPath := backtraceFlagNames(pkg.flg)
 		pkg.xxSet(keyPath, v, false)
 	}
 	return
@@ -490,7 +491,7 @@ func (pkg *ptpkg) processTypeComplex(args []string) (err error) {
 
 func (pkg *ptpkg) processTypeString(args []string) (err error) {
 	if err = pkg.preprocessPkg(args); err == nil {
-		var wkr = internalGetWorker()
+		wkr := internalGetWorker()
 
 		if len(pkg.flg.ValidArgs) > 0 {
 			// validate for enum
@@ -508,8 +509,8 @@ func (pkg *ptpkg) processTypeString(args []string) (err error) {
 		}
 
 	saveIt:
-		var v = pkg.val
-		var keyPath = backtraceFlagNames(pkg.flg)
+		v := pkg.val
+		keyPath := backtraceFlagNames(pkg.flg)
 		pkg.xxSet(keyPath, v, false)
 		pkg.found = true
 	}
@@ -518,9 +519,9 @@ func (pkg *ptpkg) processTypeString(args []string) (err error) {
 
 func (pkg *ptpkg) processTypeStringSlice(args []string) (err error) {
 	if err = pkg.preprocessPkg(args); err == nil {
-		var v = strings.Split(pkg.val, ",")
+		v := strings.Split(pkg.val, ",")
 
-		var keyPath = backtraceFlagNames(pkg.flg)
+		keyPath := backtraceFlagNames(pkg.flg)
 		// var replaceOrAppend bool // true: replace old, false: append to old value
 		// var existedVal = pkg.store().GetStringSlice(wrapWithRxxtPrefix(keyPath))
 		// if reflect.DeepEqual(existedVal, pkg.flg.DefaultValue) || pkg.flg.times == 1 { // if first matching
@@ -541,7 +542,7 @@ func (pkg *ptpkg) processTypeIntSlice(args []string) (err error) {
 			}
 		}
 
-		var keyPath = backtraceFlagNames(pkg.flg)
+		keyPath := backtraceFlagNames(pkg.flg)
 		// var replaceOrAppend bool
 		// pkg.xxSet(keyPath, v)
 		// var existedVal = pkg.store().GetInt64Slice(wrapWithRxxtPrefix(keyPath))
@@ -563,7 +564,7 @@ func (pkg *ptpkg) processTypeUintSlice(args []string) (err error) {
 			}
 		}
 
-		var keyPath = backtraceFlagNames(pkg.flg)
+		keyPath := backtraceFlagNames(pkg.flg)
 		// var replaceOrAppend bool
 		// pkg.xxSet(keyPath, v)
 		// var existedVal = pkg.store().GetUint64Slice(wrapWithRxxtPrefix(keyPath))

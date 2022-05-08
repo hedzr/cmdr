@@ -7,13 +7,14 @@ package cmdr
 import (
 	"bufio"
 	"fmt"
-	"github.com/hedzr/log/dir"
 	"io"
 	"log"
 	"os"
 	"path"
 	"strings"
 	"sync"
+
+	"github.com/hedzr/log/dir"
 )
 
 func genShell(cmd *Command, args []string) (err error) {
@@ -202,7 +203,7 @@ func (g *gensh) Generate(writer io.Writer, fullPath string, cmd *Command, args [
 }
 
 func (g *gensh) genTo(writer io.Writer, cmd *Command, args []string) (err error) {
-	var ctx = &genshCtx{
+	ctx := &genshCtx{
 		cmd: cmd,
 		theArgs: &internalShellTemplateArgs{
 			RootCommand: cmd.root,

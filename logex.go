@@ -3,12 +3,13 @@
 package cmdr
 
 import (
+	"os"
+	"strings"
+
 	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log"
 	"github.com/hedzr/logex"
 	"github.com/hedzr/logex/build"
-	"os"
-	"strings"
 )
 
 // WithLogx enables github.com/hedzr/logex,log integration
@@ -106,7 +107,7 @@ func (w *ExecWorker) setLoggerLevel(l Level, opts ...logex.Option) {
 }
 
 func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.Option) (err error) {
-	var lvlStr = GetStringRP(w.logexPrefix, "level", lvl.String())
+	lvlStr := GetStringRP(w.logexPrefix, "level", lvl.String())
 	var l Level
 
 	l, err = ParseLevel(lvlStr)

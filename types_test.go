@@ -5,10 +5,11 @@
 package cmdr_test
 
 import (
-	"github.com/hedzr/cmdr"
-	"github.com/hedzr/cmdr/tool"
 	"reflect"
 	"testing"
+
+	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/tool"
 )
 
 func TestToBool(t *testing.T) {

@@ -2,12 +2,13 @@ package cmdr_test
 
 import (
 	"fmt"
-	"github.com/hedzr/cmdr"
-	"github.com/hedzr/log/dir"
 	"os"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/hedzr/cmdr"
+	"github.com/hedzr/log/dir"
 )
 
 // TestWithShellCompletionXXX _
@@ -25,7 +26,7 @@ func TestGenShell1(t *testing.T) {
 	cmdr.ResetOptions()
 
 	// copyRootCmd = rootCmdForTesting
-	var rootCmdX = &cmdr.RootCommand{
+	rootCmdX := &cmdr.RootCommand{
 		Command: cmdr.Command{
 			BaseOpt: cmdr.BaseOpt{
 				Name: "consul-tags",
@@ -42,7 +43,7 @@ func TestGenShell1(t *testing.T) {
 		_ = dir.RemoveDirRecursive("conf.d")
 	}()
 
-	var commands = []string{
+	commands := []string{
 		"consul-tags gen sh --powershell",
 		"consul-tags gen sh --fish",
 		"consul-tags gen sh --zsh",
@@ -87,7 +88,7 @@ func TestForGenerateCommands(t *testing.T) {
 		_ = os.Remove(".tmp.1.toml")
 	}()
 
-	var commands = []string{
+	commands := []string{
 		"consul-tags gen doc --markdown",
 		"consul-tags gen shell --auto",
 		"consul-tags gen shell --auto --force-bash",
@@ -140,7 +141,7 @@ func TestForGenerateDoc(t *testing.T) {
 		_ = dir.RemoveDirRecursive("docs")
 	}()
 
-	var commands = []string{
+	commands := []string{
 		"consul-tags gen doc",
 	}
 	for _, cc := range commands {
@@ -167,7 +168,7 @@ func TestForGenerateMan(t *testing.T) {
 		_ = os.Remove("man3")
 	}()
 
-	var commands = []string{
+	commands := []string{
 		"consul-tags gen man",
 	}
 	for _, cc := range commands {
@@ -184,7 +185,7 @@ func TestForGenerateMan(t *testing.T) {
 
 func TestCompleteCommandAndQuery(t *testing.T) {
 	// copyRootCmd = rootCmdForTesting
-	var commands = []string{
+	commands := []string{
 		"consul-tags __complete ''",
 		"consul-tags __complete se",
 		"consul-tags __complete ms ''",

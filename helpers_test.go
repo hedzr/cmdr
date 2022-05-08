@@ -8,12 +8,13 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/hedzr/cmdr"
-	"github.com/hedzr/cmdr/tool"
-	"github.com/hedzr/log/dir"
 	"os"
 	"reflect"
 	"testing"
+
+	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log/dir"
 )
 
 func resetOsArgs() {
@@ -26,8 +27,8 @@ func resetOsArgs() {
 func prepareStreams() (outX, errX *bytes.Buffer) {
 	outX = bytes.NewBufferString("")
 	errX = bytes.NewBufferString("")
-	var outBuf = bufio.NewWriterSize(outX, 16384)
-	var errBuf = bufio.NewWriterSize(errX, 16384)
+	outBuf := bufio.NewWriterSize(outX, 16384)
+	errBuf := bufio.NewWriterSize(errX, 16384)
 	cmdr.SetInternalOutputStreams(outBuf, errBuf)
 	return
 }
@@ -39,7 +40,7 @@ func prepareConfD(t *testing.T) func() {
 		tool.SavedOsArgs = os.Args
 	}
 
-	var clcl = &cfgLoaded{}
+	clcl := &cfgLoaded{}
 	cfg(t, clcl)
 
 	return func() {
@@ -54,8 +55,7 @@ func prepareConfD(t *testing.T) func() {
 	}
 }
 
-type cfgLoaded struct {
-}
+type cfgLoaded struct{}
 
 func (s *cfgLoaded) OnConfigReloaded() {
 	//

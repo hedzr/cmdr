@@ -5,13 +5,14 @@
 package pprof
 
 import (
-	"github.com/hedzr/log"
-	"github.com/hedzr/log/trace"
 	"os"
 	"path/filepath"
 	"runtime"
 	"runtime/pprof"
 	traceR "runtime/trace"
+
+	"github.com/hedzr/log"
+	"github.com/hedzr/log/trace"
 )
 
 // ProfType represents the profile type

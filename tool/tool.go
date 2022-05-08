@@ -6,14 +6,15 @@ import (
 	"bufio"
 	"crypto/rand"
 	"fmt"
-	"github.com/hedzr/log/dir"
-	"gopkg.in/hedzr/errors.v3"
 	"io"
 	"os"
 	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/hedzr/log/dir"
+	"gopkg.in/hedzr/errors.v3"
 )
 
 // ParseComplex converts a string to complex number.
@@ -205,9 +206,7 @@ func HasOrderPrefix(s string) bool {
 	return xre.MatchString(s)
 }
 
-var (
-	xre = regexp.MustCompile(`^([0-9A-Za-z]+[.])?(.+)$`)
-)
+var xre = regexp.MustCompile(`^([0-9A-Za-z]+[.])?(.+)$`)
 
 // IsDigitHeavy tests if the whole string is digit
 func IsDigitHeavy(s string) bool {

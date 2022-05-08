@@ -2,6 +2,7 @@ package cmdr
 
 import (
 	"fmt"
+
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/examples/internal"
 	"github.com/hedzr/cmdr/plugin/colortable"
@@ -103,7 +104,6 @@ func demoAction(cmd *cmdr.Command, args []string) (err error) {
 }
 
 func kvCommand(root cmdr.OptCmd) {
-
 	// kv
 
 	kvCmd := cmdr.NewSubCmd().Titles("kvstore", "kv").
@@ -131,11 +131,9 @@ func kvCommand(root cmdr.OptCmd) {
 		Description("Read the input file (*.json / *.yml)", ``).
 		Placeholder("FILE").
 		AttachTo(kvRestoreCmd)
-
 }
 
 func msCommand(root cmdr.OptCmd) {
-
 	// ms
 
 	msCmd := cmdr.NewSubCmd().Titles("micro-service", "ms", "microservice").
@@ -355,7 +353,6 @@ func msCommand(root cmdr.OptCmd) {
 		Description("tags toggle: the address of the service (by id or name)").
 		Placeholder("HOST:PORT").
 		AttachTo(tagsTog)
-
 }
 
 const (

@@ -7,6 +7,7 @@ package tool
 
 import (
 	"fmt"
+
 	"golang.org/x/crypto/ssh/terminal"
 )
 

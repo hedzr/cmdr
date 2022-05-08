@@ -2,10 +2,6 @@ package cmdr
 
 import (
 	"fmt"
-	"github.com/hedzr/cmdr/tool"
-	"github.com/hedzr/log"
-	"github.com/hedzr/log/dir"
-	"github.com/hedzr/log/exec"
 	"io"
 	"os"
 	"path"
@@ -13,6 +9,11 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
+
+	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log"
+	"github.com/hedzr/log/dir"
+	"github.com/hedzr/log/exec"
 )
 
 type genzsh struct {
@@ -78,8 +79,8 @@ func (g *genzsh) generateFileIntoWriter(writer io.Writer, fn func(path string, w
 		return
 	}
 
-	var linuxRoot = os.Getuid() == 0
-	var file = "-"
+	linuxRoot := os.Getuid() == 0
+	file := "-"
 	var wr io.Writer = os.Stdout
 	var f *os.File
 	for _, s := range g.locations {
@@ -238,7 +239,7 @@ func (g *genzsh) gzt1(descCommands *strings.Builder, cmd *Command, shortTitleOnl
 }
 
 func (g *genzsh) gzt1ForToggleGroups(descCommands *strings.Builder, cmd *Command, shortTitleOnly bool) {
-	var tgs = make(map[string][]*Flag)
+	tgs := make(map[string][]*Flag)
 	for _, f := range cmd.Flags {
 		if f.ToggleGroup != "" {
 			tgs[f.ToggleGroup] = append(tgs[f.ToggleGroup], f)

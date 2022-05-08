@@ -7,12 +7,13 @@ package cmdr
 import (
 	"bufio"
 	"fmt"
-	"github.com/hedzr/cmdr/tool"
-	"golang.org/x/net/html"
 	"strings"
 	"sync"
 	"time"
 	"unicode/utf8"
+
+	"github.com/hedzr/cmdr/tool"
+	"golang.org/x/net/html"
 )
 
 // some refs:
@@ -88,7 +89,7 @@ var (
 )
 
 func getCPT() ColorTranslator {
-	var cptLocal = &cpt
+	cptLocal := &cpt
 	if GetNoColorMode() {
 		cptLocal = &cptNC
 	}
@@ -150,7 +151,7 @@ func (c *colorPrintTranslator) TranslateTo(s string, initialState int) string {
 }
 
 func (c *colorPrintTranslator) translateTo(root *html.Node, s string, initialState int) string {
-	var states = []int{initialState}
+	states := []int{initialState}
 	var sb strings.Builder
 	var walker func(node *html.Node, level int)
 	colorize := c.colorize(&sb, states, &walker)
@@ -224,8 +225,10 @@ func (c *colorPrintTranslator) _ss(s string) string {
 	return c.stripHTMLTags(s)
 }
 
-var onceoptCM sync.Once
-var cptCM map[string]int
+var (
+	onceoptCM sync.Once
+	cptCM     map[string]int
+)
 
 func (c *colorPrintTranslator) toColorInt(s string) int {
 	onceoptCM.Do(func() {
@@ -261,11 +264,11 @@ func (c *colorPrintTranslator) stripLeftTabs(s string) string {
 
 func (c *colorPrintTranslator) stripLeftTabsOnly(s string) string {
 	var lines []string
-	var tabs = 1000
+	tabs := 1000
 	var emptyLines []int
 	var sb strings.Builder
 	var line int
-	var noLastLF = !strings.HasSuffix(s, "\n")
+	noLastLF := !strings.HasSuffix(s, "\n")
 
 	scanner := bufio.NewScanner(bufio.NewReader(strings.NewReader(s)))
 	for scanner.Scan() {

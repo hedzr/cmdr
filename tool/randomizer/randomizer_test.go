@@ -1,10 +1,11 @@
 package randomizer_test
 
 import (
-	"github.com/hedzr/cmdr/tool/randomizer"
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/hedzr/cmdr/tool/randomizer"
 )
 
 func TestNew(t *testing.T) {

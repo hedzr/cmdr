@@ -2,6 +2,7 @@ package cmdr
 
 import (
 	"fmt"
+
 	"github.com/hedzr/cmdr"
 )
 
@@ -55,11 +56,9 @@ func attachModifyFlags(cmd cmdr.OptCmd) {
 		Placeholder("").
 		ToggleGroup("Mode").
 		AttachTo(cmd)
-
 }
 
 func attachConsulConnectFlags(cmd cmdr.OptCmd) {
-
 	cmdr.NewString("localhost").Titles("addr", "a").
 		// cmd.NewFlagV("localhost", "addr", "a").
 		Description("Consul ip/host and port: HOST[:PORT] (No leading 'http(s)://')", ``).
@@ -108,7 +107,6 @@ func attachConsulConnectFlags(cmd cmdr.OptCmd) {
 		Group("Consul").
 		ExternalTool(cmdr.ExternalToolPasswordInput).
 		AttachTo(cmd)
-
 }
 
 func kvBackup(cmd *cmdr.Command, args []string) (err error) {

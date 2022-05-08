@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/examples/internal"
 	"github.com/hedzr/cmdr/plugin/pprof"
@@ -61,7 +62,6 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 }
 
 func cmdrSoundex(root cmdr.OptCmd) {
-
 	cmdr.NewSubCmd().Titles("soundex", "snd", "sndx", "sound").
 		Description("soundex test").
 		Group("Test").
@@ -73,7 +73,6 @@ func cmdrSoundex(root cmdr.OptCmd) {
 			return
 		}).
 		AttachTo(root)
-
 }
 
 func onUnhandledErrorHandler(err interface{}) {

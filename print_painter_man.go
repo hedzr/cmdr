@@ -7,9 +7,10 @@ package cmdr
 import (
 	"bytes"
 	"fmt"
-	"github.com/hedzr/cmdr/tool"
 	"io"
 	"time"
+
+	"github.com/hedzr/cmdr/tool"
 )
 
 type (
@@ -182,7 +183,7 @@ func (s *manPainter) FpExamplesLine(command *Command) {
 }
 
 func (s *manPainter) FpCommandsTitle(command *Command) {
-	var title = "COMMANDS AND SUB-COMMANDS"
+	title := "COMMANDS AND SUB-COMMANDS"
 	// if command.HasParent() {
 	// 	title = "Commands"
 	// } else {

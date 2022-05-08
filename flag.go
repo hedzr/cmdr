@@ -6,8 +6,9 @@ package cmdr
 
 import (
 	"fmt"
-	"github.com/hedzr/cmdr/tool"
 	"strings"
+
+	"github.com/hedzr/cmdr/tool"
 )
 
 // GetTriggeredTimes returns the matched times

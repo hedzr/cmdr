@@ -4,10 +4,11 @@ package cmdr_test
 
 import (
 	"bufio"
-	"github.com/hedzr/cmdr"
-	"golang.org/x/net/html"
 	"strings"
 	"testing"
+
+	"github.com/hedzr/cmdr"
+	"golang.org/x/net/html"
 )
 
 func TestGetTextPieces(t *testing.T) {

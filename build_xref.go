@@ -6,18 +6,19 @@ package cmdr
 
 import (
 	"fmt"
-	cmdrbase "github.com/hedzr/cmdr-base"
-	"github.com/hedzr/cmdr/conf"
-	"github.com/hedzr/log/closers"
-	"github.com/hedzr/log/dir"
-	"github.com/hedzr/log/exec"
-	"gopkg.in/hedzr/errors.v3"
 	"os"
 	"path"
 	"plugin"
 	"regexp"
 	"runtime"
 	"strings"
+
+	cmdrbase "github.com/hedzr/cmdr-base"
+	"github.com/hedzr/cmdr/conf"
+	"github.com/hedzr/log/closers"
+	"github.com/hedzr/log/dir"
+	"github.com/hedzr/log/exec"
+	"gopkg.in/hedzr/errors.v3"
 )
 
 // AddOnBeforeXrefBuilding add hook func
@@ -364,7 +365,7 @@ func (w *ExecWorker) buildAddonsCrossRefs(root *RootCommand) {
 		if dir.FileExists(dirExpanded) {
 			err := dir.ForFileMax(dirExpanded, 0, 1, func(depth int, cwd string, fi os.FileInfo) (stop bool, err error) {
 				if !fi.IsDir() {
-					var ok = true // = strings.HasPrefix(fi.Name(), prefix)
+					ok := true // = strings.HasPrefix(fi.Name(), prefix)
 					// Logger.Debugf("      -> addons.dir: %v, file: %v", dirExpanded, fi.Name())
 					if ok && dir.IsModeExecAny(fi.Mode()) {
 						err = w._addOnAddIt(fi, root, cwd)
@@ -400,7 +401,7 @@ func (w *ExecWorker) _addonAsSubCmd(root *RootCommand, cmdName, cmdPath string) 
 		}
 	}()
 
-	var desc = fmt.Sprintf("execute %q", cmdPath)
+	desc := fmt.Sprintf("execute %q", cmdPath)
 
 	var p *plugin.Plugin
 	p, err = plugin.Open(cmdPath)
@@ -529,7 +530,7 @@ func (w *ExecWorker) buildExtensionsCrossRefs(root *RootCommand) {
 		if dir.FileExists(dirExpanded) {
 			err := dir.ForFileMax(dirExpanded, 0, 1, func(depth int, cwd string, fi os.FileInfo) (stop bool, err error) {
 				if !fi.IsDir() {
-					var ok = true // = strings.HasPrefix(fi.Name(), prefix)
+					ok := true // = strings.HasPrefix(fi.Name(), prefix)
 					// Logger.Debugf("      -> ext.dir: %v, file: %v", dirExpanded, fi.Name())
 					if ok && dir.IsModeExecAny(fi.Mode()) {
 						err = w._addIt(fi, root, cwd)
@@ -559,7 +560,7 @@ func (w *ExecWorker) _addIt(fi os.FileInfo, root *RootCommand, cwd string) (err 
 }
 
 func (w *ExecWorker) _addAsSubCmd(parent *Command, cmdName, cmdPath string) {
-	var desc = fmt.Sprintf("execute %q", cmdPath)
+	desc := fmt.Sprintf("execute %q", cmdPath)
 	if _, ok := parent.allCmds[ExtGroup]; !ok {
 		parent.allCmds[ExtGroup] = make(map[string]*Command)
 	}

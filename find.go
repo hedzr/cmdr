@@ -6,13 +6,14 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/hedzr/cmdr/conf"
-	"github.com/hedzr/cmdr/tool"
 	log2 "log"
 	"os"
 	"strings"
 	"text/template"
 	"time"
+
+	"github.com/hedzr/cmdr/conf"
+	"github.com/hedzr/cmdr/tool"
 )
 
 // FindSubCommand find sub-command with `longName` from `cmd`
@@ -99,8 +100,8 @@ func manExamples(s string, data interface{}) string {
 }
 
 func tplApply(tmpl string, data interface{}) string {
-	var w = new(bytes.Buffer)
-	var tpl = template.Must(template.New("x").Parse(tmpl))
+	w := new(bytes.Buffer)
+	tpl := template.Must(template.New("x").Parse(tmpl))
 	if err := tpl.Execute(w, data); err != nil {
 		log2.Printf("tpl execute error: %v", err)
 		return ""

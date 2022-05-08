@@ -3,10 +3,11 @@
 package cmdr_test
 
 import (
-	"github.com/hedzr/cmdr"
 	"os"
 	"strconv"
 	"testing"
+
+	"github.com/hedzr/cmdr"
 )
 
 func BenchmarkItoa(b *testing.B) {

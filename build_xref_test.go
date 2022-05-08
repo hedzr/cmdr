@@ -3,15 +3,16 @@
 package cmdr_test
 
 import (
+	"os"
+	"strings"
+	"testing"
+
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/conf"
 	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log/dir"
 	"github.com/hedzr/logex"
 	"gopkg.in/hedzr/errors.v3"
-	"os"
-	"strings"
-	"testing"
 )
 
 // TestAddonPlugin for pluggable addons/plugins
@@ -33,7 +34,7 @@ func TestAddonPlugin(t *testing.T) {
 	var err error
 	// v1, v2 := 11, 0
 	// var cmd *Command
-	var rootCmdX = &cmdr.RootCommand{
+	rootCmdX := &cmdr.RootCommand{
 		Command: cmdr.Command{
 			BaseOpt: cmdr.BaseOpt{
 				Name: "flags",
@@ -50,7 +51,7 @@ func TestAddonPlugin(t *testing.T) {
 	}
 
 	// cmd = &rootCmdX.Command
-	var commands = []struct {
+	commands := []struct {
 		line      string
 		validator func(t *testing.T, err error) error
 	}{
@@ -101,7 +102,7 @@ func TestPE(t *testing.T) {
 	var err error
 	// v1, v2 := 11, 0
 	// var cmd *Command
-	var rootCmdX = &cmdr.RootCommand{
+	rootCmdX := &cmdr.RootCommand{
 		Command: cmdr.Command{
 			BaseOpt: cmdr.BaseOpt{
 				Name: "flags",
@@ -118,7 +119,7 @@ func TestPE(t *testing.T) {
 	}
 
 	// cmd = &rootCmdX.Command
-	var commands = []struct {
+	commands := []struct {
 		line      string
 		validator func(t *testing.T, err error) error
 	}{

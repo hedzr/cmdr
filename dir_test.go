@@ -8,13 +8,14 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"os"
+	"strings"
+	"testing"
+
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/logex"
 	"gopkg.in/hedzr/errors.v3"
-	"os"
-	"strings"
-	"testing"
 )
 
 // // TestIsDirectory tests more
@@ -68,10 +69,10 @@ func TestMatch(t *testing.T) {
 
 	var err error
 	var cmd *cmdr.Command
-	var outX = bytes.NewBufferString("")
-	var errX = bytes.NewBufferString("")
-	var outBuf = bufio.NewWriterSize(outX, 16384)
-	var errBuf = bufio.NewWriterSize(errX, 16384)
+	outX := bytes.NewBufferString("")
+	errX := bytes.NewBufferString("")
+	outBuf := bufio.NewWriterSize(outX, 16384)
+	errBuf := bufio.NewWriterSize(errX, 16384)
 	cmdr.SetInternalOutputStreams(outBuf, errBuf)
 	// cmdr.SetCustomShowVersion(nil)
 	// cmdr.SetCustomShowBuildInfo(nil)
@@ -228,7 +229,7 @@ func TestWrongEnum(t *testing.T) {
 // }
 
 func TestComplexOpt1(t *testing.T) {
-	var rootCmdX = func() *cmdr.RootCommand {
+	rootCmdX := func() *cmdr.RootCommand {
 		return &cmdr.RootCommand{
 			Command: cmdr.Command{
 				BaseOpt: cmdr.BaseOpt{
@@ -245,7 +246,7 @@ func TestComplexOpt1(t *testing.T) {
 			},
 		}
 	}
-	var commands = testCases{
+	commands := testCases{
 		"consul-tags -cc 3.14159-2.56i": func(t *testing.T, cmd *cmdr.Command, err error) error {
 			if cmdr.GetComplex128("app.complex") != 3.14159-2.56i {
 				return errors.New("something wrong complex. |expected %v|got %v|", 3.14159-2.56i, cmdr.GetComplex128("app.complex"))
@@ -324,7 +325,7 @@ func TestComplexOpt1(t *testing.T) {
 // }
 
 func TestTildeOptionsAndToggleGroupBranch1(t *testing.T) {
-	var rootCmdX = func() *cmdr.RootCommand {
+	rootCmdX := func() *cmdr.RootCommand {
 		return &cmdr.RootCommand{
 			Command: cmdr.Command{
 				BaseOpt: cmdr.BaseOpt{
@@ -362,7 +363,7 @@ func TestTildeOptionsAndToggleGroupBranch1(t *testing.T) {
 	}
 
 	// cmd = &rootCmdX.Command
-	var commands = testCases{
+	commands := testCases{
 		"consul-tags -":                     nil,
 		"consul-tags --":                    nil,
 		"consul-tags --help ~~debug":        nil,
@@ -455,7 +456,7 @@ func TestTildeOptionsAndToggleGroupBranch1(t *testing.T) {
 // }
 
 func TestHandlerPassThru1(t *testing.T) {
-	var rootCmdX = func() *cmdr.RootCommand {
+	rootCmdX := func() *cmdr.RootCommand {
 		return &cmdr.RootCommand{
 			Command: cmdr.Command{
 				BaseOpt: cmdr.BaseOpt{
@@ -498,7 +499,7 @@ func TestHandlerPassThru1(t *testing.T) {
 	}
 
 	// cmd = &rootCmdX.Command
-	var commands = testCases{
+	commands := testCases{
 		"consul-tags --help -- ~~debug": nil,
 		"consul-tags c1 --help":         nil,
 		"consul-tags c1 c2 --help":      nil,
@@ -628,10 +629,10 @@ func testFramework(t *testing.T, rootCommand func() *cmdr.RootCommand, cases tes
 
 	var err error
 	var cmd *cmdr.Command
-	var outX = bytes.NewBufferString("")
-	var errX = bytes.NewBufferString("")
-	var outBuf = bufio.NewWriterSize(outX, 32768)
-	var errBuf = bufio.NewWriterSize(errX, 16384)
+	outX := bytes.NewBufferString("")
+	errX := bytes.NewBufferString("")
+	outBuf := bufio.NewWriterSize(outX, 32768)
+	errBuf := bufio.NewWriterSize(errX, 16384)
 	cmdr.SetInternalOutputStreams(outBuf, errBuf)
 	// cmdr.SetCustomShowVersion(nil)
 	// cmdr.SetCustomShowBuildInfo(nil)

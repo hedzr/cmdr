@@ -11,7 +11,6 @@ import (
 
 // Entry is app main entry
 func Entry() {
-
 	// logrus.SetLevel(logrus.DebugLevel)
 	// logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
 
@@ -26,5 +25,4 @@ func Entry() {
 	); err != nil {
 		log.Fatalf("error: %+v", err)
 	}
-
 }

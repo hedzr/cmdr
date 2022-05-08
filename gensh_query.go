@@ -2,9 +2,10 @@ package cmdr
 
 import (
 	"fmt"
-	"gopkg.in/hedzr/errors.v3"
 	"os"
 	"strings"
+
+	"gopkg.in/hedzr/errors.v3"
 )
 
 // helpSystemAction is __complete command handler.
@@ -44,7 +45,7 @@ Args: %v
 `, directivesToString(ctx.directive), count, args)
 		}()
 
-		var cptLocal = getCPT()
+		cptLocal := getCPT()
 
 		if ctx.matchedFlag != nil {
 			keys = getSortedKeysFromFlgMap(ctx.matchedPrecededFlagList)
@@ -104,6 +105,7 @@ func (ctx *queryShcompContext) buildMatchedSubCommandList(cmd *Command) {
 		ctx.matchedList[c.GetTitleName()] = c
 	}
 }
+
 func (ctx *queryShcompContext) winspec(s string) string {
 	if s == "`\"`\"" {
 		return ""

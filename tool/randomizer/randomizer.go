@@ -60,8 +60,11 @@ const (
 	ASCII = AlphabetNumerics + Symbols
 )
 
-var hundred = big.NewInt(100)
-var seededRand = mrand.New(mrand.NewSource(time.Now().UTC().UnixNano())) //nolint:gosec //like it
+var (
+	hundred    = big.NewInt(100)
+	seededRand = mrand.New(mrand.NewSource(time.Now().UTC().UnixNano())) //nolint:gosec //like it
+)
+
 // var seededRand = rand.New(mrand.NewSource(time.Now().UTC().UnixNano()))
 var mu sync.Mutex
 
@@ -70,11 +73,13 @@ func (r *randomizer) Next() int {
 	defer mu.Unlock()
 	return seededRand.Int()
 }
+
 func (r *randomizer) NextIn(max int) int {
 	mu.Lock()
 	defer mu.Unlock()
 	return seededRand.Intn(max)
 }
+
 func (r *randomizer) inRange(min, max int) int {
 	mu.Lock()
 	defer mu.Unlock()
@@ -86,11 +91,13 @@ func (r *randomizer) NextInt63n(n int64) int64 {
 	defer mu.Unlock()
 	return seededRand.Int63n(n)
 }
+
 func (r *randomizer) NextIntn(n int) int {
 	mu.Lock()
 	defer mu.Unlock()
 	return seededRand.Intn(n)
 }
+
 func (r *randomizer) NextFloat64() float64 {
 	mu.Lock()
 	defer mu.Unlock()

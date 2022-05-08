@@ -6,10 +6,6 @@ package cmdr
 
 import (
 	"bufio"
-	"github.com/hedzr/cmdr/conf"
-	"github.com/hedzr/log/closers"
-	"github.com/hedzr/log/dir"
-	"gopkg.in/hedzr/errors.v3"
 	"io"
 	"log"
 	"os"
@@ -17,6 +13,11 @@ import (
 	"path"
 	"runtime"
 	"sync/atomic"
+
+	"github.com/hedzr/cmdr/conf"
+	"github.com/hedzr/log/closers"
+	"github.com/hedzr/log/dir"
+	"gopkg.in/hedzr/errors.v3"
 )
 
 // WithInternalDefaultAction provides a default command action to which hasn't been defined.
@@ -564,7 +565,7 @@ func (s *pagerClose) Close() {
 
 func closePager(w *ExecWorker, cmd *exec.Cmd, pager io.WriteCloser) func() {
 	return func() {
-		var err = errors.New("closePager errors")
+		err := errors.New("closePager errors")
 		err.Attach(pager.Close())
 		err.Attach(cmd.Wait())
 		if !err.IsEmpty() {
@@ -748,9 +749,7 @@ type (
 	UnhandledErrorHandler func(err interface{})
 )
 
-var (
-	unhandledErrorHandler UnhandledErrorHandler
-)
+var unhandledErrorHandler UnhandledErrorHandler
 
 // WithNoCommandAction do NOT run the action of the matched command.
 func WithNoCommandAction(b bool) ExecOption {

@@ -8,9 +8,10 @@ import (
 	"bytes"
 	"encoding/gob"
 	"errors"
-	"github.com/hedzr/log"
 	"reflect"
 	"strings"
+
+	"github.com/hedzr/log"
 )
 
 type (

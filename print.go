@@ -7,15 +7,16 @@ package cmdr
 import (
 	"bytes"
 	"fmt"
-	"github.com/hedzr/cmdr/conf"
-	"github.com/hedzr/cmdr/tool"
-	"github.com/hedzr/log/dir"
 	"io"
 	"os"
 	"sort"
 	"strings"
 	"time"
 	"unicode"
+
+	"github.com/hedzr/cmdr/conf"
+	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log/dir"
 )
 
 // func fp00(args ...interface{}) {
@@ -375,7 +376,7 @@ func findMaxR2(s2 []aGroupedSections, maxR int) int {
 
 func getTextPiece(str string, start, want int) (text, ending string) {
 	var sb, tried strings.Builder
-	var src = []rune(str[start:])
+	src := []rune(str[start:])
 	var tryEscape, tryAnsiColor bool
 	var tryPos int
 	type controls struct {
@@ -418,7 +419,7 @@ func getTextPiece(str string, start, want int) (text, ending string) {
 	}
 
 	var out strings.Builder
-	var outs = []rune(sb.String())
+	outs := []rune(sb.String())
 	var last int
 	for _, cc := range escapeSeqs {
 		out.WriteString(string(outs[last:cc.pos]))
@@ -753,7 +754,7 @@ GoPrintFlags:
 		for _, group := range k2 {
 			groups := command.allFlags[group]
 			if len(groups) > 0 {
-				var section = printHelpFlagSectionsChild(p, command, groups, group)
+				section := printHelpFlagSectionsChild(p, command, groups, group)
 				if section.maxL > 0 {
 					gs.sections = append(gs.sections, section)
 				}
@@ -808,7 +809,7 @@ func (w *ExecWorker) showBuildInfo(cmd *Command) {
 
 	w.printHeader(w.currentHelpPainter, &w.rootCommand.Command)
 
-	var ts = conf.Buildstamp
+	ts := conf.Buildstamp
 	if ts == "" {
 		ts = time.Now().UTC().Format("")
 	}

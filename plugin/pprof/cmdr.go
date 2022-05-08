@@ -5,8 +5,9 @@
 package pprof
 
 import (
-	"github.com/hedzr/cmdr"
 	"strings"
+
+	"github.com/hedzr/cmdr"
 )
 
 // AttachToCmdr attaches the profiling options to root command.
@@ -220,7 +221,9 @@ func init() {
 	}, nil)
 }
 
-var optAddCPUProfileOptions cmdr.ExecOption
-var sTypes []string
-var closer func()
-var hidden bool
+var (
+	optAddCPUProfileOptions cmdr.ExecOption
+	sTypes                  []string
+	closer                  func()
+	hidden                  bool
+)

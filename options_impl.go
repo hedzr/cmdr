@@ -4,10 +4,6 @@ package cmdr
 
 import (
 	"fmt"
-	"github.com/hedzr/cmdr/tool"
-	"github.com/hedzr/log"
-	"github.com/hedzr/log/dir"
-	"gopkg.in/yaml.v3"
 	"os"
 	"reflect"
 	"sort"
@@ -15,6 +11,11 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log"
+	"github.com/hedzr/log/dir"
+	"gopkg.in/yaml.v3"
 )
 
 // newOptions returns an `Options` structure pointer
@@ -742,6 +743,7 @@ func (s *Options) GetStringNoExpand(key string, defaultVal ...string) (ret strin
 	}
 	return
 }
+
 func (s *Options) oneenv(rootCmd *RootCommand, prefix, key string) {
 	ek := s.envKey(key)
 	if v, ok := os.LookupEnv(ek); ok {
@@ -809,7 +811,7 @@ func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
 }
 
 func (s *Options) tryResetOthersInTG(flg *Flag, fullKey string) {
-	var tgs = make(map[string][]*Flag)
+	tgs := make(map[string][]*Flag)
 	for _, c := range flg.owner.Flags {
 		if c.ToggleGroup != "" {
 			tgs[c.ToggleGroup] = append(tgs[c.ToggleGroup], c)
@@ -1526,7 +1528,7 @@ func (s *Options) SaveCheckpoint() (err error) {
 // RestoreCheckpoint restore 1 or n checkpoint(s) from snapshots history.
 // see also SaveCheckpoint
 func (s *Options) RestoreCheckpoint(n ...int) (err error) {
-	var nn = 1
+	nn := 1
 	for _, n1 := range n {
 		nn = n1
 	}

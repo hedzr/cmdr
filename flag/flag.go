@@ -6,9 +6,10 @@
 package flag
 
 import (
-	"github.com/hedzr/cmdr"
 	"reflect"
 	"time"
+
+	"github.com/hedzr/cmdr"
 )
 
 type (
@@ -156,7 +157,7 @@ func WithOnSet(f func(keyPath string, value interface{})) (opt Option) {
 // WithCommand define an (Sub-)Command
 func WithCommand(cmdDefines func(newSubCmd cmdr.OptCmd)) (opt Option) {
 	return func(flag cmdr.OptFlag) {
-		var oo = cmdr.NewSubCmd().AttachTo(flag.OwnerCommand())
+		oo := cmdr.NewSubCmd().AttachTo(flag.OwnerCommand())
 		cmdDefines(oo)
 	}
 }
@@ -194,7 +195,7 @@ func BoolVar(p *bool, name string, value bool, usage string, options ...Option) 
 // Bool defines a bool flag with specified name, default value, and usage string.
 // The return value is the address of a bool variable that stores the value of the flag.
 func Bool(name string, value bool, usage string, options ...Option) *bool {
-	var p = new(bool)
+	p := new(bool)
 	BoolVar(p, name, value, usage, options...)
 	return p
 }
@@ -250,7 +251,7 @@ func isTypeSInt(kind reflect.Kind) bool { //nolint:deadcode,unused //keep it
 // The return value is the address of an int variable that stores the value of the flag.
 func Int(name string, value int, usage string, options ...Option) *int {
 	// return CommandLine.Int(name, value, usage)
-	var p = new(int)
+	p := new(int)
 	IntVar(p, name, value, usage, options...)
 	return p
 }
@@ -288,7 +289,7 @@ func Int64Var(p *int64, name string, value int64, usage string, options ...Optio
 // The return value is the address of an int64 variable that stores the value of the flag.
 func Int64(name string, value int64, usage string, options ...Option) *int64 {
 	// return CommandLine.Int64(name, value, usage)
-	var p = new(int64)
+	p := new(int64)
 	Int64Var(p, name, value, usage, options...)
 	return p
 }
@@ -326,7 +327,7 @@ func UintVar(p *uint, name string, value uint, usage string, options ...Option) 
 // The return value is the address of a uint variable that stores the value of the flag.
 func Uint(name string, value uint, usage string, options ...Option) *uint {
 	// return CommandLine.Uint(name, value, usage)
-	var p = new(uint)
+	p := new(uint)
 	UintVar(p, name, value, usage, options...)
 	return p
 }
@@ -364,7 +365,7 @@ func Uint64Var(p *uint64, name string, value uint64, usage string, options ...Op
 // The return value is the address of a uint64 variable that stores the value of the flag.
 func Uint64(name string, value uint64, usage string, options ...Option) *uint64 {
 	// return CommandLine.Uint64(name, value, usage)
-	var p = new(uint64)
+	p := new(uint64)
 	Uint64Var(p, name, value, usage, options...)
 	return p
 }
@@ -399,7 +400,7 @@ func StringVar(p *string, name, value, usage string, options ...Option) {
 // The return value is the address of a string variable that stores the value of the flag.
 func String(name, value, usage string, options ...Option) *string {
 	// return CommandLine.String(name, value, usage)
-	var p = new(string)
+	p := new(string)
 	StringVar(p, name, value, usage, options...)
 	return p
 }
@@ -434,7 +435,7 @@ func Float64Var(p *float64, name string, value float64, usage string, options ..
 // The return value is the address of a float64 variable that stores the value of the flag.
 func Float64(name string, value float64, usage string, options ...Option) *float64 {
 	// return CommandLine.Float64(name, value, usage)
-	var p = new(float64)
+	p := new(float64)
 	Float64Var(p, name, value, usage, options...)
 	return p
 }
@@ -469,7 +470,7 @@ func Float32Var(p *float32, name string, value float32, usage string, options ..
 // The return value is the address of a float64 variable that stores the value of the flag.
 func Float32(name string, value float32, usage string, options ...Option) *float32 {
 	// return CommandLine.Float64(name, value, usage)
-	var p = new(float32)
+	p := new(float32)
 	Float32Var(p, name, value, usage, options...)
 	return p
 }
@@ -508,7 +509,7 @@ func DurationVar(p *time.Duration, name string, value time.Duration, usage strin
 // The flag accepts a value acceptable to time.ParseDuration.
 func Duration(name string, value time.Duration, usage string, options ...Option) *time.Duration {
 	// return CommandLine.Duration(name, value, usage)
-	var p = new(time.Duration)
+	p := new(time.Duration)
 	DurationVar(p, name, value, usage, options...)
 	return p
 }
@@ -543,7 +544,7 @@ func StringSliceVar(p *[]string, name string, value []string, usage string, opti
 // The return value is the address of a string variable that stores the value of the flag.
 func StringSlice(name string, value []string, usage string, options ...Option) *[]string {
 	// return CommandLine.String(name, value, usage)
-	var p = new([]string)
+	p := new([]string)
 	StringSliceVar(p, name, value, usage, options...)
 	return p
 }
@@ -578,7 +579,7 @@ func IntSliceVar(p *[]int, name string, value []int, usage string, options ...Op
 // The return value is the address of a string variable that stores the value of the flag.
 func IntSlice(name string, value []int, usage string, options ...Option) *[]int {
 	// return CommandLine.String(name, value, usage)
-	var p = new([]int)
+	p := new([]int)
 	IntSliceVar(p, name, value, usage, options...)
 	return p
 }

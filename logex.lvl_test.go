@@ -3,8 +3,9 @@
 package cmdr_test
 
 import (
-	"github.com/hedzr/cmdr"
 	"testing"
+
+	"github.com/hedzr/cmdr"
 )
 
 func TestLevels(t *testing.T) {
@@ -20,7 +21,7 @@ func TestLevels(t *testing.T) {
 	_, e := cmdr.Level(uint32(1000)).MarshalText()
 	t.Logf("- level %q: %v", cmdr.Level(uint32(1000)), e)
 
-	var l = cmdr.DebugLevel
+	l := cmdr.DebugLevel
 	e = (&l).UnmarshalText([]byte("XX"))
 	t.Logf("- level XX: %v", e)
 	e = (&l).UnmarshalText([]byte("TRACE"))

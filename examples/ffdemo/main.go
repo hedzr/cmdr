@@ -6,10 +6,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/hedzr/cmdr"
-	"github.com/hedzr/cmdr/flag"
 	"os"
 	"time"
+
+	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/flag"
 )
 
 var (

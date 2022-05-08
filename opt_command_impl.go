@@ -339,7 +339,7 @@ func (s *optCommandImpl) newFlagVCSlice(elt reflect.Type, defaultValue interface
 
 func (s *optCommandImpl) NewFlagV(defaultValue interface{}, titles ...string) (opt OptFlag) {
 	var flg OptFlag
-	var vv = reflect.TypeOf(defaultValue)
+	vv := reflect.TypeOf(defaultValue)
 	flg = s.newFlagVC(vv, defaultValue)
 	if flg != nil {
 		flg.DefaultValue(defaultValue, "")

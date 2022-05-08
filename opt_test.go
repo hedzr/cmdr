@@ -6,10 +6,11 @@ package cmdr_test
 
 import (
 	"fmt"
-	"github.com/hedzr/cmdr"
-	"gopkg.in/yaml.v3"
 	"testing"
 	"time"
+
+	"github.com/hedzr/cmdr"
+	"gopkg.in/yaml.v3"
 )
 
 func TestCommandMethods(t *testing.T) {
@@ -628,7 +629,7 @@ func TestMergeWith(t *testing.T) {
 		t.Fatalf("err, expect 'test', but got '%v'", cmdr.GetString("app.test.deep.branch.1"))
 	}
 
-	var m = make(map[string]interface{})
+	m := make(map[string]interface{})
 	err := yaml.Unmarshal([]byte(`
 app:
   test:
@@ -706,7 +707,8 @@ func addDupFlags(root *cmdr.RootCmdOpt) {
 			Group:           "",
 			Description:     "",
 			LongDescription: "",
-		}},
+		},
+	},
 		&cmdr.Command{
 			BaseOpt: cmdr.BaseOpt{
 				Name:            "micro-service",
@@ -715,7 +717,8 @@ func addDupFlags(root *cmdr.RootCmdOpt) {
 				Group:           "",
 				Description:     "",
 				LongDescription: "",
-			}},
+			},
+		},
 	)
 }
 
@@ -771,17 +774,15 @@ func TestAlreadyUsed(t *testing.T) {
 	// }
 }
 
-var (
-	// testing args
-	alreadyUsedTestings = map[string]func(t *testing.T, c *cmdr.Command, e error) error{
-		// "consul-tags -qq": func(t *testing.T) error {
-		// 	return nil
-		// },
-		"consul-tags --help": func(t *testing.T, c *cmdr.Command, e error) error {
-			return nil
-		},
-		// "consul-tags --help ~~debug": func(t *testing.T) error {
-		// 	return nil
-		// },
-	}
-)
+// testing args
+var alreadyUsedTestings = map[string]func(t *testing.T, c *cmdr.Command, e error) error{
+	// "consul-tags -qq": func(t *testing.T) error {
+	// 	return nil
+	// },
+	"consul-tags --help": func(t *testing.T, c *cmdr.Command, e error) error {
+		return nil
+	},
+	// "consul-tags --help ~~debug": func(t *testing.T) error {
+	// 	return nil
+	// },
+}

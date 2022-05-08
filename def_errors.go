@@ -5,8 +5,9 @@ package cmdr
 import (
 	"bytes"
 	"fmt"
-	"gopkg.in/hedzr/errors.v3"
 	"reflect"
+
+	"gopkg.in/hedzr/errors.v3"
 )
 
 var (

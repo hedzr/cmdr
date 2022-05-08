@@ -7,11 +7,12 @@ package cmdr
 import (
 	"bytes"
 	"fmt"
-	"github.com/hedzr/cmdr/tool"
-	"github.com/hedzr/log/exec"
 	"runtime"
 	"strconv"
 	"strings"
+
+	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log/exec"
 )
 
 type (
@@ -246,7 +247,7 @@ func (s *helpPainter) FpFlagsLine(command *Command, flg *Flag, maxShort int, def
 		defValStr = fmt.Sprintf("%v, in [%v..%v]", defValStr, flg.Min, flg.Max)
 	}
 
-	var envKeys = s.envKeys(flg)
+	envKeys := s.envKeys(flg)
 
 	if len(flg.Deprecated) > 0 {
 		if GetNoColorMode() {
@@ -326,7 +327,7 @@ func initTabStop(ts int) {
 	// defaultTabStop = ts
 	defaultTabStop = ts
 
-	var s = strconv.Itoa(defaultTabStop)
+	s := strconv.Itoa(defaultTabStop)
 
 	fmtCmdGroupTitle = "  [\x1b[2m\x1b[%dm%s\x1b[0m]"
 	fmtCmdGroupTitleNC = "  [%s]"

@@ -241,10 +241,13 @@ func init() {
 	})
 }
 
-var onceWorkerInitial sync.Once   // once initializer for some global variables
-var uniqueWorkerLock sync.RWMutex //
-var uniqueWorker *ExecWorker      // NOTE that pointer to uniqueWorker can be updated, it's not an initial-once pointer
-var noResetWorker bool            //
+var (
+	onceWorkerInitial sync.Once    // once initializer for some global variables
+	uniqueWorkerLock  sync.RWMutex //
+	uniqueWorker      *ExecWorker  // NOTE that pointer to uniqueWorker can be updated, it's not an initial-once pointer
+	noResetWorker     bool         //
+)
+
 // var switchCharMap map[string]string //
 
 const confDFolderNameConst = "conf.d"

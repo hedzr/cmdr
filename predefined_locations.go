@@ -4,12 +4,13 @@ package cmdr
 
 import (
 	"fmt"
-	"github.com/hedzr/cmdr/conf"
-	"github.com/hedzr/cmdr/tool"
-	"github.com/hedzr/log/dir"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/hedzr/cmdr/conf"
+	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log/dir"
 )
 
 func (w *ExecWorker) parsePredefinedLocation() (err error) {

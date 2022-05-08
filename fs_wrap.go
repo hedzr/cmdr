@@ -11,13 +11,14 @@ package cmdr
 
 import (
 	"bufio"
-	"github.com/fsnotify/fsnotify"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/fsnotify/fsnotify"
 )
 
 func fsWatcherRoutine(s *Options, configDir string, filesWatching []string, initWG *sync.WaitGroup) {
@@ -125,5 +126,7 @@ func stopExitingChannelForFsWatcher() {
 // 	}
 // }
 
-var cmdrExitingForFsWatcher = make(chan struct{}, 16)
-var effw sync.RWMutex
+var (
+	cmdrExitingForFsWatcher = make(chan struct{}, 16)
+	effw                    sync.RWMutex
+)

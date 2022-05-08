@@ -11,9 +11,7 @@ type (
 	UnknownOptionHandler func(isFlag bool, title string, cmd *Command, args []string) (fallbackToDefaultDetector bool)
 )
 
-var (
-	unknownOptionHandler UnknownOptionHandler
-)
+var unknownOptionHandler UnknownOptionHandler
 
 // // SetUnknownOptionHandler enables your customized wrong command/flag processor.
 // // internal processor supports smart suggestions for those wrong commands and flags.

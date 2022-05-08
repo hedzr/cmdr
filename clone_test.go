@@ -6,12 +6,13 @@ package cmdr_test
 
 import (
 	"bytes"
-	"github.com/hedzr/cmdr"
-	"gopkg.in/hedzr/errors.v3"
 	"reflect"
 	"testing"
 	"time"
 	"unsafe"
+
+	"github.com/hedzr/cmdr"
+	"gopkg.in/hedzr/errors.v3"
 )
 
 type User struct {
@@ -190,9 +191,9 @@ func TestCopyTwoStruct(t *testing.T) {
 
 func TestCopyStruct(t *testing.T) {
 	var fakeAge int32 = 12
-	var born = 7
+	born := 7
 	var bornU uint = 7
-	var sz = "dablo"
+	sz := "dablo"
 	user := User{Name: "Faked"}
 	employee := Employee{}
 
@@ -203,7 +204,8 @@ func TestCopyStruct(t *testing.T) {
 	_ = cmdr.GormDefaultCopier.Copy(&employee, &user, "Shit", "Memo", "Name")
 	// cmdr.StandardCopier.Copy(&employee, &user, "Shit", "Memo", "Name")
 
-	user = User{Name: "Faked", Nickname: "user", Age: 18, FakeAge: &fakeAge,
+	user = User{
+		Name: "Faked", Nickname: "user", Age: 18, FakeAge: &fakeAge,
 		Role: "User", Notes: []string{"hello world", "welcome"}, flags: []byte{'x'},
 		Retry: 3, Times: 17, RetryU: 23, TimesU: 21, FxReal: 31, FxTime: 37,
 		FxTimeU: 13, UxA: 11, UxB: 0, Born: &born, BornU: &bornU,
@@ -398,7 +400,7 @@ func TestScanner(t *testing.T) {
 }
 
 func TestClone(t *testing.T) {
-	var aa = "dsajkld"
+	aa := "dsajkld"
 	var b int
 
 	// cmdr.Clone(b, aa)

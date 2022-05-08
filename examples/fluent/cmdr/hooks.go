@@ -2,9 +2,10 @@ package cmdr
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/hedzr/cmdr"
 	"gopkg.in/hedzr/errors.v3"
-	"strings"
 )
 
 func onSwitchCharHit(parsed *cmdr.Command, switchChar string, args []string) (err error) {

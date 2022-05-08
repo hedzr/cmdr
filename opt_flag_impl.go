@@ -5,9 +5,10 @@
 package cmdr
 
 import (
-	"github.com/hedzr/cmdr/tool"
 	"regexp"
 	"strings"
+
+	"github.com/hedzr/cmdr/tool"
 )
 
 type optFlagImpl struct {
@@ -203,7 +204,7 @@ func (s *optFlagImpl) EnvKeys(keys ...string) (opt OptFlag) {
 }
 
 func (s *optFlagImpl) Required(required ...bool) (opt OptFlag) {
-	var b = true
+	b := true
 	for _, bb := range required {
 		b = bb
 	}

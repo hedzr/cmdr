@@ -2,6 +2,7 @@ package colortable
 
 import (
 	"fmt"
+
 	"github.com/hedzr/cmdr"
 )
 
@@ -57,7 +58,7 @@ func addTo(rr cmdr.OptCmd, root *cmdr.RootCmdOpt) {
 func printColorTable(cmd *cmdr.Command, args []string) (err error) {
 	// println("yes")
 
-	var table = []struct {
+	table := []struct {
 		name   string
 		fg, bg int
 	}{
@@ -93,7 +94,8 @@ func printColorTable(cmd *cmdr.Command, args []string) (err error) {
 func printColorTable24(table []struct {
 	name   string
 	fg, bg int
-}) {
+},
+) {
 	str := "#"
 	for r := 0; r < 256; r++ {
 		for g := 0; g < 256; g++ {
@@ -109,7 +111,8 @@ func printColorTable24(table []struct {
 func printColorTable4(table []struct {
 	name   string
 	fg, bg int
-}) {
+},
+) {
 	fmt.Printf("%16s%5s%5s  %-16s %-s\n", "Fg Name", "Fg", "Bg", "Sample", "More Bg...")
 
 	for _, it := range table {

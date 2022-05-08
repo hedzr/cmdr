@@ -5,9 +5,10 @@
 package cmdr
 
 import (
-	"gopkg.in/hedzr/errors.v3"
 	"os"
 	"strings"
+
+	"gopkg.in/hedzr/errors.v3"
 )
 
 const (

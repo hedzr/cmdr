@@ -4,12 +4,13 @@ package tool_test
 
 import (
 	"fmt"
-	"github.com/hedzr/cmdr"
-	"github.com/hedzr/cmdr/tool"
 	"math"
 	"math/cmplx"
 	"strconv"
 	"testing"
+
+	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/tool"
 )
 
 func TestHumanReadableSizes(t *testing.T) {

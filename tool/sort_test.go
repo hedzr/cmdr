@@ -66,7 +66,7 @@ func TestSort00(t *testing.T) {
 }
 
 func TestSortByDottedSlice(t *testing.T) {
-	var ks = byDottedSlice(tests)
+	ks := byDottedSlice(tests)
 
 	sort.Sort(ks)
 
@@ -76,7 +76,7 @@ func TestSortByDottedSlice(t *testing.T) {
 }
 
 func TestSortByDottedSlice2(t *testing.T) {
-	var ks = tests
+	ks := tests
 
 	SortAsDottedSlice(ks)
 
@@ -88,7 +88,7 @@ func TestSortByDottedSlice2(t *testing.T) {
 }
 
 func TestSortByDottedSlice3(t *testing.T) {
-	var ks = tests
+	ks := tests
 	SortAsDottedSlice(ks)
 	for _, s := range ks {
 		t.Logf("  - %v", s)
@@ -100,7 +100,7 @@ func TestSortByDottedSlice3(t *testing.T) {
 }
 
 func TestSortByDottedSliceRev(t *testing.T) {
-	var ks = tests
+	ks := tests
 
 	SortAsDottedSliceReverse(ks)
 

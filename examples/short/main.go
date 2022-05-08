@@ -6,12 +6,12 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/plugin/pprof"
 )
 
 func main() {
-
 	// logrus.SetLevel(logrus.DebugLevel)
 	// logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true,})
 
@@ -24,7 +24,6 @@ func main() {
 	); err != nil {
 		fmt.Printf("Error: %v", err)
 	}
-
 }
 
 var (

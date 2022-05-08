@@ -1,6 +1,9 @@
 package internal
 
 import (
+	"runtime"
+	"sync"
+
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/conf"
 	"github.com/hedzr/log"
@@ -8,8 +11,6 @@ import (
 	"github.com/hedzr/log/closers"
 	"github.com/hedzr/log/dir"
 	"gopkg.in/hedzr/errors.v3"
-	"runtime"
-	"sync"
 )
 
 // App is a global singleton GlobalApp instance
@@ -81,8 +82,10 @@ type GlobalApp struct {
 	// cron   cron.Jobs
 }
 
-var onceForApp sync.Once
-var appUniqueInstance *GlobalApp
+var (
+	onceForApp        sync.Once
+	appUniqueInstance *GlobalApp
+)
 
 func init() {
 	onceForApp.Do(func() {

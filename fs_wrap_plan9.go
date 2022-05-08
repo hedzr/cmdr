@@ -26,5 +26,7 @@ func stopExitingChannelForFsWatcher() {
 	}
 }
 
-var cmdrExitingForFsWatcher = make(chan struct{}, 16)
-var effw sync.RWMutex
+var (
+	cmdrExitingForFsWatcher = make(chan struct{}, 16)
+	effw                    sync.RWMutex
+)

@@ -6,12 +6,13 @@
 package cmdr_test
 
 import (
-	"github.com/hedzr/cmdr"
-	"github.com/hedzr/cmdr/tool"
-	"github.com/hedzr/log/dir"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log/dir"
 )
 
 // func RaiseInterrupt(t *testing.T, timeout int) {
@@ -29,7 +30,6 @@ import (
 // }
 
 func TestTrapSignals(t *testing.T) {
-
 	if tool.SavedOsArgs == nil {
 		tool.SavedOsArgs = os.Args
 	}

@@ -7,10 +7,11 @@ package cmdr
 import (
 	"bytes"
 	"fmt"
-	"github.com/hedzr/cmdr/tool"
 	"io"
 	"strings"
 	"time"
+
+	"github.com/hedzr/cmdr/tool"
 )
 
 type (
@@ -196,7 +197,7 @@ func (s *markdownPainter) FpExamplesLine(command *Command) {
 }
 
 func (s *markdownPainter) FpCommandsTitle(command *Command) {
-	var title = "SUB-COMMANDS"
+	title := "SUB-COMMANDS"
 	// if command.HasParent() {
 	// 	title = "Commands"
 	// } else {

@@ -5,9 +5,10 @@
 package cmdr
 
 import (
-	"github.com/hedzr/cmdr/tool"
 	"regexp"
 	"strings"
+
+	"github.com/hedzr/cmdr/tool"
 )
 
 // HasParent detects whether owner is available or not
@@ -82,14 +83,14 @@ func (s *BaseOpt) GetTitleNames() string {
 
 // GetTitleNamesBy returns the joint string of short,full,aliases names
 func (s *BaseOpt) GetTitleNamesBy(delimChar string) string {
-	var a = s.GetTitleNamesArray()
+	a := s.GetTitleNamesArray()
 	str := strings.Join(a, delimChar)
 	return str
 }
 
 // GetTitleZshNames temp
 func (s *BaseOpt) GetTitleZshNames() string {
-	var a = s.GetTitleNamesArrayMainly()
+	a := s.GetTitleNamesArrayMainly()
 	str := strings.Join(a, ",")
 	return str
 }

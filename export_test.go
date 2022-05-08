@@ -8,15 +8,16 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	cmdrbase "github.com/hedzr/cmdr-base"
-	"github.com/hedzr/cmdr/tool"
-	"github.com/hedzr/log/dir"
 	"io"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
 	"time"
+
+	cmdrbase "github.com/hedzr/cmdr-base"
+	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log/dir"
 
 	"gopkg.in/hedzr/errors.v3"
 )
@@ -184,7 +185,7 @@ func TestFlag(t *testing.T) {
 	tool.SavedOsArgs = []string{"xx.runtime", "-test.v"}
 	t.Log(InTesting())
 
-	var rootCmdX = &RootCommand{
+	rootCmdX := &RootCommand{
 		Command: Command{
 			BaseOpt: BaseOpt{
 				Name: "consul-tags",
@@ -236,7 +237,7 @@ func TestHandlePanic(t *testing.T) {
 
 	v1, v2 := 11, 0
 	// var cmd *Command
-	var rootCmdX = &RootCommand{
+	rootCmdX := &RootCommand{
 		Command: Command{
 			BaseOpt: BaseOpt{
 				Name: "consul-tags",
@@ -265,7 +266,7 @@ func TestHandlePanic(t *testing.T) {
 	}
 
 	// cmd = &rootCmdX.Command
-	var commands = []string{
+	commands := []string{
 		"consul-tags dz",
 		"consul-tags pa",
 	}
@@ -327,7 +328,7 @@ func TestUnknownXXX(t *testing.T) {
 	var cmd *Command
 	var args []string
 
-	var rootCmdX = &RootCommand{
+	rootCmdX := &RootCommand{
 		Command: Command{
 			BaseOpt: BaseOpt{
 				Name: "consul-tags",
@@ -335,7 +336,7 @@ func TestUnknownXXX(t *testing.T) {
 		},
 	}
 	cmd = &rootCmdX.Command
-	var commands = []string{
+	commands := []string{
 		"consul-tags --help -q",
 	}
 	for _, cc := range commands {
@@ -491,7 +492,7 @@ func TestSliceConverters(t *testing.T) {
 	w := internalGetWorker()
 
 	var val interface{} = "1,2,3"
-	var valary = []int{1, 2, 3}
+	valary := []int{1, 2, 3}
 
 	w.rxxtOptions.setToReplaceMode()
 
@@ -692,7 +693,7 @@ func TestGenPowerShell1(t *testing.T) {
 	ResetOptions()
 
 	// copyRootCmd = rootCmdForTesting
-	var rootCmdX = &RootCommand{
+	rootCmdX := &RootCommand{
 		Command: Command{
 			BaseOpt: BaseOpt{
 				Name: "consul-tags",
@@ -700,7 +701,7 @@ func TestGenPowerShell1(t *testing.T) {
 		},
 	}
 
-	var commands = []string{
+	commands := []string{
 		"consul-tags --help -q",
 	}
 
@@ -728,7 +729,7 @@ func TestWorkerAddIt(t *testing.T) {
 	ResetOptions()
 
 	// copyRootCmd = rootCmdForTesting
-	var rootCmdX = rootCmdForAliasesTest()
+	rootCmdX := rootCmdForAliasesTest()
 
 	w := Worker()
 
@@ -808,9 +809,9 @@ func TestWorkerHelpSystemPrint(t *testing.T) {
 	ResetOptions()
 
 	// copyRootCmd = rootCmdForTesting
-	var rootCmdX = rootCmdForAliasesTest()
+	rootCmdX := rootCmdForAliasesTest()
 
-	var commands = []string{
+	commands := []string{
 		"consul-tags --help -q",
 	}
 

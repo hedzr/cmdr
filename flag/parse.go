@@ -5,8 +5,9 @@
 package flag
 
 import (
-	"github.com/hedzr/cmdr"
 	"log"
+
+	"github.com/hedzr/cmdr"
 )
 
 func init() {

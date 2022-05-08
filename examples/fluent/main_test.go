@@ -3,8 +3,9 @@
 package main
 
 import (
-	"github.com/hedzr/cmdr"
 	"testing"
+
+	"github.com/hedzr/cmdr"
 )
 
 func Test1(t *testing.T) {

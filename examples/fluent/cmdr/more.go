@@ -8,17 +8,17 @@ package cmdr
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+	"strings"
+
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log/dir"
 	"golang.org/x/crypto/ssh/terminal"
-	"os"
-	"os/exec"
-	"strings"
 )
 
 func cmdrMoreCommandsForTest(root cmdr.OptCmd) {
-
 	// test/debug build, many multilevel subcommands here
 
 	cmdrXyPrint(root)
@@ -42,7 +42,6 @@ func cmdrMoreCommandsForTest(root cmdr.OptCmd) {
 }
 
 func tgCommand(root cmdr.OptCmd) {
-
 	// toggle-group-test - without a default choice
 
 	fx := cmdr.NewSubCmd().
@@ -50,7 +49,6 @@ func tgCommand(root cmdr.OptCmd) {
 		Description("tg test new features", "tg test new features,\nverbose long descriptions here.").
 		Group("Test").
 		Action(func(cmd *cmdr.Command, args []string) (err error) {
-
 			fmt.Printf("*** Got fruit (toggle group): %v\n", cmdr.GetString("app.tg-test.fruit"))
 
 			fmt.Printf("> STDIN MODE: %v \n", cmdr.GetBoolR("mx-test.stdin"))
@@ -103,11 +101,9 @@ func tgCommand(root cmdr.OptCmd) {
 		Description("the test text.", "").
 		ToggleGroup("fruit").
 		AttachTo(fx2)
-
 }
 
 func mxCommand(root cmdr.OptCmd) {
-
 	// mx-test
 
 	mx := cmdr.NewSubCmd().
@@ -203,11 +199,9 @@ func mxCommand(root cmdr.OptCmd) {
 		Description("read file content from stdin.", "").
 		Group("").
 		AttachTo(mx)
-
 }
 
 func cmdrXyPrint(root cmdr.OptCmd) {
-
 	// xy-print
 
 	cmdr.NewSubCmd().Titles("xy-print", "xy").
@@ -229,11 +223,9 @@ func cmdrXyPrint(root cmdr.OptCmd) {
 			return
 		}).
 		AttachTo(root)
-
 }
 
 func cmdrKbPrint(root cmdr.OptCmd) {
-
 	// kb-print
 
 	kb := cmdr.NewSubCmd().Titles("kb-print", "kb").
@@ -257,7 +249,6 @@ $ {{.AppName}} kb --size 1g
 		Description("max message size. Valid formats: 2k, 2kb, 2kB, 2KB. Suffixes: k, m, g, t, p, e.", "").
 		Group("").
 		AttachTo(kb)
-
 }
 
 func cmdrPanic(root cmdr.OptCmd) {
@@ -291,11 +282,9 @@ func cmdrPanic(root cmdr.OptCmd) {
 			return
 		}).
 		AttachTo(pa)
-
 }
 
 func cmdrSoundex(root cmdr.OptCmd) {
-
 	cmdr.NewSubCmd().Titles("soundex", "snd", "sndx", "sound").
 		Description("soundex test").
 		Group("Test").
@@ -307,11 +296,9 @@ func cmdrSoundex(root cmdr.OptCmd) {
 			return
 		}).
 		AttachTo(root)
-
 }
 
 func cmdrTtySize(root cmdr.OptCmd) {
-
 	cmdr.NewSubCmd().Titles("cols", "rows", "tty-size").
 		Description("detected tty size").
 		Group("Test").
@@ -335,7 +322,6 @@ func cmdrTtySize(root cmdr.OptCmd) {
 			return
 		}).
 		AttachTo(root)
-
 }
 
 func cmdrManyCommandsTest(root cmdr.OptCmd) {
@@ -358,7 +344,6 @@ func cmdrManyCommandsTest(root cmdr.OptCmd) {
 }
 
 func cmdrMultiLevelTest(root cmdr.OptCmd) {
-
 	cmd := cmdr.NewSubCmd().
 		Titles("mls", "mls").
 		Description("multi-level subcommands test").
@@ -372,7 +357,6 @@ func cmdrMultiLevelTest(root cmdr.OptCmd) {
 	//	Group("Test")
 	cmdrAddFlags(cmd)
 	cmdrMultiLevel(cmd, 1)
-
 }
 
 func cmdrMultiLevel(parent cmdr.OptCmd, depth int) {
@@ -401,7 +385,6 @@ func cmdrMultiLevel(parent cmdr.OptCmd, depth int) {
 }
 
 func cmdrAddFlags(c cmdr.OptCmd) {
-
 	cmdr.NewBool().Titles("apple", "").
 		Description("the test text.", "").
 		ToggleGroup("fruit").
@@ -506,5 +489,4 @@ func cmdrAddFlags(c cmdr.OptCmd) {
 		Group("Boolean").
 		EnvKeys("").
 		AttachTo(c)
-
 }

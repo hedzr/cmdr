@@ -52,6 +52,9 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 
 - v1.10.49 (WIP)
 
+- v1.10.48
+  - upgrade yaml.v3 to cut off Dependabot alerts
+
 - v1.10.47
   - fea: added tiny html code supports for tail-line (`cmdr.WithHelpTailLine(line)`).
     > html in Description, Examples works too.

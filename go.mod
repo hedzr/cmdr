@@ -21,7 +21,7 @@ require (
 	golang.org/x/crypto v0.0.0-20211215165025-cf75a172585e
 	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d
 	gopkg.in/hedzr/errors.v3 v3.0.21
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

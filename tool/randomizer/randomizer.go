@@ -1,15 +1,16 @@
 package randomizer
 
 import (
-	"crypto/rand"
+	crand "crypto/rand"
 	"math/big"
 	mrand "math/rand"
-	"sync"
 	"time"
 )
 
 // New return a tool for randomizer
-func New() Randomizer { return &randomizer{} }
+func New() Randomizer {
+	return &randomizer{seededRand: mrand.New(mrand.NewSource(time.Now().UTC().UnixNano()))} //nolint:gosec //like it
+}
 
 // Randomizer enables normal resolution randomizer
 type Randomizer interface {
@@ -43,7 +44,8 @@ type StringsRandomizer interface {
 }
 
 type randomizer struct {
-	lastErr error
+	lastErr    error
+	seededRand *mrand.Rand
 }
 
 // var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -61,47 +63,47 @@ const (
 )
 
 var (
-	hundred    = big.NewInt(100)
-	seededRand = mrand.New(mrand.NewSource(time.Now().UTC().UnixNano())) //nolint:gosec //like it
+	hundred = big.NewInt(100)
+	// seededRand = mrand.New(mrand.NewSource(time.Now().UTC().UnixNano())) //nolint:gosec //like it
 )
 
 // var seededRand = rand.New(mrand.NewSource(time.Now().UTC().UnixNano()))
-var mu sync.Mutex
+// var mu sync.Mutex
 
 func (r *randomizer) Next() int {
-	mu.Lock()
-	defer mu.Unlock()
-	return seededRand.Int()
+	// mu.Lock()
+	// defer mu.Unlock()
+	return r.seededRand.Int()
 }
 
 func (r *randomizer) NextIn(max int) int {
-	mu.Lock()
-	defer mu.Unlock()
-	return seededRand.Intn(max)
+	// mu.Lock()
+	// defer mu.Unlock()
+	return r.seededRand.Intn(max)
 }
 
 func (r *randomizer) inRange(min, max int) int {
-	mu.Lock()
-	defer mu.Unlock()
-	return seededRand.Intn(max-min) + min
+	// mu.Lock()
+	// defer mu.Unlock()
+	return r.seededRand.Intn(max-min) + min
 }
 func (r *randomizer) NextInRange(min, max int) int { return r.inRange(min, max) }
 func (r *randomizer) NextInt63n(n int64) int64 {
-	mu.Lock()
-	defer mu.Unlock()
-	return seededRand.Int63n(n)
+	// mu.Lock()
+	// defer mu.Unlock()
+	return r.seededRand.Int63n(n)
 }
 
 func (r *randomizer) NextIntn(n int) int {
-	mu.Lock()
-	defer mu.Unlock()
-	return seededRand.Intn(n)
+	// mu.Lock()
+	// defer mu.Unlock()
+	return r.seededRand.Intn(n)
 }
 
 func (r *randomizer) NextFloat64() float64 {
-	mu.Lock()
-	defer mu.Unlock()
-	return seededRand.Float64()
+	// mu.Lock()
+	// defer mu.Unlock()
+	return r.seededRand.Float64()
 }
 func (r *randomizer) AsHires() HiresRandomizer     { return r }
 func (r *randomizer) AsStrings() StringsRandomizer { return r }
@@ -110,10 +112,10 @@ func (r *randomizer) HiresNext() uint64             { return r.hiresNextIn(hundr
 func (r *randomizer) HiresNextIn(max uint64) uint64 { return r.hiresNextIn(big.NewInt(int64(max))) }
 
 func (r *randomizer) hiresNextIn(max *big.Int) uint64 {
-	mu.Lock()
-	defer mu.Unlock()
+	// mu.Lock()
+	// defer mu.Unlock()
 	var bi *big.Int
-	bi, r.lastErr = rand.Int(rand.Reader, max)
+	bi, r.lastErr = crand.Int(crand.Reader, max)
 	if r.lastErr == nil {
 		return bi.Uint64()
 	}
@@ -121,10 +123,10 @@ func (r *randomizer) hiresNextIn(max *big.Int) uint64 {
 }
 
 func (r *randomizer) hiresInRange(min, max uint64) uint64 {
-	mu.Lock()
-	defer mu.Unlock()
+	// mu.Lock()
+	// defer mu.Unlock()
 	var bi *big.Int
-	bi, r.lastErr = rand.Int(rand.Reader, big.NewInt(int64(max-min)))
+	bi, r.lastErr = crand.Int(crand.Reader, big.NewInt(int64(max-min)))
 	if r.lastErr == nil {
 		return bi.Uint64() + min
 	}
@@ -145,7 +147,7 @@ func (r *randomizer) Error() error     { return r.lastErr }
 func (r *randomizer) NextStringSimple(n int) string {
 	bytes := make([]byte, n)
 	for i := 0; i < n; i++ {
-		n := seededRand.Intn(90-65) + 65
+		n := r.seededRand.Intn(90-65) + 65
 		bytes[i] = byte(n) // 'a' .. 'z'
 	}
 	return string(bytes)
@@ -157,11 +159,11 @@ func (r *randomizer) NextString(n int) string {
 }
 
 func (r *randomizer) randStringBaseImpl(n int, charset []rune) string {
-	mu.Lock()
-	defer mu.Unlock()
+	// mu.Lock()
+	// defer mu.Unlock()
 	b := make([]rune, n)
 	for i := range b {
-		b[i] = charset[seededRand.Intn(len(charset))]
+		b[i] = charset[r.seededRand.Intn(len(charset))]
 	}
 	return string(b)
 }
@@ -172,7 +174,7 @@ func (r *randomizer) NextStringByCharset(n int, charset []rune) string {
 
 // NextStringWithVariantLength returns a random string with random length (1..127)
 func (r *randomizer) NextStringWithVariantLength() string {
-	n := seededRand.Intn(128)
+	n := r.seededRand.Intn(128)
 	return r.NextString(n)
 }
 

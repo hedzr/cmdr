@@ -1,5 +1,5 @@
-//go:build !delve && !test
-// +build !delve,!test
+// g/o:build !delve && !test
+// +/build !delve,!test
 
 // go/:build delve || test
 // +/build delve test

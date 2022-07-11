@@ -4,14 +4,6 @@
 root = true
 
 [*]
-indent_style = tab
-indent_size = 2
-end_of_line = lf
-charset = utf-8
-trim_trailing_whitespace = false
-insert_final_newline = false
-
-[*.{cpp,cc,cxx,c,hpp,hh,hxx,inl}]
 indent_style = space
 indent_size = 4
 end_of_line = lf
@@ -19,16 +11,33 @@ charset = utf-8
 trim_trailing_whitespace = false
 insert_final_newline = false
 
+[*.{md,mkd,markdown}]
+# double whitespace at end of line
+# denotes a line break in Markdown
+trim_trailing_whitespace = false
+indent_size = 4
+insert_final_newline = false
+indent_style = tab
+
+[*.{cpp,cc,cxx,c,hpp,hh,hxx,inl}]
+indent_style = space
+indent_size = 4
+
+[*.rs]
+indent_style = tab
+indent_size = 4
+
 [*.go]
 indent_style = tab
 indent_size = 4
 
-[go.{sum,work}]
+[go.{sum,mod,work}]
 indent_style = tab
 indent_size = 4
 
 [*.{sh,bash,zsh,fish}]
 indent_style = tab
+indent_size = 2
 
 [{Makefile,*.make,*.cmake}]
 indent_style = tab
@@ -37,16 +46,15 @@ indent_size = 4
 [*.{yml,yaml}]
 indent_style = space
 indent_size = 2
-end_of_line = lf
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-[*.{md,mkd,markdown}]
+[*.toml]
+indent_style = space
 indent_size = 4
-trim_trailing_whitespace = false
-insert_final_newline = false
-indent_style = tab
+trim_trailing_whitespace = true
+insert_final_newline = true
 
-[*.json]
-indent_size = 4
+[*.{json,js,jsx}]
+indent_size = 2
 indent_style = space

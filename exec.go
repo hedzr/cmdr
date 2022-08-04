@@ -323,7 +323,7 @@ func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goComma
 			goCommand = pkg.aliasCommand
 		}
 		action := goCommand.Action
-		if (goCommand.Action == nil && assumeDefaultAction) || isForceDefaultAction() {
+		if isAllowDefaultAction(goCommand.Action == nil) {
 			action = defaultAction
 		}
 		if action != nil {

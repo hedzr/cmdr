@@ -43,7 +43,7 @@ func InvokeCommand(dottedCommandPath string, extraArgs ...string) (err error) {
 	if cc != nil {
 		w := internalGetWorker()
 		action := cc.Action
-		if action == nil && assumeDefaultAction {
+		if isAllowDefaultAction(action == nil) {
 			action = defaultAction
 		}
 		err = w.doInvokeCommand(w.rootCommand, action, cc, extraArgs)
@@ -56,7 +56,15 @@ var (
 	defaultAction       = defaultActionImpl
 )
 
-func isForceDefaultAction() bool { return toBool(os.Getenv("FORCE_DEFAULT_ACTION")) }
+func isAllowDefaultAction(nilAction bool) bool {
+	if val, ok := os.LookupEnv("FORCE_DEFAULT_ACTION"); ok {
+		if toBool(val, false) {
+			return true
+		}
+	}
+	return nilAction && assumeDefaultAction
+	// return toBool(os.Getenv("FORCE_DEFAULT_ACTION"))
+}
 
 func defaultActionImpl(cmd *Command, args []string) (err error) {
 	fmt.Printf(`
@@ -78,7 +86,7 @@ func defaultActionImpl(cmd *Command, args []string) (err error) {
 	- %q: %#v`, kp, v)
 	}
 
-	// println()
+	println()
 
 	w := internalGetWorker()
 	initTabStop(defaultTabStop)

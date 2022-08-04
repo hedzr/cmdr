@@ -19,10 +19,10 @@ docs/
 .tmp.*
 conf.d/
 
+*.code-workspace
+
 Makefile
 .env*
-
-
 
 .DS\_Store
 #*.out
@@ -48,7 +48,6 @@ profile.cov
 *___jb_old___
 fossa-result.json
 
-
 bin/
 dist/
 output/
@@ -72,7 +71,6 @@ you-dl-1
 *.db3
 *.db-journal
 
-
 .vscode
 
 *.txt
@@ -81,7 +79,6 @@ you-dl-1
 Makefile
 b.sh
 sync.sh
-
 
 ##################################################################### Go
 
@@ -100,8 +97,6 @@ sync.sh
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
-
-
 
 ##################################################################### C++
 
@@ -153,7 +148,6 @@ CTestTestfile.cmake
 _deps
 cmake-*/
 
-
 ##################################################################### Linux
 
 *~
@@ -169,7 +163,6 @@ cmake-*/
 
 # .nfs files are created when an open file is removed but is still being accessed
 .nfs*
-
 
 ##################################################################### Windows
 
@@ -197,7 +190,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-
 
 ##################################################################### macOS
 
@@ -227,11 +219,3 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
-
-
-
-
-
-
-
-

@@ -786,9 +786,15 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 		w._boolFlgAdd(root, "debug", "Get into debug mode.", SysMgmtGroup, func(ff *Flag) {
 			ff.Short = "D"
 			ff.EnvVars = []string{"DEBUG"}
+			// ff.Action = func(cmd *Command, args []string) (err error) {
+			// 	return
+			// }
+			// ff.onSet = func(keyPath string, value interface{}) {
+			// 	flog("--debug: %v => %v", keyPath, value)
+			// }
 		})
 		w._stringFlgAdd(root, "debug-output", "Store the ~~debug outputs into file.", SysMgmtGroup, func(ff *Flag) {
-			ff.DefaultValue = "dbg.log"
+			ff.DefaultValue = "" // "dbg.log"
 			ff.EnvVars = []string{"DEBUG_OUTPUT"}
 		})
 
@@ -801,6 +807,10 @@ func (w *ExecWorker) attachVerboseCommands(root *RootCommand) {
 			ff.prerequisites = []string{"debug"}
 			ff.mutualExclusives = mutualExclusives
 		})
+		// w._boolFlgAdd(root, "yaml", "Dump as a tree in '~~debug' mode.", SysMgmtGroup, func(ff *Flag) {
+		// 	ff.prerequisites = []string{"debug"}
+		// 	ff.mutualExclusives = mutualExclusives
+		// })
 		w._boolFlgAdd(root, "raw", "Dump the option value in raw mode (with golang data structure, without envvar expanding).", SysMgmtGroup, func(ff *Flag) {
 			ff.prerequisites = []string{"debug"}
 			ff.mutualExclusives = mutualExclusives

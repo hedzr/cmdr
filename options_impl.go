@@ -1466,8 +1466,13 @@ func (s *Options) DumpAsString(showType bool) (str string) {
 			str += fmt.Sprintf("%-48v => %v\n", k, s.entries[k])
 		}
 	}
-	str += "---------------------------------\n"
 
+	str += s.dumpAsStringYamlPart(showType)
+	return
+}
+
+func (s *Options) dumpAsStringYamlPart(showType bool) (str string) {
+	str += "---------------------------------\n"
 	var err error
 	var sb strings.Builder
 	defer handleSerializeError(&err)

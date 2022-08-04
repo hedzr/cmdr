@@ -157,13 +157,14 @@ func (w *ExecWorker) printHelp(command *Command, justFlags bool) {
 	case GetBoolR("help-bash"):
 		w.printHelpZsh(command, justFlags)
 	default:
-		w.paintFromCommand(w.currentHelpPainter, command, justFlags)
+		// NOTE: checking `~~debug`
+		if w.rxxtOptions.GetBoolEx("debug", false) {
+			w.paintTildeDebugCommand(w.rxxtOptions.GetBoolEx("value-type"))
+		} else {
+			w.paintFromCommand(w.currentHelpPainter, command, justFlags)
+		}
 	}
 
-	// NOTE: checking `~~debug`
-	if w.rxxtOptions.GetBoolEx("debug", false) {
-		w.paintTildeDebugCommand(w.rxxtOptions.GetBoolEx("value-type"))
-	}
 	if w.currentHelpPainter != nil {
 		w.currentHelpPainter.Results()
 		w.currentHelpPainter.Reset()
@@ -179,12 +180,17 @@ func DebugOutputTildeInfo(showType bool) {
 
 // paintTildeDebugCommand for `~~debug`
 func (w *ExecWorker) paintTildeDebugCommand(showType bool) {
-	of, _ := os.Create(GetStringR("debug-output"))
-	defer func() {
-		if of != nil {
-			_ = of.Close()
+	of := os.Stdout
+	if fn := GetStringR("debug-output"); fn != "" {
+		var err error
+		if of, err = os.Create(fn); err == nil {
+			defer func() {
+				if of != nil {
+					_ = of.Close()
+				}
+			}()
 		}
-	}()
+	}
 	if GetNoColorMode() {
 		ffp(of, "\nDUMP:\n\n%v\n", w.rxxtOptions.DumpAsString(showType))
 	} else {
@@ -198,6 +204,14 @@ func (w *ExecWorker) paintTildeDebugCommand(showType bool) {
 				ffp(of, "  - %s = \x1b[2m\x1b[%dm%s\x1b[0m", s2[0], DarkColor, s2[1])
 			}
 		}
+		// if w.rxxtOptions.GetBoolEx("yaml") {
+		// 	ffp(of, "---- YAML Tree: ")
+		// 	if str, err := AsYamlExt(); err != nil {
+		// 		log.Errorf("BAD: %v", err)
+		// 	} else {
+		// 		ffp(of, "\x1b[2m\x1b[%dm%s\x1b[0m", DarkColor, str)
+		// 	}
+		// }
 		if w.rxxtOptions.GetBoolEx("more") {
 			ffp(of, "---- INFO: ")
 			ffp(of, "Exec: \x1b[2m\x1b[%dm%s\x1b[0m, %s", DarkColor, dir.GetExecutablePath(), dir.GetExecutableDir())

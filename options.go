@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/hedzr/log/dir"
-	"gopkg.in/hedzr/errors.v3"
 	"gopkg.in/yaml.v3"
 	"os"
 	"strings"
@@ -738,6 +737,7 @@ func AsYaml() (b []byte) {
 }
 
 // AsYamlExt returns a yaml string bytes about all options
+// Indent with 2 spaces
 func AsYamlExt() (b []byte, err error) {
 	obj := currentOptions().GetHierarchyList()
 	defer handleSerializeError(&err)
@@ -850,7 +850,12 @@ func GetHierarchyList() map[string]interface{} {
 
 func handleSerializeError(err *error) { //nolint:gocritic //can't opt
 	if v := recover(); v != nil {
-		*err = errors.New("unexpected unknown error handled").WithData(v)
+		if e1, ok := v.(error); ok {
+			*err = e1
+		} else {
+			*err = fmt.Errorf("%v", v)
+		}
+		// *err = v.(error) //nolint:errcheck    // errors.New("unexpected unknown error handled").WithData(v)
 		// switch e := v.(type) {
 		// case error:
 		// 	*err = e

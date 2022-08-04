@@ -280,6 +280,12 @@ func (w *ExecWorker) checkDblTildeStatus(pkg *ptpkg) (err error) {
 		if pkg.a[:2] != doubleTildeString {
 			err = errors.New("a Flag '~~%v' request double tilde prefix only", pkg.flg.GetTitleName())
 		}
+	} else {
+		if pkg.a[:2] == doubleTildeString && pkg.flg.Full == "debug" {
+			// ~~debug hit?
+			pkg.needHelp = true
+			// w.rxxtOptions.setNx("debug", true)
+		}
 	}
 	return
 }

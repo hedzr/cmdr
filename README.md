@@ -51,7 +51,7 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
     - documentation at: https://hedzr.github.io/cmdr-docs/
 
 - v1.10.49 (WIP)
-  - fea: added `sbom` builtin Command for dumping SBOM (`Software Bill Of Materials`) Information (no need to install go runtime and run `go version -m app`)
+  - fea: added `sbom` builtin Command for dumping SBOM (`Software Bill Of Materials`) Information (no need to install go runtime and run `go version -m app`) while u build the app with go1.18+
   - fix: `~~debug` or its sub-flags can't work as expected sometimes
   - fix: feature default action and `FORCE_DEFAULT_ACTION`
   - fix: randomizer codes

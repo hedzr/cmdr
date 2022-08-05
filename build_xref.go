@@ -832,9 +832,11 @@ func (w *ExecWorker) attachCmdrCommands(root *RootCommand) {
 		})
 		w._boolFlgAdd(root, "no-color", "No color output for 'cmdr'.", SysMgmtGroup, func(ff *Flag) {
 			ff.Short = "nc"
-			ff.Aliases = []string{"nc"}
+			ff.Aliases = []string{"nocolor"}
 			ff.EnvVars, ff.VendorHidden = []string{"NOCOLOR", "NO_COLOR"}, true
 		})
+
+		sbomAttach(w, root)
 	}
 }
 

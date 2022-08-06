@@ -916,6 +916,12 @@ func (s *Options) SetRaw(key string, val interface{}) {
 	s.setNx(key, val)
 }
 
+// SetRawOverwrite likes SetOverwrite but without prefix auto-wrapped.
+// It replaces the old value on a slice, instead of the default append mode.
+func (s *Options) SetRawOverwrite(key string, val interface{}) {
+	s.setNxOverwrite(key, val)
+}
+
 func (s *Options) setNx(key string, val interface{}) (oldVal interface{}, modi bool) {
 	defer s.rw.Unlock()
 	s.rw.Lock()

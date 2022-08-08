@@ -48,9 +48,15 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 
 - docs (WIP):
     - english documentation NOT completed yet
-    - documentation at: https://hedzr.github.io/cmdr-docs/
+    - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
-- v1.10.49 (WIP)
+- v1.10.49 (FRZ)
+  - NOTE: we declared a go1.18 Module in go.mod.
+  - fea: added a missed API: `NewAny(defval any)`
+  - fea: added `NewTextVar(defval TextVar)` for a given default value which implements `encoding.TextMarshaler` and `encoding.TextUnmarshaler`, such as `*net.IP`, `time.Time`, and so on.
+    - allow parsing a timestamp string with free styles
+  - imp: better `defaultActionImpl()`
+  - fea: added a missed API: `SetRawOverwrite(key, val)`
   - fea: added `sbom` builtin Command for dumping SBOM (`Software Bill Of Materials`) Information (no need to install go runtime and run `go version -m app`) while u build the app with go1.18+
   - fix: `~~debug` or its sub-flags can't work as expected sometimes
   - fix: feature default action and `FORCE_DEFAULT_ACTION`

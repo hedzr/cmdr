@@ -2,6 +2,9 @@ package cmdr
 
 import (
 	"fmt"
+	"github.com/hedzr/log"
+	"net"
+	"time"
 
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/examples/internal"
@@ -83,6 +86,7 @@ func buildRootCmd() (rootCmd *cmdr.RootCommand) {
 
 	kvCommand(root)
 	msCommand(root)
+	vsCommand(root)
 
 	return
 }
@@ -101,6 +105,39 @@ func demoAction(cmd *cmdr.Command, args []string) (err error) {
 		fmt.Printf(`  %v: %v`, kp, v)
 	}
 	return
+}
+
+func vsCommand(root cmdr.OptCmd) {
+	// vs
+
+	vsCmd := cmdr.NewSubCmd().Titles("vs", "vs").
+		Description("'vs'' operations...", ``).
+		AttachTo(root)
+
+	ip := net.ParseIP("192.168.0.9")
+	cmdr.NewTextVar(&ip).Titles("ip", "ip").
+		Description("ip address as a TextVar", ``).
+		Placeholder("IP").
+		// CompletionActionStr(`*.(json|yml|yaml)`). //  \*.\(ps\|eps\)
+		// ':postscript file:_files -g \*.\(ps\|eps\)'
+		OnSet(func(keyPath string, value interface{}) {
+			log.Debug("break")
+		}).
+		AttachTo(vsCmd)
+
+	const longForm = "Jan 2, 2006 at 3:04pm (MST)"
+	tm, _ := time.Parse(longForm, "Feb 3, 2013 at 7:54pm (PST)")
+	cmdr.NewTextVar(&tm).Titles("time", "tm").
+		Description("time.Time value as a TextVar (with internal free style parsing logic)", ``).
+		Placeholder("TIME").
+		OnSet(func(keyPath string, value interface{}) {
+			log.Debug("break")
+		}).
+		AttachTo(vsCmd)
+	cmdr.NewTextVar(&tm).Titles("time-free-style", "tmfs").
+		Description("time.Time value as a TextVar", ``).
+		Placeholder("TIME").
+		AttachTo(vsCmd)
 }
 
 func kvCommand(root cmdr.OptCmd) {

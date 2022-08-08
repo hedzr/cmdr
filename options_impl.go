@@ -3,6 +3,7 @@
 package cmdr
 
 import (
+	"encoding"
 	"fmt"
 	"os"
 	"reflect"
@@ -44,9 +45,15 @@ func newOptionsWith(entries map[string]interface{}) *Options {
 
 // Has detects whether a key exists in cmdr options store or not
 func (s *Options) Has(key string) (ok bool) {
+	_, ok = s.hasKey(key)
+	return
+}
+
+func (s *Options) hasKey(key string) (v interface{}, ok bool) {
 	defer s.rw.RUnlock()
 	s.rw.RLock()
-	_, ok = s.entries[key]
+
+	v, ok = s.entries[key]
 	return
 }
 
@@ -107,11 +114,11 @@ func (s *Options) deleteWithKey(m map[string]interface{}, key, path string, val 
 // ```golang
 // cmdr.Get("app.logger.level") => 'DEBUG',...
 // ```
-//
-func (s *Options) Get(key string) interface{} {
+func (s *Options) Get(key string) (ret interface{}) {
 	defer s.rw.RUnlock()
 	s.rw.RLock()
-	return s.entries[key]
+	ret = s.entries[key]
+	return
 }
 
 // GetMap an `Option` by key string, it returns a hierarchy map or nil
@@ -955,20 +962,22 @@ func (s *Options) setNxNoLock(key string, val interface{}) (oldVal interface{}, 
 	oldVal = s.entries[key]
 	leaf := isLeaf(oldVal, val)
 	if leaf {
-		iscomparable := (oldVal == nil || oldVal != nil &&
+		isComparable := (oldVal == nil || oldVal != nil &&
 			reflect.TypeOf(oldVal).Comparable()) &&
 			(val == nil || (val != nil && reflect.TypeOf(val).Comparable()))
-		if iscomparable && oldVal != val {
-			s.entries[key] = val
+		if isComparable && oldVal != val {
+			newVal := s.closelyConvert(val, oldVal)
+			s.entries[key] = newVal
 			a := strings.Split(key, ".")
-			s.mergeMap(s.hierarchy, a[0], "", et(a, 1, val))
-			s.internalRaiseOnSetCB(key, val, oldVal)
+			s.mergeMap(s.hierarchy, a[0], "", et(a, 1, newVal))
+			s.internalRaiseOnSetCB(key, newVal, oldVal)
 			modi = true
 			return
 		}
 		if isEmptySlice(val) && isSlice(oldVal) {
-			s.entries[key] = val
-			s.internalRaiseOnSetCB(key, val, oldVal)
+			newVal := s.closelyConvert(val, oldVal)
+			s.entries[key] = newVal
+			s.internalRaiseOnSetCB(key, newVal, oldVal)
 			modi = true
 			return
 		}
@@ -989,17 +998,96 @@ func (s *Options) setNxNoLock2(key string, oldVal, val interface{}, leaf bool) (
 		}
 	}
 
-	s.entries[key] = val
+	newVal := s.closelyConvert(val, oldVal)
+	s.entries[key] = newVal
 	a := strings.Split(key, ".")
-	s.mergeMap(s.hierarchy, a[0], "", et(a, 1, val))
-	s.internalRaiseOnSetCB(key, val, oldVal)
+	s.mergeMap(s.hierarchy, a[0], "", et(a, 1, newVal))
+	s.internalRaiseOnSetCB(key, newVal, oldVal)
 	modi = true
+	return
+}
+
+func (s *Options) closelyConvert(val, oldVal interface{}) (newVal interface{}) {
+	newVal = val
+	if oldVal == nil {
+		return
+	}
+
+	// convert val to newVal by the type of oldVal.
+	// if can't, replace newVal with val.
+	if ts, ok := val.(string); ok {
+		switch tu := oldVal.(type) {
+		case *time.Time:
+			if tm, err := smartParseTime(ts); err != nil {
+				log.Errorf("closelyConvert: can't parse time format: %v", err)
+			} else {
+				newVal = &tm
+			}
+		case time.Time:
+			if tm, err := smartParseTime(ts); err != nil {
+				log.Errorf("closelyConvert: can't parse time format: %v", err)
+			} else {
+				newVal = tm
+			}
+		case encoding.TextUnmarshaler: // deal with TextVar here
+			if err := tu.UnmarshalText([]byte(ts)); err != nil {
+				log.Errorf("closelyConvert: can't unmarshal text from %q: %v", ts, err)
+			} else {
+				newVal = tu
+			}
+		}
+	}
+	return
+}
+
+func smartParseTime(str string) (tm time.Time, err error) {
+	knownFormats := []string{
+		"2006-01-02 15:04:05.999999999 -0700",
+		"2006-01-02 15:04:05.999999999Z07:00",
+		"2006-01-02 15:04:05.999999999",
+		"2006-01-02 15:04:05.999",
+		"2006-01-02 15:04:05",
+		"2006-01-02",
+		"2006/01/02",
+		"01/02/2006",
+		"01-02",
+
+		"2006-1-2 15:4:5.999999999 -0700",
+		"2006-1-2 15:4:5.999999999Z07:00",
+		"2006-1-2 15:4:5.999999999",
+		"2006-1-2 15:4:5.999",
+		"2006-1-2 15:4:5",
+		"2006-1-2",
+		"2006/1/2",
+		"1/2/2006",
+		"1-2",
+
+		"15:04:05",
+		"15:04",
+
+		time.RFC3339,
+		time.RFC3339Nano,
+		time.RFC1123Z,
+		time.RFC1123,
+		time.RFC850,
+		time.RFC822Z,
+		time.RFC822,
+		time.RubyDate,
+		time.UnixDate,
+		time.ANSIC,
+	}
+
+	for _, layout := range knownFormats {
+		if tm, err = time.Parse(layout, str); err == nil {
+			break
+		}
+	}
 	return
 }
 
 func isLeaf(oldVal, val interface{}) (leaf bool) {
 	if _, ok := oldVal.(map[string]interface{}); !ok {
-		if _, ok := val.(map[string]interface{}); !ok {
+		if _, ok = val.(map[string]interface{}); !ok {
 			leaf = true
 		}
 	}
@@ -1512,19 +1600,19 @@ func (s *Options) GetHierarchyList() map[string]interface{} {
 //
 // You may ResetOptions after SaveCheckpoint:
 //
-//    func x(aMap map[string]interface{}){
-//        defer cmdr.RestoreCheckpoint()
-//        cmdr.SaveCheckpoint()
-//        cmdr.ResetOptions()
-//        cmdr.MergeWith(map[string]interface{}{
-//          "app": map[string]interface{}{
-//            conf.AppName: map[string]interface{}{
-//              "a-map": aMap,
-//            }
-//          }
-//        }
-//        cmdr.SaveAsYaml("a-setting.yml")
-//    }
+//	func x(aMap map[string]interface{}){
+//	    defer cmdr.RestoreCheckpoint()
+//	    cmdr.SaveCheckpoint()
+//	    cmdr.ResetOptions()
+//	    cmdr.MergeWith(map[string]interface{}{
+//	      "app": map[string]interface{}{
+//	        conf.AppName: map[string]interface{}{
+//	          "a-map": aMap,
+//	        }
+//	      }
+//	    }
+//	    cmdr.SaveAsYaml("a-setting.yml")
+//	}
 func (s *Options) SaveCheckpoint() (err error) {
 	defer s.rw.RUnlock()
 	s.rw.RLock()
@@ -1574,19 +1662,19 @@ func (s *Options) CheckpointSize() int { return len(internalGetWorker().savedOpt
 //
 // You may ResetOptions after SaveCheckpoint:
 //
-//    func x(aMap map[string]interface{}){
-//        defer cmdr.RestoreCheckpoint()
-//        cmdr.SaveCheckpoint()
-//        cmdr.ResetOptions()
-//        cmdr.MergeWith(map[string]interface{}{
-//          "app": map[string]interface{}{
-//            conf.AppName: map[string]interface{}{
-//              "a-map": aMap,
-//            }
-//          }
-//        }
-//        cmdr.SaveAsYaml("a-setting.yml")
-//    }
+//	func x(aMap map[string]interface{}){
+//	    defer cmdr.RestoreCheckpoint()
+//	    cmdr.SaveCheckpoint()
+//	    cmdr.ResetOptions()
+//	    cmdr.MergeWith(map[string]interface{}{
+//	      "app": map[string]interface{}{
+//	        conf.AppName: map[string]interface{}{
+//	          "a-map": aMap,
+//	        }
+//	      }
+//	    }
+//	    cmdr.SaveAsYaml("a-setting.yml")
+//	}
 func SaveCheckpoint() (err error) { return currentOptions().SaveCheckpoint() }
 
 // RestoreCheckpoint restore 1 or n checkpoint(s) from snapshots history.

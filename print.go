@@ -106,10 +106,12 @@ func ferr(fmtStr string, args ...interface{}) {
 
 // fwrn print the warning message if InDebugging() is true
 func fwrn(fmtStr string, args ...interface{}) {
-	if InDebugging() /* || logex.GetTraceMode() */ {
+	if InDebugging() /* || logex.GetTraceMode() */ && internalWarningMode {
 		ferr(fmtStr, args...)
 	}
 }
+
+var internalWarningMode bool
 
 // flog prints information if InDebugging() is true.
 //
@@ -127,7 +129,6 @@ func flog(fmtStr string, args ...interface{}) {
 // If the main program has been built as a executable binary, we
 // would assumed which is not in developing time.
 // If GetDebugMode() is true, that's in developing time too.
-//
 func printInDevMode(fmtStr string, args ...interface{}) {
 	if inDevelopingTime() {
 		_, _ = fmt.Fprintf(os.Stdout, "\u001B[2m\u001B[2m"+fmtStr+"\u001B[0m\n", args...)

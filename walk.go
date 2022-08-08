@@ -5,9 +5,11 @@
 package cmdr
 
 import (
+	"encoding"
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
 // WalkAllCommands loops for all commands, starting from root.
@@ -82,8 +84,22 @@ func defaultActionImpl(cmd *Command, args []string) (err error) {
 	for _, f := range GetHitFlags() {
 		kp := f.GetDottedNamePath()
 		v := GetR(kp)
-		fmt.Printf(`
-	- %q: %#v`, kp, v)
+		switch tv := v.(type) {
+		case *time.Time:
+			fmt.Printf(`
+	- %q: %#v (%T)`, kp, tv.Format("2006-01-02 15:04:05.999999999 -0700"), v)
+		case time.Time:
+			fmt.Printf(`
+	- %q: %#v (%T)`, kp, tv.Format("2006-01-02 15:04:05.999999999 -0700"), v)
+		case encoding.TextMarshaler:
+			var txt []byte
+			txt, err = tv.MarshalText()
+			fmt.Printf(`
+	- %q: %#v (%T)`, kp, string(txt), v)
+		default:
+			fmt.Printf(`
+	- %q: %#v (%T)`, kp, v, v)
+		}
 	}
 
 	println()

@@ -97,7 +97,6 @@ func init() {
 
 // NewAppOption returns a cmdr.ExecOption so that you can attach it
 // into your application.
-//
 func NewAppOption() cmdr.ExecOption {
 	return func(w *cmdr.ExecWorker) {
 		cmdr.WithGlobalPreActions(appUniqueInstance.Init)(w) // appUniqueInstance will be closed automatically

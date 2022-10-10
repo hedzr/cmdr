@@ -30,7 +30,6 @@ func HasKey(key string) (ok bool) {
 // ```golang
 // cmdr.Get("app.logger.level") => 'DEBUG',...
 // ```
-//
 func Get(key string) interface{} {
 	return currentOptions().Get(key)
 }
@@ -39,7 +38,6 @@ func Get(key string) interface{} {
 // ```golang
 // cmdr.GetR("logger.level") => 'DEBUG',...
 // ```
-//
 func GetR(key string) interface{} {
 	w := internalGetWorker()
 	return w.rxxtOptions.Get(w.wrapWithRxxtPrefix(key))
@@ -49,7 +47,6 @@ func GetR(key string) interface{} {
 // ```golang
 // cmdr.GetBool("app.logger.enable", false) => true,...
 // ```
-//
 func GetBool(key string, defaultVal ...bool) bool {
 	return currentOptions().GetBoolEx(key, defaultVal...)
 }
@@ -66,7 +63,6 @@ func GetBoolP(prefix, key string, defaultVal ...bool) bool {
 // ```golang
 // cmdr.GetBoolR("logger.enable", false) => true,...
 // ```
-//
 func GetBoolR(key string, defaultVal ...bool) bool {
 	w := internalGetWorker()
 	return w.rxxtOptions.GetBoolEx(w.wrapWithRxxtPrefix(key), defaultVal...)
@@ -480,14 +476,16 @@ func GetMapR(key string) map[string]interface{} {
 // GetSectionFrom returns error while cannot yaml Marshal and Unmarshal
 // `cmdr.GetSectionFrom(sectionKeyPath, &holder)` could load all sub-tree nodes from sectionKeyPath and transform them into holder structure, such as:
 // ```go
-//  type ServerConfig struct {
-//    Port int
-//    HttpMode int
-//    EnableTls bool
-//  }
-//  var serverConfig = new(ServerConfig)
-//  cmdr.GetSectionFrom("server", &serverConfig)
-//  assert serverConfig.Port == 7100
+//
+//	type ServerConfig struct {
+//	  Port int
+//	  HttpMode int
+//	  EnableTls bool
+//	}
+//	var serverConfig = new(ServerConfig)
+//	cmdr.GetSectionFrom("server", &serverConfig)
+//	assert serverConfig.Port == 7100
+//
 // ```
 func GetSectionFrom(sectionKeyPath string, holder interface{}) (err error) {
 	w := internalGetWorker()
@@ -671,13 +669,11 @@ func (w *ExecWorker) wrapWithRxxtPrefix(key string) string {
 
 // Set sets the value of an `Option` key (with prefix auto-wrap). The key MUST not have an `app` prefix. eg:
 //
-//   cmdr.Set("logger.level", "DEBUG")
-//   cmdr.Set("ms.tags.port", 8500)
-//   ...
-//   cmdr.Set("debug", true)
-//   cmdr.GetBool("app.debug") => true
-//
-//
+//	cmdr.Set("logger.level", "DEBUG")
+//	cmdr.Set("ms.tags.port", 8500)
+//	...
+//	cmdr.Set("debug", true)
+//	cmdr.GetBool("app.debug") => true
 func Set(key string, val interface{}) {
 	currentOptions().Set(key, val)
 }
@@ -706,9 +702,8 @@ func SetNxOverwrite(key string, val interface{}) {
 // SetRaw but without prefix auto-wrapped.
 // So, cmdr.SetRaw("debug", true) will put a real entry with (`debug`, true).
 //
-//    cmdr.Set("debug", true)
-//    cmdr.GetBool("debug") => true
-//
+//	cmdr.Set("debug", true)
+//	cmdr.GetBool("debug") => true
 func SetRaw(key string, val interface{}) {
 	currentOptions().SetRaw(key, val)
 }

@@ -16,11 +16,11 @@ require (
 	github.com/BurntSushi/toml v1.1.0
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/hedzr/cmdr-base v0.1.3
-	github.com/hedzr/log v1.5.55
-	github.com/hedzr/logex v1.5.55
+	github.com/hedzr/log v1.5.56
+	github.com/hedzr/logex v1.5.56
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
 	golang.org/x/net v0.0.0-20220412020605-290c469a71a5
-	gopkg.in/hedzr/errors.v3 v3.0.21
+	gopkg.in/hedzr/errors.v3 v3.0.23
 	gopkg.in/yaml.v3 v3.0.1
 )
 

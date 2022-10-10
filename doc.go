@@ -3,9 +3,7 @@
  */
 
 /*
-
 Package cmdr is a golang library to interpret/parse the command-line input with POSIX-compliant mode
-
 */
 package cmdr
 
@@ -13,7 +11,7 @@ const (
 	// AppName const
 	AppName = "cmdr"
 	// Version const
-	Version = "1.10.49"
+	Version = "1.10.50"
 	// VersionInt const
-	VersionInt = 0x010a31
+	VersionInt = 0x010a32
 )

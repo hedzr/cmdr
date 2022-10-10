@@ -3,6 +3,7 @@
 ## Versions
 
 - v1.10.49 (FRZ)
+
   - NOTE: we declared a go1.18 Module in go.mod.
   - fea: added a missed API: `NewAny(defval any)`
   - fea: added `NewTextVar(defval TextVar)` for a given default value which implements `encoding.TextMarshaler` and `encoding.TextUnmarshaler`, such as `*net.IP`, `time.Time`, and so on.
@@ -20,6 +21,7 @@
   - upgrade yaml.v3 to cut off Dependabot alerts
 
 - v1.10.47
+
   - fea: added tiny html code supports for tail-line (`cmdr.WithHelpTailLine(line)`).
     > html in Description, Examples works too.
   - more godoc

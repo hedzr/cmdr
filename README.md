@@ -50,6 +50,10 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
     - english documentation NOT completed yet
     - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
+- v1.10.50 (FRZ)
+  - routine maintenance release
+  - upgrade log & logex, update project files and some godoc
+
 - v1.10.49 (FRZ)
   - NOTE: we declared a go1.18 Module in go.mod.
   - fea: added a missed API: `NewAny(defval any)`

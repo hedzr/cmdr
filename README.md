@@ -47,8 +47,8 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 ## News
 
 - docs (WIP):
-    - english documentation NOT completed yet
-    - documentation at: <https://hedzr.github.io/cmdr-docs/>
+  - english documentation NOT completed yet
+  - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
 - v1.10.50 (FRZ)
   - routine maintenance release
@@ -79,14 +79,14 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - wrap ioutil/os.ReadFile and similar functions for crossing go111-118, with hedzr/log.dir.ReadFile...
 
 - v1.10.40
-    - imp: parse the flag switch chars better
-    - fix: dead-loop for positional args starts with '~/'
-    - fea: FORCE_DEFAULT_ACTION for initial time, prints info with builtin defaultAction even if the valid command Action found. 
-    - imp: improved many godoc and code completion tips
-    - imp: lint with golangci-lint now (...).
+  - imp: parse the flag switch chars better
+  - fix: dead-loop for positional args starts with '~/'
+  - fea: FORCE_DEFAULT_ACTION for initial time, prints info with builtin defaultAction even if the valid command Action found.
+  - imp: improved many godoc and code completion tips
+  - imp: lint with golangci-lint now (...).
 
 - v1.10.35
-    - fix nil exception while print error sometimes
+  - fix nil exception while print error sometimes
 
 - More details at [CHANGELOG](./CHANGELOG)
 
@@ -105,7 +105,7 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 See [example-app](https://github.com/hedzr/cmdr/tree/master/examples/example-app/), [examples/](https://github.com/hedzr/cmdr/tree/master/examples/), and [**cmdr-examples**](https://github.com/hedzr/cmdr-examples)
 
 <details>
-	<summary> Expand to source codes </summary>
+  <summary> Expand to source codes </summary>
 
 ```go
 package main

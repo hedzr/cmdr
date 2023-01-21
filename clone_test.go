@@ -15,7 +15,7 @@ import (
 	"gopkg.in/hedzr/errors.v3"
 )
 
-type User struct {
+type User struct { //nolint:govet //just a testcase
 	Name     string
 	Birthday *time.Time
 	Nickname string
@@ -50,7 +50,7 @@ func (user User) DoubleAge() int32 { //nolint:gocritic //for test
 	return 2 * user.Age
 }
 
-type Employee struct {
+type Employee struct { //nolint:govet //just a testcase
 	Name      string
 	Birthday  *time.Time
 	F11       float32
@@ -85,7 +85,7 @@ type Employee struct {
 
 type X0 struct{}
 
-type X1 struct {
+type X1 struct { //nolint:govet //just a testcase
 	A uintptr
 	B map[string]interface{}
 	C bytes.Buffer
@@ -105,7 +105,7 @@ type X1 struct {
 	Q [2]string
 }
 
-type X2 struct {
+type X2 struct { //nolint:govet //just a testcase
 	A uintptr
 	B map[string]interface{}
 	C bytes.Buffer
@@ -334,13 +334,13 @@ func TestEmbedded(t *testing.T) {
 	}
 }
 
-type structSameName1 struct {
+type structSameName1 struct { //nolint:govet //just a testcase
 	A string
 	B int64
 	C time.Time
 }
 
-type structSameName2 struct {
+type structSameName2 struct { //nolint:govet //just a testcase
 	A string
 	B time.Time
 	C int64

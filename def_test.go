@@ -345,7 +345,7 @@ func TestConfigOption(t *testing.T) {
 
 	os.Args = []string{"consul-tags", "--config", "./conf.d"}
 	// cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithNoWatchConfigFiles(true), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	resetOsArgs()
@@ -353,7 +353,7 @@ func TestConfigOption(t *testing.T) {
 
 	os.Args = []string{"consul-tags", "--config=./conf.d"}
 	// cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithNoWatchConfigFiles(true), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	resetOsArgs()
@@ -361,7 +361,7 @@ func TestConfigOption(t *testing.T) {
 
 	os.Args = []string{"consul-tags", "--config./conf.d/tmp.yaml"}
 	// cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithNoWatchConfigFiles(true), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	resetOsArgs()

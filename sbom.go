@@ -8,8 +8,9 @@ package cmdr
 import (
 	"debug/buildinfo"
 	"fmt"
-	"github.com/hedzr/log/dir"
 
+	"github.com/hedzr/log"
+	"github.com/hedzr/log/exec"
 	"gopkg.in/hedzr/errors.v3"
 )
 
@@ -27,28 +28,42 @@ func sbomAttach(w *ExecWorker, root *RootCommand) {
 		w._cmdAdd(root, "sbom", "Print SBOM Info (Software Bill Of Materials).", func(cx1 *Command) {
 			// cx1.Short = "s"
 			// cx1.Aliases = []string{}
-			cx1.LongDescription = `show SBOM of executable.
+			cx1.LongDescription = `Print SBOM information of this or specified executable(s).
 
-Just another way to run 'go version -m executable-file' but no need to install Go Runtime.`
+				The outputs is YAML compliant.
+			
+				Just another way to run 'go version -m executable-file' but no need to install Go Runtime.`
 			cx1.Examples = ``
 			cx1.Action = sbomAction
 			sbom = cx1
 		})
 		w._boolFlgAdd1(sbom, "more", "Dump more information.", SysMgmtGroup, func(ff *Flag) {
-			ff.EnvVars, ff.VendorHidden = []string{"MORE"}, false
+			ff.Short, ff.EnvVars, ff.VendorHidden = "m", []string{"MORE"}, false
 		})
 	}
 }
 
 func sbomAction(cmd *Command, args []string) (err error) {
 	var ec = errors.New("processing executables")
-	if len(args) == 0 {
-		args = append(args, dir.GetExecutablePath())
-	}
+	var caught bool
 	for _, file := range args {
+		ec.Attach(sbomOne(file))
+		caught = true
+	}
+	if !caught {
+		file := exec.GetExecutablePath()
+		log.Infof("SBOM on %v", file)
 		ec.Attach(sbomOne(file))
 	}
 	return
+	// var ec = errors.New("processing executables")
+	// if len(args) == 0 {
+	// 	args = append(args, dir.GetExecutablePath())
+	// }
+	// for _, file := range args {
+	// 	ec.Attach(sbomOne(file))
+	// }
+	// return
 }
 
 func sbomOne(file string) (err error) {

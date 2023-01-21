@@ -160,8 +160,8 @@ type testStruct struct {
 }
 
 type testServerStruct struct {
-	Retry int
 	Enum  string
+	Retry int
 	Tail  int
 	Head  int
 }

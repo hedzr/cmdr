@@ -18,9 +18,9 @@ import (
 
 type genzsh struct {
 	shell     string
-	locations []string
 	fullPath  string
 	appName   string
+	locations []string
 }
 
 func (g *genzsh) Generate(writer io.Writer, fullPath string, cmd *Command, args []string) (err error) {
@@ -321,13 +321,12 @@ func (g *genzsh) gzAction(descCommands *strings.Builder, f *Flag, action, mutual
 // gzChkME checks mutual exclusive flags and builds the leading section for zsh completion system.
 // A mutual exclusive section looks like:
 //
-//      '(--debug -D --quiet -q)'
+//	'(--debug -D --quiet -q)'
 //
 // and the responding optspec will be:
 //
-//      '(--debug -D --quiet -q)'{--quiet,-q}'[Quiet Mode]'
-//      '(--debug -D --quiet -q)'{--debug,-D}'[Debug Mode]'
-//
+//	'(--debug -D --quiet -q)'{--quiet,-q}'[Quiet Mode]'
+//	'(--debug -D --quiet -q)'{--debug,-D}'[Debug Mode]'
 func (g *genzsh) gzChkME(f *Flag, mutualExclusives string) string {
 	const quoted = false
 	if mutualExclusives == "" {

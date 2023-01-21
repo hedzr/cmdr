@@ -134,16 +134,19 @@ func (w *ExecWorker) genShellFig(writer io.Writer, fullPath string, cmd *Command
 //
 
 type gensh struct {
-	shell         bool
-	ext           string
-	tplm          map[whatTpl]string
 	getTargetPath func(g *gensh) string
 	detectShell   func(g *gensh)
-	homeDir       string
-	shConfigDir   string
-	fullPath      string
-	appName       string
-	endingText    string
+
+	tplm map[whatTpl]string
+	ext  string
+
+	homeDir     string
+	shConfigDir string
+	fullPath    string
+	appName     string
+	endingText  string
+
+	shell bool
 }
 
 func (g *gensh) init() {

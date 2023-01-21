@@ -16,17 +16,16 @@ import (
 //
 // Sample 1:
 //
-//    WithLogx(log.NewDummyLogger()),	// import "github.com/hedzr/log"
-//    WithLogx(log.NewStdLogger()),	// import "github.com/hedzr/log"
-//    WithLogx(logrus.New()),		// import "github.com/hedzr/logex/logx/logrus"
-//    WithLogx(sugar.New()),		// import "github.com/hedzr/logex/logx/zap/sugar"
-//    WithLogx(zap.New()),			// import "github.com/hedzr/logex/logx/zap"
+//	WithLogx(log.NewDummyLogger()),	// import "github.com/hedzr/log"
+//	WithLogx(log.NewStdLogger()),	// import "github.com/hedzr/log"
+//	WithLogx(logrus.New()),		// import "github.com/hedzr/logex/logx/logrus"
+//	WithLogx(sugar.New()),		// import "github.com/hedzr/logex/logx/zap/sugar"
+//	WithLogx(zap.New()),			// import "github.com/hedzr/logex/logx/zap"
 //
 // Sample 2:
 //
-//    WithLogx(build.New(loggerConfig)),	// import "github.com/hedzr/logex/build"
-//    WithLogx(build.New(build.NewLoggerConfigWith(true, "zap", "debug")),
-//
+//	WithLogx(build.New(loggerConfig)),	// import "github.com/hedzr/logex/build"
+//	WithLogx(build.New(build.NewLoggerConfigWith(true, "zap", "debug")),
 func WithLogx(logger log.Logger) ExecOption {
 	return func(w *ExecWorker) {
 		SetLogger(logger)
@@ -191,18 +190,18 @@ func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.Option) (err error
 //
 // To enable the debugger attached mode for cmdr, run `go build` with `-tags=delve` options. eg:
 //
-//     go run -tags=delve ./cli
-//     go build -tags=delve -o my-app ./cli
+//	go run -tags=delve ./cli
+//	go build -tags=delve -o my-app ./cli
 //
 // For Goland, you can enable this under 'Run/Debug Configurations', by adding the following into 'Go tool arguments:'
 //
-//     -tags=delve
+//	-tags=delve
 //
 // InDebugging() is a synonym to IsDebuggerAttached().
 //
 // NOTE that `isdelve` algor is from https://stackoverflow.com/questions/47879070/how-can-i-see-if-the-goland-debugger-is-running-in-the-program
 //
-//noinspection GoBoolExpressions
+// noinspection GoBoolExpressions
 func InDebugging() bool {
 	return log.InDebugging() // isdelve.Enabled
 }
@@ -211,18 +210,18 @@ func InDebugging() bool {
 //
 // To enable the debugger attached mode for cmdr, run `go build` with `-tags=delve` options. eg:
 //
-//     go run -tags=delve ./cli
-//     go build -tags=delve -o my-app ./cli
+//	go run -tags=delve ./cli
+//	go build -tags=delve -o my-app ./cli
 //
 // For Goland, you can enable this under 'Run/Debug Configurations', by adding the following into 'Go tool arguments:'
 //
-//     -tags=delve
+//	-tags=delve
 //
 // IsDebuggerAttached() is a synonym to InDebugging().
 //
 // NOTE that `isdelve` algor is from https://stackoverflow.com/questions/47879070/how-can-i-see-if-the-goland-debugger-is-running-in-the-program
 //
-//noinspection GoBoolExpressions
+// noinspection GoBoolExpressions
 func IsDebuggerAttached() bool {
 	return log.InDebugging() // isdelve.Enabled
 }
@@ -252,7 +251,6 @@ func InTesting() bool {
 // If the main program has been built as a executable binary, we
 // would assumed which is not in developing time.
 // If GetDebugMode() is true, that's in developing time too.
-//
 func InDevelopingTime() (status bool) {
 	return inDevelopingTime()
 }

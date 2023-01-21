@@ -40,7 +40,7 @@ const (
 
 type (
 	// BaseOpt is base of `Command`, `Flag`
-	BaseOpt struct {
+	BaseOpt struct { //nolint:govet //meaningful order
 		// Name is reserved for internal purpose.
 		Name string `yaml:"name,omitempty" json:"name,omitempty"`
 		// Short 'rune' string. short option/command name.
@@ -91,7 +91,7 @@ type (
 	Invoker func(cmd *Command, args []string)
 
 	// Command holds the structure of commands and sub-commands
-	Command struct {
+	Command struct { //nolint:govet //meaningful order
 		BaseOpt `yaml:",inline"`
 
 		Flags []*Flag `yaml:"flags,omitempty" json:"flags,omitempty"`
@@ -160,7 +160,7 @@ type (
 	}
 
 	// RootCommand holds some application information
-	RootCommand struct {
+	RootCommand struct { //nolint:govet //meaningful order
 		Command `yaml:",inline"`
 
 		AppName    string `yaml:"appname,omitempty" json:"appname,omitempty"`
@@ -190,7 +190,7 @@ type (
 	}
 
 	// Flag means a flag, a option, or a opt.
-	Flag struct {
+	Flag struct { //nolint:govet //meaningful order
 		BaseOpt `yaml:",inline"`
 
 		// ToggleGroup for Toggle Group
@@ -278,7 +278,7 @@ type (
 	}
 
 	// Options is a holder of all options
-	Options struct {
+	Options struct { //nolint:govet //meaningful order
 		entries   map[string]interface{}
 		hierarchy map[string]interface{}
 		rw        *sync.RWMutex
@@ -384,7 +384,7 @@ var (
 const similarThreshold = 0.6666666666666666
 
 // GetStrictMode enables error when opt value missed. such as:
-// xxx a b --prefix''   => error: prefix opt has no value specified.
+// xxx a b --prefix”   => error: prefix opt has no value specified.
 // xxx a b --prefix'/'  => ok.
 //
 // ENV: use `CMDR_APP_STRICT_MODE=true` to enable strict-mode.
@@ -398,7 +398,8 @@ func GetStrictMode() bool {
 // GetTraceMode returns the flag value of `--trace`/`-tr`
 //
 // NOTE
-//     log.GetTraceMode()/SetTraceMode() have higher universality
+//
+//	log.GetTraceMode()/SetTraceMode() have higher universality
 //
 // the flag value of `--trace` or `-tr` is always stored
 // in cmdr Option Store, so you can retrieved it by
@@ -408,10 +409,10 @@ func GetStrictMode() bool {
 // The `--trace` is not enabled in default, so you have to
 // add it manually:
 //
-//     import "github.com/hedzr/cmdr-addons/pkg/plugins/trace"
-//     cmdr.Exec(buildRootCmd(),
-//         trace.WithTraceEnable(true),
-//     )
+//	import "github.com/hedzr/cmdr-addons/pkg/plugins/trace"
+//	cmdr.Exec(buildRootCmd(),
+//	    trace.WithTraceEnable(true),
+//	)
 func GetTraceMode() bool {
 	return GetBoolR("trace") || log.GetTraceMode()
 }
@@ -425,7 +426,8 @@ func SetTraceMode(b bool) {
 // GetDebugMode returns the flag value of `--debug`/`-D`
 //
 // NOTE
-//     log.GetDebugMode()/SetDebugMode() have higher universality
+//
+//	log.GetDebugMode()/SetDebugMode() have higher universality
 //
 // the flag value of `--debug` or `-D` is always stored
 // in cmdr Option Store, so you can retrieved it by

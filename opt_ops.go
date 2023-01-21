@@ -249,8 +249,8 @@ func NewString(defaultValue ...string) (opt OptFlag) {
 //
 // Sample:
 //
-//    cmdr.NewStringSlice("quick", "fox", "jumps").Titles("int-slice", "is").Group("").
-//        AttachTo(parentCmdOpt)
+//	cmdr.NewStringSlice("quick", "fox", "jumps").Titles("int-slice", "is").Group("").
+//	    AttachTo(parentCmdOpt)
 func NewStringSlice(defaultValue ...string) (opt OptFlag) {
 	workingFlag := &Flag{}
 	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
@@ -263,8 +263,8 @@ func NewStringSlice(defaultValue ...string) (opt OptFlag) {
 //
 // Sample:
 //
-//    cmdr.NewIntSlice(1, 2, 3).Titles("int-slice", "is").Group("").
-//        AttachTo(parentCmdOpt)
+//	cmdr.NewIntSlice(1, 2, 3).Titles("int-slice", "is").Group("").
+//	    AttachTo(parentCmdOpt)
 func NewIntSlice(defaultValue ...int) (opt OptFlag) {
 	workingFlag := &Flag{}
 	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)
@@ -290,8 +290,8 @@ func NewInt(defaultValue ...int) (opt OptFlag) {
 //
 // Sample:
 //
-//    cmdr.NewUintSlice(1, 2, 3).Titles("uint-slice", "us").Group("").
-//        AttachTo(parentCmdOpt)
+//	cmdr.NewUintSlice(1, 2, 3).Titles("uint-slice", "us").Group("").
+//	    AttachTo(parentCmdOpt)
 func NewUintSlice(defaultValue ...uint) (opt OptFlag) {
 	workingFlag := &Flag{}
 	// optCtx.current.Flags = uniAddFlg(optCtx.current.Flags, optCtx.workingFlag)

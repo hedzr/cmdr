@@ -146,7 +146,8 @@ func (s *optFlagImpl) DefaultValue(val interface{}, placeholder string) (opt Opt
 // Placeholder to specify the text string that will be appended
 // to the end of a flag expr; it is used into help screen.
 // For example, `Placeholder("PASSWORD")` will take the form like:
-//   -p, --password=PASSWORD, --pwd, --passwd    to input password
+//
+//	-p, --password=PASSWORD, --pwd, --passwd    to input password
 func (s *optFlagImpl) Placeholder(placeholder string) (opt OptFlag) {
 	s.working.DefaultValuePlaceholder = placeholder
 	return s

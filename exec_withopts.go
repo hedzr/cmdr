@@ -90,41 +90,40 @@ func withShellCompletionPartialMatch(b bool) ExecOption {
 // For example, suppose you're planning to hide the 'generate' internal
 // command from help screen:
 //
-//     opt := cmdr.WithCommandSystemCustomizing(
-//       func(root *cmdr.RootCommand, args []string) {
-//         root.FindSubCommand("generate").Delete()
-//       })
-//     opts := append(opts, opt)
-//     err := cmdr.Exec(buildMyCommands(), opts...)
+//	opt := cmdr.WithCommandSystemCustomizing(
+//	  func(root *cmdr.RootCommand, args []string) {
+//	    root.FindSubCommand("generate").Delete()
+//	  })
+//	opts := append(opts, opt)
+//	err := cmdr.Exec(buildMyCommands(), opts...)
 //
 // And, you may attach more sub-commands into the current command system
 // from your plugin/addon:
 //
-//     func WithColorTableCommand(dottedCommand ...string) cmdr.ExecOption {
-//         return cmdr.WithCommandSystemCustomizing(
-//           func(root *cmdr.RootCommand, args []string) {
-//             cmd := &root.Command
-//             for _, d := range dottedCommand {
-//               cmd = cmdr.DottedPathToCommand(d, cmd)
-//               break
-//             }
-//             rr := cmdr.NewCmdFrom(cmd)
-//             addTo(rr, cmdr.RootFrom(root))
-//           })
-//     }
+//	func WithColorTableCommand(dottedCommand ...string) cmdr.ExecOption {
+//	    return cmdr.WithCommandSystemCustomizing(
+//	      func(root *cmdr.RootCommand, args []string) {
+//	        cmd := &root.Command
+//	        for _, d := range dottedCommand {
+//	          cmd = cmdr.DottedPathToCommand(d, cmd)
+//	          break
+//	        }
+//	        rr := cmdr.NewCmdFrom(cmd)
+//	        addTo(rr, cmdr.RootFrom(root))
+//	      })
+//	}
 //
-//     func addTo(rr cmdr.OptCmd, root *cmdr.RootCmdOpt) {
-//         c := cmdr.NewSubCmd()
+//	func addTo(rr cmdr.OptCmd, root *cmdr.RootCmdOpt) {
+//	    c := cmdr.NewSubCmd()
 //
-//         c.Titles("color-table", "ct").
-//             Description("print shell escape sequence table", "").
-//             Group(cmdr.SysMgmtGroup).
-//             Hidden(hidden).
-//             Action(printColorTable).
-//             AttachTo(rr)
-//         //...
-//     }
-//
+//	    c.Titles("color-table", "ct").
+//	        Description("print shell escape sequence table", "").
+//	        Group(cmdr.SysMgmtGroup).
+//	        Hidden(hidden).
+//	        Action(printColorTable).
+//	        AttachTo(rr)
+//	    //...
+//	}
 func WithCommandSystemCustomizing(customizer HookFunc) ExecOption {
 	return WithXrefBuildingHooks(customizer, nil)
 }
@@ -159,9 +158,11 @@ func WithAutomaticEnvHooks(hook HookOptsFunc) ExecOption {
 // WithEnvVarMap adds a (envvar-name, value) map, which will be applied
 // to string option value, string-slice option values, ....
 // For example, you could define a key-value entry in your `<app>.yml` file:
-//    app:
-//      test-value: "$THIS/$APPNAME.yml"
-//      home-dir: "$HOME"
+//
+//	app:
+//	  test-value: "$THIS/$APPNAME.yml"
+//	  home-dir: "$HOME"
+//
 // it will be expanded by mapping to OS environment and this map (WithEnvVarMap).
 // That is, $THIS will be expanded to the directory path of this
 // executable, $APPNAME to the app name.
@@ -227,13 +228,13 @@ func WithRxxtPrefix(prefix ...string) ExecOption {
 //
 // Default locations are:
 //
-//     []string{
-//		   "./ci/local/share/$APPNAME/addons",
-//		   "$HOME/.local/share/$APPNAME/addons",
-//		   "$HOME/.$APPNAME/addons",
-//		   "/usr/local/share/$APPNAME/addons",
-//		   "/usr/share/$APPNAME/addons",
-//     },
+//	    []string{
+//			   "./ci/local/share/$APPNAME/addons",
+//			   "$HOME/.local/share/$APPNAME/addons",
+//			   "$HOME/.$APPNAME/addons",
+//			   "/usr/local/share/$APPNAME/addons",
+//			   "/usr/share/$APPNAME/addons",
+//	    },
 //
 // See also internalResetWorkerNoLock()
 func WithPluginLocations(locations ...string) ExecOption {
@@ -248,13 +249,13 @@ func WithPluginLocations(locations ...string) ExecOption {
 //
 // Default locations are:
 //
-//     []string{
-//		   "./ci/local/share/$APPNAME/ext",
-//		   "$HOME/.local/share/$APPNAME/ext",
-//		   "$HOME/.$APPNAME/ext",
-//		   "/usr/local/share/$APPNAME/ext",
-//		   "/usr/share/$APPNAME/ext",
-//     },
+//	    []string{
+//			   "./ci/local/share/$APPNAME/ext",
+//			   "$HOME/.local/share/$APPNAME/ext",
+//			   "$HOME/.$APPNAME/ext",
+//			   "/usr/local/share/$APPNAME/ext",
+//			   "/usr/share/$APPNAME/ext",
+//	    },
 //
 // See also internalResetWorkerNoLock()
 func WithExtensionsLocations(locations ...string) ExecOption {
@@ -267,16 +268,16 @@ func WithExtensionsLocations(locations ...string) ExecOption {
 //
 // Default is:
 //
-//     []string{
-//         "./ci/etc/$APPNAME/$APPNAME.yml",       // for developer
-//         "/etc/$APPNAME/$APPNAME.yml",           // regular location
-//         "/usr/local/etc/$APPNAME/$APPNAME.yml", // regular macOS HomeBrew location
-//         "/opt/etc/$APPNAME/$APPNAME.yml",       // regular location
-//         "/var/lib/etc/$APPNAME/$APPNAME.yml",   // regular location
-//         "$HOME/.config/$APPNAME/$APPNAME.yml",  // per user
-//         "$THIS/$APPNAME.yml",                   // executable's directory
-//         "$APPNAME.yml",                         // current directory
-//     },
+//	[]string{
+//	    "./ci/etc/$APPNAME/$APPNAME.yml",       // for developer
+//	    "/etc/$APPNAME/$APPNAME.yml",           // regular location
+//	    "/usr/local/etc/$APPNAME/$APPNAME.yml", // regular macOS HomeBrew location
+//	    "/opt/etc/$APPNAME/$APPNAME.yml",       // regular location
+//	    "/var/lib/etc/$APPNAME/$APPNAME.yml",   // regular location
+//	    "$HOME/.config/$APPNAME/$APPNAME.yml",  // per user
+//	    "$THIS/$APPNAME.yml",                   // executable's directory
+//	    "$APPNAME.yml",                         // current directory
+//	},
 //
 // See also internalResetWorkerNoLock()
 func WithPredefinedLocations(locations ...string) ExecOption {
@@ -289,15 +290,14 @@ func WithPredefinedLocations(locations ...string) ExecOption {
 //
 // Default is:
 //
-//     secondaryLocations: []string{
-//         "/ci/etc/$APPNAME/conf/$APPNAME.yml",
-//         "/etc/$APPNAME/conf/$APPNAME.yml",
-//         "/usr/local/etc/$APPNAME/conf/$APPNAME.yml",
-//         "$HOME/.$APPNAME/$APPNAME.yml", // ext location per user
-//     },
+//	secondaryLocations: []string{
+//	    "/ci/etc/$APPNAME/conf/$APPNAME.yml",
+//	    "/etc/$APPNAME/conf/$APPNAME.yml",
+//	    "/usr/local/etc/$APPNAME/conf/$APPNAME.yml",
+//	    "$HOME/.$APPNAME/$APPNAME.yml", // ext location per user
+//	},
 //
 // The child `conf.d` folder will be loaded too.
-//
 func WithSecondaryLocations(locations ...string) ExecOption {
 	return func(w *ExecWorker) {
 		w.secondaryLocations = locations
@@ -308,19 +308,18 @@ func WithSecondaryLocations(locations ...string) ExecOption {
 //
 // Default is:
 //
-//     alterLocations: []string{
-//         "/ci/etc/$APPNAME/alter/$APPNAME.yml",
-//         "/etc/$APPNAME/alter/$APPNAME.yml",
-//         "/usr/local/etc/$APPNAME/alter/$APPNAME.yml",
-//         "./bin/$APPNAME.yml",              // for developer, current bin directory
-//         "/var/lib/$APPNAME/.$APPNAME.yml", //
-//         "$THIS/.$APPNAME.yml",             // executable's directory
-//     },
+//	alterLocations: []string{
+//	    "/ci/etc/$APPNAME/alter/$APPNAME.yml",
+//	    "/etc/$APPNAME/alter/$APPNAME.yml",
+//	    "/usr/local/etc/$APPNAME/alter/$APPNAME.yml",
+//	    "./bin/$APPNAME.yml",              // for developer, current bin directory
+//	    "/var/lib/$APPNAME/.$APPNAME.yml", //
+//	    "$THIS/.$APPNAME.yml",             // executable's directory
+//	},
 //
 // NOTE that just one config file will be loaded, the child `conf.d` folder not supports.
 //
 // cmdr will SAVE the changes in this alter config file automatically once loaded.
-//
 func WithAlterLocations(locations ...string) ExecOption {
 	return func(w *ExecWorker) {
 		w.alterLocations = locations
@@ -354,9 +353,8 @@ func WithAlterConfigAutoWriteBack(writeChanges bool) ExecOption {
 //
 // envvars:
 //
-//    CFG_DIR: will be set to the folder contains the main config file
-//    no-watch-conf-dir: if set true, the watcher will be disabled.
-//
+//	CFG_DIR: will be set to the folder contains the main config file
+//	no-watch-conf-dir: if set true, the watcher will be disabled.
 func WithWatchMainConfigFileToo(b bool) ExecOption {
 	return func(w *ExecWorker) {
 		w.watchMainConfigFileToo = b
@@ -388,7 +386,6 @@ func WithConfigLoadedListener(c ConfigReloaded) ExecOption {
 //
 // By default, cmdr watches all files in the sub-directory `conf.d` of
 // which folder contains the main config file.
-//
 func WithConfigSubDirAutoName(folderName string) ExecOption {
 	return func(w *ExecWorker) {
 		w.confDFolderName = folderName
@@ -433,7 +430,7 @@ func WithOptionModifying(onOptionSet func(keyPath string, value, oldVal interfac
 //
 // Main program might decide whether it's a warning or error.
 //
-// See also
+// # See also
 //
 // [Flag.ValidArgs]
 func WithIgnoreWrongEnumValue(ignored bool) ExecOption {
@@ -447,7 +444,6 @@ func WithIgnoreWrongEnumValue(ignored bool) ExecOption {
 //
 // By default, cmdr ignore the first unknown command and treat them as
 // remained arguments.
-//
 func WithWarnForUnknownCommand(b bool) ExecOption {
 	return func(w *ExecWorker) {
 		w.treatUnknownCommandAsArgs = !b
@@ -456,12 +452,11 @@ func WithWarnForUnknownCommand(b bool) ExecOption {
 
 // WithBuiltinCommands enables/disables those builtin predefined commands. Such as:
 //
-//  - versionsCmds / EnableVersionCommands supports injecting the default `--version` flags and commands
-//  - helpCmds / EnableHelpCommands supports injecting the default `--help` flags and commands
-//  - verboseCmds / EnableVerboseCommands supports injecting the default `--verbose` flags and commands
-//  - generalCmdrCmds / EnableCmdrCommands support these flags: `--strict-mode`, `--no-env-overrides`, and `--no-color`
-//  - generateCmds / EnableGenerateCommands supports injecting the default `generate` commands and sub-commands
-//
+//   - versionsCmds / EnableVersionCommands supports injecting the default `--version` flags and commands
+//   - helpCmds / EnableHelpCommands supports injecting the default `--help` flags and commands
+//   - verboseCmds / EnableVerboseCommands supports injecting the default `--verbose` flags and commands
+//   - generalCmdrCmds / EnableCmdrCommands support these flags: `--strict-mode`, `--no-env-overrides`, and `--no-color`
+//   - generateCmds / EnableGenerateCommands supports injecting the default `generate` commands and sub-commands
 func WithBuiltinCommands(versionsCmds, helpCmds, verboseCmds, generateCmds, generalCmdrCmds bool) ExecOption {
 	return func(w *ExecWorker) {
 		w.enableVersionCommands = versionsCmds
@@ -491,7 +486,6 @@ func WithInternalOutputStreams(out, err *bufio.Writer) ExecOption {
 // WithConfigFileLoadingHooks adds the hook function to the front and back of trying to load config files.
 //
 // These two hooks always are triggered whatever WithNoLoadConfigFiles is enabled or not.
-//
 func WithConfigFileLoadingHooks(before, after HookFunc) ExecOption {
 	return func(w *ExecWorker) {
 		if before != nil {
@@ -531,7 +525,6 @@ func WithPagerEnabled(enabled ...bool) ExecOption {
 
 // EnableShellPager transfer cmdr stdout to OS pager.
 // The environment variable `PAGER` will be checkout, otherwise `less`.
-//
 func EnableShellPager(enabled bool) {
 	w := internalGetWorker()
 	enableShellPager(w, enabled)
@@ -715,7 +708,6 @@ func WithStrictMode(b bool) ExecOption {
 //
 // When any wrong/warn arguments found, cmdr will display some tip messages. To customize it
 // see also cmdr.WithUnknownOptionHandler.
-//
 func WithAfterArgsParsed(hookFunc Handler) ExecOption {
 	return func(w *ExecWorker) {
 		w.afterArgsParsed = hookFunc
@@ -725,12 +717,16 @@ func WithAfterArgsParsed(hookFunc Handler) ExecOption {
 // WithHelpTailLine setup the tail line in help screen
 //
 // Default line is:
-//   "\nType '-h' or '--help' to get command help screen."
+//
+//	"\nType '-h' or '--help' to get command help screen."
 //
 // Tiny html codes are supported, such as:
-//     b/strong, i/cite, u, code/kbd, mark, del, font
+//
+//	b/strong, i/cite, u, code/kbd, mark, del, font
+//
 // These tags are parsed but ignored:
-//     html, head, body
+//
+//	html, head, body
 func WithHelpTailLine(line string) ExecOption {
 	return func(w *ExecWorker) {
 		w.helpTailLine = line

@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	// ErrShouldBeStopException tips `Exec()` cancelled the following actions after `PreAction()`
+	// ErrShouldBeStopException tips `Exec()` canceled the following actions after `PreAction()`
 	ErrShouldBeStopException = SetAsAnIgnorableError(newErrorWithMsg("stop me right now"), true)
 
 	// ErrBadArg is a generic error for user
@@ -24,12 +24,11 @@ var (
 //
 // For examples:
 //
-//     err := cmdr.NewErrorForCmdr("error here")
-//     cmdr.SetAsAnIgnorableError(err, true)
-//     if cmdr.IsIgnorable(err) {
-//         // do jump out and ignore it
-//     }
-//
+//	err := cmdr.NewErrorForCmdr("error here")
+//	cmdr.SetAsAnIgnorableError(err, true)
+//	if cmdr.IsIgnorable(err) {
+//	    // do jump out and ignore it
+//	}
 func NewErrorForCmdr(msg string, args ...interface{}) error {
 	return newErr(msg, args...)
 }
@@ -146,10 +145,11 @@ type ErrorForCmdr struct {
 	// than a really programming error state.
 	//
 	// cmdr provides a standard Ignorable error object: ErrShouldBeStopException
+	causer   error
+	msg      string
+	liveArgs []interface{}
+
 	Ignorable bool
-	causer    error
-	msg       string
-	liveArgs  []interface{}
 }
 
 // newError formats a ErrorForCmdr object
@@ -228,11 +228,10 @@ func (w *ErrorForCmdr) Error() string {
 //
 // Example:
 //
-// 	   errTmpl1001 := BUG1001.NewTemplate("something is wrong %v")
-// 	   err4 := errTmpl1001.FormatNew("ok").Attach(errBug1)
-// 	   fmt.Println(err4)
-// 	   fmt.Printf("%+v\n", err4)
-//
+//	errTmpl1001 := BUG1001.NewTemplate("something is wrong %v")
+//	err4 := errTmpl1001.FormatNew("ok").Attach(errBug1)
+//	fmt.Println(err4)
+//	fmt.Printf("%+v\n", err4)
 func (w *ErrorForCmdr) FormatNew(ignorable bool, livedArgs ...interface{}) *errors.WithStackInfo {
 	x := withIgnorable(ignorable, w.causer, w.msg, livedArgs...).(*errors.WithStackInfo) //nolint:errcheck,errorlint //like it
 	x.Cause().(*ErrorForCmdr).liveArgs = livedArgs                                       //nolint:errcheck,errorlint //like it

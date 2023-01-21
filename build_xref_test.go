@@ -51,7 +51,7 @@ func TestAddonPlugin(t *testing.T) {
 	}
 
 	// cmd = &rootCmdX.Command
-	commands := []struct {
+	commands := []struct { //nolint:govet //just a testcase
 		line      string
 		validator func(t *testing.T, err error) error
 	}{
@@ -119,7 +119,7 @@ func TestPE(t *testing.T) {
 	}
 
 	// cmd = &rootCmdX.Command
-	commands := []struct {
+	commands := []struct { //nolint:govet //just a testcase
 		line      string
 		validator func(t *testing.T, err error) error
 	}{

@@ -18,15 +18,12 @@ import (
 //
 // Usage
 //
-//  func enteringLoop() {
-// 	  waiter := cmdr.TrapSignals(func(s os.Signal) {
-// 	    cmdr.Logger.Debugf("receive signal '%v' in onTrapped()", s)
-// 	  })
-// 	  go waiter()
-//  }
-//
-//
-//
+//	 func enteringLoop() {
+//		  waiter := cmdr.TrapSignals(func(s os.Signal) {
+//		    cmdr.Logger.Debugf("receive signal '%v' in onTrapped()", s)
+//		  })
+//		  go waiter()
+//	 }
 func TrapSignals(onTrapped func(s os.Signal), signals ...os.Signal) (waiter func()) {
 	done := make(chan bool, 1)
 	waiter = TrapSignalsEnh(done, onTrapped)
@@ -37,20 +34,17 @@ func TrapSignals(onTrapped func(s os.Signal), signals ...os.Signal) (waiter func
 //
 // Usage
 //
-//  func enteringLoop() {
-//    done := make(chan bool, 1)
-//    go func(done chan bool){
-//       // your main serve loop
-//       done <- true   // to end the TrapSignalsEnh waiter by manually, instead of os signals caught.
-//    }(done)
-// 	  waiter := cmdr.TrapSignalsEnh(done, func(s os.Signal) {
-// 	    cmdr.Logger.Debugf("receive signal '%v' in onTrapped()", s)
-// 	  })
-// 	  go waiter()
-//  }
-//
-//
-//
+//	 func enteringLoop() {
+//	   done := make(chan bool, 1)
+//	   go func(done chan bool){
+//	      // your main serve loop
+//	      done <- true   // to end the TrapSignalsEnh waiter by manually, instead of os signals caught.
+//	   }(done)
+//		  waiter := cmdr.TrapSignalsEnh(done, func(s os.Signal) {
+//		    cmdr.Logger.Debugf("receive signal '%v' in onTrapped()", s)
+//		  })
+//		  go waiter()
+//	 }
 func TrapSignalsEnh(done chan bool, onTrapped func(s os.Signal), signals ...os.Signal) (waiter func()) {
 	sigs := make(chan os.Signal, 1)
 	if len(signals) == 0 {

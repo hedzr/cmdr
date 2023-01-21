@@ -118,7 +118,7 @@ type aliasesCommands struct {
 // The aliases are defined in config file at path 'app.aliases'.
 // For more details, lookup the real sample in 'examples/fluent':
 //
-//    ci/etc/fluent/conf.d/91.cmd-aliases.yml
+//	ci/etc/fluent/conf.d/91.cmd-aliases.yml
 //
 // A load-failure aliases state will be ignored by the mainly
 // cmdr parsing process (but print an error message).
@@ -335,7 +335,7 @@ func (w *ExecWorker) getInvokeShellAction(from *Command) Handler {
 }
 
 func (w *ExecWorker) expandTmplWithExecutiveEnv(source string, cmd *Command, args []string) (text string) {
-	text = tplApply(source, struct {
+	text = tplApply(source, struct { //nolint:govet //just a testcase
 		Cmd        *Command
 		Args       []string
 		ArgsString string
@@ -1455,7 +1455,7 @@ func backtraceFlagNames(flg *Flag) (str string) {
 //
 // - if verboseLast = true,  got 'microservices.tags.[ls|list|l|lst|dir]'.
 //
-// - at root command, it returns 'appName' or '' when verboseLast is true.
+// - at root command, it returns 'appName' or ” when verboseLast is true.
 func backtraceCmdNames(cmd *Command, verboseLast bool) (str string) {
 	var a []string
 	if verboseLast {

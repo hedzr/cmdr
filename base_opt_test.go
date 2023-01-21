@@ -6,18 +6,19 @@ package cmdr_test
 
 import (
 	"fmt"
-	"github.com/BurntSushi/toml"
-	"github.com/hedzr/cmdr"
-	"github.com/hedzr/cmdr/tool"
-	"github.com/hedzr/log/dir"
 	"os"
 	"path"
 	"testing"
 	"time"
+
+	"github.com/BurntSushi/toml"
+	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log/dir"
 )
 
 type (
-	tomlConfig struct {
+	tomlConfig struct { //nolint:govet //just a testcase
 		Title   string
 		Runmode string
 		App     app
@@ -31,7 +32,7 @@ type (
 		Debug bool
 	}
 
-	ownerInfo struct {
+	ownerInfo struct { //nolint:govet //just a testcase
 		Name string
 		Org  string `toml:"organization"`
 		Bio  string

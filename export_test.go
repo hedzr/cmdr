@@ -482,6 +482,7 @@ func TestColorPrintTool(t *testing.T) {
 }
 
 // TestSliceConverters _
+//
 //nolint:funlen //for test
 func TestSliceConverters(t *testing.T) {
 	stringSliceToInt64Slice([]string{"x"})

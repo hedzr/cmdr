@@ -16,7 +16,7 @@ import (
 	"gopkg.in/hedzr/errors.v3"
 )
 
-type ptpkg struct {
+type ptpkg struct { //nolint:govet //meaning order
 	assigned          bool
 	found             bool
 	short             bool
@@ -215,8 +215,8 @@ func (pkg *ptpkg) matchShortFlag(goCommand **Command) {
 
 func (pkg *ptpkg) matchLongestShortFlag(cc *Command, a string, startPos int) (i int) {
 	type MS struct {
-		index int
 		fn    string
+		index int
 	}
 	var matched []MS
 	longest := -1

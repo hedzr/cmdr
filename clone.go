@@ -25,10 +25,10 @@ type (
 
 	// copierImpl impl
 	copierImpl struct {
+		IgnoreNames      []string
 		KeepIfFromIsNil  bool // 源字段值为nil指针时，目标字段的值保持不变
 		KeepIfFromIsZero bool // 源字段值为未初始化的零值时，目标字段的值保持不变 // 此条尚未实现
 		ZeroIfEqualsFrom bool // 源和目标字段值相同时，目标字段被清除为未初始化的零值
-		IgnoreNames      []string
 		EachFieldAlways  bool
 		IgnoreIfNotEqual bool // keep target field value if not equals to source
 

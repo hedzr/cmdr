@@ -81,7 +81,7 @@ Args: %v
 	return
 }
 
-type queryShcompContext struct {
+type queryShcompContext struct { //nolint:govet //meaningful order
 	w           *ExecWorker
 	cmdComplete *Command
 	args        []string

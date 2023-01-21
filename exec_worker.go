@@ -9,7 +9,7 @@ import (
 )
 
 // ExecWorker is a core logic worker and holder
-type ExecWorker struct {
+type ExecWorker struct { //nolint:govet //meaningful order
 	switchCharset string
 
 	// beforeXrefBuildingX, afterXrefBuiltX HookFunc
@@ -114,7 +114,6 @@ func internalGetWorker() (w *ExecWorker) {
 
 // internalResetWorkerNoLock makes a new instance of pointer
 // to ExecWorker and updates uniqueWorker global variable.
-//
 func internalResetWorkerNoLock() (w *ExecWorker) {
 	w = &ExecWorker{
 		envPrefixes:  []string{"CMDR"},

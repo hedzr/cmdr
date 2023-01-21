@@ -54,6 +54,7 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - improved code style
   - `--version`: strip duplicated "v"
   - improved `sbom` subcommand
+  - fixed data race in continuous coverage testing without completely cleanup
 
 - v1.10.50 (FRZ)
   - routine maintenance release

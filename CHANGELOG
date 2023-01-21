@@ -2,6 +2,17 @@
 
 ## Versions
 
+- v1.11.0 (FRZ)
+
+  - improved code style
+  - `--version`: strip duplicated "v"
+  - improved `sbom` subcommand
+
+- v1.10.50 (FRZ)
+
+  - routine maintenance release
+  - upgrade log & logex, update project files and some godoc
+
 - v1.10.49 (FRZ)
 
   - NOTE: we declared a go1.18 Module in go.mod.

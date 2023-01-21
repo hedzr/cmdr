@@ -50,6 +50,11 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
+- v1.11.0 (FRZ)
+  - improved code style
+  - `--version`: strip duplicated "v"
+  - improved `sbom` subcommand
+
 - v1.10.50 (FRZ)
   - routine maintenance release
   - upgrade log & logex, update project files and some godoc

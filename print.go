@@ -395,9 +395,9 @@ func getTextPiece(str string, start, want int) (text, ending string) {
 	var tryEscape, tryAnsiColor bool
 	var tryPos int
 	type controls struct {
+		seq    string
 		pos    int
 		esclen int //nolint:structcheck,unused //keep it
-		seq    string
 	}
 	var escapeSeqs []controls
 	for _, c := range src { //nolint:gosimple,staticcheck //no problem
@@ -594,9 +594,9 @@ func getSortedKeysFromCmdMap(groups map[string]*Command) (k1 []string) {
 
 type aSection struct {
 	title         string
-	isToggleGroup bool
 	bufLL, bufLR  []bytes.Buffer
 	maxL, maxR    int
+	isToggleGroup bool
 }
 
 type aGroupedSections struct {
@@ -809,7 +809,9 @@ func (w *ExecWorker) showVersion(cmd *Command) {
 %v
 %v
 %v`,
-		conf.Version, conf.AppName, conf.Buildstamp, conf.Githash, conf.GoVersion, conf.GitSummary,
+		strings.TrimLeft(conf.Version, "v"), conf.AppName,
+		conf.Buildstamp, conf.Githash,
+		conf.GoVersion, conf.GitSummary,
 		conf.Serial, conf.SerialString,
 	)
 }

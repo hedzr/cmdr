@@ -80,6 +80,13 @@ tab_width = 2
 trim_trailing_whitespace = false
 insert_final_newline = false
 
+[{.env,.env.local,installer,install.sh,ops}]
+indent_size = 2
+indent_style = tab
+tab_width = 2
+trim_trailing_whitespace = false
+insert_final_newline = false
+
 [*.toml]
 indent_style = space
 indent_size = 4

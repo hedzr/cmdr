@@ -50,6 +50,12 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
+- v1.11.1 (FRZ)
+
+  - improved version string output
+  - improved build-info output (via `app -#`)
+  - added new building strings for devops build-tool: `BuilderComments`, ...
+
 - v1.11.0 (FRZ)
   - improved code style
   - `--version`: strip duplicated "v"

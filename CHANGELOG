@@ -2,6 +2,12 @@
 
 ## Versions
 
+- v1.11.1 (FRZ)
+
+  - improved version string output
+  - improved build-info output (via `app -#`)
+  - added new building strings for devops build-tool: `BuilderComments`, ...
+
 - v1.11.0 (FRZ)
 
   - improved code style

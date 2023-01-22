@@ -826,6 +826,21 @@ func (w *ExecWorker) showBuildInfo(cmd *Command) {
 
 	w.printHeader(w.currentHelpPainter, &w.rootCommand.Command)
 
+	if conf.GoVersion != "" {
+		fp(`           Built by: %v`, conf.GoVersion)
+	}
+
+	if conf.BuilderComments != "" {
+		fp(`   Builder Comments: %v`, conf.BuilderComments)
+	}
+
+	if conf.Serial != "" {
+		fp(`       Built Serial: %v`, conf.Serial)
+	}
+	if conf.SerialString != "" {
+		fp(`Built Serial String: %v`, conf.SerialString)
+	}
+
 	ts := conf.Buildstamp
 	if ts == "" {
 		ts = time.Now().UTC().Format("")
@@ -834,13 +849,13 @@ func (w *ExecWorker) showBuildInfo(cmd *Command) {
 	if err == nil {
 		ts = dt.Format("")
 	}
-	// buildTime
+	fp(`    Built Timestamp: %v`, ts)
+
 	fp(`
-       Built by: %v
-Build Timestamp: %v
-        Githash: %v
-    Git Summary: %v
-`, conf.GoVersion, ts, conf.Githash, conf.GitSummary)
+         Git Commit: %v
+        Git Summary: %v
+    Git Description: %v
+`, conf.Githash, conf.GitSummary, conf.GitDesc)
 
 	w.currentHelpPainter.FpPrintHelpTailLine(cmd)
 }

@@ -58,7 +58,7 @@ func (s *helpPainter) Print(fmtStr string, args ...interface{}) {
 
 func (s *helpPainter) FpPrintHeader(command *Command) {
 	if command.root.Header == "" {
-		s.Printf("%v by %v - v%v", command.root.Copyright, command.root.Author, command.root.Version)
+		s.Printf("%v by %v - v%v", command.root.Copyright, command.root.Author, strings.TrimLeft(command.root.Version, "v"))
 	} else {
 		s.Printf("%v", command.root.Header)
 	}
@@ -357,8 +357,8 @@ func initTabStop(ts int) {
 	fmtFlagsDepNCL = "  %-" + s + "s"
 	fmtFlagsDepNCR = "%s%v%s [deprecated since %v]"
 
-	fmtTailLine = "\x1b[2m\x1b[%dm%s\x1b[0m"
-	fmtTailLineNC = "%s"
+	fmtTailLine = "\n\x1b[2m\x1b[%dm%s\x1b[0m"
+	fmtTailLineNC = "\n%s"
 }
 
 var (

@@ -83,9 +83,9 @@ func (s *markdownPainter) FpPrintHeader(command *Command) {
 	}
 
 	s.Printf("%v", tplApply(`
-## {{.AppName}} v{{.Version}}
+## {{.AppName}} {{.Version}}
 
-{{.AppName}} v{{.Version}} - {{.Copyright}}
+{{.AppName}} {{.Version}} - {{.Copyright}}
 
 `, a))
 

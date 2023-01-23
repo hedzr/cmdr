@@ -826,6 +826,8 @@ func (w *ExecWorker) showBuildInfo(cmd *Command) {
 
 	w.printHeader(w.currentHelpPainter, &w.rootCommand.Command)
 
+	fp("")
+
 	if conf.GoVersion != "" {
 		fp(`           Built by: %v`, conf.GoVersion)
 	}

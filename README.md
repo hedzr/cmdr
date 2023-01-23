@@ -50,6 +50,13 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
+- v1.11.2 (FRZ)
+
+  - improved build-info output to add blank line after header printed
+  - fixed incorrect tail args while passthru switches `--` found
+  - update `sbom`
+  - upgrade deps for fixing `GetExecutablePath()` wrong return if user typing naked command in shell
+
 - v1.11.1 (FRZ)
 
   - improved version string output

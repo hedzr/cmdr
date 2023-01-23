@@ -836,7 +836,7 @@ func (w *ExecWorker) attachCmdrCommands(root *RootCommand) {
 			ff.EnvVars, ff.VendorHidden = []string{"NOCOLOR", "NO_COLOR"}, true
 		})
 
-		sbomAttach(w, root)
+		sbomAttacher(w, root)
 	}
 }
 

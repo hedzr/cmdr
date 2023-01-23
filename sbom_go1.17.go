@@ -5,4 +5,7 @@
 
 package cmdr
 
-func sbomAttach(w *ExecWorker, root *RootCommand) {}
+// sbomAttacher adds `sbom` subcommand as cmdr RootCommand if it has not been defined by user.
+//
+// But nothing to do if golang version is too small.
+func sbomAttacher(w *ExecWorker, root *RootCommand) {}

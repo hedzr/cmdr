@@ -8,13 +8,15 @@ package cmdr
 import (
 	"debug/buildinfo"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/hedzr/log"
-	"github.com/hedzr/log/exec"
 	"gopkg.in/hedzr/errors.v3"
 )
 
-func sbomAttach(w *ExecWorker, root *RootCommand) {
+// sbomAttacher adds `sbom` subcommand as cmdr RootCommand if it has not been defined by user.
+func sbomAttacher(w *ExecWorker, root *RootCommand) {
 	found := false
 	for _, sc := range root.SubCommands {
 		if sc.Full == "sbom" { // generatorCommands.Full {
@@ -22,6 +24,7 @@ func sbomAttach(w *ExecWorker, root *RootCommand) {
 			break
 		}
 	}
+
 	if !found {
 		// root.SubCommands = append(root.SubCommands, generatorCommands)
 		var sbom *Command
@@ -44,14 +47,18 @@ func sbomAttach(w *ExecWorker, root *RootCommand) {
 }
 
 func sbomAction(cmd *Command, args []string) (err error) {
-	var ec = errors.New("processing executables")
 	var caught bool
+	var ec = errors.New("processing executables")
+	defer ec.Defer(&err)
 	for _, file := range args {
 		ec.Attach(sbomOne(file))
 		caught = true
 	}
 	if !caught {
-		file := exec.GetExecutablePath()
+		//file := exec.GetExecutablePath()
+		p, _ := os.Executable()
+		p, _ = filepath.Abs(p)
+		file := p
 		log.Infof("SBOM on %v", file)
 		ec.Attach(sbomOne(file))
 	}

@@ -109,6 +109,7 @@ func (w *ExecWorker) flagsPrepare(pkg *ptpkg, goCommand **Command, args []string
 				ra := args[pkg.i:]
 				if len(ra) > 0 {
 					ra = ra[1:]
+					pkg.i++
 				}
 				if w.onPassThruCharHitHandler != nil {
 					err = w.onPassThruCharHitHandler(*goCommand, pkg.a, ra)

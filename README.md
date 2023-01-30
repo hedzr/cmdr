@@ -50,6 +50,11 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
+- v1.11.5 (FRZ)
+
+  - replace old clone codes with `hedzr/evendeep`
+  - remove supports to go1.13 - go1.16 since our go.mod can't work for them after upgrade `golang/x` packages.
+
 - v1.11.2 (FRZ)
 
   - improved build-info output to add blank line after header printed

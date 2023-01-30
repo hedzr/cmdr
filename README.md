@@ -50,6 +50,10 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
+- v1.11.6 (FRZ)
+
+  - upgrade `hedzr/evendeep`
+
 - v1.11.5 (FRZ)
 
   - replace old clone codes with `hedzr/evendeep`

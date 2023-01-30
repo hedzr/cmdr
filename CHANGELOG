@@ -2,6 +2,10 @@
 
 ## Versions
 
+- v1.11.6 (FRZ)
+
+  - upgrade `hedzr/evendeep`
+
 - v1.11.5 (FRZ)
 
   - replace old clone codes with `hedzr/evendeep`

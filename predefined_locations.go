@@ -15,7 +15,7 @@ import (
 
 func (w *ExecWorker) parsePredefinedLocation() (err error) {
 	// pre-detects for `--config xxx`, `--config=xxx`, `--configxxx`
-	if ix, str, yes := partialContains(os.Args, "--config"); yes {
+	if ix, str, yes := PartialContains(os.Args, "--config"); yes {
 		var location string
 		i := strings.Index(str, "=")
 		switch {

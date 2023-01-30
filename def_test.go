@@ -630,9 +630,9 @@ func TestCmdrClone(t *testing.T) {
 		t.Fatal("should not equal.")
 	}
 
-	vc := new(*cmdr.RootCommand)
+	vc := new(cmdr.RootCommand)
 	// flags := *cmdr.Clone(&consulConnectFlags, &[]*cmdr.Flag{}).(*[]*cmdr.Flag)
-	ret := cmdr.Clone(rc, vc)
+	ret := cmdr.Clone(rc, &vc)
 	t.Log(ret)
 }
 

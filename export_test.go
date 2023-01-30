@@ -17,6 +17,7 @@ import (
 
 	cmdrbase "github.com/hedzr/cmdr-base"
 	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/evendeep"
 	"github.com/hedzr/log/dir"
 
 	"gopkg.in/hedzr/errors.v3"
@@ -498,14 +499,14 @@ func TestSliceConverters(t *testing.T) {
 	w.rxxtOptions.setToReplaceMode()
 
 	Set("x", []string{"1"})
-	Set("x", val) // val = "1,2,3"
-	if v1, v2 := GetIntSliceR("x"), []int{1, 2, 3}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+	Set("x", val)                                                                 // val = "1,2,3"
+	if v1, v2 := GetIntSliceR("x"), []int{1, 2, 3}; !evendeep.DeepEqual(v1, v2) { // equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
 		t.Errorf("want %v, but got %v", v2, v1)
 	}
 
 	Set("x", []string{"5", "7", "19"})
-	Set("x", val) // val = "1,2,3"
-	if v1, v2 := GetIntSliceR("x"), []int{1, 2, 3}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+	Set("x", val)                                                                 // val = "1,2,3"
+	if v1, v2 := GetIntSliceR("x"), []int{1, 2, 3}; !evendeep.DeepEqual(v1, v2) { // !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
 		t.Errorf("want %v, but got %v", v2, v1)
 	}
 
@@ -518,41 +519,41 @@ func TestSliceConverters(t *testing.T) {
 	w.rxxtOptions.setToAppendMode()
 
 	SetOverwrite("x", []string{"5", "7", "19"})
-	SetOverwrite("x", valary) // val = "1,2,3"
-	if v1, v2 := GetIntSliceR("x"), []int{1, 2, 3}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+	SetOverwrite("x", valary)                                                     // val = "1,2,3"
+	if v1, v2 := GetIntSliceR("x"), []int{1, 2, 3}; !evendeep.DeepEqual(v1, v2) { // !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
 		t.Errorf("want %v, but got %v", v2, v1)
 	}
 
 	SetOverwrite("x", []string{"1"})
-	if v1, v2 := GetIntSliceR("x"), []int{1}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+	if v1, v2 := GetIntSliceR("x"), []int{1}; !evendeep.DeepEqual(v1, v2) { // !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
 		t.Errorf("want %v, but got %v", v2, v1)
 	}
 	w.rxxtOptions.GetInt64Slice("app.x")
 	w.rxxtOptions.GetUint64Slice("app.x")
 
-	SetOverwrite("x", valary) // val = "1,2,3"
-	if v1, v2 := GetIntSliceR("x"), []int{1, 2, 3}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+	SetOverwrite("x", valary)                                                     // val = "1,2,3"
+	if v1, v2 := GetIntSliceR("x"), []int{1, 2, 3}; !evendeep.DeepEqual(v1, v2) { // !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
 		t.Errorf("want %v, but got %v", v2, v1)
 	}
 	w.rxxtOptions.GetInt64Slice("app.x")
 	w.rxxtOptions.GetUint64Slice("app.x")
 
-	Set("x", []int{1, 2, 4}) // old val type = string, so new value replace it
-	if v1, v2 := GetIntSliceR("x"), []int{1, 2, 3, 4}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+	Set("x", []int{1, 2, 4})                                                         // old val type = string, so new value replace it
+	if v1, v2 := GetIntSliceR("x"), []int{1, 2, 3, 4}; !evendeep.DeepEqual(v1, v2) { // !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
 		t.Errorf("want %v, but got %v", v2, v1)
 	}
 	w.rxxtOptions.GetInt64Slice("app.x")
 	w.rxxtOptions.GetUint64Slice("app.x")
 
-	Set("x", []int64{5, 2}) // slices will be merged, but without dup elem check of course
-	if v1, v2 := GetInt64SliceR("x"), []int64{1, 2, 3, 4, 5}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+	Set("x", []int64{5, 2})                                                                 // slices will be merged, but without dup elem check of course
+	if v1, v2 := GetInt64SliceR("x"), []int64{1, 2, 3, 4, 5}; !evendeep.DeepEqual(v1, v2) { // !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
 		t.Errorf("want %v, but got %v", v2, v1)
 	}
 	w.rxxtOptions.GetIntSlice("app.x")
 	w.rxxtOptions.GetUint64Slice("app.x")
 
 	Set("x", []uint64{9, 5})
-	if v1, v2 := GetUint64SliceR("x"), []uint64{1, 2, 3, 4, 5, 9}; !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
+	if v1, v2 := GetUint64SliceR("x"), []uint64{1, 2, 3, 4, 5, 9}; !evendeep.DeepEqual(v1, v2) { // !equalSlice(reflect.ValueOf(v1), reflect.ValueOf(v2)) {
 		t.Errorf("want %v, but got %v", v2, v1)
 	}
 	w.rxxtOptions.GetInt64Slice("app.x")

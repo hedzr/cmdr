@@ -13,10 +13,12 @@ import (
 	"sync"
 	"time"
 
+	"gopkg.in/yaml.v3"
+
 	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/evendeep"
 	"github.com/hedzr/log"
 	"github.com/hedzr/log/dir"
-	"gopkg.in/yaml.v3"
 )
 
 // newOptions returns an `Options` structure pointer
@@ -1617,10 +1619,14 @@ func (s *Options) SaveCheckpoint() (err error) {
 	defer s.rw.RUnlock()
 	s.rw.RLock()
 	no := newOptions()
-	if err = StandardCopier.Copy(no, s); err == nil {
+	if err = evendeep.DefaultCopyController.CopyTo(no, s); err == nil {
 		w := internalGetWorker()
 		w.savedOptions = append(w.savedOptions, no)
 	}
+	// if err = StandardCopier.Copy(no, s); err == nil {
+	// 	w := internalGetWorker()
+	// 	w.savedOptions = append(w.savedOptions, no)
+	// }
 	return
 }
 

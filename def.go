@@ -6,8 +6,11 @@ package cmdr
 
 import (
 	"bufio"
+	"strings"
 	"sync"
 
+	"github.com/hedzr/evendeep"
+	"github.com/hedzr/evendeep/typ"
 	"github.com/hedzr/logex"
 
 	"github.com/hedzr/cmdr/tool"
@@ -63,7 +66,7 @@ type (
 		// from there.
 		Group string `yaml:"group,omitempty" json:"group,omitempty"`
 
-		owner *Command
+		owner *Command `copy:"-"`
 		// strHit keeps the matched title string from user input in command line
 		strHit string
 
@@ -130,13 +133,13 @@ type (
 		//   TailArgsDesc string [no plan]
 		TailPlaceHolders []string ``
 
-		root            *RootCommand
-		allCmds         map[string]map[string]*Command // key1: Commnad.Group, key2: Command.Full
-		allFlags        map[string]map[string]*Flag    // key1: Command.Flags[#].Group, key2: Command.Flags[#].Full
-		plainCmds       map[string]*Command
-		plainShortFlags map[string]*Flag
-		plainLongFlags  map[string]*Flag
-		headLikeFlag    *Flag
+		root            *RootCommand                   `copy:"-"`
+		allCmds         map[string]map[string]*Command `copy:"-"` // key1: Commnad.Group, key2: Command.Full
+		allFlags        map[string]map[string]*Flag    `copy:"-"` // key1: Command.Flags[#].Group, key2: Command.Flags[#].Full
+		plainCmds       map[string]*Command            `copy:"-"`
+		plainShortFlags map[string]*Flag               `copy:"-"`
+		plainLongFlags  map[string]*Flag               `copy:"-"`
+		headLikeFlag    *Flag                          `copy:"-"`
 
 		presetCmdLines []string
 		// Invoke is a space-separated string which takes Command (name) and extra
@@ -185,8 +188,8 @@ type (
 		PreActions  []Handler `yaml:"-" json:"-"`
 		PostActions []Invoker `yaml:"-" json:"-"`
 
-		ow   *bufio.Writer
-		oerr *bufio.Writer
+		ow   *bufio.Writer `copy:",flat"`
+		oerr *bufio.Writer `copy:",flat"`
 	}
 
 	// Flag means a flag, a option, or a opt.
@@ -531,3 +534,28 @@ func GetHitCountByDottedPath(dottedPath string) int {
 // 	// onConfigReloadedFunctions = make(map[ConfigReloaded]bool)
 // 	// SetCurrentHelpPainter(new(helpPainter))
 // }
+
+// // PartialContainsShort checks if one of names has partialNeedle as a part.
+// func PartialContainsShort(names []string, partialNeedle string) (contains bool) {
+// 	for _, n := range names {
+// 		if strings.Contains(n, partialNeedle) {
+// 			return true
+// 		}
+// 	}
+// 	return
+// }
+
+// PartialContains checks if one of names has partialNeedle as a part.
+func PartialContains(names []string, partialNeedle string) (index int, matched string, contains bool) {
+	for ix, n := range names {
+		if strings.Contains(n, partialNeedle) {
+			return ix, n, true
+		}
+	}
+	return -1, "", false
+}
+
+// Clone deep-copy from to
+func Clone(from, to typ.Any) typ.Any {
+	return evendeep.Copy(from, to, evendeep.WithByOrdinalStrategyOpt)
+}

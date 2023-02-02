@@ -57,64 +57,13 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 - v1.11.5 (FRZ)
 
   - replace old clone codes with `hedzr/evendeep`
-  - remove supports to go1.13 - go1.16 since our go.mod can't work for them after upgrade `golang/x` packages.
+  - BROKEN: remove supports to go1.13 - go1.16 since our go.mod can't work for them after upgrade `golang/x` packages.
 
-- v1.11.2 (FRZ)
-
-  - improved build-info output to add blank line after header printed
-  - fixed incorrect tail args while passthru switches `--` found
-  - update `sbom`
-  - upgrade deps for fixing `GetExecutablePath()` wrong return if user typing naked command in shell
-
-- v1.11.1 (FRZ)
-
-  - improved version string output
-  - improved build-info output (via `app -#`)
-  - added new building strings for devops build-tool: `BuilderComments`, ...
-
-- v1.11.0 (FRZ)
-  - improved code style
-  - `--version`: strip duplicated "v"
-  - improved `sbom` subcommand
-  - fixed data race in continuous coverage testing without completely cleanup
-
-- v1.10.50 (FRZ)
-  - routine maintenance release
-  - upgrade log & logex, update project files and some godoc
+- ...
 
 - v1.10.49 (FRZ)
   - NOTE: we declared a go1.18 Module in go.mod.
-  - fea: added a missed API: `NewAny(defval any)`
-  - fea: added `NewTextVar(defval TextVar)` for a given default value which implements `encoding.TextMarshaler` and `encoding.TextUnmarshaler`, such as `*net.IP`, `time.Time`, and so on.
-    - allow parsing a timestamp string with free styles
-  - imp: better `defaultActionImpl()`
-  - fea: added a missed API: `SetRawOverwrite(key, val)`
-  - fea: added `sbom` builtin Command for dumping SBOM (`Software Bill Of Materials`) Information (no need to install go runtime and run `go version -m app`) while u build the app with go1.18+
-  - fix: `~~debug` or its sub-flags can't work as expected sometimes
-  - fix: feature default action and `FORCE_DEFAULT_ACTION`
-  - fix: randomizer codes
-  - fix: fluent example app
-  - using new .editorconfig file and new deps.
-
-- v1.10.48
-  - upgrade yaml.v3 to cut off Dependabot alerts
-
-- v1.10.47
-  - fea: added tiny html code supports for tail-line (`cmdr.WithHelpTailLine(line)`).
-    > html in Description, Examples works too.
-  - more godoc
-  - lots of lint and review
-  - wrap ioutil/os.ReadFile and similar functions for crossing go111-118, with hedzr/log.dir.ReadFile...
-
-- v1.10.40
-  - imp: parse the flag switch chars better
-  - fix: dead-loop for positional args starts with '~/'
-  - fea: FORCE_DEFAULT_ACTION for initial time, prints info with builtin defaultAction even if the valid command Action found.
-  - imp: improved many godoc and code completion tips
-  - imp: lint with golangci-lint now (...).
-
-- v1.10.35
-  - fix nil exception while print error sometimes
+  - ...
 
 - More details at [CHANGELOG](./CHANGELOG)
 

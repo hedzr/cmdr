@@ -11,8 +11,8 @@ github.com/fsnotify/fsnotify v1.6.0/go.mod h1:sl3t1tCWJFWoRz9R8WJCbQihKKwmorjAbS
 github.com/godbus/dbus/v5 v5.0.4/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
 github.com/hedzr/cmdr-base v0.1.3 h1:pMhVLP+Uxdhuf6BeasAC2OivMXJ3vxJHvFJHPQscQPU=
 github.com/hedzr/cmdr-base v0.1.3/go.mod h1:c3vMkHa5PME2P2W8lE3T9+JX12tq9tmCUt6lXbmt5kI=
-github.com/hedzr/evendeep v0.2.56 h1:T1hyFFF5KMTp2/4bVWfPecOQbG3HNTuI5ZyNwkEzhNM=
-github.com/hedzr/evendeep v0.2.56/go.mod h1:PoZb8Njn3uD1pvc5QIqulwzGoZVkYG/P70DUWnvnAgQ=
+github.com/hedzr/evendeep v0.3.1 h1:88jRArR1t3QjOmXv7D304g0GJkoWcK2iaXgcHMY9hCM=
+github.com/hedzr/evendeep v0.3.1/go.mod h1:PoZb8Njn3uD1pvc5QIqulwzGoZVkYG/P70DUWnvnAgQ=
 github.com/hedzr/log v1.5.57 h1:cRndW1n9XssMqeawK1egvGX12lBg1AVXpjMp615ABy0=
 github.com/hedzr/log v1.5.57/go.mod h1:IWN50/XihS9BqNu8edBHV9zFOuYmGUtyewwEzeUpBxg=
 github.com/hedzr/logex v1.5.57 h1:e4mOuw+gQ+6uHh5NG+xpEzdJJ76S825u90/CwQqWgo4=

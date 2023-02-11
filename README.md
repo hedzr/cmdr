@@ -50,6 +50,10 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
+- v1.11.7 (FRZ)
+
+  - upgrade `hedzr/evendeep`
+
 - v1.11.6 (FRZ)
 
   - upgrade `hedzr/evendeep`
@@ -65,7 +69,7 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - NOTE: we declared a go1.18 Module in go.mod.
   - ...
 
-- More details at [CHANGELOG](./CHANGELOG)
+- More details at [CHANGELOG](https://github.com/hedzr/cmdr/blob/master/CHANGELOG)
 
 ## Features
 

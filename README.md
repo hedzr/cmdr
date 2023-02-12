@@ -50,6 +50,10 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
+- v1.11.8 (FRZ)
+
+  - upgrade `hedzr/errors.v3` to compliant with go1.20+
+
 - v1.11.7 (FRZ)
 
   - upgrade `hedzr/evendeep`

@@ -1,6 +1,11 @@
 # CHANGELOGS
 
 ## Versions
+
+- v1.11.8 (FRZ)
+
+  - upgrade `hedzr/errors.v3` to compliant with go1.20+
+
 - v1.11.7 (FRZ)
 
   - upgrade `hedzr/evendeep`

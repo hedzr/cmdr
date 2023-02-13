@@ -52,19 +52,13 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 
 - v1.11.8 (FRZ)
 
-  - upgrade `hedzr/errors.v3` to compliant with go1.20+
+  - upgrade `[hedzr/errors.v3](https:/github.com/hedzr/errors)` to compliant with go1.20+
 
-- v1.11.7 (FRZ)
-
-  - upgrade `hedzr/evendeep`
-
-- v1.11.6 (FRZ)
-
-  - upgrade `hedzr/evendeep`
+- ...
 
 - v1.11.5 (FRZ)
 
-  - replace old clone codes with `hedzr/evendeep`
+  - replace old clone codes with `[hedzr/evendeep](https://github.com/hedzr/evendeep)`
   - BROKEN: remove supports to go1.13 - go1.16 since our go.mod can't work for them after upgrade `golang/x` packages.
 
 - ...
@@ -285,8 +279,7 @@ _Feel free to issue me bug reports and fixes. Many thanks to all contributors._
 
 ## Thanks to JODL
 
-Thanks to [JetBrains](https://www.jetbrains.com/?from=cmdr) for donating product licenses to help develop **
-cmdr**  
+Thanks to [JetBrains](https://www.jetbrains.com/?from=cmdr) for donating product licenses to help develop **cmdr**  
 	[![jetbrains](https://gist.githubusercontent.com/hedzr/447849cb44138885e75fe46f1e35b4a0/raw/bedfe6923510405ade4c034c5c5085487532dee4/jetbrains-variant-4.svg)](https://www.jetbrains.com/?from=hedzr/cmdr)
 [![goland](https://gist.githubusercontent.com/hedzr/447849cb44138885e75fe46f1e35b4a0/raw/ca8ac2694906f5650d585263dbabfda52072f707/logo-goland.svg)](https://www.jetbrains.com/?from=hedzr/cmdr)
 

@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	"github.com/hedzr/cmdr"
-	"github.com/hedzr/cmdr/examples/internal"
 	"github.com/hedzr/cmdr/plugin/pprof"
 	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log"
+	"github.com/hedzr/log/buildtags"
 	"github.com/hedzr/log/isdelve"
 	"github.com/hedzr/logex/build"
 	"gopkg.in/hedzr/errors.v3"
@@ -88,17 +88,19 @@ func dumpStacks() {
 }
 
 func init() {
-	options = append(options, cmdr.WithUnhandledErrorHandler(onUnhandledErrorHandler))
-
 	options = append(options,
+		cmdr.WithUnhandledErrorHandler(onUnhandledErrorHandler),
+
+		// cmdr.WithLogxShort(defaultDebugEnabled,defaultLoggerBackend,defaultLoggerLevel),
 		cmdr.WithLogx(build.New(build.NewLoggerConfigWith(
 			defaultDebugEnabled, defaultLoggerBackend, defaultLoggerLevel,
-			log.WithTimestamp(true, "")))))
+			log.WithTimestamp(true, "")))),
 
-	options = append(options, cmdr.WithHelpTailLine(`
+		cmdr.WithHelpTailLine(`
 # Type '-h'/'-?' or '--help' to get command help screen.
 # Star me if it's helpful: https://github.com/hedzr/cmdr/examples/example-app
-`))
+`),
+	)
 
 	if isDebugBuild() {
 		options = append(options, pprof.GetCmdrProfilingOptions())
@@ -124,12 +126,14 @@ func init() {
 	locations = append(locations, cmdr.GetPredefinedLocations()...)
 	options = append(options, cmdr.WithPredefinedLocations(locations...))
 
-	options = append(options, internal.NewAppOption())
+	// options = append(options, internal.NewAppOption())
 }
 
-func isDebugBuild() bool { return isdelve.Enabled }
-
 var options []cmdr.ExecOption
+
+func isDebugBuild() bool         { return isdelve.Enabled }
+func isDockerBuild() bool        { return buildtags.IsDockerBuild() }
+func isRunningInDockerEnv() bool { return cmdr.InDockerEnv() }
 
 //goland:noinspection GoNameStartsWithPackageName
 const (
@@ -149,11 +153,10 @@ $ {{.AppName}} --help
 $ {{.AppName}} --help --man
   show help screen in manpage viewer (for linux/darwin).
 `
-	overview = ``
+	// overview = ``
+	// zero = 0
 
-	zero = 0
-
-	defaultTraceEnabled  = true
+	// defaultTraceEnabled  = true
 	defaultDebugEnabled  = false
 	defaultLoggerLevel   = "debug"
 	defaultLoggerBackend = "logrus"

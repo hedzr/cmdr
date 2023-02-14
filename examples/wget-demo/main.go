@@ -10,19 +10,14 @@ import (
 )
 
 func main() {
-	// logrus.SetLevel(logrus.DebugLevel)
-	// logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
-
-	if err := cmdr.Exec(rootCmd,
+	log.Fatal(cmdr.Exec(rootCmd,
 		// To disable internal commands and flags, uncomment the following codes
 		cmdr.WithBuiltinCommands(false, false, false, false, true),
 		// daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
 		cmdr.WithLogx(log.GetLogger()),
 		// cmdr.WithHelpTabStop(40),
 		// cmdr.WithNoColor(true),
-	); err != nil {
-		log.Fatalf("Error: %v", err)
-	}
+	)) // since hedzr/log 1.6.1, log.Fatal/Panic can ignore nil safely
 }
 
 const (
@@ -64,7 +59,7 @@ var (
 Usage: wget [OPTION]... [URL]...
 
 Mandatory arguments to long options are mandatory for short options too.`,
-		Author: "Hedzr Yeh <hedzrz@gmail.com>",
+		Author: "Hedzr Yeh <hedzr@duck.com>",
 	}
 
 	startupFlags = []*cmdr.Flag{

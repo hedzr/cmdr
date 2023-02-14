@@ -14,14 +14,15 @@ import (
 )
 
 func main() {
-	Entry()
+	Run()
 }
 
-func Entry() {
-	root := buildRootCmd()
-	if err := cmdr.Exec(root, options...); err != nil {
-		log.Fatalf("error occurs in app running: %+v\n", err)
-	}
+func Run() {
+	log.Fatal(cmdr.Exec(buildRootCmd(), options...)) // since hedzr/log 1.6.1, log.Fatal/Panic can ignore nil safely
+	// root := buildRootCmd()
+	// if err := cmdr.Exec(root, options...); err != nil {
+	// 	log.Fatalf("error occurs in app running: %+v\n", err)
+	// }
 }
 
 func buildRootCmd() (rootCmd *cmdr.RootCommand) {

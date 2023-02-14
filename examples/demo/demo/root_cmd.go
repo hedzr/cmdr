@@ -23,7 +23,7 @@ $ {{.AppName}} gen man
 $ {{.AppName}} --help
   show help screen.
 `
-	overview = ``
+	// overview = ``
 )
 
 var (
@@ -102,7 +102,7 @@ var (
 		Version:    cmdr.Version,
 		VersionInt: cmdr.VersionInt,
 		Copyright:  copyright,
-		Author:     "Hedzr Yeh <hedzrz@gmail.com>",
+		Author:     "Hedzr Yeh <hedzr@duck.com>",
 	}
 
 	msCommands = &cmdr.Command{

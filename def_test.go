@@ -1620,7 +1620,7 @@ func rootCmdForTesting() (root *cmdr.RootCommand) {
 		// Version:    consul_tags.Version,
 		// VersionInt: consul_tags.VersionInt,
 		Copyright: "consul-tags is an effective devops tool",
-		Author:    "Hedzr Yeh <hedzrz@gmail.com>",
+		Author:    "Hedzr Yeh <hedzr@duck.com>",
 	}
 
 	cmdr.BuildXref(root)

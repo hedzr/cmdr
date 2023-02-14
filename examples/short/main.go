@@ -5,25 +5,20 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/plugin/pprof"
 )
 
 func main() {
-	// logrus.SetLevel(logrus.DebugLevel)
-	// logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true,})
-
-	if err := cmdr.Exec(rootCmd,
+	log.Fatal(cmdr.Exec(rootCmd,
 		// To disable internal commands and flags, uncomment the following codes
 		cmdr.WithBuiltinCommands(true, false, true, true, true),
 		// daemon.WithDaemon(svr.NewDaemon(), nil, nil, nil),
 		pprof.GetCmdrProfilingOptions("cpu"),
 		// cmdr.WithHelpTabStop(40),
-	); err != nil {
-		fmt.Printf("Error: %v", err)
-	}
+	)) // since hedzr/log 1.6.1, log.Fatal/Panic can ignore nil safely
 }
 
 var (
@@ -43,7 +38,7 @@ var (
 		Version:    cmdr.Version,
 		VersionInt: cmdr.VersionInt,
 		Copyright:  "austr is an effective devops tool",
-		Author:     "Hedzr Yeh <hedzrz@gmail.com>",
+		Author:     "Hedzr Yeh <hedzr@duck.com>",
 	}
 
 	serverCommands = &cmdr.Command{

@@ -2,9 +2,10 @@ package cmdr
 
 import (
 	"fmt"
-	"github.com/hedzr/log"
 	"net"
 	"time"
+
+	"github.com/hedzr/log"
 
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/examples/internal"
@@ -12,8 +13,8 @@ import (
 	"github.com/hedzr/cmdr/plugin/pprof"
 )
 
-// Entry is real main entry for this app
-func Entry() {
+// Run is real main entry for this app
+func Run() {
 	// logrus.SetLevel(logrus.DebugLevel)
 	// logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
 
@@ -24,8 +25,7 @@ func Entry() {
 	// 	}
 	// }()
 
-	if err := cmdr.Exec(buildRootCmd(),
-
+	log.Fatal(cmdr.Exec(buildRootCmd(),
 		// To disable internal commands and flags, uncomment the following codes
 		// cmdr.WithBuiltinCommands(false, false, false, false, false),
 
@@ -55,9 +55,7 @@ func Entry() {
 		colortable.WithColorTableCommand(),
 		optAddTraceOption,
 		optAddServerExtOption,
-	); err != nil {
-		cmdr.Logger.Fatalf("error: %v", err)
-	}
+	)) // since hedzr/log 1.6.1, log.Fatal/Panic can ignore nil safely
 }
 
 func buildRootCmd() (rootCmd *cmdr.RootCommand) {
@@ -170,7 +168,7 @@ func kvCommand(root cmdr.OptCmd) {
 		AttachTo(kvRestoreCmd)
 }
 
-func msCommand(root cmdr.OptCmd) {
+func msCommand(root cmdr.OptCmd) { //nolint:funlen //a test
 	// ms
 
 	msCmd := cmdr.NewSubCmd().Titles("micro-service", "ms", "microservice").
@@ -393,11 +391,11 @@ func msCommand(root cmdr.OptCmd) {
 }
 
 const (
-	appName   = "fluent"
-	copyright = "fluent is an effective devops tool"
-	desc      = "fluent is an effective devops tool. It make an demo application for `cmdr`."
-	longDesc  = "fluent is an effective devops tool. It make an demo application for `cmdr`."
-	examples  = `
+	appName = "fluent"
+	// copyright = "fluent is an effective devops tool"
+	desc     = "fluent is an effective devops tool. It make an demo application for `cmdr`."
+	longDesc = "fluent is an effective devops tool. It make an demo application for `cmdr`."
+	examples = `
 $ {{.AppName}} gen shell [--bash|--zsh|--auto]
   generate bash/shell completion scripts
 $ {{.AppName}} gen man
@@ -405,7 +403,7 @@ $ {{.AppName}} gen man
 $ {{.AppName}} --help
   show help screen.
 `
-	overview = ``
+	// overview = ``
 
 	zero = 0
 )

@@ -19,5 +19,5 @@ func main() {
 	// 	}
 	// }()
 
-	mycmdr.Entry()
+	mycmdr.Run()
 }

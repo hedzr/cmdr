@@ -44,7 +44,7 @@ var (
 		Version:    cmdr.Version,
 		VersionInt: cmdr.VersionInt,
 		Copyright:  "austr is an effective devops tool",
-		Author:     "Hedzr Yeh <hedzrz@gmail.com>",
+		Author:     "Hedzr Yeh <hedzr@duck.com>",
 	}
 
 	serverCommands = &cmdr.Command{

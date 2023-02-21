@@ -50,6 +50,12 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
+- v1.11.9 (FRZ)
+
+  - upgrade `[hedzr/log](https:/github.com/hedzr/log)` to simplify error branch and log.Fatal
+  - security maintains
+  - added new `ExecOption`s: `WithIIfOpt(cond, true_opt, false_opt)` & `WithIfOpt(cond, true_opt)`
+
 - v1.11.8 (FRZ)
 
   - upgrade `[hedzr/errors.v3](https:/github.com/hedzr/errors)` to compliant with go1.20+

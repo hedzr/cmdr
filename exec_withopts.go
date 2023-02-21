@@ -783,3 +783,20 @@ func WithGlobalPostActions(fns ...Invoker) ExecOption {
 		w.postActions = append(w.postActions, fns...)
 	}
 }
+
+func WithIfOpt(condition bool, yes func() ExecOption) ExecOption {
+	return WithIIfOpt(condition, yes, nil)
+}
+
+func WithIIfOpt(condition bool, yes, no func() ExecOption) ExecOption {
+	if condition {
+		if yes != nil {
+			return yes()
+		}
+	} else {
+		if no != nil {
+			return no()
+		}
+	}
+	return nil
+}

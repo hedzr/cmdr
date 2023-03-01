@@ -4,10 +4,10 @@ package cmdr
 
 import (
 	"os"
-	"strings"
 
 	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log"
+	"github.com/hedzr/log/detects"
 	"github.com/hedzr/logex"
 	"github.com/hedzr/logex/build"
 )
@@ -112,12 +112,12 @@ func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.Option) (err error
 	l, err = ParseLevel(lvlStr)
 
 	if l != OffLevel {
-		if InDebugging() || GetDebugMode() {
+		if detects.InDebugging() {
 			if l < DebugLevel {
 				l = DebugLevel
 			}
 		}
-		if GetBoolR("trace") || GetBool("trace") || ToBool(os.Getenv("TRACE")) {
+		if detects.InTracing() || GetBoolR("trace") || GetBool("trace") || ToBool(os.Getenv("TRACE")) {
 			if l < TraceLevel {
 				l = TraceLevel
 				flog("--> processLevelStr: trace mode switched")
@@ -131,6 +131,15 @@ func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.Option) (err error
 	// cmdr.Logger.Tracef("setup logger: lvl=%v", l)
 	return
 }
+
+func InTesting() bool { return detects.InTestingT(tool.SavedOsArgs) } // detects whether is running under go test mode
+
+// InDevelopingTime detects whether is in developing time.
+//
+// If the main program has been built as a executable binary, we
+// would assumed which is not in developing time.
+// If GetDebugMode() is true, that's in developing time too.
+func InDevelopingTime() (status bool) { return detects.InDebugging() || InTesting() }
 
 // func (w *ExecWorker) getWithLogexInitializer(lvl Level, opts ...logex.Option) Handler {
 //	return func(cmd *Command, args []string) (err error) {
@@ -186,100 +195,81 @@ func (w *ExecWorker) processLevelStr(lvl Level, opts ...logex.Option) (err error
 //	}
 // }
 
-// InDebugging return the status if cmdr was built with debug mode / or the app running under a debugger attached.
+// // InDebugging return the status if cmdr was built with debug mode / or the app running under a debugger attached.
+// //
+// // To enable the debugger attached mode for cmdr, run `go build` with `-tags=delve` options. eg:
+// //
+// //	go run -tags=delve ./cli
+// //	go build -tags=delve -o my-app ./cli
+// //
+// // For Goland, you can enable this under 'Run/Debug Configurations', by adding the following into 'Go tool arguments:'
+// //
+// //	-tags=delve
+// //
+// // InDebugging() is a synonym to IsDebuggerAttached().
+// //
+// // NOTE that `isdelve` algor is from https://stackoverflow.com/questions/47879070/how-can-i-see-if-the-goland-debugger-is-running-in-the-program
+// //
+// // noinspection GoBoolExpressions
+// func InDebugging() bool {
+// 	return log.InDebugging() // isdelve.Enabled
+// }
 //
-// To enable the debugger attached mode for cmdr, run `go build` with `-tags=delve` options. eg:
+// // IsDebuggerAttached return the status if cmdr was built with debug mode / or the app running under a debugger attached.
+// //
+// // To enable the debugger attached mode for cmdr, run `go build` with `-tags=delve` options. eg:
+// //
+// //	go run -tags=delve ./cli
+// //	go build -tags=delve -o my-app ./cli
+// //
+// // For Goland, you can enable this under 'Run/Debug Configurations', by adding the following into 'Go tool arguments:'
+// //
+// //	-tags=delve
+// //
+// // IsDebuggerAttached() is a synonym to InDebugging().
+// //
+// // NOTE that `isdelve` algor is from https://stackoverflow.com/questions/47879070/how-can-i-see-if-the-goland-debugger-is-running-in-the-program
+// //
+// // noinspection GoBoolExpressions
+// func IsDebuggerAttached() bool {
+// 	return log.InDebugging() // isdelve.Enabled
+// }
 //
-//	go run -tags=delve ./cli
-//	go build -tags=delve -o my-app ./cli
-//
-// For Goland, you can enable this under 'Run/Debug Configurations', by adding the following into 'Go tool arguments:'
-//
-//	-tags=delve
-//
-// InDebugging() is a synonym to IsDebuggerAttached().
-//
-// NOTE that `isdelve` algor is from https://stackoverflow.com/questions/47879070/how-can-i-see-if-the-goland-debugger-is-running-in-the-program
-//
-// noinspection GoBoolExpressions
-func InDebugging() bool {
-	return log.InDebugging() // isdelve.Enabled
-}
+// // InTesting detects whether is running under go test mode
+// func InTesting() bool {
+// 	return log.InTestingT(tool.SavedOsArgs)
+// 	// if !strings.HasSuffix(tool.SavedOsArgs[0], ".test") &&
+// 	//	!strings.Contains(tool.SavedOsArgs[0], "/T/___Test") {
+// 	//
+// 	//	// [0] = /var/folders/td/2475l44j4n3dcjhqbmf3p5l40000gq/T/go-build328292371/b001/exe/main
+// 	//	// !strings.Contains(SavedOsArgs[0], "/T/go-build")
+// 	//
+// 	//	for _, s := range tool.SavedOsArgs {
+// 	//		if s == "-test.v" || s == "-test.run" {
+// 	//			return true
+// 	//		}
+// 	//	}
+// 	//	return false
+// 	//
+// 	// }
+// 	// return true
+// }
 
-// IsDebuggerAttached return the status if cmdr was built with debug mode / or the app running under a debugger attached.
+// // InDockerEnv detects whether is running within docker
+// // container environment.
+// func InDockerEnv() (status bool) {
+// 	return isRunningInDockerContainer()
+// }
 //
-// To enable the debugger attached mode for cmdr, run `go build` with `-tags=delve` options. eg:
+// func isRunningInDockerContainer() bool {
+// 	// docker creates a .dockerenv file at the root
+// 	// of the directory tree inside the container.
+// 	// if this file exists then the viewer is running
+// 	// from inside a container so return true
 //
-//	go run -tags=delve ./cli
-//	go build -tags=delve -o my-app ./cli
+// 	if _, err := os.Stat("/.dockerenv"); err == nil {
+// 		return true
+// 	}
 //
-// For Goland, you can enable this under 'Run/Debug Configurations', by adding the following into 'Go tool arguments:'
-//
-//	-tags=delve
-//
-// IsDebuggerAttached() is a synonym to InDebugging().
-//
-// NOTE that `isdelve` algor is from https://stackoverflow.com/questions/47879070/how-can-i-see-if-the-goland-debugger-is-running-in-the-program
-//
-// noinspection GoBoolExpressions
-func IsDebuggerAttached() bool {
-	return log.InDebugging() // isdelve.Enabled
-}
-
-// InTesting detects whether is running under go test mode
-func InTesting() bool {
-	return log.InTestingT(tool.SavedOsArgs)
-	// if !strings.HasSuffix(tool.SavedOsArgs[0], ".test") &&
-	//	!strings.Contains(tool.SavedOsArgs[0], "/T/___Test") {
-	//
-	//	// [0] = /var/folders/td/2475l44j4n3dcjhqbmf3p5l40000gq/T/go-build328292371/b001/exe/main
-	//	// !strings.Contains(SavedOsArgs[0], "/T/go-build")
-	//
-	//	for _, s := range tool.SavedOsArgs {
-	//		if s == "-test.v" || s == "-test.run" {
-	//			return true
-	//		}
-	//	}
-	//	return false
-	//
-	// }
-	// return true
-}
-
-// InDevelopingTime detects whether is in developing time.
-//
-// If the main program has been built as a executable binary, we
-// would assumed which is not in developing time.
-// If GetDebugMode() is true, that's in developing time too.
-func InDevelopingTime() (status bool) {
-	return inDevelopingTime()
-}
-
-func inDevelopingTime() (status bool) {
-	if GetDebugMode() {
-		return true
-	}
-	if strings.Contains(tool.SavedOsArgs[0], "/T/") {
-		status = true
-	}
-	return
-}
-
-// InDockerEnv detects whether is running within docker
-// container environment.
-func InDockerEnv() (status bool) {
-	return isRunningInDockerContainer()
-}
-
-func isRunningInDockerContainer() bool {
-	// docker creates a .dockerenv file at the root
-	// of the directory tree inside the container.
-	// if this file exists then the viewer is running
-	// from inside a container so return true
-
-	if _, err := os.Stat("/.dockerenv"); err == nil {
-		return true
-	}
-
-	return false
-}
+// 	return false
+// }

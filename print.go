@@ -16,6 +16,7 @@ import (
 
 	"github.com/hedzr/cmdr/conf"
 	"github.com/hedzr/cmdr/tool"
+	"github.com/hedzr/log/detects"
 	"github.com/hedzr/log/dir"
 )
 
@@ -106,7 +107,7 @@ func ferr(fmtStr string, args ...interface{}) {
 
 // fwrn print the warning message if InDebugging() is true
 func fwrn(fmtStr string, args ...interface{}) {
-	if InDebugging() /* || logex.GetTraceMode() */ && internalWarningMode {
+	if detects.InDebugging() /* || logex.GetTraceMode() */ && internalWarningMode {
 		ferr(fmtStr, args...)
 	}
 }
@@ -119,7 +120,7 @@ var internalWarningMode bool
 //
 // See also: https://hedzr.github.io/cmdr-docs/zh/cmdr/guide/Z81.helpers.html#func-indebugging
 func flog(fmtStr string, args ...interface{}) {
-	if InDebugging() /* || logex.GetTraceMode() */ {
+	if detects.InDebugging() /* || logex.GetTraceMode() */ {
 		_, _ = fmt.Fprintf(os.Stderr, "\u001B[2m\u001B[2m"+fmtStr+"\u001B[0m\n", args...)
 	}
 }
@@ -130,7 +131,7 @@ func flog(fmtStr string, args ...interface{}) {
 // would assumed which is not in developing time.
 // If GetDebugMode() is true, that's in developing time too.
 func printInDevMode(fmtStr string, args ...interface{}) {
-	if inDevelopingTime() {
+	if InDevelopingTime() {
 		_, _ = fmt.Fprintf(os.Stdout, "\u001B[2m\u001B[2m"+fmtStr+"\u001B[0m\n", args...)
 	}
 }
@@ -466,7 +467,7 @@ func (w *ExecWorker) prCommands(p Painter, command *Command, s1 []aSection, maxL
 				// if len(str) > cols {
 				ww := maxL + 2
 				s2w := cols - ww
-				if s2w < len(str) && !InTesting() {
+				if s2w < len(str) && !detects.InTesting() {
 					firstPiece, ending := getTextPiece(str, 0, s2w)
 					p.Print(fmtStrR, firstPiece)
 					for ix := len(firstPiece); ix < len(str); {
@@ -512,7 +513,7 @@ func (w *ExecWorker) prFlags(p Painter, command *Command, s2 []aGroupedSections,
 					// if len(str) > cols {
 					ww := maxL + 2
 					s2w := cols - ww
-					if s2w < len(str) && !InTesting() {
+					if s2w < len(str) && !detects.InTesting() {
 						firstPiece, ending := getTextPiece(str, 0, s2w)
 						p.Print(fmtStrR, firstPiece)
 						for ix := len(firstPiece); ix < len(str); {

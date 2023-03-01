@@ -8,13 +8,14 @@ import (
 	"bufio"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"github.com/hedzr/evendeep"
 	"github.com/hedzr/evendeep/typ"
-	"github.com/hedzr/logex"
 
 	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log"
+	"github.com/hedzr/log/states"
 )
 
 const (
@@ -284,7 +285,8 @@ type (
 	Options struct { //nolint:govet //meaningful order
 		entries   map[string]interface{}
 		hierarchy map[string]interface{}
-		rw        *sync.RWMutex
+
+		rw *sync.RWMutex `copy:"-"`
 
 		usedConfigFile            string
 		usedConfigSubDir          string
@@ -297,10 +299,10 @@ type (
 		appendMode                bool // true: append mode, false: replaceMode
 
 		onConfigReloadedFunctions map[ConfigReloaded]bool
-		rwlCfgReload              *sync.RWMutex
-		rwCB                      sync.RWMutex
-		onMergingSet              OnOptionSetCB
-		onSet                     OnOptionSetCB
+		rwlCfgReload              *sync.RWMutex `copy:"-"`
+		rwCB                      sync.RWMutex  `copy:"-"`
+		onMergingSet              OnOptionSetCB `copy:"-"`
+		onSet                     OnOptionSetCB `copy:"-"`
 	}
 
 	// OptOne struct {
@@ -398,6 +400,65 @@ func GetStrictMode() bool {
 	return GetBoolR("strict-mode")
 }
 
+// NewLoggerConfig returns a default LoggerConfig
+func NewLoggerConfig() *log.LoggerConfig {
+	lc := NewLoggerConfigWith(false, "sugar", "error")
+	return lc
+}
+
+// NewLoggerConfigWith returns a default LoggerConfig
+func NewLoggerConfigWith(enabled bool, backend, level string) *log.LoggerConfig {
+	states.Env().SetTraceMode(GetTraceMode())
+	states.Env().SetDebugMode(GetDebugMode())
+	lc := log.NewLoggerConfigWith(enabled, backend, level)
+	_ = GetSectionFrom("logger", &lc)
+	return lc
+}
+
+func Parsed() bool { return atomic.LoadInt32(&internalGetWorker().parsed) > 0 }
+
+func syncDebugMode() {
+	if states.Env().GetDebugLevel() == 0 {
+		states.Env().SetDebugLevel(GetFlagHitCount("debug"))
+		states.Env().SetDebugMode(GetBoolR("debug"))
+	}
+}
+
+// GetDebugMode returns the flag value of `--debug`/`-D`
+//
+// NOTE
+//
+//	log.GetDebugMode()/SetDebugMode() have higher universality
+//
+// the flag value of `--debug` or `-D` is always stored
+// in cmdr Option Store, so you can retrieved it by
+// GetBoolR("debug") and set it by Set("debug", true).
+// You could also set it with SetDebugMode(b bool).
+func GetDebugMode() bool {
+	syncDebugMode()
+	return states.Env().GetDebugMode()
+}
+
+// SetDebugMode setup the debug mode status in Option Store
+func SetDebugMode(b bool) {
+	Set("debug", b)
+	states.Env().SetDebugLevel(GetFlagHitCount("debug"))
+	states.Env().SetDebugMode(b)
+}
+
+// GetDebugModeHitCount returns how many times `--debug`/`-D` specified
+func GetDebugModeHitCount() int {
+	syncDebugMode()
+	return GetFlagHitCount("debug")
+}
+
+func syncTraceMode() {
+	if states.Env().GetTraceLevel() == 0 {
+		states.Env().SetTraceLevel(GetFlagHitCount("trace"))
+		states.Env().SetTraceMode(GetBoolR("trace"))
+	}
+}
+
 // GetTraceMode returns the flag value of `--trace`/`-tr`
 //
 // NOTE
@@ -417,84 +478,102 @@ func GetStrictMode() bool {
 //	    trace.WithTraceEnable(true),
 //	)
 func GetTraceMode() bool {
-	return GetBoolR("trace") || log.GetTraceMode()
+	syncTraceMode()
+	return states.Env().GetTraceMode()
 }
 
 // SetTraceMode setup the tracing mode status in Option Store
 func SetTraceMode(b bool) {
 	Set("trace", b)
-	logex.SetTraceMode(b)
+	states.Env().SetTraceLevel(GetFlagHitCount("trace"))
+	states.Env().SetTraceMode(b)
 }
 
-// GetDebugMode returns the flag value of `--debug`/`-D`
-//
-// NOTE
-//
-//	log.GetDebugMode()/SetDebugMode() have higher universality
-//
-// the flag value of `--debug` or `-D` is always stored
-// in cmdr Option Store, so you can retrieved it by
-// GetBoolR("debug") and set it by Set("debug", true).
-// You could also set it with SetDebugMode(b bool).
-func GetDebugMode() bool {
-	return GetBoolR("debug") || log.GetDebugMode()
+// GetTraceModeHitCount returns how many times `--trace`/`-tr` specified
+func GetTraceModeHitCount() int {
+	syncTraceMode()
+	return GetFlagHitCount("trace")
 }
 
-// SetDebugMode setup the debug mode status in Option Store
-func SetDebugMode(b bool) {
-	Set("debug", b)
-	logex.SetDebugMode(b)
-}
-
-// NewLoggerConfig returns a default LoggerConfig
-func NewLoggerConfig() *log.LoggerConfig {
-	lc := NewLoggerConfigWith(false, "sugar", "error")
-	return lc
-}
-
-// NewLoggerConfigWith returns a default LoggerConfig
-func NewLoggerConfigWith(enabled bool, backend, level string) *log.LoggerConfig {
-	log.SetTraceMode(GetTraceMode())
-	log.SetDebugMode(GetDebugMode())
-	lc := log.NewLoggerConfigWith(enabled, backend, level)
-	_ = GetSectionFrom("logger", &lc)
-	return lc
+func syncVerboseMode() {
+	if states.Env().CountOfVerbose() == 0 {
+		states.Env().SetVerboseCount(GetFlagHitCount("verbose"))
+		states.Env().SetVerboseMode(GetBoolR("verbose"))
+	}
 }
 
 // GetVerboseMode returns the flag value of `--verbose`/`-v`
 func GetVerboseMode() bool {
-	return GetBoolR("verbose")
+	syncVerboseMode()
+	return states.Env().IsVerboseMode()
+}
+
+// GetVerboseModeHitCount returns how many times `--verbose`/`-v` specified
+func GetVerboseModeHitCount() int {
+	syncVerboseMode()
+	return states.Env().CountOfVerbose()
+}
+
+func SetVerboseMode(b bool) {
+	Set("verbose", b)
+	states.Env().SetVerboseMode(b)
+}
+
+func syncQuietMode() {
+	if states.Env().CountOfQuiet() == 0 {
+		states.Env().SetQuietCount(GetFlagHitCount("quiet"))
+		states.Env().SetQuietMode(GetBoolR("quiet"))
+	}
 }
 
 // GetQuietMode returns the flag value of `--quiet`/`-q`
 func GetQuietMode() bool {
-	return GetBoolR("quiet")
+	syncQuietMode()
+	return states.Env().IsQuietMode()
+}
+
+// GetQuietModeHitCount returns how many times `--quiet`/`-q` specified
+func GetQuietModeHitCount() int {
+	syncQuietMode()
+	return states.Env().CountOfQuiet()
+}
+
+func syncNoColorMode() {
+	if states.Env().CountOfNoColor() == 0 {
+		states.Env().SetNoColorCount(GetFlagHitCount("no-color"))
+		states.Env().SetNoColorMode(GetBoolR("no-color"))
+	}
+}
+
+func SetQuietMode(b bool) {
+	Set("quiet", b)
+	states.Env().SetQuietMode(b)
 }
 
 // GetNoColorMode return the flag value of `--no-color`/`-nc`
 func GetNoColorMode() bool {
-	return GetBoolR("no-color")
+	syncNoColorMode()
+	return states.Env().IsNoColorMode()
 }
 
-// GetVerboseModeHitCount returns how many times `--verbose`/`-v` specified
-func GetVerboseModeHitCount() int { return GetFlagHitCount("verbose") }
-
-// GetQuietModeHitCount returns how many times `--quiet`/`-q` specified
-func GetQuietModeHitCount() int { return GetFlagHitCount("quiet") }
-
 // GetNoColorModeHitCount returns how many times `--no-color`/`-nc` specified
-func GetNoColorModeHitCount() int { return GetFlagHitCount("no-color") }
+func GetNoColorModeHitCount() int {
+	syncNoColorMode()
+	return states.Env().CountOfNoColor()
+}
 
-// GetDebugModeHitCount returns how many times `--debug`/`-D` specified
-func GetDebugModeHitCount() int { return GetFlagHitCount("debug") }
-
-// GetTraceModeHitCount returns how many times `--trace`/`-tr` specified
-func GetTraceModeHitCount() int { return GetFlagHitCount("trace") }
+func SetNoColorMode(b bool) {
+	Set("no-color", b)
+	states.Env().SetNoColorMode(b)
+}
 
 // GetFlagHitCount return how manu times a top-level Flag was specified from command-line.
 func GetFlagHitCount(longName string) int {
 	w := internalGetWorker()
-	return getFlagHitCount(&w.rootCommand.Command, longName)
+	if atomic.LoadInt32(&w.parsed) > 0 {
+		return getFlagHitCount(&w.rootCommand.Command, longName)
+	}
+	return 0
 }
 
 func getFlagHitCount(c *Command, longName string) int {
@@ -508,7 +587,10 @@ func getFlagHitCount(c *Command, longName string) int {
 // longName will be search recursively.
 func GetFlagHitCountRecursively(longName string) int {
 	w := internalGetWorker()
-	return getFlagHitCountRecursively(&w.rootCommand.Command, longName)
+	if atomic.LoadInt32(&w.parsed) > 0 {
+		return getFlagHitCountRecursively(&w.rootCommand.Command, longName)
+	}
+	return 0
 }
 
 func getFlagHitCountRecursively(c *Command, longName string) int {

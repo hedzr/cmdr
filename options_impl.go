@@ -15,9 +15,11 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/evendeep"
+
+	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log"
+	"github.com/hedzr/log/detects"
 	"github.com/hedzr/log/dir"
 )
 
@@ -1516,7 +1518,7 @@ retryChecking:
 		}
 	}
 
-	if InDebugging() {
+	if detects.InDebugging() {
 		keysSorted = nil
 		for k := range s.entries {
 			keysSorted = append(keysSorted, k)
@@ -1619,7 +1621,7 @@ func (s *Options) SaveCheckpoint() (err error) {
 	defer s.rw.RUnlock()
 	s.rw.RLock()
 	no := newOptions()
-	if err = evendeep.DefaultCopyController.CopyTo(no, s); err == nil {
+	if err = evendeep.DefaultCopyController.CopyTo(s, no); err == nil {
 		w := internalGetWorker()
 		w.savedOptions = append(w.savedOptions, no)
 	}

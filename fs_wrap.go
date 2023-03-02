@@ -17,46 +17,39 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"github.com/fsnotify/fsnotify"
 )
 
-func fsWatcherRoutine(s *Options, configDir string, filesWatching []string, initWG *sync.WaitGroup) {
-	// effw.Lock()
-	// if cmdrExitingForFsWatcher != nil {
-	// 	effw.Unlock()
-	// 	return
-	// }
-	//
-	// cmdrExitingForFsWatcher = make(chan struct{}, 16)
-	// effw.Unlock()
-	// // initExitingChannelForFsWatcher()
-
-	watcher, err := fsnotify.NewWatcher()
-	if err == nil {
-		defer watcher.Close()
-
-		eventsWG := &sync.WaitGroup{}
-		eventsWG.Add(1)
-		go fsWatchRunner(s, configDir, filesWatching, watcher, eventsWG)
-		_ = watcher.Add(configDir)
-		initWG.Done()   // done initializing the watch in this go routine, so the parent routine can move on...
-		eventsWG.Wait() // now, wait for event loop to end in this go-routine...
-	} else {
-		stopExitingChannelForFsWatcher()
+func fsWatcherRoutine(s *Options, configDir string, filesWatching []string) {
+	if atomic.CompareAndSwapInt32(&watcherRun, 0, 1) {
+		defer func() { atomic.CompareAndSwapInt32(&watcherRun, 1, 0) }()
+		watcher, err := fsnotify.NewWatcher()
+		if err == nil {
+			// eventsWG := &sync.WaitGroup{}
+			// eventsWG.Add(1)
+			_ = watcher.Add(configDir)
+			go fsWatchRunner(s, configDir, filesWatching, watcher)
+			// initWG.Done()   // done initializing the watch in this go routine, so the parent routine can move on...
+			// eventsWG.Wait() // now, wait for event loop to end in this go-routine...
+		} else {
+			stopExitingChannelForFsWatcher()
+		}
 	}
 }
 
 //nolint:funlen,gocognit //single
-func fsWatchRunner(s *Options, configDir string, filesWatching []string, watcher *fsnotify.Watcher, eventsWG *sync.WaitGroup) {
+func fsWatchRunner(s *Options, configDir string, filesWatching []string, watcher *fsnotify.Watcher) {
 	defer func() {
+		watcher.Close()
 		// effw.Lock()
 		// defer effw.Unlock()
 		// if cmdrExitingForFsWatcher != nil {
 		// 	close(cmdrExitingForFsWatcher)
 		// 	cmdrExitingForFsWatcher = nil
 		// }
-		eventsWG.Done()
+		// eventsWG.Done()
 	}()
 	for {
 		select {
@@ -118,6 +111,16 @@ func stopExitingChannelForFsWatcher() {
 	}
 }
 
+// stopExitingChannelForFsWatcherAlways stop fs watcher explicitly
+func stopExitingChannelForFsWatcherAlways() {
+	effw.Lock()
+	defer effw.Unlock()
+	if cmdrExitingForFsWatcher != nil {
+		close(cmdrExitingForFsWatcher)
+		cmdrExitingForFsWatcher = nil
+	}
+}
+
 // func initExitingChannelForFsWatcher() {
 // 	effw.Lock()
 // 	defer effw.Unlock()
@@ -127,6 +130,7 @@ func stopExitingChannelForFsWatcher() {
 // }
 
 var (
-	cmdrExitingForFsWatcher = make(chan struct{}, 16)
+	cmdrExitingForFsWatcher chan struct{}
 	effw                    sync.RWMutex
+	watcherRun              int32
 )

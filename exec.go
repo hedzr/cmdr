@@ -7,21 +7,17 @@ package cmdr
 import (
 	"os"
 	"strings"
+	"sync/atomic"
 
 	"github.com/hedzr/log"
 	"github.com/hedzr/log/closers"
-	"github.com/hedzr/logex"
+	"github.com/hedzr/log/states"
 	"gopkg.in/hedzr/errors.v3"
 )
 
 // Exec is main entry of `cmdr`.
 func Exec(rootCmd *RootCommand, opts ...ExecOption) (err error) {
-	defer func() {
-		// stop fs watcher explicitly
-		stopExitingChannelForFsWatcher()
-
-		closers.Close()
-	}()
+	defer closers.Close()
 
 	w := internalGetWorker()
 
@@ -45,6 +41,8 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 	}
 	w.preparePtPkg(pkg)
 
+	cmdrExitingForFsWatcher = make(chan struct{}, 16)
+
 	// initExitingChannelForFsWatcher()
 	defer w.postExecFor(rootCmd, pkg)
 
@@ -57,9 +55,6 @@ func (w *ExecWorker) InternalExecFor(rootCmd *RootCommand, args []string) (last 
 }
 
 func (w *ExecWorker) postExecFor(rootCmd *RootCommand, pkg *ptpkg) {
-	// stop fs watcher explicitly
-	// stopExitingChannelForFsWatcher()
-
 	var err error
 	if rootCmd.ow != nil {
 		err = rootCmd.ow.Flush()
@@ -73,6 +68,9 @@ func (w *ExecWorker) postExecFor(rootCmd *RootCommand, pkg *ptpkg) {
 	}
 
 	w.lastPkg = pkg
+
+	// stop fs watcher explicitly
+	stopExitingChannelForFsWatcherAlways()
 
 	if w.writeBackAlterConfigs {
 		w.rxxtOptions.Flush()
@@ -104,9 +102,9 @@ func (w *ExecWorker) preprocess(rootCmd *RootCommand, args []string) (err error)
 		}
 	}
 
-	flog("--> preprocess / END: trace=%v/logex:%v, debug=%v/logex:%v, inDebugging:%v",
-		GetTraceMode(), logex.GetTraceMode(), GetDebugMode(), logex.GetDebugMode(),
-		logex.InDebugging())
+	flog("--> preprocess / END: trace=%v/states:%v, debug=%v/states:%v, inDebugging:%v",
+		GetTraceMode(), states.Env().GetTraceMode(),
+		GetDebugMode(), states.Env().GetDebugMode(), states.Env().InDebugging())
 	return
 }
 
@@ -193,6 +191,7 @@ func (w *ExecWorker) internalExecFor(pkg *ptpkg, rootCmd *RootCommand, args []st
 
 		matched, stopC, stopF, err = w.xxTestCmd(pkg, &goCommand, rootCmd, &args)
 		if w.shouldTerminate(err) {
+			atomic.StoreInt32(&w.parsed, 1)
 			return
 		}
 		if stopF {
@@ -202,6 +201,7 @@ func (w *ExecWorker) internalExecFor(pkg *ptpkg, rootCmd *RootCommand, args []st
 			if !matched && (pkg.lastCommandHeld || len(goCommand.SubCommands) == 0) {
 				break
 			}
+			atomic.StoreInt32(&w.parsed, 1)
 			return
 		}
 		if stopC && !matched && !pkg.lastCommandHeld {
@@ -209,6 +209,7 @@ func (w *ExecWorker) internalExecFor(pkg *ptpkg, rootCmd *RootCommand, args []st
 		}
 	}
 
+	atomic.StoreInt32(&w.parsed, 1)
 	last = goCommand
 	err = w.afterInternalExec(pkg, rootCmd, goCommand, args, stopC || pkg.lastCommandHeld)
 	return
@@ -310,9 +311,9 @@ func (w *ExecWorker) updateArgs(pkg *ptpkg, goCommand **Command, rootCmd *RootCo
 
 //goland:noinspection GoUnusedParameter
 func (w *ExecWorker) afterInternalExec(pkg *ptpkg, rootCmd *RootCommand, goCommand *Command, args []string, stopC bool) (err error) {
-	flog("--> afterInternalExec: trace=%v/logex:%v, debug=%v/logex:%v, indebugging:%v",
-		GetTraceMode(), logex.GetTraceMode(), GetDebugMode(), logex.GetDebugMode(),
-		logex.InDebugging())
+	flog("--> afterInternalExec: trace=%v/states:%v, debug=%v/states:%v, indebugging:%v",
+		GetTraceMode(), states.Env().GetTraceMode(),
+		GetDebugMode(), states.Env().GetDebugMode(), states.Env().InDebugging())
 
 	w.checkStates(pkg)
 

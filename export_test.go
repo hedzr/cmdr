@@ -15,9 +15,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hedzr/evendeep"
+
 	cmdrbase "github.com/hedzr/cmdr-base"
 	"github.com/hedzr/cmdr/tool"
-	"github.com/hedzr/evendeep"
+	"github.com/hedzr/log/detects"
 	"github.com/hedzr/log/dir"
 
 	"gopkg.in/hedzr/errors.v3"
@@ -51,6 +53,10 @@ func BacktraceCmdNamesForTest(cmd *Command, v bool) string {
 // func ResetWorker() {
 // 	InternalResetWorkerForTest()
 // }
+
+func StopExitingChannelForFsWatcherAlways() {
+	stopExitingChannelForFsWatcherAlways()
+}
 
 // InternalResetWorkerForTest is an internal helper, esp for debugging
 func InternalResetWorkerForTest() (w *ExecWorker) {
@@ -138,13 +144,13 @@ func TestFlag(t *testing.T) {
 	noResetWorker = true
 	tLog(GetStringR("version"))
 
-	t.Log(IsDebuggerAttached())
+	t.Log(detects.IsDebuggerAttached())
 	t.Log(InTesting())
 	t.Log(InDevelopingTime())
 	SetDebugMode(false)
 	t.Log(GetDebugMode())
 	t.Log(InDevelopingTime())
-	t.Log(InDebugging())
+	t.Log(detects.InDebugging())
 	SetDebugMode(true)
 	t.Log(GetDebugMode())
 	t.Log(InDevelopingTime())
@@ -152,7 +158,7 @@ func TestFlag(t *testing.T) {
 	t.Log(GetTraceMode())
 	SetTraceMode(true)
 	t.Log(GetTraceMode())
-	t.Log(InDockerEnv())
+	t.Log(detects.InDockerEnvSimple())
 	t.Log(tool.StripPrefix("8.yes", "8."))
 	t.Log(tool.IsDigitHeavy("not-digit"))
 	t.Log(tool.IsDigitHeavy("8-is-not-digit"))
@@ -344,7 +350,7 @@ func TestUnknownXXX(t *testing.T) {
 		os.Args = strings.Split(cc, " ")
 		SetInternalOutputStreams(nil, nil)
 		ResetOptions()
-		if err := Exec(rootCmdX); err != nil {
+		if err := Exec(rootCmdX, WithNoWatchConfigFiles(true)); err != nil {
 			t.Fatal(err)
 		}
 	}

@@ -8,16 +8,17 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"github.com/BurntSushi/toml"
-	"github.com/hedzr/log/dir"
-	"gopkg.in/hedzr/errors.v3"
-	"gopkg.in/yaml.v3"
 	"io"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
-	"sync"
+
+	"github.com/BurntSushi/toml"
+	"gopkg.in/yaml.v3"
+
+	"github.com/hedzr/log/dir"
+	"gopkg.in/hedzr/errors.v3"
 )
 
 // CurrentOptions returns the global options instance (rxxtOptions),
@@ -71,7 +72,7 @@ func GetWatchingConfigFiles() []string {
 
 // var rwlCfgReload = new(sync.RWMutex)
 
-// AddOnConfigLoadedListener adds an functor on config loaded
+// AddOnConfigLoadedListener adds a functor on config loaded
 // and merged
 func AddOnConfigLoadedListener(c ConfigReloaded) {
 	opts := currentOptions()
@@ -92,21 +93,34 @@ func AddOnConfigLoadedListener(c ConfigReloaded) {
 	opts.onConfigReloadedFunctions[c] = true
 }
 
-// RemoveOnConfigLoadedListener remove an functor on config
+// RemoveOnConfigLoadedListener remove a functor on config
 // loaded and merged
 func RemoveOnConfigLoadedListener(c ConfigReloaded) {
-	w := internalGetWorker()
-	opts := w.rxxtOptions
+	// w := internalGetWorker()
+	// opts := w.rxxtOptions
+	opts := currentOptions()
 	defer opts.rwlCfgReload.Unlock()
 	opts.rwlCfgReload.Lock()
 	delete(opts.onConfigReloadedFunctions, c)
 }
 
-// SetOnConfigLoadedListener enable/disable an functor on config
+// RemoveAllOnConfigLoadedListeners remove a functor on config
+// loaded and merged
+func RemoveAllOnConfigLoadedListeners() {
+	// w := internalGetWorker()
+	// opts := w.rxxtOptions
+	opts := currentOptions()
+	defer opts.rwlCfgReload.Unlock()
+	opts.rwlCfgReload.Lock()
+	opts.onConfigReloadedFunctions = make(map[ConfigReloaded]bool)
+}
+
+// SetOnConfigLoadedListener enable/disable a functor on config
 // loaded and merged
 func SetOnConfigLoadedListener(c ConfigReloaded, enabled bool) {
-	w := internalGetWorker()
-	opts := w.rxxtOptions
+	// w := internalGetWorker()
+	// opts := w.rxxtOptions
+	opts := currentOptions()
 	defer opts.rwlCfgReload.Unlock()
 	opts.rwlCfgReload.Lock()
 	opts.onConfigReloadedFunctions[c] = enabled
@@ -350,7 +364,8 @@ func (s *Options) reloadConfig() {
 }
 
 func (s *Options) watchConfigDir(configDir string, filesWatching []string) {
-	if internalGetWorker().doNotWatchingConfigFiles || GetBoolR("no-watch-conf-dir") {
+	w := internalGetWorker()
+	if w.doNotWatchingConfigFiles || GetBoolR("no-watch-conf-dir") {
 		return
 	}
 
@@ -358,12 +373,12 @@ func (s *Options) watchConfigDir(configDir string, filesWatching []string) {
 		return
 	}
 
-	initWG := &sync.WaitGroup{}
-	initWG.Add(1)
+	// initWG := &sync.WaitGroup{}
+	// initWG.Add(1)
 	// initExitingChannelForFsWatcher()
 	s.filesWatching = filesWatching
-	go fsWatcherRoutine(s, configDir, filesWatching, initWG)
-	initWG.Wait() // make sure that the go routine above fully ended before returning
+	go fsWatcherRoutine(s, configDir, filesWatching)
+	// initWG.Wait() // make sure that the go routine above fully ended before returning
 	s.SetNx("watching", true)
 }
 

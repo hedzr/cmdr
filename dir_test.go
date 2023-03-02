@@ -64,6 +64,8 @@ func TestMatchPreQ(t *testing.T) {
 
 //nolint:funlen //for test
 func TestMatch(t *testing.T) {
+	defer logex.CaptureLog(t).Release()
+
 	cmdr.ResetOptions()
 	cmdr.InternalResetWorkerForTest()
 
@@ -620,9 +622,7 @@ func testFramework(t *testing.T, rootCommand func() *cmdr.RootCommand, cases tes
 	if tool.SavedOsArgs == nil {
 		tool.SavedOsArgs = os.Args
 	}
-	defer func() {
-		os.Args = tool.SavedOsArgs
-	}()
+	defer func() { os.Args = tool.SavedOsArgs }()
 
 	// cmdr.ResetOptions()
 	// cmdr.InternalResetWorkerForTest()
@@ -680,6 +680,7 @@ func testFramework(t *testing.T, rootCommand func() *cmdr.RootCommand, cases tes
 		// w.AddOnBeforeXrefBuilding(func(root *cmdr.RootCommand, args []string) {})
 		cmdr.WithUnhandledErrorHandler(onUnhandledErrorHandler)(w)
 		cmdr.WithInternalOutputStreams(outBuf, errBuf)(w)
+		cmdr.WithNoWatchConfigFiles(true)(w)
 		// cmdr.WithIgnoreWrongEnumValue(true)(w)
 		for _, opt := range opts {
 			opt(w)

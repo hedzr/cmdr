@@ -68,7 +68,7 @@ func TestAddonPlugin(t *testing.T) {
 		os.Args = strings.Split(cc.line, " ")
 		cmdr.SetInternalOutputStreams(nil, nil)
 		cmdr.ResetOptions()
-		if err = cmdr.Exec(rootCmdX); // cmdr.WithUnhandledErrorHandler(onUnhandleErrorHandler),
+		if err = cmdr.Exec(rootCmdX, cmdr.WithNoWatchConfigFiles(true)); // cmdr.WithUnhandledErrorHandler(onUnhandleErrorHandler),
 		// cmdr.WithOnSwitchCharHit(func(parsed *cmdr.Command, switchChar string, args []string) (err error) {
 		// 	return
 		// }),

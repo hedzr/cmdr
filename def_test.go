@@ -340,32 +340,44 @@ func TestConfigOption(t *testing.T) {
 	// copyRootCmd = rootCmdForTesting
 	cmdr.ResetOptions()
 	cmdr.InternalResetWorkerForTest()
+	cmdr.RemoveAllOnConfigLoadedListeners()
+	cmdr.StopExitingChannelForFsWatcherAlways()
 
-	defer prepareConfD(t)()
+	t.Run(`options folder 1`, func(t *testing.T) {
+		defer prepareConfD(t)()
 
-	os.Args = []string{"consul-tags", "--config", "./conf.d"}
-	// cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithNoWatchConfigFiles(true), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
-		t.Fatal(err)
-	}
-	resetOsArgs()
-	cmdr.ResetOptions()
+		os.Args = []string{"consul-tags", "--config", "./conf.d"}
+		// cmdr.SetInternalOutputStreams(nil, nil)
+		if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithNoWatchConfigFiles(true), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+			t.Fatal(err)
+		}
+		resetOsArgs()
+		cmdr.ResetOptions()
+	})
 
-	os.Args = []string{"consul-tags", "--config=./conf.d"}
-	// cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithNoWatchConfigFiles(true), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
-		t.Fatal(err)
-	}
-	resetOsArgs()
-	cmdr.ResetOptions()
+	t.Run(`options folder 2`, func(t *testing.T) {
+		defer prepareConfD(t)()
 
-	os.Args = []string{"consul-tags", "--config./conf.d/tmp.yaml"}
-	// cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithNoWatchConfigFiles(true), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
-		t.Fatal(err)
-	}
-	resetOsArgs()
-	cmdr.ResetOptions()
+		os.Args = []string{"consul-tags", "--config=./conf.d"}
+		// cmdr.SetInternalOutputStreams(nil, nil)
+		if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithNoWatchConfigFiles(true), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+			t.Fatal(err)
+		}
+		resetOsArgs()
+		cmdr.ResetOptions()
+	})
+
+	t.Run(`options file`, func(t *testing.T) {
+		defer prepareConfD(t)()
+
+		os.Args = []string{"consul-tags", "--config./conf.d/tmp.yaml"}
+		// cmdr.SetInternalOutputStreams(nil, nil)
+		if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithNoWatchConfigFiles(true), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+			t.Fatal(err)
+		}
+		resetOsArgs()
+		cmdr.ResetOptions()
+	})
 }
 
 func TestStrictMode(t *testing.T) {
@@ -374,21 +386,21 @@ func TestStrictMode(t *testing.T) {
 	cmdr.InternalResetWorkerForTest()
 	os.Args = []string{"consul-tags", "ms", "tags", "add", "--strict-mode"}
 	// cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithNoWarnings(true), cmdr.WithNoWatchConfigFiles(true), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	cmdr.ResetOptions()
 
 	os.Args = []string{"consul-tags", "server", "start", "~f", "--strict-mode"}
 	// cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithNoWarnings(true), cmdr.WithNoWatchConfigFiles(true), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	cmdr.ResetOptions()
 
 	os.Args = []string{"consul-tags", "server", "nf", "nf", "--strict-mode"}
 	// cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithNoWarnings(true), cmdr.WithNoWatchConfigFiles(true), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 
@@ -409,7 +421,7 @@ func TestTreeDump(t *testing.T) {
 	} {
 		os.Args = args
 		// cmdr.SetInternalOutputStreams(nil, nil)
-		if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+		if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithNoWarnings(true), cmdr.WithNoWatchConfigFiles(true), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 			t.Fatal(err)
 		}
 		resetOsArgs()
@@ -434,7 +446,7 @@ func TestVersionCommand(t *testing.T) {
 	} {
 		os.Args = args
 		// cmdr.SetInternalOutputStreams(nil, nil)
-		if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+		if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithNoWarnings(true), cmdr.WithNoWatchConfigFiles(true), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 			t.Fatal(err)
 		}
 		resetOsArgs()
@@ -467,7 +479,7 @@ func TestGlobalShow(t *testing.T) {
 	// cmdr.SetCustomShowVersion(func() {
 	// 	//
 	// })
-	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithCustomShowVersion(func() {})); err != nil {
+	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithNoWarnings(true), cmdr.WithNoWatchConfigFiles(true), cmdr.WithCustomShowVersion(func() {})); err != nil {
 		t.Fatal(err)
 	}
 
@@ -487,7 +499,7 @@ func TestGlobalShow(t *testing.T) {
 	// cmdr.SetCustomShowBuildInfo(func() {
 	// 	//
 	// })
-	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithCustomShowBuildInfo(func() {})); err != nil {
+	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithNoWarnings(true), cmdr.WithNoWatchConfigFiles(true), cmdr.WithCustomShowBuildInfo(func() {})); err != nil {
 		t.Fatal(err)
 	}
 
@@ -506,7 +518,7 @@ func TestPP(t *testing.T) {
 
 	os.Args = []string{"consul-tags", "-pp"}
 	// cmdr.SetInternalOutputStreams(nil, nil)
-	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+	if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithNoWarnings(true), cmdr.WithNoWatchConfigFiles(true), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 		t.Fatal(err)
 	}
 	resetOsArgs()
@@ -569,6 +581,8 @@ func TestBacktraceCmdNames(t *testing.T) {
 		os.Args = strings.Split(cc.cmdline, " ")
 		// cmdr.SetInternalOutputStreams(nil, nil)
 		// var last *cmdr.Command
+		cmdr.WithNoWatchConfigFiles(true)(cmdr.Worker())
+		cmdr.WithNoWarnings(true)(cmdr.Worker())
 		if last, err := cmdr.Worker().InternalExecFor(rootCmdForTesting(), os.Args); err != nil {
 			t.Fatal(err)
 		} else {
@@ -606,7 +620,7 @@ func TestCompactFlag(t *testing.T) {
 		t.Logf("-> --- command-line: %v", cc)
 		os.Args = strings.Split(cc, " ")
 		// cmdr.SetInternalOutputStreams(nil, nil)
-		if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
+		if err := cmdr.Exec(rootCmdForTesting(), cmdr.WithNoWarnings(true), cmdr.WithNoWatchConfigFiles(true), cmdr.WithInternalOutputStreams(nil, nil)); err != nil {
 			t.Fatal(err)
 		}
 		t.Log("-> stepping")
@@ -619,6 +633,8 @@ func TestCompactFlag(t *testing.T) {
 }
 
 func TestCmdrClone(t *testing.T) {
+	defer logex.CaptureLog(t).Release()
+
 	cmdr.ResetOptions()
 
 	t.Log("-> ok 1")
@@ -663,6 +679,8 @@ func TestDirEnsure(t *testing.T) {
 }
 
 func TestExec(t *testing.T) {
+	defer logex.CaptureLog(t).Release()
+
 	cmdr.InternalResetWorkerForTest()
 	cmdr.ResetOptions()
 
@@ -712,6 +730,7 @@ func TestExec(t *testing.T) {
 		cmdr.ResetOptions()
 		cmdr.ResetRootInWorkerForTest()
 		w := cmdr.InternalResetWorkerForTest()
+		cmdr.WithNoWatchConfigFiles(true)(w)
 		args := strings.Split(sss, " ")
 		t.Log("xxx: ***: ", sss)
 
@@ -1739,7 +1758,8 @@ var execTestings = map[string]func(t *testing.T, c *cmdr.Command, e error) error
 			return fmt.Errorf("something wrong 2 (4). |%v|%v|%v|%v|%v|%v",
 				cmdr.GetInt("app.kv.port"), cmdr.GetString("app.kv.prefix"),
 				cmdr.GetBool("app.help"), cmdr.GetBool("debug"),
-				cmdr.GetVerboseMode(), cmdr.GetDebugMode())
+				cmdr.GetVerboseMode(),
+				cmdr.GetDebugMode())
 		}
 		return nil
 	},

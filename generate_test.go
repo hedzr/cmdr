@@ -9,6 +9,7 @@ import (
 
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/log/dir"
+	"github.com/hedzr/logex"
 )
 
 // TestWithShellCompletionXXX _
@@ -22,6 +23,8 @@ func TestWithShellCompletionXXX(t *testing.T) {
 }
 
 func TestGenShell1(t *testing.T) {
+	defer logex.CaptureLog(t).Release()
+
 	cmdr.InternalResetWorkerForTest()
 	cmdr.ResetOptions()
 
@@ -76,6 +79,8 @@ func TestGenShell1(t *testing.T) {
 }
 
 func TestForGenerateCommands(t *testing.T) {
+	defer logex.CaptureLog(t).Release()
+
 	// copyRootCmd = rootCmdForTesting
 
 	cmdr.InternalResetWorkerForTest()
@@ -131,6 +136,8 @@ func TestForGenerateCommands(t *testing.T) {
 }
 
 func TestForGenerateDoc(t *testing.T) {
+	defer logex.CaptureLog(t).Release()
+
 	// copyRootCmd = rootCmdForTesting
 
 	cmdr.InternalResetWorkerForTest()
@@ -157,6 +164,8 @@ func TestForGenerateDoc(t *testing.T) {
 }
 
 func TestForGenerateMan(t *testing.T) {
+	defer logex.CaptureLog(t).Release()
+
 	// copyRootCmd = rootCmdForTesting
 
 	cmdr.InternalResetWorkerForTest()
@@ -184,6 +193,8 @@ func TestForGenerateMan(t *testing.T) {
 }
 
 func TestCompleteCommandAndQuery(t *testing.T) {
+	defer logex.CaptureLog(t).Release()
+
 	// copyRootCmd = rootCmdForTesting
 	commands := []string{
 		"consul-tags __complete ''",

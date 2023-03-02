@@ -137,6 +137,8 @@ app:
 `), 0o600)
 	// _ = cmdr.LoadConfigFile(".tmp.json")
 	// _ = cmdr.LoadConfigFile(".tmp.toml")
+	cmdr.WithNoWatchConfigFiles(true)(cmdr.Worker())
+	cmdr.WithNoWarnings(true)(cmdr.Worker())
 	if _, _, err := cmdr.LoadConfigFile(".tmp.yaml"); err != nil {
 		t.Fatal(err)
 	}

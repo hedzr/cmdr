@@ -8,7 +8,7 @@ import (
 	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log"
 	"github.com/hedzr/log/buildtags"
-	"github.com/hedzr/log/isdelve"
+	"github.com/hedzr/log/detects"
 	"github.com/hedzr/logex/build"
 	"gopkg.in/hedzr/errors.v3"
 )
@@ -132,9 +132,9 @@ func init() {
 
 var options []cmdr.ExecOption
 
-func isDebugBuild() bool         { return isdelve.Enabled }
+func isDebugBuild() bool         { return detects.InDebugging() }
 func isDockerBuild() bool        { return buildtags.IsDockerBuild() }
-func isRunningInDockerEnv() bool { return cmdr.InDockerEnv() }
+func isRunningInDockerEnv() bool { return detects.InDocker() }
 
 //goland:noinspection GoNameStartsWithPackageName
 const (

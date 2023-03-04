@@ -9,6 +9,7 @@ import (
 	"github.com/hedzr/log"
 	"github.com/hedzr/log/basics"
 	"github.com/hedzr/log/closers"
+	"github.com/hedzr/log/detects"
 	"github.com/hedzr/log/dir"
 	"gopkg.in/hedzr/errors.v3"
 )
@@ -124,7 +125,7 @@ func (s *GlobalApp) Init(cmd *cmdr.Command, args []string) (err error) {
 	// initialize all infrastructures here, such as: DB, Cache, MQ, ...
 
 	log.Debugf("* *App initializing...OS: %v, ARCH: %v", runtime.GOOS, runtime.GOARCH)
-	log.Debugf("  cmdr: InDebugging/IsDebuggerAttached: %v, DebugMode/TraceMode: %v/%v, LogLevel: %v", cmdr.InDebugging(), cmdr.GetDebugMode(), cmdr.GetTraceMode(), cmdr.GetLoggerLevel())
+	log.Debugf("  cmdr: InDebugging/IsDebuggerAttached: %v, DebugMode/TraceMode: %v/%v, LogLevel: %v", detects.InDebugging(), cmdr.GetDebugMode(), cmdr.GetTraceMode(), cmdr.GetLoggerLevel())
 	log.Debugf("  pwd: %v, exe: %v", dir.GetCurrentDir(), dir.GetExecutablePath())
 
 	s.cmd = cmd

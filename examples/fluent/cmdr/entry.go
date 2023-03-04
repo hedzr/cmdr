@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hedzr/log"
+	"github.com/hedzr/log/detects"
 
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/examples/internal"
@@ -59,7 +60,7 @@ func Run() {
 }
 
 func buildRootCmd() (rootCmd *cmdr.RootCommand) {
-	cmdr.InDebugging()
+	detects.InDebugging()
 	// var cmd *Command
 
 	// cmdr.Root("aa", "1.0.1").

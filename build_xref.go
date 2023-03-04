@@ -373,7 +373,7 @@ func (w *ExecWorker) buildAddonsCrossRefs(root *RootCommand) {
 				}
 				return
 			})
-			if err != nil {
+			if err != nil && !w.noWarnings {
 				Logger.Warnf("  warn - error in buildExtensionsCrossRefs.ForDir(): %v", err)
 			}
 		}
@@ -538,7 +538,7 @@ func (w *ExecWorker) buildExtensionsCrossRefs(root *RootCommand) {
 				}
 				return
 			})
-			if err != nil {
+			if err != nil && !w.noWarnings {
 				Logger.Warnf("  warn - error in buildExtensionsCrossRefs.ForDir(): %v", err)
 			}
 		}
@@ -1050,7 +1050,7 @@ func (w *ExecWorker) _boolFlgAdd1(parent *Command, full, desc, group string, add
 				}
 			}
 		}
-	} else {
+	} else if !w.noWarnings {
 		Logger.Warnf("duplicated bool flag %q had been adding.", full)
 	}
 }
@@ -1095,7 +1095,7 @@ func (w *ExecWorker) _intFlgAdd1(parent *Command, full, desc, group string, addi
 				}
 			}
 		}
-	} else {
+	} else if !w.noWarnings {
 		Logger.Warnf("duplicated int flag %q had been adding.", full)
 	}
 }
@@ -1140,7 +1140,7 @@ func (w *ExecWorker) _stringFlgAdd1(parent *Command, full, desc, group string, a
 				}
 			}
 		}
-	} else {
+	} else if !w.noWarnings {
 		Logger.Warnf("duplicated string flag %q had been adding.", full)
 	}
 }
@@ -1182,7 +1182,7 @@ func (w *ExecWorker) _cmdAdd1(parent *Command, full, desc string, adding func(cx
 				}
 			}
 		}
-	} else {
+	} else if !w.noWarnings {
 		Logger.Warnf("duplicated command %q had been adding.", full)
 	}
 }

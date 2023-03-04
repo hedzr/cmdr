@@ -40,10 +40,10 @@ type ExecWorker struct { //nolint:govet //meaningful order
 	enableGenerateCommands    bool
 	treatUnknownCommandAsArgs bool
 
-	watchMainConfigFileToo   bool
+	confDFolderName          string
 	doNotLoadingConfigFiles  bool
 	doNotWatchingConfigFiles bool
-	confDFolderName          string
+	watchMainConfigFileToo   bool
 	watchChildConfigFiles    bool
 
 	globalShowVersion   func()
@@ -76,6 +76,7 @@ type ExecWorker struct { //nolint:govet //meaningful order
 	noUseOnSwitchCharHitHandler bool    // don't invoke onSwitchCharHitHandler handler while a '-' found
 	inCompleting                bool    // allow partial matching at last cmdline args
 
+	noWarnings          bool
 	logexInitialFunctor Handler
 	logexPrefix         string
 	logexSkipFrames     int //nolint:structcheck,unused //keep it
@@ -94,6 +95,8 @@ type ExecWorker struct { //nolint:govet //meaningful order
 	lastPkg     *ptpkg
 	hitCommands []*Command
 	hitFlags    []*Flag
+
+	parsed int32
 }
 
 // GetHitCommands returns all matched sub-commands from commandline

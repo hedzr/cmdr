@@ -368,6 +368,13 @@ func WithNoLoadConfigFiles(b bool) ExecOption {
 	}
 }
 
+// WithNoWarnings disable internal warnings
+func WithNoWarnings(b bool) ExecOption {
+	return func(w *ExecWorker) {
+		w.noWarnings = b
+	}
+}
+
 // WithNoWatchConfigFiles true means no watching the config files
 func WithNoWatchConfigFiles(b bool) ExecOption {
 	return func(w *ExecWorker) {

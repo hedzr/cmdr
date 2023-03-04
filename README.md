@@ -50,6 +50,12 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
+- v1.11.11 (FRZ)
+
+  - fixed evendeep calls
+  - fixed ds watch dead lock in coverage test
+  - added `WithNoWarning(b)`
+
 - v1.11.9 (FRZ)
 
   - upgrade `[hedzr/log](https:/github.com/hedzr/log)` to simplify error branch and log.Fatal

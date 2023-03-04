@@ -1621,7 +1621,7 @@ func (s *Options) SaveCheckpoint() (err error) {
 	defer s.rw.RUnlock()
 	s.rw.RLock()
 	no := newOptions()
-	if err = evendeep.DefaultCopyController.CopyTo(s, no); err == nil {
+	if err = evendeep.DefaultCopyController.CopyTo(s, &no); err == nil {
 		w := internalGetWorker()
 		w.savedOptions = append(w.savedOptions, no)
 	}

@@ -143,8 +143,16 @@ app:
 		t.Fatal(err)
 	}
 
+	Str := func(o interface{}) string {
+		str := fmt.Sprintf("%v", o)
+		if len(str) > 320 {
+			str = str[0:320-3] + "..."
+		}
+		return str
+	}
+
 	t.Logf("%v, %v", cmdr.GetUsedConfigFile(), cmdr.GetUsedConfigSubDir())
-	t.Logf("%v, %v", cmdr.CurrentOptions(), cmdr.GetUsingConfigFiles())
+	t.Logf("%v, %v", Str(cmdr.CurrentOptions()), cmdr.GetUsingConfigFiles())
 	_ = dir.WriteFile("conf.d/tmp.yaml", []byte(`
 app:
   debug: true

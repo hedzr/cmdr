@@ -286,8 +286,6 @@ type (
 		entries   map[string]interface{}
 		hierarchy map[string]interface{}
 
-		rw *sync.RWMutex `copy:"-"`
-
 		usedConfigFile            string
 		usedConfigSubDir          string
 		usedAlterConfigFile       string
@@ -303,6 +301,8 @@ type (
 		rwCB                      sync.RWMutex  `copy:"-"`
 		onMergingSet              OnOptionSetCB `copy:"-"`
 		onSet                     OnOptionSetCB `copy:"-"`
+
+		rw *sync.RWMutex `copy:"-"` // for entries and hierarchy
 	}
 
 	// OptOne struct {

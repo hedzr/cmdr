@@ -6,9 +6,9 @@ require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/hedzr/cmdr-base v1.0.0
-	github.com/hedzr/evendeep v0.4.3
-	github.com/hedzr/log v1.6.9
-	github.com/hedzr/logex v1.6.9
+	github.com/hedzr/evendeep v0.4.7
+	github.com/hedzr/log v1.6.15
+	github.com/hedzr/logex v1.6.15
 	golang.org/x/crypto v0.6.0
 	golang.org/x/net v0.7.0
 	gopkg.in/hedzr/errors.v3 v3.1.5

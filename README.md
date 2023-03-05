@@ -50,6 +50,10 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
+- v1.11.13 (FRZ)
+
+  - fixed evendeep call
+
 - v1.11.11 (FRZ)
 
   - fixed evendeep calls

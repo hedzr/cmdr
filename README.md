@@ -11,8 +11,6 @@
 [![Coverage Status](https://coveralls.io/repos/github/hedzr/cmdr/badge.svg?branch=master)](https://coveralls.io/github/hedzr/cmdr?branch=master)-->
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go#command-line)
 
-<!-- https://gowalker.org/github.com/hedzr/cmdr -->
-
 `cmdr` is a POSIX-compliant, command-line argument parser library in Golang.
 It is a getopt-like parser of command-line options,
 be compatible with the [getopt_long](http://www.gnu.org/s/libc/manual/html_node/Argument-Syntax.html#Argument-Syntax)

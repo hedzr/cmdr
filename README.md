@@ -13,18 +13,16 @@
 
 <!-- https://gowalker.org/github.com/hedzr/cmdr -->
 
-`cmdr` is a POSIX-compliant, command-line UI (CLI) library in Golang.
+`cmdr` is a POSIX-compliant, command-line argument parser library in Golang.
 It is a getopt-like parser of command-line options,
 be compatible with the [getopt_long](http://www.gnu.org/s/libc/manual/html_node/Argument-Syntax.html#Argument-Syntax)
 command line UI, which is an extension of the syntax recommended by POSIX.
 
-We made many enhancements beyond the standard library `flag`.
+It's a replacement of the standard library `flag`.
 
-There is a fully-functional `Options Store` (configurations) for your
-hierarchical configuration dataset too.
+Also, there is a fully-functional `Options Store` (configurations) integrated for your hierarchical configuration dataset.
 
-The .netCore version [Cmdr.Core](https://github.com/hedzr/Cmdr.Core) is available now. And, a cxx
-version [`cmdr-cxx`](https://github.com/hedzr/cmdr-cxx) was pre-released just now (Happy Spring Festival 2021).
+The .netCore version [Cmdr.Core](https://github.com/hedzr/Cmdr.Core) is available now. A cxx version [`cmdr-cxx`](https://github.com/hedzr/cmdr-cxx) was released (Happy Spring Festival 2021).
 
 ![ee99d078e2f7](https://user-images.githubusercontent.com/12786150/72876202-f49ee500-3d30-11ea-9de0-434bf8decf90.gif)
 
@@ -56,7 +54,7 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 
 - v1.11.13 (FRZ)
 
-  - fixed evendeep call
+  - fixed evendeep calls
 
 - v1.11.11 (FRZ)
 

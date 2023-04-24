@@ -46,6 +46,10 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
+- v1.11.16 (FRZ)
+
+  - upgrade deps
+
 - v1.11.15 (FRZ)
 
   - improve `detects` package in hedzr/log

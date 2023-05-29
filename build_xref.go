@@ -1306,15 +1306,17 @@ func uniAddMapKey(key string, m map[string]bool, cmd *Command, title string) {
 
 func longNameToShortName(full string, abbrNames, singleFlagNames map[string]bool) {
 	a := strings.Split(full, "-")
-	for i := len(a) - 1; i >= 0; i-- {
-		if len(a[i]) > 1 {
-			a[i] = a[i][:1]
+	if len(a) > 1 {
+		for i := len(a) - 1; i >= 0; i-- {
+			if len(a[i]) > 1 {
+				a[i] = a[i][:1]
+			}
 		}
-	}
-	short := strings.Join(a, "")
-	if short != "" {
-		if _, ok := singleFlagNames[short]; !ok {
-			abbrNames[short] = true
+		short := strings.Join(a, "")
+		if short != "" {
+			if _, ok := singleFlagNames[short]; !ok {
+				abbrNames[short] = true
+			}
 		}
 	}
 }

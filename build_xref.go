@@ -591,6 +591,14 @@ func (w *ExecWorker) _addAsSubCmd(parent *Command, cmdName, cmdPath string) {
 func (w *ExecWorker) buildRootCrossRefs(root *RootCommand) {
 	flog("    - preprocess / buildXref / buildRootCrossRefs...")
 
+	if val, ok := os.LookupEnv("SUSPEND_WARNINGS"); ok {
+		noWarnOnConflictNameFound = toBool(val, noWarnOnConflictNameFound)
+		// log.Debugf("SUSPEND_WARNINGS: noWarnOnConflictNameFound = %v", noWarnOnConflictNameFound)
+	} else if val, ok := os.LookupEnv("SUSPEND_WARNING"); ok {
+		noWarnOnConflictNameFound = toBool(val, noWarnOnConflictNameFound)
+		// log.Debugf("SUSPEND_WARNING: noWarnOnConflictNameFound = %v", noWarnOnConflictNameFound)
+	}
+
 	// initializes the internal variables/members
 	w.ensureCmdMembers(&root.Command, root)
 
@@ -1038,14 +1046,14 @@ func (w *ExecWorker) _boolFlgAdd1(parent *Command, full, desc, group string, add
 		parent.plainLongFlags[full] = ff
 		if ff.Short != "" {
 			// NOTE: dup short title would be ignored
-			if _, ok := parent.plainShortFlags[ff.Short]; !ok {
+			if _, ok = parent.plainShortFlags[ff.Short]; !ok {
 				parent.plainShortFlags[ff.Short] = ff
 			}
 		}
 		for _, t := range ff.Aliases {
 			if t != "" {
 				// NOTE: dup aliases would be ignored
-				if _, ok := parent.plainLongFlags[t]; !ok {
+				if _, ok = parent.plainLongFlags[t]; !ok {
 					parent.plainLongFlags[t] = ff
 				}
 			}
@@ -1083,14 +1091,14 @@ func (w *ExecWorker) _intFlgAdd1(parent *Command, full, desc, group string, addi
 		parent.plainLongFlags[full] = ff
 		if ff.Short != "" {
 			// NOTE: dup short title would be ignored
-			if _, ok := parent.plainShortFlags[ff.Short]; !ok {
+			if _, ok = parent.plainShortFlags[ff.Short]; !ok {
 				parent.plainShortFlags[ff.Short] = ff
 			}
 		}
 		for _, t := range ff.Aliases {
 			if t != "" {
 				// NOTE: dup aliases would be ignored
-				if _, ok := parent.plainLongFlags[t]; !ok {
+				if _, ok = parent.plainLongFlags[t]; !ok {
 					parent.plainLongFlags[t] = ff
 				}
 			}
@@ -1128,14 +1136,14 @@ func (w *ExecWorker) _stringFlgAdd1(parent *Command, full, desc, group string, a
 		parent.plainLongFlags[full] = ff
 		if ff.Short != "" {
 			// NOTE: dup short title would be ignored
-			if _, ok := parent.plainShortFlags[ff.Short]; !ok {
+			if _, ok = parent.plainShortFlags[ff.Short]; !ok {
 				parent.plainShortFlags[ff.Short] = ff
 			}
 		}
 		for _, t := range ff.Aliases {
 			if t != "" {
 				// NOTE: dup aliases would be ignored
-				if _, ok := parent.plainLongFlags[t]; !ok {
+				if _, ok = parent.plainLongFlags[t]; !ok {
 					parent.plainLongFlags[t] = ff
 				}
 			}
@@ -1169,14 +1177,14 @@ func (w *ExecWorker) _cmdAdd1(parent *Command, full, desc string, adding func(cx
 		parent.allCmds[cx.Group][full] = cx
 		parent.plainCmds[full] = cx
 		if cx.Short != "" {
-			if _, ok := parent.allCmds[cx.Group][cx.Short]; !ok {
+			if _, ok = parent.allCmds[cx.Group][cx.Short]; !ok {
 				// parent.allCmds[cx.Group][cx.Short] = cx
 				parent.plainCmds[cx.Short] = cx
 			}
 		}
 		for _, t := range cx.Aliases {
 			if t != "" {
-				if _, ok := parent.allCmds[cx.Group][t]; !ok {
+				if _, ok = parent.allCmds[cx.Group][t]; !ok {
 					// parent.allCmds[cx.Group][t] = cx
 					parent.plainCmds[t] = cx
 				}
@@ -1198,15 +1206,19 @@ func (w *ExecWorker) _buildCrossRefs(cmd *Command, root *RootCommand) {
 
 	bre := regexp.MustCompile("`(.+)`")
 
-	for _, flg := range cmd.Flags {
-		flg.owner = cmd
-
+	ensureTG := func(flg *Flag) {
 		if flg.ToggleGroup != "" {
 			if flg.Group == "" {
 				flg.Group = flg.ToggleGroup
 			}
 			tgs[flg.ToggleGroup] = true
 		}
+	}
+
+	for _, flg := range cmd.Flags {
+		flg.owner = cmd
+
+		ensureTG(flg)
 
 		if b := bre.Find([]byte(flg.Description)); flg.DefaultValuePlaceholder == "" && len(b) > 2 {
 			ph := strings.ToUpper(strings.Trim(string(b), "`"))
@@ -1236,15 +1248,9 @@ func (w *ExecWorker) _buildCrossRefs(cmd *Command, root *RootCommand) {
 }
 
 func (w *ExecWorker) _buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagNames, stringFlagNames map[string]bool) {
-	w.forFlagNames(flg, cmd, singleFlagNames, stringFlagNames)
+	abbrNames := make(map[string]bool)
+	w.forFlagNames(flg, cmd, singleFlagNames, stringFlagNames, abbrNames)
 
-	for _, sz := range flg.Aliases {
-		if _, ok := stringFlagNames[sz]; ok {
-			ferr("\nNOTE: flag alias name '%v' has been used. (command: %v)", sz, backtraceCmdNames(cmd, false))
-		} else {
-			stringFlagNames[sz] = true
-		}
-	}
 	if flg.Group == "" {
 		flg.Group = UnsortedGroup
 	}
@@ -1252,6 +1258,9 @@ func (w *ExecWorker) _buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagN
 		cmd.allFlags[flg.Group] = make(map[string]*Flag)
 	}
 	for _, sz := range flg.GetShortTitleNamesArray() {
+		cmd.plainShortFlags[sz] = flg
+	}
+	for sz, _ := range abbrNames {
 		cmd.plainShortFlags[sz] = flg
 	}
 	for _, sz := range flg.GetLongTitleNamesArray() {
@@ -1263,42 +1272,56 @@ func (w *ExecWorker) _buildCrossRefsForFlag(flg *Flag, cmd *Command, singleFlagN
 	cmd.allFlags[flg.Group][flg.GetTitleName()] = flg
 }
 
-func (w *ExecWorker) forFlagNames(flg *Flag, cmd *Command, singleFlagNames, stringFlagNames map[string]bool) {
+func (w *ExecWorker) forFlagNames(flg *Flag, cmd *Command, singleFlagNames, stringFlagNames, abbrNames map[string]bool) {
 	if flg.Short != "" {
-		if _, ok := singleFlagNames[flg.Short]; ok {
-			ferr("\nNOTE: flag char '%v' has been used. (command: %v)", flg.Short, backtraceCmdNames(cmd, false))
-		} else {
-			singleFlagNames[flg.Short] = true
-		}
+		uniAddMapKey(flg.Short, singleFlagNames, cmd, "char ")
 	}
 	if flg.Full != "" {
-		if _, ok := stringFlagNames[flg.Full]; ok {
-			ferr("\nNOTE: flag '%v' has been used. (command: %v)", flg.Full, backtraceCmdNames(cmd, false))
-		} else {
-			stringFlagNames[flg.Full] = true
-		}
+		uniAddMapKey(flg.Full, stringFlagNames, cmd, "")
+		longNameToShortName(flg.Full, abbrNames, singleFlagNames)
 	}
 	if flg.Short == "" && flg.Full == "" && flg.Name != "" {
-		if _, ok := stringFlagNames[flg.Name]; ok {
-			ferr("\nNOTE: flag '%v' has been used. (command: %v)", flg.Name, backtraceCmdNames(cmd, false))
-		} else {
-			stringFlagNames[flg.Name] = true
+		uniAddMapKey(flg.Name, stringFlagNames, cmd, "")
+		longNameToShortName(flg.Name, abbrNames, singleFlagNames)
+	}
+	for _, sz := range flg.Aliases {
+		if sz != "" {
+			uniAddMapKey(sz, stringFlagNames, cmd, "alias name ")
+			longNameToShortName(sz, abbrNames, singleFlagNames)
+		}
+	}
+}
+
+var noWarnOnConflictNameFound = false
+
+func uniAddMapKey(key string, m map[string]bool, cmd *Command, title string) {
+	if _, ok := m[key]; ok {
+		if !noWarnOnConflictNameFound {
+			ferr("\nNOTE: flag %v'%v' has been used. (command: %v)", title, key, backtraceCmdNames(cmd, false))
+		}
+	} else {
+		m[key] = true
+	}
+}
+
+func longNameToShortName(full string, abbrNames, singleFlagNames map[string]bool) {
+	a := strings.Split(full, "-")
+	for i := len(a) - 1; i >= 0; i-- {
+		if len(a[i]) > 1 {
+			a[i] = a[i][:1]
+		}
+	}
+	short := strings.Join(a, "")
+	if short != "" {
+		if _, ok := singleFlagNames[short]; !ok {
+			abbrNames[short] = true
 		}
 	}
 }
 
 func (w *ExecWorker) _buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames, stringCmdNames map[string]bool) {
-	w.forCommandNames(cx, cmd, singleCmdNames, stringCmdNames)
-
-	for _, sz := range cx.Aliases {
-		if sz != "" {
-			if _, ok := stringCmdNames[sz]; ok {
-				ferr("\nNOTE: command alias name '%v' has been used. (command: %v)", sz, backtraceCmdNames(cmd, false))
-			} else {
-				stringCmdNames[sz] = true
-			}
-		}
-	}
+	abbrNames := make(map[string]bool)
+	w.forCommandNames(cx, cmd, singleCmdNames, stringCmdNames, abbrNames)
 
 	if cx.Group == "" {
 		cx.Group = UnsortedGroup
@@ -1309,31 +1332,30 @@ func (w *ExecWorker) _buildCrossRefsForCommand(cx, cmd *Command, singleCmdNames,
 	for _, sz := range cx.GetTitleNamesArray() {
 		cmd.plainCmds[sz] = cx
 	}
+	for sz, _ := range abbrNames {
+		cmd.plainCmds[sz] = cx
+	}
 	cmd.allCmds[cx.Group][cx.GetTitleName()] = cx
 }
 
-func (w *ExecWorker) forCommandNames(cx, cmd *Command, singleCmdNames, stringCmdNames map[string]bool) {
+func (w *ExecWorker) forCommandNames(cx, cmd *Command, singleCmdNames, stringCmdNames, abbrNames map[string]bool) {
 	if cx.Short != "" {
-		if _, ok := singleCmdNames[cx.Short]; ok {
-			ferr("\nNOTE: command char '%v' has been used. (command: %v)", cx.Short, backtraceCmdNames(cmd, false))
-		} else {
-			singleCmdNames[cx.Short] = true
-		}
+		uniAddMapKey(cx.Short, singleCmdNames, cmd, "char ")
 	}
 	if cx.Full != "" {
-		if _, ok := stringCmdNames[cx.Full]; ok {
-			ferr("\nNOTE: command '%v' has been used. (command: %v)", cx.Full, backtraceCmdNames(cmd, false))
-		} else {
-			stringCmdNames[cx.Full] = true
-		}
+		uniAddMapKey(cx.Full, stringCmdNames, cmd, "")
+		longNameToShortName(cx.Full, abbrNames, singleCmdNames)
 	}
 	if cx.Short == "" && cx.Full == "" && cx.Name != "" {
-		if _, ok := stringCmdNames[cx.Name]; ok {
-			ferr("\nNOTE: command '%v' has been used. (command: %v)", cx.Name, backtraceCmdNames(cmd, false))
-		} else {
-			stringCmdNames[cx.Name] = true
-		}
+		uniAddMapKey(cx.Name, stringCmdNames, cmd, "")
+		longNameToShortName(cx.Name, abbrNames, singleCmdNames)
 		cmd.plainCmds[cx.Name] = cx
+	}
+	for _, sz := range cx.Aliases {
+		if sz != "" {
+			uniAddMapKey(sz, stringCmdNames, cmd, "alias name ")
+			longNameToShortName(sz, abbrNames, singleCmdNames)
+		}
 	}
 }
 

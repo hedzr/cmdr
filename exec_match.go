@@ -211,6 +211,10 @@ func (w *ExecWorker) flagsMatched(pkg *ptpkg, goCommand *Command, args []string)
 	}
 
 	if pkg.found {
+		if pkg.flg.circuitBreak {
+			stop, err = true, ErrShouldBeStopException
+		}
+
 		// if !GetBoolP(getPrefix(), "quiet") {
 		// 	logrus.Debugf("-- flag '%v' hit, go ahead...", pkg.flg.GetTitleName())
 		// }

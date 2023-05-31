@@ -46,6 +46,13 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
+- v1.11.17 (FRZ)
+  - envvar `SUSPEND_WARNINGS`=1 can suspend warnings on conflict names found.
+  - fixed wrong xref built sometimes some cases
+  - new feature added: the abbr short name will be generated from its long name if short name not present. The first letters of each segment in a [`kebab-case`](https://en.wiktionary.org/wiki/kebab_case) long title name will be joint to a new name,
+    that is, from 'long-title-name' to 'ltn'.
+    Try `fluent xp -h` (=`fluent xy-print -h`).
+
 - v1.11.16 (FRZ)
 
   - upgrade deps

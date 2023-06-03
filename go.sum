@@ -7,8 +7,8 @@ github.com/fsnotify/fsnotify v1.6.0 h1:n+5WquG0fcWoWp6xPWfHdbskMCQaFnG6PfBrh1Ky4
 github.com/fsnotify/fsnotify v1.6.0/go.mod h1:sl3t1tCWJFWoRz9R8WJCbQihKKwmorjAbSClcnxKAGw=
 github.com/hedzr/cmdr-base v1.0.0 h1:6KY06e54o4mAkGf5MAHlCAuwH0X1xGIR6Hb+BjEfs1o=
 github.com/hedzr/cmdr-base v1.0.0/go.mod h1:c3vMkHa5PME2P2W8lE3T9+JX12tq9tmCUt6lXbmt5kI=
-github.com/hedzr/evendeep v0.4.7 h1:CMQ7UtJjyHtBhkzPsuhdKG5HsmH72RjTs+ohGLGSJ0M=
-github.com/hedzr/evendeep v0.4.7/go.mod h1:a5Thsi9jGBKJw1qJZ3767jNJe+52yhHVScszY1LTqfY=
+github.com/hedzr/evendeep v0.4.8 h1:Zhz2d4L7EWXRIqO2tcZYHAqoEevW9HXx3n4Z5JcDWxc=
+github.com/hedzr/evendeep v0.4.8/go.mod h1:a5Thsi9jGBKJw1qJZ3767jNJe+52yhHVScszY1LTqfY=
 github.com/hedzr/log v1.6.15 h1:AbjuPsEwpkP449/433tGY2JEove9irOxV8dhYC10+Jc=
 github.com/hedzr/log v1.6.15/go.mod h1:NHEKHHlG4dVXYlmmetB9IchN8obVEbOJRKOKQgT6DTM=
 github.com/hedzr/logex v1.6.16 h1:zAuph2Ojece78ioBOxKBLyzXqsVbpzMxuOvojyRXd/Q=

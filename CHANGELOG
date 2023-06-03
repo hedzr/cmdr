@@ -2,6 +2,10 @@
 
 ## Versions
 
+- v1.11.18 (FRZ)
+
+  - upgrade deps
+
 - v1.11.17 (FRZ)
 
   - envvar `SUSPEND_WARNINGS`=1 can suspend warnings on conflict names found.

@@ -1,12 +1,22 @@
+#
+# https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+#
 default: true
 
-no-hard-tabs: false
+MD002: false          # first-heading-h1
+MD003:                # heading-style, https://github.com/DavidAnson/markdownlint/blob/main/doc/md003.md
+  style: atx
+MD006: false          # ul-start-left
+MD007:                # ul-indent
+  indent: 2
 
-MD013:
+no-hard-tabs: false   # MD010
+
+MD012: false          # no-multiple-blanks
+MD013:                # https://github.com/DavidAnson/markdownlint/blob/main/doc/md013.md
   line_length: 256
 
-MD033:
+MD033:                # no-inline-html
   allowed_elements: [details, summary, kbd, table, th, tr, td]
 
-
-
+MD041: false          # first-line-h1

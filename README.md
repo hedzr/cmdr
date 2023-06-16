@@ -46,6 +46,9 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation NOT completed yet
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
+- v1.11.19 (FRZ)
+  - upgrade deps
+
 - v1.11.18 (FRZ)
   - upgrade deps
 

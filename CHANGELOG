@@ -2,12 +2,13 @@
 
 ## Versions
 
-- v1.11.18 (FRZ)
+- v1.11.19 (FRZ)
+  - upgrade deps
 
+- v1.11.18 (FRZ)
   - upgrade deps
 
 - v1.11.17 (FRZ)
-
   - envvar `SUSPEND_WARNINGS`=1 can suspend warnings on conflict names found.
   - fixed wrong xref built sometimes some cases
   - new feature added: the abbr short name will be generated from its long name if short name not present. The first letters of each segment in a [`kebab-case`](https://en.wiktionary.org/wiki/kebab_case) long title name will be joint to a new name,
@@ -15,25 +16,20 @@
     Try `fluent xp -h` (=`fluent xy-print -h`).
 
 - v1.11.16 (FRZ)
-
   - upgrade deps
 
 - v1.11.15 (FRZ)
-
   - improve `detects` package in hedzr/log
 
 - v1.11.13 (FRZ)
-
   - fixed evendeep call
 
 - v1.11.11 (FRZ)
-
   - fixed evendeep calls
   - fixed ds watch dead lock in coverage test
   - added `WithNoWarning(b)`
 
 - v1.11.9 (FRZ)
-
   - upgrade `[hedzr/log](https:/github.com/hedzr/log)` to simplify error branch and log.Fatal
   - security maintains
   - added new `ExecOption`s: `WithIIfOpt(cond, true_opt, false_opt)` & `WithIfOpt(cond, true_opt)`

@@ -80,7 +80,14 @@ tab_width = 2
 trim_trailing_whitespace = false
 insert_final_newline = false
 
-[{.env,.env.local,installer,install.sh,ops}]
+[{.zshrc,.zprofile,.zshenv,zshrc,zprofile,zshenv}]
+indent_size = 2
+indent_style = tab
+tab_width = 2
+trim_trailing_whitespace = false
+insert_final_newline = false
+
+[{.env,.env.local,installer,bash.config,ops}]
 indent_size = 2
 indent_style = tab
 tab_width = 2
@@ -102,5 +109,9 @@ indent_size = 4
 indent_style = tab
 
 [*.rs]
+indent_style = tab
+indent_size = 4
+
+[*.{l,ll,lex,y,yy,yacc}]
 indent_style = tab
 indent_size = 4

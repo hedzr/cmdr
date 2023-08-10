@@ -115,3 +115,9 @@ indent_size = 4
 [*.{l,ll,lex,y,yy,yacc}]
 indent_style = tab
 indent_size = 4
+
+[*.g4]
+end_of_line = lf
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4

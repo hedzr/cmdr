@@ -12,7 +12,7 @@ require (
 	golang.org/x/crypto v0.12.0
 	golang.org/x/net v0.14.0
 	gopkg.in/hedzr/errors.v3 v3.1.6
-	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
+	gopkg.in/yaml.v3 v3.0.0
 )
 
 require (

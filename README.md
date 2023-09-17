@@ -43,62 +43,11 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 ## News
 
 - docs (WIP):
-  - english documentation NOT completed yet
+  - english documentation: NOT yet
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
-- v1.11.19 (FRZ)
+- v1.11.20 (FRZ)
   - upgrade deps
-
-- v1.11.18 (FRZ)
-  - upgrade deps
-
-- v1.11.17 (FRZ)
-  - envvar `SUSPEND_WARNINGS`=1 can suspend warnings on conflict names found.
-  - fixed wrong xref built sometimes some cases
-  - new feature added: the abbr short name will be generated from its long name if short name not present. The first letters of each segment in a [`kebab-case`](https://en.wiktionary.org/wiki/kebab_case) long title name will be joint to a new name,
-    that is, from 'long-title-name' to 'ltn'.
-    Try `fluent xp -h` (=`fluent xy-print -h`).
-
-- v1.11.16 (FRZ)
-
-  - upgrade deps
-
-- v1.11.15 (FRZ)
-
-  - improve `detects` package in hedzr/log
-
-- v1.11.13 (FRZ)
-
-  - fixed evendeep calls
-
-- v1.11.11 (FRZ)
-
-  - fixed evendeep calls
-  - fixed ds watch dead lock in coverage test
-  - added `WithNoWarning(b)`
-
-- v1.11.9 (FRZ)
-
-  - upgrade `[hedzr/log](https:/github.com/hedzr/log)` to simplify error branch and log.Fatal
-  - security maintains
-  - added new `ExecOption`s: `WithIIfOpt(cond, true_opt, false_opt)` & `WithIfOpt(cond, true_opt)`
-
-- v1.11.8 (FRZ)
-
-  - upgrade `[hedzr/errors.v3](https:/github.com/hedzr/errors)` to compliant with go1.20+
-
-- ...
-
-- v1.11.5 (FRZ)
-
-  - replace old clone codes with `[hedzr/evendeep](https://github.com/hedzr/evendeep)`
-  - BROKEN: remove supports to go1.13 - go1.16 since our go.mod can't work for them after upgrade `golang/x` packages.
-
-- ...
-
-- v1.10.49 (FRZ)
-  - NOTE: we declared a go1.18 Module in go.mod.
-  - ...
 
 - More details at [CHANGELOG](https://github.com/hedzr/cmdr/blob/master/CHANGELOG)
 

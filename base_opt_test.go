@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
+
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/cmdr/tool"
 	"github.com/hedzr/log/dir"
@@ -358,16 +359,27 @@ debug=true
 }
 
 func TestLaunchEditor2(t *testing.T) {
-	if b, err := tool.LaunchEditorWith("cat", "/etc/passwd"); err != nil {
+	if _, err := tool.LaunchEditorWith("cat", "/etc/passwd"); err != nil {
 		t.Fatal(err)
-	} else {
-		t.Log(string(b))
+		// } else {
+		// t.Log(string(b))
 	}
 
-	if _, err := tool.LaunchEditorWith("cat", "/etc/not-exists"); err != nil {
-		// t.Fatal("should have an error return for non-exist file")
-		t.Fatalf(`cmdr.LaunchEditorWith("cat", "/etc/not-exists") failed: %v`, err)
+	if _, err := tool.LaunchEditorWith("cat", "/etc/file-not-exists"); err == nil {
+		t.Fatal("should have an error return for non-exist file")
+		// t.Fatalf(`cmdr.LaunchEditorWith("cat", "/etc/not-exists") failed: %v`, err)
 	}
+
+	// if runtime.GOOS != "windows" {
+	// 	_, _, _ = exec.RunCommand(`touch /tmp/new-test-file`, false)
+	// 	defer func() {
+	// 		_, _, _ = exec.RunCommand(`rm /tmp/new-test-file`, false)
+	// 	}()
+	// 	if _, err := tool.LaunchEditorWith("nano", "/tmp/new-test-file"); err != nil {
+	// 		// t.Fatal("should have an error return for non-exist file")
+	// 		t.Fatalf(`cmdr.LaunchEditorWith("nano", "/tmp/new-test-file") failed: %v`, err)
+	// 	}
+	// }
 }
 
 func TestLaunch(t *testing.T) {

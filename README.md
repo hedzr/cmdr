@@ -47,6 +47,7 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
 - v1.11.21 (FRZ)
+  - NOTE: switched toolchain to go1.18 (see the go.mod)
   - now you may return `ErrNotImpl` to fallback to default action at early developing
 
     <details>

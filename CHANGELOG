@@ -3,6 +3,7 @@
 ## Versions
 
 - v1.11.21 (FRZ)
+  - NOTE: switched toolchain to go1.18 (see the go.mod)
   - now you may return `ErrNotImpl` to fallback to default action at early developing
 
 - v1.11.20 (FRZ)

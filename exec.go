@@ -369,6 +369,9 @@ func (w *ExecWorker) doInvokeCommand(rootCmd *RootCommand, action Handler, goCom
 		return nil
 	}
 
+	if errors.Is(err, ErrNotImpl) {
+		err = defaultAction(goCommand, remainArgs)
+	}
 	return
 }
 

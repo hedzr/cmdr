@@ -14,6 +14,20 @@ var (
 	// ErrShouldBeStopException tips `Exec()` canceled the following actions after `PreAction()`
 	ErrShouldBeStopException = SetAsAnIgnorableError(newErrorWithMsg("stop me right now"), true)
 
+	// ErrNotImpl requests cmdr launch the internal default action (see defaultAction) after returning from user's action.
+	//
+	// There's 3 ways to make default impl: set action to nil; use envvar `FORCE_DEFAULT_ACTION=1`; return `cmdr.ErrNotImpl` in your action handler:
+	//    ```go
+	//    listCmd := cmdr.NewSubCmd().Titles("list", "ls").
+	//    Description("list projects in .poi.yml").
+	//    Action(func(cmd *cmdr.Command, args []string) (err error) {
+	//    	err = cmdr.ErrNotImpl // notify caller fallback to defaultAction
+	//    	return
+	//    }).
+	//    AttachTo(root)
+	//    ```
+	ErrNotImpl = newErrorWithMsg("not implements")
+
 	// ErrBadArg is a generic error for user
 	ErrBadArg = newErrorWithMsg("bad argument")
 

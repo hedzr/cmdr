@@ -8,6 +8,8 @@ import (
 	"reflect"
 
 	"gopkg.in/hedzr/errors.v3"
+
+	errorsStd "errors"
 )
 
 var (
@@ -26,7 +28,7 @@ var (
 	//    }).
 	//    AttachTo(root)
 	//    ```
-	ErrNotImpl = newErrorWithMsg("not implements")
+	ErrNotImpl = errorsStd.New("not implements")
 
 	// ErrBadArg is a generic error for user
 	ErrBadArg = newErrorWithMsg("bad argument")

@@ -283,9 +283,6 @@ func TestHandlePanic(t *testing.T) {
 		ResetOptions()
 		if err := Exec(rootCmdX,
 			WithUnhandledErrorHandler(onUnhandledErrorHandler1),
-			WithOnSwitchCharHit(func(parsed *Command, switchChar string, args []string) (err error) {
-				return
-			}),
 		); err == nil {
 			t.Error("BAD !! / ERROR !! / expecting an error returned without unexpected program terminated") // hi, here is not real error occurs
 		}

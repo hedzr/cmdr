@@ -46,6 +46,32 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation: NOT yet
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
+- v1.11.21 (FRZ)
+  - now you may return `ErrNotImpl` to fallback to default action at early developing
+
+    <details>
+      <summary> Expand to details </summary>
+
+       There are 3 ways to make or fallback to cmdr default impl to get some debug information:
+         
+         1. set action to nil;
+         2. use envvar `FORCE_DEFAULT_ACTION=1`;
+         3. return `cmdr.ErrNotImpl` in your action handler:
+       
+       ```go
+       listCmd := cmdr.NewSubCmd().Titles("list", "ls").
+       Description("list projects in .poi.yml").
+       Action(func(cmd *cmdr.Command, args []string) (err error) {
+           err = cmdr.ErrNotImpl // notify caller fallback to defaultAction
+           return
+       }).
+       AttachTo(root)
+       ```
+    
+       > The default action of a command handler will print flags hit info and others useful info.
+
+    </details>
+
 - v1.11.20 (FRZ)
   - upgrade deps
 

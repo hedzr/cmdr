@@ -2,6 +2,9 @@
 
 ## Versions
 
+- v1.11.21 (FRZ)
+  - now you may return `ErrNotImpl` to fallback to default action at early developing
+
 - v1.11.20 (FRZ)
   - upgrade deps
 

@@ -8,6 +8,7 @@ import (
 	"encoding"
 	"fmt"
 	"os"
+	"reflect"
 	"strings"
 	"time"
 )
@@ -68,6 +69,14 @@ func isAllowDefaultAction(nilAction bool) bool {
 	// return toBool(os.Getenv("FORCE_DEFAULT_ACTION"))
 }
 
+func typfmtv(v *reflect.Value) string {
+	if v == nil || !v.IsValid() {
+		return "<invalid>"
+	}
+	t := v.Type()
+	return fmt.Sprintf("%v (%v)", t, t.Kind())
+}
+
 func defaultActionImpl(cmd *Command, args []string) (err error) {
 	var sb strings.Builder
 	_, _ = fmt.Fprintf(&sb, `
@@ -83,27 +92,30 @@ func defaultActionImpl(cmd *Command, args []string) (err error) {
 		args)
 
 	for _, f := range GetHitFlags() {
-		kp := f.GetDottedNamePath()
+		kp := f.GetDottedNamePathEx()
 		v := GetR(kp)
 		switch tv := v.(type) {
 		case *time.Time:
-			fmt.Printf(`
-	- %q: %#v (%T)`, kp, tv.Format("2006-01-02 15:04:05.999999999 -0700"), v)
+			_, _ = fmt.Fprintf(&sb, `
+	- %q: %#v (%T) (hit = %q, %v)`, kp, tv.Format("2006-01-02 15:04:05.999999999 -0700"), v, f.GetHitStr(), f.times)
 		case time.Time:
-			fmt.Printf(`
-	- %q: %#v (%T)`, kp, tv.Format("2006-01-02 15:04:05.999999999 -0700"), v)
+			_, _ = fmt.Fprintf(&sb, `
+	- %q: %#v (%T) (hit = %q, %v)`, kp, tv.Format("2006-01-02 15:04:05.999999999 -0700"), v, f.GetHitStr(), f.times)
 		case encoding.TextMarshaler:
 			var txt []byte
 			txt, err = tv.MarshalText()
-			fmt.Printf(`
-	- %q: %#v (%T)`, kp, string(txt), v)
+			_, _ = fmt.Fprintf(&sb, `
+	- %q: %#v (%T) (hit = %q, %v)`, kp, string(txt), v, f.GetHitStr(), f.times)
 		default:
-			fmt.Printf(`
-	- %q: %#v (%T)`, kp, v, v)
+			rv := reflect.ValueOf(v)
+			_, _ = fmt.Fprintf(&sb, `
+	- %q: %v (hit = %q, %v)`, kp, typfmtv(&rv), f.GetHitStr(), f.times)
 		}
 	}
 
-	println()
+	sb.WriteRune('\n')
+
+	_, _ = fmt.Fprintf(os.Stdout, sb.String())
 
 	w := internalGetWorker()
 	initTabStop(defaultTabStop)

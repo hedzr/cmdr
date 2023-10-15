@@ -777,6 +777,34 @@ func (s *Options) GetStringNoExpand(key string, defaultVal ...string) (ret strin
 	return
 }
 
+func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
+	// Logger.SetLevel(logrus.DebugLevel)
+
+	s.rwCB.RLock()
+	defer s.rwCB.RUnlock()
+
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+
+	// prefix := strings.Join(EnvPrefix,"_")
+	prefix := internalGetWorker().getPrefix() // strings.Join(RxxtPrefix, ".")
+	for key := range s.entries {
+		s.oneenv(rootCmd, prefix, key)
+	}
+
+	// // fmt.Printf("EXE = %v, PWD = %v, CURRDIR = %v\n", GetExecutableDir(), os.Getenv("PWD"), GetCurrentDir())
+	// // _ = os.Setenv("THIS", GetExecutableDir())
+	// for k, v := range uniqueWorker.envVarToValueMap {
+	// 	_ = os.Setenv(k, v())
+	// }
+	internalGetWorker().setupFromEnvvarMap()
+
+	for _, h := range internalGetWorker().afterAutomaticEnv {
+		h(rootCmd, s)
+	}
+	return
+}
+
 func (s *Options) oneenv(rootCmd *RootCommand, prefix, key string) {
 	ek := s.envKey(key)
 	if v, ok := os.LookupEnv(ek); ok {
@@ -815,31 +843,10 @@ func (s *Options) oneenv(rootCmd *RootCommand, prefix, key string) {
 	}
 }
 
-func (s *Options) buildAutomaticEnv(rootCmd *RootCommand) (err error) {
-	// Logger.SetLevel(logrus.DebugLevel)
-
-	s.rwCB.RLock()
-	defer s.rwCB.RUnlock()
-
-	s.rw.RLock()
-	defer s.rw.RUnlock()
-
-	// prefix := strings.Join(EnvPrefix,"_")
-	prefix := internalGetWorker().getPrefix() // strings.Join(RxxtPrefix, ".")
-	for key := range s.entries {
-		s.oneenv(rootCmd, prefix, key)
-	}
-
-	// // fmt.Printf("EXE = %v, PWD = %v, CURRDIR = %v\n", GetExecutableDir(), os.Getenv("PWD"), GetCurrentDir())
-	// // _ = os.Setenv("THIS", GetExecutableDir())
-	// for k, v := range uniqueWorker.envVarToValueMap {
-	// 	_ = os.Setenv(k, v())
-	// }
-	internalGetWorker().setupFromEnvvarMap()
-
-	for _, h := range internalGetWorker().afterAutomaticEnv {
-		h(rootCmd, s)
-	}
+func (s *Options) envKey(key string) (envKey string) {
+	key = replaceAll(key, ".", "_")
+	key = replaceAll(key, "-", "_")
+	envKey = strings.Join(append(internalGetWorker().envPrefixes, strings.ToUpper(key)), "_")
 	return
 }
 
@@ -896,13 +903,6 @@ func (s *Options) loopForLookupFlag(keys []string, cmd *Command) (flg *Flag) {
 			}
 		}
 	}
-	return
-}
-
-func (s *Options) envKey(key string) (envKey string) {
-	key = replaceAll(key, ".", "_")
-	key = replaceAll(key, "-", "_")
-	envKey = strings.Join(append(internalGetWorker().envPrefixes, strings.ToUpper(key)), "_")
 	return
 }
 

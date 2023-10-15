@@ -121,7 +121,29 @@ func (s *Options) deleteWithKey(m map[string]interface{}, key, path string, val 
 func (s *Options) Get(key string) (ret interface{}) {
 	defer s.rw.RUnlock()
 	s.rw.RLock()
-	ret = s.entries[key]
+	var ok bool
+	if ret, ok = s.entries[key]; !ok {
+		ka := strings.Split(key, ".")
+		var branch map[string]interface{} = s.hierarchy
+		for i, k := range ka {
+			var br interface{}
+			if br, ok = branch[k]; !ok {
+				if i == len(ka)-1 {
+					ret = br
+				}
+				break
+			}
+			if t, yes := br.(map[string]interface{}); yes {
+				branch = t
+			} else {
+				if i == len(ka)-1 {
+					ret = br
+				}
+				break
+			}
+		}
+		flog("deep extracted %q = %v", key, ret)
+	}
 	return
 }
 

@@ -2,6 +2,14 @@
 
 ## Versions
 
+- v1.11.23 (FRZ)
+  - security patch: google/x/net and more
+  - improved some writings
+  - fixed/improved cmdr.Get() to extract some fields more deeply
+  - added Flag.GetDottedNamePathEx()
+  - improved defaultActionImpl to flush all outputs at once
+  - make default action outputs colorful
+
 - v1.11.21 (FRZ)
   - NOTE: switched toolchain to go1.18 (see the go.mod)
   - now you may return `ErrNotImpl` to fallback to default action at early developing

@@ -42,9 +42,20 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
 
 ## News
 
+> **FRZ**: It means I'm planning and in working for cmdr.v2, but the plan is delayed. In recently months, sadly, some things took my focus. But the v2 will be here soon.  
+> In our v2's wishlist, codes will be rewritten completely since I understand coding more in golang, well, perhaps, I hope so.
+
 - docs (WIP):
   - english documentation: NOT yet
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
+
+- v1.11.23 (FRZ)
+  - security patch: google/x/net and more
+  - improved some writings
+  - fixed/improved cmdr.Get() to extract some fields more deeply
+  - added Flag.GetDottedNamePathEx()
+  - improved defaultActionImpl to flush all outputs at once
+  - make default action outputs colorful
 
 - v1.11.21 (FRZ)
   - NOTE: switched toolchain to go1.18 (see the go.mod)
@@ -61,20 +72,17 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
        
        ```go
        listCmd := cmdr.NewSubCmd().Titles("list", "ls").
-       Description("list projects in .poi.yml").
-       Action(func(cmd *cmdr.Command, args []string) (err error) {
+         Description("list projects in .poi.yml").
+         Action(func(cmd *cmdr.Command, args []string) (err error) {
            err = cmdr.ErrNotImpl // notify caller fallback to defaultAction
            return
-       }).
-       AttachTo(root)
+         }).
+         AttachTo(root)
        ```
     
        > The default action of a command handler will print flags hit info and others useful info.
 
     </details>
-
-- v1.11.20 (FRZ)
-  - upgrade deps
 
 - More details at [CHANGELOG](https://github.com/hedzr/cmdr/blob/master/CHANGELOG)
 

@@ -69,16 +69,17 @@ func isAllowDefaultAction(nilAction bool) bool {
 }
 
 func defaultActionImpl(cmd *Command, args []string) (err error) {
-	fmt.Printf(`
+	var sb strings.Builder
+	_, _ = fmt.Fprintf(&sb, `
  Command-Line: %v
       Command: %v
-  Description: %q
+  Description: %v
          Args: %v
         Flags:
 `,
 		strings.Join(os.Args, " "),
 		cmd.GetDottedNamePath(),
-		cmd.Description,
+		getCPT().Translate(cmd.Description, 0),
 		args)
 
 	for _, f := range GetHitFlags() {

@@ -191,3 +191,14 @@ func (f *Flag) GetDottedNamePath() string {
 	}
 	return f.GetTitleName()
 }
+
+// GetDottedNamePathEx return the dotted key path of this flag
+// in the options store.
+func (f *Flag) GetDottedNamePathEx() string {
+	if f.owner != nil {
+		if f.owner.owner != nil {
+			return f.owner.GetDottedNamePath() + "." + f.GetTitleName()
+		}
+	}
+	return f.GetTitleName()
+}

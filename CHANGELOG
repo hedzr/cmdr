@@ -2,6 +2,10 @@
 
 ## Versions
 
+- v1.11.25 (FRZ)
+  - security patch: google/x/net and more
+  - upgrade deps
+
 - v1.11.23 (FRZ)
   - security patch: google/x/net and more
   - improved some writings

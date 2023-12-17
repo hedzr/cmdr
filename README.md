@@ -49,6 +49,10 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation: NOT yet
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
+- v1.11.25 (FRZ)
+  - security patch: google/x/net and more
+  - upgrade deps
+
 - v1.11.23 (FRZ)
   - security patch: google/x/net and more
   - improved some writings

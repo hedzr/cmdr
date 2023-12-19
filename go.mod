@@ -9,7 +9,7 @@ require (
 	github.com/hedzr/evendeep v0.4.17
 	github.com/hedzr/log v1.6.25
 	github.com/hedzr/logex v1.6.25
-	golang.org/x/crypto v0.16.0
+	golang.org/x/crypto v0.17.0
 	golang.org/x/net v0.19.0
 	gopkg.in/hedzr/errors.v3 v3.3.0
 	gopkg.in/yaml.v3 v3.0.1

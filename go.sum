@@ -12,8 +12,8 @@ github.com/hedzr/evendeep v0.4.17/go.mod h1:IdeVmPe7LhYQGlQYKg379b7PzXGKGdwNE4xG
 github.com/hedzr/log v1.6.23/go.mod h1:hWkbCcshubJUPZIL/AAQeaSORTpoSQfWP7rNGYY7ooY=
 github.com/hedzr/log v1.6.25 h1:AEA2NQlNhYRKi+UdmAslZ3vZOECozlRPSBD5UI6GP7M=
 github.com/hedzr/log v1.6.25/go.mod h1:zQkaAR9O29QtrJLwzeWWeHoxjS+c6DQ/+jV/rSxkFlU=
-github.com/hedzr/logex v1.6.25 h1:3E9Nx3n4LCB3bzIbMkM935wXfqKrSsWi3qVOnKzDUwE=
-github.com/hedzr/logex v1.6.25/go.mod h1:+J7Wvch6zHZ3IKjzXpMNRdhmoELrYRZYUwZM/meIYJI=
+github.com/hedzr/logex v1.11.26 h1:gF+cEJszoojulSYxpbFQ7VQ4hXUxpBGeHYBT8bPRF00=
+github.com/hedzr/logex v1.11.26/go.mod h1:S/he4laKiMmbIl9K6nkrc6rZvFlz4PA4/w+hb0h7gRc=
 github.com/konsorten/go-windows-terminal-sequences v1.0.3 h1:CE8S1cTafDpPvMhIxNJKvHsGVBgn1xWYf1NbHQhywc8=
 github.com/konsorten/go-windows-terminal-sequences v1.0.3/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

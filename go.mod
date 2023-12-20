@@ -8,7 +8,7 @@ require (
 	github.com/hedzr/cmdr-base v1.0.0
 	github.com/hedzr/evendeep v0.4.17
 	github.com/hedzr/log v1.6.25
-	github.com/hedzr/logex v1.6.25
+	github.com/hedzr/logex v1.11.26
 	golang.org/x/crypto v0.17.0
 	golang.org/x/net v0.19.0
 	gopkg.in/hedzr/errors.v3 v3.3.0

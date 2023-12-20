@@ -49,6 +49,9 @@ and Bonus of [#cmdr](https://github.com/topics/cmdr) Series:
   - english documentation: NOT yet
   - documentation at: <https://hedzr.github.io/cmdr-docs/>
 
+- v1.11.26 (FRZ)
+  - security patch: upgrade golang.org/x/crypto to 0.17.0
+
 - v1.11.25 (FRZ)
   - security patch: google/x/net and more
   - upgrade deps

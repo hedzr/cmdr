@@ -1,12 +1,11 @@
 package main
 
 import (
-	logz "github.com/hedzr/logg/slog"
-
 	"github.com/hedzr/cmdr/v2"
 	"github.com/hedzr/cmdr/v2/cli"
+	"github.com/hedzr/cmdr/v2/examples"
 	"github.com/hedzr/cmdr/v2/loaders"
-	"github.com/hedzr/cmdr/v2/pkg/dir"
+	logz "github.com/hedzr/logg/slog"
 	"github.com/hedzr/store"
 )
 
@@ -24,7 +23,7 @@ func main() {
 			loaders.NewConfigFileLoader(),
 			loaders.NewEnvVarLoader(),
 		),
-		cmdr.WithForceDefaultAction(true), // true for debug in developing time
+		cmdr.WithForceDefaultAction(false), // true for debug in developing time
 	); err != nil {
 		logz.Error("Application Error:", "err", err)
 	}
@@ -32,16 +31,9 @@ func main() {
 
 func prepareApp() (app cli.App) {
 	app = cmdr.New().
-		Info("demo-app", "0.3.1").
+		Info("large-app", "0.3.1").
 		Author("hedzr")
-	app.AddFlg(func(b cli.FlagBuilder) {
-		b.Titles("no-default").
-			Description("disable force default action").
-			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
-				app.Store().Set("app.force-default-action", false)
-				return
-			})
-	})
+
 	app.AddCmd(func(b cli.CommandBuilder) {
 		b.Titles("jump").
 			Description("jump command").
@@ -56,11 +48,6 @@ func prepareApp() (app cli.App) {
 				Deprecated(`v0.1.1`).
 				Hidden(false).
 				OnAction(func(cmd *cli.Command, args []string) (err error) {
-					app.Store().Set("app.demo.working", dir.GetCurrentDir())
-					println()
-					println(dir.GetCurrentDir())
-					println()
-					println(app.Store().Dump())
 					return // handling command action here
 				})
 			b.AddFlg(func(b cli.FlagBuilder) {
@@ -82,5 +69,59 @@ func prepareApp() (app cli.App) {
 		Default(false).
 		Description("run all but with committing").
 		Build() // no matter even if you're adding the duplicated one.
+
+	app.AddCmd(func(b cli.CommandBuilder) {
+		b.Titles("consul", "c").
+			Description("command set for consul operations")
+
+		b.Flg("data-center", "dc", "datacenter").
+			// Description("set data-center").
+			Default("dc-1").
+			Build()
+	})
+
+	app.AddCmd(func(b cli.CommandBuilder) {
+		examples.AttachServerCommand(b)
+	})
+
+	app.AddCmd(func(b cli.CommandBuilder) {
+		examples.AttachKvCommand(b)
+	})
+
+	app.AddCmd(func(b cli.CommandBuilder) {
+		examples.AttachMsCommand(b)
+	})
+
+	app.AddCmd(func(b cli.CommandBuilder) {
+		examples.AttachMoreCommandsForTest(b, false)
+	})
+
+	app.AddCmd(func(b cli.CommandBuilder) {
+		b.Titles("display", "da").
+			Description("command set for display adapter operations")
+
+		b1 := b.Cmd("voodoo", "vd").
+			Description("command set for voodoo operations")
+		b1.Flg("data-center", "dc", "datacenter").
+			Default("dc-1").
+			Build()
+		b1.Build()
+
+		b2 := b.Cmd("nvidia", "nv").
+			Description("command set for nvidia operations")
+		b2.Flg("data-center", "dc", "datacenter").
+			Default("dc-1").
+			Build()
+		b2.Build()
+
+		b.AddCmd(func(b cli.CommandBuilder) {
+			b.Titles("amd", "amd").
+				Description("command set for AMD operations")
+			b.Flg("data-center", "dc", "datacenter").
+				Default("dc-1").
+				Build()
+		})
+	})
+
 	return
 }

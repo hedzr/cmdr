@@ -9,7 +9,7 @@ app:
             fluent:
               name: fluent
               dir: examples/fluent
-              package: github.com/hedzr/cmdr/examples/fluent
+              package: github.com/hedzr/cmdr/v2/examples/fluent
               keep-workdir: true
 
         010-examples-group:
@@ -18,22 +18,22 @@ app:
             demo:
               name: demo
               dir: examples/demo
-              package: github.com/hedzr/cmdr/examples/demo
+              package: github.com/hedzr/cmdr/v2/examples/demo
               keep-workdir: true
             ffdemo:
               name: ffdemo
               dir: examples/ffdemo
-              package: github.com/hedzr/cmdr/examples/ffdemo
+              package: github.com/hedzr/cmdr/v2/examples/ffdemo
               keep-workdir: true
             short:
               name: short
               dir: examples/short
-              package: github.com/hedzr/cmdr/examples/short
+              package: github.com/hedzr/cmdr/v2/examples/short
               keep-workdir: true
             wget-demo:
               name: wget-demo
               dir: examples/wget-demo
-              package: github.com/hedzr/cmdr/examples/wget-demo
+              package: github.com/hedzr/cmdr/v2/examples/wget-demo
               keep-workdir: true
       output:
         dir: ./bin

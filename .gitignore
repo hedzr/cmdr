@@ -15,14 +15,16 @@ man*/
 *.8
 *.bak
 .vagrant/
-docs/
+
 .tmp.*
-conf.d/
-
 *.code-workspace
-
-Makefile
+go.work*
+*.local
 .env*
+
+*-master
+*-devel
+*-main
 
 .DS\_Store
 #*.out
@@ -71,12 +73,7 @@ you-dl-1
 *.db3
 *.db-journal
 
-.vscode
-
 *.txt
-*.local
-.env
-Makefile
 b.sh
 sync.sh
 
@@ -119,7 +116,7 @@ sync.sh
 #*.dll
 
 # Fortran module files
-*.mod
+#*.mod
 *.smod
 
 # Compiled Static libraries

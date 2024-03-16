@@ -1,6 +1,4 @@
-/*
- * Copyright © 2019 Hedzr Yeh.
- */
+// Copyright © 2022 Hedzr Yeh.
 
 // Package conf are used to store the app-level constants (app name/vaersion) for cmdr and your app.
 // The names, such as app name, version, and building tags, would be held.
@@ -11,39 +9,21 @@ var (
 	// it'll be rewritten by build-arg.
 	AppName string
 
-	// Version app semantic version. The result of `git describe --tags --abbrev=0`.
-	//     Sample: '0.2.1' or 'v0.2.1'
-	//     Sample: 'v0.3.23-9-g2239632a776f9d7a'
+	// Version app version.
 	// it'll be rewritten by build-arg.
 	Version = "0.2.1"
 	// Buildstamp app built stamp.
-	//
-	// The result of `date +'%Y-%m-%dT%H:%M:%S.%s+%Z'`, or `date +'%Y-%m-%dT%H:%M:%S+%Z`.
-	// The recommend format is RFC3339, such as:
-	//
-	//     Sample: '2023-01-22T09:26:07+08:00'
-	//
 	// it'll be rewritten by build-arg.
 	Buildstamp = ""
-	// Githash app git hash. The result of `git rev-parse --short HEAD`.
-	//     Sample: '2827a31'
+	// Githash app git hash.
 	// it'll be rewritten by build-arg.
 	Githash = ""
 	// GoVersion `go version` string.
 	// it'll be rewritten by build-arg.
 	GoVersion = ""
 
-	// GitSummary holds the output of `git describe --tags --dirty --always`
-	//    Sample: 'v0.3.23-9-g2239632-dirty'
-	// it'll be rewritten by build-arg.
+	// GitSummary holds the output of git describe --tags --dirty --always
 	GitSummary = ""
-
-	// GitDesc holds the output of `git log --oneline -1`
-	//    Sample: '2239632 (HEAD -> master) improved `sbom` command description line.'
-	GitDesc = ""
-
-	// BuilderComments can be rewitten by build-arg
-	BuilderComments = ""
 
 	// GitShortVersion from `git describe --long`. [NEVER USED]
 	GitShortVersion = ""

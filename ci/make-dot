@@ -1,0 +1,22 @@
+#!/bin/bash
+
+pushd .. >/dev/null
+
+godepgraph -G 'ratio=compress/rankdir="TB"/rotate=0/nodesep=0.15/ranksep=0.3/splines=ortho/node [shape="box",style="rounded,filled"]/edge [arrowsize="0.3"]' -s \
+  -p golang.org,google,github.com/hedzr/evendeep/,github.com/hedzr/store//,github.com/hedzr/env//,github.com/hedzr/logg/slog/,github.com/hedzr/is/ \
+  -i gopkg.in/yaml.v3 \
+  ./cmdr/ |
+  tee ~/Downloads/cmdr.dot |
+  dot -Tpng \
+    -o ~/Downloads/cmdr.dot.png
+#-Gratio=compress -Gsize=8.3,11.7 -Gpage=8.3,11.7
+# github.com/hedzr/cmdr/v2/,
+#
+#    -Gpagedir=TL \
+# splines=curved
+# splines=ortho
+# splines=spline
+#
+#  -horizontal
+
+popd >/dev/null

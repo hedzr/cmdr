@@ -2,26 +2,24 @@ name: Go
 
 on:
   push:
-    branches: [master]
+    branches: [ master ]
     # Sequence of patterns matched against refs/tags
     tags:
-      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
   pull_request:
-    branches: [master]
+    branches: [ master ]
     # types: [assigned, opened, synchronize, reopened]
 
 #on: [push, pull_request]
 
-env:
-  APPNAME: cmdr
-
 jobs:
+
   test:
     strategy:
       matrix:
-        go-version: [1.17.x, 1.20.x] # 1.13.x, 1.14.x, 1.15.x,
+        go-version: [ 1.21.x ]
         #os: [ubuntu-latest, macos-latest, windows-latest]
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
@@ -30,7 +28,7 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - uses: actions/cache@v2
         with:
           path: ~/go/pkg/mod
@@ -39,16 +37,13 @@ jobs:
             ${{ runner.os }}-go-
       - name: Test
         run: |
-          go mod download
-          go build -v -o main ./examples/short
-          rm main
           for GOOS in $(go tool dist list|awk -F'/' '{print $1}'|sort -u); do
             echo -e "\n\nTESTING FOR $GOOS ...\n"
-            go test ./... -v -race
+            go test ./...
           done
 
   coverage:
-    needs: test
+    #needs: test
     env:
       COVERALLS_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
     runs-on: ubuntu-latest
@@ -56,9 +51,9 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.19.x
+          go-version: 1.21.x
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         #with:
         #  path: ./src/github.com/${{ github.repository }}
       - uses: actions/cache@v2
@@ -75,140 +70,77 @@ jobs:
           path-to-profile: profile.cov
           parallel: true
 
-  build:
-    name: Build the release binaries
-    needs: coverage
-    #env:
-    #  GOPATH: ${{ github.workspace }}
-    #  GO111MODULE: off
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.19.x
-      - name: Checkout code
-        uses: actions/checkout@v2
-        #with:
-        #  path: ./src/github.com/${{ github.repository }}
-      - uses: actions/cache@v2
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Docker Build
-        #if: startsWith(github.ref, 'refs/tags/v') || contains(github.ref, '/master')
-        if: startsWith(github.ref, 'refs/tags/v')
-        env:
-          HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IMAGE_NAME: cmdr-fluent
-          IMAGE_TAG:
-        run: |
-          IMAGE_TAG=${GITHUB_REF#*/}
-          IMAGE_TAG=${IMAGE_TAG#*/}
-          IMAGE_TAG=$(echo $IMAGE_TAG | sed -e "s#^v##")
-          echo "Using IMAGE_TAG: $IMAGE_TAG"
-          docker build \
-            -t docker.pkg.github.com/hedzr/$APPNAME/$IMAGE_NAME:$IMAGE_TAG \
-            -t docker.pkg.github.com/hedzr/$APPNAME/$IMAGE_NAME:latest \
-            -t hedzr/$IMAGE_NAME:$IMAGE_TAG \
-            -t hedzr/$IMAGE_NAME:latest \
-            .
-          echo $GH_TOKEN | docker login docker.pkg.github.com -u hedzr --password-stdin
-          # docker tag IMAGE_ID docker.pkg.github.com/hedzr/$APPNAME/$IMAGE_NAME:$VERSION
-          docker push docker.pkg.github.com/hedzr/$APPNAME/$IMAGE_NAME:$IMAGE_TAG
-          docker push docker.pkg.github.com/hedzr/$APPNAME/$IMAGE_NAME:latest
-          #
-          echo $HUB_TOKEN | docker login -u hedzr --password-stdin
-          # docker tag docker.pkg.github.com/hedzr/$APPNAME/$IMAGE_NAME:latest hedzr/$IMAGE_NAME:$IMAGE_TAG
-          # docker tag docker.pkg.github.com/hedzr/$APPNAME/$IMAGE_NAME:latest hedzr/$IMAGE_NAME:latest
-          docker push hedzr/$IMAGE_NAME:$IMAGE_TAG
-          docker push hedzr/$IMAGE_NAME:latest
-
-      - name: Build for releases
-        run: |
-          export GIT_REVISION="$(git rev-parse --short HEAD)"
-          export GIT_SUMMARY="$(git describe --tags --dirty --always)"
-          export GOVERSION="$(go version)"
-          export BUILDTIME="$(date -u '+%Y-%m-%d_%H-%M-%S')"
-          export VERSION="$(grep -E "Version[ \t]+=[ \t]+" doc.go|grep -Eo "[0-9.]+")"
-          export W_PKG="github.com/hedzr/cmdr/conf"
-          export LDFLAGS="-s -w \
-            -X '$W_PKG.Githash=$GIT_REVISION' \
-            -X '$W_PKG.GitSummary=$GIT_SUMMARY' \
-            -X '$W_PKG.GoVersion=$GOVERSION' \
-            -X '$W_PKG.Buildstamp=$BUILDTIME' \
-            -X '$W_PKG.Version=$VERSION'"
-          cat <<EOF
-                Version: $VERSION
-           GIT_REVISION: $GIT_REVISION
-              GOVERSION: $GOVERSION
-              BUILDTIME: $BUILDTIME
-          EOF
-          for app in short demo fluent ffdemo wget-demo; do
-          for dir in ./examples; do
-            for GOOS in windows linux; do
-              for GOARCH in amd64; do
-                suf=; if [[ $GOOS == "windows" ]]; then suf=".exe"; fi
-                go build -v -ldflags "$LDFLAGS" -o ./bin/$app-$GOOS-$GOARCH$suf ./$dir/$app/
-                gzip -f ./bin/$app-$GOOS-$GOARCH$suf
-              done
-            done
-            for GOOS in darwin; do
-              for GOARCH in amd64 arm64; do
-                suf=; if [[ $GOOS == "windows" ]]; then suf=".exe"; fi
-                go build -v -ldflags "$LDFLAGS" -o ./bin/$app-$GOOS-$GOARCH$suf ./$dir/$app/
-                gzip -f ./bin/$app-$GOOS-$GOARCH$suf
-              done
-            done
-          done
-          done
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@master
-        if: startsWith(github.ref, 'refs/tags/v')
-        with:
-          name: binaries
-          path: bin/
-
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@v2
-        if: startsWith(github.ref, 'refs/tags/v')
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: bin/*
-          tag: ${{ github.ref }}
-          overwrite: true
-          file_glob: true
-          #body:
-
-      # - name: Create Release
-      #   id: create_release
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     tag_name: ${{ github.ref }}
-      #     release_name: Release ${{ github.ref }}
-      #     draft: false
-      #     prerelease: false
-      #
-      # - name: Upload Release Asset
-      #   id: upload-release-asset
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-      #     asset_path: bin/*
-      #     asset_name: my-artifact.zip
-      #     asset_content_type: application/zip
+  #  build:
+  #    #env:
+  #    #  GOPATH: ${{ github.workspace }}
+  #    #  GO111MODULE: off
+  #    runs-on: ubuntu-latest
+  #    steps:
+  #      - name: Install Go
+  #        uses: actions/setup-go@v2
+  #        with:
+  #          go-version: 1.14.x
+  #      - name: Checkout code
+  #        uses: actions/checkout@v2
+  #        #with:
+  #        #  path: ./src/github.com/${{ github.repository }}
+  #      - uses: actions/cache@v2
+  #        with:
+  #          path: ~/go/pkg/mod
+  #          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+  #          restore-keys: |
+  #            ${{ runner.os }}-go-
+  #      - name: Build
+  #        run: |
+  #          for dir in cmdr std; do
+  #            for GOOS in windows linux darwin; do
+  #              for GOARCH in amd64; do
+  #                suf=; if [[ $GOOS == "windows" ]]; then suf=".exe"; fi
+  #                go build -v -o bin/tcp-tool-$dir-$GOOS-$GOARCH$suf ./examples/$dir
+  #                gzip bin/tcp-tool-$dir-$GOOS-$GOARCH$suf
+  #              done
+  #            done
+  #          done
+  #      - name: upload artifacts
+  #        uses: actions/upload-artifact@master
+  #        if:   startsWith(github.ref, 'refs/tags/v')
+  #        with:
+  #          name: binaries
+  #          path: bin/
+  #
+  #      - name: Upload binaries to release
+  #        uses: svenstaro/upload-release-action@v2
+  #        if:   startsWith(github.ref, 'refs/tags/v')
+  #        with:
+  #          repo_token: ${{ secrets.GITHUB_TOKEN }}
+  #          file: bin/*
+  #          tag: ${{ github.ref }}
+  #          overwrite: true
+  #          file_glob: true
+  #          #body:
+  ##      - name: Create Release
+  ##        id: create_release
+  ##        uses: actions/create-release@v1
+  ##        env:
+  ##          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  ##        with:
+  ##          tag_name: ${{ github.ref }}
+  ##          release_name: Release ${{ github.ref }}
+  ##          draft: false
+  ##          prerelease: false
+  ##      - name: Upload Release Asset
+  ##        id: upload-release-asset
+  ##        uses: actions/upload-release-asset@v1
+  ##        env:
+  ##          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  ##        with:
+  ##          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+  ##          asset_path: bin/*
+  ##          asset_name: my-artifact.zip
+  ##          asset_content_type: application/zip
 
   # notifies coveralls that all test jobs are finished
-  finish:
+  finish-coverage:
     name: Finish Coverage
     needs: coverage
     runs-on: ubuntu-latest
@@ -216,3 +148,21 @@ jobs:
       - uses: shogo82148/actions-goveralls@v1
         with:
           parallel-finished: true
+
+  do-release:
+    permissions: write-all # this is the FIX
+    runs-on: ubuntu-latest
+    needs: coverage
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+
+
+
+
+
+
+

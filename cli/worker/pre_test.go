@@ -1,0 +1,239 @@
+package worker
+
+import (
+	"regexp"
+	"strings"
+	"testing"
+
+	"github.com/hedzr/cmdr/v2/cli"
+	"github.com/hedzr/cmdr/v2/loaders"
+	"github.com/hedzr/store"
+
+	errorsv3 "gopkg.in/hedzr/errors.v3"
+)
+
+func TestWorkerS_Pre(t *testing.T) {
+	app, ww := cleanApp(t, true)
+
+	// app := buildDemoApp()
+	// ww := postBuild(app)
+	// ww.InitGlobally()
+	// assert.EqualTrue(t, ww.Ready())
+	//
+	// ww.ForceDefaultAction = true
+	// ww.wrHelpScreen = &discardP{}
+	// ww.wrDebugScreen = os.Stdout
+	// ww.wrHelpScreen = os.Stdout
+
+	ww.setArgs([]string{"--debug"})
+	ww.Config.Store = store.New()
+	ww.Loaders = []cli.Loader{loaders.NewConfigFileLoader(), loaders.NewEnvVarLoader()}
+	_ = app
+
+	err := ww.Run(withTasksBeforeParse(func(root *cli.RootCommand, runner cli.Runner) (err error) {
+		root.SelfAssert()
+		t.Logf("root.SelfAssert() passed.")
+		return
+	}))
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestWorkerS_Pre_v1(t *testing.T) {
+	app, ww := cleanApp(t, true)
+
+	ww.setArgs([]string{"--debug", "-v"})
+	ww.Config.Store = store.New()
+	ww.Loaders = []cli.Loader{loaders.NewConfigFileLoader(), loaders.NewEnvVarLoader()}
+	_ = app
+
+	err := ww.Run()
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestWorkerS_Pre_v3(t *testing.T) {
+	app, ww := cleanApp(t, true)
+
+	ww.setArgs([]string{"--debug", "-vv", "--verbose"})
+	ww.Config.Store = store.New()
+	ww.Loaders = []cli.Loader{loaders.NewConfigFileLoader(), loaders.NewEnvVarLoader()}
+	_ = app
+
+	err := ww.Run()
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestWorkerS_Parse(t *testing.T) { //nolint:revive
+	aTaskBeforeRun := func(root *cli.RootCommand, runner cli.Runner) (err error) { return }
+	for i, c := range []struct {
+		args     string
+		verifier taskAfterParse
+		opts     []cli.Opt
+	}{
+		{},
+		{args: "m unk snd cool", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) {
+			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {
+				t.Log("expect 'UNKNOWN Command FOUND' error, but not matched.") // "unk"
+			}
+			return /* errParsed */
+		}, opts: []cli.Opt{cli.WithUnmatchedAsError(true)}},
+
+		{args: "m snd -n -wn cool fog --pp box", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) {
+			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {
+				t.Log("expect 'UNKNOWN Flag FOUND' error, but not matched.") // "--pp"
+			}
+			ctx.hitTest("dry-run", 2)
+			ctx.hitTest("wet-run", 1)
+			ctx.argsAre("cool", "fog")
+			return nil /* errParsed */
+		}},
+
+		// general commands and flags
+		{args: "jump to --full -f --dry-run", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) {
+			ctx.hitTest("full", 2)
+			ctx.hitTest("dry-run", 1)
+			return errParsed
+		}},
+		// compact flags
+		{args: "-qvqDq gen --debug sh --zsh -b -Dwmann --dry-run", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) {
+			ctx.hitTest("quiet", 3)
+			ctx.hitTest("debug", 3)
+			ctx.hitTest("verbose", 1)
+			ctx.hitTest("wet-run", 1)
+			ctx.hitTest("dry-run", 2)
+			return errParsed
+		}},
+
+		// general, unknown cmd/flg errors
+		{args: "m snd --help"},
+		{args: "m unk snd cool", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) {
+			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {
+				t.Log("expect 'UNKNOWN Command FOUND' error, but not matched.") // "unk"
+			}
+			return /* errParsed */
+		}, opts: []cli.Opt{cli.WithUnmatchedAsError(true)}},
+		{args: "m snd -n -wn cool fog --pp box", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) {
+			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {
+				t.Log("expect 'UNKNOWN Flag FOUND' error, but not matched.") // "--pp"
+			}
+			ctx.hitTest("dry-run", 2)
+			ctx.hitTest("wet-run", 1)
+			ctx.argsAre("cool", "fog")
+			return nil /* errParsed */
+		}},
+
+		// headLike
+		{args: "server start -f -129", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) {
+			ctx.hitTest("foreground", 1)
+			ctx.hitTest("head", 1)
+			ctx.hitTest("tail", 0)
+			ctx.valTest("head", 129) //nolint:revive
+			return errParsed
+		}},
+
+		// toggle group
+		{args: "generate shell --bash --zsh -p", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) {
+			if f := ctx.flag("shell"); f != nil {
+				assertEqual(t, f.MatchedTG().MatchedTitle, "powershell")
+			}
+			return errParsed
+		}},
+
+		// valid args
+		{args: "server start -e apple -e zig", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) {
+			ctx.valTest("enum", "zig")
+			return errParsed
+		}},
+
+		// parsing slice (-cr foo,bar,noz), compact flag with value (-mmt3)
+		{args: "ms t modify -2 -cr foo,bar,noz -nfool -mmi3", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) {
+			ctx.hitTest("money", 1)
+			ctx.valTest("both", true)
+			ctx.valTest("clear", true)
+			ctx.valTest("name", "fool")
+			ctx.valTest("id", "3")
+			ctx.valTest("remove", []string{"foo", "bar", "noz"})
+			return errParsed
+		}},
+
+		// parsing slice (-cr foo,bar,noz), compact flag with value (-mmt3)
+		// merge/append to slice
+		{args: "ms t modify -2 -cr foo,bar,noz -n fool -mmr 1", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) {
+			ctx.hitTest("money", 1)
+			ctx.valTest("both", true)
+			ctx.valTest("clear", true)
+			ctx.valTest("name", "fool")
+			ctx.valTest("remove", []string{"foo", "bar", "noz", "1"})
+			return errParsed
+		}},
+
+		// ~~tree
+		{args: "ms t t --tree", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) {
+			if errorsv3.Is(errParsed, ErrUnmatchedFlag) {
+				t.Log("ErrUnmatchedFlag FOUND, that's expecting.")
+			}
+			return errParsed
+		}},
+
+		// ~~tree 2
+		{args: "ms t t ~~tree", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) {
+			if errorsv3.Is(errParsed, ErrUnmatchedFlag) {
+				t.Fatal("ErrUnmatchedFlag FOUND, that's NOT expecting.")
+			}
+			if !ctx.matchedFlags[ctx.flag("tree")].DblTilde {
+				t.Fatal("expecting DblTilde is true but fault.")
+			}
+			return errParsed
+		}},
+
+		{args: "ms t t -K -2 -cun foo,bar,noz", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) {
+			ctx.hitTest("insecure", 1)
+			ctx.valTest("insecure", true)
+			ctx.valTest("both", true)
+			ctx.valTest("clear", true)
+			ctx.valTest("unset", []string{"foo", "bar", "noz"})
+			return errParsed
+		}},
+
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+	} {
+		if c.args == "" && c.verifier == nil {
+			continue
+		}
+
+		t.Log()
+		t.Log()
+		t.Log()
+		t.Logf("--------------- test #%d: Parsing %q\n", i, c.args)
+
+		app, ww := cleanApp(t, false)
+		ww.Config.Store = store.New()
+		ww.Config.Loaders = []cli.Loader{loaders.NewConfigFileLoader(), loaders.NewEnvVarLoader()}
+
+		ww.setArgs(append([]string{app.Name()}, strings.Split(c.args, " ")...))
+		ww.tasksAfterParse = []taskAfterParse{c.verifier}
+		ww.Config.TasksBeforeRun = []cli.Task{aTaskBeforeRun}
+		err := ww.Run(c.opts...) // withTasksBeforeRun(taskBeforeRun),withTasksAfterParse(c.verifier))
+		// err := app.Run()
+		if err != nil {
+			_ = app
+			t.Fatal(err)
+		}
+	}
+}
+
+func assertEqual(t *testing.T, expect, actual any, msgs ...any) {
+	if expect != actual {
+		t.Fatalf("expecting %v but got %v", actual, expect)
+	}
+}

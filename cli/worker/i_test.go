@@ -22,7 +22,7 @@ func cleanApp(t *testing.T, helpScreen bool) (app cli.App, ww *workerS) { //noli
 	}
 	ww.wrDebugScreen = os.Stdout
 	ww.ForceDefaultAction = true
-	ww.tasksAfterParse = []taskAfterParse{func(w *workerS, ctx *parseCtx, errParsed error) (err error) { return }}
+	ww.tasksAfterParse = []taskAfterParse{func(w *workerS, ctx *parseCtx, errParsed error) (err error) { return }} //nolint:revive
 
 	// ww.setArgs([]string{"--debug"})
 	// err := ww.Run(withTasksBeforeParse(func(root *cli.RootCommand, runner cli.Runner) (err error) {
@@ -60,7 +60,7 @@ func buildDemoApp() (app cli.App) { //nolint:revive
 					Examples(``).
 					Deprecated(``).
 					Hidden(false).
-					OnAction(func(cmd *cli.Command, args []string) (err error) {
+					OnAction(func(cmd *cli.Command, args []string) (err error) { //nolint:revive
 						return // handling command action here
 					})
 
@@ -160,7 +160,7 @@ func postBuild(app cli.App) (ww *workerS) {
 
 //
 
-func assertTrue(t testing.TB, cond bool, msg ...any) {
+func assertTrue(t testing.TB, cond bool, msg ...any) { //nolint:revive
 	if cond {
 		return
 	}
@@ -177,7 +177,7 @@ func assertTrue(t testing.TB, cond bool, msg ...any) {
 	t.Fatalf("assertTrue failed: %s", mesg)
 }
 
-func assertFalse(t testing.TB, cond bool, msg ...any) {
+func assertFalse(t testing.TB, cond bool, msg ...any) { //nolint:unused,revive
 	if !cond {
 		return
 	}

@@ -6,10 +6,9 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/hedzr/cmdr/v2/pkg/exec"
 	"github.com/hedzr/evendeep/ref"
 	logz "github.com/hedzr/logg/slog"
-
-	"github.com/hedzr/cmdr/v2/pkg/exec"
 )
 
 //
@@ -234,7 +233,7 @@ func (s *toS) stepObjectOrMap( //nolint:revive
 		if err == nil {
 			if preferKind == reflect.Map {
 				rv.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(el))
-			} else {
+			} else { //nolint:staticcheck,revive
 				// rv.Elem().Index(*ix).Set(reflect.ValueOf(el))
 			}
 			*ix++ // skip the ending '}'

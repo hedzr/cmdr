@@ -4,11 +4,10 @@ import (
 	"context"
 	"sync/atomic"
 
-	logz "github.com/hedzr/logg/slog"
+	errorsv3 "gopkg.in/hedzr/errors.v3"
 
 	"github.com/hedzr/cmdr/v2/cli"
-
-	errorsv3 "gopkg.in/hedzr/errors.v3"
+	logz "github.com/hedzr/logg/slog"
 )
 
 func (w *workerS) exec(ctx *parseCtx) (err error) {
@@ -41,15 +40,15 @@ func (w *workerS) exec(ctx *parseCtx) (err error) {
 		ctx.forceDefaultAction, err = true, nil
 	}
 
-	handled := false
-	for k, action := range w.actions {
-		if k&w.actionsMatched != 0 {
-			logz.Verbose("Invoking worker.actionsMatched", "hit-action", k, "actions", w.Actions())
-			err, handled = action(ctx, lastCmd), true
-			break
-		}
-	}
-	if handled || !w.errIsSignalOrNil(err) {
+	handled, err1 := w.handleActions(ctx)
+	// for k, action := range w.actions {
+	// 	if k&w.actionsMatched != 0 {
+	// 		logz.Verbose("Invoking worker.actionsMatched", "hit-action", k, "actions", w.Actions())
+	// 		err, handled = action(ctx, lastCmd), true
+	// 		break
+	// 	}
+	// }
+	if handled || !w.errIsSignalOrNil(err1) {
 		return
 	}
 
@@ -65,6 +64,18 @@ func (w *workerS) exec(ctx *parseCtx) (err error) {
 
 	logz.Verbose("no onAction associate to cmd", "cmd", lastCmd)
 	err = w.onPrintHelpScreen(ctx, lastCmd)
+	return
+}
+
+func (w *workerS) handleActions(ctx *parseCtx) (handled bool, err error) {
+	lastCmd := ctx.LastCmd()
+	for k, action := range w.actions {
+		if k&w.actionsMatched != 0 {
+			logz.Verbose("Invoking worker.actionsMatched", "hit-action", k, "actions", w.Actions())
+			err, handled = action(ctx, lastCmd), true
+			break
+		}
+	}
 	return
 }
 
@@ -88,7 +99,7 @@ func (w *workerS) checkRequiredFlags(ctx *parseCtx, lastCmd *cli.Command) (err e
 		if ff != nil {
 			if ff.Required() && ff.GetTriggeredTimes() < 0 {
 				err = ErrRequiredFlag.FormatWith(ff, lastCmd)
-				_ = ctx
+				_, _, _, _, _ = ctx, cc, index, count, level
 				return
 			}
 		}
@@ -97,10 +108,12 @@ func (w *workerS) checkRequiredFlags(ctx *parseCtx, lastCmd *cli.Command) (err e
 }
 
 func (w *workerS) afterExec(ctx *parseCtx, lastCmd *cli.Command) (err error) { //nolint:revive
+	_, _ = ctx, lastCmd
 	return
 }
 
-func (w *workerS) finalActions(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) (err error) { //nolint:revive
+func (w *workerS) finalActions(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) (err error) { //nolint:revive,unparam
+	_, _ = pc, lastCmd
 	err = w.writeBackToLoaders(ctx)
 	return
 }

@@ -7,16 +7,21 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"gopkg.in/hedzr/errors.v3"
+
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/conf"
 	logz "github.com/hedzr/logg/slog"
 	"github.com/hedzr/store"
-
-	"gopkg.in/hedzr/errors.v3"
 )
 
 func New(c *cli.Config, opts ...wOpt) *workerS {
-	s := &workerS{Config: c}
+	s := &workerS{
+		Config:        c,
+		wrHelpScreen:  c.HelpScreenWriter,
+		wrDebugScreen: c.DebugScreenWriter,
+	}
+	s.setArgs(c.Args)
 	for _, opt := range opts {
 		opt(s)
 	}
@@ -204,8 +209,12 @@ func (w *workerS) DumpErrors(wr io.Writer) {
 func (w *workerS) SetRoot(root *cli.RootCommand, args []string) {
 	// trigger the Ready signal
 	if w.reqRootCmdReady() {
-		w.root = root
-		w.args = args
+		if root != nil {
+			w.root = root
+		}
+		if args != nil {
+			w.args = args
+		}
 	}
 }
 
@@ -217,6 +226,7 @@ func (w *workerS) Name() string {
 	}
 	return conf.AppName
 }
+
 func (w *workerS) Version() string {
 	if v := w.versionSimulate; v != "" {
 		return v
@@ -228,6 +238,7 @@ func (w *workerS) Version() string {
 	}
 	return conf.Version
 }
+
 func (w *workerS) Root() *cli.RootCommand { return w.root }
 func (w *workerS) Store() store.Store     { return w.Config.Store }
 
@@ -246,7 +257,7 @@ func (w *workerS) triggerGlobalResourcesInitOK() {
 	logz.Debug("workerS.triggerGlobalResourcesInitOK")
 }
 
-func (w *workerS) attachErrors(errs ...error) {
+func (w *workerS) attachErrors(errs ...error) { //nolint:revive,unused
 	// w.errs.Attach(errs...)
 	for _, err := range errs {
 		w.attachError(err)

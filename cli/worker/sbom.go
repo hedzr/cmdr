@@ -4,10 +4,10 @@ import (
 	"debug/buildinfo"
 	"fmt"
 
+	"gopkg.in/hedzr/errors.v3"
+
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/pkg/dir"
-
-	"gopkg.in/hedzr/errors.v3"
 )
 
 type sbomS struct{}
@@ -46,7 +46,7 @@ func (w *sbomS) sbomOne(file string) (err error) {
 	for _, d := range inf.Settings {
 		fmt.Printf("    - %q: %v\n", d.Key, d.Value)
 	}
-	fmt.Println("  depends:")
+	_, _ = fmt.Println("  depends:")
 	for _, d := range inf.Deps {
 		// str := fmt.Sprintf("%#v", *d)
 		fmt.Printf("    - debug-module: { path: %q, version: %q, sum: %q, replace: %#v } \n", d.Path, d.Version, d.Sum, d.Replace)

@@ -106,7 +106,7 @@ func (s *parseCtx) cmd(longTitle string) (c *cli.Command) { //nolint:unused
 	return
 }
 
-func (s *parseCtx) hasCmd(longTitle string, validator func(cc *cli.Command, state *cli.MatchState) bool) (found bool) {
+func (s *parseCtx) hasCmd(longTitle string, validator func(cc *cli.Command, state *cli.MatchState) bool) (found bool) { //nolint:revive,unused
 	for _, c := range s.matchedCommands {
 		if c.Long == longTitle {
 			found = validator(c, s.matchedCommandsStates[c])
@@ -139,7 +139,7 @@ func (s *parseCtx) LastCmd() *cli.Command {
 	return cmd
 }
 
-func (s *parseCtx) parsedCommandsStrings() (ret []string) {
+func (s *parseCtx) parsedCommandsStrings() (ret []string) { //nolint:revive,unused
 	for _, cc := range s.matchedCommands {
 		ret = append(ret, cc.String())
 	}

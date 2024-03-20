@@ -4,11 +4,10 @@ import (
 	"context"
 	"os"
 
-	logz "github.com/hedzr/logg/slog"
-
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/cli/atoa"
 	"github.com/hedzr/cmdr/v2/internal/tool"
+	logz "github.com/hedzr/logg/slog"
 	"github.com/hedzr/store"
 )
 
@@ -75,7 +74,7 @@ func (w *workerS) linkCommands(root *cli.RootCommand) (err error) {
 }
 
 func (w *workerS) commandsToStore(root *cli.RootCommand) (err error) {
-	if w.Store() == nil || root == nil {
+	if root == nil || w.Store() == nil {
 		return
 	}
 
@@ -85,6 +84,11 @@ func (w *workerS) commandsToStore(root *cli.RootCommand) (err error) {
 		return
 	}
 
+	err = w.commandsToStoreChild(root, conf)
+	return
+}
+
+func (w *workerS) commandsToStoreChild(root *cli.RootCommand, conf store.Store) (err error) { //nolint:revive
 	fromString := func(text string, meme any) (value any) { //nolint:revive
 		var err error
 		value, err = atoa.Parse(text, meme)
@@ -95,7 +99,7 @@ func (w *workerS) commandsToStore(root *cli.RootCommand) (err error) {
 	}
 
 	conf.WithinLoading(func() {
-		root.WalkEverything(func(cc, pp *cli.Command, ff *cli.Flag, cmdIndex, flgIndex, level int) {
+		root.WalkEverything(func(cc, pp *cli.Command, ff *cli.Flag, cmdIndex, flgIndex, level int) { //nolint:revive
 			if ff != nil {
 				if evs := ff.EnvVars(); len(evs) > 0 {
 					for _, ev := range evs {
@@ -116,6 +120,18 @@ func (w *workerS) commandsToStore(root *cli.RootCommand) (err error) {
 
 // loadLoaders try to load the external loaders, for loading the config files.
 func (w *workerS) loadLoaders() (err error) {
+	w.precheckLoaders()
+	for _, loader := range w.Config.Loaders {
+		if loader != nil {
+			if err = loader.Load(w.root.App()); err != nil {
+				break
+			}
+		}
+	}
+	return
+}
+
+func (w *workerS) precheckLoaders() {
 	if w.configFile != "" {
 		found := false
 		for _, loader := range w.Config.Loaders {
@@ -130,16 +146,6 @@ func (w *workerS) loadLoaders() (err error) {
 			logz.Warn("Config file has been ignored", "config-file", w.configFile)
 		}
 	}
-
-	for _, loader := range w.Config.Loaders {
-		if loader != nil {
-			err = loader.Load(w.root.App())
-			if err != nil {
-				break
-			}
-		}
-	}
-	return
 }
 
 // writeBackToLoaders implements write-back mechanism:

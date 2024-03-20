@@ -11,6 +11,7 @@ import (
 type Converter func(str string, targetType reflect.Type) (ret any, err error)
 
 var defaultConverters map[reflect.Type]Converter
+
 var oncedefcvts sync.Once
 
 func defcvts() map[reflect.Type]Converter {
@@ -26,18 +27,18 @@ func defcvts() map[reflect.Type]Converter {
 func toTimeTime(str string, targetType reflect.Type) (ret any, err error) {
 	var tm time.Time
 	tm, err = times.SmartParseTime(str)
-	ret = tm
+	ret, _ = tm, targetType
 	return
 }
 
 func toTimeTimePtr(str string, targetType reflect.Type) (ret any, err error) {
 	var tm time.Time
 	tm, err = times.SmartParseTime(str)
-	ret = &tm
+	ret, _ = &tm, targetType
 	return
 }
 
-func toTimeDuration(str string, targetType reflect.Type) (ret any, err error) {
+func toTimeDuration(str string, _ reflect.Type) (ret any, err error) {
 	var tm time.Duration
 	tm, err = times.ParseDuration(str)
 	ret = tm

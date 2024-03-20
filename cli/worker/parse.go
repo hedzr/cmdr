@@ -61,14 +61,12 @@ loopArgs:
 			continue
 
 		case '-', '~':
-			if len(ctx.arg) > 1 {
+			if len(ctx.arg) > 1 { // so, ctx.arg >= 2
 				if (c1 == '-' && ctx.arg[1] == '-') || (c1 == '~' && ctx.arg[1] == '~') {
-					if len(ctx.arg) == 2 {
-						if c1 == '-' {
-							// --: pass-thru found
-							err = w.onPassThruCharMatched(ctx)
-							continue
-						}
+					if len(ctx.arg) == 3 && ctx.arg[2] == '-' { //nolint:revive
+						// --: pass-thru found
+						err = w.onPassThruCharMatched(ctx)
+						continue
 					}
 
 					// try match a long flag

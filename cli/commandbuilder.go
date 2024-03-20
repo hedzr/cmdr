@@ -1,0 +1,132 @@
+package cli
+
+type CommandBuilder interface {
+	// Build connects the built command into the building command system.
+	Build()
+
+	// Titles should be specified with this form:
+	//
+	//     longTitle, shortTitle, aliases...
+	//
+	// The Long-Title is must-required, and the others are optional.
+	//
+	// For Flag, Long-Title and Aliases are posix long parameters with the
+	// leading double hyphen string '--'. And Short-Title has single
+	// hyphen '-' as leading.
+	//
+	// For example, A flag with longTitle "debug" means that an end-user
+	// should type "--debug" for it.
+	//
+	// For the multi-level command and subcommands, long, short and
+	// aliases will be used as is.
+	Titles(longTitle string, titles ...string) CommandBuilder
+	// Description specifies the one-line description and a multi-line
+	// description (optional)
+	Description(description string, longDescription ...string) CommandBuilder
+	// Examples can be a multi-line string.
+	Examples(examples string) CommandBuilder
+	// Group specify a group name,
+	// A special prefix could sort it, has a form like `[0-9a-zA-Z]+\.`.
+	// The prefix will be removed from help screen.
+	//
+	// Some examples are:
+	//    "A001.Host Params"
+	//    "A002.User Params"
+	//
+	// If ToggleGroup specified, Group field can be omitted because we will copy
+	// from there.
+	Group(group string) CommandBuilder
+	// Deprecated is a version string just like '0.5.9' or 'v0.5.9', that
+	// means this command/flag was/will be deprecated since `v0.5.9`.
+	Deprecated(deprecated string) CommandBuilder
+	// Hidden command/flag won't be shown in help-screen and others output.
+	//
+	// The Hidden command/flag may be printed normally if very verbose mode
+	// specified (typically '-vv' detected).
+	//
+	// The VendorHidden commands/flags will be hidden at any time even if
+	// in vert verbose mode.
+	Hidden(hidden bool, vendorHidden ...bool) CommandBuilder
+
+	// ExtraShorts sets more short titles
+	ExtraShorts(shorts ...string) CommandBuilder
+
+	// TailPlaceHolders gives two places to place the placeholders.
+	// It looks like the following form:
+	//
+	//     austr dns add <placeholder1st> [Options] [Parent/Global Options] <placeholders more...>
+	//
+	// As shown, you may specify at:
+	//
+	// - before '[Options] [Parent/Global Options]'
+	// - after '[Options] [Parent/Global Options]'
+	//
+	// In TailPlaceHolders slice, [0] is `placeholder1st``, and others
+	// are `placeholders more``.
+	//
+	// Others:
+	//   TailArgsText string [no plan]
+	//   TailArgsDesc string [no plan]
+	TailPlaceHolders(placeHolders ...string) CommandBuilder
+
+	// RedirectTo gives the dotted-path to point to a subcommand.
+	//
+	// Thd target subcommand will be invoked while this command is being invoked.
+	//
+	// For example, if RootCommand.RedirectTo is set to "build", and
+	// entering "app" will equal to entering "app build ...".
+	//
+	// NOTE:
+	//
+	//     when redirectTo is valid, Command.OnInvoke handler will be ignored.
+	RedirectTo(dottedPath string) CommandBuilder
+
+	// OnAction is the main action or entry point when the command
+	// was hit from parsing command-line arguments.
+	OnAction(handler OnInvokeHandler) CommandBuilder
+	// OnPreAction will be launched before running OnInvoke.
+	// The return value obj.ErrShouldStop will cause the remained
+	// following processing flow broken right away.
+	OnPreAction(handlers ...OnPreInvokeHandler) CommandBuilder
+	// OnPostAction will be launched after running OnInvoke.
+	OnPostAction(handlers ...OnPostInvokeHandler) CommandBuilder
+
+	// OnMatched _.
+	OnMatched(handler OnCommandMatchedHandler) CommandBuilder
+
+	// PresetCmdLines provides a set of args so that end-user can
+	// type the command-line bypass its.
+	PresetCmdLines(args ...string) CommandBuilder
+
+	// InvokeProc specifies an executable path which will be launched
+	// on this command hit and being invoked
+	InvokeProc(executablePath string) CommandBuilder
+	// InvokeShell specifies a shell command-line which will be launched
+	// on this command hit and being invoked.
+	//
+	// NOTE the command-line string will be launched under the specified
+	// shell environment, if it's defined by UseShell().
+	InvokeShell(commandLine string) CommandBuilder
+	// UseShell specifies a shell environment.
+	//
+	// It should be a valid path to a shell, such as '/bin/bash',
+	// '/bin/zsh', and so on.
+	UseShell(shellPath string) CommandBuilder
+
+	//
+
+	NewCommandBuilder(longTitle string, titles ...string) CommandBuilder // starts a closure to build a new sub-command and its children
+	NewFlagBuilder(longTitle string, titles ...string) FlagBuilder       // starts a closure to build a flag
+
+	// Cmd is a shortcut to NewCommandBuilder and starts a stream building for a new sub-command
+	Cmd(longTitle string, titles ...string) CommandBuilder
+	// Flg is a shortcut to NewFlagBuilder and starts a stream building for a new flag
+	Flg(longTitle string, titles ...string) FlagBuilder
+
+	// AddCmd starts a closure to build a new sub-command and its children.
+	// After the closure invoked, Build() will be called implicitly.
+	AddCmd(func(b CommandBuilder)) CommandBuilder
+	// AddFlg starts a closure to build a flag
+	// After the closure invoked, Build() will be called implicitly.
+	AddFlg(cb func(b FlagBuilder)) CommandBuilder
+}

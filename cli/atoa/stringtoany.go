@@ -103,7 +103,7 @@ func (s *toS) parseImpl(str string, rt reflect.Type, meme any) (v any, err error
 		return
 	case encoding.TextUnmarshaler:
 		if rt.Kind() == reflect.Pointer {
-			rt = rt.Elem()
+			rt = rt.Elem() //nolint:revive
 			rv := reflect.New(rt)
 			logz.Info("rv", "rv", ref.Valfmt(&rv))
 			err = rv.Interface().(encoding.TextUnmarshaler).UnmarshalText([]byte(str))

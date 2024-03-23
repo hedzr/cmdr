@@ -4,11 +4,12 @@ import (
 	"context"
 	"os"
 
+	logz "github.com/hedzr/logg/slog"
+	"github.com/hedzr/store"
+
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/cli/atoa"
 	"github.com/hedzr/cmdr/v2/internal/tool"
-	logz "github.com/hedzr/logg/slog"
-	"github.com/hedzr/store"
 )
 
 func (w *workerS) preProcess() (err error) {

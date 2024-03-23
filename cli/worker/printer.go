@@ -160,7 +160,7 @@ func (s *helpPrinter) safeGetTermSize() (cols, rows int) {
 	return
 }
 
-func (s *helpPrinter) printHeader(sb *strings.Builder, cc *cli.Command, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unusedparams,unparam
+func (s *helpPrinter) printHeader(sb *strings.Builder, cc *cli.Command, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	// app, root := cc.App(), cc.Root()
 	// _ = app
 	line := cc.Root().Header()
@@ -169,7 +169,7 @@ func (s *helpPrinter) printHeader(sb *strings.Builder, cc *cli.Command, ctx *par
 	_, _, _ = ctx, cols, tabbedW
 }
 
-func (s *helpPrinter) printUsage(sb *strings.Builder, cc *cli.Command, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unusedparams,unparam
+func (s *helpPrinter) printUsage(sb *strings.Builder, cc *cli.Command, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	// app, root := cc.App(), cc.Root()
 	// _ = app
 	appName := cc.App().Name()
@@ -185,7 +185,7 @@ func (s *helpPrinter) printUsage(sb *strings.Builder, cc *cli.Command, ctx *pars
 	_, _, _ = ctx, cols, tabbedW
 }
 
-func (s *helpPrinter) printDesc(sb *strings.Builder, cc *cli.Command, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unusedparams,unparam
+func (s *helpPrinter) printDesc(sb *strings.Builder, cc *cli.Command, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	desc := cc.DescLong()
 	if desc != "" {
 		_, _ = sb.WriteString("\nDescription:\n\n")
@@ -196,7 +196,7 @@ func (s *helpPrinter) printDesc(sb *strings.Builder, cc *cli.Command, ctx *parse
 	_, _, _ = ctx, cols, tabbedW
 }
 
-func (s *helpPrinter) printExamples(sb *strings.Builder, cc *cli.Command, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unusedparams,unparam
+func (s *helpPrinter) printExamples(sb *strings.Builder, cc *cli.Command, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	examples := cc.Examples()
 	if examples != "" {
 		_, _ = sb.WriteString("\nExamples:\n\n")
@@ -207,7 +207,7 @@ func (s *helpPrinter) printExamples(sb *strings.Builder, cc *cli.Command, ctx *p
 	_, _, _ = ctx, cols, tabbedW
 }
 
-func (s *helpPrinter) printTailLine(sb *strings.Builder, cc *cli.Command, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unusedparams,unparam
+func (s *helpPrinter) printTailLine(sb *strings.Builder, cc *cli.Command, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	footer := strings.TrimSpace(cc.Root().Footer())
 	if footer != "" {
 		_, _ = sb.WriteString("\n")

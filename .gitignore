@@ -5,6 +5,8 @@ try*/
 bash.comp.1/
 test_try/
 man*/
+logs/
+log/
 *.1
 *.2
 *.3

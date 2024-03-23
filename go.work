@@ -2,8 +2,10 @@ go 1.21
 
 use (
 	.
-	./examples/demo
-	./examples/large
 
 	./loaders
+	./tests
+
+	./examples/demo
+	./examples/large
 )

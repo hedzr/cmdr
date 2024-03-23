@@ -3,10 +3,13 @@
 package cmdr
 
 import (
+	"os"
+
+	"github.com/hedzr/store"
+
 	"github.com/hedzr/cmdr/v2/builder"
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/cli/worker"
-	"github.com/hedzr/store"
 )
 
 // func NewOpt[T any](defaultValue ...T) config.Opt {
@@ -64,6 +67,7 @@ import (
 // It is not necessary to attach an action onto a parent command, because
 // its subcommands are the main characters - but you still can do that.
 func New(opts ...cli.Opt) cli.App {
+	_ = os.Setenv("CMDR_VERSION", Version)
 	cfg := cli.NewConfig(opts...)
 	w := worker.New(cfg)
 	return builder.New(w)

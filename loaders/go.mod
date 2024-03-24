@@ -41,7 +41,7 @@ go 1.21
 replace github.com/hedzr/cmdr/v2 => ../
 
 require (
-	github.com/hedzr/cmdr/v2 v2.0.0-20240323233435-6388a0bbbe21
+	github.com/hedzr/cmdr/v2 v2.0.0
 	github.com/hedzr/logg v0.5.13
 	github.com/hedzr/store v1.0.0
 	github.com/hedzr/store/codecs/hcl v1.0.0

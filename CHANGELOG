@@ -1,9 +1,14 @@
-initial commit
+# CHANGELOG
 
-- integrated with store.Store
-- preProcess, parse, and exec
-- help screen, external editor, try parse value, atoa subpackage
-- mutual exclusive, just once, prerequisites, circuit break
-- sbom, --config, debug info screen
 
-a (string) to any (type) - To convert a string to an exact value according to the given meme.
+- v2.0.0
+
+  initial commit
+
+    - integrated with store.Store
+    - preProcess, parse, and exec
+    - help screen, external editor, try parse value, atoa subpackage
+    - mutual exclusive, just once, prerequisites, circuit break
+    - sbom, --config, debug info screen
+    
+    a (string) to any (type) - To convert a string to an exact value according to the given meme.

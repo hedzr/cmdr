@@ -41,17 +41,17 @@ go 1.21
 replace github.com/hedzr/cmdr/v2 => ../
 
 require (
-	github.com/hedzr/cmdr/v2 v2.0.0-00010101000000-000000000000
+	github.com/hedzr/cmdr/v2 v2.0.0-20240323233435-6388a0bbbe21
 	github.com/hedzr/logg v0.5.13
-	github.com/hedzr/store v0.5.1
-	github.com/hedzr/store/codecs/hcl v0.0.0-20240309055652-9bfe2570640d
-	github.com/hedzr/store/codecs/hjson v0.0.0-20240309055652-9bfe2570640d
-	github.com/hedzr/store/codecs/json v0.0.0-20240309055652-9bfe2570640d
-	github.com/hedzr/store/codecs/nestext v0.0.0-20240309055652-9bfe2570640d
-	github.com/hedzr/store/codecs/toml v0.0.0-20240309055652-9bfe2570640d
-	github.com/hedzr/store/codecs/yaml v0.0.0-20240309055652-9bfe2570640d
-	github.com/hedzr/store/providers/env v0.0.0-20240309055652-9bfe2570640d
-	github.com/hedzr/store/providers/file v0.0.0-20240309055652-9bfe2570640d
+	github.com/hedzr/store v1.0.0
+	github.com/hedzr/store/codecs/hcl v1.0.0
+	github.com/hedzr/store/codecs/hjson v1.0.0
+	github.com/hedzr/store/codecs/json v1.0.0
+	github.com/hedzr/store/codecs/nestext v1.0.0
+	github.com/hedzr/store/codecs/toml v1.0.0
+	github.com/hedzr/store/codecs/yaml v1.0.0
+	github.com/hedzr/store/providers/env v1.0.0
+	github.com/hedzr/store/providers/file v1.0.0
 )
 
 require (
@@ -61,9 +61,9 @@ require (
 	github.com/hedzr/is v0.5.17 // indirect
 	github.com/hjson/hjson-go/v4 v4.4.0 // indirect
 	github.com/npillmayer/nestext v0.1.3 // indirect
-	github.com/pelletier/go-toml/v2 v2.1.1 // indirect
+	github.com/pelletier/go-toml/v2 v2.2.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
-	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225 // indirect
+	golang.org/x/exp v0.0.0-20240318143956-a85f2c67cd81 // indirect
 	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/term v0.18.0 // indirect

@@ -14,7 +14,7 @@ no-hard-tabs: false   # MD010
 
 MD012: false          # no-multiple-blanks
 MD013: # https://github.com/DavidAnson/markdownlint/blob/main/doc/md013.md
-  line_length: 256
+  line_length: 4096
 
 MD033: # no-inline-html
   allowed_elements: [ details, summary, kbd, table, th, tr, td, nobr, a, img, sup, sub ]

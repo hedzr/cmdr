@@ -36,4 +36,6 @@ type App interface {
 
 	Name() string    // this app name
 	Version() string // this app version
+
+	Args() []string // command-line args
 }

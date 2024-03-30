@@ -49,6 +49,7 @@ func (s *appS) Name() string           { return s.root.AppName }
 func (s *appS) Version() string        { return s.root.Version }
 func (s *appS) Worker() cli.Runner     { return s.Runner }
 func (s *appS) Root() *cli.RootCommand { return s.root }
+func (s *appS) Args() []string         { return s.args }
 
 func (s *appS) Build() {
 	if sr, ok := s.Runner.(setRoot); ok {

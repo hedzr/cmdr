@@ -26,7 +26,7 @@ go 1.21
 
 // replace github.com/hedzr/go-cabin/v2 => ../libs.cabin
 
-replace github.com/hedzr/cmdr/v2/loaders => ./loaders
+// replace github.com/hedzr/cmdr/v2/loaders => ./loaders
 
 // replace github.com/hedzr/store/codecs/hcl => ../libs.store/codecs/hcl
 
@@ -53,7 +53,6 @@ replace github.com/hedzr/cmdr/v2/loaders => ./loaders
 // replace github.com/hedzr/store/providers/maps => ../libs.store/providers/maps
 
 require (
-	github.com/hedzr/cmdr/v2/loaders v0.0.0-00010101000000-000000000000
 	github.com/hedzr/evendeep v1.1.7
 	github.com/hedzr/is v0.5.18
 	github.com/hedzr/logg v0.5.18

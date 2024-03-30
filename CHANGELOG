@@ -1,14 +1,19 @@
 # CHANGELOG
 
+- v2.0.1
+
+  - fix/improve map -> struct, from hedzr/store
+  - more tests, more docs
+  - slight corrections
 
 - v2.0.0
 
   initial commit
 
-    - integrated with store.Store
-    - preProcess, parse, and exec
-    - help screen, external editor, try parse value, atoa subpackage
-    - mutual exclusive, just once, prerequisites, circuit break
-    - sbom, --config, debug info screen
-    
+  - integrated with store.Store
+  - preProcess, parse, and exec
+  - help screen, external editor, try parse value, atoa subpackage
+  - mutual exclusive, just once, prerequisites, circuit break
+  - sbom, --config, debug info screen
+
     a (string) to any (type) - To convert a string to an exact value according to the given meme.

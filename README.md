@@ -23,9 +23,9 @@ There are many dirty codes in the cmdr.v1 which cannot be refactored as well. It
 The passing winter, we did rewrite the cmdr.v2 to keep it clean and absorbed in parsing and dispatching.
 Some abilities were removed and relayouted to new modules.
 That's why the `Option Store` has been split as a standalone module [hedzr/store](https://github.com/hedzr/store)[^1].
-A faster and colorful slog-like logger has been implemented freshly as [hedzr/logg](https://github.com/hedzr/logg).
-[hedzr/evendeep](https://github.com/hedzr/evendeep) provides a deep fully-functional object copy tool. It helps to deep copy some internal objects easily. It is also ready for you.
-[hedzr/is](https://github.com/hedzr/is) is an environment detecting framework with many out-of-the-box detectors, such as `is.InTesting` and `is.InDebugging`.
+A faster and colorful slog-like logger has been implemented freshly as [hedzr/logg](https://github.com/hedzr/logg)[^3].
+[hedzr/evendeep](https://github.com/hedzr/evendeep)[^2] provides a deep fully-functional object copy tool. It helps to deep copy some internal objects easily. It is also ready for you.
+[hedzr/is](https://github.com/hedzr/is)[^4] is an environment detecting framework with many out-of-the-box detectors, such as `is.InTesting` and `is.InDebugging`.
 
 Anyway, the whole supply chain painted:
 
@@ -95,6 +95,9 @@ v2 is in earlier state but the baseline is stable:
 
 
 [^1]: `hedzr/store` is a high-performance configure management library
+[^2]: `hedzr/evendeep` offers a customizable deepcopy tool to you. There are also deepequal, deepdiff tools in it.
+[^3]: `hedzr/logg` provides a slog like and colorful logging library
+[^4]: `hedzr/is` is a basic environ detectors library
 
 More minor details need to be evaluated and reimplemented if it's still meaningful in v2.
 
@@ -102,6 +105,10 @@ More minor details need to be evaluated and reimplemented if it's still meaningf
 
 v2 is staying in earlier state:
 
+- Latest: v2.0.1
+  - following our direct dependencies to fix/improve map -> struct converter so that we can:
+    - improved the performance `GetSectionFrom`
+    - remove direct dep to yåml.v3, so we haven't any 3rd-party direct deps now, in the main module.
 - Full list: [CHANGELOG](https://github.com/hedzr/cmdr/blob/master/CHANGELOG)
 
 ## Guide

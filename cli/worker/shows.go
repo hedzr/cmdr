@@ -3,9 +3,10 @@ package worker
 import (
 	"gopkg.in/hedzr/errors.v3"
 
+	logz "github.com/hedzr/logg/slog"
+
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/internal/hs"
-	logz "github.com/hedzr/logg/slog"
 )
 
 func (w *workerS) showVersion(ctx *parseCtx, lastCmd *cli.Command) (err error) { //nolint:revive,unused

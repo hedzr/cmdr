@@ -7,9 +7,10 @@ import (
 
 	"gopkg.in/hedzr/errors.v3"
 
-	"github.com/hedzr/cmdr/v2/conf"
 	"github.com/hedzr/is/term/color"
 	"github.com/hedzr/store"
+
+	"github.com/hedzr/cmdr/v2/conf"
 )
 
 func (c *BaseOpt) errIsSignalFallback(err error) bool {

@@ -7,9 +7,10 @@ import (
 
 	errorsv3 "gopkg.in/hedzr/errors.v3"
 
+	"github.com/hedzr/store"
+
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/loaders"
-	"github.com/hedzr/store"
 )
 
 func TestWorkerS_Pre(t *testing.T) {
@@ -27,14 +28,16 @@ func TestWorkerS_Pre(t *testing.T) {
 
 	ww.setArgs([]string{"--debug"})
 	ww.Config.Store = store.New()
-	ww.Loaders = []cli.Loader{loaders.NewConfigFileLoader(), loaders.NewEnvVarLoader()}
+	// ww.Loaders = []cli.Loader{loaders.NewConfigFileLoader(), loaders.NewEnvVarLoader()}
 	_ = app
 
-	err := ww.Run(withTasksBeforeParse(func(root *cli.RootCommand, runner cli.Runner) (err error) { //nolint:revive
-		root.SelfAssert()
-		t.Logf("root.SelfAssert() passed.")
-		return
-	}))
+	err := ww.Run(
+		withTasksBeforeParse(func(root *cli.RootCommand, runner cli.Runner) (err error) { //nolint:revive
+			root.SelfAssert()
+			t.Logf("root.SelfAssert() passed.")
+			return
+		}),
+	)
 	if err != nil {
 		t.Fatal(err)
 	}

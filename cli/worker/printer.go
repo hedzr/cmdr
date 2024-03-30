@@ -7,12 +7,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hedzr/cmdr/v2/cli"
-	"github.com/hedzr/cmdr/v2/pkg/exec"
 	"github.com/hedzr/is/states"
 	"github.com/hedzr/is/term"
 	"github.com/hedzr/is/term/color"
 	logz "github.com/hedzr/logg/slog"
+
+	"github.com/hedzr/cmdr/v2/cli"
+	"github.com/hedzr/cmdr/v2/pkg/exec"
 )
 
 type discardP struct{}

@@ -8,8 +8,6 @@ import (
 
 	logz "github.com/hedzr/logg/slog"
 
-	"github.com/hedzr/cmdr/v2/cli"
-	"github.com/hedzr/cmdr/v2/pkg/dir"
 	"github.com/hedzr/store"
 	"github.com/hedzr/store/codecs/hcl"
 	"github.com/hedzr/store/codecs/hjson"
@@ -18,6 +16,9 @@ import (
 	"github.com/hedzr/store/codecs/toml"
 	"github.com/hedzr/store/codecs/yaml"
 	"github.com/hedzr/store/providers/file"
+
+	"github.com/hedzr/cmdr/v2/cli"
+	"github.com/hedzr/cmdr/v2/pkg/dir"
 )
 
 const confSubFolderName = "conf.d"

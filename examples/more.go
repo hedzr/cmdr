@@ -6,12 +6,13 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/hedzr/cmdr/v2/cli"
-	"github.com/hedzr/cmdr/v2/pkg/dir"
-	"github.com/hedzr/cmdr/v2/pkg/text"
 	"github.com/hedzr/is"
 	"github.com/hedzr/is/term"
 	logz "github.com/hedzr/logg/slog" //nolint:gci
+
+	"github.com/hedzr/cmdr/v2/cli"
+	"github.com/hedzr/cmdr/v2/pkg/dir"
+	"github.com/hedzr/cmdr/v2/pkg/text"
 )
 
 func AttachServerCommand(parent cli.CommandBuilder) { //nolint:revive

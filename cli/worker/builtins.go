@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/is/states"
 	logz "github.com/hedzr/logg/slog"
+
+	"github.com/hedzr/cmdr/v2/cli"
 )
 
 func (w *workerS) addBuiltinCommands(root *cli.RootCommand) (err error) { //nolint:unparam //unified form

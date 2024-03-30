@@ -6,8 +6,9 @@ import (
 	"io"
 	"time"
 
-	"github.com/hedzr/cmdr/v2/conf"
 	"github.com/hedzr/store"
+
+	"github.com/hedzr/cmdr/v2/conf"
 )
 
 func rootCmdForTesting() (root *RootCommand) { //nolint:funlen,revive //for test
@@ -1061,6 +1062,7 @@ func (s *appS) Name() string       { return s.root.AppName }
 func (s *appS) Version() string    { return s.root.Version }
 func (s *appS) Worker() Runner     { return s.Runner }
 func (s *appS) Root() *RootCommand { return s.root }
+func (s *appS) Args() []string     { return s.args }
 
 func (s *appS) ensureNewApp() App { //nolint:unparam
 	if s.root == nil {

@@ -6,8 +6,9 @@ import (
 
 	errorsv3 "gopkg.in/hedzr/errors.v3"
 
-	"github.com/hedzr/cmdr/v2/cli"
 	logz "github.com/hedzr/logg/slog"
+
+	"github.com/hedzr/cmdr/v2/cli"
 )
 
 func (w *workerS) exec(ctx *parseCtx) (err error) {

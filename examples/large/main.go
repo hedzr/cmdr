@@ -1,12 +1,13 @@
 package main
 
 import (
+	logz "github.com/hedzr/logg/slog"
+	"github.com/hedzr/store"
+
 	"github.com/hedzr/cmdr/v2"
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/examples"
 	"github.com/hedzr/cmdr/v2/loaders"
-	logz "github.com/hedzr/logg/slog"
-	"github.com/hedzr/store"
 )
 
 func main() {

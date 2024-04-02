@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hedzr/store"
+	errorsv3 "gopkg.in/hedzr/errors.v3"
 
 	"github.com/hedzr/cmdr/v2/conf"
 )
@@ -929,11 +930,12 @@ type workerS struct {
 
 func (w *workerS) InitGlobally()                  {}
 func (w *workerS) Ready() bool                    { return true }
-func (w *workerS) DumpErrors(wr io.Writer)        {} //nolint:revive
-func (w *workerS) Store() store.Store             { return w.store }
-func (w *workerS) Run(opts ...Opt) (err error)    { return } //nolint:revive
-func (w *workerS) Actions() (ret map[string]bool) { return } //nolint:revive
-func (w *workerS) Name() string                   { return "for-test" }
+func (w *workerS) DumpErrors(wr io.Writer)        {}                    //nolint:revive
+func (w *workerS) Error() errorsv3.Error          { return nil }        //nolint:revive
+func (w *workerS) Store() store.Store             { return w.store }    //
+func (w *workerS) Run(opts ...Opt) (err error)    { return }            //nolint:revive
+func (w *workerS) Actions() (ret map[string]bool) { return }            //nolint:revive
+func (w *workerS) Name() string                   { return "for-test" } //
 func (*workerS) Version() string                  { return "v0.0.0" }
 func (*workerS) Root() *RootCommand               { return nil }
 

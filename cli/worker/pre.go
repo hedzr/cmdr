@@ -187,6 +187,7 @@ func (w *workerS) xrefCommands(cmd *cli.RootCommand, cb ...func(cc *cli.Command,
 // 	}
 // }
 
-func (w *workerS) postProcess() (err error) {
+func (w *workerS) postProcess(ctx *parseCtx) (err error) {
+	_ = ctx
 	return
 }

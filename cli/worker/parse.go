@@ -10,11 +10,16 @@ import (
 	"github.com/hedzr/cmdr/v2/cli"
 )
 
+func (w *workerS) SetTasksAfterParse(tasks ...taskAfterParse) {
+	w.tasksAfterParse = append(w.tasksAfterParse, tasks...)
+}
+
 func (w *workerS) parse(ctx *parseCtx) (err error) { //nolint:revive
+	ec := errorsv3.New("tasks failed")
+	defer ec.Defer(&err)
+
 	defer func() {
 		if len(w.tasksAfterParse) > 0 {
-			ec := errorsv3.New("tasks failed")
-			defer ec.Defer(&err)
 			for _, task := range w.tasksAfterParse {
 				if task != nil {
 					ec.Attach(task(w, ctx, err))

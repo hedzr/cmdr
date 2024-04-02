@@ -15,6 +15,11 @@ func New(w cli.Runner) cli.App {
 		root:   newDefaultRoot(),
 		args:   os.Args,
 	}
+	if x, ok := w.(interface{ Args() []string }); ok {
+		if args := x.Args(); args != nil {
+			b.args = args
+		}
+	}
 	return b
 }
 

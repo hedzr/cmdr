@@ -1,8 +1,6 @@
 package worker
 
 import (
-	"fmt"
-	"reflect"
 	"sync/atomic"
 
 	"github.com/hedzr/cmdr/v2/cli"
@@ -29,6 +27,37 @@ type parseCtx struct {
 	singleHyphenMatched   int32                            // >0: index of '-'
 	prefixPlusSign        atomic.Bool                      // '+' leading
 	// helpScreen            bool
+}
+
+func (s *parseCtx) CommandMatchedState(c *cli.Command) (ms *cli.MatchState) {
+	if m, ok := s.matchedCommandsStates[c]; ok {
+		return m
+	}
+	return nil
+}
+
+func (s *parseCtx) FlagMatchedState(f *cli.Flag) (ms *cli.MatchState) {
+	if m, ok := s.matchedFlags[f]; ok {
+		return m
+	}
+	return nil
+}
+
+func (s *parseCtx) MatchedCommand(longTitle string) (cc *cli.Command) {
+	for _, cc = range s.matchedCommands {
+		if cc.Long == longTitle {
+			return cc
+		}
+	}
+	return nil
+}
+
+func (s *parseCtx) MatchedFlag(longTitle string) (ff *cli.Flag) {
+	ff = s.flag(longTitle)
+	if _, ok := s.matchedFlags[ff]; ok {
+		return ff
+	}
+	return nil
 }
 
 func (s *parseCtx) addCmd(cc *cli.Command, short bool) (ms *cli.MatchState) {
@@ -68,30 +97,6 @@ func (s *parseCtx) addFlag(ff *cli.Flag) (ms *cli.MatchState) {
 		s.matchedFlags[ff] = ms
 	}
 	return
-}
-
-func (s *parseCtx) argsAre(list ...string) {
-	if !reflect.DeepEqual(s.positionalArgs, list) {
-		panic(fmt.Sprintf("expect positional args are %v but got %v (for cmd %v)", list, s.positionalArgs, s.LastCmd()))
-	}
-}
-
-func (s *parseCtx) hitTest(longTitle string, times int) {
-	cc := s.LastCmd()
-	if f := cc.FindFlagBackwards(longTitle); f == nil {
-		panic(fmt.Sprintf("can't found flag: %q", longTitle))
-	} else if f.GetTriggeredTimes() != times {
-		panic(fmt.Sprintf("expect hit times is %d but got %d (for flag %v)", times, f.GetTriggeredTimes(), f))
-	}
-}
-
-func (s *parseCtx) valTest(longTitle string, val any) {
-	cc := s.LastCmd()
-	if f := cc.FindFlagBackwards(longTitle); f == nil {
-		panic(fmt.Sprintf("can't found flag: %q", longTitle))
-	} else if !reflect.DeepEqual(f.DefaultValue(), val) {
-		panic(fmt.Sprintf("expect flag's value is '%v' but got '%v' (for flag %v)", val, f.DefaultValue(), f))
-	}
 }
 
 func (s *parseCtx) flag(longTitle string) (f *cli.Flag) { //nolint:unused

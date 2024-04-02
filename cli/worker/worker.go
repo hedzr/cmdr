@@ -207,6 +207,11 @@ func (w *workerS) DumpErrors(wr io.Writer) {
 	_, _ = wr.Write([]byte(w.errs.Error()))
 }
 
+func (w *workerS) Error() (err errors.Error) {
+	err = w.errs
+	return
+}
+
 func (w *workerS) SetRoot(root *cli.RootCommand, args []string) {
 	// trigger the Ready signal
 	if w.reqRootCmdReady() {
@@ -308,6 +313,7 @@ func (w *workerS) errIsSignalFallback(err error) bool {
 }
 
 func (w *workerS) setArgs(args []string) { w.args = args }
+func (w *workerS) Args() (args []string) { return w.args }
 
 func (w *workerS) Run(opts ...cli.Opt) (err error) {
 	for _, opt := range opts {
@@ -327,27 +333,28 @@ func (w *workerS) Run(opts ...cli.Opt) (err error) {
 
 	ctx := parseCtx{root: w.root, forceDefaultAction: w.ForceDefaultAction}
 
-	if w.invokeTasks(w.errs, w.Config.TasksBeforeParse...) ||
+	if w.invokeTasks(&ctx, w.errs, w.Config.TasksBeforeParse...) ||
 		w.attachError(w.parse(&ctx)) ||
-		w.invokeTasks(w.errs, w.Config.TasksBeforeRun...) ||
+		w.invokeTasks(&ctx, w.errs, w.Config.TasksBeforeRun...) ||
 		w.attachError(w.exec(&ctx)) {
 		// any errors occurred
 		return
 	}
 
-	w.attachError(w.postProcess())
+	w.attachError(w.postProcess(&ctx))
 	return
 }
 
-func (w *workerS) invokeTasks(errs errors.Error, tasks ...cli.Task) (ret bool) {
+func (w *workerS) invokeTasks(ctx *parseCtx, errs errors.Error, tasks ...cli.Task) (ret bool) {
 	for _, tsk := range tasks {
 		if tsk != nil {
-			if err := tsk(w.root, w); err != nil {
+			if err := tsk(w.root, w, ctx); err != nil {
 				ret = true
 				errs.Attach(err)
 			}
 		}
 	}
+	_ = ctx
 	return
 }
 

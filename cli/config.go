@@ -4,6 +4,7 @@ import (
 	"io"
 
 	"github.com/hedzr/store"
+	"gopkg.in/hedzr/errors.v3"
 )
 
 func NewConfig(opts ...Opt) *Config {
@@ -42,6 +43,8 @@ type Runner interface {
 	Ready() bool                 // the Runner is built and ready for Run?
 	Run(opts ...Opt) (err error) // Run enter the main entry
 	DumpErrors(wr io.Writer)     // prints the errors
+
+	Error() errors.Error // return the collected errors in parsing args and invoke actions
 
 	Store() store.Store // app settings store, config set
 	Name() string       // app name

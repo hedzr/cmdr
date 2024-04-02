@@ -1,6 +1,8 @@
 package worker
 
 import (
+	"fmt"
+	"reflect"
 	"regexp"
 	"strings"
 	"testing"
@@ -10,7 +12,6 @@ import (
 	"github.com/hedzr/store"
 
 	"github.com/hedzr/cmdr/v2/cli"
-	"github.com/hedzr/cmdr/v2/loaders"
 )
 
 func TestWorkerS_Pre(t *testing.T) {
@@ -32,7 +33,7 @@ func TestWorkerS_Pre(t *testing.T) {
 	_ = app
 
 	err := ww.Run(
-		withTasksBeforeParse(func(root *cli.RootCommand, runner cli.Runner) (err error) { //nolint:revive
+		withTasksBeforeParse(func(root *cli.RootCommand, runner cli.Runner, extras ...any) (err error) { //nolint:revive
 			root.SelfAssert()
 			t.Logf("root.SelfAssert() passed.")
 			return
@@ -48,7 +49,7 @@ func TestWorkerS_Pre_v1(t *testing.T) {
 
 	ww.setArgs([]string{"--debug", "-v"})
 	ww.Config.Store = store.New()
-	ww.Loaders = []cli.Loader{loaders.NewConfigFileLoader(), loaders.NewEnvVarLoader()}
+	// ww.Loaders = []cli.Loader{loaders.NewConfigFileLoader(), loaders.NewEnvVarLoader()}
 	_ = app
 
 	err := ww.Run()
@@ -62,7 +63,7 @@ func TestWorkerS_Pre_v3(t *testing.T) {
 
 	ww.setArgs([]string{"--debug", "-vv", "--verbose"})
 	ww.Config.Store = store.New()
-	ww.Loaders = []cli.Loader{loaders.NewConfigFileLoader(), loaders.NewEnvVarLoader()}
+	// ww.Loaders = []cli.Loader{loaders.NewConfigFileLoader(), loaders.NewEnvVarLoader()}
 	_ = app
 
 	err := ww.Run()
@@ -72,13 +73,13 @@ func TestWorkerS_Pre_v3(t *testing.T) {
 }
 
 func TestWorkerS_Parse(t *testing.T) { //nolint:revive
-	aTaskBeforeRun := func(root *cli.RootCommand, runner cli.Runner) (err error) { return } //nolint:revive
+	aTaskBeforeRun := func(root *cli.RootCommand, runner cli.Runner, extras ...any) (err error) { return } //nolint:revive
+
 	for i, c := range []struct {
 		args     string
 		verifier taskAfterParse
 		opts     []cli.Opt
 	}{
-		{},
 		{args: "m unk snd cool", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
 			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {
 				t.Log("expect 'UNKNOWN Command FOUND' error, but not matched.") // "unk"
@@ -90,25 +91,25 @@ func TestWorkerS_Parse(t *testing.T) { //nolint:revive
 			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {
 				t.Log("expect 'UNKNOWN Flag FOUND' error, but not matched.") // "--pp"
 			}
-			ctx.hitTest("dry-run", 2)
-			ctx.hitTest("wet-run", 1)
-			ctx.argsAre("cool", "fog")
+			hitTest(ctx, "dry-run", 2)
+			hitTest(ctx, "wet-run", 1)
+			argsAre(ctx, "cool", "fog")
 			return nil /* errParsed */
 		}},
 
 		// general commands and flags
 		{args: "jump to --full -f --dry-run", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
-			ctx.hitTest("full", 2)
-			ctx.hitTest("dry-run", 1)
+			hitTest(ctx, "full", 2)
+			hitTest(ctx, "dry-run", 1)
 			return errParsed
 		}},
 		// compact flags
 		{args: "-qvqDq gen --debug sh --zsh -b -Dwmann --dry-run", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
-			ctx.hitTest("quiet", 3)
-			ctx.hitTest("debug", 3)
-			ctx.hitTest("verbose", 1)
-			ctx.hitTest("wet-run", 1)
-			ctx.hitTest("dry-run", 2)
+			hitTest(ctx, "quiet", 3)
+			hitTest(ctx, "debug", 3)
+			hitTest(ctx, "verbose", 1)
+			hitTest(ctx, "wet-run", 1)
+			hitTest(ctx, "dry-run", 2)
 			return errParsed
 		}},
 
@@ -124,18 +125,18 @@ func TestWorkerS_Parse(t *testing.T) { //nolint:revive
 			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {
 				t.Log("expect 'UNKNOWN Flag FOUND' error, but not matched.") // "--pp"
 			}
-			ctx.hitTest("dry-run", 2)
-			ctx.hitTest("wet-run", 1)
-			ctx.argsAre("cool", "fog")
+			hitTest(ctx, "dry-run", 2)
+			hitTest(ctx, "wet-run", 1)
+			argsAre(ctx, "cool", "fog")
 			return nil /* errParsed */
 		}},
 
 		// headLike
 		{args: "server start -f -129", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
-			ctx.hitTest("foreground", 1)
-			ctx.hitTest("head", 1)
-			ctx.hitTest("tail", 0)
-			ctx.valTest("head", 129) //nolint:revive
+			hitTest(ctx, "foreground", 1)
+			hitTest(ctx, "head", 1)
+			hitTest(ctx, "tail", 0)
+			valTest(ctx, "head", 129) //nolint:revive
 			return errParsed
 		}},
 
@@ -149,29 +150,29 @@ func TestWorkerS_Parse(t *testing.T) { //nolint:revive
 
 		// valid args
 		{args: "server start -e apple -e zig", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
-			ctx.valTest("enum", "zig")
+			valTest(ctx, "enum", "zig")
 			return errParsed
 		}},
 
 		// parsing slice (-cr foo,bar,noz), compact flag with value (-mmt3)
 		{args: "ms t modify -2 -cr foo,bar,noz -nfool -mmi3", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
-			ctx.hitTest("money", 1)
-			ctx.valTest("both", true)
-			ctx.valTest("clear", true)
-			ctx.valTest("name", "fool")
-			ctx.valTest("id", "3")
-			ctx.valTest("remove", []string{"foo", "bar", "noz"})
+			hitTest(ctx, "money", 1)
+			valTest(ctx, "both", true)
+			valTest(ctx, "clear", true)
+			valTest(ctx, "name", "fool")
+			valTest(ctx, "id", "3")
+			valTest(ctx, "remove", []string{"foo", "bar", "noz"})
 			return errParsed
 		}},
 
 		// parsing slice (-cr foo,bar,noz), compact flag with value (-mmt3)
 		// merge/append to slice
 		{args: "ms t modify -2 -cr foo,bar,noz -n fool -mmr 1", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
-			ctx.hitTest("money", 1)
-			ctx.valTest("both", true)
-			ctx.valTest("clear", true)
-			ctx.valTest("name", "fool")
-			ctx.valTest("remove", []string{"foo", "bar", "noz", "1"})
+			hitTest(ctx, "money", 1)
+			valTest(ctx, "both", true)
+			valTest(ctx, "clear", true)
+			valTest(ctx, "name", "fool")
+			valTest(ctx, "remove", []string{"foo", "bar", "noz", "1"})
 			return errParsed
 		}},
 
@@ -195,11 +196,11 @@ func TestWorkerS_Parse(t *testing.T) { //nolint:revive
 		}},
 
 		{args: "ms t t -K -2 -cun foo,bar,noz", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
-			ctx.hitTest("insecure", 1)
-			ctx.valTest("insecure", true)
-			ctx.valTest("both", true)
-			ctx.valTest("clear", true)
-			ctx.valTest("unset", []string{"foo", "bar", "noz"})
+			hitTest(ctx, "insecure", 1)
+			valTest(ctx, "insecure", true)
+			valTest(ctx, "both", true)
+			valTest(ctx, "clear", true)
+			valTest(ctx, "unset", []string{"foo", "bar", "noz"})
 			return errParsed
 		}},
 
@@ -221,7 +222,7 @@ func TestWorkerS_Parse(t *testing.T) { //nolint:revive
 
 		app, ww := cleanApp(t, false)
 		ww.Config.Store = store.New()
-		ww.Config.Loaders = []cli.Loader{loaders.NewConfigFileLoader(), loaders.NewEnvVarLoader()}
+		// ww.Config.Loaders = []cli.Loader{loaders.NewConfigFileLoader(), loaders.NewEnvVarLoader()}
 
 		ww.setArgs(append([]string{app.Name()}, strings.Split(c.args, " ")...))
 		ww.tasksAfterParse = []taskAfterParse{c.verifier}
@@ -232,6 +233,30 @@ func TestWorkerS_Parse(t *testing.T) { //nolint:revive
 			_ = app
 			t.Fatal(err)
 		}
+	}
+}
+
+func argsAre(s *parseCtx, list ...string) {
+	if !reflect.DeepEqual(s.positionalArgs, list) {
+		panic(fmt.Sprintf("expect positional args are %v but got %v (for cmd %v)", list, s.positionalArgs, s.LastCmd()))
+	}
+}
+
+func hitTest(s *parseCtx, longTitle string, times int) {
+	cc := s.LastCmd()
+	if f := cc.FindFlagBackwards(longTitle); f == nil {
+		panic(fmt.Sprintf("can't found flag: %q", longTitle))
+	} else if f.GetTriggeredTimes() != times {
+		panic(fmt.Sprintf("expect hit times is %d but got %d (for flag %v)", times, f.GetTriggeredTimes(), f))
+	}
+}
+
+func valTest(s *parseCtx, longTitle string, val any) {
+	cc := s.LastCmd()
+	if f := cc.FindFlagBackwards(longTitle); f == nil {
+		panic(fmt.Sprintf("can't found flag: %q", longTitle))
+	} else if !reflect.DeepEqual(f.DefaultValue(), val) {
+		panic(fmt.Sprintf("expect flag's value is '%v' but got '%v' (for flag %v)", val, f.DefaultValue(), f))
 	}
 }
 

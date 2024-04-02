@@ -2,7 +2,7 @@ module github.com/hedzr/cmdr/v2
 
 go 1.21
 
-//  github.com/hedzr/cmdr/v2 => ../cmdr.v3
+// github.com/hedzr/cmdr/v2 => ../cmdr.v3
 
 // replace gopkg.in/hedzr/errors.v3 => ../../24/libs.errors
 
@@ -63,21 +63,7 @@ require (
 )
 
 require (
-	github.com/fsnotify/fsnotify v1.7.0 // indirect
-	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/hedzr/store/codecs/hcl v1.0.3 // indirect
-	github.com/hedzr/store/codecs/hjson v1.0.3 // indirect
-	github.com/hedzr/store/codecs/json v1.0.3 // indirect
-	github.com/hedzr/store/codecs/nestext v1.0.3 // indirect
-	github.com/hedzr/store/codecs/toml v1.0.3 // indirect
-	github.com/hedzr/store/codecs/yaml v1.0.3 // indirect
-	github.com/hedzr/store/providers/env v1.0.3 // indirect
-	github.com/hedzr/store/providers/file v1.0.3 // indirect
-	github.com/hjson/hjson-go/v4 v4.4.0 // indirect
-	github.com/npillmayer/nestext v0.1.3 // indirect
-	github.com/pelletier/go-toml/v2 v2.2.0 // indirect
 	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/term v0.18.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

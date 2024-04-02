@@ -1,5 +1,10 @@
 # CHANGELOG
 
+- v2.0.2
+
+  - remove dep to loaders/, this will reduce more 3rd-party libs deps from main module
+  - more tunes for APIs
+
 - v2.0.1
 
   - fix/improve map -> struct, from hedzr/store

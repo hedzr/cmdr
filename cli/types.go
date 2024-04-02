@@ -26,7 +26,7 @@ const (
 	ExternalToolPasswordInput = "PASSWD"
 )
 
-type Task func(root *RootCommand, runner Runner) (err error)
+type Task func(root *RootCommand, runner Runner, extras ...any) (err error)
 
 type Loader interface {
 	Load(app App) (err error)

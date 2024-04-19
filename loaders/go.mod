@@ -52,6 +52,7 @@ require (
 	github.com/hedzr/store/codecs/yaml v1.0.3
 	github.com/hedzr/store/providers/env v1.0.3
 	github.com/hedzr/store/providers/file v1.0.3
+	gopkg.in/hedzr/errors.v3 v3.3.2
 )
 
 require (
@@ -64,9 +65,8 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/exp v0.0.0-20240325151524-a685a6edb6d8 // indirect
-	golang.org/x/net v0.22.0 // indirect
+	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/term v0.18.0 // indirect
-	gopkg.in/hedzr/errors.v3 v3.3.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

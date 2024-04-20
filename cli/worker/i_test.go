@@ -7,7 +7,7 @@ import (
 
 	"github.com/hedzr/cmdr/v2/builder"
 	"github.com/hedzr/cmdr/v2/cli"
-	"github.com/hedzr/cmdr/v2/examples"
+	"github.com/hedzr/cmdr/v2/cli/examples"
 )
 
 func cleanApp(t *testing.T, helpScreen bool) (app cli.App, ww *workerS) { //nolint:revive

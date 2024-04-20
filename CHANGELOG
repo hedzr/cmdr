@@ -1,5 +1,12 @@
 # CHANGELOG
 
+- v2.0.3
+
+  - split loaders as a standalone repo
+  - split examples and tests to standalone
+  - update deps
+  - fix bugs
+
 - v2.0.2
 
   - remove dep to loaders/, this will reduce more 3rd-party libs deps from main module

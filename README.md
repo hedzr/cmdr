@@ -111,10 +111,13 @@ More minor details need to be evaluated and reimplemented if it's still meaningf
 
 v2 is staying in earlier state:
 
-- Latest: v2.0.1
-  - following our direct dependencies to fix/improve map -> struct converter so that we can:
-    - improved the performance `GetSectionFrom`
-    - remove direct dep to yåml.v3, so we haven't any 3rd-party direct deps now, in the main module.
+- Latest: v2.0.3
+
+  - split loaders as a standalone repo
+  - split examples and tests to standalone
+  - update deps
+  - fix bugs
+
 - Full list: [CHANGELOG](https://github.com/hedzr/cmdr/blob/master/CHANGELOG)
 
 ## Guide

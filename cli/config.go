@@ -3,8 +3,9 @@ package cli
 import (
 	"io"
 
-	"github.com/hedzr/store"
 	"gopkg.in/hedzr/errors.v3"
+
+	"github.com/hedzr/store"
 )
 
 func NewConfig(opts ...Opt) *Config {

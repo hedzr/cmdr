@@ -99,7 +99,6 @@ v2 is in earlier state but the baseline is stable:
   - Shell autocompletion
   - ...
 
-
 [^1]: `hedzr/store` is a high-performance configure management library
 [^2]: `hedzr/evendeep` offers a customizable deepcopy tool to you. There are also deepequal, deepdiff tools in it.
 [^3]: `hedzr/logg` provides a slog like and colorful logging library
@@ -107,7 +106,8 @@ v2 is in earlier state but the baseline is stable:
 
 More minor details need to be evaluated and reimplemented if it's still meaningful in v2.
 
-Since v2.0.3, loaders had been splitted as a standalone repo so that we can keep cmdr v2 smaller and independer. See the relevant subproject [cmdr-loaders](https://github.com/hedzr/cmdr-loaders).
+Since v2.0.3, loaders had been splitted as a standalone repo so that we can keep cmdr v2 smaller and independer. See the
+relevant subproject [cmdr-loaders](https://github.com/hedzr/cmdr-loaders).
 
 ## History
 
@@ -207,8 +207,6 @@ func prepareApp() (app cli.App) {
 	return
 }
 ```
-
-
 
 ## Thanks to JODL
 

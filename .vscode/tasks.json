@@ -1,0 +1,88 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "go",
+      "label": "go: test package",
+      "command": "test",
+      "args": ["${fileDirname}"],
+      "problemMatcher": ["$go"],
+      "group": "test",
+      "detail": "cd ${workspaceFolder}; go test ${fileDirname}"
+    },
+    {
+      "type": "go",
+      "label": "go: build package",
+      "command": "build",
+      "args": ["${fileDirname}"],
+      "problemMatcher": ["$go"],
+      "group": "build",
+      "detail": "cd ${workspaceFolder}; go build ${fileDirname}"
+    },
+    {
+      "type": "go",
+      "label": "go: test workspace",
+      "command": "test",
+      "args": ["./..."],
+      "problemMatcher": ["$go"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "detail": "cd ${workspaceFolder}; go test ./..."
+    },
+
+    {
+      "type": "shell",
+      "label": "go: install",
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "command": "go",
+      "args": ["install", "-v", "./..."],
+      "problemMatcher": ["$go"],
+      "detail": "cd ${workspaceFolder}; go install ./..."
+    },
+    {
+      "type": "shell",
+      "label": "go: run",
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "command": "go",
+      "args": ["run", "-v", "${file}"],
+      "problemMatcher": ["$go"],
+      "detail": "cd ${workspaceFolder}; go run ${file}"
+    },
+
+    {
+      "type": "shell",
+      "label": "go: update modules",
+      // "command": "pwd",
+      "command": "go",
+      "args": ["get", "-v", "-t", "-u", "./..."],
+      "options": {
+        "cwd": "${workspaceRoot}",
+        "env": {
+          // "HTTPS_PROXY": "http://127.0.0.1:7890"
+        }
+      },
+      "group": "build",
+      "detail": "cd ${workspaceFolder}; go get -v -t -u ./..."
+    },
+    {
+      "type": "shell",
+      "label": "go: mod tidy with update",
+      // "key": "ctrl+cmd+u",
+      "command": "go",
+      "args": ["mod", "tidy", "-v"],
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      // "problemMatcher": ["$go"],
+      "group": "build",
+      "dependsOn": ["go: update modules"],
+      "detail": "cd ${workspaceFolder}; go get -v -t -u ./... && go mod tidy"
+    }
+  ]
+}

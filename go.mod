@@ -1,6 +1,8 @@
 module github.com/hedzr/cmdr/v2
 
-go 1.21
+go 1.22.0
+
+toolchain go1.23.1
 
 // github.com/hedzr/cmdr/v2 => ../cmdr.v3
 
@@ -53,17 +55,17 @@ go 1.21
 // replace github.com/hedzr/store/providers/maps => ../libs.store/providers/maps
 
 require (
-	github.com/hedzr/evendeep v1.1.10
-	github.com/hedzr/is v0.5.19
-	github.com/hedzr/logg v0.5.20
-	github.com/hedzr/store v1.0.7
-	golang.org/x/crypto v0.22.0
-	golang.org/x/exp v0.0.0-20240416160154-fe59bbe5cc7f
+	github.com/hedzr/evendeep v1.1.15
+	github.com/hedzr/is v0.5.23
+	github.com/hedzr/logg v0.5.23
+	github.com/hedzr/store v1.0.15
+	golang.org/x/crypto v0.27.0
+	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0
 	gopkg.in/hedzr/errors.v3 v3.3.2
 )
 
 require (
-	golang.org/x/net v0.24.0 // indirect
-	golang.org/x/sys v0.19.0 // indirect
-	golang.org/x/term v0.19.0 // indirect
+	golang.org/x/net v0.29.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/term v0.24.0 // indirect
 )

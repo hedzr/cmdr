@@ -10,14 +10,14 @@
 [![Coverage Status](https://coveralls.io/repos/github/hedzr/cmdr/badge.svg?branch=master)](https://coveralls.io/github/hedzr/cmdr?branch=master)-->
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go#command-line)
 
-> Unstable v2:
-> Working in progress, the main API might be stable till v2.1.0 
+> **Unstable v2**:
+> Working in progress, the main API might be stable till v2.1.0
 
 `cmdr` is a POSIX-compliant, command-line argument parser library with Golang.
 
 Since v2, our license moved to Apache 2.0.
 
-![ee99d078e2f7](https://user-images.githubusercontent.com/12786150/72876202-f49ee500-3d30-11ea-9de0-434bf8decf90.gif)<!-- built by https://ezgif.com/ -->
+![cover](https://user-images.githubusercontent.com/12786150/72876202-f49ee500-3d30-11ea-9de0-434bf8decf90.gif)<!-- built by https://ezgif.com/ -->
 
 > ~~See the image frames at [#1](https://github.com/hedzr/cmdr/issues/1#issuecomment-567779978).~~
 
@@ -107,16 +107,11 @@ v2 is in earlier state but the baseline is stable:
 
 More minor details need to be evaluated and reimplemented if it's still meaningful in v2.
 
+Since v2.0.3, loaders had been splitted as a standalone repo so that we can keep cmdr v2 smaller and independer. See the relevant subproject [cmdr-loaders](https://github.com/hedzr/cmdr-loaders).
+
 ## History
 
 v2 is staying in earlier state:
-
-- Latest: v2.0.3
-
-  - split loaders as a standalone repo
-  - split examples and tests to standalone
-  - update deps
-  - fix bugs
 
 - Full list: [CHANGELOG](https://github.com/hedzr/cmdr/blob/master/CHANGELOG)
 

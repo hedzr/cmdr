@@ -1,23 +1,27 @@
 package cli
 
-type CommandBuilder interface {
+type OptBuilder interface {
 	// Build connects the built command into the building command system.
 	Build()
+}
+
+type CommandBuilder interface {
+	OptBuilder
 
 	// Titles should be specified with this form:
 	//
 	//     longTitle, shortTitle, aliases...
 	//
-	// The Long-Title is must-required, and the others are optional.
+	// The Long-Title is must-required, and the rest are optional.
 	//
-	// For Flag, Long-Title and Aliases are posix long parameters with the
+	// For Flag, Long-Title and Aliases are POSIX long parameters with the
 	// leading double hyphen string '--'. And Short-Title has single
 	// hyphen '-' as leading.
 	//
 	// For example, A flag with longTitle "debug" means that an end-user
 	// should type "--debug" for it.
 	//
-	// For the multi-level command and subcommands, long, short and
+	// For the multi-level command and subcommands (Cmd), long, short and
 	// aliases will be used as is.
 	Titles(longTitle string, titles ...string) CommandBuilder
 	// Description specifies the one-line description and a multi-line
@@ -115,18 +119,36 @@ type CommandBuilder interface {
 
 	//
 
-	NewCommandBuilder(longTitle string, titles ...string) CommandBuilder // starts a closure to build a new sub-command and its children
-	NewFlagBuilder(longTitle string, titles ...string) FlagBuilder       // starts a closure to build a flag
+	// NewCommandBuilder returns a command builder to help you to
+	// add a subcommand to the current command builder.
+	//
+	// It's special because it can be called before Build() completed.
+	NewCommandBuilder(longTitle string, titles ...string) CommandBuilder
+	NewFlagBuilder(longTitle string, titles ...string) FlagBuilder
 
-	// Cmd is a shortcut to NewCommandBuilder and starts a stream building for a new sub-command
+	// Cmd is a shortcut to NewCommandBuilder and starts a stream
+	// building for a new sub-command.
+	//
+	// It can only be called after current command builder built
+	// (Build() called).
 	Cmd(longTitle string, titles ...string) CommandBuilder
-	// Flg is a shortcut to NewFlagBuilder and starts a stream building for a new flag
+	// Flg is a shortcut to NewFlagBuilder and starts a stream
+	// building for a new flag.
+	//
+	// It can only be called after current command builder built
+	// (Build() called).
 	Flg(longTitle string, titles ...string) FlagBuilder
 
 	// AddCmd starts a closure to build a new sub-command and its children.
 	// After the closure invoked, Build() will be called implicitly.
+	//
+	// It can only be called after current command builder built
+	// (Build() called).
 	AddCmd(func(b CommandBuilder)) CommandBuilder
 	// AddFlg starts a closure to build a flag
 	// After the closure invoked, Build() will be called implicitly.
+	//
+	// It can only be called after current command builder built
+	// (Build() called).
 	AddFlg(cb func(b FlagBuilder)) CommandBuilder
 }

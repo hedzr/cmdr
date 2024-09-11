@@ -1,8 +1,7 @@
 package cli
 
 type FlagBuilder interface {
-	// Build connects the built command into the building command system.
-	Build()
+	OptBuilder
 
 	// Titles should be specified with this form:
 	//
@@ -54,11 +53,27 @@ type FlagBuilder interface {
 	// in vert verbose mode.
 	Hidden(hidden bool, vendorHidden ...bool) FlagBuilder
 
+	// ToggleGroup sets group name with toggleable items.
+	// Items in a same toggle-group works like a radiobutton.
 	ToggleGroup(group string) FlagBuilder
+	// PlaceHolder for a value item makes a pronounce ident which
+	// will be used in the description part.
+	//
+	// For example, `-f FILE' with placeholder 'FILE' can be shown
+	// in help screen like this:
+	//
+	//    -f FILE          specify a output filename (default FILE='out.txt')
+	//
+	// This could make help screen conciser.
+	//
+	// BTW, in zsh autocompletion, FILE placeholder can trigger a filename
+	// choice list shown by typing TAB key.
 	PlaceHolder(placeHolder string) FlagBuilder
 
 	// DefaultValue specifies a binding value to the flag with explicit
 	// datatype.
+	//
+	// Deprecated v2.0.0, use Default as replacement.
 	DefaultValue(val any) FlagBuilder
 	// EnvVars binds the environment variable onto the flag
 	EnvVars(vars ...string) FlagBuilder

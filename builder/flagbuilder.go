@@ -6,15 +6,15 @@ import (
 	"github.com/hedzr/cmdr/v2/cli"
 )
 
-func NewFlagBuilder(parent *cli.Command, defaultValue any, longTitle string, titles ...string) *ffb {
-	// s := &ffb{
-	// 	nil, parent,
-	// 	new(cli.Flag),
-	// }
-	// s.Long, s.Short, s.Aliases = theTitles(longTitle, titles...)
-	// return s
-	return newFlagBuilderFrom(parent, nil, defaultValue, longTitle, titles...)
-}
+// func NewFlagBuilder(parent *cli.Command, defaultValue any, longTitle string, titles ...string) *ffb {
+// 	// s := &ffb{
+// 	// 	nil, parent,
+// 	// 	new(cli.Flag),
+// 	// }
+// 	// s.Long, s.Short, s.Aliases = theTitles(longTitle, titles...)
+// 	// return s
+// 	return newFlagBuilderFrom(parent, nil, defaultValue, longTitle, titles...)
+// }
 
 func newFlagBuilderShort(b buildable, longTitle string, titles ...string) *ffb {
 	return newFlagBuilderFrom(nil, b, nil, longTitle, titles...)

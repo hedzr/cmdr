@@ -10,16 +10,16 @@ type buildable interface {
 	Build()
 }
 
-func NewCommandBuilder(parent *cli.Command, longTitle string, titles ...string) *ccb {
-	// s := &ccb{
-	// 	nil, parent,
-	// 	new(cli.Command),
-	// 	false, false,
-	// }
-	// s.Long, s.Short, s.Aliases = theTitles(longTitle, titles...)
-	// return s
-	return newCommandBuilderFrom(parent, nil, longTitle, titles...)
-}
+// func NewCommandBuilder(parent *cli.Command, longTitle string, titles ...string) *ccb {
+// 	// s := &ccb{
+// 	// 	nil, parent,
+// 	// 	new(cli.Command),
+// 	// 	false, false,
+// 	// }
+// 	// s.Long, s.Short, s.Aliases = theTitles(longTitle, titles...)
+// 	// return s
+// 	return newCommandBuilderFrom(parent, nil, longTitle, titles...)
+// }
 
 func newCommandBuilderShort(b buildable, longTitle string, titles ...string) *ccb {
 	return newCommandBuilderFrom(new(cli.Command), b, longTitle, titles...)

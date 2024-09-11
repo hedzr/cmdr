@@ -2,6 +2,7 @@ package builder
 
 import (
 	"errors"
+	"sync/atomic"
 
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/conf"
@@ -11,15 +12,15 @@ type appS struct {
 	cli.Runner
 	root  *cli.RootCommand
 	args  []string
-	inCmd bool
-	inFlg bool
+	inCmd int32
+	inFlg int32
 }
 
 func (s *appS) Run(opts ...cli.Opt) (err error) {
-	if s.inCmd {
+	if atomic.LoadInt32(&s.inCmd) != 0 {
 		return errors.New("a NewCommandBuilder()/Cmd() call needs ending with Build()")
 	}
-	if s.inFlg {
+	if atomic.LoadInt32(&s.inFlg) != 0 {
 		return errors.New("a NewFlagBuilder()/Flg() call needs ending with Build()")
 	}
 
@@ -27,7 +28,11 @@ func (s *appS) Run(opts ...cli.Opt) (err error) {
 		return cli.ErrEmptyRootCommand
 	}
 
-	// any structural errors causes panic instead of returning via an error object here.
+	// Any structural errors causes panic rather than
+	// returning an error object directly.
+	// s.Build() will transfer s.root and s.args into
+	// runner object (s.Runner) which shall support
+	// `setRoot' interface.
 	s.Build() // set rootCommand into worker
 
 	s.Runner.InitGlobally() // let worker starts initializations
@@ -139,12 +144,12 @@ func (s *appS) NewFlagBuilder(longTitle string, titles ...string) cli.FlagBuilde
 }
 
 func (s *appS) Cmd(longTitle string, titles ...string) cli.CommandBuilder {
-	s.inCmd = true
+	atomic.AddInt32(&s.inCmd, 1)
 	return newCommandBuilderShort(s, longTitle, titles...)
 }
 
 func (s *appS) Flg(longTitle string, titles ...string) cli.FlagBuilder {
-	s.inFlg = true
+	atomic.AddInt32(&s.inFlg, 1)
 	return newFlagBuilderShort(s, longTitle, titles...)
 }
 
@@ -177,11 +182,15 @@ func (s *appS) AddFlg(cb func(b cli.FlagBuilder)) cli.App {
 }
 
 func (s *appS) addCommand(child *cli.Command) {
-	s.inCmd = false
-	s.root.AddSubCommand(child)
+	atomic.AddInt32(&s.inCmd, -1)
+	if s.root == nil {
+		s.root = &cli.RootCommand{Command: child}
+	} else {
+		s.root.AddSubCommand(child)
+	}
 }
 
 func (s *appS) addFlag(child *cli.Flag) {
-	s.inFlg = false
+	atomic.AddInt32(&s.inFlg, -1)
 	s.root.AddFlag(child)
 }

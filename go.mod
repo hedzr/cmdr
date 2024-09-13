@@ -1,8 +1,8 @@
 module github.com/hedzr/cmdr/v2
 
-go 1.22.0
+go 1.21.0
 
-toolchain go1.23.1
+toolchain go1.22.7
 
 // github.com/hedzr/cmdr/v2 => ../cmdr.v3
 

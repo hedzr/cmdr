@@ -23,13 +23,81 @@ func TestFfb_NewFlagBuilder(t *testing.T) {
 	testNewFlagBuilder(t)
 }
 
+func TestCcb_NewCommandBuilderPanics(t *testing.T) {
+	deferTest := func(t *testing.T, cb func(bb *ccb)) {
+		defer func() {
+			if r := recover(); r == nil {
+				t.Logf("test for %q is ok.", t.Name())
+				return
+			}
+			t.Fatalf("test for %q is bad: expecting a panic but it isn't threw", t.Name())
+		}()
+
+		b := buildable(nil)
+		bb := newCommandBuilderShort(b, "help", "h", "info")
+		cb(bb)
+	}
+
+	t.Run("inCmd == true and Cmd panics", func(t *testing.T) {
+		deferTest(t, func(bb *ccb) {
+			bb.AddCmd(func(b cli.CommandBuilder) {
+				b.OnMatched(nil)
+
+				cb := b.Cmd("dash", "d")
+
+				cb.UseShell("/bin/dash")
+			})
+		})
+	})
+
+	t.Run("inCmd == true and AddCmd panics", func(t *testing.T) {
+		deferTest(t, func(bb *ccb) {
+			bb.AddCmd(func(b cli.CommandBuilder) {
+				b.OnMatched(nil)
+
+				b.AddCmd(func(b cli.CommandBuilder) {
+					b.OnMatched(nil)
+					b.UseShell("/bin/dash")
+				})
+			})
+		})
+	})
+
+	t.Run("Cmd panics", func(t *testing.T) {
+		deferTest(t, func(bb *ccb) {
+			cb := bb.Cmd("dash", "d")
+			cb.UseShell("/bin/dash")
+		})
+	})
+	t.Run("Flg panics", func(t *testing.T) {
+		deferTest(t, func(bb *ccb) {
+			fb := bb.Flg("cool", "c")
+			fb.OnMatched(nil)
+		})
+	})
+	t.Run("AddCmd panics", func(t *testing.T) {
+		deferTest(t, func(bb *ccb) {
+			bb.AddCmd(func(b cli.CommandBuilder) {
+				b.OnMatched(nil)
+			})
+		})
+	})
+	t.Run("AddFlg panics", func(t *testing.T) {
+		deferTest(t, func(bb *ccb) {
+			bb.AddFlg(func(b cli.FlagBuilder) {
+				b.OnMatched(nil)
+			})
+		})
+	})
+}
+
 func TestCcb_NewCommandBuilder(t *testing.T) {
 	testNewCommandBuilder(t)
 }
 
 func testNewCommandBuilder(t *testing.T) {
 	b := buildable(nil)
-	bb := newCommandBuilderShort(b, "help", "h", "info")
+	bb := newCommandBuilderShort(b, "help", "h", "info", "tip", "whatsthis")
 
 	bb.Titles("verbose", "v", "verbose-mode", "non-quiet-mode")
 	bb.ExtraShorts("V")
@@ -49,14 +117,6 @@ func testNewCommandBuilder(t *testing.T) {
 	bb.InvokeShell("")
 	bb.UseShell("/bin/bash")
 
-	cb := bb.NewCommandBuilder("command", "c", "cc", "cmd")
-	cb.UseShell("/bin/zsh")
-
-	fb := bb.NewFlagBuilder("flag", "f", "ff", "flg")
-	fb.OnMatched(nil)
-
-	bb.Build()
-
 	bb.AddCmd(func(b cli.CommandBuilder) {
 		b.OnMatched(nil)
 	})
@@ -64,16 +124,27 @@ func testNewCommandBuilder(t *testing.T) {
 		b.OnMatched(nil)
 	})
 
-	cb = bb.Cmd("dash", "d")
+	bb.Build()
+	
+	cb := bb.Cmd("dash", "d")
 	cb.UseShell("/bin/dash")
+	cb.Build()
 
-	fb = bb.Flg("cool", "c")
+	fb := bb.Flg("cool", "c")
 	fb.OnMatched(nil)
+	fb.Build()
+
+	// cb := bb.NewCommandBuilder("command", "c", "cc", "cmd")
+	// cb.UseShell("/bin/zsh")
+	//
+	// fb := bb.NewFlagBuilder("flag", "f", "ff", "flg")
+	// fb.OnMatched(nil)
+
 }
 
 func testNewFlagBuilder(t *testing.T) {
 	b := buildable(nil)
-	bb := newFlagBuilderShort(b, "verbose", "v", "verbose-mode")
+	bb := newFlagBuilderShort(b, "verbose", "v", "verbose-mode", "test-mode", "debug-mode")
 
 	app := buildable(nil)
 	bb.SetApp(app)

@@ -48,97 +48,83 @@ func buildDemoApp() (app cli.App) { //nolint:revive
 		Info("demo-app", "0.3.1").
 		Author("hedzr")
 
-	app.AddCmd(func(b cli.CommandBuilder) {
-		b.Titles("jump").
-			Description("jump is a demo command").
-			Examples(`jump example`).
-			Deprecated(`since: v0.9.1`).
-			Hidden(false).
-			AddCmd(func(b cli.CommandBuilder) {
-				b.Titles("to").
-					Description("to command").
-					Examples(``).
-					Deprecated(``).
-					Hidden(false).
-					OnAction(func(cmd *cli.Command, args []string) (err error) { //nolint:revive
-						return // handling command action here
-					})
+	b := app.Cmd("jump").
+		Description("jump is a demo command").
+		Examples(`jump example`).
+		Deprecated(`since: v0.9.1`).
+		Hidden(false)
+	b.Cmd("to").
+		Description("to command").
+		Examples(``).
+		Deprecated(``).
+		Hidden(false).
+		OnAction(func(cmd *cli.Command, args []string) (err error) { //nolint:revive
+			return // handling command action here
+		}).
+		Build()
 
-				b.AddFlg(func(b cli.FlagBuilder) {
-					b.Default(false).
-						Titles("full", "f").
-						Description("full command")
-				})
-			})
-		b.AddFlg(func(b cli.FlagBuilder) {
-			b.Default(false).
-				Titles("empty", "e").
-				Description("empty command")
-		})
-	}).AddFlg(func(b cli.FlagBuilder) {
-		b.Titles("dry-run", "n").
-			Default(false).
-			Description("run all but without committing")
-	})
+	b.Flg("full", "f").
+		Default(false).
+		Description("full command").
+		Build()
+
+	b.Flg("empty", "e").
+		Default(false).
+		Description("empty command").
+		Build()
+	b.Build()
+
+	app.Flg("dry-run", "n").
+		Default(false).
+		Description("run all but without committing").
+		Build()
 
 	app.Flg("wet-run", "w").
 		Default(false).
 		Description("run all but with committing").
 		Build() // no matter even if you're adding the duplicated one.
 
-	app.AddCmd(func(b cli.CommandBuilder) {
-		b.Titles("consul", "c").
-			Description("command set for consul operations")
+	b = app.Cmd("consul", "c").
+		Description("command set for consul operations")
+	b.Flg("data-center", "dc", "datacenter").
+		// Description("set data-center").
+		Default("dc-1").
+		Build()
+	b.Build()
 
-		b.Flg("data-center", "dc", "datacenter").
-			// Description("set data-center").
-			Default("dc-1").
-			Build()
-	})
+	examples.AttachServerCommand(app.NewCommandBuilder("server"))
 
-	app.AddCmd(func(b cli.CommandBuilder) {
-		examples.AttachServerCommand(b)
-	})
+	examples.AttachKvCommand(app.NewCommandBuilder("kv"))
 
-	app.AddCmd(func(b cli.CommandBuilder) {
-		examples.AttachKvCommand(b)
-	})
+	examples.AttachMsCommand(app.NewCommandBuilder("ms"))
 
-	app.AddCmd(func(b cli.CommandBuilder) {
-		examples.AttachMsCommand(b)
-	})
+	examples.AttachMoreCommandsForTest(app.NewCommandBuilder("more"), true)
 
-	app.AddCmd(func(b cli.CommandBuilder) {
-		examples.AttachMoreCommandsForTest(b, true)
-	})
+	b = app.Cmd("display", "da").
+		Description("command set for display adapter operations")
 
-	app.AddCmd(func(b cli.CommandBuilder) {
-		b.Titles("display", "da").
-			Description("command set for display adapter operations")
+	b1 := b.Cmd("voodoo", "vd").
+		Description("command set for voodoo operations")
+	b1.Flg("data-center", "dc", "datacenter").
+		Default("dc-1").
+		Build()
+	b1.Build()
 
-		b1 := b.Cmd("voodoo", "vd").
-			Description("command set for voodoo operations")
-		b1.Flg("data-center", "dc", "datacenter").
-			Default("dc-1").
-			Build()
-		b1.Build()
+	b2 := b.Cmd("nvidia", "nv").
+		Description("command set for nvidia operations")
+	b2.Flg("data-center", "dc", "datacenter").
+		Default("dc-1").
+		Build()
+	b2.Build()
 
-		b2 := b.Cmd("nvidia", "nv").
-			Description("command set for nvidia operations")
-		b2.Flg("data-center", "dc", "datacenter").
-			Default("dc-1").
-			Build()
-		b2.Build()
+	b3 := b.Cmd("amd", "amd").
+		Description("command set for AMD operations")
+	b3.Flg("data-center", "dc", "datacenter").
+		Default("dc-1").
+		Build()
+	b3.Build()
 
-		b.AddCmd(func(b cli.CommandBuilder) {
-			b.Titles("amd", "amd").
-				Description("command set for AMD operations")
-			b.Flg("data-center", "dc", "datacenter").
-				Default("dc-1").
-				Build()
-		})
-	})
-
+	b.Build()
 	return
 }
 

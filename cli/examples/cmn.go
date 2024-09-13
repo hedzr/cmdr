@@ -7,143 +7,118 @@ import (
 )
 
 func AttachModifyFlags(bdr cli.CommandBuilder) {
-	bdr.AddFlg(func(b cli.FlagBuilder) {
-		b.Default("=").
-			Titles("delim", "d", "delimiter").
-			Description("delimiter char in `non-plain` mode.").
-			PlaceHolder("").
-			CompJustOnce(true).
-			Build()
-	})
+	bdr.Flg("delim", "d", "delimiter").
+		Default("=").
+		Description("delimiter char in `non-plain` mode.").
+		PlaceHolder("").
+		CompJustOnce(true).
+		Build()
 
-	bdr.AddFlg(func(b cli.FlagBuilder) {
-		b.Default(false).
-			Titles("clear", "c", "clr").
-			Description("clear all tags.").
-			PlaceHolder("").
-			Group("Operate").
-			Hidden(false, false).
-			Build()
-	})
+	bdr.Flg("clear", "c", "clr").
+		Default(false).
+		Description("clear all tags.").
+		PlaceHolder("").
+		Group("Operate").
+		Hidden(false, false).
+		Build()
 
-	bdr.AddFlg(func(b cli.FlagBuilder) {
-		b.Default(false).
-			Titles("string", "g", "string-mode").
-			Description("In 'String Mode', default will be disabled: default, a tag string will be split by comma(,), and treated as a string list.").
-			PlaceHolder("").
-			ToggleGroup("Mode").
-			Build()
-	})
+	bdr.Flg("string", "g", "string-mode").
+		Default(false).
+		Description("In 'String Mode', default will be disabled: default, a tag string will be split by comma(,), and treated as a string list.").
+		PlaceHolder("").
+		ToggleGroup("Mode").
+		Build()
 
-	bdr.AddFlg(func(b cli.FlagBuilder) {
-		b.Default(false).
-			Titles("meta", "m", "meta-mode").
-			Description("In 'Meta Mode', service 'NodeMeta' field will be updated instead of 'Tags'. (--plain assumed false).").
-			PlaceHolder("").
-			ToggleGroup("Mode").
-			Build()
-	})
+	bdr.Flg("meta", "m", "meta-mode").
+		Default(false).
+		Description("In 'Meta Mode', service 'NodeMeta' field will be updated instead of 'Tags'. (--plain assumed false).").
+		PlaceHolder("").
+		ToggleGroup("Mode").
+		Build()
 
-	bdr.AddFlg(func(b cli.FlagBuilder) {
-		b.Default(false).
-			Titles("both", "2", "both-mode").
-			Description("In 'Both Mode', both of 'NodeMeta' and 'Tags' field will be updated.").
-			PlaceHolder("").
-			ToggleGroup("Mode").
-			Build()
-	})
+	bdr.Flg("both", "2", "both-mode").
+		Default(false).
+		Description("In 'Both Mode', both of 'NodeMeta' and 'Tags' field will be updated.").
+		PlaceHolder("").
+		ToggleGroup("Mode").
+		Build()
 
-	bdr.AddFlg(func(b cli.FlagBuilder) {
-		b.Default(false).
-			Titles("plain", "p", "plain-mode").
-			Description("In 'Plain Mode', a tag be NOT treated as `key=value` or `key:value`, and modify with the `key`.").
-			ToggleGroup("Mode").
-			Build()
-	})
+	bdr.Flg("plain", "p", "plain-mode").
+		Default(false).
+		Description("In 'Plain Mode', a tag be NOT treated as `key=value` or `key:value`, and modify with the `key`.").
+		ToggleGroup("Mode").
+		Build()
 
-	bdr.AddFlg(func(b cli.FlagBuilder) {
-		b.Default(false).
-			Titles("tag", "t", "tag-mode").
-			Description("In 'Tag Mode', a tag be treated as `key=value` or `key:value`, and modify with the `key`.").
-			ToggleGroup("Mode").
-			Build()
-	})
+	bdr.Flg("tag", "t", "tag-mode").
+		Default(false).
+		Description("In 'Tag Mode', a tag be treated as `key=value` or `key:value`, and modify with the `key`.").
+		ToggleGroup("Mode").
+		Build()
 }
 
 func AttachConsulConnectFlags(bdr cli.CommandBuilder) {
-	bdr.AddFlg(func(b cli.FlagBuilder) {
-		b.Default("localhost").
-			Titles("addr", "a").
-			Description("Consul ip/host and port: HOST[:PORT] (No leading 'http(s)://')", ``).
-			PlaceHolder("HOST[:PORT]").
-			Group("Consul")
-	})
-
-	bdr.AddFlg(func(b cli.FlagBuilder) {
-		b.Default(8500).
-			Titles("port", "p").
-			Description("Consul port", ``).
-			PlaceHolder("PORT").
-			Group("Consul")
-	})
-	bdr.AddFlg(func(b cli.FlagBuilder) {
-		b.Default(false).
-			Titles("insecure", "K").
-			Description("Skip TLS host verification", ``).
-			PlaceHolder("").
-			Group("Consul")
-	})
-	bdr.AddFlg(func(b cli.FlagBuilder) {
-		b.Default("/").
-			Titles("prefix", "px").
-			Description("Root key prefix", ``).
-			PlaceHolder("ROOT").
-			Group("Consul")
-	})
-	bdr.AddFlg(func(b cli.FlagBuilder) {
-		b.Default("").
-			Titles("cacert", "").
-			Description("Consul Client CA cert)", ``).
-			PlaceHolder("FILE").
-			Group("Consul")
-	})
-	bdr.AddFlg(func(b cli.FlagBuilder) {
-		b.Default("").
-			Titles("cert", "").
-			Description("Consul Client cert", ``).
-			PlaceHolder("FILE").
-			Group("Consul")
-	})
-	bdr.AddFlg(func(b cli.FlagBuilder) {
-		b.Default("http").
-			Titles("scheme", "").
-			Description("Consul connection protocol", ``).
-			PlaceHolder("SCHEME").
-			Group("Consul")
-	})
-	bdr.AddFlg(func(b cli.FlagBuilder) {
-		b.Default("").
-			Titles("username", "u", "user", "usr", "uid").
-			Description("HTTP Basic auth user", ``).
-			PlaceHolder("USERNAME").
-			Group("Consul")
-	})
-	bdr.AddFlg(func(b cli.FlagBuilder) {
-		b.Default("").
-			Titles("password", "pw", "passwd", "pass", "pwd").
-			Description("HTTP Basic auth password", ``).
-			PlaceHolder("PASSWORD").
-			Group("Consul").
-			ExternalEditor(cli.ExternalToolPasswordInput)
-	})
-	bdr.AddFlg(func(b cli.FlagBuilder) {
-		b.Default("").
-			Titles("message", "m", "msg", "mesg").
-			Description("The commit message", ``).
-			PlaceHolder("MSG").
-			Group("Git").
-			ExternalEditor(cli.ExternalToolEditor)
-	})
+	bdr.Flg("addr", "a").
+		Default("localhost").
+		Description("Consul ip/host and port: HOST[:PORT] (No leading 'http(s)://')", ``).
+		PlaceHolder("HOST[:PORT]").
+		Group("Consul").
+		Build()
+	bdr.Flg("port", "p").
+		Default(8500).
+		Description("Consul port", ``).
+		PlaceHolder("PORT").
+		Group("Consul").
+		Build()
+	bdr.Flg("insecure", "K").
+		Default(false).
+		Description("Skip TLS host verification", ``).
+		PlaceHolder("").
+		Group("Consul").
+		Build()
+	bdr.Flg("prefix", "px").
+		Default("/").
+		Description("Root key prefix", ``).
+		PlaceHolder("ROOT").
+		Group("Consul").
+		Build()
+	bdr.Flg("cacert", "").
+		Default("").
+		Description("Consul Client CA cert)", ``).
+		PlaceHolder("FILE").
+		Group("Consul").
+		Build()
+	bdr.Flg("cert", "").
+		Default("").
+		Description("Consul Client cert", ``).
+		PlaceHolder("FILE").
+		Group("Consul").
+		Build()
+	bdr.Flg("scheme", "").
+		Default("http").
+		Description("Consul connection protocol", ``).
+		PlaceHolder("SCHEME").
+		Group("Consul").
+		Build()
+	bdr.Flg("username", "u", "user", "usr", "uid").
+		Default("").
+		Description("HTTP Basic auth user", ``).
+		PlaceHolder("USERNAME").
+		Group("Consul").
+		Build()
+	bdr.Flg("password", "pw", "passwd", "pass", "pwd").
+		Default("").
+		Description("HTTP Basic auth password", ``).
+		PlaceHolder("PASSWORD").
+		Group("Consul").
+		ExternalEditor(cli.ExternalToolPasswordInput).
+		Build()
+	bdr.Flg("message", "m", "msg", "mesg").
+		Default("").
+		Description("The commit message", ``).
+		PlaceHolder("MSG").
+		Group("Git").
+		ExternalEditor(cli.ExternalToolEditor).
+		Build()
 }
 
 func serverStartup(cmd *cli.Command, args []string) (err error) {

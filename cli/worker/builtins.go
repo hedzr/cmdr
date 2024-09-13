@@ -370,134 +370,126 @@ $ {{.AppName}} gen man
 			}).
 			OnAction((&genS{}).onAction)
 
-		bb.AddCmd(func(b1 cli.CommandBuilder) {
-			b1.Titles("manual", "m", "man").
-				Description("Generate Linux Manual Documentations").
-				Group(cli.SysMgmtGroup).
-				Hidden(true, true).
-				OnMatched(func(c *cli.Command, position int, hitState *cli.MatchState) (err error) { //nolint:revive
-					return
-				}).
-				OnAction((&genManS{}).onAction)
+		b1 := bb.Cmd("manual", "m", "man").
+			Description("Generate Linux Manual Documentations").
+			Group(cli.SysMgmtGroup).
+			Hidden(true, true).
+			OnMatched(func(c *cli.Command, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+				return
+			}).
+			OnAction((&genManS{}).onAction)
 
-			b1.AddFlg(func(b cli.FlagBuilder) {
-				b.Titles("dir", "d").
-					Default("").
-					Description("The output directory").
-					Group("Output").
-					Hidden(true, true).
-					PlaceHolder("DIR")
-			})
+		b1.Flg("dir", "d").
+			Default("").
+			Description("The output directory").
+			Group("Output").
+			Hidden(true, true).
+			PlaceHolder("DIR").
+			Build()
 
-			b1.AddFlg(func(b cli.FlagBuilder) {
-				b.Titles("type", "t").
-					Default(1).
-					Description("Linux man type").
-					Hidden(true, true).
-					HeadLike(true, 1, 9)
-			})
-		})
+		b1.Flg("type", "t").
+			Default(1).
+			Description("Linux man type").
+			Hidden(true, true).
+			HeadLike(true, 1, 9).
+			Build()
 
-		bb.AddCmd(func(b1 cli.CommandBuilder) {
-			b1.Titles("doc", "d", "docx", "tex", "pdf", "markdown").
-				Description("Generate documentations").
-				Group(cli.SysMgmtGroup).
-				Hidden(true, true).
-				OnMatched(func(c *cli.Command, position int, hitState *cli.MatchState) (err error) { //nolint:revive
-					return
-				}).
-				OnAction((&genDocS{}).onAction)
+		b1.Build()
 
-			b1.AddFlg(func(b cli.FlagBuilder) {
-				b.Titles("dir", "d").
-					Default("").
-					Description("The output directory").
-					Group("Output").
-					Hidden(true, true).
-					PlaceHolder("DIR")
-			})
-		})
+		b1 = bb.Cmd("doc", "d", "docx", "tex", "pdf", "markdown").
+			Description("Generate documentations").
+			Group(cli.SysMgmtGroup).
+			Hidden(true, true).
+			OnMatched(func(c *cli.Command, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+				return
+			}).
+			OnAction((&genDocS{}).onAction)
 
-		bb.AddCmd(func(b1 cli.CommandBuilder) {
-			b1.Titles("shell", "s", "sh", "bash", "zsh", "fish", "elvish", "fig", "powershell", "ps").
-				Description("Generate the shell completion script or install it").
-				Group(cli.SysMgmtGroup).
-				Hidden(true, true).
-				OnMatched(func(c *cli.Command, position int, hitState *cli.MatchState) (err error) { //nolint:revive
-					return
-				}).
-				OnAction((&genShS{}).onAction)
+		b1.Flg("dir", "d").
+			Default("").
+			Description("The output directory").
+			Group("Output").
+			Hidden(true, true).
+			PlaceHolder("DIR").
+			Build()
 
-			b1.AddFlg(func(b cli.FlagBuilder) {
-				b.Titles("dir", "d").
-					Default("").
-					Description("The output directory").
-					Group("Output").
-					Hidden(true, true).
-					PlaceHolder("DIR")
-			})
+		b1.Build()
 
-			b1.AddFlg(func(b cli.FlagBuilder) {
-				b.Titles("output", "o").
-					Default("").
-					Description("The output filename").
-					Group("Output").
-					Hidden(true, true).
-					PlaceHolder("FILE")
-			})
+		b1 = bb.Cmd("shell", "s", "sh", "bash", "zsh", "fish", "elvish", "fig", "powershell", "ps").
+			Description("Generate the shell completion script or install it").
+			Group(cli.SysMgmtGroup).
+			Hidden(true, true).
+			OnMatched(func(c *cli.Command, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+				return
+			}).
+			OnAction((&genShS{}).onAction)
 
-			b1.AddFlg(func(b cli.FlagBuilder) {
-				b.Titles("auto", "a").
-					Default(true).
-					Description("Generate auto completion script to fit for your current env").
-					ToggleGroup("Shell").
-					Hidden(true, true)
-			})
+		b1.Flg("dir", "d").
+			Default("").
+			Description("The output directory").
+			Group("Output").
+			Hidden(true, true).
+			PlaceHolder("DIR").
+			Build()
 
-			b1.AddFlg(func(b cli.FlagBuilder) {
-				b.Titles("zsh", "z").
-					Default(false).
-					Description("Generate auto completion script for Zsh").
-					ToggleGroup("Shell").
-					Hidden(true, true)
-			})
+		b1.Flg("output", "o").
+			Default("").
+			Description("The output filename").
+			Group("Output").
+			Hidden(true, true).
+			PlaceHolder("FILE").
+			Build()
 
-			b1.AddFlg(func(b cli.FlagBuilder) {
-				b.Titles("bash", "b").
-					Default(false).
-					Description("Generate auto completion script for Bash").
-					ToggleGroup("Shell").
-					Hidden(true, true)
-			})
-			b1.AddFlg(func(b cli.FlagBuilder) {
-				b.Titles("fish", "f").
-					Default(false).
-					Description("Generate auto completion script for Fish").
-					ToggleGroup("Shell").
-					Hidden(true, true)
-			})
-			b1.AddFlg(func(b cli.FlagBuilder) {
-				b.Titles("powershell", "p").
-					Default(false).
-					Description("Generate auto completion script for PowerShell").
-					ToggleGroup("Shell").
-					Hidden(true, true)
-			})
-			b1.AddFlg(func(b cli.FlagBuilder) {
-				b.Titles("elvish", "e").
-					Default(false).
-					Description("Generate auto completion script for Elvish [TODO]").
-					ToggleGroup("Shell").
-					Hidden(true, true)
-			})
-			b1.AddFlg(func(b cli.FlagBuilder) {
-				b.Titles("fig", "f").
-					Default(false).
-					Description("Generate auto completion script for fig-shell [TODO]").
-					ToggleGroup("Shell").
-					Hidden(true, true)
-			})
-		})
+		b1.Flg("auto", "a").
+			Default(true).
+			Description("Generate auto completion script to fit for your current env").
+			ToggleGroup("Shell").
+			Hidden(true, true).
+			Build()
+
+		b1.Flg("zsh", "z").
+			Default(false).
+			Description("Generate auto completion script for Zsh").
+			ToggleGroup("Shell").
+			Hidden(true, true).
+			Build()
+
+		b1.Flg("bash", "b").
+			Default(false).
+			Description("Generate auto completion script for Bash").
+			ToggleGroup("Shell").
+			Hidden(true, true).
+			Build()
+
+		b1.Flg("fish", "f").
+			Default(false).
+			Description("Generate auto completion script for Fish").
+			ToggleGroup("Shell").
+			Hidden(true, true).
+			Build()
+
+		b1.Flg("powershell", "p").
+			Default(false).
+			Description("Generate auto completion script for PowerShell").
+			ToggleGroup("Shell").
+			Hidden(true, true).
+			Build()
+
+		b1.Flg("elvish", "e").
+			Default(false).
+			Description("Generate auto completion script for Elvish [TODO]").
+			ToggleGroup("Shell").
+			Hidden(true, true).
+			Build()
+
+		b1.Flg("fig", "f").
+			Default(false).
+			Description("Generate auto completion script for fig-shell [TODO]").
+			ToggleGroup("Shell").
+			Hidden(true, true).
+			Build()
+
+		b1.Build()
 	})
 }
 

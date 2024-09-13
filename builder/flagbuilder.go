@@ -40,9 +40,12 @@ func (s *ffb) Build() {
 	if a, ok := s.buildable.(adder); ok {
 		a.addFlag(s.Flag)
 	}
-	if s.parent != nil {
-		s.parent.AddFlag(s.Flag)
-	}
+	// if s.parent != nil {
+	// 	s.parent.AddFlag(s.Flag)
+	// 	// if a, ok := s.b.(adder); ok {
+	// 	// 	a.addFlag(s.Flag)
+	// 	// }
+	// }
 }
 
 func (s *ffb) SetApp(app buildable) { s.buildable = app }

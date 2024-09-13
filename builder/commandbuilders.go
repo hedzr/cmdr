@@ -3,6 +3,8 @@
 package builder
 
 import (
+	"sync/atomic"
+
 	"github.com/hedzr/cmdr/v2/cli"
 )
 
@@ -29,7 +31,7 @@ func newCommandBuilderFrom(from *cli.Command, b buildable, longTitle string, tit
 	s := &ccb{
 		b, from,
 		new(cli.Command),
-		false, false,
+		0, 0,
 	}
 	s.Long, s.Short, s.Aliases = theTitles(longTitle, titles...)
 	return s
@@ -39,20 +41,93 @@ type ccb struct {
 	buildable
 	parent *cli.Command
 	*cli.Command
-	inCmd bool
-	inFlg bool
+	inCmd int32
+	inFlg int32
 }
 
 func (s *ccb) Build() {
 	if a, ok := s.buildable.(adder); ok {
 		a.addCommand(s.Command)
 	}
-	if s.parent != nil {
-		s.parent.AddSubCommand(s.Command)
-	}
+	// if s.parent != nil {
+	// 	s.parent.AddSubCommand(s.Command)
+	// 	// if a, ok := s.b.(adder); ok {
+	// 	// 	a.addCommand(s.Command)
+	// 	// }
+	// }
 
-	s.inCmd, s.inFlg = false, false
+	atomic.StoreInt32(&s.inCmd, 0)
+	atomic.StoreInt32(&s.inFlg, 0)
 }
+
+// addCommand adds a in-building Cmd into current Command as a child-/sub-command.
+// used by adder when ccb.Build.
+func (s *ccb) addCommand(child *cli.Command) {
+	atomic.AddInt32(&s.inCmd, -1) // reset increased inCmd at AddCmd or Cmd
+	s.AddSubCommand(child)
+}
+
+// addFlag adds a in-building Flg into current Command as its flag.
+// used by adder when ccb.Build.
+func (s *ccb) addFlag(child *cli.Flag) {
+	atomic.AddInt32(&s.inFlg, -1)
+	s.AddFlag(child)
+}
+
+func (s *ccb) NewCommandBuilder(longTitle string, titles ...string) cli.CommandBuilder {
+	return s.Cmd(longTitle, titles...)
+}
+
+func (s *ccb) NewFlagBuilder(longTitle string, titles ...string) cli.FlagBuilder {
+	return s.Flg(longTitle, titles...)
+}
+
+func (s *ccb) Cmd(longTitle string, titles ...string) cli.CommandBuilder {
+	if atomic.LoadInt32(&s.inCmd) != 0 {
+		panic("cannot call Cmd() without Build() last Cmd()/AddCmd()")
+	}
+	atomic.AddInt32(&s.inCmd, 1)
+	return newCommandBuilderShort(s, longTitle, titles...)
+}
+
+func (s *ccb) Flg(longTitle string, titles ...string) cli.FlagBuilder {
+	if atomic.LoadInt32(&s.inFlg) != 0 {
+		panic("cannot call Flg() without Build() last Flg()")
+	}
+	atomic.AddInt32(&s.inFlg, 1)
+	return newFlagBuilderShort(s, longTitle, titles...)
+}
+
+func (s *ccb) AddCmd(cb func(b cli.CommandBuilder)) cli.CommandBuilder {
+	// if atomic.LoadInt32(&s.inCmd) != 0 {
+	// 	panic("cannot call AddCmd() without Build() last Cmd()/AddCmd()")
+	// }
+
+	bc := newCommandBuilderShort(s, "new-command")
+	defer bc.Build() // `Build' will add `bc'(Command) to s.Command as its SubCommand
+	cb(bc)
+	atomic.AddInt32(&s.inCmd, 1)
+	return s
+}
+
+func (s *ccb) AddFlg(cb func(b cli.FlagBuilder)) cli.CommandBuilder {
+	// if atomic.LoadInt32(&s.inFlg) != 0 {
+	// 	panic("cannot call AddFlg() without Build() last Flg()/AddFlg()")
+	// }
+
+	bc := newFlagBuilderShort(s, "new-flag")
+	defer bc.Build() // `Build' will add `bc'(Flag) to s.Command as its Flag
+	// atomic.AddInt32(&s.inFlg, 1)
+	// defer func() { atomic.AddInt32(&s.inFlg, -1) }()
+	cb(bc)
+	return s
+}
+
+//
+
+//
+
+//
 
 func (s *ccb) Titles(longTitle string, titles ...string) cli.CommandBuilder {
 	s.Long, s.Short, s.Aliases = theTitles(longTitle, titles...)
@@ -137,72 +212,6 @@ func (s *ccb) InvokeShell(commandLine string) cli.CommandBuilder {
 func (s *ccb) UseShell(shellPath string) cli.CommandBuilder {
 	s.SetShell(shellPath)
 	return s
-}
-
-//
-//
-//
-
-func (s *ccb) NewCommandBuilder(longTitle string, titles ...string) cli.CommandBuilder {
-	return s.Cmd(longTitle, titles...)
-}
-
-func (s *ccb) NewFlagBuilder(longTitle string, titles ...string) cli.FlagBuilder {
-	return s.Flg(longTitle, titles...)
-}
-
-func (s *ccb) Cmd(longTitle string, titles ...string) cli.CommandBuilder {
-	if s.inCmd {
-		panic("cannot call Cmd() without Build() last Cmd()/AddCmd()")
-	}
-	s.inCmd = true
-	return newCommandBuilderShort(s, longTitle, titles...)
-}
-
-func (s *ccb) Flg(longTitle string, titles ...string) cli.FlagBuilder {
-	if s.inFlg {
-		panic("cannot call Flg() without Build() last Flg()")
-	}
-	s.inFlg = true
-	return newFlagBuilderShort(s, longTitle, titles...)
-}
-
-func (s *ccb) AddCmd(cb func(b cli.CommandBuilder)) cli.CommandBuilder {
-	if s.inCmd {
-		panic("cannot call AddCmd() without Build() last Cmd()/AddCmd()")
-	}
-	s.inCmd = true
-	defer func() { s.inCmd = false }()
-
-	b := newCommandBuilderShort(s, "")
-	defer b.Build()
-	cb(b)
-	return s
-}
-
-func (s *ccb) AddFlg(cb func(b cli.FlagBuilder)) cli.CommandBuilder {
-	if s.inFlg {
-		panic("cannot call Flg() without Build() last Flg()/AddFlg()")
-	}
-	s.inFlg = true
-	defer func() { s.inFlg = false }()
-
-	b := newFlagBuilderShort(s, "")
-	defer b.Build()
-	cb(b)
-	return s
-}
-
-// addCommand adds a in-building Cmd into current Command as a child-/sub-command.
-func (s *ccb) addCommand(child *cli.Command) {
-	s.inCmd = false
-	s.AddSubCommand(child)
-}
-
-// addFlag adds a in-building Flg into current Command as a child flag.
-func (s *ccb) addFlag(child *cli.Flag) {
-	s.inFlg = false
-	s.AddFlag(child)
 }
 
 func theTitles(longTitle string, titles ...string) (lt, st string, aliases []string) {

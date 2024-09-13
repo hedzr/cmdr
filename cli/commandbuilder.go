@@ -131,22 +131,64 @@ type CommandBuilder interface {
 	//
 	// It can only be called after current command builder built
 	// (Build() called).
+	//
+	// The right usage of Cmd is:
+	//
+	//    b := newCommandBuilderShort(parent, "help", "h", "helpme", "info")
+	//    nb := b.Cmd("command", "c", "cmd", "commands")
+	//    nb.ExtraShorts("cc")
+	//    nb.Build()
+	//    // ...
+	//    b.Build()
+	//
+	// You may prefer to use AddCmd and Closure:
+	//
+	//    b := newCommandBuilderShort(parent, "help", "h", "helpme", "info")
+	//    b.AddCmd(func(b CommandBuilder){
+	//        b.Titles("command", "c", "cmd", "commands")
+	//        b.ExtraShorts("cc")
+	//    })
+	//    // ...
+	//    b.Build()
+	//
 	Cmd(longTitle string, titles ...string) CommandBuilder
 	// Flg is a shortcut to NewFlagBuilder and starts a stream
 	// building for a new flag.
 	//
 	// It can only be called after current command builder built
 	// (Build() called).
+	//
+	// The right usage of Flg is:
+	//
+	//    b := newCommandBuilderShort(parent, "help", "h", "helpme", "info")
+	//    nb := b.Flg("use-less", "l", "less", "more")
+	//    nb.ExtraShorts("m")
+	//    nb.Build()
+	//    // ...
+	//    b.Build()
+	//
+	// You may prefer to use AddFlg and Closure:
+	//
+	//    b := newCommandBuilderShort(parent, "help", "h", "helpme", "info")
+	//    b.AddFlg(func(b FlagBuilder){
+	//        b.Titles("use-less", "l", "less", "more")
+	//        b.ExtraShorts("m")
+	//    })
+	//    // ...
+	//    b.Build()
+	//
 	Flg(longTitle string, titles ...string) FlagBuilder
 
 	// AddCmd starts a closure to build a new sub-command and its children.
-	// After the closure invoked, Build() will be called implicitly.
+	// After the closure invoked, new command's Build() will be called
+	// implicitly.
 	//
 	// It can only be called after current command builder built
 	// (Build() called).
 	AddCmd(func(b CommandBuilder)) CommandBuilder
-	// AddFlg starts a closure to build a flag
-	// After the closure invoked, Build() will be called implicitly.
+	// AddFlg starts a closure to build a new flag.
+	// After the closure invoked, new flag's Build() will be
+	// called implicitly.
 	//
 	// It can only be called after current command builder built
 	// (Build() called).

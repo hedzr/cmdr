@@ -60,6 +60,18 @@ func (s *ccb) Build() {
 	atomic.StoreInt32(&s.inFlg, 0)
 }
 
+func (s *ccb) BuildWith(cb func(b cli.CommandBuilder)) {
+	// if atomic.LoadInt32(&s.inCmd) != 0 {
+	// 	panic("cannot call AddCmd() without Build() last Cmd()/AddCmd()")
+	// }
+
+	bc := newCommandBuilderShort(s, "new-command")
+	defer bc.Build() // `Build' will add `bc'(Command) to s.Command as its SubCommand
+	cb(bc)
+	// atomic.AddInt32(&s.inCmd, 1)
+	// return s
+}
+
 // addCommand adds a in-building Cmd into current Command as a child-/sub-command.
 // used by adder when ccb.Build.
 func (s *ccb) addCommand(child *cli.Command) {

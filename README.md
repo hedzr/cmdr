@@ -127,7 +127,6 @@ import (
 
 	"github.com/hedzr/cmdr/v2"
 	"github.com/hedzr/cmdr/v2/cli"
-	"github.com/hedzr/cmdr/v2/loaders"
 	"github.com/hedzr/cmdr/v2/pkg/dir"
 	"github.com/hedzr/store"
 )
@@ -142,10 +141,10 @@ func main() {
 
 	if err := app.Run(
 		cmdr.WithStore(store.New()),
-		cmdr.WithExternalLoaders(
-			loaders.NewConfigFileLoader(),
-			loaders.NewEnvVarLoader(),
-		),
+		// cmdr.WithExternalLoaders(
+		// 	local.NewConfigFileLoader(),
+		// 	local.NewEnvVarLoader(),
+		// ),
 		cmdr.WithForceDefaultAction(true), // true for debug in developing time
 	); err != nil {
 		logz.Error("Application Error:", "err", err)
@@ -156,49 +155,46 @@ func prepareApp() (app cli.App) {
 	app = cmdr.New().
 		Info("demo-app", "0.3.1").
 		Author("hedzr")
-	app.AddFlg(func(b cli.FlagBuilder) {
-		b.Titles("no-default").
-			Description("disable force default action").
-			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
-				app.Store().Set("app.force-default-action", false)
-				return
-			})
-	})
-	app.AddCmd(func(b cli.CommandBuilder) {
-		b.Titles("jump").
-			Description("jump command").
-			Examples(`jump example`).
-			Deprecated(`jump is a demo command`).
-			Hidden(false)
 
-		b.AddCmd(func(b cli.CommandBuilder) {
-			b.Titles("to").
-				Description("to command").
-				Examples(``).
-				Deprecated(`v0.1.1`).
-				Hidden(false).
-				OnAction(func(cmd *cli.Command, args []string) (err error) {
-					app.Store().Set("app.demo.working", dir.GetCurrentDir())
-					println()
-					println(dir.GetCurrentDir())
-					println()
-					println(app.Store().Dump())
-					return // handling command action here
-				})
-			b.AddFlg(func(b cli.FlagBuilder) {
-				b.Default(false).
-					Titles("full", "f").
-					Description("full command").
-					Build()
-			})
+	app.Flg("no-default").
+		Description("disable force default action").
+		OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
+			app.Store().Set("app.force-default-action", false)
+			return
+		}).
+		Build()
+
+	b := app.Cmd("jump").
+		Description("jump command").
+		Examples(`jump example`).
+		Deprecated(`jump is a demo command`).
+		Hidden(false)
+
+	b1 := b.Cmd("to").
+		Description("to command").
+		Examples(``).
+		Deprecated(`v0.1.1`).
+		Hidden(false).
+		OnAction(func(cmd *cli.Command, args []string) (err error) {
+			app.Store().Set("app.demo.working", dir.GetCurrentDir())
+			println()
+			println(dir.GetCurrentDir())
+			println()
+			println(app.Store().Dump())
+			return // handling command action here
 		})
-	})
+	b1.Flg("full", "f").
+		Default(false).
+		Description("full command").
+		Build()
+	b1.Build()
 
-	app.AddFlg(func(b cli.FlagBuilder) {
-		b.Titles("dry-run", "n").
-			Default(false).
-			Description("run all but without committing")
-	})
+	b.Build()
+
+	app.Flg("dry-run", "n").
+		Default(false).
+		Description("run all but without committing").
+		Build()
 
 	app.Flg("wet-run", "w").
 		Default(false).
@@ -207,6 +203,8 @@ func prepareApp() (app cli.App) {
 	return
 }
 ```
+
+More examples please go to [cmdr-tests/examples](https://github.com/hedzr/cmdr-tests/tree/master/examples).
 
 ## Thanks to JODL
 

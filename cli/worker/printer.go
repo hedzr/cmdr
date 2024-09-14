@@ -146,6 +146,12 @@ func (s *helpPrinter) PrintDebugScreenTo(wr HelpWriter, ctx *parseCtx, lastCmd *
 	s.printEnv(&sb, wr, ctx)
 
 	sb.Reset()
+	s.printRaw(&sb, wr, ctx)
+
+	sb.Reset()
+	s.printMore(&sb, wr, ctx)
+
+	sb.Reset()
 	s.printDebugMatches(&sb, wr, ctx)
 }
 
@@ -273,8 +279,31 @@ func (s *helpPrinter) printEnv(sb *strings.Builder, wr HelpWriter, ctx *parseCtx
 	_, _ = wr.WriteString("\n")
 }
 
+func (s *helpPrinter) printRaw(sb *strings.Builder, wr HelpWriter, ctx *parseCtx) {
+	if found := ctx.hasFlag("raw", func(ff *cli.Flag, state *cli.MatchState) bool { //nolint:revive
+		return state.DblTilde && state.HitTimes > 0
+	}); !found {
+		return
+	}
+
+	_, _ = sb.WriteString("\nRaw:\n")
+	_, _ = wr.WriteString(sb.String())
+	_, _ = wr.WriteString("\n")
+}
+
+func (s *helpPrinter) printMore(sb *strings.Builder, wr HelpWriter, ctx *parseCtx) {
+	if found := ctx.hasFlag("more", func(ff *cli.Flag, state *cli.MatchState) bool { //nolint:revive
+		return state.DblTilde && state.HitTimes > 0
+	}); !found {
+		return
+	}
+
+	_, _ = sb.WriteString("\nMore:\n")
+	_, _ = wr.WriteString(sb.String())
+	_, _ = wr.WriteString("\n")
+}
+
 func (s *helpPrinter) printDebugMatches(sb *strings.Builder, wr HelpWriter, ctx *parseCtx) { //nolint:revive
-	// sb.Reset()
 	if len(ctx.matchedCommands) > 0 {
 		_, _ = sb.WriteString("\nMatched commands:\n")
 		for i, cc := range ctx.matchedCommands {

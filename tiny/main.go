@@ -2,11 +2,11 @@ package main
 
 import (
 	logz "github.com/hedzr/logg/slog"
+	"github.com/hedzr/store"
 
 	"github.com/hedzr/cmdr/v2"
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/pkg/dir"
-	"github.com/hedzr/store"
 )
 
 func main() {
@@ -18,7 +18,8 @@ func main() {
 	// )
 
 	if err := app.Run(
-		cmdr.WithStore(store.New()),
+		cmdr.WithStore(store.New()), // use a option store, if not specified by store.New(), a dummy store allocated
+
 		// cmdr.WithExternalLoaders(
 		// 	local.NewConfigFileLoader(),
 		// 	local.NewEnvVarLoader(),
@@ -31,7 +32,7 @@ func main() {
 
 func prepareApp() (app cli.App) {
 	app = cmdr.New().
-		Info("demo-app", "0.3.1").
+		Info("tiny-app", "0.3.1").
 		Author("hedzr")
 
 	app.Flg("no-default").
@@ -40,18 +41,21 @@ func prepareApp() (app cli.App) {
 			app.Store().Set("app.force-default-action", false)
 			return
 		}).
+		// Group(cli.UnsortedGroup).
 		Build()
 
 	b := app.Cmd("jump").
 		Description("jump command").
 		Examples(`jump example`).
-		Deprecated(`jump is a demo command`).
+		Deprecated(`v1.1.0`).
+		// Group(cli.UnsortedGroup).
 		Hidden(false)
 
 	b1 := b.Cmd("to").
 		Description("to command").
 		Examples(``).
 		Deprecated(`v0.1.1`).
+		// Group(cli.UnsortedGroup).
 		Hidden(false).
 		OnAction(func(cmd *cli.Command, args []string) (err error) {
 			app.Store().Set("app.demo.working", dir.GetCurrentDir())
@@ -64,6 +68,7 @@ func prepareApp() (app cli.App) {
 	b1.Flg("full", "f").
 		Default(false).
 		Description("full command").
+		// Group(cli.UnsortedGroup).
 		Build()
 	b1.Build()
 
@@ -72,11 +77,13 @@ func prepareApp() (app cli.App) {
 	app.Flg("dry-run", "n").
 		Default(false).
 		Description("run all but without committing").
+		Group(cli.UnsortedGroup).
 		Build()
 
 	app.Flg("wet-run", "w").
 		Default(false).
 		Description("run all but with committing").
+		// Group(cli.UnsortedGroup).
 		Build() // no matter even if you're adding the duplicated one.
 	return
 }

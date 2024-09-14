@@ -190,6 +190,19 @@ func (w *workerS) precheckLoaders() {
 			logz.Warn("Config file has been ignored", "config-file", w.configFile)
 		}
 	}
+
+	// By default, we try loading `$(pwd)/.appName.json'.
+	// The main reason is the feature doesn't take new dependence to another 3rd-party lib.
+	// For cmdr/v2, we restrict to go builtins, google, and ours libraries.
+	// And, ours libraries will not import any others except go builtins and google's.
+	if len(w.Config.Loaders) == 0 {
+		appdir := dir.GetCurrentDir()
+		appName := w.Name()
+		jsonLoader := &jsonLoaderS{}
+		jsonLoader.filename = path.Join(appdir, "."+appName+".json")
+		logz.Debug("use internal tiny json loader", "filename", jsonLoader.filename)
+		w.Config.Loaders = append(w.Config.Loaders, jsonLoader)
+	}
 }
 
 // writeBackToLoaders implements write-back mechanism:
@@ -198,7 +211,7 @@ func (w *workerS) writeBackToLoaders(ctx context.Context) (err error) {
 	for _, loader := range w.Config.Loaders {
 		if loader != nil {
 			// see also (*conffileloader).Save(ctx) and file provider, and (*loadS).Save() and trySave()
-			if x, ok := loader.(store.Writeable); ok {
+			if x, ok := loader.(store.Writeable); ok && x != nil {
 				err = x.Save(ctx)
 				if err != nil {
 					break

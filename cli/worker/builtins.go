@@ -12,12 +12,12 @@ import (
 
 func (w *workerS) addBuiltinCommands(root *cli.RootCommand) (err error) { //nolint:unparam //unified form
 	app, cmd := root.App(), root.Command
-	w.builtinVersions(app, cmd)
-	w.builtinHelps(app, cmd)
-	w.builtinVerboses(app, cmd)
 	w.builtinCmdrs(app, cmd)
 	w.builtinSBOM(app, cmd)
 	w.builtinGenerators(app, cmd)
+	w.builtinVerboses(app, cmd)
+	w.builtinVersions(app, cmd)
+	w.builtinHelps(app, cmd)
 	return
 }
 

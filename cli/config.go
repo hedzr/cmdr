@@ -9,7 +9,7 @@ import (
 )
 
 func NewConfig(opts ...Opt) *Config {
-	s := &Config{Store: store.NewDummyStore()}
+	s := DefaultConfig()
 	for _, opt := range opts {
 		opt(s)
 	}
@@ -21,21 +21,25 @@ func DefaultConfig() *Config {
 	return s
 }
 
+// Config for cmdr system,
 type Config struct {
-	store.Store
+	store.Store // default is a dummy store. create yours with store.New().
 
-	ForceDefaultAction bool
-	UnmatchedAsError   bool
-	TasksBeforeParse   []Task
-	TasksBeforeRun     []Task
-	Loaders            []Loader
-	HelpScreenWriter   HelpWriter
-	DebugScreenWriter  HelpWriter
-	Args               []string // for testing
+	ForceDefaultAction bool       // use builtin action for debugging if no Action specified to a command
+	SortInHelpScreen   bool       // auto sort commands and flags rather than creating order
+	UnmatchedAsError   bool       // unmatched command or flag as an error and threw it
+	TasksBeforeParse   []Task     // globally pre-parse tasks
+	TasksBeforeRun     []Task     // golbally pre-run tasks
+	Loaders            []Loader   // external config loaders. use cli.WithLoader() prefer
+	HelpScreenWriter   HelpWriter // redirect stdout for help screen printing
+	DebugScreenWriter  HelpWriter // redirect stdout for debugging outputs
+	Args               []string   // for testing
 }
 
+// Opt for cmdr system
 type Opt func(s *Config)
 
+// Runner interface for a cmdr workerS.
 type Runner interface {
 	// InitGlobally initialize all prerequisites, block itself until all
 	// of them done and Ready signal changed. Some resources can be exceptions

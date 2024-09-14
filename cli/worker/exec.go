@@ -14,10 +14,6 @@ func (w *workerS) exec(ctx *parseCtx) (err error) {
 
 	w.parsingCtx = ctx // save ctx for later, OnAction might need it.
 
-	if w.Store().Has("app.force-default-action") {
-		ctx.forceDefaultAction = w.Store().MustBool("app.force-default-action", false)
-	}
-
 	var deferActions func(errInvoked error)
 	if deferActions, err = w.beforeExec(ctx, lastCmd); err != nil {
 		return

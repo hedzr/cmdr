@@ -3,19 +3,22 @@ package worker
 import (
 	"context"
 	"os"
+	"path"
+	"path/filepath"
 
+	"github.com/hedzr/cmdr/v2/internal/tool"
+	"github.com/hedzr/cmdr/v2/pkg/dir"
 	logz "github.com/hedzr/logg/slog"
 	"github.com/hedzr/store"
 
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/cli/atoa"
-	"github.com/hedzr/cmdr/v2/internal/tool"
 )
 
 func (w *workerS) preProcess() (err error) {
 	// w.Config.Store.Load() // from external providers: 1. consul, 2. local,
 
-	w.preEnvSet()
+	w.preEnvSet() // setup envvars: APP, APP_NAME, etc.
 
 	if err = w.linkCommands(w.root); err != nil {
 		return
@@ -27,11 +30,7 @@ func (w *workerS) preProcess() (err error) {
 
 	// w.Config.Store.Load() // from external providers: 3. env
 
-	// logz.Info("env", "FORCE_DEFAULT_ACTION", os.Getenv("FORCE_DEFAULT_ACTION"))
-	if tool.ToBool(os.Getenv("FORCE_DEFAULT_ACTION"), false) {
-		w.ForceDefaultAction = true
-		logz.Info("ForceDefaultAction set true.", "FORCE_DEFAULT_ACTION", os.Getenv("FORCE_DEFAULT_ACTION"))
-	}
+	w.postEnvLoad()
 
 	logz.Verbose("Store.Dump")
 	logz.Verbose(w.Store().Dump())
@@ -40,6 +39,8 @@ func (w *workerS) preProcess() (err error) {
 }
 
 func (w *workerS) preEnvSet() {
+	// NOTE 'CMDR_VERSION' has been setup.
+
 	_ = os.Setenv("APP", w.root.AppName)
 	_ = os.Setenv("APPNAME", w.root.AppName)
 	_ = os.Setenv("APP_NAME", w.root.AppName)
@@ -48,17 +49,59 @@ func (w *workerS) preEnvSet() {
 
 	logz.Verbose("appName", "appName", w.root.AppName, w.root.AppVersion())
 
+	xdgPrefer := true
+	if w.Store().Has("app.force-xdg-dir-prefer") {
+		xdgPrefer = w.Store().MustBool("app.force-xdg-dir-prefer", false)
+		logz.Verbose("reset force-xdg-dir-prefer from store value", "app.force-xdg-dir-prefer", xdgPrefer)
+	}
+
+	home, _ := os.UserHomeDir()
 	if os.Getenv("HOME") == "" {
-		home, _ := os.UserHomeDir()
 		_ = os.Setenv("HOME", home)
+	} else {
+		home = os.Getenv("HOME")
+	}
+
+	dir := ""
+	if os.Getenv("CONFIG_DIR") == "" { // XDG_CONFIG_DIR
+		if xdgPrefer {
+			dir = filepath.Join(home, ".config", w.root.AppName)
+		} else {
+			dir, _ = os.UserConfigDir()
+		}
+		_ = os.Setenv("CONFIG_DIR", dir)
 	}
 	if os.Getenv("CACHE_DIR") == "" {
-		dir, _ := os.UserCacheDir()
+		if xdgPrefer {
+			dir = filepath.Join(home, ".cache", w.root.AppName)
+		} else {
+			dir, _ = os.UserCacheDir()
+		}
 		_ = os.Setenv("CACHE_DIR", dir)
 	}
-	if os.Getenv("CONFIG_DIR") == "" {
-		dir, _ := os.UserConfigDir()
-		_ = os.Setenv("CONFIG_DIR", dir)
+	if os.Getenv("COMMON_SHARE_DIR") == "" {
+		dir = filepath.Join("/usr", "local", "share", w.root.AppName)
+		_ = os.Setenv("COMMON_SHARE_DIR", dir)
+	}
+	if os.Getenv("LOCAL_SHARE_DIR") == "" {
+		dir = filepath.Join(home, ".local", "share", w.root.AppName)
+		_ = os.Setenv("LOCAL_SHARE_DIR", dir)
+	}
+	if os.Getenv("TEMP_DIR") == "" {
+		dir := os.TempDir()
+		_ = os.Setenv("TEMP_DIR", dir)
+	}
+}
+
+func (w *workerS) postEnvLoad() {
+	// logz.Info("env", "FORCE_DEFAULT_ACTION", os.Getenv("FORCE_DEFAULT_ACTION"))
+	if w.Store().Has("app.force-default-action") {
+		w.ForceDefaultAction = w.Store().MustBool("app.force-default-action", false)
+		logz.Verbose("reset forceDefaultAction from store value", "ForceDefaultAction", w.ForceDefaultAction)
+	}
+	if tool.ToBool(os.Getenv("FORCE_DEFAULT_ACTION"), false) {
+		w.ForceDefaultAction = true
+		logz.Info("set ForceDefaultAction true", "ForceDefaultAction", w.ForceDefaultAction)
 	}
 }
 

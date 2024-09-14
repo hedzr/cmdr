@@ -288,14 +288,14 @@ func (w *workerS) errIsUnmatchedArg(err error) bool {
 	if err == nil {
 		return false
 	}
-	return w.UnmatchedAsError && errors.Iss(err, ErrUnmatchedCommand, ErrUnmatchedCommand)
+	return w.UnmatchedAsError && errors.Iss(err, cli.ErrUnmatchedCommand, cli.ErrUnmatchedCommand)
 }
 
 func (w *workerS) errIsNotUnmatchedArg(err error) bool {
 	if err == nil || !w.UnmatchedAsError {
 		return true
 	}
-	return !errors.Iss(err, ErrUnmatchedCommand, ErrUnmatchedCommand)
+	return !errors.Iss(err, cli.ErrUnmatchedCommand, cli.ErrUnmatchedCommand)
 }
 
 func (w *workerS) errIsSignalOrNil(err error) bool {

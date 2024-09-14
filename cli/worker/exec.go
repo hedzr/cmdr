@@ -4,8 +4,6 @@ import (
 	"context"
 	"sync/atomic"
 
-	errorsv3 "gopkg.in/hedzr/errors.v3"
-
 	logz "github.com/hedzr/logg/slog"
 
 	"github.com/hedzr/cmdr/v2/cli"
@@ -99,7 +97,7 @@ func (w *workerS) checkRequiredFlags(ctx *parseCtx, lastCmd *cli.Command) (err e
 	lastCmd.WalkBackwards(func(cc *cli.Command, ff *cli.Flag, index, groupIndex, count, level int) {
 		if ff != nil {
 			if ff.Required() && ff.GetTriggeredTimes() < 0 {
-				err = ErrRequiredFlag.FormatWith(ff, lastCmd)
+				err = cli.ErrRequiredFlag.FormatWith(ff, lastCmd)
 				_, _, _, _, _, _ = ctx, cc, index, groupIndex, count, level
 				return
 			}
@@ -145,13 +143,13 @@ func (w *workerS) onSingleHyphenMatched(ctx *parseCtx) (err error) { //nolint:un
 
 func (w *workerS) onUnknownCommandMatched(ctx *parseCtx) (err error) {
 	logz.Warn("UNKNOWN <mark>Command</mark> FOUND", "arg", ctx.arg)
-	err = ErrUnmatchedCommand.FormatWith(ctx.arg, ctx.LastCmd())
+	err = cli.ErrUnmatchedCommand.FormatWith(ctx.arg, ctx.LastCmd())
 	return
 }
 
 func (w *workerS) onUnknownFlagMatched(ctx *parseCtx) (err error) {
 	logz.Warn("UNKNOWN <mark>Flag</mark> FOUND", "arg", ctx.arg)
-	err = ErrUnmatchedFlag.FormatWith(ctx.arg, ctx.LastCmd())
+	err = cli.ErrUnmatchedFlag.FormatWith(ctx.arg, ctx.LastCmd())
 	return
 }
 
@@ -160,12 +158,3 @@ func (w *workerS) onUnknownFlagMatched(ctx *parseCtx) (err error) {
 //
 
 //
-
-var (
-	// ErrUnmatchedCommand means Unmatched command found. It's just a state, not a real error, see [cli.Config.UnmatchedAsError]
-	ErrUnmatchedCommand = errorsv3.New("UNKNOWN Command FOUND: %q | cmd=%v")
-	// ErrUnmatchedFlag means Unmatched flag found. It's just a state, not a real error, see [cli.Config.UnmatchedAsError]
-	ErrUnmatchedFlag = errorsv3.New("UNKNOWN Flag FOUND: %q | cmd=%v")
-	// ErrRequiredFlag means required flag must be set explicitly
-	ErrRequiredFlag = errorsv3.New("Flag %q is REQUIRED | cmd=%v")
-)

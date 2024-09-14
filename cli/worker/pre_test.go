@@ -178,7 +178,7 @@ func TestWorkerS_Parse(t *testing.T) { //nolint:revive
 
 		// ~~tree
 		{args: "ms t t --tree", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
-			if errorsv3.Is(errParsed, ErrUnmatchedFlag) {
+			if errorsv3.Is(errParsed, cli.ErrUnmatchedFlag) {
 				t.Log("ErrUnmatchedFlag FOUND, that's expecting.")
 			}
 			return errParsed
@@ -186,7 +186,7 @@ func TestWorkerS_Parse(t *testing.T) { //nolint:revive
 
 		// ~~tree 2
 		{args: "ms t t ~~tree", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
-			if errorsv3.Is(errParsed, ErrUnmatchedFlag) {
+			if errorsv3.Is(errParsed, cli.ErrUnmatchedFlag) {
 				t.Fatal("ErrUnmatchedFlag FOUND, that's NOT expecting.")
 			}
 			if !ctx.matchedFlags[ctx.flag("tree")].DblTilde {

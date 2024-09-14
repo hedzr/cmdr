@@ -119,7 +119,7 @@ loopArgs:
 }
 
 func (w *workerS) matchCommand(ctx *parseCtx) (err error) {
-	err = ErrUnmatchedCommand
+	err = cli.ErrUnmatchedCommand
 	cmd := ctx.LastCmd()
 	if short, cc := cmd.Match(ctx.arg); cc != nil {
 		ms, handled := ctx.addCmd(cc, short), false
@@ -133,7 +133,7 @@ func (w *workerS) matchCommand(ctx *parseCtx) (err error) {
 }
 
 func (w *workerS) matchFlag(ctx *parseCtx, short bool) (err error) {
-	err = ErrUnmatchedFlag
+	err = cli.ErrUnmatchedFlag
 	cmd, vp := ctx.LastCmd(), cli.NewFVP(w.args[ctx.i+1:], ctx.arg, short, ctx.prefixPlusSign.Load(), ctx.dblTilde)
 	// defer func() { ctx.i, vp.AteArgs = ctx.i+vp.AteArgs, 0 }()
 

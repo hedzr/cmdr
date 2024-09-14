@@ -1,3 +1,5 @@
+github.com/fsnotify/fsnotify v1.7.0 h1:8JEhPFa5W2WU7YfeZzPNqzMP6Lwt7L2715Ggo0nosvA=
+github.com/fsnotify/fsnotify v1.7.0/go.mod h1:40Bi/Hjc2AVfZrqy+aj+yEI+/bRxZnMJyTJwOpGvigM=
 github.com/hedzr/evendeep v1.1.15 h1:AXdr2IcxRAz5UTgoDCBT/1IT1G8zskxLWLBFamT+rqM=
 github.com/hedzr/evendeep v1.1.15/go.mod h1:R3ET1ZwsyDck9Vk66s4s586Or/wq5Xy/J81SLJMlYGc=
 github.com/hedzr/is v0.5.23 h1:lJGPRPzQxsCUvVVnugRFPVPzVDxoCAF5gylFMDiCy68=
@@ -6,6 +8,10 @@ github.com/hedzr/logg v0.5.23 h1:MziDfVgOWKs6Sf06TcR5WI6dp8L0vE/1m0SxMDdg374=
 github.com/hedzr/logg v0.5.23/go.mod h1:+2JfyVz3D0lTGZ90GnWOH4lNDd/yKUqwOp1kdqVcTZs=
 github.com/hedzr/store v1.0.15 h1:VfiHXdaSmUETKoaguR00UyYL00gYojNHHhw47gmLftE=
 github.com/hedzr/store v1.0.15/go.mod h1:b/Xa9uzCrQscy57ObJE5nJjzeWuVx/DlKrrQVpaS8l0=
+github.com/hedzr/store/codecs/json v1.0.15 h1:TiXN2k6ASnD8QBEBP8ocrbDL88ViCTQ7kciGuayE57Q=
+github.com/hedzr/store/codecs/json v1.0.15/go.mod h1:WlZPUP5JjPSYnljMGyMxJDHRJQYO4cr14McefBaLphI=
+github.com/hedzr/store/providers/file v1.0.15 h1:lgQ9UOwDeOi/JnUC18BkBDDInFuzZE5k3Sixki/RBOg=
+github.com/hedzr/store/providers/file v1.0.15/go.mod h1:13AOomF5ktvT9/NgW4btRIxJCQ71e8hYvRIrz1yQGrw=
 golang.org/x/crypto v0.27.0 h1:GXm2NjJrPaiv/h1tb2UH8QfgC/hOf/+z0p6PT8o1w7A=
 golang.org/x/crypto v0.27.0/go.mod h1:1Xngt8kV6Dvbssa53Ziq6Eqn0HqbZi5Z6R0ZpwQzt70=
 golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 h1:e66Fs6Z+fZTbFBAxKfP3PALWBtpfqks2bwGcexMxgtk=

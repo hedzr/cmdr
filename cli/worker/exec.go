@@ -96,11 +96,11 @@ func (w *workerS) beforeExec(ctx *parseCtx, lastCmd *cli.Command) (deferActions 
 }
 
 func (w *workerS) checkRequiredFlags(ctx *parseCtx, lastCmd *cli.Command) (err error) { //nolint:revive
-	lastCmd.WalkBackwards(func(cc *cli.Command, ff *cli.Flag, index, count, level int) {
+	lastCmd.WalkBackwards(func(cc *cli.Command, ff *cli.Flag, index, groupIndex, count, level int) {
 		if ff != nil {
 			if ff.Required() && ff.GetTriggeredTimes() < 0 {
 				err = ErrRequiredFlag.FormatWith(ff, lastCmd)
-				_, _, _, _, _ = ctx, cc, index, count, level
+				_, _, _, _, _, _ = ctx, cc, index, groupIndex, count, level
 				return
 			}
 		}

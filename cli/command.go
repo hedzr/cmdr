@@ -1156,28 +1156,79 @@ func (c *Command) CountOfFlags() int {
 
 // WalkBackwards is a simple way to loop for all commands.
 func (c *Command) WalkBackwards(cb WalkBackwardsCB) {
-	hist := make(map[*Command]bool)
-	c.walkBackwardsImpl(hist, c, 0, cb)
+	ctx := &WalkBackwardsCtx{
+		Grouped: true,
+		hist:    make(map[*Command]bool),
+		histff:  make(map[*Flag]bool),
+	}
+	c.walkBackwardsImpl(ctx, c, 0, cb)
+}
+func (c *Command) WalkBackwardsCtx(cb WalkBackwardsCB, ctx *WalkBackwardsCtx) {
+	if ctx.hist == nil {
+		ctx.hist = make(map[*Command]bool)
+	}
+	if ctx.histff == nil {
+		ctx.histff = make(map[*Flag]bool)
+	}
+	c.walkBackwardsImpl(ctx, c, 0, cb)
 }
 
-type WalkBackwardsCB func(cc *Command, ff *Flag, index, count, level int)
+type WalkBackwardsCtx struct {
+	Grouped bool
+	hist    map[*Command]bool
+	histff  map[*Flag]bool
+}
 
-func (c *Command) walkBackwardsImpl(hist map[*Command]bool, cmd *Command, level int, cb WalkBackwardsCB) {
+// WalkBackwardsCB is a callback functor used by WalkBackwards.
+//
+// cc and ff is the looping command and/or one of its flags. ff == nil means
+// that the looping item is a command in this turn.
+//
+// index and groupIndex is 0-based.
+//
+// count is count of items in a command/flag group.
+//
+// level is how many times the nested flags or commands backwards to
+// the root command.
+type WalkBackwardsCB func(cc *Command, ff *Flag, index, groupIndex, count, level int)
+
+func (c *Command) walkBackwardsImpl(ctx *WalkBackwardsCtx, cmd *Command, level int, cb WalkBackwardsCB) {
 	if cb != nil {
 		if level == 0 {
 			count := len(cmd.commands)
+			lastG, gi := "", 0
 			for i, cc := range cmd.commands {
-				cb(cc, nil, i, count, level)
+				if _, ok := ctx.hist[cc]; !ok {
+					ctx.hist[cc] = true
+					if ctx.Grouped {
+						if g := cc.GroupHelpTitle(); g != lastG {
+							lastG, gi = g, 0
+						}
+					}
+					cb(cc, nil, i, gi, count, level)
+					gi++
+				}
 			}
 		}
+
 		count := len(cmd.flags)
+		lastG, gi := "", 0
 		for i, ff := range cmd.flags {
-			cb(cmd, ff, i, count, level)
+			if _, ok := ctx.histff[ff]; !ok {
+				ctx.histff[ff] = true
+				if ctx.Grouped {
+					if g := ff.GroupHelpTitle(); g != lastG {
+						lastG, gi = g, 0
+					}
+				}
+				cb(cmd, ff, i, gi, count, level)
+				gi++
+			}
 		}
 	}
 
 	if cmd.owner != nil && cmd.owner != cmd {
-		c.walkBackwardsImpl(hist, cmd.owner, level+1, cb)
+		c.walkBackwardsImpl(ctx, cmd.owner, level+1, cb)
 	}
 }
 

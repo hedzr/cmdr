@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/hedzr/is"
 	"github.com/hedzr/is/states"
 	"github.com/hedzr/is/term"
 	"github.com/hedzr/is/term/color"
@@ -53,6 +54,8 @@ func (s *helpPrinter) PrintTo(wr HelpWriter, ctx *parseCtx, lastCmd *cli.Command
 	cols, rows := s.safeGetTermSize()
 
 	if s.treeMode {
+		// ~~tree: list all commands in tree style for a overview
+
 		s.printHeader(&sb, lastCmd, ctx, cols, tabbedW)
 		lastCmd.WalkGrouped(func(cc, pp *cli.Command, ff *cli.Flag, group string, idx, level int) { //nolint:revive
 			switch {
@@ -65,11 +68,13 @@ func (s *helpPrinter) PrintTo(wr HelpWriter, ctx *parseCtx, lastCmd *cli.Command
 		_, _ = wr.WriteString(sb.String())
 		_, _ = wr.WriteString("\n")
 	} else {
+		// normal help screen
+
 		s.printHeader(&sb, lastCmd, ctx, cols, tabbedW)
 		s.printUsage(&sb, lastCmd, ctx, cols, tabbedW)
 		s.printDesc(&sb, lastCmd, ctx, cols, tabbedW)
 		s.printExamples(&sb, lastCmd, ctx, cols, tabbedW)
-		lastCmd.WalkBackwards(func(cc *cli.Command, ff *cli.Flag, index, count, level int) {
+		lastCmd.WalkBackwards(func(cc *cli.Command, ff *cli.Flag, index, groupIndex, count, level int) {
 			if ff == nil {
 				cnt := cc.Owner().CountOfCommands()
 				if index == 0 && min(cnt, count) > 0 {
@@ -81,7 +86,7 @@ func (s *helpPrinter) PrintTo(wr HelpWriter, ctx *parseCtx, lastCmd *cli.Command
 					// _, _ = sb.WriteString(strconv.Itoa(count))
 					// _, _ = sb.WriteString("]:\n")
 				}
-				s.printCommand(&sb, &verboseCount, cc, "", index, 1, cols, tabbedW)
+				s.printCommand(&sb, &verboseCount, cc, cc.GroupHelpTitle(), groupIndex, 1, cols, tabbedW)
 				return
 			}
 
@@ -101,7 +106,7 @@ func (s *helpPrinter) PrintTo(wr HelpWriter, ctx *parseCtx, lastCmd *cli.Command
 					_, _ = sb.WriteString("):\n")
 				}
 			}
-			s.printFlag(&sb, &verboseCount, ff, "", index, 1, cols, tabbedW)
+			s.printFlag(&sb, &verboseCount, ff, ff.GroupHelpTitle(), groupIndex, 1, cols, tabbedW)
 		})
 		s.printTailLine(&sb, lastCmd, ctx, cols, tabbedW)
 		_, _ = wr.WriteString(sb.String())
@@ -342,7 +347,7 @@ func (s *helpPrinter) printCommand(sb *strings.Builder, verboseCount *int, cc *c
 
 	deprecated := cc.Deprecated() != ""
 	trans := func(ss string, clr color.Color) string {
-		ss = s.Translate(ss, clr)
+		ss = s.Translate(strings.TrimSpace(ss), clr)
 		if deprecated {
 			ss = term.StripEscapes(ss)
 		}
@@ -427,7 +432,7 @@ func (s *helpPrinter) printFlag(sb *strings.Builder, verboseCount *int, ff *cli.
 		return
 	}
 
-	groupedInc := 1
+	groupedInc := 0
 	if group != "" {
 		if idx == 0 {
 			_, _ = sb.WriteString(strings.Repeat("  ", level+groupedInc))
@@ -449,7 +454,7 @@ func (s *helpPrinter) printFlag(sb *strings.Builder, verboseCount *int, ff *cli.
 
 	deprecated := ff.Deprecated() != ""
 	trans := func(ss string, clr color.Color) string {
-		ss = s.Translate(ss, clr)
+		ss = s.Translate(strings.TrimSpace(ss), clr)
 		if deprecated {
 			ss = term.StripEscapes(ss)
 		}
@@ -487,10 +492,10 @@ func (s *helpPrinter) printFlag(sb *strings.Builder, verboseCount *int, ff *cli.
 			_, _ = sb.WriteString(strings.Repeat(" ", tabbedW))
 		}
 	}
+	rCols := cols - tabbedW
 	if right != "" {
 		s.WriteColor(sb, CurrentDescColor)
 
-		rCols := cols - tabbedW
 		_, l, l1st := len(right), len(right)+len(defPlain)+len(depPlain), len(tg)
 		// aa := []string{}
 		if l+l1st >= rCols {
@@ -505,12 +510,13 @@ func (s *helpPrinter) printFlag(sb *strings.Builder, verboseCount *int, ff *cli.
 				l1st = 0
 			}
 			if right != "" {
+				str := trans(right, CurrentDescColor)
 				if ix > 0 {
 					printleftpad(ix > 0)
 				} else {
-					split, printed = true, len(right)
+					split, printed = true, len(is.StripEscapes(str))
 				}
-				_, _ = sb.WriteString(trans(right, CurrentDescColor))
+				_, _ = sb.WriteString(str)
 			}
 		} else {
 			_, _ = sb.WriteString(trans(right, CurrentDescColor))
@@ -524,25 +530,34 @@ func (s *helpPrinter) printFlag(sb *strings.Builder, verboseCount *int, ff *cli.
 	} else {
 		s.WriteColor(sb, CurrentDescColor)
 		_, _ = sb.WriteString(trans("<i>desc</i>", CurrentDescColor))
+		printed += 4
 	}
 
-	if def != "" {
+	if def != "" && printed >= 0 {
 		if split {
-			printleftpad(split)
-			split = false
+			deflen := len(is.StripEscapes(def))
+			printed += deflen
+			if printed >= rCols {
+				printleftpad(split)
+			}
 		}
-		if printed >= 0 {
+		if sb.String()[sb.Len()-1] != ' ' {
 			_, _ = sb.WriteString(" ")
-			_, _ = sb.WriteString(def)
 		}
+		_, _ = sb.WriteString(def)
 	}
 
 	if dep != "" {
 		if split {
-			printleftpad(split)
-			split = false
+			deplen := len(is.StripEscapes(dep))
+			printed += deplen
+			if printed >= rCols {
+				printleftpad(split)
+			}
 		}
-		_, _ = sb.WriteString(" ")
+		if sb.String()[sb.Len()-1] != ' ' {
+			_, _ = sb.WriteString(" ")
+		}
 		_, _ = sb.WriteString(dep)
 		logz.Verbose("split flag is", "split", split)
 	}

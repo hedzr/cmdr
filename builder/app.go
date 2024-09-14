@@ -88,11 +88,17 @@ func (s *appS) ensureNewApp() cli.App { //nolint:unparam
 
 func (s *appS) Info(name, version string, desc ...string) cli.App {
 	s.ensureNewApp()
-	if s.root.AppName == "" {
+	if name != "" {
 		s.root.AppName = name
+		if name != conf.AppName {
+			conf.AppName = name
+		}
 	}
-	if s.root.Version == "" {
+	if version != "" {
 		s.root.Version = version
+		if version != conf.Version {
+			conf.Version = version
+		}
 	}
 	s.root.SetDescription("", desc...)
 	return s

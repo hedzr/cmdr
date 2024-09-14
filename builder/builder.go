@@ -7,6 +7,7 @@ import (
 
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/conf"
+	"github.com/hedzr/cmdr/v2/pkg/dir"
 )
 
 func New(w cli.Runner) cli.App {
@@ -24,6 +25,13 @@ func New(w cli.Runner) cli.App {
 }
 
 func newDefaultRoot() *cli.RootCommand {
+	if conf.AppName == "" {
+		conf.AppName = dir.Basename(dir.GetExecutablePath())
+	}
+	if conf.Version == "" {
+		conf.Version = "v0.0.1-debug"
+	}
+
 	root := new(cli.RootCommand)
 	root.Command = new(cli.Command)
 	root.AppName = conf.AppName

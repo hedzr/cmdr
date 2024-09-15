@@ -6,32 +6,57 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+
+	"github.com/hedzr/cmdr/v2/pkg/dir"
+	"github.com/hedzr/is/stringtool"
+	logz "github.com/hedzr/logg/slog"
 )
 
+func TempFileName(fileNamePattern, defaultFileName string) (filename string) {
+	f, err := os.CreateTemp(os.TempDir(), fileNamePattern)
+	if err != nil {
+		logz.Error("cannot create temporary file for flag", "err", err)
+		return defaultFileName
+	}
+	filename = f.Name()
+	_ = f.Close()
+	return
+}
+
 // LaunchEditor launches the specified editor
-func LaunchEditor(editor string, fnamegetter func() string) (content []byte, err error) {
-	getter := fnamegetter
+func LaunchEditor(editor string) (content []byte, err error) {
+	return LaunchEditorWithGetter(editor, nil, false)
+}
+
+func LaunchEditorWithGetter(editor string, filenamegetter func() string, simulate bool) (content []byte, err error) {
+	getter := filenamegetter
 	if getter == nil {
 		getter = shellEditorRandomFilename
 	}
-	return launchEditorImpl(editor, getter())
+	return launchEditorImpl(editor, getter(), simulate)
 }
 
 func shellEditorRandomFilename() (fn string) {
-	buf := make([]byte, 16)
-	fn = os.Getenv("HOME") + ".CMDR_EDIT_FILE"
+	buf := make([]byte, 5)
+	fn = os.Getenv("HOME") + ".CMDR_edit_file_.tmp"
 	if _, err := rand.Read(buf); err == nil {
-		fn = fmt.Sprintf("%v/.CMDR_%x", os.Getenv("HOME"), buf)
+		// generate a random name like '.CMDR_986ec1b553.tmp'
+		fn = fmt.Sprintf("%v/.CMDR_%x.tmp", os.Getenv("HOME"), buf)
 	}
 	return
 }
 
 // LaunchEditorWith launches the specified editor with a filename
 func LaunchEditorWith(editor, filename string) (content []byte, err error) {
-	return launchEditorImpl(editor, filename)
+	return launchEditorImpl(editor, filename, false)
 }
 
-func launchEditorImpl(editor, filename string) (content []byte, err error) {
+func launchEditorImpl(editor, filename string, simulate bool) (content []byte, err error) {
+	if simulate {
+		content = []byte(stringtool.RandomStringPure(10))
+		return
+	}
+
 	cmd := exec.Command(editor, filename)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -45,8 +70,12 @@ func launchEditorImpl(editor, filename string) (content []byte, err error) {
 		}
 	}
 
+	var exists bool
+	if _, exists, err = dir.Exists(filename); err == nil && exists {
+		defer func() { _ = DeleteFile(filename) }()
+	}
+
 	content, err = ReadFile(filename)
-	defer func() { _ = DeleteFile(filename) }()
 	if err != nil {
 		return []byte{}, nil
 	}

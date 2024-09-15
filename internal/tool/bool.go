@@ -10,10 +10,27 @@ func ToBool(val any, defaultVal ...bool) (ret bool) {
 		if v, ok := val.(bool); ok {
 			return v
 		}
-		switch val.(type) {
-		case int, int8, int16, int32, int64,
-			uint, uint8, uint16, uint32, uint64:
-			return val != 0
+		switch v := val.(type) {
+		case int:
+			return v != 0
+		case int8:
+			return v != 0
+		case int16:
+			return v != 0
+		case int32:
+			return v != 0
+		case int64:
+			return v != 0
+		case uint:
+			return v != 0
+		case uint8:
+			return v != 0
+		case uint16:
+			return v != 0
+		case uint32:
+			return v != 0
+		case uint64:
+			return v != 0
 		}
 		if v, ok := val.(string); ok {
 			return toBoolClassical(v, defaultVal...)
@@ -21,6 +38,10 @@ func ToBool(val any, defaultVal ...bool) (ret bool) {
 	}
 	return toBoolDefVal(defaultVal...)
 }
+
+// func isZero[T slog.Integers | slog.Uintegers](v T) bool {
+// 	return v == 0
+// }
 
 func toBoolDefVal(defaultVal ...bool) (ret bool) {
 	for _, vv := range defaultVal {

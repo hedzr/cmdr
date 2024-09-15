@@ -42,6 +42,12 @@ func trimQuotes(s string) string {
 //
 // In: `bash -c 'echo hello world!'`
 // Out: []string{ "bash", "-c", "echo hello world!"}
+//
+// For example:
+//
+//	in := `bash -c 'echo hello world!'`
+//	out := SplitCommandString(in, '\'', '"')
+//	println(out)   // will got: []string{ "bash", "-c", "echo hello world!"}
 func SplitCommandString(s string, quoteChars ...rune) []string {
 	var qc rune = '"'
 	var m = map[rune]bool{qc: true}

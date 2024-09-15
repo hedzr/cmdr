@@ -925,6 +925,7 @@ func newTestRunner() Runner {
 	return &workerS{store.New()}
 }
 
+// workerS for testing only
 type workerS struct {
 	store store.Store
 }
@@ -946,6 +947,7 @@ func (*workerS) Root() *RootCommand               { return nil }
 
 //
 
+// appS for testing only
 type appS struct {
 	Runner
 	root  *RootCommand

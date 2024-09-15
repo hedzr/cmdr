@@ -7,6 +7,41 @@ import (
 	"time"
 )
 
+func (c *RootCommand) SetApp(app App) *RootCommand {
+	c.app = app
+	c.root = c
+	if a, ok := app.(interface {
+		WithRootCommand(command *RootCommand) App
+	}); ok {
+		a.WithRootCommand(c)
+	}
+	return c
+}
+
+func (c *RootCommand) NewCmd(longTitle string) *Command {
+	cc := &Command{
+		BaseOpt: BaseOpt{
+			Long:  longTitle,
+			owner: c.Command,
+			root:  c,
+		},
+	}
+	c.AddSubCommand(cc)
+	return cc
+}
+
+func (c *RootCommand) NewFlg(longTitle string) *Flag {
+	cc := &Flag{
+		BaseOpt: BaseOpt{
+			Long:  longTitle,
+			owner: c.root.Command,
+			root:  c.root,
+		},
+	}
+	c.AddFlag(cc)
+	return cc
+}
+
 // Attach attaches new root command on it
 func (c *RootCommand) Attach(newRootCommand *Command) {
 	c.Command = newRootCommand

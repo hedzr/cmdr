@@ -9,6 +9,7 @@ import (
 	"github.com/hedzr/store/providers/file"
 )
 
+// jsonLoaderS is a minimal json loader for internal purpose
 type jsonLoaderS struct {
 	Watch     bool
 	WriteBack bool
@@ -24,8 +25,8 @@ type writeBackHandler interface {
 func (j *jsonLoaderS) Load(app cli.App) (err error) {
 	var wr writeBackHandler
 	wr, err = app.Store().Load(context.Background(),
-		// store.WithStorePrefix("app.yaml"),
-		// store.WithPosition("app"),
+		// test: store.WithStorePrefix("app.yaml"),
+		// test: store.WithPosition("app"),
 		store.WithCodec(j.codec()),
 		store.WithProvider(file.New(j.filename,
 			file.WithWatchEnabled(j.Watch),

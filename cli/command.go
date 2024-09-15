@@ -800,18 +800,11 @@ func (c *Command) invokeExternalEditor(vp *FlagValuePkg, ff *Flag) *Flag {
 
 	logz.Debug("external editor", "ex-editor", ff.externalEditor)
 	if cmd := os.Getenv(ff.externalEditor); cmd != "" {
-		f, err := os.CreateTemp(os.TempDir(), "message*.tmp")
-		if err != nil {
-			logz.Error("cannot create temporary file for flag", "flag", ff)
-			return nil
-		}
-		file := f.Name()
-		f.Close()
+		file := tool.TempFileName("message*.tmp", "message001.tmp")
 		cmdS := tool.SplitCommandString(cmd)
 		cmdS = append(cmdS, file)
 		defer func(dst string) {
-			err = dir.DeleteFile(dst)
-			if err != nil {
+			if err := dir.DeleteFile(dst); err != nil {
 				logz.Error("cannot delete temporary file for flag", "flag", ff)
 			}
 		}(file)
@@ -823,24 +816,35 @@ func (c *Command) invokeExternalEditor(vp *FlagValuePkg, ff *Flag) *Flag {
 			return ff
 		}
 
-		err = exec.CallSliceQuiet([]string{"which", cmdS[0]}, func(retCode int, stdoutText string) {
+		if err := exec.CallSliceQuiet([]string{"which", cmdS[0]}, func(retCode int, stdoutText string) {
 			if retCode == 0 {
 				cmdS[0] = strings.TrimSpace(strings.TrimSuffix(stdoutText, "\n"))
 				logz.Debug("got external editor real-path", "cmd", cmdS)
 			}
-		})
-
-		if err != nil {
+		}); err != nil {
 			logz.Error("cannot invoke which Command", "flag", ff, "cmd", cmdS)
 			return nil
 		}
 
 		var content []byte
-		content, err = tool.LaunchEditor(cmdS[0], func() string { return cmdS[1] })
+		var err error
+		content, err = tool.LaunchEditorWithGetter(cmdS[0], func() string { return cmdS[1] }, false)
 		if err != nil {
 			logz.Error("Error on launching cmd", "err", err, "cmd", cmdS)
 			return nil
 		}
+
+		// content, err = tool.LaunchEditorWith(cmdS[0], cmdS[1])
+		// if err != nil {
+		// 	logz.Error("Error on launching cmd", "err", err, "cmd", cmdS)
+		// 	return nil
+		// }
+		//
+		// content, err = tool.LaunchEditor(cmdS[0])
+		// if err != nil {
+		// 	logz.Error("Error on launching cmd", "err", err, "cmd", cmdS)
+		// 	return nil
+		// }
 
 		// f, err = os.Open(file)
 		// if err != nil {

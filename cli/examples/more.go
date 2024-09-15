@@ -181,10 +181,7 @@ func AttachMsCommand(parent cli.CommandBuilder) { //nolint:funlen //a test
 	parent.Cmd("list", "ls", "l", "lst", "dir").
 		Description("list tags for ms cmd", "").
 		Group("2333.List").
-		OnAction(func(cmd *cli.Command, args []string) (err error) {
-			_, _ = cmd, args
-			return
-		}).
+		OnAction(msList).
 		Build()
 
 	cb := parent.Cmd("tags", "t").
@@ -207,10 +204,7 @@ func tagsCommands(parent cli.CommandBuilder) { //nolint:revive
 	cb := parent.Cmd("list", "ls", "l", "lst", "dir").
 		Description("list tags for ms tags cmd").
 		Group("2333.List").
-		OnAction(func(cmd *cli.Command, args []string) (err error) {
-			_, _ = cmd, args
-			return
-		})
+		OnAction(msTagsList)
 	cb.Build()
 
 	// ms tags add
@@ -333,10 +327,7 @@ func tagsCommands(parent cli.CommandBuilder) { //nolint:revive
 	cb = parent.Cmd("toggle", "t", "tog", "switch").
 		Description("toggle tags").
 		Group("").
-		OnAction(func(cmd *cli.Command, args []string) (err error) {
-			_, _ = cmd, args
-			return
-		})
+		OnAction(msTagsToggle)
 
 	AttachModifyFlags(cb)
 
@@ -466,63 +457,65 @@ func tgCommand(parent cli.CommandBuilder) { //nolint:revive
 	cb.Build()
 }
 
+func mxTest(cmd *cli.Command, args []string) (err error) {
+	_, _ = cmd, args
+	// cmdr.Set("test.1", 8)
+	cmd.Set().Set("test.deep.branch.1", "test")
+	z := cmd.Set().MustString("app.test.deep.branch.1")
+	fmt.Printf("*** Got app.test.deep.branch.1: %s\n", z)
+	if z != "test" {
+		logz.Fatal("err, expect 'test', but got z", "z", z)
+	}
+
+	cmd.Set().Remove("app.test.deep.branch.1")
+	if cmd.Set().Has("app.test.deep.branch.1") {
+		logz.Fatal("FAILED, expect key not found, but found a value associated with: ", "value", cmd.Set().MustR("app.test.deep.branch.1"))
+	}
+	fmt.Printf("*** Got app.test.deep.branch.1 (after deleted): %s\n", cmd.Set().MustString("app.test.deep.branch.1"))
+
+	fmt.Printf("*** Got pp: %s\n", cmd.Set().MustString("app.mx-test.password"))
+	fmt.Printf("*** Got msg: %s\n", cmd.Set().MustString("app.mx-test.message"))
+	fmt.Printf("*** Got fruit (valid args): %v\n", cmd.Set().MustString("app.mx-test.fruit"))
+	fmt.Printf("*** Got head (head-like): %v\n", cmd.Set().MustInt("app.mx-test.head"))
+	fmt.Println()
+	fmt.Printf("*** test text: %s\n", cmd.Set().MustString("mx-test.test"))
+	fmt.Println()
+	// fmt.Printf("> InTesting: args[0]=%v \n", tool.SavedOsArgs[0])
+	// fmt.Println()
+	// fmt.Printf("> Used config file: %v\n", cmd.Set().GetUsedConfigFile())
+	// fmt.Printf("> Used config files: %v\n", cmd.Set().GetUsingConfigFiles())
+	// fmt.Printf("> Used config sub-dir: %v\n", cmd.Set().GetUsedConfigSubDir())
+
+	fmt.Printf("> STDIN MODE: %v \n", cmd.Set().MustBool("mx-test.stdin"))
+	fmt.Println()
+
+	// logrus.Debug("debug")
+	// logrus.Info("debug")
+	// logrus.Warning("debug")
+	// logrus.WithField(logex.SKIP, 1).Warningf("dsdsdsds")
+
+	if cmd.Set().MustBool("mx-test.stdin") {
+		fmt.Println("> Type your contents here, press Ctrl-D to end it:")
+		var data []byte
+		data, err = dir.ReadAll(os.Stdin)
+		if err != nil {
+			logz.Error("error:", "err", err)
+			return
+		}
+		fmt.Println("> The input contents are:")
+		fmt.Print(string(data))
+		fmt.Println()
+	}
+	return
+}
+
 func mxCommand(parent cli.CommandBuilder) { //nolint:revive
 	// mx-test
 
 	cb := parent.Cmd("mx-test", "mx").
 		Description("mx test new features", "mx test new features,\nverbose long descriptions here.").
 		Group("Test").
-		OnAction(func(cmd *cli.Command, args []string) (err error) {
-			_, _ = cmd, args
-			// cmdr.Set("test.1", 8)
-			cmd.Set().Set("test.deep.branch.1", "test")
-			z := cmd.Set().MustString("app.test.deep.branch.1")
-			fmt.Printf("*** Got app.test.deep.branch.1: %s\n", z)
-			if z != "test" {
-				logz.Fatal("err, expect 'test', but got z", "z", z)
-			}
-
-			cmd.Set().Remove("app.test.deep.branch.1")
-			if cmd.Set().Has("app.test.deep.branch.1") {
-				logz.Fatal("FAILED, expect key not found, but found a value associated with: ", "value", cmd.Set().MustR("app.test.deep.branch.1"))
-			}
-			fmt.Printf("*** Got app.test.deep.branch.1 (after deleted): %s\n", cmd.Set().MustString("app.test.deep.branch.1"))
-
-			fmt.Printf("*** Got pp: %s\n", cmd.Set().MustString("app.mx-test.password"))
-			fmt.Printf("*** Got msg: %s\n", cmd.Set().MustString("app.mx-test.message"))
-			fmt.Printf("*** Got fruit (valid args): %v\n", cmd.Set().MustString("app.mx-test.fruit"))
-			fmt.Printf("*** Got head (head-like): %v\n", cmd.Set().MustInt("app.mx-test.head"))
-			fmt.Println()
-			fmt.Printf("*** test text: %s\n", cmd.Set().MustString("mx-test.test"))
-			fmt.Println()
-			// fmt.Printf("> InTesting: args[0]=%v \n", tool.SavedOsArgs[0])
-			// fmt.Println()
-			// fmt.Printf("> Used config file: %v\n", cmd.Set().GetUsedConfigFile())
-			// fmt.Printf("> Used config files: %v\n", cmd.Set().GetUsingConfigFiles())
-			// fmt.Printf("> Used config sub-dir: %v\n", cmd.Set().GetUsedConfigSubDir())
-
-			fmt.Printf("> STDIN MODE: %v \n", cmd.Set().MustBool("mx-test.stdin"))
-			fmt.Println()
-
-			// logrus.Debug("debug")
-			// logrus.Info("debug")
-			// logrus.Warning("debug")
-			// logrus.WithField(logex.SKIP, 1).Warningf("dsdsdsds")
-
-			if cmd.Set().MustBool("mx-test.stdin") {
-				fmt.Println("> Type your contents here, press Ctrl-D to end it:")
-				var data []byte
-				data, err = dir.ReadAll(os.Stdin)
-				if err != nil {
-					logz.Error("error:", "err", err)
-					return
-				}
-				fmt.Println("> The input contents are:")
-				fmt.Print(string(data))
-				fmt.Println()
-			}
-			return
-		})
+		OnAction(mxTest)
 
 	cb.Flg("test", "t").
 		Default("").
@@ -578,24 +571,26 @@ func cmdrXyPrint(parent cli.CommandBuilder) {
 	parent.Cmd("xy-print", "xy").
 		Description("test terminal control sequences", "xy-print test terminal control sequences,\nverbose long descriptions here.").
 		Group("Test").
-		OnAction(func(cmd *cli.Command, args []string) (err error) {
-			//
-			// https://en.wikipedia.org/wiki/ANSI_escape_code
-			// https://zh.wikipedia.org/wiki/ANSI%E8%BD%AC%E4%B9%89%E5%BA%8F%E5%88%97
-			// https://en.wikipedia.org/wiki/POSIX_terminal_interface
-			//
-
-			_, _ = cmd, args
-
-			fmt.Println("\x1b[2J") // clear screen
-
-			for i, s := range args {
-				fmt.Printf("\x1b[s\x1b[%d;%dH%s\x1b[u", 15+i, 30, s)
-			}
-
-			return
-		}).
+		OnAction(xyPrint).
 		Build()
+}
+
+func xyPrint(cmd *cli.Command, args []string) (err error) {
+	//
+	// https://en.wikipedia.org/wiki/ANSI_escape_code
+	// https://zh.wikipedia.org/wiki/ANSI%E8%BD%AC%E4%B9%89%E5%BA%8F%E5%88%97
+	// https://en.wikipedia.org/wiki/POSIX_terminal_interface
+	//
+
+	_, _ = cmd, args
+
+	fmt.Println("\x1b[2J") // clear screen
+
+	for i, s := range args {
+		fmt.Printf("\x1b[s\x1b[%d;%dH%s\x1b[u", 15+i, 30, s)
+	}
+
+	return
 }
 
 func cmdrKbPrint(parent cli.CommandBuilder) {
@@ -612,11 +607,7 @@ $ {{.AppName}} kb --size 8T
 $ {{.AppName}} kb --size 1g
   1GB = 1,073,741,824 bytes
 		`).
-		OnAction(func(cmd *cli.Command, args []string) (err error) {
-			// fmt.Printf("Got size: %v (literal: %v)\n\n", cmdr.GetKibibytesR("kb-print.size"), cmdr.GetStringR("kb-print.size"))
-			_, _ = cmd, args
-			return
-		})
+		OnAction(kbPrint)
 
 	cb.Flg("size", "s").
 		Default("1k").
@@ -625,6 +616,12 @@ $ {{.AppName}} kb --size 1g
 		Build()
 
 	cb.Build()
+}
+
+func kbPrint(cmd *cli.Command, args []string) (err error) {
+	// fmt.Printf("Got size: %v (literal: %v)\n\n", cmdr.GetKibibytesR("kb-print.size"), cmdr.GetStringR("kb-print.size"))
+	_, _ = cmd, args
+	return
 }
 
 func cmdrPanic(parent cli.CommandBuilder) {
@@ -663,45 +660,49 @@ func cmdrSoundex(parent cli.CommandBuilder) {
 		Description("soundex test").
 		Group("Test").
 		TailPlaceHolders("[text1, text2, ...]").
-		OnAction(func(cmd *cli.Command, args []string) (err error) {
-			_, _ = cmd, args
-			for ix, s := range args {
-				fmt.Printf("%5d. %s => %s\n", ix, s, text.Soundex(s))
-			}
-			return
-		}).
+		OnAction(soundex).
 		Build()
+}
+
+func soundex(cmd *cli.Command, args []string) (err error) {
+	_, _ = cmd, args
+	for ix, s := range args {
+		fmt.Printf("%5d. %s => %s\n", ix, s, text.Soundex(s))
+	}
+	return
 }
 
 func cmdrTtySize(parent cli.CommandBuilder) {
 	parent.Cmd("cols", "rows", "tty-size").
 		Description("detected tty size").
 		Group("Test").
-		OnAction(func(cmd *cli.Command, args []string) (err error) {
-			_, _ = cmd, args
-
-			cols, rows := term.GetTtySize()
-			fmt.Printf(" 1. cols = %v, rows = %v\n\n", cols, rows)
-
-			cols, rows, err = term.GetSize(int(os.Stdout.Fd()))
-			fmt.Printf(" 2. cols = %v, rows = %v | in-docker: %v\n\n", cols, rows, is.InDocker())
-			if err != nil {
-				log.Printf("    err: %v", err)
-			}
-
-			var out []byte
-			cc := exec.Command("stty", "size")
-			cc.Stdin = os.Stdin
-			out, err = cc.Output()
-			fmt.Printf(" 3. out: %v", string(out))
-			fmt.Printf("    err: %v\n", err)
-
-			if is.InDocker() {
-				log.Printf(" 4  run-in-docker: %v", true)
-			}
-			return
-		}).
+		OnAction(ttySize).
 		Build()
+}
+
+func ttySize(cmd *cli.Command, args []string) (err error) {
+	_, _ = cmd, args
+
+	cols, rows := term.GetTtySize()
+	fmt.Printf(" 1. cols = %v, rows = %v\n\n", cols, rows)
+
+	cols, rows, err = term.GetSize(int(os.Stdout.Fd()))
+	fmt.Printf(" 2. cols = %v, rows = %v | in-docker: %v\n\n", cols, rows, is.InDocker())
+	if err != nil {
+		log.Printf("    err: %v", err)
+	}
+
+	var out []byte
+	cc := exec.Command("stty", "size")
+	cc.Stdin = os.Stdin
+	out, err = cc.Output()
+	fmt.Printf(" 3. out: %v", string(out))
+	fmt.Printf("    err: %v\n", err)
+
+	if is.InDocker() {
+		log.Printf(" 4  run-in-docker: %v", true)
+	}
+	return
 }
 
 func cmdrManyCommandsTest(parent cli.CommandBuilder) {

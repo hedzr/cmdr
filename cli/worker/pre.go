@@ -8,6 +8,7 @@ import (
 
 	"github.com/hedzr/cmdr/v2/internal/tool"
 	"github.com/hedzr/cmdr/v2/pkg/dir"
+	"github.com/hedzr/is"
 	logz "github.com/hedzr/logg/slog"
 	"github.com/hedzr/store"
 
@@ -32,22 +33,23 @@ func (w *workerS) preProcess() (err error) {
 
 	w.postEnvLoad()
 
-	logz.Verbose("Store.Dump")
-	logz.Verbose(w.Store().Dump())
-
+	if is.VerboseBuild() || is.DebugBuild() { // `-tags delve` or `-tags verbose` used in building?
+		logz.Verbose("Dumping Store ...")
+		logz.Verbose(w.Store().Dump())
+	}
 	return
 }
 
 func (w *workerS) preEnvSet() {
 	// NOTE 'CMDR_VERSION' has been setup.
 
-	_ = os.Setenv("APP", w.root.AppName)
-	_ = os.Setenv("APPNAME", w.root.AppName)
-	_ = os.Setenv("APP_NAME", w.root.AppName)
-	_ = os.Setenv("APP_VER", w.root.AppVersion())
-	_ = os.Setenv("APP_VERSION", w.root.AppVersion())
+	_ = os.Setenv("APP", w.Name())
+	_ = os.Setenv("APPNAME", w.Name())
+	_ = os.Setenv("APP_NAME", w.Name())
+	_ = os.Setenv("APP_VER", w.Version())
+	_ = os.Setenv("APP_VERSION", w.Version())
 
-	logz.Verbose("appName", "appName", w.root.AppName, w.root.AppVersion())
+	logz.Verbose("appName", "appName", w.Name(), "appVer", w.Version())
 
 	xdgPrefer := true
 	if w.Store().Has("app.force-xdg-dir-prefer") {
@@ -165,6 +167,21 @@ func (w *workerS) commandsToStoreChild(root *cli.RootCommand, conf store.Store) 
 // loadLoaders try to load the external loaders, for loading the config files.
 func (w *workerS) loadLoaders() (err error) {
 	w.precheckLoaders()
+
+	// By default, we try loading `$(pwd)/.appName.json'.
+	// The main reason is the feature doesn't take new dependence to another 3rd-party lib.
+	// For cmdr/v2, we restrict to go builtins, google, and ours libraries.
+	// And, ours libraries will not import any others except go builtins and google's.
+	if len(w.Config.Loaders) == 0 {
+		appDir := dir.GetCurrentDir()
+		appName := w.Name()
+		jsonLoader := &jsonLoaderS{}
+		jsonLoader.filename = path.Join(appDir, "."+appName+".json")
+		logz.Debug("use internal tiny json loader", "filename", jsonLoader.filename)
+		w.Config.Loaders = append(w.Config.Loaders, jsonLoader)
+		return
+	}
+
 	for _, loader := range w.Config.Loaders {
 		if loader != nil {
 			if err = loader.Load(w.root.App()); err != nil {
@@ -189,19 +206,6 @@ func (w *workerS) precheckLoaders() {
 		if !found {
 			logz.Warn("Config file has been ignored", "config-file", w.configFile)
 		}
-	}
-
-	// By default, we try loading `$(pwd)/.appName.json'.
-	// The main reason is the feature doesn't take new dependence to another 3rd-party lib.
-	// For cmdr/v2, we restrict to go builtins, google, and ours libraries.
-	// And, ours libraries will not import any others except go builtins and google's.
-	if len(w.Config.Loaders) == 0 {
-		appdir := dir.GetCurrentDir()
-		appName := w.Name()
-		jsonLoader := &jsonLoaderS{}
-		jsonLoader.filename = path.Join(appdir, "."+appName+".json")
-		logz.Debug("use internal tiny json loader", "filename", jsonLoader.filename)
-		w.Config.Loaders = append(w.Config.Loaders, jsonLoader)
 	}
 }
 

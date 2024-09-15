@@ -707,11 +707,6 @@ func (c *Command) checkCircuitBreak(vp *FlagValuePkg, ff *Flag) (ret *Flag, err 
 	return
 }
 
-var (
-	ErrMissedPrerequisite = errors.New("Flag %q needs %q was set at first") // flag need a prerequisite flag exists.
-	ErrFlagJustOnce       = errors.New("Flag %q MUST BE set once only")     // flag cannot be set more than one time.
-)
-
 func (c *Command) tryParseStringValue(vp *FlagValuePkg, ff *Flag) *Flag {
 	if ff.externalEditor != "" {
 		if f := c.invokeExternalEditor(vp, ff); f != nil {

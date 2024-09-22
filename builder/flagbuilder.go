@@ -36,6 +36,11 @@ type ffb struct {
 	*cli.Flag
 }
 
+func (s *ffb) With(cb func(b cli.FlagBuilder)) {
+	defer s.Build()
+	cb(s)
+}
+
 func (s *ffb) Build() {
 	if a, ok := s.buildable.(adder); ok {
 		a.addFlag(s.Flag)

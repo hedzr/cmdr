@@ -60,7 +60,12 @@ func (s *ccb) Build() {
 	atomic.StoreInt32(&s.inFlg, 0)
 }
 
-func (s *ccb) BuildWith(cb func(b cli.CommandBuilder)) {
+func (s *ccb) With(cb func(b cli.CommandBuilder)) {
+	defer s.Build()
+	cb(s)
+}
+
+func (s *ccb) WithSubCmd(cb func(b cli.CommandBuilder)) {
 	// if atomic.LoadInt32(&s.inCmd) != 0 {
 	// 	panic("cannot call AddCmd() without Build() last Cmd()/AddCmd()")
 	// }

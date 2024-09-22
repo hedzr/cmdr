@@ -3,6 +3,8 @@ package cli
 type FlagBuilder interface {
 	OptBuilder
 
+	With(cb func(b FlagBuilder))
+
 	// Titles should be specified with this form:
 	//
 	//     longTitle, shortTitle, aliases...

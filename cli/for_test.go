@@ -970,6 +970,10 @@ func (s *appS) Cmd(longTitle string, titles ...string) CommandBuilder { //nolint
 	return nil
 }
 
+func (s *appS) With(cb func(app App)) { //nolint:revive
+	cb(s)
+}
+
 func (s *appS) Flg(longTitle string, titles ...string) FlagBuilder { //nolint:revive
 	s.inFlg = true
 	// return newFlagBuilder(s, longTitle, titles...)

@@ -179,10 +179,60 @@ type CommandBuilder interface {
 	//
 	Flg(longTitle string, titles ...string) FlagBuilder
 
-	// BuildWith allows customizing a CommandBuilder and Build it finally.
+	// With starts a closure to help you make changes on this builder.
 	//
-	// BuildWith is a extension of Build.
-	BuildWith(cb func(b CommandBuilder))
+	// For example,
+	//
+	//    app := cmdr.New()
+	//        Info("tiny-app", "0.3.1").
+	//        Author("hedzr")
+	//    app.Cmd("jump").
+	//        Description("jump command").
+	//        Examples(`jump example`).
+	//        Deprecated(`v1.1.0`).
+	//        // Group(cli.UnsortedGroup).
+	//        Hidden(false).
+	//        With(func(b cli.CommandBuilder) {
+	//            b.Cmd("to").
+	//                Description("to command").
+	//                Examples(``).
+	//                Deprecated(`v0.1.1`).
+	//                // Group(cli.UnsortedGroup).
+	//                Hidden(false).
+	//                OnAction(func(cmd *cli.Command, args []string) (err error) {
+	//                    app.Store().Set("app.demo.working", dir.GetCurrentDir())
+	//                    println()
+	//                    println(dir.GetCurrentDir())
+	//                    println()
+	//                    println(app.Store().Dump())
+	//                    return // handling command action here
+	//                }).
+	//                With(func(b cli.CommandBuilder) {
+	//                    b.Flg("full", "f").
+	//                        Default(false).
+	//                        Description("full command").
+	//                        // Group(cli.UnsortedGroup).
+	//                        Build()
+	//                })
+	//           b.Flg("dry-run", "n").
+	//                Default(false).
+	//                Description("run all but without committing").
+	//                Group(cli.UnsortedGroup).
+	//                Build()
+	//        })
+	With(cb func(b CommandBuilder))
+
+	// WithSubCmd starts a closure to build a new sub-command
+	// and its children.
+	//
+	// After the closure invoked, new command's Build() will be called
+	// implicitly.
+	//
+	// It can only be called after current command builder built
+	// (Build() called).
+	//
+	// WithSubCmd is a extension of Build.
+	WithSubCmd(cb func(b CommandBuilder))
 
 	// AddCmd starts a closure to build a new sub-command and its children.
 	// After the closure invoked, new command's Build() will be called

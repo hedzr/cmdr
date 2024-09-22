@@ -4,6 +4,8 @@ type App interface {
 	NewCommandBuilder(longTitle string, titles ...string) CommandBuilder // starts a closure to build a new sub-command and its children
 	NewFlagBuilder(longTitle string, titles ...string) FlagBuilder       // starts a closure to build a flag
 
+	With(cb func(app App))
+
 	// Cmd is a shortcut to NewCommandBuilder and starts a stream building for a new sub-command
 	Cmd(longTitle string, titles ...string) CommandBuilder
 	// Flg is a shortcut to NewFlagBuilder and starts a stream building for a new flag

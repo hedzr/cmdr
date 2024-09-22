@@ -141,6 +141,11 @@ func (s *appS) WithRootCommand(root *cli.RootCommand) cli.App {
 
 func (s *appS) RootCommand() *cli.RootCommand { return s.root }
 
+func (s *appS) With(cb func(app cli.App)) {
+	defer s.Build()
+	cb(s)
+}
+
 func (s *appS) NewCommandBuilder(longTitle string, titles ...string) cli.CommandBuilder {
 	return s.Cmd(longTitle, titles...)
 }

@@ -357,31 +357,30 @@ func tagsCommands(parent cli.CommandBuilder) { //nolint:revive
 func AttachMoreCommandsForTest(parent cli.CommandBuilder, moreAndMore bool) { //nolint:revive
 	// test/debug build, many multilevel subcommands here
 
-	defer parent.Build()
-
-	more := parent.Titles("more", "m").
-		Description("More commands")
-	defer more.Build()
-
-	cmdrXyPrint(more)
-	cmdrKbPrint(more)
-	cmdrSoundex(more)
-	cmdrTtySize(more)
-
-	tgCommand(more)
-	mxCommand(more)
-
 	parent.Flg("enable-ueh", "ueh").
 		Default(false).
 		Description("Enables the unhandled exception handler?").
 		Build()
 
-	cmdrPanic(more)
+	parent.Titles("more", "m").
+		Description("More commands").
+		With(func(b cli.CommandBuilder) {
+			cmdrXyPrint(b)
+			cmdrKbPrint(b)
+			cmdrSoundex(b)
+			cmdrTtySize(b)
 
-	if moreAndMore {
-		cmdrMultiLevelTest(more)
-		cmdrManyCommandsTest(more)
-	}
+			tgCommand(b)
+			mxCommand(b)
+
+			cmdrPanic(b)
+
+			if moreAndMore {
+				cmdrMultiLevelTest(b)
+				cmdrManyCommandsTest(b)
+			}
+
+		})
 
 	// pprof.AttachToCmdr(more.RootCmdOpt())
 }

@@ -55,7 +55,7 @@ func TestCcb_NewCommandBuilderPanics(t *testing.T) {
 			bb.AddCmd(func(b cli.CommandBuilder) {
 				b.OnMatched(nil)
 
-				b.AddCmd(func(b cli.CommandBuilder) {
+				b.WithSubCmd(func(b cli.CommandBuilder) {
 					b.OnMatched(nil)
 					b.UseShell("/bin/dash")
 				})
@@ -125,7 +125,7 @@ func testNewCommandBuilder(t *testing.T) {
 	})
 
 	bb.Build()
-	
+
 	cb := bb.Cmd("dash", "d")
 	cb.UseShell("/bin/dash")
 	cb.Build()

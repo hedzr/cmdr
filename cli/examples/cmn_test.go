@@ -56,7 +56,7 @@ func TestSoundex(t *testing.T) {
 
 func TestAttachKvCommand(t *testing.T) {
 	_, app := minimalApp(cli.WithStore(store.New()))
-	b := app.NewCommandBuilder("x")
+	b := app.Cmd("x")
 
 	AttachServerCommand(b)
 	AttachKvCommand(b)

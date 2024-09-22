@@ -44,35 +44,35 @@ func prepareApp() (app cli.App) {
 		// Group(cli.UnsortedGroup).
 		Build()
 
-	b := app.Cmd("jump").
+	app.Cmd("jump").
 		Description("jump command").
 		Examples(`jump example`).
 		Deprecated(`v1.1.0`).
 		// Group(cli.UnsortedGroup).
-		Hidden(false)
-
-	b1 := b.Cmd("to").
-		Description("to command").
-		Examples(``).
-		Deprecated(`v0.1.1`).
-		// Group(cli.UnsortedGroup).
 		Hidden(false).
-		OnAction(func(cmd *cli.Command, args []string) (err error) {
-			app.Store().Set("app.demo.working", dir.GetCurrentDir())
-			println()
-			println(dir.GetCurrentDir())
-			println()
-			println(app.Store().Dump())
-			return // handling command action here
+		With(func(b cli.CommandBuilder) {
+			b.Cmd("to").
+				Description("to command").
+				Examples(``).
+				Deprecated(`v0.1.1`).
+				// Group(cli.UnsortedGroup).
+				Hidden(false).
+				OnAction(func(cmd *cli.Command, args []string) (err error) {
+					app.Store().Set("app.demo.working", dir.GetCurrentDir())
+					println()
+					println(dir.GetCurrentDir())
+					println()
+					println(app.Store().Dump())
+					return // handling command action here
+				}).
+				With(func(b cli.CommandBuilder) {
+					b.Flg("full", "f").
+						Default(false).
+						Description("full command").
+						// Group(cli.UnsortedGroup).
+						Build()
+				})
 		})
-	b1.Flg("full", "f").
-		Default(false).
-		Description("full command").
-		// Group(cli.UnsortedGroup).
-		Build()
-	b1.Build()
-
-	b.Build()
 
 	app.Flg("dry-run", "n").
 		Default(false).
@@ -85,5 +85,6 @@ func prepareApp() (app cli.App) {
 		Description("run all but with committing").
 		// Group(cli.UnsortedGroup).
 		Build() // no matter even if you're adding the duplicated one.
+
 	return
 }

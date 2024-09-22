@@ -18,7 +18,7 @@ type appS struct {
 
 func (s *appS) Run(opts ...cli.Opt) (err error) {
 	if atomic.LoadInt32(&s.inCmd) != 0 {
-		return errors.New("a NewCommandBuilder()/Cmd() call needs ending with Build()")
+		return errors.New("app/rootCmd: a Cmd() call needs ending with Build()")
 	}
 	if atomic.LoadInt32(&s.inFlg) != 0 {
 		return errors.New("a NewFlagBuilder()/Flg() call needs ending with Build()")

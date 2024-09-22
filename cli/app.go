@@ -1,8 +1,8 @@
 package cli
 
 type App interface {
-	NewCommandBuilder(longTitle string, titles ...string) CommandBuilder // starts a closure to build a new sub-command and its children
-	NewFlagBuilder(longTitle string, titles ...string) FlagBuilder       // starts a closure to build a flag
+	// NewCommandBuilder(longTitle string, titles ...string) CommandBuilder // starts a closure to build a new sub-command and its children
+	// NewFlagBuilder(longTitle string, titles ...string) FlagBuilder       // starts a closure to build a flag
 
 	With(cb func(app App))
 
@@ -11,12 +11,12 @@ type App interface {
 	// Flg is a shortcut to NewFlagBuilder and starts a stream building for a new flag
 	Flg(longTitle string, titles ...string) FlagBuilder
 
-	// AddCmd starts a closure to build a new sub-command and its children.
-	// After the closure invoked, Build() will be called implicitly.
-	AddCmd(func(b CommandBuilder)) App
-	// AddFlg starts a closure to build a flag
-	// After the closure invoked, Build() will be called implicitly.
-	AddFlg(cb func(b FlagBuilder)) App
+	// // AddCmd starts a closure to build a new sub-command and its children.
+	// // After the closure invoked, Build() will be called implicitly.
+	// AddCmd(func(b CommandBuilder)) App
+	// // AddFlg starts a closure to build a flag
+	// // After the closure invoked, Build() will be called implicitly.
+	// AddFlg(cb func(b FlagBuilder)) App
 
 	// NewCmdFrom creates a CommandBuilder from 'from' Command.
 	NewCmdFrom(from *Command, cb func(b CommandBuilder)) App

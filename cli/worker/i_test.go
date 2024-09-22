@@ -92,13 +92,13 @@ func buildDemoApp() (app cli.App) { //nolint:revive
 		Build()
 	b.Build()
 
-	examples.AttachServerCommand(app.NewCommandBuilder("server"))
+	examples.AttachServerCommand(app.Cmd("server"))
 
-	examples.AttachKvCommand(app.NewCommandBuilder("kv"))
+	examples.AttachKvCommand(app.Cmd("kv"))
 
-	examples.AttachMsCommand(app.NewCommandBuilder("ms"))
+	examples.AttachMsCommand(app.Cmd("ms"))
 
-	examples.AttachMoreCommandsForTest(app.NewCommandBuilder("more"), true)
+	examples.AttachMoreCommandsForTest(app.Cmd("more"), true)
 
 	b = app.Cmd("display", "da").
 		Description("command set for display adapter operations")

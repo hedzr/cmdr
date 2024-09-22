@@ -123,8 +123,8 @@ type CommandBuilder interface {
 	// add a subcommand to the current command builder.
 	//
 	// It's special because it can be called before Build() completed.
-	NewCommandBuilder(longTitle string, titles ...string) CommandBuilder
-	NewFlagBuilder(longTitle string, titles ...string) FlagBuilder
+	// NewCommandBuilder(longTitle string, titles ...string) CommandBuilder
+	// NewFlagBuilder(longTitle string, titles ...string) FlagBuilder
 
 	// Cmd is a shortcut to NewCommandBuilder and starts a stream
 	// building for a new sub-command.
@@ -234,22 +234,22 @@ type CommandBuilder interface {
 	// WithSubCmd is a extension of Build.
 	WithSubCmd(cb func(b CommandBuilder))
 
-	// AddCmd starts a closure to build a new sub-command and its children.
-	// After the closure invoked, new command's Build() will be called
-	// implicitly.
-	//
-	// It can only be called after current command builder built
-	// (Build() called).
-	//
-	// Deprecated v2.1.0
-	AddCmd(func(b CommandBuilder)) CommandBuilder
-	// AddFlg starts a closure to build a new flag.
-	// After the closure invoked, new flag's Build() will be
-	// called implicitly.
-	//
-	// It can only be called after current command builder built
-	// (Build() called).
-	//
-	// Deprecated v2.1.0
-	AddFlg(cb func(b FlagBuilder)) CommandBuilder
+	// // AddCmd starts a closure to build a new sub-command and its children.
+	// // After the closure invoked, new command's Build() will be called
+	// // implicitly.
+	// //
+	// // It can only be called after current command builder built
+	// // (Build() called).
+	// //
+	// // Deprecated v2.1.0
+	// AddCmd(func(b CommandBuilder)) CommandBuilder
+	// // AddFlg starts a closure to build a new flag.
+	// // After the closure invoked, new flag's Build() will be
+	// // called implicitly.
+	// //
+	// // It can only be called after current command builder built
+	// // (Build() called).
+	// //
+	// // Deprecated v2.1.0
+	// AddFlg(cb func(b FlagBuilder)) CommandBuilder
 }

@@ -134,8 +134,13 @@ func (s *appS) Footer(footerLine string) cli.App {
 	return s
 }
 
-func (s *appS) WithRootCommand(root *cli.RootCommand) cli.App {
+func (s *appS) SetRootCommand(root *cli.RootCommand) cli.App {
 	s.root = root
+	return s
+}
+
+func (s *appS) WithRootCommand(cb func(root *cli.RootCommand)) cli.App {
+	cb(s.root)
 	return s
 }
 

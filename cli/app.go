@@ -33,8 +33,9 @@ type App interface {
 
 	// Examples(examples ...string) App               // set examples field of root command
 
-	WithRootCommand(root *RootCommand) App // setup root command
-	RootCommand() *RootCommand             // get root command
+	RootCommand() *RootCommand            // get root command
+	SetRootCommand(root *RootCommand) App // setup root command
+	WithRootCommand(func(root *RootCommand)) App
 
 	Name() string    // this app name
 	Version() string // this app version

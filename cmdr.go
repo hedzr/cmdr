@@ -97,7 +97,7 @@ func Exec(rootCmd *cli.RootCommand, opts ...cli.Opt) (err error) {
 	// 	// cpcn.Out()
 	// }
 
-	app := New(opts...).WithRootCommand(rootCmd)
+	app := New(opts...).SetRootCommand(rootCmd)
 	err = app.Run()
 	return
 }

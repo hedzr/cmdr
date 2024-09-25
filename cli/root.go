@@ -11,9 +11,9 @@ func (c *RootCommand) SetApp(app App) *RootCommand {
 	c.app = app
 	c.root = c
 	if a, ok := app.(interface {
-		WithRootCommand(command *RootCommand) App
+		SetRootCommand(command *RootCommand) App
 	}); ok {
-		a.WithRootCommand(c)
+		a.SetRootCommand(c)
 	}
 	return c
 }

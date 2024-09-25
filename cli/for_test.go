@@ -1060,8 +1060,13 @@ func (s *appS) Footer(footerLine string) App {
 	return s
 }
 
-func (s *appS) WithRootCommand(root *RootCommand) App {
+func (s *appS) SetRootCommand(root *RootCommand) App {
 	s.root = root
+	return s
+}
+
+func (s *appS) WithRootCommand(cb func(root *RootCommand)) App {
+	cb(s.root)
 	return s
 }
 

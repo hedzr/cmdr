@@ -10,17 +10,21 @@ import (
 	"github.com/hedzr/cmdr/v2/cli/examples"
 )
 
-func cleanApp(t *testing.T, helpScreen bool) (app cli.App, ww *workerS) { //nolint:revive
-	app = buildDemoApp()
+func cleanApp(t *testing.T, helpScreen bool, opts ...cli.Opt) (app cli.App, ww *workerS) { //nolint:revive
+	app = buildDemoApp(opts...)
 	ww = postBuild(app)
 	ww.InitGlobally()
 	assertTrue(t, ww.Ready())
 
-	ww.wrHelpScreen = &discardP{}
-	if helpScreen {
-		ww.wrHelpScreen = os.Stdout
+	if ww.wrHelpScreen == nil && ww.HelpScreenWriter == nil {
+		ww.wrHelpScreen = &discardP{}
+		if helpScreen {
+			ww.wrHelpScreen = os.Stdout
+		}
 	}
-	ww.wrDebugScreen = os.Stdout
+	if ww.wrDebugScreen == nil && ww.DebugScreenWriter == nil {
+		ww.wrDebugScreen = os.Stdout
+	}
 	ww.ForceDefaultAction = true
 	ww.tasksAfterParse = []taskAfterParse{func(w *workerS, ctx *parseCtx, errParsed error) (err error) { return }} //nolint:revive
 
@@ -37,10 +41,10 @@ func cleanApp(t *testing.T, helpScreen bool) (app cli.App, ww *workerS) { //noli
 	return
 }
 
-func buildDemoApp() (app cli.App) { //nolint:revive
+func buildDemoApp(opts ...cli.Opt) (app cli.App) { //nolint:revive
 	// cfg := cli.New(cli.WithStore(store.New()))
 
-	cfg := cli.NewConfig()
+	cfg := cli.NewConfig(opts...)
 
 	w := New(cfg)
 

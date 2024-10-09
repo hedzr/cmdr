@@ -26,6 +26,12 @@ func New(c *cli.Config, opts ...wOpt) *workerS {
 	for _, opt := range opts {
 		opt(s)
 	}
+	if s.wrHelpScreen == nil {
+		s.wrHelpScreen = s.HelpScreenWriter
+	}
+	if s.wrDebugScreen == nil {
+		s.wrDebugScreen = s.DebugScreenWriter
+	}
 	return s
 }
 
@@ -276,7 +282,7 @@ func (w *workerS) attachError(err error) (has bool) {
 	}
 
 	if has = err != nil; has {
-		if w.errIsNotUnmatchedArg(err) {
+		if w.errIsUnmatchedArg(err) {
 			return false
 		}
 		w.errs.Attach(err)
@@ -318,6 +324,13 @@ func (w *workerS) Args() (args []string) { return w.args }
 func (w *workerS) Run(opts ...cli.Opt) (err error) {
 	for _, opt := range opts {
 		opt(w.Config)
+	}
+
+	if w.HelpScreenWriter == nil {
+		w.wrHelpScreen = w.HelpScreenWriter
+	}
+	if w.DebugScreenWriter == nil {
+		w.wrDebugScreen = w.DebugScreenWriter
 	}
 
 	if app := UniqueWorker(); app != w {

@@ -1,6 +1,11 @@
 package main
 
 import (
+	"io"
+	"os"
+
+	"gopkg.in/hedzr/errors.v3"
+
 	logz "github.com/hedzr/logg/slog"
 	"github.com/hedzr/store"
 
@@ -21,9 +26,10 @@ func main() {
 		cmdr.WithStore(store.New()), // use a option store, if not specified by store.New(), a dummy store allocated
 
 		// cmdr.WithExternalLoaders(
-		// 	local.NewConfigFileLoader(),
+		// 	local.NewConfigFileLoader(),      // import "github.com/hedzr/cmdr-loaders/local" to get in advanced external loading features
 		// 	local.NewEnvVarLoader(),
 		// ),
+
 		cmdr.WithForceDefaultAction(true), // true for debug in developing time
 	); err != nil {
 		logz.Error("Application Error:", "err", err)
@@ -86,5 +92,20 @@ func prepareApp() (app cli.App) {
 		// Group(cli.UnsortedGroup).
 		Build() // no matter even if you're adding the duplicated one.
 
+	app.Cmd("wrong").
+		Description("a wrong command to return error for testing").
+		OnAction(func(cmd *cli.Command, args []string) (err error) {
+			ec := errors.New()
+			defer ec.Defer(&err) // store the collected errors in native err and return it
+			ec.Attach(io.ErrClosedPipe, errors.New("something's wrong"), os.ErrPermission)
+			return // handling command action here
+		}).
+		With(func(b cli.CommandBuilder) {
+			b.Flg("full", "f").
+				Default(false).
+				Description("full command").
+				// Group(cli.UnsortedGroup).
+				Build()
+		})
 	return
 }

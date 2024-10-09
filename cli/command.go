@@ -800,7 +800,7 @@ func (c *Command) invokeExternalEditor(vp *FlagValuePkg, ff *Flag) *Flag {
 
 	logz.Debug("external editor", "ex-editor", ff.externalEditor)
 	if cmd := os.Getenv(ff.externalEditor); cmd != "" {
-		file := tool.TempFileName("message*.tmp", "message001.tmp")
+		file := tool.TempFileName("message*.tmp", "message001.tmp", c.App().Name())
 		cmdS := tool.SplitCommandString(cmd)
 		cmdS = append(cmdS, file)
 		defer func(dst string) {

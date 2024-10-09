@@ -57,7 +57,7 @@ func (w *workerS) preEnvSet() {
 		logz.Verbose("reset force-xdg-dir-prefer from store value", "app.force-xdg-dir-prefer", xdgPrefer)
 	}
 
-	home, _ := os.UserHomeDir()
+	home := tool.HomeDir()
 	if os.Getenv("HOME") == "" {
 		_ = os.Setenv("HOME", home)
 	} else {

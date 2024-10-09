@@ -9,19 +9,7 @@ import (
 
 	"github.com/hedzr/cmdr/v2/pkg/dir"
 	"github.com/hedzr/is/stringtool"
-	logz "github.com/hedzr/logg/slog"
 )
-
-func TempFileName(fileNamePattern, defaultFileName string) (filename string) {
-	f, err := os.CreateTemp(os.TempDir(), fileNamePattern)
-	if err != nil {
-		logz.Error("cannot create temporary file for flag", "err", err)
-		return defaultFileName
-	}
-	filename = f.Name()
-	_ = f.Close()
-	return
-}
 
 // LaunchEditor launches the specified editor
 func LaunchEditor(editor string) (content []byte, err error) {
@@ -72,41 +60,41 @@ func launchEditorImpl(editor, filename string, simulate bool) (content []byte, e
 
 	var exists bool
 	if _, exists, err = dir.Exists(filename); err == nil && exists {
-		defer func() { _ = DeleteFile(filename) }()
+		defer func() { _ = dir.DeleteFile(filename) }()
 	}
 
-	content, err = ReadFile(filename)
+	content, err = dir.ReadFile(filename)
 	if err != nil {
 		return []byte{}, nil
 	}
 	return
 }
 
-// ReadFile reads the file named by filename and returns the contents.
-// A successful call returns err == nil, not err == EOF. Because ReadFile
-// reads the whole file, it does not treat an EOF from Read as an error
-// to be reported.
-//
-// As of Go 1.16, this function simply calls os.ReadFile.
-func ReadFile(filename string) ([]byte, error) {
-	return os.ReadFile(filename)
-}
+// // ReadFile reads the file named by filename and returns the contents.
+// // A successful call returns err == nil, not err == EOF. Because ReadFile
+// // reads the whole file, it does not treat an EOF from Read as an error
+// // to be reported.
+// //
+// // As of Go 1.16, this function simply calls os.ReadFile.
+// func ReadFile(filename string) ([]byte, error) {
+// 	return os.ReadFile(filename)
+// }
 
-// DeleteFile deletes a file if exists
-func DeleteFile(dst string) (err error) {
-	str := os.ExpandEnv(dst)
-	if FileExists(str) {
-		err = os.Remove(str)
-	}
-	return
-}
+// // DeleteFile deletes a file if exists
+// func DeleteFile(dst string) (err error) {
+// 	str := os.ExpandEnv(dst)
+// 	if FileExists(str) {
+// 		err = os.Remove(str)
+// 	}
+// 	return
+// }
 
-// FileExists returns the existence of an directory or file
-func FileExists(filepath string) bool {
-	if _, err := os.Stat(os.ExpandEnv(filepath)); err != nil {
-		if os.IsNotExist(err) {
-			return false
-		}
-	}
-	return true
-}
+// // FileExists returns the existence of an directory or file
+// func FileExists(filepath string) bool {
+// 	if _, err := os.Stat(os.ExpandEnv(filepath)); err != nil {
+// 		if os.IsNotExist(err) {
+// 			return false
+// 		}
+// 	}
+// 	return true
+// }

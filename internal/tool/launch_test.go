@@ -11,7 +11,7 @@ func TestRandomFileName(t *testing.T) {
 }
 
 func TestTempFileName(t *testing.T) {
-	fn := TempFileName("message*.tmp", "message001.tmp")
+	fn := TempFileName("message*.tmp", "message001.tmp", "app")
 	t.Logf("fn = %v", fn)
 }
 

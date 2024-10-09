@@ -43,6 +43,12 @@ func (w *workerS) preProcess() (err error) {
 func (w *workerS) preEnvSet() {
 	// NOTE 'CMDR_VERSION' has been setup.
 
+	if w.Env != nil {
+		for k, v := range w.Env {
+			_ = os.Setenv(k, v)
+		}
+	}
+
 	_ = os.Setenv("APP", w.Name())
 	_ = os.Setenv("APPNAME", w.Name())
 	_ = os.Setenv("APP_NAME", w.Name())

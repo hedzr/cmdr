@@ -47,6 +47,17 @@ func withTasksBeforeParse(tasks ...cli.Task) cli.Opt {
 // 	}
 // }
 
+func withEnv(env map[string]string) cli.Opt {
+	return func(s *cli.Config) {
+		if s.Env == nil {
+			s.Env = make(map[string]string)
+		}
+		for k, v := range env {
+			s.Env[k] = v
+		}
+	}
+}
+
 func withTasksBeforeRun(tasks ...cli.Task) cli.Opt { //nolint:unused
 	return func(s *cli.Config) {
 		s.TasksBeforeRun = tasks

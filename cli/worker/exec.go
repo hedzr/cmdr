@@ -2,8 +2,12 @@ package worker
 
 import (
 	"context"
+	"os"
 	"sync/atomic"
 
+	errorsv3 "gopkg.in/hedzr/errors.v3"
+
+	"github.com/hedzr/cmdr/v2/pkg/dir"
 	logz "github.com/hedzr/logg/slog"
 
 	"github.com/hedzr/cmdr/v2/cli"
@@ -13,6 +17,13 @@ func (w *workerS) exec(ctx *parseCtx) (err error) {
 	lastCmd := ctx.LastCmd()
 
 	w.parsingCtx = ctx // save ctx for later, OnAction might need it.
+
+	forceDefaultAction := ctx.forceDefaultAction
+	if forceDefaultAction {
+		if envForceRun := dir.ToBool(os.Getenv("FORCE_RUN")); envForceRun {
+			forceDefaultAction = false
+		}
+	}
 
 	var deferActions func(errInvoked error)
 	if deferActions, err = w.beforeExec(ctx, lastCmd); err != nil {
@@ -26,7 +37,7 @@ func (w *workerS) exec(ctx *parseCtx) (err error) {
 		}
 	}()
 
-	if !ctx.forceDefaultAction && lastCmd.HasOnAction() {
+	if !forceDefaultAction && lastCmd.HasOnAction() {
 		logz.Verbose("invoke action of cmd, with args", "cmd", lastCmd, "args", ctx.positionalArgs)
 		err = lastCmd.Invoke(ctx.positionalArgs)
 		if !w.errIsSignalFallback(err) {

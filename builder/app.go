@@ -47,6 +47,9 @@ func (s *appS) Run(opts ...cli.Opt) (err error) {
 	// 	s.Runner.DumpErrors(os.Stderr)
 	// }
 
+	if err == nil && !s.Runner.Error().IsEmpty() {
+		err = s.Runner.Error()
+	}
 	return
 }
 

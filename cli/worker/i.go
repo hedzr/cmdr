@@ -20,11 +20,17 @@ func WithHelpScreenSets(showHelpScreen, showHitStates bool) wOpt { //nolint:revi
 			s.wrHelpScreen = &discardP{}
 		} else {
 			s.wrHelpScreen = os.Stdout
+			if s.HelpScreenWriter != nil {
+				s.wrHelpScreen = s.HelpScreenWriter
+			}
 		}
 		if showHitStates {
 			s.wrDebugScreen = &discardP{}
 		} else {
 			s.wrDebugScreen = os.Stdout
+			if s.DebugScreenWriter != nil {
+				s.wrDebugScreen = s.DebugScreenWriter
+			}
 		}
 	}
 }
@@ -61,5 +67,11 @@ func withEnv(env map[string]string) cli.Opt {
 func withTasksBeforeRun(tasks ...cli.Task) cli.Opt { //nolint:unused
 	return func(s *cli.Config) {
 		s.TasksBeforeRun = tasks
+	}
+}
+
+func withHelpScreenWriter(w HelpWriter) cli.Opt {
+	return func(s *cli.Config) {
+		s.HelpScreenWriter = w
 	}
 }

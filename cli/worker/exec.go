@@ -31,9 +31,13 @@ func (w *workerS) exec(ctx *parseCtx) (err error) {
 	}
 	defer func() {
 		deferActions(err) // err must be delayed caught here
-		if err = w.afterExec(ctx, lastCmd); err == nil {
+		if err1 := w.afterExec(ctx, lastCmd); err1 == nil {
 			c := context.Background()
-			err = w.finalActions(c, ctx, lastCmd)
+			if err1 = w.finalActions(c, ctx, lastCmd); err1 != nil {
+				ec := errorsv3.New()
+				ec.Attach(err, err1)
+				ec.Defer(&err)
+			}
 		}
 	}()
 
@@ -55,6 +59,7 @@ func (w *workerS) exec(ctx *parseCtx) (err error) {
 	// 	}
 	// }
 	if handled || !w.errIsSignalOrNil(err1) {
+		err = err1
 		return
 	}
 

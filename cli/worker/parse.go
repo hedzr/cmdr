@@ -28,6 +28,8 @@ func (w *workerS) parse(ctx *parseCtx) (err error) { //nolint:revive
 		}
 	}()
 
+	logz.Verbose("parsing command line args ...", "args", w.args)
+
 loopArgs:
 	for ctx.i = 1; ctx.i < len(w.args); ctx.i++ {
 		if w.args[ctx.i] == "" {

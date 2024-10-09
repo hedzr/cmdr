@@ -42,7 +42,7 @@ func (w *workerS) exec(ctx *parseCtx) (err error) {
 	}()
 
 	if !forceDefaultAction && lastCmd.HasOnAction() {
-		logz.Verbose("invoke action of cmd, with args", "cmd", lastCmd, "args", ctx.positionalArgs)
+		logz.Verbose("[cmdr] invoke action of cmd, with args", "cmd", lastCmd, "args", ctx.positionalArgs)
 		err = lastCmd.Invoke(ctx.positionalArgs)
 		if !w.errIsSignalFallback(err) {
 			return
@@ -53,7 +53,7 @@ func (w *workerS) exec(ctx *parseCtx) (err error) {
 	handled, err1 := w.handleActions(ctx)
 	// for k, action := range w.actions {
 	// 	if k&w.actionsMatched != 0 {
-	// 		logz.Verbose("Invoking worker.actionsMatched", "hit-action", k, "actions", w.Actions())
+	// 		logz.Verbose("[cmdr] Invoking worker.actionsMatched", "hit-action", k, "actions", w.Actions())
 	// 		err, handled = action(ctx, lastCmd), true
 	// 		break
 	// 	}
@@ -73,7 +73,7 @@ func (w *workerS) exec(ctx *parseCtx) (err error) {
 		return
 	}
 
-	logz.Verbose("no onAction associate to cmd", "cmd", lastCmd)
+	logz.Verbose("[cmdr] no onAction associate to cmd", "cmd", lastCmd)
 	err = w.onPrintHelpScreen(ctx, lastCmd)
 	return
 }
@@ -82,7 +82,7 @@ func (w *workerS) handleActions(ctx *parseCtx) (handled bool, err error) {
 	lastCmd := ctx.LastCmd()
 	for k, action := range w.actions {
 		if k&w.actionsMatched != 0 {
-			logz.Verbose("Invoking worker.actionsMatched", "hit-action", k, "actions", w.Actions())
+			logz.Verbose("[cmdr] Invoking worker.actionsMatched", "hit-action", k, "actions", w.Actions())
 			err, handled = action(ctx, lastCmd), true
 			break
 		}
@@ -154,13 +154,13 @@ func (w *workerS) onSingleHyphenMatched(ctx *parseCtx) (err error) { //nolint:un
 }
 
 func (w *workerS) onUnknownCommandMatched(ctx *parseCtx) (err error) {
-	logz.Warn("UNKNOWN <mark>Command</mark> FOUND", "arg", ctx.arg)
+	logz.Warn("[cmdr] UNKNOWN <mark>Command</mark> FOUND", "arg", ctx.arg)
 	err = cli.ErrUnmatchedCommand.FormatWith(ctx.arg, ctx.LastCmd())
 	return
 }
 
 func (w *workerS) onUnknownFlagMatched(ctx *parseCtx) (err error) {
-	logz.Warn("UNKNOWN <mark>Flag</mark> FOUND", "arg", ctx.arg)
+	logz.Warn("[cmdr] UNKNOWN <mark>Flag</mark> FOUND", "arg", ctx.arg)
 	err = cli.ErrUnmatchedFlag.FormatWith(ctx.arg, ctx.LastCmd())
 	return
 }

@@ -28,7 +28,7 @@ func (w *workerS) parse(ctx *parseCtx) (err error) { //nolint:revive
 		}
 	}()
 
-	logz.Verbose("parsing command line args ...", "args", w.args)
+	logz.Verbose("[cmdr] parsing command line args ...", "args", w.args)
 
 loopArgs:
 	for ctx.i = 1; ctx.i < len(w.args); ctx.i++ {
@@ -38,11 +38,11 @@ loopArgs:
 
 		if atomic.LoadInt32(&ctx.passThruMatched) > 0 || errorsv3.Is(err, cli.ErrShouldStop) || w.errIsUnmatchedArg(err) {
 			ctx.positionalArgs = append(ctx.positionalArgs, w.args[ctx.i])
-			logz.Verbose("positional args added", "i", ctx.i, "args", ctx.positionalArgs)
+			logz.Verbose("[cmdr] positional args added", "i", ctx.i, "args", ctx.positionalArgs)
 			continue
 		}
 
-		logz.Verbose("parsing command-line args", "i", ctx.i, "arg", w.args[ctx.i])
+		logz.Verbose("[cmdr] parsing command-line args", "i", ctx.i, "arg", w.args[ctx.i])
 
 		ctx.arg, ctx.short, ctx.pos = w.args[ctx.i], false, 0
 		switch c1 := ctx.arg[0]; c1 {
@@ -65,7 +65,7 @@ loopArgs:
 			}
 			// single '+': as a positional arg
 			ctx.positionalArgs = append(ctx.positionalArgs, ctx.arg)
-			logz.Verbose("positional args added", "i", ctx.i, "args", ctx.positionalArgs)
+			logz.Verbose("[cmdr] positional args added", "i", ctx.i, "args", ctx.positionalArgs)
 			continue
 
 		case '-', '~':
@@ -109,7 +109,7 @@ loopArgs:
 		default:
 			if ctx.NoCandidateChildCommands() {
 				ctx.positionalArgs = append(ctx.positionalArgs, ctx.arg)
-				logz.Verbose("positional args added", "i", ctx.i, "args", ctx.positionalArgs)
+				logz.Verbose("[cmdr] positional args added", "i", ctx.i, "args", ctx.positionalArgs)
 				continue
 			}
 			if err = w.matchCommand(ctx); !w.errIsSignalOrNil(err) {
@@ -129,7 +129,7 @@ func (w *workerS) matchCommand(ctx *parseCtx) (err error) {
 		if err == nil {
 			ctx.lastCommand, err = len(ctx.matchedCommands)-1, nil
 		}
-		logz.Verbose("command matched", "short", short, "cmd", ctx.LastCmd(), "handled", handled)
+		logz.Verbose("[cmdr] command matched", "short", short, "cmd", ctx.LastCmd(), "handled", handled)
 	}
 	return
 }
@@ -144,7 +144,7 @@ compactFlags:
 	if vp.Matched != "" && ff != nil && w.errIsSignalOrNil(err1) {
 		ms, handled := ctx.addFlag(ff), false
 		handled, err1 = ff.TryOnMatched(0, ms)
-		logz.Verbose("flag matched", "short", vp.Short, "flg", ff, "val-pkg-val", ff.DefaultValue(), "handled", handled)
+		logz.Verbose("[cmdr] flag matched", "short", vp.Short, "flg", ff, "val-pkg-val", ff.DefaultValue(), "handled", handled)
 
 		ctx.i += vp.AteArgs
 		vp.AteArgs = 0

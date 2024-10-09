@@ -28,7 +28,7 @@ func DataDir(appName string, base ...string) string {
 	case "plan9":
 		dir := os.Getenv("home")
 		if dir == "" {
-			logz.Error("$home is not defined")
+			logz.Error("[cmdr] $home is not defined")
 			return ""
 		}
 		return filepath.Join(append([]string{dir, "lib", "data", appName}, base...)...)
@@ -79,7 +79,7 @@ func ConfigDir(appName string, base ...string) string {
 	case "plan9":
 		dir := os.Getenv("home")
 		if dir == "" {
-			logz.Error("$home is not defined")
+			logz.Error("[cmdr] $home is not defined")
 			return ""
 		}
 		return filepath.Join(append([]string{dir, "lib", appName}, base...)...)
@@ -122,7 +122,7 @@ func CacheDir(appName string, base ...string) string {
 	case "plan9":
 		dir := os.Getenv("home")
 		if dir == "" {
-			logz.Error("$home is not defined")
+			logz.Error("[cmdr] $home is not defined")
 			return ""
 		}
 		return filepath.Join(append([]string{dir, "lib", "cache", appName}, base...)...)
@@ -165,13 +165,13 @@ func TempFileName(fileNamePattern, defaultFileName string, appName string, base 
 	tmpDir := TempDir(appName, base...)
 	err := dir.EnsureDir(tmpDir)
 	if err != nil {
-		logz.Error("cannot creating tmpdir", "tmpdir", tmpDir, "err", err)
+		logz.Error("[cmdr] cannot creating tmpdir", "tmpdir", tmpDir, "err", err)
 		return defaultFileName
 	}
 
 	f, err := os.CreateTemp(tmpDir, fileNamePattern)
 	if err != nil {
-		logz.Error("cannot create temporary file for flag", "err", err)
+		logz.Error("[cmdr] cannot create temporary file for flag", "err", err)
 		return defaultFileName
 	}
 	filename = f.Name()

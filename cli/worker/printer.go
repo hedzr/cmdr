@@ -113,7 +113,7 @@ func (s *helpPrinter) PrintTo(wr HelpWriter, ctx *parseCtx, lastCmd *cli.Command
 		_, _ = wr.WriteString("\n")
 	}
 
-	logz.Verbose("tty cols", "cols", cols, "rows", rows, "tree-mode", s.treeMode, "show-tree", s.w.Actions())
+	logz.Verbose("[cmdr] tty cols", "cols", cols, "rows", rows, "tree-mode", s.treeMode, "show-tree", s.w.Actions())
 
 	if !s.debugMatches {
 		return
@@ -449,7 +449,7 @@ func (s *helpPrinter) printCommand(sb *strings.Builder, verboseCount *int, cc *c
 			_, _ = sb.WriteString(" ")
 			_, _ = sb.WriteString(dep)
 		}
-		logz.Verbose("[watching] split flag", "split", split)
+		logz.Verbose("[cmdr] [watching] split flag", "split", split)
 	}
 
 	s.Reset(sb) // reset fg/bg colors by color Translator
@@ -588,7 +588,7 @@ func (s *helpPrinter) printFlag(sb *strings.Builder, verboseCount *int, ff *cli.
 			_, _ = sb.WriteString(" ")
 		}
 		_, _ = sb.WriteString(dep)
-		logz.Verbose("split flag is", "split", split)
+		logz.Verbose("[cmdr] split flag is", "split", split)
 	}
 	// s.ColoredFast(&sb, CurrentDefaultValueColor, def)
 	// s.ColoredFast(&sb, CurrentDeprecatedColor, dep)

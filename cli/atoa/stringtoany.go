@@ -105,7 +105,7 @@ func (s *toS) parseImpl(str string, rt reflect.Type, meme any) (v any, err error
 		if rt.Kind() == reflect.Pointer {
 			rt = rt.Elem() //nolint:revive
 			rv := reflect.New(rt)
-			logz.Info("rv", "rv", ref.Valfmt(&rv))
+			logz.Debug("[cmdr] toS.parseImpl - rv", "rv", ref.Valfmt(&rv))
 			err = rv.Interface().(encoding.TextUnmarshaler).UnmarshalText([]byte(str))
 			if err == nil {
 				v = rv.Interface()
@@ -201,7 +201,7 @@ func (s *toS) parseArray(preferKind reflect.Kind, typArray reflect.Type, str str
 	var pos, position int
 	position, v, err = s.stepComplexObject(preferKind, typArray, runes, pos, meme)
 	if position == pos || position < len(runes) {
-		logz.Warn("the given string is empty or has too much data?", "str", str, "posAfterParsed", position)
+		logz.Warn("[cmdr] the given string is empty or has too much data?", "str", str, "posAfterParsed", position)
 	}
 	return
 }

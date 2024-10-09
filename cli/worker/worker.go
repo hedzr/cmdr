@@ -202,7 +202,7 @@ func (w *workerS) reqResourcesReady() (yes bool) {
 
 func (w *workerS) Close() {
 	if atomic.CompareAndSwapInt32(&w.closed, 0, 1) {
-		logz.Debug("Runner(*workerS) closed.")
+		logz.Debug("[cmdr] Runner(*workerS) closed.")
 	}
 }
 
@@ -262,11 +262,11 @@ func (w *workerS) InitGlobally() {
 
 func (w *workerS) initGlobalResources() {
 	defer w.triggerGlobalResourcesInitOK()
-	logz.Debug("workerS.initGlobalResources")
+	logz.Debug("[cmdr] workerS.initGlobalResources")
 }
 
 func (w *workerS) triggerGlobalResourcesInitOK() {
-	logz.Debug("workerS.triggerGlobalResourcesInitOK")
+	logz.Debug("[cmdr] workerS.triggerGlobalResourcesInitOK")
 }
 
 func (w *workerS) attachErrors(errs ...error) { //nolint:revive,unused

@@ -463,12 +463,12 @@ func mxTest(cmd *cli.Command, args []string) (err error) {
 	z := cmd.Set().MustString("app.test.deep.branch.1")
 	fmt.Printf("*** Got app.test.deep.branch.1: %s\n", z)
 	if z != "test" {
-		logz.Fatal("err, expect 'test', but got z", "z", z)
+		logz.Fatal("[cmdr] err, expect 'test', but got z", "z", z)
 	}
 
 	cmd.Set().Remove("app.test.deep.branch.1")
 	if cmd.Set().Has("app.test.deep.branch.1") {
-		logz.Fatal("FAILED, expect key not found, but found a value associated with: ", "value", cmd.Set().MustR("app.test.deep.branch.1"))
+		logz.Fatal("[cmdr] FAILED, expect key not found, but found a value associated with: ", "value", cmd.Set().MustR("app.test.deep.branch.1"))
 	}
 	fmt.Printf("*** Got app.test.deep.branch.1 (after deleted): %s\n", cmd.Set().MustString("app.test.deep.branch.1"))
 
@@ -498,7 +498,7 @@ func mxTest(cmd *cli.Command, args []string) (err error) {
 		var data []byte
 		data, err = dir.ReadAll(os.Stdin)
 		if err != nil {
-			logz.Error("error:", "err", err)
+			logz.Error("[cmdr] error:", "err", err)
 			return
 		}
 		fmt.Println("> The input contents are:")

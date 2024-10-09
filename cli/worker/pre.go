@@ -34,7 +34,7 @@ func (w *workerS) preProcess() (err error) {
 	w.postEnvLoad()
 
 	if is.VerboseBuild() || is.DebugBuild() { // `-tags delve` or `-tags verbose` used in building?
-		logz.Verbose("Dumping Store ...")
+		logz.Verbose("[cmdr] Dumping Store ...")
 		logz.Verbose(w.Store().Dump())
 	}
 	return
@@ -55,12 +55,12 @@ func (w *workerS) preEnvSet() {
 	_ = os.Setenv("APP_VER", w.Version())
 	_ = os.Setenv("APP_VERSION", w.Version())
 
-	logz.Verbose("appName", "appName", w.Name(), "appVer", w.Version())
+	logz.Verbose("[cmdr] preEnvSet()", "appName", w.Name(), "appVer", w.Version())
 
 	xdgPrefer := true
 	if w.Store().Has("app.force-xdg-dir-prefer") {
 		xdgPrefer = w.Store().MustBool("app.force-xdg-dir-prefer", false)
-		logz.Verbose("reset force-xdg-dir-prefer from store value", "app.force-xdg-dir-prefer", xdgPrefer)
+		logz.Verbose("[cmdr] reset force-xdg-dir-prefer from store value", "app.force-xdg-dir-prefer", xdgPrefer)
 	}
 
 	home := tool.HomeDir()
@@ -102,14 +102,14 @@ func (w *workerS) preEnvSet() {
 }
 
 func (w *workerS) postEnvLoad() {
-	// logz.Info("env", "FORCE_DEFAULT_ACTION", os.Getenv("FORCE_DEFAULT_ACTION"))
+	// logz.Info("[cmdr] postEnvLoad()", "FORCE_DEFAULT_ACTION", os.Getenv("FORCE_DEFAULT_ACTION"))
 	if w.Store().Has("app.force-default-action") {
 		w.ForceDefaultAction = w.Store().MustBool("app.force-default-action", false)
-		logz.Verbose("reset forceDefaultAction from store value", "ForceDefaultAction", w.ForceDefaultAction)
+		logz.Verbose("[cmdr] postEnvLoad() - reset forceDefaultAction from store value", "ForceDefaultAction", w.ForceDefaultAction)
 	}
 	if tool.ToBool(os.Getenv("FORCE_DEFAULT_ACTION"), false) {
 		w.ForceDefaultAction = true
-		logz.Info("set ForceDefaultAction true", "ForceDefaultAction", w.ForceDefaultAction)
+		logz.Info("[cmdr] postEnvLoad() - set ForceDefaultAction true", "ForceDefaultAction", w.ForceDefaultAction)
 	}
 }
 
@@ -118,7 +118,7 @@ func (w *workerS) linkCommands(root *cli.RootCommand) (err error) {
 		root.EnsureTree(root.App(), root) // link the added builtin commands too
 		if err = w.xrefCommands(root); err == nil {
 			if err = w.commandsToStore(root); err == nil {
-				logz.Verbose("*RootCommand linked itself")
+				logz.Verbose("[cmdr] linkCommands() - *RootCommand linked itself")
 			}
 		}
 	}
@@ -183,7 +183,7 @@ func (w *workerS) loadLoaders() (err error) {
 		appName := w.Name()
 		jsonLoader := &jsonLoaderS{}
 		jsonLoader.filename = path.Join(appDir, "."+appName+".json")
-		logz.Debug("use internal tiny json loader", "filename", jsonLoader.filename)
+		logz.Debug("[cmdr] use internal tiny json loader", "filename", jsonLoader.filename)
 		w.Config.Loaders = append(w.Config.Loaders, jsonLoader)
 		return
 	}
@@ -210,7 +210,7 @@ func (w *workerS) precheckLoaders() {
 			}
 		}
 		if !found {
-			logz.Warn("Config file has been ignored", "config-file", w.configFile)
+			logz.Warn("[cmdr] Config file has been ignored", "config-file", w.configFile)
 		}
 	}
 }

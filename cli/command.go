@@ -245,7 +245,7 @@ func (c *Command) getDeferAction(cmd *Command, args []string) func(errInvoked er
 		}
 
 		if !ecp.IsEmpty() {
-			logz.Fatal("Error(s) occurred when running post-actions:", "error", ecp.Error())
+			logz.Fatal("[cmdr] Error(s) occurred when running post-actions:", "error", ecp.Error())
 		}
 	}
 }
@@ -263,7 +263,7 @@ func (c *Command) getDeferAction(cmd *Command, args []string) func(errInvoked er
 // 			ecp.Attach(c.postInvoke(cmd, args, errInvoked))
 // 		}
 // 		if !ecp.IsEmpty() {
-// 			logz.Fatalf("Error(s) occurred when running post-actions: %v", ecp)
+// 			logz.Fatalf("[cmdr] Error(s) occurred when running post-actions: %v", ecp)
 // 		}
 // 		return
 // 	}
@@ -346,7 +346,7 @@ func (c *Command) ensureXrefFlags() { //nolint:revive
 			ff.ensureXref()
 			if ff.headLike {
 				if ff.owner.headLikeFlag != nil && ff.owner.headLikeFlag != ff {
-					logz.Warn("too much head-like flags", "last-head-like-flag", ff.owner.headLikeFlag, "this-one", ff)
+					logz.Warn("[cmdr] too much head-like flags", "last-head-like-flag", ff.owner.headLikeFlag, "this-one", ff)
 				}
 				ff.owner.headLikeFlag = ff
 			}
@@ -362,7 +362,7 @@ func (c *Command) ensureXrefFlags() { //nolint:revive
 			ff.ensureXref()
 			if ff.headLike {
 				if ff.owner.headLikeFlag != nil && ff.owner.headLikeFlag != ff {
-					logz.Warn("too much head-like flags", "last-head-like-flag", ff.owner.headLikeFlag, "this-one", ff)
+					logz.Warn("[cmdr] too much head-like flags", "last-head-like-flag", ff.owner.headLikeFlag, "this-one", ff)
 				}
 				ff.owner.headLikeFlag = ff
 			}
@@ -507,7 +507,7 @@ func (c *Command) MatchFlag(vp *FlagValuePkg) (ff *Flag, err error) { //nolint:r
 			if num, err = strconv.ParseInt(vp.Remains, 0, 64); err == nil {
 				vp.Matched, vp.Remains, ff = vp.Remains, "", c.headLikeFlag
 				ff.defaultValue, vp.ValueOK = int(num), true // store the parsed value
-				logz.Verbose("headLike flag matched", "flg", ff, "num", num)
+				logz.Verbose("[cmdr] headLike flag matched", "flg", ff, "num", num)
 			}
 		}
 	} else {
@@ -771,7 +771,7 @@ func (c *Command) fromString(text string, meme any) (value any) { //nolint:reviv
 	var err error
 	value, err = atoa.Parse(text, meme)
 	if err != nil {
-		logz.ErrorContext(context.TODO(), "cannot parse text to value", "err", err, "text", text, "target-value-meme", meme)
+		logz.ErrorContext(context.TODO(), "[cmdr] cannot parse text to value", "err", err, "text", text, "target-value-meme", meme)
 	}
 	return
 }
@@ -798,31 +798,31 @@ func (c *Command) invokeExternalEditor(vp *FlagValuePkg, ff *Flag) *Flag {
 		}
 	}
 
-	logz.Debug("external editor", "ex-editor", ff.externalEditor)
+	logz.Debug("[cmdr] external editor", "ex-editor", ff.externalEditor)
 	if cmd := os.Getenv(ff.externalEditor); cmd != "" {
 		file := tool.TempFileName("message*.tmp", "message001.tmp", c.App().Name())
 		cmdS := tool.SplitCommandString(cmd)
 		cmdS = append(cmdS, file)
 		defer func(dst string) {
 			if err := dir.DeleteFile(dst); err != nil {
-				logz.Error("cannot delete temporary file for flag", "flag", ff)
+				logz.Error("[cmdr] cannot delete temporary file for flag", "flag", ff)
 			}
 		}(file)
 
-		logz.Debug("invoke external editor", "ex-editor", ff.externalEditor, "cmd", cmdS)
+		logz.Debug("[cmdr] invoke external editor", "ex-editor", ff.externalEditor, "cmd", cmdS)
 		if is.DebuggerAttached() {
 			vp.ValueOK, vp.Value = true, "<<stdoutTextForDebugging>>"
-			logz.Warn("use debug text", "flag", ff, "text", vp.Value)
+			logz.Warn("[cmdr] use debug text", "flag", ff, "text", vp.Value)
 			return ff
 		}
 
 		if err := exec.CallSliceQuiet([]string{"which", cmdS[0]}, func(retCode int, stdoutText string) {
 			if retCode == 0 {
 				cmdS[0] = strings.TrimSpace(strings.TrimSuffix(stdoutText, "\n"))
-				logz.Debug("got external editor real-path", "cmd", cmdS)
+				logz.Debug("[cmdr] got external editor real-path", "cmd", cmdS)
 			}
 		}); err != nil {
-			logz.Error("cannot invoke which Command", "flag", ff, "cmd", cmdS)
+			logz.Error("[cmdr] cannot invoke which Command", "flag", ff, "cmd", cmdS)
 			return nil
 		}
 
@@ -830,25 +830,25 @@ func (c *Command) invokeExternalEditor(vp *FlagValuePkg, ff *Flag) *Flag {
 		var err error
 		content, err = tool.LaunchEditorWithGetter(cmdS[0], func() string { return cmdS[1] }, false)
 		if err != nil {
-			logz.Error("Error on launching cmd", "err", err, "cmd", cmdS)
+			logz.Error("[cmdr] Error on launching cmd", "err", err, "cmd", cmdS)
 			return nil
 		}
 
 		// content, err = tool.LaunchEditorWith(cmdS[0], cmdS[1])
 		// if err != nil {
-		// 	logz.Error("Error on launching cmd", "err", err, "cmd", cmdS)
+		// 	logz.Error("[cmdr] Error on launching cmd", "err", err, "cmd", cmdS)
 		// 	return nil
 		// }
 		//
 		// content, err = tool.LaunchEditor(cmdS[0])
 		// if err != nil {
-		// 	logz.Error("Error on launching cmd", "err", err, "cmd", cmdS)
+		// 	logz.Error("[cmdr] Error on launching cmd", "err", err, "cmd", cmdS)
 		// 	return nil
 		// }
 
 		// f, err = os.Open(file)
 		// if err != nil {
-		// 	logz.Error("cannot open temporary file for reading content", "file", file, "flag", ff, "cmd", cmdS)
+		// 	logz.Error("[cmdr] cannot open temporary file for reading content", "file", file, "flag", ff, "cmd", cmdS)
 		// 	return nil
 		// }
 		// defer f.Close()
@@ -856,10 +856,10 @@ func (c *Command) invokeExternalEditor(vp *FlagValuePkg, ff *Flag) *Flag {
 
 		vp.ValueOK, vp.Value = true, string(content)
 		ff.defaultValue = string(content)
-		// logz.Debug("invoked external editor", "ex-editor", ff.externalEditor, "text", string(content))
+		// logz.Debug("[cmdr] invoked external editor", "ex-editor", ff.externalEditor, "text", string(content))
 		return ff
 	}
-	logz.Warn("Unknown External Editor for flag.", "ex-editor", ff.externalEditor, "flag", ff)
+	logz.Warn("[cmdr] Unknown External Editor for flag.", "ex-editor", ff.externalEditor, "flag", ff)
 	return nil
 }
 
@@ -1250,7 +1250,7 @@ func (c *Command) walkImpl(hist map[*Command]bool, cmd *Command, level int, cb W
 				hist[cc] = true
 				c.walkImpl(hist, cc, level+1, cb)
 			} else {
-				logz.Warn("loop ref found", "dad", cmd, "cc", cc)
+				logz.Warn("[cmdr] loop ref found", "dad", cmd, "cc", cc)
 			}
 		}
 	}
@@ -1280,7 +1280,7 @@ func (c *Command) walkGroupedImpl(hist map[*Command]bool, dad, grandpa *Command,
 				// cb(cc,nil, i, 0, level)
 				c.walkGroupedImpl(hist, cc, dad, i, level+1, cb)
 			} else {
-				logz.Warn("loop ref found", "dad", dad, "grandpa", grandpa, "cc", cc)
+				logz.Warn("[cmdr] loop ref found", "dad", dad, "grandpa", grandpa, "cc", cc)
 			}
 		}
 	}
@@ -1292,7 +1292,7 @@ func (c *Command) walkGroupedImpl(hist map[*Command]bool, dad, grandpa *Command,
 	// 			// cb(cc,nil, i, 0, level)
 	// 			c.walkGrouped(hist, cc, dad, level+1, cb)
 	// 		} else {
-	// 			logz.Warn("loop ref found", "dad", dad, "grandpa", grandpa, "cc", cc)
+	// 			logz.Warn("[cmdr] loop ref found", "dad", dad, "grandpa", grandpa, "cc", cc)
 	// 		}
 	// 	}
 	// }
@@ -1334,7 +1334,7 @@ func (c *Command) walkEx(hist map[*Command]bool, dad, grandpa *Command, level, c
 				// cb(cc,nil, i, 0, level)
 				c.walkEx(hist, cc, dad, level+1, i, cb)
 			} else {
-				logz.Warn("loop ref found", "dad", dad, "grandpa", grandpa, "cc", cc)
+				logz.Warn("[cmdr] loop ref found", "dad", dad, "grandpa", grandpa, "cc", cc)
 			}
 		}
 	}

@@ -122,7 +122,7 @@ var (
 			withHelpScreenWriter(os.Stdout),
 		}, verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
 			if errorsv3.Is(errParsed, cli.ErrUnmatchedFlag) {
-				logz.Print("[INFO] ErrUnmatchedFlag FOUND, that's expecting.", "err", errParsed)
+				logz.Print("[cmdr] [INFO] ErrUnmatchedFlag FOUND, that's expecting.", "err", errParsed)
 				return nil
 			}
 			return errParsed
@@ -131,7 +131,7 @@ var (
 		// ~~tree
 		{args: "ms t t --tree", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
 			if errorsv3.Is(errParsed, cli.ErrUnmatchedFlag) {
-				logz.Print("[INFO] ErrUnmatchedFlag FOUND, that's expecting.", "err", errParsed)
+				logz.Print("[cmdr] [INFO] ErrUnmatchedFlag FOUND, that's expecting.", "err", errParsed)
 				return nil
 			}
 			return errParsed
@@ -140,24 +140,24 @@ var (
 		// ~~tree 2
 		{args: "ms t t ~~tree", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
 			if errorsv3.Is(errParsed, cli.ErrUnmatchedFlag) {
-				logz.Fatal("ErrUnmatchedFlag FOUND, that's NOT expecting.")
+				logz.Fatal("[cmdr] ErrUnmatchedFlag FOUND, that's NOT expecting.")
 			}
 			if !ctx.matchedFlags[ctx.flag("tree")].DblTilde {
-				logz.Fatal("expecting DblTilde is true but fault.")
+				logz.Fatal("[cmdr] expecting DblTilde is true but fault.")
 			}
 			return errParsed
 		}},
 
 		{args: "m unk snd cool", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
 			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {
-				logz.Print("expect 'UNKNOWN Command FOUND' error, but not matched.") // "unk"
+				logz.Print("[cmdr] expect 'UNKNOWN Command FOUND' error, but not matched.") // "unk"
 			}
 			return /* errParsed */
 		}, opts: []cli.Opt{cli.WithUnmatchedAsError(true)}},
 
 		{args: "m snd -n -wn cool fog --pp box", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
 			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {
-				logz.Print("expect 'UNKNOWN Flag FOUND' error, but not matched.") // "--pp"
+				logz.Print("[cmdr] expect 'UNKNOWN Flag FOUND' error, but not matched.") // "--pp"
 			}
 			hitTest(ctx, "dry-run", 2)
 			hitTest(ctx, "wet-run", 1)
@@ -185,13 +185,13 @@ var (
 		{args: "m snd --help"},
 		{args: "m unk snd cool", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
 			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {
-				logz.Print("expect 'UNKNOWN Command FOUND' error, but not matched.") // "unk"
+				logz.Print("[cmdr] expect 'UNKNOWN Command FOUND' error, but not matched.") // "unk"
 			}
 			return /* errParsed */
 		}, opts: []cli.Opt{cli.WithUnmatchedAsError(true)}},
 		{args: "m snd -n -wn cool fog --pp box", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
 			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {
-				logz.Print("expect 'UNKNOWN Flag FOUND' error, but not matched.") // "--pp"
+				logz.Print("[cmdr] expect 'UNKNOWN Flag FOUND' error, but not matched.") // "--pp"
 			}
 			hitTest(ctx, "dry-run", 2)
 			hitTest(ctx, "wet-run", 1)
@@ -288,7 +288,7 @@ func valTest(s *parseCtx, longTitle string, val any) {
 
 func assertEqual(expect, actual any, msgs ...any) {
 	if expect != actual {
-		logz.Fatal(fmt.Sprintf("expecting %v but got %v", actual, expect))
+		logz.Fatal(fmt.Sprintf("[cmdr] expecting %v but got %v", actual, expect))
 	}
 	_ = msgs
 }

@@ -42,7 +42,7 @@ func (w *workerS) helpSystemAction(cmd *cli.Command, args []string) (err error) 
 		for _, arg := range args {
 			cc = cc.FindSubCommand(arg, true)
 			if cc == nil {
-				logz.Error("Unknown command found.", "commands", args)
+				logz.Error("[cmdr] Unknown command found.", "commands", args)
 				return errors.New("unknown command %v found", args)
 			}
 		}

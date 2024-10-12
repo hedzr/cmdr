@@ -26,7 +26,14 @@ const (
 	ExternalToolPasswordInput = "PASSWD"
 )
 
-type Task func(root *RootCommand, runner Runner, extras ...any) (err error)
+// Task is used for WithTasksBeforeRun, WithTasksBeforeParse, and Config.TasksAfterRun ...
+//
+// extras is a non-typed args, 1st is worker.parseCtx,
+// 2nd is parseCtx.PositionalArgs(), ...
+//
+// There is no TasksAfterParsed, but you can replace it
+// with WithTasksBeforeRun/Config.TasksBeforeRun.
+type Task func(cmd *Command, runner Runner, extras ...any) (err error)
 
 type Loader interface {
 	Load(app App) (err error)
@@ -48,6 +55,12 @@ type RootCommand struct {
 	postActions []OnPostInvokeHandler
 
 	app App
+}
+
+type BaseOptI interface {
+	Owner() *Command
+	Root() *RootCommand
+	Name() string
 }
 
 type BaseOpt struct {
@@ -130,6 +143,25 @@ type Command struct {
 	postActions []OnPostInvokeHandler
 
 	onMatched []OnCommandMatchedHandler
+
+	onEvalSubcommands *struct {
+		cb OnEvaluateSubCommands
+		// invoked bool
+	}
+	onEvalSubcommandsOnce *struct {
+		cb       OnEvaluateSubCommands
+		invoked  bool
+		commands []*Command
+	}
+	onEvalFlags *struct {
+		cb OnEvaluateFlags
+		// invoked bool
+	}
+	onEvalFlagsOnce *struct {
+		cb      OnEvaluateFlags
+		invoked bool
+		flags   []*Flag
+	}
 
 	// redirectTo gives the dotted-path to point to a subcommand.
 	//
@@ -256,6 +288,12 @@ type OnPostInvokeHandler func(cmd *Command, args []string, errInvoked error) (er
 type OnPreInvokeHandler func(cmd *Command, args []string) (err error)
 
 type OnCommandMatchedHandler func(c *Command, position int, hitState *MatchState) (err error)
+
+type OnEvaluateSubCommands func(ctx any, c *Command) (it EvalIterator, err error)
+
+type OnEvaluateFlags func(ctx any, c *Command) (it EvalIterator, err error)
+
+type EvalIterator func() (bo BaseOptI, hasNext bool, err error)
 
 // OnParseValueHandler could be used for parsing value string as you want,
 // and/or check the validation of the input value or flag, and so on.

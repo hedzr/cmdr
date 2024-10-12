@@ -46,8 +46,14 @@ loopArgs:
 
 		ctx.arg, ctx.short, ctx.pos = w.args[ctx.i], false, 0
 		switch c1 := ctx.arg[0]; c1 {
-		case '+': // for short title only
+		// TODO need more design for form '+flag'.
+		// currently, +flag is designed as a bool value flipper
+		case '+': // for bool flag it's a flipper;
 			if len(ctx.arg) > 1 {
+				if w.interpretLeadingPlusSign(ctx) {
+					continue
+				}
+
 				// try matching a short flag
 				plusFound := func(cb func(w *workerS, ctx *parseCtx) error) error {
 					ctx.prefixPlusSign.Swap(true)
@@ -118,6 +124,13 @@ loopArgs:
 		}
 	}
 	return
+}
+
+func (w *workerS) interpretLeadingPlusSign(ctx *parseCtx) bool {
+	if w.onInterpretLeadingPlusSign != nil {
+		return w.onInterpretLeadingPlusSign(w, ctx)
+	}
+	return false
 }
 
 func (w *workerS) matchCommand(ctx *parseCtx) (err error) {

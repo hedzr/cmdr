@@ -86,9 +86,10 @@ type workerS struct {
 	root *cli.RootCommand
 	args []string
 
-	errs   errors.Error
-	ready  int32 // rootCommand is set and ready for Run running.
-	closed int32 // Run has exited, and all resources released
+	retCode int
+	errs    errors.Error
+	ready   int32 // rootCommand is set and ready for Run running.
+	closed  int32 // Run has exited, and all resources released
 
 	configFile      string
 	versionSimulate string
@@ -323,8 +324,10 @@ func (w *workerS) errIsSignalFallback(err error) bool {
 	return errors.Is(err, cli.ErrShouldFallback)
 }
 
-func (w *workerS) setArgs(args []string) { w.args = args }
-func (w *workerS) Args() (args []string) { return w.args }
+func (w *workerS) setArgs(args []string)     { w.args = args }
+func (w *workerS) Args() (args []string)     { return w.args }
+func (w *workerS) SuggestRetCode() int       { return w.retCode } //
+func (w *workerS) SetSuggestRetCode(ret int) { w.retCode = ret }
 
 func bindOpts[Opt cli.Opt](w *workerS, installAsUnique bool, opts ...Opt) {
 	for _, opt := range opts {

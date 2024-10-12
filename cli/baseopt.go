@@ -208,6 +208,7 @@ func (c *BaseOpt) Deprecated() string { return c.deprecated }
 func (c *BaseOpt) Hidden() bool       { return c.hidden }
 func (c *BaseOpt) VendorHidden() bool { return c.vendorHidden }
 
+// SafeGroup return UnsortedGroup if group member not set yet.
 func (c *BaseOpt) SafeGroup() string {
 	if c.group == "" {
 		return UnsortedGroup
@@ -215,20 +216,31 @@ func (c *BaseOpt) SafeGroup() string {
 	return c.group
 }
 
-// GroupTitle returns the group title without leading ordered pieces.
-func (c *BaseOpt) GroupTitle() string {
-	return reSortingPrefix.ReplaceAllString(c.SafeGroup(), "")
+func (c *BaseOpt) RemoveOrderedPrefix(title string) string {
+	return reSortingPrefix.ReplaceAllString(title, "")
 }
 
-// GroupHelpTitle returns the group title or empty string if it's UnsortedGroup.
+// GroupTitle returns the group title without leading
+// ordered pieces.
 //
-// This func is used for printing help screen.
+// The ordered prefix of returned title (such as "00ab." in
+// "00ab.Group A") was removed, the final title would be
+// "Group A".
+func (c *BaseOpt) GroupTitle() string {
+	return c.RemoveOrderedPrefix(c.SafeGroup())
+}
+
+// GroupHelpTitle returns the group title or empty string if
+// it's UnsortedGroup.
+//
+// The title will be printed in help screen. Its ordered prefix
+// (such as "00ab." in "00ab.Group A") was removed.
 func (c *BaseOpt) GroupHelpTitle() string {
 	tmp := c.SafeGroup()
 	if tmp == UnsortedGroup {
 		return ""
 	}
-	return reSortingPrefix.ReplaceAllString(tmp, "")
+	return c.RemoveOrderedPrefix(tmp)
 }
 
 // GetTitleNamesArray returns short,full,aliases names

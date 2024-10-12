@@ -922,12 +922,17 @@ func msCommandsGet() *Command { //nolint:funlen,revive //for test
 //
 
 func newTestRunner() Runner {
-	return &workerS{store.New()}
+	return &workerS{store: store.New()}
 }
 
 // workerS for testing only
 type workerS struct {
-	store store.Store
+	store   store.Store
+	retCode int
+}
+
+func (w *workerS) SetSuggestRetCode(ret int) {
+	w.retCode = ret
 }
 
 func (w *workerS) InitGlobally()                  {}
@@ -940,6 +945,8 @@ func (w *workerS) Actions() (ret map[string]bool) { return }            //nolint
 func (w *workerS) Name() string                   { return "for-test" } //
 func (*workerS) Version() string                  { return "v0.0.0" }
 func (*workerS) Root() *RootCommand               { return nil }
+func (*workerS) Args() []string                   { return nil }       //
+func (w *workerS) SuggestRetCode() int            { return w.retCode } //
 
 //
 

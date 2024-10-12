@@ -10,8 +10,6 @@ import (
 )
 
 func TestWorkerS_Run2(t *testing.T) { //nolint:revive
-	aTaskBeforeRun := func(root *cli.RootCommand, runner cli.Runner, extras ...any) (err error) { return } //nolint:revive
-
 	for i, c := range []struct {
 		args     string
 		verifier taskAfterParse

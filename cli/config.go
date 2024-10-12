@@ -23,18 +23,22 @@ func DefaultConfig() *Config {
 
 // Config for cmdr system,
 type Config struct {
-	store.Store // default is a dummy store. create yours with store.New().
+	store.Store `json:"store,omitempty"` // default is a dummy store. create yours with store.New().
 
-	ForceDefaultAction bool              // use builtin action for debugging if no Action specified to a command
-	SortInHelpScreen   bool              // auto sort commands and flags rather than creating order
-	UnmatchedAsError   bool              // unmatched command or flag as an error and threw it
-	TasksBeforeParse   []Task            // globally pre-parse tasks
-	TasksBeforeRun     []Task            // golbally pre-run tasks
-	Loaders            []Loader          // external config loaders. use cli.WithLoader() prefer
-	HelpScreenWriter   HelpWriter        // redirect stdout for help screen printing
-	DebugScreenWriter  HelpWriter        // redirect stdout for debugging outputs
-	Args               []string          // for testing
-	Env                map[string]string // inject env var & values
+	ForceDefaultAction    bool              `json:"force_default_action,omitempty"`    // use builtin action for debugging if no Action specified to a command
+	DontGroupInHelpScreen bool              `json:"no_group_in_help_screen,omitempty"` // group commands and flags by its group-name
+	SortInHelpScreen      bool              `json:"sort_in_help_screen,omitempty"`     // auto sort commands and flags rather than creating order
+	UnmatchedAsError      bool              `json:"unmatched_as_error,omitempty"`      // unmatched command or flag as an error and threw it
+	TasksAfterXref        []Task            `json:"-"`                                 // while command linked and xref'd, it's time to insert user-defined commands dynamically.
+	TasksAfterLoader      []Task            `json:"-"`                                 // while external loaders loaded.
+	TasksBeforeParse      []Task            `json:"-"`                                 // globally pre-parse tasks
+	TasksBeforeRun        []Task            `json:"-"`                                 // globally pre-run tasks, it's also used as TasksAfterParsed
+	TasksAfterRun         []Task            `json:"-"`                                 // globally post-run tasks
+	Loaders               []Loader          `json:"-"`                                 // external loaders. use cli.WithLoader() prefer
+	HelpScreenWriter      HelpWriter        `json:"help_screen_writer,omitempty"`      // redirect stdout for help screen printing
+	DebugScreenWriter     HelpWriter        `json:"debug_screen_writer,omitempty"`     // redirect stdout for debugging outputs
+	Args                  []string          `json:"args,omitempty"`                    // for testing
+	Env                   map[string]string `json:"env,omitempty"`                     // inject env var & values
 }
 
 // Opt for cmdr system
@@ -56,6 +60,10 @@ type Runner interface {
 	Name() string       // app name
 	Version() string    // app version
 	Root() *RootCommand // root command
+	Args() []string     // command-line
+
+	SuggestRetCode() int       // os process return code
+	SetSuggestRetCode(ret int) // update ret code (0-255) from onAction, onTask, ...
 
 	// Actions return a state map.
 	// The states can be:

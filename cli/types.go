@@ -37,7 +37,7 @@ const (
 //
 // There is no TasksAfterParsed, but you can replace it
 // with WithTasksBeforeRun/Config.TasksBeforeRun.
-type Task func(cmd *Command, runner Runner, extras ...any) (err error)
+type Task func(ctx context.Context, cmd *Command, runner Runner, extras ...any) (err error)
 
 type Loader interface {
 	Load(app App) (err error)
@@ -285,19 +285,17 @@ type MatchState struct {
 	Value           any
 }
 
-type OnInvokeHandler func(cmd *Command, args []string) (err error)
+type OnInvokeHandler func(ctx context.Context, cmd *Command, args []string) (err error)
 
-type OnPostInvokeHandler func(cmd *Command, args []string, errInvoked error) (err error)
+type OnPostInvokeHandler func(ctx context.Context, cmd *Command, args []string, errInvoked error) (err error)
 
-type OnPreInvokeHandler func(cmd *Command, args []string) (err error)
-
-type OnCommandMatchedHandler func(c *Command, position int, hitState *MatchState) (err error)
+type OnPreInvokeHandler func(ctx context.Context, cmd *Command, args []string) (err error)
 
 type OnEvaluateSubCommands func(ctx context.Context, c *Command) (it EvalIterator, err error)
 
 type OnEvaluateFlags func(ctx context.Context, c *Command) (it EvalIterator, err error)
 
-type EvalIterator func() (bo BaseOptI, hasNext bool, err error)
+type EvalIterator func(ctx context.Context) (bo BaseOptI, hasNext bool, err error)
 
 // OnParseValueHandler could be used for parsing value string as you want,
 // and/or check the validation of the input value or flag, and so on.
@@ -315,6 +313,8 @@ type OnParseValueHandler func(
 	remainPartInHitValue string,
 	err error,
 )
+
+type OnCommandMatchedHandler func(c *Command, position int, hitState *MatchState) (err error)
 
 type OnMatchedHandler func(f *Flag, position int, hitState *MatchState) (err error)
 

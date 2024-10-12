@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -16,7 +17,7 @@ type helpPrinter struct {
 	w            *workerS //nolint:unused
 }
 
-func (s *helpPrinter) Print(ctx any, lastCmd *Command) { //nolint:unparam,revive
+func (s *helpPrinter) Print(ctx context.Context, lastCmd *Command) { //nolint:unparam,revive
 	if s.Translator == nil {
 		s.Translator = color.GetCPT()
 	}
@@ -33,7 +34,7 @@ func (s *helpPrinter) Print(ctx any, lastCmd *Command) { //nolint:unparam,revive
 	// 	wr = s.w.wrHelpScreen
 	// }
 
-	lastCmd.WalkEverything(func(cc, pp *Command, ff *Flag, cmdIndex, flgIndex, level int) {
+	lastCmd.WalkEverything(ctx, func(cc, pp *Command, ff *Flag, cmdIndex, flgIndex, level int) {
 		switch {
 		case ff == nil && level > 0:
 			_, _ = sb.WriteString(strings.Repeat("  ", level))

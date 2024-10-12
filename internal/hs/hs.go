@@ -1,6 +1,7 @@
 package hs
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -29,7 +30,7 @@ type HelpSystem struct {
 // 	//
 // }
 
-func (s *HelpSystem) Run() (err error) {
+func (s *HelpSystem) Run(ctx context.Context) (err error) {
 	if !terminal.IsTerminal(0) || !terminal.IsTerminal(1) {
 		return fmt.Errorf("stdin/stdout should be terminal")
 	}

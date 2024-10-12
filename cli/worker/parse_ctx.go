@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"context"
 	"sync/atomic"
 
 	"github.com/hedzr/cmdr/v2/cli"
@@ -52,8 +53,8 @@ func (s *parseCtx) matchedCommand(longTitle string) (cc *cli.Command) {
 	return nil
 }
 
-func (s *parseCtx) matchedFlag(longTitle string) (ff *cli.Flag) {
-	ff = s.flag(longTitle)
+func (s *parseCtx) matchedFlag(ctx context.Context, longTitle string) (ff *cli.Flag) {
+	ff = s.flag(ctx, longTitle)
 	if _, ok := s.matchedFlags[ff]; ok {
 		return ff
 	}
@@ -99,15 +100,15 @@ func (s *parseCtx) addFlag(ff *cli.Flag) (ms *cli.MatchState) {
 	return
 }
 
-func (s *parseCtx) flag(longTitle string) (f *cli.Flag) { //nolint:unused
+func (s *parseCtx) flag(ctx context.Context, longTitle string) (f *cli.Flag) { //nolint:unused
 	cc := s.LastCmd()
-	f = cc.FindFlagBackwards(longTitle)
+	f = cc.FindFlagBackwards(ctx, longTitle)
 	return
 }
 
-func (s *parseCtx) cmd(longTitle string) (c *cli.Command) { //nolint:unused
+func (s *parseCtx) cmd(ctx context.Context, longTitle string) (c *cli.Command) { //nolint:unused
 	// ?? no uses yet ??
-	c = s.root.FindSubCommand(longTitle, false)
+	c = s.root.FindSubCommand(ctx, longTitle, false)
 	return
 }
 

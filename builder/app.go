@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"context"
 	"errors"
 	"sync/atomic"
 
@@ -16,7 +17,7 @@ type appS struct {
 	inFlg int32
 }
 
-func (s *appS) Run(opts ...cli.Opt) (err error) {
+func (s *appS) Run(ctx context.Context, opts ...cli.Opt) (err error) {
 	if atomic.LoadInt32(&s.inCmd) != 0 {
 		return errors.New("app/rootCmd: a Cmd() call needs ending with Build()")
 	}
@@ -35,13 +36,13 @@ func (s *appS) Run(opts ...cli.Opt) (err error) {
 	// `setRoot' interface.
 	s.Build() // set rootCommand into worker
 
-	s.Runner.InitGlobally() // let worker starts initializations
+	s.Runner.InitGlobally(ctx) // let worker starts initializations
 
 	if !s.Runner.Ready() {
 		return cli.ErrCommandsNotReady
 	}
 
-	err = s.Runner.Run(opts...)
+	err = s.Runner.Run(ctx, opts...)
 
 	// if err != nil {
 	// 	s.Runner.DumpErrors(os.Stderr)
@@ -61,7 +62,8 @@ func (s *appS) Args() []string         { return s.args }
 
 func (s *appS) Build() {
 	if sr, ok := s.Runner.(setRoot); ok {
-		s.root.EnsureTree(s, s.root)
+		ctx := context.Background()
+		s.root.EnsureTree(ctx, s, s.root)
 		sr.SetRoot(s.root, s.args)
 	}
 }

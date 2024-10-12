@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
@@ -50,7 +51,8 @@ func (c *RootCommand) Attach(newRootCommand *Command) {
 
 	// update 'root' fields in any commands/flags
 	hist := make(map[*Command]bool)
-	c.walkImpl(hist, c.Command, 0, func(cc *Command, index, level int) {
+	ctx := context.TODO()
+	c.walkImpl(ctx, hist, c.Command, 0, func(cc *Command, index, level int) {
 		cc.root = c
 		cc.ForeachFlags(func(f *Flag) (stop bool) { f.root = c; return })
 	})

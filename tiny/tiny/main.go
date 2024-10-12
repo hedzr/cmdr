@@ -3,6 +3,7 @@ package main
 // Simplest tiny app
 
 import (
+	"context"
 	"io"
 	"os"
 
@@ -24,7 +25,7 @@ func main() {
 		// 	local.NewEnvVarLoader(),
 		// ),
 
-		cmdr.WithTasksBeforeRun(func(cmd *cli.Command, runner cli.Runner, extras ...any) (err error) {
+		cmdr.WithTasksBeforeRun(func(ctx context.Context, cmd *cli.Command, runner cli.Runner, extras ...any) (err error) {
 			logz.Debug("command running...", "cmd", cmd, "runner", runner, "extras", extras)
 			return
 		}),
@@ -33,7 +34,7 @@ func main() {
 		// for productive mode, comment this line.
 		cmdr.WithForceDefaultAction(true),
 	)
-	if err := app.Run(); err != nil {
+	if err := app.Run(context.TODO()); err != nil {
 		logz.Error("Application Error:", "err", err)
 		os.Exit(app.SuggestRetCode())
 	}
@@ -68,7 +69,7 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 				Deprecated(`v0.1.1`).
 				// Group(cli.UnsortedGroup).
 				Hidden(false).
-				OnAction(func(cmd *cli.Command, args []string) (err error) {
+				OnAction(func(ctx context.Context, cmd *cli.Command, args []string) (err error) {
 					app.Store().Set("app.demo.working", dir.GetCurrentDir())
 					println()
 					println(dir.GetCurrentDir())
@@ -98,7 +99,7 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 
 	app.Cmd("wrong").
 		Description("a wrong command to return error for testing").
-		OnAction(func(cmd *cli.Command, args []string) (err error) {
+		OnAction(func(ctx context.Context, cmd *cli.Command, args []string) (err error) {
 			ec := errors.New()
 			defer ec.Defer(&err) // store the collected errors in native err and return it
 			ec.Attach(io.ErrClosedPipe, errors.New("something's wrong"), os.ErrPermission)

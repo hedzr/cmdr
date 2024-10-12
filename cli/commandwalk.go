@@ -92,7 +92,7 @@ type WalkBackwardsCtx struct {
 //
 // level is how many times the nested flags or commands backwards to
 // the root command.
-type WalkBackwardsCB func(ctx *WalkBackwardsCtx, cc *Command, ff *Flag, index, groupIndex, count, level int)
+type WalkBackwardsCB func(ctx context.Context, pc *WalkBackwardsCtx, cc *Command, ff *Flag, index, groupIndex, count, level int)
 
 type WalkCB func(cc *Command, index, level int)
 
@@ -113,12 +113,12 @@ type WalkEverythingCB func(cc, pp *Command, ff *Flag, cmdIndex, flgIndex, level 
 //
 // If you wanna control the grouping and sorting way, feel
 // free about WalkBackwardsCtx.
-func (c *Command) WalkBackwards(cb WalkBackwardsCB) {
-	ctx := &WalkBackwardsCtx{
+func (c *Command) WalkBackwards(ctx context.Context, cb WalkBackwardsCB) {
+	pc := &WalkBackwardsCtx{
 		Group: true,
 		Sort:  false,
 	}
-	c.WalkBackwardsCtx(cb, ctx)
+	c.WalkBackwardsCtx(ctx, cb, pc)
 }
 
 // WalkBackwardsCtx is a simple way to loop for all commands.
@@ -131,61 +131,61 @@ func (c *Command) WalkBackwards(cb WalkBackwardsCB) {
 //
 // In no-sort and no-group mode, the commands and flags are
 // accessed with the insertion turn.
-func (c *Command) WalkBackwardsCtx(cb WalkBackwardsCB, ctx *WalkBackwardsCtx) {
-	if ctx.hist == nil {
-		ctx.hist = make(map[*Command]bool)
+func (c *Command) WalkBackwardsCtx(ctx context.Context, cb WalkBackwardsCB, pc *WalkBackwardsCtx) {
+	if pc.hist == nil {
+		pc.hist = make(map[*Command]bool)
 	}
-	if ctx.histff == nil {
-		ctx.histff = make(map[*Flag]bool)
+	if pc.histff == nil {
+		pc.histff = make(map[*Flag]bool)
 	}
 
-	if ctx.Group {
-		c.walkBackwardsImplGrouping(ctx.Sort, ctx, c, 0, cb)
+	if pc.Group {
+		c.walkBackwardsImplGrouping(ctx, pc.Sort, pc, c, 0, cb)
 		return
 	}
 
-	c.walkBackwardsImplNoGrouping(ctx.Sort, ctx, c, 0, cb)
+	c.walkBackwardsImplNoGrouping(ctx, pc.Sort, pc, c, 0, cb)
 }
 
 // walkBackwardsImplGrouped _
 // passed
-func (c *Command) walkBackwardsImplGrouping(sort bool, ctx *WalkBackwardsCtx, cmd *Command, level int, cb WalkBackwardsCB) {
+func (c *Command) walkBackwardsImplGrouping(ctx context.Context, sort bool, pc *WalkBackwardsCtx, cmd *Command, level int, cb WalkBackwardsCB) {
 	if cb != nil {
 		if level == 0 {
 			// walk the first level command's subcommands.
-			gsAndPrintCommands(sort, ctx, cmd, level, cb)
+			gsAndPrintCommands(ctx, sort, pc, cmd, level, cb)
 		}
-		gsAndPrintFlags(sort, ctx, cmd, level, cb)
+		gsAndPrintFlags(ctx, sort, pc, cmd, level, cb)
 	}
 
 	if cmd.owner != nil && cmd.owner != cmd {
-		c.walkBackwardsImplGrouping(sort, ctx, cmd.owner, level+1, cb)
+		c.walkBackwardsImplGrouping(ctx, sort, pc, cmd.owner, level+1, cb)
 	}
 }
 
 // walkBackwardsImplSorted _
 // passed
-func (c *Command) walkBackwardsImplNoGrouping(sort bool, ctx *WalkBackwardsCtx, cmd *Command, level int, cb WalkBackwardsCB) {
+func (c *Command) walkBackwardsImplNoGrouping(ctx context.Context, sort bool, pc *WalkBackwardsCtx, cmd *Command, level int, cb WalkBackwardsCB) {
 	if cb != nil {
 		if level == 0 {
-			sortAndPrintCommands(sort, ctx, cmd, level, cb)
+			sortAndPrintCommands(ctx, sort, pc, cmd, level, cb)
 		}
-		sortAndPrintFlags(sort, ctx, cmd, level, cb)
+		sortAndPrintFlags(ctx, sort, pc, cmd, level, cb)
 	}
 
 	if cmd.owner != nil && cmd.owner != cmd {
-		c.walkBackwardsImplNoGrouping(sort, ctx, cmd.owner, level+1, cb)
+		c.walkBackwardsImplNoGrouping(ctx, sort, pc, cmd.owner, level+1, cb)
 	}
 }
 
-func gsAndPrintCommands(sort bool, ctx *WalkBackwardsCtx, cmd *Command, level int, cb WalkBackwardsCB) {
+func gsAndPrintCommands(ctx context.Context, sort bool, pc *WalkBackwardsCtx, cmd *Command, level int, cb WalkBackwardsCB) {
 	// walk the first level command's subcommands.
-	commands := mustEnsureDynCommands(cmd)
+	commands := mustEnsureDynCommands(ctx, cmd)
 	count := len(cmd.commands)
 	m := make(map[string]map[string]*Command)
 	for i, cc := range commands {
-		if _, ok := ctx.hist[cc]; !ok {
-			ctx.hist[cc] = true
+		if _, ok := pc.hist[cc]; !ok {
+			pc.hist[cc] = true
 			if _, ok = m[cc.SafeGroup()]; !ok {
 				m[cc.SafeGroup()] = make(map[string]*Command)
 			}
@@ -215,20 +215,20 @@ func gsAndPrintCommands(sort bool, ctx *WalkBackwardsCtx, cmd *Command, level in
 		gi := 0
 		for _, it := range keysItems {
 			cc := grpItems[it]
-			cb(ctx, cc, nil, ii, gi, count, level)
+			cb(ctx, pc, cc, nil, ii, gi, count, level)
 			gi++
 			ii++
 		}
 	}
 }
 
-func gsAndPrintFlags(sort bool, ctx *WalkBackwardsCtx, cmd *Command, level int, cb WalkBackwardsCB) {
-	flags := mustEnsureDynFlags(cmd)
+func gsAndPrintFlags(ctx context.Context, sort bool, pc *WalkBackwardsCtx, cmd *Command, level int, cb WalkBackwardsCB) {
+	flags := mustEnsureDynFlags(ctx, cmd)
 	count := len(flags)
 	m := make(map[string]map[string]*Flag)
 	for i, ff := range flags {
-		if _, ok := ctx.histff[ff]; !ok {
-			ctx.histff[ff] = true
+		if _, ok := pc.histff[ff]; !ok {
+			pc.histff[ff] = true
 			if _, ok = m[ff.SafeGroup()]; !ok {
 				m[ff.SafeGroup()] = make(map[string]*Flag)
 			}
@@ -258,27 +258,27 @@ func gsAndPrintFlags(sort bool, ctx *WalkBackwardsCtx, cmd *Command, level int, 
 		gi := 0
 		for _, it := range keysItems {
 			ff := grpItems[it]
-			cb(ctx, cmd, ff, ii, gi, count, level)
+			cb(ctx, pc, cmd, ff, ii, gi, count, level)
 			gi++
 			ii++
 		}
 	}
 }
 
-func sortAndPrintCommands(sort bool, ctx *WalkBackwardsCtx, cmd *Command, level int, cb WalkBackwardsCB) {
-	commands := mustEnsureDynCommands(cmd)
+func sortAndPrintCommands(ctx context.Context, sort bool, pc *WalkBackwardsCtx, cmd *Command, level int, cb WalkBackwardsCB) {
+	commands := mustEnsureDynCommands(ctx, cmd)
 	count := len(commands)
 	var m map[string]*Command
 	if sort {
 		m = make(map[string]*Command)
 	}
 	for i, cc := range commands {
-		if _, ok := ctx.hist[cc]; !ok {
-			ctx.hist[cc] = true
+		if _, ok := pc.hist[cc]; !ok {
+			pc.hist[cc] = true
 			if sort {
 				m[cc.Name()] = cc
 			} else {
-				cb(ctx, cc, nil, i, -1, count, level)
+				cb(ctx, pc, cc, nil, i, -1, count, level)
 			}
 		}
 	}
@@ -290,25 +290,25 @@ func sortAndPrintCommands(sort bool, ctx *WalkBackwardsCtx, cmd *Command, level 
 		slices.Sort(keys)
 		for i, k := range keys {
 			cc := m[k]
-			cb(ctx, cc, nil, i, -1, count, level)
+			cb(ctx, pc, cc, nil, i, -1, count, level)
 		}
 	}
 }
 
-func sortAndPrintFlags(sort bool, ctx *WalkBackwardsCtx, cmd *Command, level int, cb WalkBackwardsCB) {
-	flags := mustEnsureDynFlags(cmd)
+func sortAndPrintFlags(ctx context.Context, sort bool, pc *WalkBackwardsCtx, cmd *Command, level int, cb WalkBackwardsCB) {
+	flags := mustEnsureDynFlags(ctx, cmd)
 	count := len(flags)
 	var m map[string]*Flag
 	if sort {
 		m = make(map[string]*Flag)
 	}
 	for i, ff := range flags {
-		if _, ok := ctx.histff[ff]; !ok {
-			ctx.histff[ff] = true
+		if _, ok := pc.histff[ff]; !ok {
+			pc.histff[ff] = true
 			if sort {
 				m[ff.Name()] = ff
 			} else {
-				cb(ctx, cmd, ff, i, -1, count, level)
+				cb(ctx, pc, cmd, ff, i, -1, count, level)
 			}
 		}
 	}
@@ -320,28 +320,28 @@ func sortAndPrintFlags(sort bool, ctx *WalkBackwardsCtx, cmd *Command, level int
 		slices.Sort(keys)
 		for i, k := range keys {
 			ff := m[k]
-			cb(ctx, cmd, ff, i, -1, count, level)
+			cb(ctx, pc, cmd, ff, i, -1, count, level)
 		}
 	}
 }
 
 // Walk is a simple way to loop for all commands in original order.
-func (c *Command) Walk(cb WalkCB) {
+func (c *Command) Walk(ctx context.Context, cb WalkCB) {
 	hist := make(map[*Command]bool)
-	c.walkImpl(hist, c, 0, cb)
+	c.walkImpl(ctx, hist, c, 0, cb)
 }
 
-func (c *Command) walkImpl(hist map[*Command]bool, cmd *Command, level int, cb WalkCB) {
+func (c *Command) walkImpl(ctx context.Context, hist map[*Command]bool, cmd *Command, level int, cb WalkCB) {
 	if cb != nil {
 		cb(cmd, 0, level)
 	}
 
-	commands := mustEnsureDynCommands(cmd)
+	commands := mustEnsureDynCommands(ctx, cmd)
 	for _, cc := range commands {
 		if cc != nil {
 			if _, ok := hist[cc]; !ok {
 				hist[cc] = true
-				c.walkImpl(hist, cc, level+1, cb)
+				c.walkImpl(ctx, hist, cc, level+1, cb)
 			} else {
 				logz.Warn("[cmdr] loop ref found", "dad", cmd, "cc", cc)
 			}
@@ -350,12 +350,12 @@ func (c *Command) walkImpl(hist map[*Command]bool, cmd *Command, level int, cb W
 }
 
 // WalkGrouped loops for all commands and its flags with grouped order.
-func (c *Command) WalkGrouped(cb WalkGroupedCB) {
+func (c *Command) WalkGrouped(ctx context.Context, cb WalkGroupedCB) {
 	hist := make(map[*Command]bool)
-	c.walkGroupedImpl(hist, c, nil, 0, 0, cb)
+	c.walkGroupedImpl(ctx, hist, c, nil, 0, 0, cb)
 }
 
-func (c *Command) walkGroupedImpl(hist map[*Command]bool, dad, grandpa *Command, cmdIdx, level int, cb WalkGroupedCB) { //nolint:revive
+func (c *Command) walkGroupedImpl(ctx context.Context, hist map[*Command]bool, dad, grandpa *Command, cmdIdx, level int, cb WalkGroupedCB) { //nolint:revive
 	cb(dad, grandpa, nil, dad.GroupHelpTitle(), cmdIdx, level)
 
 	// todo need ensure dynamic commands (and flags)
@@ -371,7 +371,7 @@ func (c *Command) walkGroupedImpl(hist map[*Command]bool, dad, grandpa *Command,
 			if _, ok := hist[cc]; !ok {
 				hist[cc] = true
 				// cb(cc,nil, i, 0, level)
-				c.walkGroupedImpl(hist, cc, dad, i, level+1, cb)
+				c.walkGroupedImpl(ctx, hist, cc, dad, i, level+1, cb)
 			} else {
 				logz.Warn("[cmdr] loop ref found", "dad", dad, "grandpa", grandpa, "cc", cc)
 			}
@@ -410,28 +410,28 @@ func (c *Command) walkGroupedImpl(hist map[*Command]bool, dad, grandpa *Command,
 }
 
 // WalkEverything loops for all commands and its flags.
-func (c *Command) WalkEverything(cb WalkEverythingCB) {
+func (c *Command) WalkEverything(ctx context.Context, cb WalkEverythingCB) {
 	hist := make(map[*Command]bool)
-	c.walkEx(hist, c, nil, 0, 0, cb)
+	c.walkEx(ctx, hist, c, nil, 0, 0, cb)
 }
 
-func (c *Command) walkEx(hist map[*Command]bool, dad, grandpa *Command, level, cmdIndex int, cb WalkEverythingCB) { //nolint:revive
+func (c *Command) walkEx(ctx context.Context, hist map[*Command]bool, dad, grandpa *Command, level, cmdIndex int, cb WalkEverythingCB) { //nolint:revive
 	cb(dad, grandpa, nil, cmdIndex, 0, level)
 
-	commands := mustEnsureDynCommands(dad)
+	commands := mustEnsureDynCommands(ctx, dad)
 	for i, cc := range commands {
 		if cc != nil {
 			if _, ok := hist[cc]; !ok {
 				hist[cc] = true
 				// cb(cc,nil, i, 0, level)
-				c.walkEx(hist, cc, dad, level+1, i, cb)
+				c.walkEx(ctx, hist, cc, dad, level+1, i, cb)
 			} else {
 				logz.Warn("[cmdr] loop ref found", "dad", dad, "grandpa", grandpa, "cc", cc)
 			}
 		}
 	}
 
-	flags := mustEnsureDynFlags(dad)
+	flags := mustEnsureDynFlags(ctx, dad)
 	for i, ff := range flags {
 		if ff != nil {
 			cb(dad, grandpa, ff, cmdIndex, i, level)
@@ -441,9 +441,9 @@ func (c *Command) walkEx(hist map[*Command]bool, dad, grandpa *Command, level, c
 
 //
 
-func mustEnsureDynCommands(cmd *Command) (commands []*Command) {
+func mustEnsureDynCommands(ctx context.Context, cmd *Command) (commands []*Command) {
 	commands = cmd.commands
-	if cclist, err := ensureDynCommands(cmd); err != nil {
+	if cclist, err := ensureDynCommands(ctx, cmd); err != nil {
 		logz.Error("cannot evaluate dynamic-commands", "err", err)
 	} else {
 		commands = append(commands, cclist...)
@@ -451,9 +451,9 @@ func mustEnsureDynCommands(cmd *Command) (commands []*Command) {
 	return
 }
 
-func mustEnsureDynFlags(cmd *Command) (flags []*Flag) {
+func mustEnsureDynFlags(ctx context.Context, cmd *Command) (flags []*Flag) {
 	flags = cmd.flags
-	if cclist, err := ensureDynFlags(cmd); err != nil {
+	if cclist, err := ensureDynFlags(ctx, cmd); err != nil {
 		logz.Error("cannot evaluate dynamic-flags", "err", err)
 	} else {
 		flags = append(flags, cclist...)
@@ -473,7 +473,7 @@ func ensureDynCommands(ctx context.Context, cmd *Command) (list []*Command, err 
 
 			hasNext := true
 			for hasNext {
-				if c, hasNext, err = iter(); err != nil {
+				if c, hasNext, err = iter(ctx); err != nil {
 					return
 				}
 				if cc, ok := c.(*Command); ok {
@@ -489,13 +489,13 @@ func ensureDynCommands(ctx context.Context, cmd *Command) (list []*Command, err 
 
 	if cmd.onEvalSubcommands != nil {
 		var iter EvalIterator
-		if iter, err = cmd.onEvalSubcommands.cb(ctx, cmd); err != nil {
+		if iter, err = cmd.onEvalSubcommands.cb(ctx, cmd); err != nil || iter == nil {
 			return
 		}
 
 		hasNext := true
 		for hasNext {
-			if c, hasNext, err = iter(); err != nil {
+			if c, hasNext, err = iter(ctx); err != nil {
 				return
 			}
 			if cc, ok := c.(*Command); ok {
@@ -518,7 +518,7 @@ func ensureDynFlags(ctx context.Context, cmd *Command) (list []*Flag, err error)
 
 			hasNext := true
 			for hasNext {
-				if c, hasNext, err = iter(); err != nil {
+				if c, hasNext, err = iter(ctx); err != nil {
 					return
 				}
 				if cc, ok := c.(*Flag); ok {
@@ -534,13 +534,13 @@ func ensureDynFlags(ctx context.Context, cmd *Command) (list []*Flag, err error)
 
 	if cmd.onEvalFlags != nil {
 		var iter EvalIterator
-		if iter, err = cmd.onEvalFlags.cb(ctx, cmd); err != nil {
+		if iter, err = cmd.onEvalFlags.cb(ctx, cmd); err != nil || iter == nil {
 			return
 		}
 
 		hasNext := true
 		for hasNext {
-			if c, hasNext, err = iter(); err != nil {
+			if c, hasNext, err = iter(ctx); err != nil {
 				return
 			}
 			if cc, ok := c.(*Flag); ok {

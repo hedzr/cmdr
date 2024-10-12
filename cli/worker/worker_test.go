@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"context"
 	"regexp"
 	"strings"
 	"testing"
@@ -10,6 +11,7 @@ import (
 )
 
 func TestWorkerS_Run2(t *testing.T) { //nolint:revive
+	ctx := context.TODO()
 	for i, c := range []struct {
 		args     string
 		verifier taskAfterParse
@@ -45,7 +47,7 @@ func TestWorkerS_Run2(t *testing.T) { //nolint:revive
 		ww.setArgs(append([]string{app.Name()}, strings.Split(c.args, " ")...))
 		ww.tasksAfterParse = []taskAfterParse{c.verifier}
 		ww.Config.TasksBeforeRun = []cli.Task{aTaskBeforeRun}
-		err := ww.Run(c.opts...) // withTasksBeforeRun(taskBeforeRun),withTasksAfterParse(c.verifier))
+		err := ww.Run(ctx, c.opts...) // withTasksBeforeRun(taskBeforeRun),withTasksAfterParse(c.verifier))
 		// err := app.Run()
 		if err != nil {
 			_ = app

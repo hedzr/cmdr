@@ -1,6 +1,7 @@
 package examples
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/hedzr/cmdr/v2/cli"
@@ -121,57 +122,57 @@ func AttachConsulConnectFlags(bdr cli.CommandBuilder) {
 		Build()
 }
 
-func serverStartup(cmd *cli.Command, args []string) (err error) {
+func serverStartup(ctx context.Context, cmd *cli.Command, args []string) (err error) {
 	_, _ = cmd, args
 	return
 }
 
-func serverStop(cmd *cli.Command, args []string) (err error) {
+func serverStop(ctx context.Context, cmd *cli.Command, args []string) (err error) {
 	_, _ = cmd, args
 	return
 }
 
-func serverShutdown(cmd *cli.Command, args []string) (err error) { //nolint:unused
+func serverShutdown(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:unused
 	_, _ = cmd, args
 	return
 }
 
-func serverRestart(cmd *cli.Command, args []string) (err error) {
+func serverRestart(ctx context.Context, cmd *cli.Command, args []string) (err error) {
 	_, _ = cmd, args
 	return
 }
 
-func serverLiveReload(cmd *cli.Command, args []string) (err error) { //nolint:unused
+func serverLiveReload(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:unused
 	_, _ = cmd, args
 	return
 }
 
-func serverInstall(cmd *cli.Command, args []string) (err error) {
+func serverInstall(ctx context.Context, cmd *cli.Command, args []string) (err error) {
 	_, _ = cmd, args
 	return
 }
 
-func serverUninstall(cmd *cli.Command, args []string) (err error) {
+func serverUninstall(ctx context.Context, cmd *cli.Command, args []string) (err error) {
 	_, _ = cmd, args
 	return
 }
 
-func serverStatus(cmd *cli.Command, args []string) (err error) {
+func serverStatus(ctx context.Context, cmd *cli.Command, args []string) (err error) {
 	_, _ = cmd, args
 	return
 }
 
-func serverPause(cmd *cli.Command, args []string) (err error) { //nolint:unused
+func serverPause(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:unused
 	_, _ = cmd, args
 	return
 }
 
-func serverResume(cmd *cli.Command, args []string) (err error) { //nolint:unused
+func serverResume(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:unused
 	_, _ = cmd, args
 	return
 }
 
-func kvBackup(cmd *cli.Command, args []string) (err error) {
+func kvBackup(ctx context.Context, cmd *cli.Command, args []string) (err error) {
 	// err = consul.Backup()
 	fmt.Printf(`
 cmd: %v
@@ -181,43 +182,43 @@ args: %v
 	return
 }
 
-func kvRestore(cmd *cli.Command, args []string) (err error) {
+func kvRestore(ctx context.Context, cmd *cli.Command, args []string) (err error) {
 	_, _ = cmd, args
 	// err = consul.Restore()
 	return
 }
 
-func msList(cmd *cli.Command, args []string) (err error) { //nolint:unused
+func msList(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:unused
 	_, _ = cmd, args
 	// err = consul.ServiceList()
 	return
 }
 
-func msTagsList(cmd *cli.Command, args []string) (err error) { //nolint:unused
+func msTagsList(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:unused
 	_, _ = cmd, args
 	// err = consul.TagsList()
 	return
 }
 
-func msTagsAdd(cmd *cli.Command, args []string) (err error) { //nolint:unused
+func msTagsAdd(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:unused
 	_, _ = cmd, args
 	// err = consul.Tags()
 	return
 }
 
-func msTagsRemove(cmd *cli.Command, args []string) (err error) { //nolint:unused
+func msTagsRemove(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:unused
 	_, _ = cmd, args
 	// err = consul.Tags()
 	return
 }
 
-func msTagsModify(cmd *cli.Command, args []string) (err error) {
+func msTagsModify(ctx context.Context, cmd *cli.Command, args []string) (err error) {
 	_, _ = cmd, args
 	// err = consul.Tags()
 	return
 }
 
-func msTagsToggle(cmd *cli.Command, args []string) (err error) { //nolint:unused
+func msTagsToggle(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:unused
 	_, _ = cmd, args
 	// err = consul.TagsToggle()
 	return

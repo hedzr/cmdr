@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"strings"
 
 	"github.com/hedzr/cmdr/v2/conf"
@@ -113,7 +114,8 @@ func (c *Command) dottedPathToCommandOrFlag(dottedPath string) (cmd *Command, ff
 		dottedPath = appName + "." + dottedPath //nolint:revive
 	}
 
-	c.Walk(func(cc *Command, index, level int) {
+	ctx := context.TODO()
+	c.Walk(ctx, func(cc *Command, index, level int) {
 		kp := cc.GetDottedPath()
 		if !strings.HasPrefix(kp, appName) {
 			kp = appName + "." + kp

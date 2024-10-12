@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"slices"
@@ -33,14 +34,14 @@ type helpPrinter struct {
 
 const colLeftTabbedWidth = 56
 
-func (s *helpPrinter) Print(ctx *parseCtx, lastCmd *cli.Command) { //nolint:revive //
+func (s *helpPrinter) Print(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) { //nolint:revive //
 	wr := s.safeGetWriter()
-	s.PrintTo(wr, ctx, lastCmd)
+	s.PrintTo(ctx, wr, pc, lastCmd)
 }
 
-func (s *helpPrinter) PrintTo(wr HelpWriter, ctx *parseCtx, lastCmd *cli.Command) { //nolint:revive //
+func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, lastCmd *cli.Command) { //nolint:revive //
 	if s.debugScreenMode {
-		s.PrintDebugScreenTo(wr, ctx, lastCmd)
+		s.PrintDebugScreenTo(wr, pc, lastCmd)
 		return
 	}
 
@@ -57,8 +58,8 @@ func (s *helpPrinter) PrintTo(wr HelpWriter, ctx *parseCtx, lastCmd *cli.Command
 		// ~~tree: list all commands in tree style for a overview
 
 		grouped := true
-		s.printHeader(&sb, lastCmd, ctx, cols, tabbedW)
-		lastCmd.WalkGrouped(func(cc, pp *cli.Command, ff *cli.Flag, group string, idx, level int) { //nolint:revive
+		s.printHeader(&sb, lastCmd, pc, cols, tabbedW)
+		lastCmd.WalkGrouped(ctx, func(cc, pp *cli.Command, ff *cli.Flag, group string, idx, level int) { //nolint:revive
 			switch {
 			case ff == nil: // Command
 				s.printCommand(&sb, &verboseCount, cc, group, idx, level, cols, tabbedW, grouped)
@@ -71,16 +72,16 @@ func (s *helpPrinter) PrintTo(wr HelpWriter, ctx *parseCtx, lastCmd *cli.Command
 	} else {
 		// normal help screen
 
-		s.printHeader(&sb, lastCmd, ctx, cols, tabbedW)
-		s.printUsage(&sb, lastCmd, ctx, cols, tabbedW)
-		s.printDesc(&sb, lastCmd, ctx, cols, tabbedW)
-		s.printExamples(&sb, lastCmd, ctx, cols, tabbedW)
+		s.printHeader(&sb, lastCmd, pc, cols, tabbedW)
+		s.printUsage(&sb, lastCmd, pc, cols, tabbedW)
+		s.printDesc(&sb, lastCmd, pc, cols, tabbedW)
+		s.printExamples(&sb, lastCmd, pc, cols, tabbedW)
 
 		walkCtx := &cli.WalkBackwardsCtx{
 			Group: !s.w.DontGroupInHelpScreen,
 			Sort:  s.w.SortInHelpScreen,
 		}
-		lastCmd.WalkBackwardsCtx(func(ctx *cli.WalkBackwardsCtx, cc *cli.Command, ff *cli.Flag, index, groupIndex, count, level int) {
+		lastCmd.WalkBackwardsCtx(ctx, func(ctx context.Context, pc *cli.WalkBackwardsCtx, cc *cli.Command, ff *cli.Flag, index, groupIndex, count, level int) {
 			if ff == nil {
 				cnt := cc.Owner().CountOfCommands()
 				if index == 0 && min(cnt, count) > 0 {
@@ -115,7 +116,7 @@ func (s *helpPrinter) PrintTo(wr HelpWriter, ctx *parseCtx, lastCmd *cli.Command
 			s.printFlag(&sb, &verboseCount, ff, ff.GroupHelpTitle(), groupIndex, 1, cols, tabbedW, walkCtx.Group)
 		}, walkCtx)
 
-		s.printTailLine(&sb, lastCmd, ctx, cols, tabbedW)
+		s.printTailLine(&sb, lastCmd, pc, cols, tabbedW)
 
 		_, _ = wr.WriteString(sb.String())
 		_, _ = wr.WriteString("\n")
@@ -128,7 +129,7 @@ func (s *helpPrinter) PrintTo(wr HelpWriter, ctx *parseCtx, lastCmd *cli.Command
 	}
 
 	sb.Reset()
-	s.printDebugMatches(&sb, wr, ctx)
+	s.printDebugMatches(&sb, wr, pc)
 }
 
 func (s *helpPrinter) PrintDebugScreenTo(wr HelpWriter, ctx *parseCtx, lastCmd *cli.Command) { //nolint:revive //

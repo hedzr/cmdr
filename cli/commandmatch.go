@@ -11,7 +11,7 @@ import (
 	logz "github.com/hedzr/logg/slog"
 )
 
-func (c *Command) Match(title string) (short bool, cc *Command) {
+func (c *Command) Match(ctx context.Context, title string) (short bool, cc *Command) {
 	if title == "" {
 		return
 	}
@@ -31,7 +31,7 @@ func (c *Command) Match(title string) (short bool, cc *Command) {
 	}
 
 	if c.onEvalSubcommandsOnce != nil || c.onEvalSubcommands != nil {
-		commands := mustEnsureDynCommands(c)
+		commands := mustEnsureDynCommands(ctx, c)
 		for _, cx := range commands {
 			if title == cx.Long {
 				cx.hitTitle = title
@@ -88,7 +88,7 @@ func (s *FlagValuePkg) Reset() {
 // MatchFlag try matching command title with vp.Remains, and update the relevant states.
 //
 // While a flag matched ok, returns vp.Matched != "" && ff != nil && err != nil
-func (c *Command) MatchFlag(vp *FlagValuePkg) (ff *Flag, err error) { //nolint:revive
+func (c *Command) MatchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, err error) { //nolint:revive
 	c.ensureXrefFlags()
 
 	var ok bool
@@ -98,7 +98,7 @@ func (c *Command) MatchFlag(vp *FlagValuePkg) (ff *Flag, err error) { //nolint:r
 
 		var cclist map[string]*Flag
 		if c.onEvalFlagsOnce != nil || c.onEvalFlags != nil {
-			flags := mustEnsureDynFlags(c)
+			flags := mustEnsureDynFlags(ctx, c)
 			cclist = make(map[string]*Flag)
 			for _, cx := range flags {
 				if cx.Short != "" {
@@ -111,14 +111,14 @@ func (c *Command) MatchFlag(vp *FlagValuePkg) (ff *Flag, err error) { //nolint:r
 
 		if ff, ok = cclist[vp.Remains]; ok && c.testDblTilde(vp.SpecialTilde, ff) {
 			vp.PartialMatched, vp.Matched, vp.Remains, ff.hitTitle, ff.hitTimes = false, vp.Remains, "", vp.Remains, ff.hitTimes+1
-			return c.tryParseValue(vp, ff)
+			return c.tryParseValue(ctx, vp, ff)
 		}
 
 		// try for compact short flags
-		matched, remains, ff, err = c.partialMatchFlag(vp.Remains, vp.Short, vp.SpecialTilde, cclist)
+		matched, remains, ff, err = c.partialMatchFlag(ctx, vp.Remains, vp.Short, vp.SpecialTilde, cclist)
 		if vp.PartialMatched = ff != nil && err == nil; vp.PartialMatched {
 			vp.Matched, vp.Remains = matched, remains
-			ff, err = c.tryParseValue(vp, ff)
+			ff, err = c.tryParseValue(ctx, vp, ff)
 		}
 
 		// try to parse headLike flag
@@ -133,7 +133,7 @@ func (c *Command) MatchFlag(vp *FlagValuePkg) (ff *Flag, err error) { //nolint:r
 	} else {
 		var cclist map[string]*Flag
 		if c.onEvalFlagsOnce != nil || c.onEvalFlags != nil {
-			flags := mustEnsureDynFlags(c)
+			flags := mustEnsureDynFlags(ctx, c)
 			cclist = make(map[string]*Flag)
 			for _, cx := range flags {
 				if cx.Long != "" {
@@ -151,19 +151,19 @@ func (c *Command) MatchFlag(vp *FlagValuePkg) (ff *Flag, err error) { //nolint:r
 
 		if ff, ok = cclist[vp.Remains]; ok && c.testDblTilde(vp.SpecialTilde, ff) {
 			vp.PartialMatched, vp.Matched, vp.Remains, ff.hitTitle, ff.hitTimes = false, vp.Remains, "", vp.Remains, ff.hitTimes+1
-			return c.tryParseValue(vp, ff)
+			return c.tryParseValue(ctx, vp, ff)
 		}
 
-		matched, remains, ff, err = c.partialMatchFlag(vp.Remains, vp.Short, vp.SpecialTilde, cclist)
+		matched, remains, ff, err = c.partialMatchFlag(ctx, vp.Remains, vp.Short, vp.SpecialTilde, cclist)
 		if vp.PartialMatched = ff != nil && err == nil; vp.PartialMatched {
 			vp.Matched, vp.Remains = matched, remains
-			ff, err = c.tryParseValue(vp, ff)
+			ff, err = c.tryParseValue(ctx, vp, ff)
 		}
 	}
 
 	// lookup the parents, if 'ff' not matched/found
 	if ff == nil && err == nil && c.owner != nil && c.owner != c {
-		ff, err = c.owner.MatchFlag(vp)
+		ff, err = c.owner.MatchFlag(ctx, vp)
 		return
 	}
 
@@ -172,7 +172,7 @@ func (c *Command) MatchFlag(vp *FlagValuePkg) (ff *Flag, err error) { //nolint:r
 		ff.hitTitle = vp.Matched
 		ff.hitTimes++
 		if !vp.ValueOK {
-			ff, err = c.tryParseValue(vp, ff)
+			ff, err = c.tryParseValue(ctx, vp, ff)
 			// // tryParseValue ...
 			// if vp.PartialMatched {
 			// 	//
@@ -189,7 +189,7 @@ func (c *Command) testDblTilde(dblTilde bool, ff *Flag) (matched bool) {
 	return
 }
 
-func (c *Command) partialMatchFlag(title string, short, dblTildeMode bool, cclist map[string]*Flag) (matched, remains string, ff *Flag, err error) { //nolint:revive
+func (c *Command) partialMatchFlag(ctx context.Context, title string, short, dblTildeMode bool, cclist map[string]*Flag) (matched, remains string, ff *Flag, err error) { //nolint:revive
 	var maxLen int
 	var rightPart string
 
@@ -221,7 +221,7 @@ func (c *Command) partialMatchFlag(title string, short, dblTildeMode bool, cclis
 			if short {
 				mf = c.owner.shortFlags
 			}
-			matched1, remains1, ff1, err1 := c.owner.partialMatchFlag(titleOriginal, short, dblTildeMode, mf)
+			matched1, remains1, ff1, err1 := c.owner.partialMatchFlag(ctx, titleOriginal, short, dblTildeMode, mf)
 			if err = err1; err != nil {
 				return
 			}
@@ -240,7 +240,7 @@ func (c *Command) partialMatchFlag(title string, short, dblTildeMode bool, cclis
 		var cxlist map[string]*Flag
 		if short {
 			if c.owner.onEvalFlagsOnce != nil || c.owner.onEvalFlags != nil {
-				flags := mustEnsureDynFlags(c.owner)
+				flags := mustEnsureDynFlags(ctx, c.owner)
 				cxlist = make(map[string]*Flag)
 				for _, cx := range flags {
 					if cx.Short != "" {
@@ -252,7 +252,7 @@ func (c *Command) partialMatchFlag(title string, short, dblTildeMode bool, cclis
 			}
 		} else {
 			if c.owner.onEvalFlagsOnce != nil || c.owner.onEvalFlags != nil {
-				flags := mustEnsureDynFlags(c.owner)
+				flags := mustEnsureDynFlags(ctx, c.owner)
 				cxlist = make(map[string]*Flag)
 				for _, cx := range flags {
 					if cx.Long != "" {
@@ -269,16 +269,16 @@ func (c *Command) partialMatchFlag(title string, short, dblTildeMode bool, cclis
 			}
 		}
 
-		matched, remains, ff, err = c.owner.partialMatchFlag(titleOriginal, short, dblTildeMode, cxlist)
+		matched, remains, ff, err = c.owner.partialMatchFlag(ctx, titleOriginal, short, dblTildeMode, cxlist)
 	}
 	return
 }
 
-func (c *Command) tryParseValue(vp *FlagValuePkg, ff *Flag) (ret *Flag, err error) {
+func (c *Command) tryParseValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) (ret *Flag, err error) {
 	if ff != nil {
-		ff = c.matchedForTG(ff) //nolint:revive
+		ff = c.matchedForTG(ctx, ff) //nolint:revive
 	}
-	if ff, err = c.checkPrerequisites(vp, ff); err != nil {
+	if ff, err = c.checkPrerequisites(ctx, vp, ff); err != nil {
 		return
 	}
 	if ff, err = c.checkJustOnce(vp, ff); err != nil {
@@ -304,7 +304,7 @@ func (c *Command) tryParseValue(vp *FlagValuePkg, ff *Flag) (ret *Flag, err erro
 	return
 }
 
-func (c *Command) matchedForTG(ff *Flag) *Flag {
+func (c *Command) matchedForTG(ctx context.Context, ff *Flag) *Flag {
 	// toggle group
 	if ff.owner.toggles != nil {
 		if m, ok := ff.owner.toggles[ff.ToggleGroup()]; ok {
@@ -322,7 +322,7 @@ func (c *Command) matchedForTG(ff *Flag) *Flag {
 		for _, fn := range ff.mutualExclusives {
 			var f *Flag
 			if strings.ContainsRune(fn, '.') {
-				f = ff.owner.FindFlag(fn, false)
+				f = ff.owner.FindFlag(ctx, fn, false)
 			} else {
 				_, f = ff.Root().dottedPathToCommandOrFlag(fn)
 			}
@@ -347,12 +347,12 @@ func (c *Command) checkJustOnce(vp *FlagValuePkg, ff *Flag) (ret *Flag, err erro
 	return
 }
 
-func (c *Command) checkPrerequisites(vp *FlagValuePkg, ff *Flag) (ret *Flag, err error) {
+func (c *Command) checkPrerequisites(ctx context.Context, vp *FlagValuePkg, ff *Flag) (ret *Flag, err error) {
 	if ff != nil && len(ff.prerequisites) > 0 {
 		for _, fn := range ff.prerequisites {
 			var f *Flag
 			if strings.ContainsRune(fn, '.') {
-				f = ff.owner.FindFlag(fn, false)
+				f = ff.owner.FindFlag(ctx, fn, false)
 			} else {
 				_, f = ff.Root().dottedPathToCommandOrFlag(fn)
 			}

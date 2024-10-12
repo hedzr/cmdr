@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"context"
 	"sync/atomic"
 
 	errorsv3 "gopkg.in/hedzr/errors.v3"
@@ -14,7 +15,7 @@ func (w *workerS) SetTasksAfterParse(tasks ...taskAfterParse) {
 	w.tasksAfterParse = append(w.tasksAfterParse, tasks...)
 }
 
-func (w *workerS) parse(ctx *parseCtx) (err error) { //nolint:revive
+func (w *workerS) parse(ctx context.Context, pc *parseCtx) (err error) { //nolint:revive
 	ec := errorsv3.New("tasks failed")
 	defer ec.Defer(&err)
 
@@ -22,7 +23,7 @@ func (w *workerS) parse(ctx *parseCtx) (err error) { //nolint:revive
 		if len(w.tasksAfterParse) > 0 {
 			for _, task := range w.tasksAfterParse {
 				if task != nil {
-					ec.Attach(task(w, ctx, err))
+					ec.Attach(task(w, pc, err))
 				}
 			}
 		}
@@ -31,142 +32,142 @@ func (w *workerS) parse(ctx *parseCtx) (err error) { //nolint:revive
 	logz.Verbose("[cmdr] parsing command line args ...", "args", w.args)
 
 loopArgs:
-	for ctx.i = 1; ctx.i < len(w.args); ctx.i++ {
-		if w.args[ctx.i] == "" {
+	for pc.i = 1; pc.i < len(w.args); pc.i++ {
+		if w.args[pc.i] == "" {
 			continue
 		}
 
-		if atomic.LoadInt32(&ctx.passThruMatched) > 0 || errorsv3.Is(err, cli.ErrShouldStop) || w.errIsUnmatchedArg(err) {
-			ctx.positionalArgs = append(ctx.positionalArgs, w.args[ctx.i])
-			logz.Verbose("[cmdr] positional args added", "i", ctx.i, "args", ctx.positionalArgs)
+		if atomic.LoadInt32(&pc.passThruMatched) > 0 || errorsv3.Is(err, cli.ErrShouldStop) || w.errIsUnmatchedArg(err) {
+			pc.positionalArgs = append(pc.positionalArgs, w.args[pc.i])
+			logz.Verbose("[cmdr] positional args added", "i", pc.i, "args", pc.positionalArgs)
 			continue
 		}
 
-		logz.Verbose("[cmdr] parsing command-line args", "i", ctx.i, "arg", w.args[ctx.i])
+		logz.Verbose("[cmdr] parsing command-line args", "i", pc.i, "arg", w.args[pc.i])
 
-		ctx.arg, ctx.short, ctx.pos = w.args[ctx.i], false, 0
-		switch c1 := ctx.arg[0]; c1 {
+		pc.arg, pc.short, pc.pos = w.args[pc.i], false, 0
+		switch c1 := pc.arg[0]; c1 {
 		// TODO need more design for form '+flag'.
 		// currently, +flag is designed as a bool value flipper
 		case '+': // for bool flag it's a flipper;
-			if len(ctx.arg) > 1 {
-				if w.interpretLeadingPlusSign(ctx) {
+			if len(pc.arg) > 1 {
+				if w.interpretLeadingPlusSign(pc) {
 					continue
 				}
 
 				// try matching a short flag
 				plusFound := func(cb func(w *workerS, ctx *parseCtx) error) error {
-					ctx.prefixPlusSign.Swap(true)
-					defer func() { ctx.prefixPlusSign.Swap(false) }()
-					return cb(w, ctx)
+					pc.prefixPlusSign.Swap(true)
+					defer func() { pc.prefixPlusSign.Swap(false) }()
+					return cb(w, pc)
 				}
-				if err = plusFound(func(w *workerS, ctx *parseCtx) error {
-					ctx.arg, ctx.short, ctx.dblTilde = ctx.arg[1:], true, false
-					return w.matchFlag(ctx, true)
+				if err = plusFound(func(w *workerS, pc *parseCtx) error {
+					pc.arg, pc.short, pc.dblTilde = pc.arg[1:], true, false
+					return w.matchFlag(ctx, pc, true)
 				}); !w.errIsSignalOrNil(err) {
-					err = w.onUnknownFlagMatched(ctx)
+					err = w.onUnknownFlagMatched(pc)
 					break loopArgs
 				}
 				continue
 			}
 			// single '+': as a positional arg
-			ctx.positionalArgs = append(ctx.positionalArgs, ctx.arg)
-			logz.Verbose("[cmdr] positional args added", "i", ctx.i, "args", ctx.positionalArgs)
+			pc.positionalArgs = append(pc.positionalArgs, pc.arg)
+			logz.Verbose("[cmdr] positional args added", "i", pc.i, "args", pc.positionalArgs)
 			continue
 
 		case '-', '~':
-			if len(ctx.arg) > 1 { // so, ctx.arg >= 2
-				if (c1 == '-' && ctx.arg[1] == '-') || (c1 == '~' && ctx.arg[1] == '~') {
-					if len(ctx.arg) == 3 && ctx.arg[2] == '-' { //nolint:revive
+			if len(pc.arg) > 1 { // so, pc.arg >= 2
+				if (c1 == '-' && pc.arg[1] == '-') || (c1 == '~' && pc.arg[1] == '~') {
+					if len(pc.arg) == 3 && pc.arg[2] == '-' { //nolint:revive
 						// --: pass-thru found
-						err = w.onPassThruCharMatched(ctx)
+						err = w.onPassThruCharMatched(pc)
 						continue
 					}
 
 					// try match a long flag
-					ctx.arg, ctx.short, ctx.dblTilde = ctx.arg[2:], false, c1 == '~'
-					if err = w.matchFlag(ctx, false); !w.errIsSignalOrNil(err) {
-						err = w.onUnknownFlagMatched(ctx)
+					pc.arg, pc.short, pc.dblTilde = pc.arg[2:], false, c1 == '~'
+					if err = w.matchFlag(ctx, pc, false); !w.errIsSignalOrNil(err) {
+						err = w.onUnknownFlagMatched(pc)
 						break loopArgs
 					}
 					continue
 				}
-				if (c1 == '-' && ctx.arg[1] == '~') || (c1 == '~' && ctx.arg[1] == '-') {
-					err = w.onUnknownFlagMatched(ctx)
+				if (c1 == '-' && pc.arg[1] == '~') || (c1 == '~' && pc.arg[1] == '-') {
+					err = w.onUnknownFlagMatched(pc)
 					break loopArgs
 				}
 
 				// try matching a short flag
-				ctx.arg, ctx.short, ctx.dblTilde = ctx.arg[1:], true, false
+				pc.arg, pc.short, pc.dblTilde = pc.arg[1:], true, false
 				if c1 != '-' {
-					err = w.onUnknownFlagMatched(ctx)
+					err = w.onUnknownFlagMatched(pc)
 					break loopArgs
 				}
-				if err = w.matchFlag(ctx, true); !w.errIsSignalOrNil(err) {
-					err = w.onUnknownFlagMatched(ctx)
+				if err = w.matchFlag(ctx, pc, true); !w.errIsSignalOrNil(err) {
+					err = w.onUnknownFlagMatched(pc)
 					break loopArgs
 				}
 				continue
 			}
 			// single '-' matched, is it a wrong state?
-			err = w.onSingleHyphenMatched(ctx)
+			err = w.onSingleHyphenMatched(pc)
 			continue
 
 		default:
-			if ctx.NoCandidateChildCommands() {
-				ctx.positionalArgs = append(ctx.positionalArgs, ctx.arg)
-				logz.Verbose("[cmdr] positional args added", "i", ctx.i, "args", ctx.positionalArgs)
+			if pc.NoCandidateChildCommands() {
+				pc.positionalArgs = append(pc.positionalArgs, pc.arg)
+				logz.Verbose("[cmdr] positional args added", "i", pc.i, "args", pc.positionalArgs)
 				continue
 			}
-			if err = w.matchCommand(ctx); !w.errIsSignalOrNil(err) {
-				err = w.onUnknownCommandMatched(ctx)
+			if err = w.matchCommand(ctx, pc); !w.errIsSignalOrNil(err) {
+				err = w.onUnknownCommandMatched(pc)
 			}
 		}
 	}
 	return
 }
 
-func (w *workerS) interpretLeadingPlusSign(ctx *parseCtx) bool {
+func (w *workerS) interpretLeadingPlusSign(pc *parseCtx) bool {
 	if w.onInterpretLeadingPlusSign != nil {
-		return w.onInterpretLeadingPlusSign(w, ctx)
+		return w.onInterpretLeadingPlusSign(w, pc)
 	}
 	return false
 }
 
-func (w *workerS) matchCommand(ctx *parseCtx) (err error) {
+func (w *workerS) matchCommand(ctx context.Context, pc *parseCtx) (err error) {
 	err = cli.ErrUnmatchedCommand
-	cmd := ctx.LastCmd()
-	if short, cc := cmd.Match(ctx.arg); cc != nil {
-		ms, handled := ctx.addCmd(cc, short), false
+	cmd := pc.LastCmd()
+	if short, cc := cmd.Match(ctx, pc.arg); cc != nil {
+		ms, handled := pc.addCmd(cc, short), false
 		handled, err = cc.TryOnMatched(0, ms)
 		if err == nil {
-			ctx.lastCommand, err = len(ctx.matchedCommands)-1, nil
+			pc.lastCommand, err = len(pc.matchedCommands)-1, nil
 		}
-		logz.Verbose("[cmdr] command matched", "short", short, "cmd", ctx.LastCmd(), "handled", handled)
+		logz.Verbose("[cmdr] command matched", "short", short, "cmd", pc.LastCmd(), "handled", handled)
 	}
 	return
 }
 
-func (w *workerS) matchFlag(ctx *parseCtx, short bool) (err error) {
+func (w *workerS) matchFlag(ctx context.Context, pc *parseCtx, short bool) (err error) {
 	err = cli.ErrUnmatchedFlag
-	cmd, vp := ctx.LastCmd(), cli.NewFVP(w.args[ctx.i+1:], ctx.arg, short, ctx.prefixPlusSign.Load(), ctx.dblTilde)
-	// defer func() { ctx.i, vp.AteArgs = ctx.i+vp.AteArgs, 0 }()
+	cmd, vp := pc.LastCmd(), cli.NewFVP(w.args[pc.i+1:], pc.arg, short, pc.prefixPlusSign.Load(), pc.dblTilde)
+	// defer func() { pc.i, vp.AteArgs = pc.i+vp.AteArgs, 0 }()
 
 compactFlags:
-	ff, err1 := cmd.MatchFlag(vp)
+	ff, err1 := cmd.MatchFlag(ctx, vp)
 	if vp.Matched != "" && ff != nil && w.errIsSignalOrNil(err1) {
-		ms, handled := ctx.addFlag(ff), false
+		ms, handled := pc.addFlag(ff), false
 		handled, err1 = ff.TryOnMatched(0, ms)
 		logz.Verbose("[cmdr] flag matched", "short", vp.Short, "flg", ff, "val-pkg-val", ff.DefaultValue(), "handled", handled)
 
-		ctx.i += vp.AteArgs
+		pc.i += vp.AteArgs
 		vp.AteArgs = 0
 		err = err1
 
 		if vp.Remains != "" && vp.PartialMatched {
-			ctx.arg = vp.Remains
+			pc.arg = vp.Remains
 			vp.Reset()
-			ctx.prefixPlusSign.Swap(false)
+			pc.prefixPlusSign.Swap(false)
 
 			if !errorsv3.Is(err, cli.ErrShouldStop) {
 				goto compactFlags // try matching next compact flag. eg: '-avz' => '-a' parsed, remains '-vz'

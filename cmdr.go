@@ -3,6 +3,7 @@
 package cmdr
 
 import (
+	"context"
 	"os"
 
 	"github.com/hedzr/is/basics"
@@ -140,7 +141,7 @@ func Exec(rootCmd *cli.RootCommand, opts ...cli.Opt) (err error) {
 	// }
 
 	app := New(opts...).SetRootCommand(rootCmd)
-	err = app.Run()
+	err = app.Run(context.Background())
 	return
 }
 

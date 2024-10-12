@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"reflect"
@@ -262,7 +263,7 @@ func (w *workerS) Version() string {
 func (w *workerS) Root() *cli.RootCommand { return w.root }
 func (w *workerS) Store() store.Store     { return w.Config.Store }
 
-func (w *workerS) InitGlobally() {
+func (w *workerS) InitGlobally(ctx context.Context) {
 	if w.reqResourcesReady() {
 		w.initGlobalResources()
 	}
@@ -350,7 +351,7 @@ func bindOpts[Opt cli.Opt](w *workerS, installAsUnique bool, opts ...Opt) {
 	}
 }
 
-func (w *workerS) Run(opts ...cli.Opt) (err error) {
+func (w *workerS) Run(ctx context.Context, opts ...cli.Opt) (err error) {
 	bindOpts(w, true, opts...)
 
 	// shutdown basics.Closers for the registered Peripheral, Closers.
@@ -362,19 +363,18 @@ func (w *workerS) Run(opts ...cli.Opt) (err error) {
 	w.errs = errors.New(w.root.AppName)
 	defer w.errs.Defer(&err)
 
-	ctx := parseCtx{root: w.root, forceDefaultAction: w.ForceDefaultAction}
-	dummy := func() bool { return true }
-
-	if w.attachError(w.preProcess()) {
+	if w.attachError(w.preProcess(ctx)) {
 		return
 	}
-	defer func() { w.attachError(w.postProcess(&ctx)) }()
 
-	if w.invokeTasks(&ctx, w.errs, w.Config.TasksBeforeParse...) ||
-		w.attachError(w.parse(&ctx)) ||
-		w.invokeTasks(&ctx, w.errs, w.Config.TasksBeforeRun...) ||
-		w.attachError(w.exec(&ctx)) ||
-		w.invokeTasks(&ctx, w.errs, w.Config.TasksAfterRun...) ||
+	dummy := func() bool { return true }
+	pc := parseCtx{root: w.root, forceDefaultAction: w.ForceDefaultAction}
+	defer func() { w.attachError(w.postProcess(ctx, &pc)) }()
+	if w.invokeTasks(ctx, &pc, w.errs, w.Config.TasksBeforeParse...) ||
+		w.attachError(w.parse(ctx, &pc)) ||
+		w.invokeTasks(ctx, &pc, w.errs, w.Config.TasksBeforeRun...) ||
+		w.attachError(w.exec(ctx, &pc)) ||
+		w.invokeTasks(ctx, &pc, w.errs, w.Config.TasksAfterRun...) ||
 		dummy() {
 		// any errors occurred
 		return
@@ -383,15 +383,16 @@ func (w *workerS) Run(opts ...cli.Opt) (err error) {
 	return
 }
 
-func (w *workerS) invokeTasks(ctx *parseCtx, errs errors.Error, tasks ...cli.Task) (ret bool) {
+// invokeTasks returns true to identify there are some tasks handled and errors occurred.
+// it returns false if no errors occurred or no any tasks handled.
+func (w *workerS) invokeTasks(ctx context.Context, pc *parseCtx, errs errors.Error, tasks ...cli.Task) (ret bool) {
 	for _, tsk := range tasks {
 		if tsk != nil {
-			if err := tsk(ctx.LastCmd(), w, ctx, ctx.PositionalArgs()); err != nil {
+			if err := tsk(ctx, pc.LastCmd(), w, pc, pc.PositionalArgs()); err != nil {
 				ret = true
 				errs.Attach(err)
 			}
 		}
 	}
-	_ = ctx
 	return
 }

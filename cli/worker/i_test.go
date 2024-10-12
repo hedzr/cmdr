@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"testing"
@@ -11,9 +12,10 @@ import (
 )
 
 func cleanApp(t *testing.T, helpScreen bool, opts ...cli.Opt) (app cli.App, ww *workerS) { //nolint:revive
+	ctx := context.TODO()
 	app = buildDemoApp(opts...)
 	ww = postBuild(app)
-	ww.InitGlobally()
+	ww.InitGlobally(ctx)
 	assertTrue(t, ww.Ready())
 
 	if ww.wrHelpScreen == nil && ww.HelpScreenWriter == nil {
@@ -62,7 +64,7 @@ func buildDemoApp(opts ...cli.Opt) (app cli.App) { //nolint:revive
 		Examples(``).
 		Deprecated(``).
 		Hidden(false).
-		OnAction(func(cmd *cli.Command, args []string) (err error) { //nolint:revive
+		OnAction(func(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:revive
 			return // handling command action here
 		}).
 		Build()
@@ -136,7 +138,7 @@ func postBuild(app cli.App) (ww *workerS) {
 	if sr, ok := app.(interface{ Worker() cli.Runner }); ok {
 		if ww, ok = sr.Worker().(*workerS); ok {
 			if r, ok := app.(interface{ Root() *cli.RootCommand }); ok {
-				r.Root().EnsureTree(app, r.Root())
+				r.Root().EnsureTree(context.TODO(), app, r.Root())
 				ww.SetRoot(r.Root(), ww.args)
 			}
 		}

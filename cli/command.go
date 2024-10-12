@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -203,9 +204,9 @@ func (c *Command) SetAction(fn OnInvokeHandler) {
 
 func (c *Command) HasOnAction() bool { return c.onInvoke != nil }
 
-func (c *Command) Invoke(args []string) (err error) {
+func (c *Command) Invoke(ctx context.Context, args []string) (err error) {
 	var deferActions func(errInvoked error)
-	if deferActions, err = c.RunPreActions(c, args); err != nil {
+	if deferActions, err = c.RunPreActions(ctx, c, args); err != nil {
 		logz.Verbose("[cmdr] cmd.RunPreActions failed", "err", err)
 		return
 	}
@@ -213,25 +214,25 @@ func (c *Command) Invoke(args []string) (err error) {
 
 	logz.Verbose("[cmdr] cmd.Invoke()", "onInvoke", c.onInvoke)
 	if c.onInvoke != nil {
-		err = c.onInvoke(c, args)
+		err = c.onInvoke(ctx, c, args)
 	}
 	return
 }
 
-func (c *Command) RunPreActions(cmd *Command, args []string) (deferAction func(errInvoked error), err error) { //nolint:revive
+func (c *Command) RunPreActions(ctx context.Context, cmd *Command, args []string) (deferAction func(errInvoked error), err error) { //nolint:revive
 	ec := errors.New("[PRE-INVOKE]")
 	defer ec.Defer(&err)
 	if c.root.Command != c {
 		for _, a := range c.root.preActions {
 			if a != nil {
-				ec.Attach(a(cmd, args))
+				ec.Attach(a(ctx, cmd, args))
 			}
 		}
 	}
 
 	for _, a := range c.preActions {
 		if a != nil {
-			ec.Attach(a(cmd, args))
+			ec.Attach(a(ctx, cmd, args))
 		}
 	}
 
@@ -240,11 +241,11 @@ func (c *Command) RunPreActions(cmd *Command, args []string) (deferAction func(e
 		return
 	}
 
-	deferAction = c.getDeferAction(cmd, args)
+	deferAction = c.getDeferAction(ctx, cmd, args)
 	return
 }
 
-func (c *Command) getDeferAction(cmd *Command, args []string) func(errInvoked error) { //nolint:revive
+func (c *Command) getDeferAction(ctx context.Context, cmd *Command, args []string) func(errInvoked error) { //nolint:revive
 	return func(errInvoked error) {
 		ecp := errors.New("[POST-INVOKE]")
 
@@ -254,13 +255,13 @@ func (c *Command) getDeferAction(cmd *Command, args []string) func(errInvoked er
 
 		for _, a := range c.postActions {
 			if a != nil {
-				ecp.Attach(a(cmd, args, errInvoked))
+				ecp.Attach(a(ctx, cmd, args, errInvoked))
 			}
 		}
 		if c.root.Command != c {
 			for _, a := range c.root.postActions {
 				if a != nil {
-					ecp.Attach(a(cmd, args, errInvoked))
+					ecp.Attach(a(ctx, cmd, args, errInvoked))
 				}
 			}
 		}
@@ -297,16 +298,16 @@ func (c *Command) getDeferAction(cmd *Command, args []string) func(errInvoked er
 
 // EnsureTree associates owner and app between all subCommands and app/runner/rootCommand.
 // EnsureTree links all commands as a tree (make root and owner linked).
-func (c *Command) EnsureTree(app App, root *RootCommand) {
+func (c *Command) EnsureTree(ctx context.Context, app App, root *RootCommand) {
 	root.app = app // link RootCommand.app to app
 	root.name = app.Name()
-	c.ensureTreeR(app, root)
+	c.ensureTreeR(ctx, app, root)
 }
 
 // ensureTreeR link Command.owner to its parent, and Command.root to root.
 // ensureTreeR links all commands as a tree (make root and owner linked).
-func (c *Command) ensureTreeR(app App, root *RootCommand) { //nolint:unparam,revive
-	c.WalkEverything(func(cc, pp *Command, ff *Flag, cmdIndex, flgIndex, level int) {
+func (c *Command) ensureTreeR(ctx context.Context, app App, root *RootCommand) { //nolint:unparam,revive
+	c.WalkEverything(ctx, func(cc, pp *Command, ff *Flag, cmdIndex, flgIndex, level int) {
 		cc.owner, cc.root, _ = pp, root, app
 		if ff != nil {
 			ff.owner, ff.root = cc, root
@@ -320,8 +321,8 @@ func (c *Command) ensureTreeR(app App, root *RootCommand) { //nolint:unparam,rev
 //
 // ForeachSubCommands, ForeachFlags, ForeachGroupedSubCommands, and
 // ForeachGroupedFlags needs EnsureXref called.
-func (c *Command) EnsureXref(cb ...func(cc *Command, index, level int)) {
-	c.Walk(func(cc *Command, index, level int) {
+func (c *Command) EnsureXref(ctx context.Context, cb ...func(cc *Command, index, level int)) {
+	c.Walk(ctx, func(cc *Command, index, level int) {
 		cc.ensureXrefCommands()
 		cc.ensureXrefFlags()
 		cc.ensureXrefGroup()

@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"io"
 
 	"gopkg.in/hedzr/errors.v3"
@@ -49,10 +50,10 @@ type Runner interface {
 	// InitGlobally initialize all prerequisites, block itself until all
 	// of them done and Ready signal changed. Some resources can be exceptions
 	// if not required.
-	InitGlobally()
-	Ready() bool                 // the Runner is built and ready for Run?
-	Run(opts ...Opt) (err error) // Run enter the main entry
-	DumpErrors(wr io.Writer)     // prints the errors
+	InitGlobally(ctx context.Context)                 // ctx context.Context)
+	Ready() bool                                      // the Runner is built and ready for Run?
+	Run(ctx context.Context, opts ...Opt) (err error) // Run enter the main entry
+	DumpErrors(wr io.Writer)                          // prints the errors
 
 	Error() errors.Error // return the collected errors in parsing args and invoke actions
 

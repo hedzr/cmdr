@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -25,16 +26,18 @@ func TestAppS_AddCmd(t *testing.T) {
 }
 
 func TestAppS_Run(t *testing.T) {
+	ctx := context.TODO()
+
 	a := &appS{inCmd: 1}
-	err := a.Run()
+	err := a.Run(ctx)
 	assertEqual(t, err != nil, true)
 
 	a = &appS{inFlg: 2}
-	err = a.Run()
+	err = a.Run(ctx)
 	assertEqual(t, err != nil, true)
 
 	a = &appS{}
-	err = a.Run()
+	err = a.Run(ctx)
 	assertEqual(t, err, cli.ErrEmptyRootCommand)
 }
 

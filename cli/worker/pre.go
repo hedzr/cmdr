@@ -16,26 +16,26 @@ import (
 	"github.com/hedzr/cmdr/v2/cli/atoa"
 )
 
-func (w *workerS) preProcess() (err error) {
+func (w *workerS) preProcess(ctx context.Context) (err error) {
 	// w.Config.Store.Load() // from external providers: 1. consul, 2. local,
 
 	dummyParseCtx := parseCtx{root: w.root, forceDefaultAction: w.ForceDefaultAction}
 
 	w.preEnvSet() // setup envvars: APP, APP_NAME, etc.
 
-	if err = w.linkCommands(w.root); err != nil {
+	if err = w.linkCommands(ctx, w.root); err != nil {
 		return
 	}
 
-	if !w.invokeTasks(&dummyParseCtx, w.errs, w.Config.TasksAfterXref...) {
+	if w.invokeTasks(ctx, &dummyParseCtx, w.errs, w.Config.TasksAfterXref...) {
 		return
 	}
 
-	if err = w.loadLoaders(); err != nil {
+	if err = w.loadLoaders(ctx); err != nil {
 		return
 	}
 
-	if !w.invokeTasks(&dummyParseCtx, w.errs, w.Config.TasksAfterLoader...) {
+	if w.invokeTasks(ctx, &dummyParseCtx, w.errs, w.Config.TasksAfterLoader...) {
 		return
 	}
 
@@ -129,11 +129,11 @@ func (w *workerS) postEnvLoad() {
 	}
 }
 
-func (w *workerS) linkCommands(root *cli.RootCommand) (err error) {
+func (w *workerS) linkCommands(ctx context.Context, root *cli.RootCommand) (err error) {
 	if err = w.addBuiltinCommands(root); err == nil {
-		root.EnsureTree(root.App(), root) // link the added builtin commands too
-		if err = w.xrefCommands(root); err == nil {
-			if err = w.commandsToStore(root); err == nil {
+		root.EnsureTree(ctx, root.App(), root) // link the added builtin commands too
+		if err = w.xrefCommands(ctx, root); err == nil {
+			if err = w.commandsToStore(ctx, root); err == nil {
 				logz.Verbose("[cmdr] linkCommands() - *RootCommand linked itself")
 			}
 		}
@@ -141,7 +141,7 @@ func (w *workerS) linkCommands(root *cli.RootCommand) (err error) {
 	return
 }
 
-func (w *workerS) commandsToStore(root *cli.RootCommand) (err error) {
+func (w *workerS) commandsToStore(ctx context.Context, root *cli.RootCommand) (err error) {
 	if root == nil || w.Store() == nil {
 		return
 	}
@@ -152,11 +152,11 @@ func (w *workerS) commandsToStore(root *cli.RootCommand) (err error) {
 		return
 	}
 
-	err = w.commandsToStoreChild(root, conf)
+	err = w.commandsToStoreChild(ctx, root, conf)
 	return
 }
 
-func (w *workerS) commandsToStoreChild(root *cli.RootCommand, conf store.Store) (err error) { //nolint:revive
+func (w *workerS) commandsToStoreChild(ctx context.Context, root *cli.RootCommand, conf store.Store) (err error) { //nolint:revive
 	fromString := func(text string, meme any) (value any) { //nolint:revive
 		var err error
 		value, err = atoa.Parse(text, meme)
@@ -167,7 +167,7 @@ func (w *workerS) commandsToStoreChild(root *cli.RootCommand, conf store.Store) 
 	}
 
 	conf.WithinLoading(func() {
-		root.WalkEverything(func(cc, pp *cli.Command, ff *cli.Flag, cmdIndex, flgIndex, level int) { //nolint:revive
+		root.WalkEverything(ctx, func(cc, pp *cli.Command, ff *cli.Flag, cmdIndex, flgIndex, level int) { //nolint:revive
 			if ff != nil {
 				if evs := ff.EnvVars(); len(evs) > 0 {
 					for _, ev := range evs {
@@ -187,7 +187,7 @@ func (w *workerS) commandsToStoreChild(root *cli.RootCommand, conf store.Store) 
 }
 
 // loadLoaders try to load the external loaders, for loading the config files.
-func (w *workerS) loadLoaders() (err error) {
+func (w *workerS) loadLoaders(ctx context.Context) (err error) {
 	w.precheckLoaders()
 
 	// By default, we try loading `$(pwd)/.appName.json'.
@@ -248,8 +248,8 @@ func (w *workerS) writeBackToLoaders(ctx context.Context) (err error) {
 	return
 }
 
-func (w *workerS) xrefCommands(cmd *cli.RootCommand, cb ...func(cc *cli.Command, index, level int)) (err error) { //nolint:unparam
-	cmd.EnsureXref(cb...)
+func (w *workerS) xrefCommands(ctx context.Context, cmd *cli.RootCommand, cb ...func(cc *cli.Command, index, level int)) (err error) { //nolint:unparam
+	cmd.EnsureXref(ctx, cb...)
 	return
 }
 
@@ -269,7 +269,7 @@ func (w *workerS) xrefCommands(cmd *cli.RootCommand, cb ...func(cc *cli.Command,
 // 	}
 // }
 
-func (w *workerS) postProcess(ctx *parseCtx) (err error) {
-	_ = ctx
+func (w *workerS) postProcess(ctx context.Context, pc *parseCtx) (err error) {
+	_, _ = pc, ctx
 	return
 }

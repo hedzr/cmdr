@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -157,10 +158,10 @@ func rootCmdForTesting() (root *RootCommand) { //nolint:funlen,revive //for test
 					defaultValue: time.Second,
 				},
 			},
-			preActions: []OnPreInvokeHandler{func(cmd *Command, args []string) (err error) {
+			preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd *Command, args []string) (err error) {
 				return
 			}},
-			postActions: []OnPostInvokeHandler{func(cmd *Command, args []string, errInvoked error) (err error) {
+			postActions: []OnPostInvokeHandler{func(ctx context.Context, cmd *Command, args []string, errInvoked error) (err error) {
 				return
 			}},
 			commands: []*Command{
@@ -197,9 +198,10 @@ func rootCmdForTesting() (root *RootCommand) { //nolint:funlen,revive //for test
 		},
 	}
 
+	ctx := context.TODO()
 	app.root = root
-	root.EnsureTree(app, root)
-	root.EnsureXref()
+	root.EnsureTree(ctx, app, root)
+	root.EnsureXref(ctx)
 	return
 }
 
@@ -430,7 +432,7 @@ func serverCommandsGet() *Command { //nolint:funlen,revive //for test
 					Aliases:     []string{"run1", "startup1"},
 					description: "dup test: startup this system service/daemon.",
 				},
-				preActions: []OnPreInvokeHandler{func(cmd *Command, args []string) (err error) {
+				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd *Command, args []string) (err error) {
 					_, _ = fmt.Println(cmd.Owner().Name(), cmd.Name(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
 					_, _ = fmt.Println(cmd.Root().Name(), cmd.Root().Owner())
 					_, _ = fmt.Println(cmd.App().Name())
@@ -443,7 +445,7 @@ func serverCommandsGet() *Command { //nolint:funlen,revive //for test
 							Aliases:     []string{"run", "startup"},
 							description: "dup test: startup this system service/daemon.",
 						},
-						preActions: []OnPreInvokeHandler{func(cmd *Command, args []string) (err error) {
+						preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd *Command, args []string) (err error) {
 							_, _ = fmt.Println(cmd.Owner().Name(), cmd.Name(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
 							return
 						}},
@@ -514,7 +516,7 @@ func kvCommandsGet() *Command { //nolint:funlen,revive //for test
 					description: "Dump Consul's KV database to a JSON/YAML file",
 					group:       "bbb",
 				},
-				onInvoke: func(cmd *Command, args []string) (err error) {
+				onInvoke: func(ctx context.Context, cmd *Command, args []string) (err error) {
 					// for gocov
 
 					// cmd.PrintHelp(false)
@@ -564,10 +566,10 @@ func kvCommandsGet() *Command { //nolint:funlen,revive //for test
 						placeHolder:  "FILE",
 					},
 				},
-				preActions: []OnPreInvokeHandler{func(cmd *Command, args []string) (err error) {
+				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd *Command, args []string) (err error) {
 					return
 				}},
-				postActions: []OnPostInvokeHandler{func(cmd *Command, args []string, errInvoked error) (err error) {
+				postActions: []OnPostInvokeHandler{func(ctx context.Context, cmd *Command, args []string, errInvoked error) (err error) {
 					return
 				}},
 			},
@@ -849,7 +851,7 @@ func msCommandsGet() *Command { //nolint:funlen,revive //for test
 					// Action:      msList,
 					group: " ",
 				},
-				preActions: []OnPreInvokeHandler{func(cmd *Command, args []string) (err error) {
+				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd *Command, args []string) (err error) {
 					_, _ = fmt.Println(cmd.Owner().Name(), cmd.Name(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
 					return
 				}},
@@ -862,7 +864,7 @@ func msCommandsGet() *Command { //nolint:funlen,revive //for test
 					description: "an empty subcommand for testing - list services.",
 					group:       "56.vvvvvv",
 				},
-				preActions: []OnPreInvokeHandler{func(cmd *Command, args []string) (err error) {
+				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd *Command, args []string) (err error) {
 					_, _ = fmt.Println(cmd.Owner().Name(), cmd.Name(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
 					return
 				}},
@@ -875,7 +877,7 @@ func msCommandsGet() *Command { //nolint:funlen,revive //for test
 					description: "list services.",
 					group:       "56.vvvvvv",
 				},
-				preActions: []OnPreInvokeHandler{func(cmd *Command, args []string) (err error) {
+				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd *Command, args []string) (err error) {
 					_, _ = fmt.Println(cmd.Owner().Name(), cmd.Name(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
 					return
 				}},
@@ -888,7 +890,7 @@ func msCommandsGet() *Command { //nolint:funlen,revive //for test
 					description: "list services.",
 					group:       "56.vvvvvv",
 				},
-				preActions: []OnPreInvokeHandler{func(cmd *Command, args []string) (err error) {
+				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd *Command, args []string) (err error) {
 					_, _ = fmt.Println(cmd, "'s owner is", cmd.Owner())
 					_, _ = fmt.Println(cmd.Owner().Name(), cmd.Name(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
 					return
@@ -902,7 +904,7 @@ func msCommandsGet() *Command { //nolint:funlen,revive //for test
 							description: "list services.",
 							group:       "56.vvvvvv",
 						},
-						preActions: []OnPreInvokeHandler{func(cmd *Command, args []string) (err error) {
+						preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd *Command, args []string) (err error) {
 							_, _ = fmt.Println(cmd, "'s owner is", cmd.Owner())
 							_, _ = fmt.Println(cmd.Owner().Name(), cmd.Name(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
 							return
@@ -935,18 +937,18 @@ func (w *workerS) SetSuggestRetCode(ret int) {
 	w.retCode = ret
 }
 
-func (w *workerS) InitGlobally()                  {}
-func (w *workerS) Ready() bool                    { return true }
-func (w *workerS) DumpErrors(wr io.Writer)        {}                    //nolint:revive
-func (w *workerS) Error() errorsv3.Error          { return nil }        //nolint:revive
-func (w *workerS) Store() store.Store             { return w.store }    //
-func (w *workerS) Run(opts ...Opt) (err error)    { return }            //nolint:revive
-func (w *workerS) Actions() (ret map[string]bool) { return }            //nolint:revive
-func (w *workerS) Name() string                   { return "for-test" } //
-func (*workerS) Version() string                  { return "v0.0.0" }
-func (*workerS) Root() *RootCommand               { return nil }
-func (*workerS) Args() []string                   { return nil }       //
-func (w *workerS) SuggestRetCode() int            { return w.retCode } //
+func (w *workerS) InitGlobally(ctx context.Context)                 {}
+func (w *workerS) Ready() bool                                      { return true }
+func (w *workerS) DumpErrors(wr io.Writer)                          {}                    //nolint:revive
+func (w *workerS) Error() errorsv3.Error                            { return nil }        //nolint:revive
+func (w *workerS) Store() store.Store                               { return w.store }    //
+func (w *workerS) Run(ctx context.Context, opts ...Opt) (err error) { return }            //nolint:revive
+func (w *workerS) Actions() (ret map[string]bool)                   { return }            //nolint:revive
+func (w *workerS) Name() string                                     { return "for-test" } //
+func (*workerS) Version() string                                    { return "v0.0.0" }
+func (*workerS) Root() *RootCommand                                 { return nil }
+func (*workerS) Args() []string                                     { return nil }       //
+func (w *workerS) SuggestRetCode() int                              { return w.retCode } //
 
 //
 
@@ -1110,12 +1112,13 @@ func (s *appS) Build() {
 		SetRoot(root *RootCommand, args []string)
 	}
 	if sr, ok := s.Runner.(setRoot); ok {
-		s.root.EnsureTree(s, s.root)
+		ctx := context.Background()
+		s.root.EnsureTree(ctx, s, s.root)
 		sr.SetRoot(s.root, s.args)
 	}
 }
 
-func (s *appS) Run(opts ...Opt) (err error) {
+func (s *appS) Run(ctx context.Context, opts ...Opt) (err error) {
 	if s.inCmd {
 		return errors.New("a NewCommandBuilder()/Cmd() call needs ending with Build()")
 	}
@@ -1129,13 +1132,13 @@ func (s *appS) Run(opts ...Opt) (err error) {
 
 	s.Build() // set rootCommand into worker
 
-	s.Runner.InitGlobally() // let worker starts initializations
+	s.Runner.InitGlobally(ctx) // let worker starts initializations
 
 	if !s.Runner.Ready() {
 		return errors.New("the RootCommand hasn't been built, or Init() failed. Has builder.App.Build() called? ")
 	}
 
-	err = s.Runner.Run(opts...)
+	err = s.Runner.Run(ctx, opts...)
 
 	// if err != nil {
 	// 	s.Runner.DumpErrors(os.Stderr)

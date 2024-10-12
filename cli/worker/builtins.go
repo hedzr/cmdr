@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"context"
 	"fmt"
 	"runtime"
 
@@ -27,7 +28,7 @@ func (w *workerS) builtinVersions(app cli.App, p *cli.Command) {
 			Description("Show app versions information").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, false).
-			OnAction(func(cmd *cli.Command, args []string) (err error) { //nolint:revive
+			OnAction(func(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:revive
 				w.actionsMatched |= actionShowVersion
 				// w.showVersion(cmd, args)
 				// return cli.ErrShouldStop
@@ -84,8 +85,8 @@ func (w *workerS) builtinHelps(app cli.App, p *cli.Command) { //nolint:revive
 				logz.SetLevel(logz.ErrorLevel) // disable trace, debug, info, warn messages
 				return
 			}).
-			OnAction(func(cmd *cli.Command, args []string) (err error) {
-				err = w.helpSystemAction(cmd, args)
+			OnAction(func(ctx context.Context, cmd *cli.Command, args []string) (err error) {
+				err = w.helpSystemAction(ctx, cmd, args)
 				// w.actionsMatched |= actionShowHelpScreen
 				return // return cli.ErrShouldStop
 			})

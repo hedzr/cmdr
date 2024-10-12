@@ -98,6 +98,11 @@ type CommandBuilder interface {
 	// OnMatched _.
 	OnMatched(handler OnCommandMatchedHandler) CommandBuilder
 
+	OnEvaluateSubCommands(handler OnEvaluateSubCommands) CommandBuilder
+	OnEvaluateSubCommandsOnce(handler OnEvaluateSubCommands) CommandBuilder
+	OnEvaluateFlags(handler OnEvaluateFlags) CommandBuilder
+	OnEvaluateFlagsOnce(handler OnEvaluateFlags) CommandBuilder
+
 	// PresetCmdLines provides a set of args so that end-user can
 	// type the command-line bypass its.
 	PresetCmdLines(args ...string) CommandBuilder

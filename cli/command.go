@@ -160,6 +160,30 @@ func (c *Command) SetOnMatched(functions ...OnCommandMatchedHandler) {
 	c.onMatched = append(c.onMatched, functions...)
 }
 
+func (c *Command) SetOnEvaluateSubCommands(handler OnEvaluateSubCommands) {
+	c.onEvalSubcommands = &struct{ cb OnEvaluateSubCommands }{cb: handler}
+}
+
+func (c *Command) SetOnEvaluateSubCommandsOnce(handler OnEvaluateSubCommands) {
+	c.onEvalSubcommandsOnce = &struct {
+		cb       OnEvaluateSubCommands
+		invoked  bool
+		commands []*Command
+	}{cb: handler}
+}
+
+func (c *Command) SetOnEvaluateFlags(handler OnEvaluateFlags) {
+	c.onEvalFlags = &struct{ cb OnEvaluateFlags }{cb: handler}
+}
+
+func (c *Command) SetOnEvaluateFlagsOnce(handler OnEvaluateFlags) {
+	c.onEvalFlagsOnce = &struct {
+		cb      OnEvaluateFlags
+		invoked bool
+		flags   []*Flag
+	}{cb: handler}
+}
+
 func (c *Command) CanInvoke() bool { return c.onInvoke != nil }
 
 // SetPostActions adds the post-action to a command

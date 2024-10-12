@@ -5,6 +5,7 @@ package cli
 //
 
 import (
+	"context"
 	"fmt"
 	"slices"
 
@@ -460,8 +461,7 @@ func mustEnsureDynFlags(cmd *Command) (flags []*Flag) {
 	return
 }
 
-func ensureDynCommands(cmd *Command) (list []*Command, err error) {
-	ctx := 0
+func ensureDynCommands(ctx context.Context, cmd *Command) (list []*Command, err error) {
 	var c BaseOptI
 
 	if cmd.onEvalSubcommandsOnce != nil {
@@ -506,8 +506,7 @@ func ensureDynCommands(cmd *Command) (list []*Command, err error) {
 	return
 }
 
-func ensureDynFlags(cmd *Command) (list []*Flag, err error) {
-	ctx := 0
+func ensureDynFlags(ctx context.Context, cmd *Command) (list []*Flag, err error) {
 	var c BaseOptI
 
 	if cmd.onEvalFlagsOnce != nil {

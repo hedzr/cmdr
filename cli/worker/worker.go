@@ -10,6 +10,8 @@ import (
 
 	"gopkg.in/hedzr/errors.v3"
 
+	"github.com/hedzr/is/basics"
+
 	logz "github.com/hedzr/logg/slog"
 	"github.com/hedzr/store"
 
@@ -350,6 +352,12 @@ func bindOpts[Opt cli.Opt](w *workerS, installAsUnique bool, opts ...Opt) {
 
 func (w *workerS) Run(opts ...cli.Opt) (err error) {
 	bindOpts(w, true, opts...)
+
+	// shutdown basics.Closers for the registered Peripheral, Closers.
+	// See also: basics.RegisterPeripheral, basics.RegisterClosable,
+	// basics.RegisterCloseFns, basics.RegisterCloseFn, and
+	// basics.RegisterClosers
+	defer basics.Close()
 
 	w.errs = errors.New(w.root.AppName)
 	defer w.errs.Defer(&err)

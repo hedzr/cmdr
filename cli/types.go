@@ -2,6 +2,10 @@
 
 package cli
 
+import (
+	"context"
+)
+
 const (
 	appNameDefault = "cmdr" //nolint:deadcode,unused,varcheck //keep it
 
@@ -289,9 +293,9 @@ type OnPreInvokeHandler func(cmd *Command, args []string) (err error)
 
 type OnCommandMatchedHandler func(c *Command, position int, hitState *MatchState) (err error)
 
-type OnEvaluateSubCommands func(ctx any, c *Command) (it EvalIterator, err error)
+type OnEvaluateSubCommands func(ctx context.Context, c *Command) (it EvalIterator, err error)
 
-type OnEvaluateFlags func(ctx any, c *Command) (it EvalIterator, err error)
+type OnEvaluateFlags func(ctx context.Context, c *Command) (it EvalIterator, err error)
 
 type EvalIterator func() (bo BaseOptI, hasNext bool, err error)
 

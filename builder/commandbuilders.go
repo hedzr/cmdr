@@ -211,6 +211,26 @@ func (s *ccb) OnMatched(handler cli.OnCommandMatchedHandler) cli.CommandBuilder 
 	return s
 }
 
+func (s *ccb) OnEvaluateSubCommands(handler cli.OnEvaluateSubCommands) cli.CommandBuilder {
+	s.SetOnEvaluateSubCommands(handler)
+	return s
+}
+
+func (s *ccb) OnEvaluateSubCommandsOnce(handler cli.OnEvaluateSubCommands) cli.CommandBuilder {
+	s.SetOnEvaluateSubCommandsOnce(handler)
+	return s
+}
+
+func (s *ccb) OnEvaluateFlags(handler cli.OnEvaluateFlags) cli.CommandBuilder {
+	s.SetOnEvaluateFlags(handler)
+	return s
+}
+
+func (s *ccb) OnEvaluateFlagsOnce(handler cli.OnEvaluateFlags) cli.CommandBuilder {
+	s.SetOnEvaluateFlagsOnce(handler)
+	return s
+}
+
 func (s *ccb) PresetCmdLines(args ...string) cli.CommandBuilder {
 	s.SetPresetCmdLines(args...)
 	return s

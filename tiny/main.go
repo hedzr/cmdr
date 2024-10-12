@@ -3,6 +3,7 @@ package main
 // normally tiny app
 
 import (
+	"context"
 	"io"
 	"log"
 	"os"
@@ -37,8 +38,8 @@ func main() {
 		// for productive mode, comment this line.
 		cmdr.WithForceDefaultAction(true),
 
-		cmdr.WithSortInHelpScreen(true),
-		// cmdr.WithDontGroupInHelpScreen(true),
+		cmdr.WithSortInHelpScreen(true),       // default it's false
+		cmdr.WithDontGroupInHelpScreen(false), // default it's false
 	)
 
 	// // simple run the parser of app and trigger the matched command's action
@@ -50,6 +51,10 @@ func main() {
 		logz.Error("Application Error:", "err", err)
 		os.Exit(app.SuggestRetCode())
 	}
+}
+
+func onEvalJumpSubCommands(ctx context.Context, c *cli.Command) (it cli.EvalIterator, err error) {
+	return
 }
 
 func prepareApp(opts ...cli.Opt) (app cli.App) {
@@ -73,6 +78,7 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 		Deprecated(`v1.1.0`).
 		// Group(cli.UnsortedGroup).
 		Hidden(false).
+		OnEvaluateSubCommands(onEvalJumpSubCommands).
 		With(func(b cli.CommandBuilder) {
 			b.Cmd("to").
 				Description("to command").

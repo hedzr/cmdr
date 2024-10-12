@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"encoding/json"
 	"io"
 	"reflect"
 	"strings"
@@ -16,23 +17,11 @@ import (
 	"github.com/hedzr/cmdr/v2/conf"
 )
 
-func New(c *cli.Config, opts ...wOpt) *workerS {
-	s := &workerS{
-		Config:        c,
-		wrHelpScreen:  c.HelpScreenWriter,
-		wrDebugScreen: c.DebugScreenWriter,
-	}
-	s.setArgs(c.Args)
-	for _, opt := range opts {
-		opt(s)
-	}
-	if s.wrHelpScreen == nil {
-		s.wrHelpScreen = s.HelpScreenWriter
-	}
-	if s.wrDebugScreen == nil {
-		s.wrDebugScreen = s.DebugScreenWriter
-	}
-	return s
+func New(cfg *cli.Config, opts ...cli.Opt) *workerS {
+	w := &workerS{Config: cfg}
+	w.setArgs(cfg.Args)
+	bindOpts(w, false, opts...)
+	return w
 }
 
 func newWorker(opts ...wOpt) *workerS {
@@ -78,6 +67,7 @@ func SetUniqueWorker(s cli.Runner) {
 // You can also inspect errParsed and return nil to ignore/disable a parsing error.
 type taskAfterParse func(w *workerS, ctx *parseCtx, errParsed error) (err error)
 
+// HelpWriter needs to be compatible with [io.Writer] and [io.StringWriter].
 type HelpWriter interface {
 	io.Writer
 	io.StringWriter
@@ -110,6 +100,20 @@ type workerS struct {
 	inCompleting bool
 	actions      map[actionEnum]onAction
 	parsingCtx   *parseCtx
+}
+
+func (w *workerS) String() string {
+	var sb strings.Builder
+	_, _ = sb.WriteString("workerS{root: \"")
+	_, _ = sb.WriteString(w.Root().String())
+	_, _ = sb.WriteString("\", config: ")
+	if b, err := json.Marshal(w.Config); err == nil {
+		_, _ = sb.Write(b)
+	} else {
+		logz.Error("json marshalling w.Config failed", "config", w.Config, "err", err)
+	}
+	_, _ = sb.WriteString("\"}")
+	return sb.String()
 }
 
 type actionEnum int
@@ -321,7 +325,7 @@ func (w *workerS) errIsSignalFallback(err error) bool {
 func (w *workerS) setArgs(args []string) { w.args = args }
 func (w *workerS) Args() (args []string) { return w.args }
 
-func (w *workerS) Run(opts ...cli.Opt) (err error) {
+func bindOpts[Opt cli.Opt](w *workerS, installAsUnique bool, opts ...Opt) {
 	for _, opt := range opts {
 		opt(w.Config)
 	}
@@ -333,35 +337,44 @@ func (w *workerS) Run(opts ...cli.Opt) (err error) {
 		w.wrDebugScreen = w.DebugScreenWriter
 	}
 
-	if app := UniqueWorker(); app != w {
-		SetUniqueWorker(w)
+	if installAsUnique {
+		if app := UniqueWorker(); app != w {
+			SetUniqueWorker(w)
+		}
 	}
+}
+
+func (w *workerS) Run(opts ...cli.Opt) (err error) {
+	bindOpts(w, true, opts...)
 
 	w.errs = errors.New(w.root.AppName)
 	defer w.errs.Defer(&err)
 
+	ctx := parseCtx{root: w.root, forceDefaultAction: w.ForceDefaultAction}
+	dummy := func() bool { return true }
+
 	if w.attachError(w.preProcess()) {
 		return
 	}
-
-	ctx := parseCtx{root: w.root, forceDefaultAction: w.ForceDefaultAction}
+	defer func() { w.attachError(w.postProcess(&ctx)) }()
 
 	if w.invokeTasks(&ctx, w.errs, w.Config.TasksBeforeParse...) ||
 		w.attachError(w.parse(&ctx)) ||
 		w.invokeTasks(&ctx, w.errs, w.Config.TasksBeforeRun...) ||
-		w.attachError(w.exec(&ctx)) {
+		w.attachError(w.exec(&ctx)) ||
+		w.invokeTasks(&ctx, w.errs, w.Config.TasksAfterRun...) ||
+		dummy() {
 		// any errors occurred
 		return
 	}
 
-	w.attachError(w.postProcess(&ctx))
 	return
 }
 
 func (w *workerS) invokeTasks(ctx *parseCtx, errs errors.Error, tasks ...cli.Task) (ret bool) {
 	for _, tsk := range tasks {
 		if tsk != nil {
-			if err := tsk(w.root, w, ctx); err != nil {
+			if err := tsk(ctx.LastCmd(), w, ctx, ctx.PositionalArgs()); err != nil {
 				ret = true
 				errs.Attach(err)
 			}
@@ -370,9 +383,3 @@ func (w *workerS) invokeTasks(ctx *parseCtx, errs errors.Error, tasks ...cli.Tas
 	_ = ctx
 	return
 }
-
-// func init(){
-// 	s
-// }
-
-// var errUnmatched = errors.New("unmatched")

@@ -11,7 +11,6 @@ import (
 	"github.com/hedzr/cmdr/v2/builder"
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/cli/worker"
-	"github.com/hedzr/cmdr/v2/pkg/dir"
 )
 
 // func NewOpt[T any](defaultValue ...T) config.Opt {
@@ -88,7 +87,7 @@ func AppVersion() string         { return App().Version() }         // the app's
 func AppDescription() string     { return App().Root().Desc() }     // the app's short description
 func AppDescriptionLong() string { return App().Root().DescLong() } // the app's long description
 
-func CmdLines() []string { return append([]string{dir.GetExecutablePath()}, os.Args...) }
+func CmdLines() []string { return worker.UniqueWorker().Args() }
 
 // func Parsed() bool { return worker.UniqueWorker(). }
 
@@ -191,14 +190,50 @@ func WithExternalLoaders(loaders ...cli.Loader) cli.Opt {
 	}
 }
 
+// WithTasksBeforeParse installs callbacks before parsing stage.
+//
+// The internal stages are: initial -> preload + xref -> parse -> run/invoke -> post-actions.
 func WithTasksBeforeParse(tasks ...cli.Task) cli.Opt {
 	return func(s *cli.Config) {
 		s.TasksBeforeParse = tasks
 	}
 }
 
+// WithTasksBeforeRun installs callbacks before run/invoke stage.
+//
+// The internal stages are: initial -> preload + xref -> parse -> run/invoke -> post-actions.
+//
+// The internal stages and user-defined tasks are:
+//   - initial
+//   - preload & xref
+//   - <tasksBeforeParse>
+//   - parse
+//   - <tasksBeforeRun> ( = tasksAfterParse )
+//   - exec (run/invoke)
+//   - <tasksAfterRun>
 func WithTasksBeforeRun(tasks ...cli.Task) cli.Opt {
 	return func(s *cli.Config) {
 		s.TasksBeforeRun = tasks
+	}
+}
+
+// WithTasksAfterRun installs callbacks after run/invoke stage.
+//
+// The internal stages are: initial -> preload + xref -> parse -> run/invoke -> post-actions.
+func WithTasksAfterRun(tasks ...cli.Task) cli.Opt {
+	return func(s *cli.Config) {
+		s.TasksAfterRun = tasks
+	}
+}
+
+func WithSortInHelpScreen(b bool) cli.Opt {
+	return func(s *cli.Config) {
+		s.SortInHelpScreen = b
+	}
+}
+
+func WithDontGroupInHelpScreen(b bool) cli.Opt {
+	return func(s *cli.Config) {
+		s.DontGroupInHelpScreen = b
 	}
 }

@@ -5,6 +5,7 @@ package cmdr
 import (
 	"os"
 
+	"github.com/hedzr/is/basics"
 	logz "github.com/hedzr/logg/slog"
 	"github.com/hedzr/store"
 
@@ -217,6 +218,53 @@ func WithTasksBeforeRun(tasks ...cli.Task) cli.Opt {
 	}
 }
 
+// WithTasksSetupPeripherals gives a special chance to setup
+// your server's peripherals (such as database, redis, message
+// queues, or others).
+//
+// For these server peripherals, a better practices would be
+// initializing them with WithTasksSetupPeripherals and
+// destroying them at WithTasksAfterRun.
+//
+// Another recommendation is implementing your server peripherals
+// as a [basics.Closeable] component, and register it with
+// basics.RegisterPeripherals(), and that's it. These objects
+// will be destroyed at cmdr ends (later than WithTasksAfterRun
+// but it's okay).
+//
+//	import "github.com/hedzr/is/basics"
+//	type Obj struct{}
+//	func (o *Obj) Init(context.Context) *Obj { return o } // initialize itself
+//	func (o *Obj) Close(){...}                            // destory itself
+//	app := cmdr.New(cmdr.WithTasksSetupPeripherals(func(ctx context.Context, cmd *Command, runner Runner, extras ...any) (err error) {
+//	    obj := new(Obj)
+//	    basics.RegisterPeripheral(obj.Init(ctx))          // initialize obj at first, and register it to basics.Closers for auto-shutting-down
+//	    return
+//	}))
+//	...
+func WithTasksSetupPeripherals(tasks ...cli.Task) cli.Opt {
+	return func(s *cli.Config) {
+		s.TasksBeforeRun = tasks
+	}
+}
+
+// WithPeripherals is a better way to register your server peripherals
+// than WithTasksSetupPeripherals. But the 'better' is less.
+//
+//	import "github.com/hedzr/is/basics"
+//	type Obj struct{}
+//	func (o *Obj) Init(context.Context) *Obj { return o } // initialize itself
+//	func (o *Obj) Close(){...}                            // destory itself
+//	obj := new(Obj)                                       // initialize obj at first
+//	ctx := context.Background()                           //
+//	app := cmdr.New(cmdr.WithPeripherals(obj.Init(ctx))   // and register it to basics.Closers for auto-shutting-down
+//	...
+func WithPeripherals(peripherals ...basics.Peripheral) cli.Opt {
+	return func(s *cli.Config) {
+		basics.RegisterPeripheral(peripherals...)
+	}
+}
+
 // WithTasksAfterRun installs callbacks after run/invoke stage.
 //
 // The internal stages are: initial -> preload + xref -> parse -> run/invoke -> post-actions.
@@ -237,3 +285,9 @@ func WithDontGroupInHelpScreen(b bool) cli.Opt {
 		s.DontGroupInHelpScreen = b
 	}
 }
+
+// func WithOnInterpretLeadingPlusSign(cb func()) cli.Opt {
+// 	return func(s *cli.Config) {
+// 		s.onInterpretLeadingPlusSign = cb
+// 	}
+// }

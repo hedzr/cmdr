@@ -35,8 +35,8 @@ func TestWorkerS_Pre(t *testing.T) {
 	_ = app
 
 	err := ww.Run(
-		withTasksBeforeParse(func(root *cli.RootCommand, runner cli.Runner, extras ...any) (err error) { //nolint:revive
-			root.SelfAssert()
+		withTasksBeforeParse(func(cmd *cli.Command, runner cli.Runner, extras ...any) (err error) { //nolint:revive
+			runner.Root().SelfAssert()
 			t.Logf("root.SelfAssert() passed.")
 			return
 		}),
@@ -113,7 +113,7 @@ func TestWorkerS_Parse(t *testing.T) { //nolint:revive
 }
 
 var (
-	aTaskBeforeRun = func(root *cli.RootCommand, runner cli.Runner, extras ...any) (err error) { return } //nolint:revive
+	aTaskBeforeRun = func(cmd *cli.Command, runner cli.Runner, extras ...any) (err error) { return } //nolint:revive
 
 	testWorkerParseCases = cmdrRunTests{[]cmdrRunTest{
 		// ~~tree

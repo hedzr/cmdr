@@ -2,12 +2,10 @@ package worker
 
 import (
 	"context"
-	"os"
 	"sync/atomic"
 
 	errorsv3 "gopkg.in/hedzr/errors.v3"
 
-	"github.com/hedzr/cmdr/v2/pkg/dir"
 	logz "github.com/hedzr/logg/slog"
 
 	"github.com/hedzr/cmdr/v2/cli"
@@ -19,11 +17,6 @@ func (w *workerS) exec(ctx *parseCtx) (err error) {
 	w.parsingCtx = ctx // save ctx for later, OnAction might need it.
 
 	forceDefaultAction := ctx.forceDefaultAction
-	if forceDefaultAction {
-		if envForceRun := dir.ToBool(os.Getenv("FORCE_RUN")); envForceRun {
-			forceDefaultAction = false
-		}
-	}
 
 	var deferActions func(errInvoked error)
 	if deferActions, err = w.beforeExec(ctx, lastCmd); err != nil {
@@ -44,6 +37,7 @@ func (w *workerS) exec(ctx *parseCtx) (err error) {
 	if !forceDefaultAction && lastCmd.HasOnAction() {
 		logz.Verbose("[cmdr] invoke action of cmd, with args", "cmd", lastCmd, "args", ctx.positionalArgs)
 		err = lastCmd.Invoke(ctx.positionalArgs)
+		logz.Verbose("[cmdr] invoke action ends.", "err", err)
 		if !w.errIsSignalFallback(err) {
 			return
 		}
@@ -106,7 +100,7 @@ func (w *workerS) beforeExec(ctx *parseCtx, lastCmd *cli.Command) (deferActions 
 }
 
 func (w *workerS) checkRequiredFlags(ctx *parseCtx, lastCmd *cli.Command) (err error) { //nolint:revive
-	lastCmd.WalkBackwards(func(cc *cli.Command, ff *cli.Flag, index, groupIndex, count, level int) {
+	lastCmd.WalkBackwards(func(ctx *cli.WalkBackwardsCtx, cc *cli.Command, ff *cli.Flag, index, groupIndex, count, level int) {
 		if ff != nil {
 			if ff.Required() && ff.GetTriggeredTimes() < 0 {
 				err = cli.ErrRequiredFlag.FormatWith(ff, lastCmd)

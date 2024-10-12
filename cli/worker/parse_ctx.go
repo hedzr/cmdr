@@ -43,7 +43,7 @@ func (s *parseCtx) FlagMatchedState(f *cli.Flag) (ms *cli.MatchState) {
 	return nil
 }
 
-func (s *parseCtx) MatchedCommand(longTitle string) (cc *cli.Command) {
+func (s *parseCtx) matchedCommand(longTitle string) (cc *cli.Command) {
 	for _, cc = range s.matchedCommands {
 		if cc.Long == longTitle {
 			return cc
@@ -52,7 +52,7 @@ func (s *parseCtx) MatchedCommand(longTitle string) (cc *cli.Command) {
 	return nil
 }
 
-func (s *parseCtx) MatchedFlag(longTitle string) (ff *cli.Flag) {
+func (s *parseCtx) matchedFlag(longTitle string) (ff *cli.Flag) {
 	ff = s.flag(longTitle)
 	if _, ok := s.matchedFlags[ff]; ok {
 		return ff
@@ -142,6 +142,14 @@ func (s *parseCtx) LastCmd() *cli.Command {
 		cmd = s.matchedCommands[s.lastCommand]
 	}
 	return cmd
+}
+
+func (s *parseCtx) PositionalArgs() []string {
+	return s.positionalArgs
+}
+
+func (s *parseCtx) MatchedCommands() []*cli.Command {
+	return s.matchedCommands
 }
 
 func (s *parseCtx) parsedCommandsStrings() (ret []string) { //nolint:revive,unused

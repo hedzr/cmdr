@@ -56,13 +56,14 @@ func (s *helpPrinter) PrintTo(wr HelpWriter, ctx *parseCtx, lastCmd *cli.Command
 	if s.treeMode {
 		// ~~tree: list all commands in tree style for a overview
 
+		grouped := true
 		s.printHeader(&sb, lastCmd, ctx, cols, tabbedW)
 		lastCmd.WalkGrouped(func(cc, pp *cli.Command, ff *cli.Flag, group string, idx, level int) { //nolint:revive
 			switch {
 			case ff == nil: // Command
-				s.printCommand(&sb, &verboseCount, cc, group, idx, level, cols, tabbedW)
+				s.printCommand(&sb, &verboseCount, cc, group, idx, level, cols, tabbedW, grouped)
 			default: // Flag
-				s.printFlag(&sb, &verboseCount, ff, group, idx, level, cols, tabbedW)
+				s.printFlag(&sb, &verboseCount, ff, group, idx, level, cols, tabbedW, grouped)
 			}
 		})
 		_, _ = wr.WriteString(sb.String())
@@ -74,7 +75,12 @@ func (s *helpPrinter) PrintTo(wr HelpWriter, ctx *parseCtx, lastCmd *cli.Command
 		s.printUsage(&sb, lastCmd, ctx, cols, tabbedW)
 		s.printDesc(&sb, lastCmd, ctx, cols, tabbedW)
 		s.printExamples(&sb, lastCmd, ctx, cols, tabbedW)
-		lastCmd.WalkBackwards(func(cc *cli.Command, ff *cli.Flag, index, groupIndex, count, level int) {
+
+		walkCtx := &cli.WalkBackwardsCtx{
+			Group: !s.w.DontGroupInHelpScreen,
+			Sort:  s.w.SortInHelpScreen,
+		}
+		lastCmd.WalkBackwardsCtx(func(ctx *cli.WalkBackwardsCtx, cc *cli.Command, ff *cli.Flag, index, groupIndex, count, level int) {
 			if ff == nil {
 				cnt := cc.Owner().CountOfCommands()
 				if index == 0 && min(cnt, count) > 0 {
@@ -86,7 +92,7 @@ func (s *helpPrinter) PrintTo(wr HelpWriter, ctx *parseCtx, lastCmd *cli.Command
 					// _, _ = sb.WriteString(strconv.Itoa(count))
 					// _, _ = sb.WriteString("]:\n")
 				}
-				s.printCommand(&sb, &verboseCount, cc, cc.GroupHelpTitle(), groupIndex, 1, cols, tabbedW)
+				s.printCommand(&sb, &verboseCount, cc, cc.GroupHelpTitle(), groupIndex, 1, cols, tabbedW, walkCtx.Group)
 				return
 			}
 
@@ -106,9 +112,11 @@ func (s *helpPrinter) PrintTo(wr HelpWriter, ctx *parseCtx, lastCmd *cli.Command
 					_, _ = sb.WriteString("):\n")
 				}
 			}
-			s.printFlag(&sb, &verboseCount, ff, ff.GroupHelpTitle(), groupIndex, 1, cols, tabbedW)
-		})
+			s.printFlag(&sb, &verboseCount, ff, ff.GroupHelpTitle(), groupIndex, 1, cols, tabbedW, walkCtx.Group)
+		}, walkCtx)
+
 		s.printTailLine(&sb, lastCmd, ctx, cols, tabbedW)
+
 		_, _ = wr.WriteString(sb.String())
 		_, _ = wr.WriteString("\n")
 	}
@@ -347,13 +355,13 @@ func (s *helpPrinter) printDebugMatches(sb *strings.Builder, wr HelpWriter, ctx 
 	}
 }
 
-func (s *helpPrinter) printCommand(sb *strings.Builder, verboseCount *int, cc *cli.Command, group string, idx, level, cols, tabbedW int) { //nolint:revive
+func (s *helpPrinter) printCommand(sb *strings.Builder, verboseCount *int, cc *cli.Command, group string, idx, level, cols, tabbedW int, grouped bool) { //nolint:revive
 	if (cc.Hidden() && *verboseCount < 1) || (cc.VendorHidden() && *verboseCount < 3) { //nolint:revive
 		return
 	}
 
 	groupedInc := 0
-	if group != "" {
+	if grouped && group != "" {
 		if idx == 0 {
 			_, _ = sb.WriteString(strings.Repeat("  ", level))
 			s.WriteColor(sb, CurrentGroupTitleColor)
@@ -372,6 +380,10 @@ func (s *helpPrinter) printCommand(sb *strings.Builder, verboseCount *int, cc *c
 	ttl := cc.GetTitleNames()
 	if ttl == "" {
 		ttl = "(empty)"
+	}
+
+	if !grouped && group != "" {
+		ttl += " /[" + group + "]"
 	}
 
 	deprecated := cc.Deprecated() != ""
@@ -456,13 +468,13 @@ func (s *helpPrinter) printCommand(sb *strings.Builder, verboseCount *int, cc *c
 	_, _ = sb.WriteString("\n")
 }
 
-func (s *helpPrinter) printFlag(sb *strings.Builder, verboseCount *int, ff *cli.Flag, group string, idx, level, cols, tabbedW int) { //nolint:revive
+func (s *helpPrinter) printFlag(sb *strings.Builder, verboseCount *int, ff *cli.Flag, group string, idx, level, cols, tabbedW int, grouped bool) { //nolint:revive
 	if (ff.Hidden() && *verboseCount < 1) || (ff.VendorHidden() && *verboseCount < 3) { //nolint:revive
 		return
 	}
 
 	groupedInc := 0
-	if group != "" {
+	if grouped && group != "" {
 		if idx == 0 {
 			_, _ = sb.WriteString(strings.Repeat("  ", level+groupedInc))
 			s.WriteColor(sb, CurrentGroupTitleColor)

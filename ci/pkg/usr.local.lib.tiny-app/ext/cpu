@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+[ -f ../bash.config ] && . ../bash.config || { [ -f /usr/local/bin/bash.config ] && . /usr/local/bin/bash.config || :; }
+is_darwin()      { [[ $OSTYPE == *darwin* ]]; }
+is_darwin && {
+  ps -A -o %cpu | awk '{s+=$1} END {print s "%"}'
+} || {
+  top -b -n2 -p 1 | fgrep "Cpu(s)" | tail -1 | awk -F'id,' -v prefix="$prefix" '{ split($1, vs, ","); v=vs[length(vs)]; sub("%", "", v); printf "%s%.1f%%\n", prefix, 100 - v }'
+}
+exit 0

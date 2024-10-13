@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+[ -f ../bash.config ] && . ../bash.config || { [ -f /usr/local/bin/bash.config ] && . /usr/local/bin/bash.config || :; }
+df -hal
+:

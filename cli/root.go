@@ -50,10 +50,12 @@ func (c *RootCommand) Attach(newRootCommand *Command) {
 	newRootCommand.root = c
 
 	// update 'root' fields in any commands/flags
-	hist := make(map[*Command]bool)
+	hist := make(map[BaseOptI]bool)
 	ctx := context.TODO()
-	c.walkImpl(ctx, hist, c.Command, 0, func(cc *Command, index, level int) {
-		cc.root = c
+	c.walkImpl(ctx, hist, c.Command, 0, func(cc BaseOptI, index, level int) {
+		if cx, ok := cc.(interface{ SetRoot(command *RootCommand) }); ok {
+			cx.SetRoot(c)
+		}
 		cc.ForeachFlags(func(f *Flag) (stop bool) { f.root = c; return })
 	})
 

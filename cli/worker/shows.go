@@ -40,7 +40,7 @@ func (w *workerS) showHelpScreenAsMan(ctx context.Context, pc *parseCtx, lastCmd
 func (w *workerS) helpSystemAction(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:revive,unused
 	if len(args) > 0 {
 		// trying to recognize the given commands and print help screen of it.
-		cc := cmd.Root().Command
+		var cc cli.BaseOptI = cmd.Root().Command
 		for _, arg := range args {
 			cc = cc.FindSubCommand(ctx, arg, true)
 			if cc == nil {

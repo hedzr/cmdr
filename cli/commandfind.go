@@ -9,7 +9,7 @@ import (
 // If wide is true, FindSubCommand will try to match
 // long, short and aliases titles,
 // or it matches only long title.
-func (c *Command) FindSubCommand(ctx context.Context, longName string, wide bool) (res *Command) {
+func (c *Command) FindSubCommand(ctx context.Context, longName string, wide bool) (res BaseOptI) {
 	// return FindSubCommand(longName, c)
 	if wide {
 		if r, ok := c.longCommands[longName]; ok {
@@ -21,7 +21,7 @@ func (c *Command) FindSubCommand(ctx context.Context, longName string, wide bool
 	}
 	commands := mustEnsureDynCommands(ctx, c)
 	for _, cx := range commands {
-		if longName == cx.Long {
+		if longName == cx.Name() {
 			return cx
 		}
 	}
@@ -29,14 +29,14 @@ func (c *Command) FindSubCommand(ctx context.Context, longName string, wide bool
 }
 
 // FindSubCommandRecursive find sub-command with `longName` from `cmd` recursively
-func (c *Command) FindSubCommandRecursive(ctx context.Context, longName string, wide bool) (res *Command) { //nolint:revive
+func (c *Command) FindSubCommandRecursive(ctx context.Context, longName string, wide bool) (res BaseOptI) { //nolint:revive
 	// return FindSubCommandRecursive(longName, c)
 	commands := mustEnsureDynCommands(ctx, c)
 	res = c.findSubCommandIn(ctx, c, commands, longName, wide)
 	return
 }
 
-func (c *Command) findSubCommandIn(ctx context.Context, cc *Command, children []*Command, longName string, wide bool) (res *Command) { //nolint:revive
+func (c *Command) findSubCommandIn(ctx context.Context, cc BaseOptI, children []BaseOptI, longName string, wide bool) (res BaseOptI) { //nolint:revive
 	if wide {
 		if r, ok := c.longCommands[longName]; ok {
 			return r
@@ -46,13 +46,17 @@ func (c *Command) findSubCommandIn(ctx context.Context, cc *Command, children []
 		}
 	}
 	for _, cx := range children {
-		if longName == cx.Long {
+		if longName == cx.Name() {
 			return cx
 		}
 		cclist := mustEnsureDynCommands(ctx, cx)
 		if len(cclist) > 0 {
-			if res = cx.findSubCommandIn(ctx, cx, cclist, longName, wide); res != nil {
-				return
+			if k, ok := cx.(interface {
+				findSubCommandIn(ctx context.Context, cc BaseOptI, children []BaseOptI, longName string, wide bool) (res BaseOptI)
+			}); ok {
+				if res = k.findSubCommandIn(ctx, cx, cclist, longName, wide); res != nil {
+					return
+				}
 			}
 		}
 	}
@@ -85,16 +89,18 @@ func (c *Command) FindFlagRecursive(ctx context.Context, longName string, wide b
 	return c.findFlagIn(ctx, c, commands, longName, wide)
 }
 
-func (c *Command) findFlagIn(ctx context.Context, cc *Command, children []*Command, longName string, wide bool) (res *Flag) {
+func (c *Command) findFlagIn(ctx context.Context, cc BaseOptI, children []BaseOptI, longName string, wide bool) (res *Flag) {
 	// return FindFlagRecursive(longName, c)
-	if wide {
-		if r, ok := cc.longFlags[longName]; ok {
-			return r
-		}
-		if r, ok := cc.shortFlags[longName]; ok {
-			return r
-		}
-	}
+
+	// TODO BaseOptI.longFlags
+	// if wide {
+	// 	if r, ok := cc.longFlags[longName]; ok {
+	// 		return r
+	// 	}
+	// 	if r, ok := cc.shortFlags[longName]; ok {
+	// 		return r
+	// 	}
+	// }
 	flags := mustEnsureDynFlags(ctx, cc)
 	for _, cx := range flags {
 		if longName == cx.Long {
@@ -104,11 +110,13 @@ func (c *Command) findFlagIn(ctx context.Context, cc *Command, children []*Comma
 
 	commands := mustEnsureDynCommands(ctx, c)
 	for _, cx := range commands {
-		// if len(cx.SubCommands) > 0 {
-		if res = cx.findFlagIn(ctx, cx, commands, longName, false); res != nil {
-			return
+		if k, ok := cx.(interface {
+			findFlagIn(ctx context.Context, cc BaseOptI, children []BaseOptI, longName string, wide bool) (res *Flag)
+		}); ok {
+			if res = k.findFlagIn(ctx, cx, commands, longName, false); res != nil {
+				return
+			}
 		}
-		// }
 	}
 	return
 }
@@ -118,7 +126,7 @@ func (c *Command) FindFlagBackwards(ctx context.Context, longName string) (res *
 	return c.findFlagBackwardsIn(ctx, c, commands, longName)
 }
 
-func (c *Command) findFlagBackwardsIn(ctx context.Context, cc *Command, children []*Command, longName string) (res *Flag) {
+func (c *Command) findFlagBackwardsIn(ctx context.Context, cc BaseOptI, children []BaseOptI, longName string) (res *Flag) {
 	for _, cx := range c.flags {
 		if longName == cx.Long {
 			res = cx

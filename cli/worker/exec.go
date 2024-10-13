@@ -100,7 +100,7 @@ func (w *workerS) beforeExec(ctx context.Context, pc *parseCtx, lastCmd *cli.Com
 }
 
 func (w *workerS) checkRequiredFlags(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) (err error) { //nolint:revive
-	lastCmd.WalkBackwards(ctx, func(ctx context.Context, pc *cli.WalkBackwardsCtx, cc *cli.Command, ff *cli.Flag, index, groupIndex, count, level int) {
+	lastCmd.WalkBackwards(ctx, func(ctx context.Context, pc *cli.WalkBackwardsCtx, cc cli.BaseOptI, ff *cli.Flag, index, groupIndex, count, level int) {
 		if ff != nil {
 			if ff.Required() && ff.GetTriggeredTimes() < 0 {
 				err = cli.ErrRequiredFlag.FormatWith(ff, lastCmd)

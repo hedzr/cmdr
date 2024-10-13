@@ -12,6 +12,10 @@ type navigator interface { //nolint:unused
 	Owner() *Command
 }
 
+func (c *Flag) Owner() *Command              { return c.owner } // the owner of this Command
+func (c *Flag) OwnerOrParent() Backtraceable { return c.owner } // the owner of this Command
+func (c *Flag) OwnerCmd() BaseOptI           { return c.owner }
+
 func (f *Flag) IsToggleGroup() bool { return f.toggleGroup != "" }
 
 func (f *Flag) ToggleGroupLeadHelpString() (lead string) { //nolint:revive

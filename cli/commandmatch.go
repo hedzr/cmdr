@@ -33,15 +33,13 @@ func (c *Command) Match(ctx context.Context, title string) (short bool, cc *Comm
 	if c.onEvalSubcommandsOnce != nil || c.onEvalSubcommands != nil {
 		commands := mustEnsureDynCommands(ctx, c)
 		for _, cx := range commands {
-			if title == cx.Long {
-				cx.hitTitle = title
-				cx.hitTimes++
+			if title == cx.Name() {
+				cx.SetHitTitle(title)
 				return
 			}
-			for _, ttl := range cx.Aliases {
+			for _, ttl := range cx.AliasNames() {
 				if title == ttl {
-					cx.hitTitle = title
-					cx.hitTimes++
+					cx.SetHitTitle(title)
 					return
 				}
 			}
@@ -319,12 +317,13 @@ func (c *Command) matchedForTG(ctx context.Context, ff *Flag) *Flag {
 	}
 	// mutual exclusives
 	if len(ff.mutualExclusives) > 0 {
+		root := ff.Root()
 		for _, fn := range ff.mutualExclusives {
 			var f *Flag
 			if strings.ContainsRune(fn, '.') {
 				f = ff.owner.FindFlag(ctx, fn, false)
 			} else {
-				_, f = ff.Root().dottedPathToCommandOrFlag(fn)
+				_, f = dottedPathToCommandOrFlagG(root, fn)
 			}
 			if f != nil {
 				if _, ok := f.defaultValue.(bool); ok {
@@ -349,12 +348,13 @@ func (c *Command) checkJustOnce(vp *FlagValuePkg, ff *Flag) (ret *Flag, err erro
 
 func (c *Command) checkPrerequisites(ctx context.Context, vp *FlagValuePkg, ff *Flag) (ret *Flag, err error) {
 	if ff != nil && len(ff.prerequisites) > 0 {
+		root := ff.Root()
 		for _, fn := range ff.prerequisites {
 			var f *Flag
 			if strings.ContainsRune(fn, '.') {
 				f = ff.owner.FindFlag(ctx, fn, false)
 			} else {
-				_, f = ff.Root().dottedPathToCommandOrFlag(fn)
+				_, f = dottedPathToCommandOrFlagG(root, fn)
 			}
 			if f != nil {
 				if f.hitTimes < 0 {

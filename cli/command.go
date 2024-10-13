@@ -169,7 +169,7 @@ func (c *Command) SetOnEvaluateSubCommandsOnce(handler OnEvaluateSubCommands) {
 	c.onEvalSubcommandsOnce = &struct {
 		cb       OnEvaluateSubCommands
 		invoked  bool
-		commands []*Command
+		commands []BaseOptI
 	}{cb: handler}
 }
 
@@ -184,6 +184,97 @@ func (c *Command) SetOnEvaluateFlagsOnce(handler OnEvaluateFlags) {
 		flags   []*Flag
 	}{cb: handler}
 }
+
+//
+
+func (c *Command) OnEvalSubcommands() OnEvaluateSubCommands {
+	if c.onEvalSubcommands == nil {
+		return nil
+	}
+	return c.onEvalSubcommands.cb
+}
+
+func (c *Command) OnEvalSubcommandsOnce() OnEvaluateSubCommands {
+	if c.onEvalSubcommandsOnce == nil {
+		return nil
+	}
+	return c.onEvalSubcommandsOnce.cb
+}
+
+func (c *Command) OnEvalSubcommandsOnceInvoked() bool {
+	if c.onEvalSubcommandsOnce == nil {
+		return false
+	}
+	return c.onEvalSubcommandsOnce.invoked
+}
+
+func (c *Command) OnEvalSubcommandsOnceCache() []BaseOptI {
+	if c.onEvalSubcommandsOnce == nil {
+		return nil
+	}
+	return c.onEvalSubcommandsOnce.commands
+}
+
+func (c *Command) OnEvalSubcommandsOnceSetCache(list []BaseOptI) {
+	if c.onEvalSubcommandsOnce == nil {
+		return
+	}
+	c.onEvalSubcommandsOnce.commands = list
+	c.onEvalSubcommandsOnce.invoked = true
+}
+
+//
+
+func (c *Command) OnEvalFlags() OnEvaluateFlags {
+	if c.onEvalFlags == nil {
+		return nil
+	}
+	return c.onEvalFlags.cb
+}
+
+func (c *Command) OnEvalFlagsOnce() OnEvaluateFlags {
+	if c.onEvalFlagsOnce == nil {
+		return nil
+	}
+	return c.onEvalFlagsOnce.cb
+}
+
+func (c *Command) OnEvalFlagsOnceInvoked() bool {
+	if c.onEvalFlagsOnce == nil {
+		return false
+	}
+	return c.onEvalFlagsOnce.invoked
+}
+
+func (c *Command) OnEvalFlagsOnceCache() []*Flag {
+	if c.onEvalFlagsOnce == nil {
+		return nil
+	}
+	return c.onEvalFlagsOnce.flags
+}
+
+func (c *Command) OnEvalFlagsOnceSetCache(list []*Flag) {
+	if c.onEvalFlagsOnce == nil {
+		return
+	}
+	c.onEvalFlagsOnce.flags = list
+	c.onEvalFlagsOnce.invoked = true
+}
+
+//
+
+func (c *Command) SetHitTitle(title string) {
+	c.hitTitle = title
+	c.hitTimes++
+}
+func (c *Command) HitTitle() string     { return c.hitTitle }
+func (c *Command) HitTimes() int        { return c.hitTimes }
+func (c *Command) ShortName() string    { return c.Short }
+func (c *Command) ShortNames() []string { return c.Shorts() }
+func (c *Command) AliasNames() []string { return c.Aliases }
+func (c *Command) OwnerCmd() BaseOptI   { return c.owner }
+
+//
 
 func (c *Command) CanInvoke() bool { return c.onInvoke != nil }
 
@@ -307,10 +398,27 @@ func (c *Command) EnsureTree(ctx context.Context, app App, root *RootCommand) {
 // ensureTreeR link Command.owner to its parent, and Command.root to root.
 // ensureTreeR links all commands as a tree (make root and owner linked).
 func (c *Command) ensureTreeR(ctx context.Context, app App, root *RootCommand) { //nolint:unparam,revive
-	c.WalkEverything(ctx, func(cc, pp *Command, ff *Flag, cmdIndex, flgIndex, level int) {
-		cc.owner, cc.root, _ = pp, root, app
-		if ff != nil {
-			ff.owner, ff.root = cc, root
+	c.WalkEverything(ctx, func(cc, pp BaseOptI, ff *Flag, cmdIndex, flgIndex, level int) {
+		if cx, ok := cc.(*Command); ok {
+			if pp != nil {
+				cx.owner = pp.(*Command)
+			}
+			cx.root, _ = root, app
+			if ff != nil {
+				ff.owner, ff.root = cx, root
+			}
+		} else {
+			if cx, ok := cc.(interface{ SetOwner(o *Command) }); ok {
+				if pp != nil {
+					cx.SetOwner(pp.(*Command))
+				}
+			}
+			if cx, ok := cc.(interface{ SetOwner(o BaseOptI) }); ok {
+				cx.SetOwner(pp)
+			}
+			if cx, ok := cc.(interface{ SetRoot(root *RootCommand) }); ok {
+				cx.SetRoot(root)
+			}
 		}
 	})
 }
@@ -321,11 +429,13 @@ func (c *Command) ensureTreeR(ctx context.Context, app App, root *RootCommand) {
 //
 // ForeachSubCommands, ForeachFlags, ForeachGroupedSubCommands, and
 // ForeachGroupedFlags needs EnsureXref called.
-func (c *Command) EnsureXref(ctx context.Context, cb ...func(cc *Command, index, level int)) {
-	c.Walk(ctx, func(cc *Command, index, level int) {
-		cc.ensureXrefCommands()
-		cc.ensureXrefFlags()
-		cc.ensureXrefGroup()
+func (c *Command) EnsureXref(ctx context.Context, cb ...func(cc BaseOptI, index, level int)) {
+	c.Walk(ctx, func(cc BaseOptI, index, level int) {
+		if cx, ok := cc.(*Command); ok {
+			cx.ensureXrefCommands()
+			cx.ensureXrefFlags()
+			cx.ensureXrefGroup()
+		}
 		for _, fn := range cb {
 			fn(cc, index, level)
 		}

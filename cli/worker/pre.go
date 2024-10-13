@@ -167,7 +167,7 @@ func (w *workerS) commandsToStoreChild(ctx context.Context, root *cli.RootComman
 	}
 
 	conf.WithinLoading(func() {
-		root.WalkEverything(ctx, func(cc, pp *cli.Command, ff *cli.Flag, cmdIndex, flgIndex, level int) { //nolint:revive
+		root.WalkEverything(ctx, func(cc, pp cli.BaseOptI, ff *cli.Flag, cmdIndex, flgIndex, level int) { //nolint:revive
 			if ff != nil {
 				if evs := ff.EnvVars(); len(evs) > 0 {
 					for _, ev := range evs {
@@ -248,7 +248,7 @@ func (w *workerS) writeBackToLoaders(ctx context.Context) (err error) {
 	return
 }
 
-func (w *workerS) xrefCommands(ctx context.Context, cmd *cli.RootCommand, cb ...func(cc *cli.Command, index, level int)) (err error) { //nolint:unparam
+func (w *workerS) xrefCommands(ctx context.Context, cmd *cli.RootCommand, cb ...func(cc cli.BaseOptI, index, level int)) (err error) { //nolint:unparam
 	cmd.EnsureXref(ctx, cb...)
 	return
 }

@@ -60,14 +60,15 @@ func (c *BaseOpt) SetHidden(hidden bool, vendorHidden ...bool) {
 	}
 }
 
-//
-//
-//
-
-func (c *BaseOpt) Owner() *Command    { return c.owner }            // the owner of this Command
-func (c *BaseOpt) Root() *RootCommand { return c.root }             // returns Root Command (*RootCommand),
-func (c *BaseOpt) App() App           { return c.root.app }         // App returns the current App
-func (c *BaseOpt) Set() store.Store   { return c.root.app.Store() } // Set returns store.Store associated with the current App
+func (c *BaseOpt) OwnerOrParent() BacktraceableMin { return c.owner }
+func (c *BaseOpt) OwnerIsNil() bool                { return c.owner == nil }
+func (c *BaseOpt) OwnerCmd() BaseOptI              { return c.owner }
+func (c *BaseOpt) Owner() *Command                 { return c.owner }            // the owner of this Command
+func (c *BaseOpt) Root() *RootCommand              { return c.root }             // returns Root Command (*RootCommand),
+func (c *BaseOpt) App() App                        { return c.root.app }         // App returns the current App
+func (c *BaseOpt) Set() store.Store                { return c.root.app.Store() } // Set returns store.Store associated with the current App
+func (c *BaseOpt) SetOwner(o *Command)             { c.owner = o }
+func (c *BaseOpt) SetRoot(root *RootCommand)       { c.root = root }
 
 // func (c *BaseOpt) AppName() string {
 // 	if conf.AppName != "" {
@@ -158,15 +159,15 @@ func (c *BaseOpt) GetTriggeredTimes() int { return c.hitTimes }
 // more information about Option Prefix, refer
 // to [WithOptionsPrefix]
 func (c *BaseOpt) GetDottedPath() string {
-	return backtraceCmdNames(c, ".", false)
+	return backtraceCmdNamesG(c, ".", false)
 }
 
 func (c *BaseOpt) GetDottedPathFull() string {
-	return backtraceCmdNames(c, ",", true)
+	return backtraceCmdNamesG(c, ",", true)
 }
 
 func (c *BaseOpt) GetCommandTitles() string {
-	return backtraceCmdNames(c, " ", false)
+	return backtraceCmdNamesG(c, " ", false)
 }
 
 // GetTitleName returns name/full/short string
@@ -217,6 +218,10 @@ func (c *BaseOpt) SafeGroup() string {
 }
 
 func (c *BaseOpt) RemoveOrderedPrefix(title string) string {
+	return reSortingPrefix.ReplaceAllString(title, "")
+}
+
+func RemoveOrderedPrefix(title string) string {
 	return reSortingPrefix.ReplaceAllString(title, "")
 }
 

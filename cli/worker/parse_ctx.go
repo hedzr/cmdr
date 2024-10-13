@@ -108,7 +108,10 @@ func (s *parseCtx) flag(ctx context.Context, longTitle string) (f *cli.Flag) { /
 
 func (s *parseCtx) cmd(ctx context.Context, longTitle string) (c *cli.Command) { //nolint:unused
 	// ?? no uses yet ??
-	c = s.root.FindSubCommand(ctx, longTitle, false)
+	ret := s.root.FindSubCommand(ctx, longTitle, false)
+	if rc, ok := ret.(*cli.Command); ok {
+		c = rc
+	}
 	return
 }
 

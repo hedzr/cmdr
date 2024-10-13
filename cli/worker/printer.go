@@ -34,12 +34,12 @@ type helpPrinter struct {
 
 const colLeftTabbedWidth = 56
 
-func (s *helpPrinter) Print(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) { //nolint:revive //
+func (s *helpPrinter) Print(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) { //nolint:revive //
 	wr := s.safeGetWriter()
 	s.PrintTo(ctx, wr, pc, lastCmd)
 }
 
-func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, lastCmd *cli.Command) { //nolint:revive //
+func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, lastCmd cli.BaseOptI) { //nolint:revive //
 	if s.debugScreenMode {
 		s.PrintDebugScreenTo(wr, pc, lastCmd)
 		return
@@ -59,7 +59,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, 
 
 		grouped := true
 		s.printHeader(&sb, lastCmd, pc, cols, tabbedW)
-		lastCmd.WalkGrouped(ctx, func(cc, pp *cli.Command, ff *cli.Flag, group string, idx, level int) { //nolint:revive
+		lastCmd.WalkGrouped(ctx, func(cc, pp cli.BaseOptI, ff *cli.Flag, group string, idx, level int) { //nolint:revive
 			switch {
 			case ff == nil: // Command
 				s.printCommand(&sb, &verboseCount, cc, group, idx, level, cols, tabbedW, grouped)
@@ -81,9 +81,9 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, 
 			Group: !s.w.DontGroupInHelpScreen,
 			Sort:  s.w.SortInHelpScreen,
 		}
-		lastCmd.WalkBackwardsCtx(ctx, func(ctx context.Context, pc *cli.WalkBackwardsCtx, cc *cli.Command, ff *cli.Flag, index, groupIndex, count, level int) {
+		lastCmd.WalkBackwardsCtx(ctx, func(ctx context.Context, pc *cli.WalkBackwardsCtx, cc cli.BaseOptI, ff *cli.Flag, index, groupIndex, count, level int) {
 			if ff == nil {
-				cnt := cc.Owner().CountOfCommands()
+				cnt := cc.OwnerCmd().CountOfCommands()
 				if index == 0 && min(cnt, count) > 0 {
 					_, _ = sb.WriteString("\nCommands:\n")
 				} else { //nolint:revive,staticcheck
@@ -99,7 +99,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, 
 
 			cnt := ff.Owner().CountOfFlags()
 			if index == 0 && min(cnt, count) > 0 {
-				if cc.Owner() == nil {
+				if cc.OwnerCmd() == nil {
 					_, _ = sb.WriteString("\nGlobal Flags:\n")
 				} else if level == 0 {
 					_, _ = sb.WriteString("\nFlags:\n")
@@ -132,7 +132,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, 
 	s.printDebugMatches(&sb, wr, pc)
 }
 
-func (s *helpPrinter) PrintDebugScreenTo(wr HelpWriter, ctx *parseCtx, lastCmd *cli.Command) { //nolint:revive //
+func (s *helpPrinter) PrintDebugScreenTo(wr HelpWriter, ctx *parseCtx, lastCmd cli.BaseOptI) { //nolint:revive //
 	if s.Translator == nil {
 		s.Translator = color.GetCPT()
 	}
@@ -181,16 +181,19 @@ func (s *helpPrinter) safeGetTermSize() (cols, rows int) {
 	return
 }
 
-func (s *helpPrinter) printHeader(sb *strings.Builder, cc *cli.Command, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printHeader(sb *strings.Builder, cc cli.BaseOptI, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	// app, root := cc.App(), cc.Root()
 	// _ = app
+	if cc.Root() == nil {
+		logz.Fatal("unsatisfied link to root: cc.Root() is invalid", "cc", cc)
+	}
 	line := cc.Root().Header()
 	_, _ = sb.WriteString(s.Translate(line, color.FgDefault))
 	_, _ = sb.WriteString("\n")
 	_, _, _ = ctx, cols, tabbedW
 }
 
-func (s *helpPrinter) printUsage(sb *strings.Builder, cc *cli.Command, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printUsage(sb *strings.Builder, cc cli.BaseOptI, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	// app, root := cc.App(), cc.Root()
 	// _ = app
 	appName := cc.App().Name()
@@ -206,7 +209,7 @@ func (s *helpPrinter) printUsage(sb *strings.Builder, cc *cli.Command, ctx *pars
 	_, _, _ = ctx, cols, tabbedW
 }
 
-func (s *helpPrinter) printDesc(sb *strings.Builder, cc *cli.Command, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printDesc(sb *strings.Builder, cc cli.BaseOptI, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	desc := cc.DescLong()
 	if desc != "" {
 		_, _ = sb.WriteString("\nDescription:\n\n")
@@ -217,7 +220,7 @@ func (s *helpPrinter) printDesc(sb *strings.Builder, cc *cli.Command, ctx *parse
 	_, _, _ = ctx, cols, tabbedW
 }
 
-func (s *helpPrinter) printExamples(sb *strings.Builder, cc *cli.Command, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printExamples(sb *strings.Builder, cc cli.BaseOptI, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	examples := cc.Examples()
 	if examples != "" {
 		_, _ = sb.WriteString("\nExamples:\n\n")
@@ -228,7 +231,7 @@ func (s *helpPrinter) printExamples(sb *strings.Builder, cc *cli.Command, ctx *p
 	_, _, _ = ctx, cols, tabbedW
 }
 
-func (s *helpPrinter) printTailLine(sb *strings.Builder, cc *cli.Command, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printTailLine(sb *strings.Builder, cc cli.BaseOptI, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	footer := strings.TrimSpace(cc.Root().Footer())
 	if footer != "" {
 		_, _ = sb.WriteString("\n")
@@ -356,7 +359,7 @@ func (s *helpPrinter) printDebugMatches(sb *strings.Builder, wr HelpWriter, ctx 
 	}
 }
 
-func (s *helpPrinter) printCommand(sb *strings.Builder, verboseCount *int, cc *cli.Command, group string, idx, level, cols, tabbedW int, grouped bool) { //nolint:revive
+func (s *helpPrinter) printCommand(sb *strings.Builder, verboseCount *int, cc cli.BaseOptI, group string, idx, level, cols, tabbedW int, grouped bool) { //nolint:revive
 	if (cc.Hidden() && *verboseCount < 1) || (cc.VendorHidden() && *verboseCount < 3) { //nolint:revive
 		return
 	}

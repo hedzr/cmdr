@@ -4,6 +4,8 @@ package cli
 
 import (
 	"context"
+
+	"github.com/hedzr/is/term/color"
 )
 
 const (
@@ -62,9 +64,57 @@ type RootCommand struct {
 }
 
 type BaseOptI interface {
-	Owner() *Command
+	Backtraceable
+
+	String() string
+
+	OwnerCmd() BaseOptI
 	Root() *RootCommand
 	Name() string
+	ShortName() string
+	ShortNames() []string
+	AliasNames() []string
+	Desc() string
+	DescLong() string
+	Examples() string
+	TailPlaceHolder() string
+	GetCommandTitles() string
+
+	GroupTitle() string                          // group title, removed the ordered prefix
+	GroupHelpTitle() string                      // group title, remove the ordered prefix, or UnsortedGroup
+	SafeGroup() string                           // group title, or UnsortedGroup
+	AllGroupKeys(chooseFlag, sort bool) []string // subcommand group-key-titles
+	Hidden() bool
+	VendorHidden() bool
+	Deprecated() string
+	DeprecatedHelpString(trans func(ss string, clr color.Color) string, clr, clrDefault color.Color) (hs, plain string)
+	CountOfCommands() int
+	CommandsInGroup(groupTitle string) (list []BaseOptI)
+	FlagsInGroup(groupTitle string) (list []*Flag)
+	SubCommands() []*Command
+	Flags() []*Flag
+
+	Invoke(ctx context.Context, args []string) (err error)
+
+	OnEvalSubcommands() OnEvaluateSubCommands
+	OnEvalSubcommandsOnce() OnEvaluateSubCommands
+	OnEvalSubcommandsOnceInvoked() bool
+	OnEvalSubcommandsOnceCache() []BaseOptI
+	OnEvalSubcommandsOnceSetCache(list []BaseOptI)
+	OnEvalFlags() OnEvaluateFlags
+	OnEvalFlagsOnce() OnEvaluateFlags
+	OnEvalFlagsOnceInvoked() bool
+	OnEvalFlagsOnceCache() []*Flag
+	OnEvalFlagsOnceSetCache(list []*Flag)
+
+	SetHitTitle(title string)
+	HitTitle() string
+	HitTimes() int
+
+	FindSubCommand(ctx context.Context, longName string, wide bool) (res BaseOptI)
+	Walk(ctx context.Context, cb WalkCB)
+	WalkGrouped(ctx context.Context, cb WalkGroupedCB)
+	WalkBackwardsCtx(ctx context.Context, cb WalkBackwardsCB, pc *WalkBackwardsCtx)
 }
 
 type BaseOpt struct {
@@ -155,7 +205,7 @@ type Command struct {
 	onEvalSubcommandsOnce *struct {
 		cb       OnEvaluateSubCommands
 		invoked  bool
-		commands []*Command
+		commands []BaseOptI
 	}
 	onEvalFlags *struct {
 		cb OnEvaluateFlags
@@ -291,11 +341,13 @@ type OnPostInvokeHandler func(ctx context.Context, cmd *Command, args []string, 
 
 type OnPreInvokeHandler func(ctx context.Context, cmd *Command, args []string) (err error)
 
-type OnEvaluateSubCommands func(ctx context.Context, c *Command) (it EvalIterator, err error)
+type OnEvaluateSubCommands func(ctx context.Context, c BaseOptI) (it EvalIterator, err error)
 
-type OnEvaluateFlags func(ctx context.Context, c *Command) (it EvalIterator, err error)
+type OnEvaluateFlags func(ctx context.Context, c BaseOptI) (it EvalFlagIterator, err error)
 
 type EvalIterator func(ctx context.Context) (bo BaseOptI, hasNext bool, err error)
+
+type EvalFlagIterator func(ctx context.Context) (bo *Flag, hasNext bool, err error)
 
 // OnParseValueHandler could be used for parsing value string as you want,
 // and/or check the validation of the input value or flag, and so on.

@@ -52,15 +52,32 @@ func uniAddStrS(a []string, ss ...string) []string { //nolint:revive
 	return a
 }
 
-// backtraceCmdNames returns the sequences of a sub-command from
-// top-level.
-//
-// - if verboseLast = false, got 'microservices.tags.list' for sub-cmd microservice/tags/list.
-//
-// - if verboseLast = true,  got 'microservices.tags.[ls|list|l|lst|dir]'.
-//
-// - at root command, it returns 'appName' or ” when verboseLast is true.
-func backtraceCmdNames(cmd *BaseOpt, delimiter string, verboseLast bool) (str string) { //nolint:revive
+type BacktraceableMin interface {
+	GetDottedPath() string
+	GetTitleName() string
+	GetTitleNamesArray() []string
+	GetTitleNames() string // return the joint string of short,full,aliases names
+	OwnerOrParent() BacktraceableMin
+	OwnerIsNil() bool
+	App() App
+}
+
+type Backtraceable interface {
+	BacktraceableMin
+
+	Walk(ctx context.Context, cb WalkCB)
+	ForeachFlags(func(f *Flag) (stop bool)) (stop bool)
+}
+
+func DottedPath(cmd BacktraceableMin) string {
+	return backtraceCmdNamesG(cmd, ".", false)
+}
+
+func DottedPathWith(cmd BacktraceableMin, delimiter string, verboseLast bool) string {
+	return backtraceCmdNamesG(cmd, delimiter, verboseLast)
+}
+
+func backtraceCmdNamesG(cmd BacktraceableMin, delimiter string, verboseLast bool) (str string) { //nolint:revive
 	var a []string
 	if verboseLast {
 		va := cmd.GetTitleNamesArray()
@@ -71,10 +88,21 @@ func backtraceCmdNames(cmd *BaseOpt, delimiter string, verboseLast bool) (str st
 	} else {
 		a = append(a, cmd.GetTitleName())
 	}
-	for p := cmd.owner; p != nil && p.owner != nil; {
-		a = append(a, p.GetTitleName())
-		p = p.owner
+
+	p := cmd
+	for !p.OwnerIsNil() {
+		p = p.OwnerOrParent()
+		if !p.OwnerIsNil() { // p has parent
+			a = append(a, p.GetTitleName())
+		}
 	}
+	// p := p.OwnerOrParent()
+	// for p != nil {
+	// 	if pp := p.OwnerOrParent(); pp != nil {
+	// 		a = append(a, p.GetTitleName())
+	// 		p = pp
+	// 	}
+	// }
 
 	// reverse it
 	i := 0
@@ -89,15 +117,7 @@ func backtraceCmdNames(cmd *BaseOpt, delimiter string, verboseLast bool) (str st
 	return
 }
 
-// DottedPathToCommandOrFlag searches the matched Command or Flag with the specified dotted-path.
-// The searching will start from root if anyCmd is nil.
-func DottedPathToCommandOrFlag(dottedPath string, anyCmd *Command) (cc *Command, ff *Flag) {
-	return anyCmd.dottedPathToCommandOrFlag(dottedPath)
-}
-
-// dottedPathToCommandOrFlag searches the matched Command or Flag with the specified dotted-path.
-// The searching will start from root if anyCmd is nil.
-func (c *Command) dottedPathToCommandOrFlag(dottedPath string) (cmd *Command, ff *Flag) { //nolint:revive
+func dottedPathToCommandOrFlagG(c Backtraceable, dottedPath string) (cmd Backtraceable, ff *Flag) { //nolint:revive
 	if c == nil {
 		// anyCmd = &internalGetWorker().rootCommand.Command
 		return
@@ -115,14 +135,20 @@ func (c *Command) dottedPathToCommandOrFlag(dottedPath string) (cmd *Command, ff
 	}
 
 	ctx := context.TODO()
-	c.Walk(ctx, func(cc *Command, index, level int) {
+	c.Walk(ctx, func(cc BaseOptI, index, level int) {
+		var cx Backtraceable
+		var ok bool
+		if cx, ok = cc.(Backtraceable); !ok {
+			return
+		}
+
 		kp := cc.GetDottedPath()
 		if !strings.HasPrefix(kp, appName) {
 			kp = appName + "." + kp
 		}
 
 		if kp == dottedPath {
-			cmd = cc
+			cmd = cx
 			return
 		}
 
@@ -130,10 +156,10 @@ func (c *Command) dottedPathToCommandOrFlag(dottedPath string) (cmd *Command, ff
 			parts := strings.TrimPrefix(dottedPath, kp+".")
 			if !strings.Contains(parts, ".") {
 				// try matching flags in this command
-				cc.ForeachFlags(func(f *Flag) (stop bool) {
+				cx.ForeachFlags(func(f *Flag) (stop bool) {
 					if parts == f.Long {
-						cmd, ff, stop = f.owner, f, true
-						if f.owner != cc {
+						cmd, ff, stop = f.OwnerOrParent(), f, true
+						if f.OwnerOrParent() != cx {
 							panic("flag's owner is not linked the proper parent.")
 						}
 					}
@@ -144,3 +170,102 @@ func (c *Command) dottedPathToCommandOrFlag(dottedPath string) (cmd *Command, ff
 	})
 	return
 }
+
+// DottedPathToCommandOrFlag1 searches the matched Command or Flag with the specified dotted-path.
+// The searching will start from root if anyCmd is nil.
+func DottedPathToCommandOrFlag1(dottedPath string, anyCmd Backtraceable) (cc Backtraceable, ff *Flag) {
+	return dottedPathToCommandOrFlagG(anyCmd, dottedPath)
+}
+
+// // backtraceCmdNames returns the sequences of a sub-command from
+// // top-level.
+// //
+// // - if verboseLast = false, got 'microservices.tags.list' for sub-cmd microservice/tags/list.
+// //
+// // - if verboseLast = true,  got 'microservices.tags.[ls|list|l|lst|dir]'.
+// //
+// // - at root command, it returns 'appName' or ” when verboseLast is true.
+// func backtraceCmdNames(cmd *BaseOpt, delimiter string, verboseLast bool) (str string) { //nolint:revive
+// 	var a []string
+// 	if verboseLast {
+// 		va := cmd.GetTitleNamesArray()
+// 		if len(va) > 0 {
+// 			vas := strings.Join(va, "|")
+// 			a = append(a, "["+vas+"]")
+// 		}
+// 	} else {
+// 		a = append(a, cmd.GetTitleName())
+// 	}
+// 	for p := cmd.owner; p != nil && p.owner != nil; {
+// 		a = append(a, p.GetTitleName())
+// 		p = p.owner
+// 	}
+//
+// 	// reverse it
+// 	i := 0
+// 	j := len(a) - 1
+// 	for i < j {
+// 		a[i], a[j] = a[j], a[i]
+// 		i++
+// 		j--
+// 	}
+//
+// 	str = strings.Join(a, delimiter)
+// 	return
+// }
+//
+// // DottedPathToCommandOrFlag searches the matched Command or Flag with the specified dotted-path.
+// // The searching will start from root if anyCmd is nil.
+// func DottedPathToCommandOrFlag(dottedPath string, anyCmd *Command) (cc *Command, ff *Flag) {
+// 	return anyCmd.dottedPathToCommandOrFlag(dottedPath)
+// }
+//
+// // dottedPathToCommandOrFlag searches the matched Command or Flag with the specified dotted-path.
+// // The searching will start from root if anyCmd is nil.
+// func (c *Command) dottedPathToCommandOrFlag(dottedPath string) (cmd *Command, ff *Flag) { //nolint:revive
+// 	if c == nil {
+// 		// anyCmd = &internalGetWorker().rootCommand.Command
+// 		return
+// 	}
+//
+// 	appName := appNameDefault
+// 	if app := c.App(); app != nil {
+// 		appName = app.Name()
+// 	} else if conf.AppName != "" {
+// 		appName = conf.AppName
+// 	}
+//
+// 	if !strings.HasPrefix(dottedPath, appName) {
+// 		dottedPath = appName + "." + dottedPath //nolint:revive
+// 	}
+//
+// 	ctx := context.TODO()
+// 	c.Walk(ctx, func(cc BaseOptI, index, level int) {
+// 		kp := cc.GetDottedPath()
+// 		if !strings.HasPrefix(kp, appName) {
+// 			kp = appName + "." + kp
+// 		}
+//
+// 		if kp == dottedPath {
+// 			cmd = cc
+// 			return
+// 		}
+//
+// 		if strings.HasPrefix(dottedPath, kp) {
+// 			parts := strings.TrimPrefix(dottedPath, kp+".")
+// 			if !strings.Contains(parts, ".") {
+// 				// try matching flags in this command
+// 				cc.ForeachFlags(func(f *Flag) (stop bool) {
+// 					if parts == f.Long {
+// 						cmd, ff, stop = f.owner, f, true
+// 						if f.owner != cc {
+// 							panic("flag's owner is not linked the proper parent.")
+// 						}
+// 					}
+// 					return
+// 				})
+// 			}
+// 		}
+// 	})
+// 	return
+// }

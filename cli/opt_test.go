@@ -20,14 +20,14 @@ func TestDottedPathToCommandOrFlag(t *testing.T) {
 	t.Logf("L2: cmd: %v; ff: %v", cmd, ff)
 
 	// DottedPathToCommandOrFlag, backtraceCmdNames
-	cmd, ff = DottedPathToCommandOrFlag("list.retry", root.Command)
-	t.Logf("cmd: %v (%v); ff: %v (%v)", cmd, cmd.GetDottedPathFull(), ff, ff.GetDottedPathFull())
+	cmd, ff = DottedPathToCommandOrFlag1("list.retry", root.Command)
+	t.Logf("cmd: %v (%v); ff: %v (%v)", cmd, cmd.GetDottedPath(), ff, ff.GetDottedPath())
 
 	cmd, ff = root.dottedPathToCommandOrFlag("microservices.tags.toggle.address")
 	t.Logf("L3: cmd: %v; ff: %v", cmd, ff)
-	t.Logf("L3: cmd: %v (%v); ff: %v (%v)", cmd, cmd.GetDottedPathFull(), ff, ff.GetDottedPathFull())
+	t.Logf("L3: cmd: %v (%v); ff: %v (%v)", cmd, cmd.GetDottedPath(), ff, ff.GetDottedPath())
 
 	cmd, ff = root.dottedPathToCommandOrFlag("microservices.tags.toggle.address")
 	t.Logf("L: cmd: %v; ff: %v", cmd, ff)
-	t.Logf("L: cmd: %v (%v); ff: %v (%v)", cmd, cmd.GetDottedPathFull(), ff, ff.GetDottedPathFull())
+	t.Logf("L: cmd: %v (%v); ff: %v (%v)", cmd, cmd.GetDottedPath(), ff, ff.GetDottedPath())
 }

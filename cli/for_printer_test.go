@@ -34,7 +34,7 @@ func (s *helpPrinter) Print(ctx context.Context, lastCmd *Command) { //nolint:un
 	// 	wr = s.w.wrHelpScreen
 	// }
 
-	lastCmd.WalkEverything(ctx, func(cc, pp *Command, ff *Flag, cmdIndex, flgIndex, level int) {
+	lastCmd.WalkEverything(ctx, func(cc, pp BaseOptI, ff *Flag, cmdIndex, flgIndex, level int) {
 		switch {
 		case ff == nil && level > 0:
 			_, _ = sb.WriteString(strings.Repeat("  ", level))

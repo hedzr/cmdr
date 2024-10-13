@@ -125,6 +125,11 @@ func Store() store.Store { return App().Store() }
 // and with those vendor hidden commands.
 func CmdStore() store.Store { return Store().WithPrefix("app.cmd") }
 
+// RemoveOrderedPrefix removes '[a-z0-9]+\.' at front of string.
+func RemoveOrderedPrefix(s string) string {
+	return cli.RemoveOrderedPrefix(s)
+}
+
 // Exec starts a new cmdr app (parsing cmdline args based on the given rootCmd)
 // from scratch.
 //

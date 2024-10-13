@@ -55,10 +55,6 @@ func main() {
 	}
 }
 
-func onEvalJumpSubCommands(ctx context.Context, c *cli.Command) (it cli.EvalIterator, err error) {
-	return
-}
-
 func prepareApp(opts ...cli.Opt) (app cli.App) {
 	app = cmdr.New(opts...).
 		Info("tiny-app", "0.3.1").

@@ -133,9 +133,10 @@ func (c *Command) findFlagBackwardsIn(ctx context.Context, cc BaseOptI, children
 			return
 		}
 	}
-	if c.owner != nil && c.owner != c {
-		commands := mustEnsureDynCommands(ctx, c.owner)
-		res = c.owner.findFlagBackwardsIn(ctx, c.owner, commands, longName)
+	if pp := c.owner; pp != nil && pp != c {
+		commands := mustEnsureDynCommands(ctx, pp)
+		res = pp.findFlagBackwardsIn(ctx, pp, commands, longName)
 	}
+	_, _ = cc, children
 	return
 }

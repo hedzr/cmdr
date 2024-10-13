@@ -28,7 +28,7 @@ func onEvalJumpSubCommands(ctx context.Context, c cli.BaseOptI) (it cli.EvalIter
 		return
 	})
 
-	it = func(ctx context.Context) (bo cli.BaseOptI, hasNext bool, err error) {
+	it = func(context.Context) (bo cli.BaseOptI, hasNext bool, err error) {
 		if pos < len(keys) {
 			key := keys[pos]
 			bo = files[key]

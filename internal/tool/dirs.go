@@ -6,9 +6,31 @@ import (
 	"runtime"
 
 	"github.com/hedzr/cmdr/v2/pkg/dir"
+	"github.com/hedzr/is"
 	logz "github.com/hedzr/logg/slog"
 )
 
+// DataDir is used to store app normal runtime data.
+//
+// For darwin and linux it's generally at "$HOME/.local/share/<app>",
+// or "/usr/local/share/<app>" and "/usr/share/<app>" in some builds.
+//
+// For windows it is "%APPDATA%/<app>/Data".
+//
+// In your application, it shall look up config files from ConfigDir,
+// save the runtime data (or persistent data) into DataDir, use
+// CacheDir to store the cache data which can be file and folder
+// or file content indexes, the response replies from remote api,
+// and so on.
+// TempDir is used to store any temporary content which can be
+// erased at any time.
+//
+// UsrLibDir is the place which an application should be installed
+// at, in linux.
+//
+// VarRunDir is the place which a .pid, running socket file handle,
+// and others files that can be shared in all processes of this
+// application, sometimes for any apps.
 func DataDir(appName string, base ...string) string {
 	// appName := App().Name()
 	switch runtime.GOOS {
@@ -31,6 +53,7 @@ func DataDir(appName string, base ...string) string {
 			logz.Error("[cmdr] $home is not defined")
 			return ""
 		}
+		// ?
 		return filepath.Join(append([]string{dir, "lib", "data", appName}, base...)...)
 	}
 	if xdg := os.Getenv("XDG_DATA_HOME"); xdg != "" {
@@ -177,4 +200,63 @@ func TempFileName(fileNamePattern, defaultFileName string, appName string, base 
 	filename = f.Name()
 	_ = f.Close()
 	return
+}
+
+// VarRunDir is todo, not exact right yet.
+func VarRunDir(appName string, base ...string) string {
+	// appName := App().Name()
+	switch runtime.GOOS {
+	case "darwin":
+		// t := filepath.Join(append([]string{homeDir(), ".config", appName}, base...)...)
+		// return filepath.Join(homeDir(), "Library", "Application Supports", base)
+		t := filepath.Join(append([]string{"var", "run", appName}, base...)...)
+		return t
+	case "windows":
+		return filepath.Join(append([]string{homeDir(), ".var", "run", appName}, base...)...)
+
+	case "plan9":
+		dir := os.Getenv("home")
+		if dir == "" {
+			logz.Error("[cmdr] $home is not defined")
+			return ""
+		}
+		return filepath.Join(append([]string{dir, ".var", "run", appName}, base...)...)
+	}
+
+	// Unix
+	return filepath.Join(append([]string{"var", "run", appName}, base...)...)
+}
+
+// UsrLibDir is todo, not exact right yet.
+func UsrLibDir(appName string, base ...string) string {
+	// appName := App().Name()
+	switch runtime.GOOS {
+	case "darwin":
+		if is.Root() {
+			return filepath.Join(append([]string{"usr", "lib", appName}, base...)...)
+		}
+		// t := filepath.Join(append([]string{homeDir(), ".config", appName}, base...)...)
+		// return filepath.Join(homeDir(), "Library", "Application Supports", base)
+		t := filepath.Join(append([]string{"usr", "local", "lib", appName}, base...)...)
+		return t
+	case "windows":
+		return filepath.Join(append([]string{homeDir(), ".usr", "lib", appName}, base...)...)
+
+	case "plan9":
+		dir := os.Getenv("home")
+		if dir == "" {
+			logz.Error("[cmdr] $home is not defined")
+			return ""
+		}
+		if is.Root() {
+			return filepath.Join(append([]string{dir, "usr", "lib", appName}, base...)...)
+		}
+		return filepath.Join(append([]string{dir, "usr", "local", "lib", appName}, base...)...)
+	}
+
+	// Unix
+	if is.Root() {
+		return filepath.Join(append([]string{"usr", "lib", appName}, base...)...)
+	}
+	return filepath.Join(append([]string{"usr", "local", "lib", appName}, base...)...)
 }

@@ -366,6 +366,9 @@ func (c *Command) WalkGrouped(ctx context.Context, cb WalkGroupedCB) {
 	c.walkGroupedImpl(ctx, hist, c, nil, 0, 0, cb)
 }
 
+// AllGroupKeys collects group keys and returns them.
+// Setting chooseFlag to true to grab the owned flags group
+// names; setting sort to true to return a sorted slice.
 func (c *Command) AllGroupKeys(chooseFlag, sort bool) []string {
 	grpKeys := make([]string, 0)
 	if chooseFlag {
@@ -382,6 +385,8 @@ func (c *Command) AllGroupKeys(chooseFlag, sort bool) []string {
 	}
 	return grpKeys
 }
+
+// CommandsInGroup return all commands in a given group key.
 func (c *Command) CommandsInGroup(groupTitle string) (list []BaseOptI) {
 	if c.allCommands != nil {
 		for _, a := range c.allCommands[groupTitle].A {
@@ -390,6 +395,8 @@ func (c *Command) CommandsInGroup(groupTitle string) (list []BaseOptI) {
 	}
 	return
 }
+
+// FlagsInGroup return all flags in a given group key.
 func (c *Command) FlagsInGroup(groupTitle string) (list []*Flag) {
 	if c.allFlags != nil {
 		for _, a := range c.allFlags[groupTitle].A {

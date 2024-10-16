@@ -12,9 +12,9 @@ import (
 )
 
 func (w *workerS) exec(ctx context.Context, pc *parseCtx) (err error) {
-	lastCmd := pc.LastCmd()
-
 	w.parsingCtx = pc // save pc for later, OnAction might need it.
+	lastCmd := pc.LastCmd()
+	logz.DebugContext(ctx, "[cmdr] exec...", "last-matched-cmd", lastCmd)
 
 	forceDefaultAction := pc.forceDefaultAction
 
@@ -34,10 +34,10 @@ func (w *workerS) exec(ctx context.Context, pc *parseCtx) (err error) {
 		}
 	}()
 
-	if !forceDefaultAction && lastCmd.HasOnAction() {
-		logz.Verbose("[cmdr] invoke action of cmd, with args", "cmd", lastCmd, "args", pc.positionalArgs)
+	if !forceDefaultAction && lastCmd.CanInvoke() {
+		logz.VerboseContext(ctx, "[cmdr] invoke action of cmd, with args", "cmd", lastCmd, "args", pc.positionalArgs)
 		err = lastCmd.Invoke(ctx, pc.positionalArgs)
-		logz.Verbose("[cmdr] invoke action ends.", "err", err)
+		logz.VerboseContext(ctx, "[cmdr] invoke action ends.", "err", err)
 		if !w.errIsSignalFallback(err) {
 			return
 		}
@@ -47,7 +47,7 @@ func (w *workerS) exec(ctx context.Context, pc *parseCtx) (err error) {
 	handled, err1 := w.handleActions(ctx, pc)
 	// for k, action := range w.actions {
 	// 	if k&w.actionsMatched != 0 {
-	// 		logz.Verbose("[cmdr] Invoking worker.actionsMatched", "hit-action", k, "actions", w.Actions())
+	// 		logz.VerboseContext(ctx, "[cmdr] Invoking worker.actionsMatched", "hit-action", k, "actions", w.Actions())
 	// 		err, handled = action(pc, lastCmd), true
 	// 		break
 	// 	}
@@ -67,7 +67,7 @@ func (w *workerS) exec(ctx context.Context, pc *parseCtx) (err error) {
 		return
 	}
 
-	logz.Verbose("[cmdr] no onAction associate to cmd", "cmd", lastCmd)
+	logz.VerboseContext(ctx, "[cmdr] no onAction associate to cmd", "cmd", lastCmd)
 	err = w.onPrintHelpScreen(ctx, pc, lastCmd)
 	return
 }
@@ -76,7 +76,7 @@ func (w *workerS) handleActions(ctx context.Context, pc *parseCtx) (handled bool
 	lastCmd := pc.LastCmd()
 	for k, action := range w.actions {
 		if k&w.actionsMatched != 0 {
-			logz.Verbose("[cmdr] Invoking worker.actionsMatched", "hit-action", k, "actions", w.Actions())
+			logz.VerboseContext(ctx, "[cmdr] Invoking worker.actionsMatched", "hit-action", k, "actions", w.Actions())
 			err, handled = action(ctx, pc, lastCmd), true
 			break
 		}
@@ -84,9 +84,9 @@ func (w *workerS) handleActions(ctx context.Context, pc *parseCtx) (handled bool
 	return
 }
 
-type onAction func(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) (err error)
+type onAction func(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error)
 
-func (w *workerS) beforeExec(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) (deferActions func(errInvoked error), err error) {
+func (w *workerS) beforeExec(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (deferActions func(errInvoked error), err error) {
 	err = w.checkRequiredFlags(ctx, pc, lastCmd)
 	deferActions = func(error) {}
 	if err != nil {
@@ -99,8 +99,12 @@ func (w *workerS) beforeExec(ctx context.Context, pc *parseCtx, lastCmd *cli.Com
 	return
 }
 
-func (w *workerS) checkRequiredFlags(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) (err error) { //nolint:revive
-	lastCmd.WalkBackwards(ctx, func(ctx context.Context, pc *cli.WalkBackwardsCtx, cc cli.BaseOptI, ff *cli.Flag, index, groupIndex, count, level int) {
+func (w *workerS) checkRequiredFlags(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error) { //nolint:revive
+	wbc := &cli.WalkBackwardsCtx{
+		Group: true,
+		Sort:  false,
+	}
+	lastCmd.WalkBackwardsCtx(ctx, func(ctx context.Context, pc *cli.WalkBackwardsCtx, cc cli.BaseOptI, ff *cli.Flag, index, groupIndex, count, level int) {
 		if ff != nil {
 			if ff.Required() && ff.GetTriggeredTimes() < 0 {
 				err = cli.ErrRequiredFlag.FormatWith(ff, lastCmd)
@@ -108,53 +112,53 @@ func (w *workerS) checkRequiredFlags(ctx context.Context, pc *parseCtx, lastCmd 
 				return
 			}
 		}
-	})
+	}, wbc)
 	return
 }
 
-func (w *workerS) afterExec(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) (err error) { //nolint:revive
+func (w *workerS) afterExec(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error) { //nolint:revive
 	_, _, _ = ctx, pc, lastCmd
 	return
 }
 
-func (w *workerS) finalActions(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) (err error) { //nolint:revive,unparam
+func (w *workerS) finalActions(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error) { //nolint:revive,unparam
 	_, _ = pc, lastCmd
 	err = w.writeBackToLoaders(ctx)
 	return
 }
 
-func (w *workerS) onPrintHelpScreen(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) (err error) { //nolint:unparam
+func (w *workerS) onPrintHelpScreen(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error) { //nolint:unparam
 	(&helpPrinter{w: w}).Print(ctx, pc, lastCmd)
 	return
 }
 
-func (w *workerS) onDefaultAction(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) (err error) { //nolint:unparam
+func (w *workerS) onDefaultAction(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error) { //nolint:unparam
 	(&helpPrinter{w: w, debugMatches: true}).Print(ctx, pc, lastCmd)
 	return
 }
 
-func (w *workerS) onPassThruCharMatched(pc *parseCtx) (err error) { //nolint:unparam
+func (w *workerS) onPassThruCharMatched(ctx context.Context, pc *parseCtx) (err error) { //nolint:unparam
 	if atomic.CompareAndSwapInt32(&pc.passThruMatched, 0, 1) {
 		atomic.StoreInt32(&pc.passThruMatched, int32(pc.i))
 	}
 	return
 }
 
-func (w *workerS) onSingleHyphenMatched(pc *parseCtx) (err error) { //nolint:unparam
+func (w *workerS) onSingleHyphenMatched(ctx context.Context, pc *parseCtx) (err error) { //nolint:unparam
 	if atomic.CompareAndSwapInt32(&pc.singleHyphenMatched, 0, 1) {
 		atomic.StoreInt32(&pc.singleHyphenMatched, int32(pc.i))
 	}
 	return
 }
 
-func (w *workerS) onUnknownCommandMatched(pc *parseCtx) (err error) {
-	logz.Warn("[cmdr] UNKNOWN <mark>Command</mark> FOUND", "arg", pc.arg)
+func (w *workerS) onUnknownCommandMatched(ctx context.Context, pc *parseCtx) (err error) {
+	logz.WarnContext(ctx, "[cmdr] UNKNOWN <mark>Command</mark> FOUND", "arg", pc.arg)
 	err = cli.ErrUnmatchedCommand.FormatWith(pc.arg, pc.LastCmd())
 	return
 }
 
-func (w *workerS) onUnknownFlagMatched(pc *parseCtx) (err error) {
-	logz.Warn("[cmdr] UNKNOWN <mark>Flag</mark> FOUND", "arg", pc.arg)
+func (w *workerS) onUnknownFlagMatched(ctx context.Context, pc *parseCtx) (err error) {
+	logz.WarnContext(ctx, "[cmdr] UNKNOWN <mark>Flag</mark> FOUND", "arg", pc.arg)
 	err = cli.ErrUnmatchedFlag.FormatWith(pc.arg, pc.LastCmd())
 	return
 }

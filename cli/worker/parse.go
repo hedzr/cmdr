@@ -29,7 +29,7 @@ func (w *workerS) parse(ctx context.Context, pc *parseCtx) (err error) { //nolin
 		}
 	}()
 
-	logz.Verbose("[cmdr] parsing command line args ...", "args", w.args)
+	logz.VerboseContext(ctx, "[cmdr] parsing command line args ...", "args", w.args)
 
 loopArgs:
 	for pc.i = 1; pc.i < len(w.args); pc.i++ {
@@ -39,11 +39,11 @@ loopArgs:
 
 		if atomic.LoadInt32(&pc.passThruMatched) > 0 || errorsv3.Is(err, cli.ErrShouldStop) || w.errIsUnmatchedArg(err) {
 			pc.positionalArgs = append(pc.positionalArgs, w.args[pc.i])
-			logz.Verbose("[cmdr] positional args added", "i", pc.i, "args", pc.positionalArgs)
+			logz.VerboseContext(ctx, "[cmdr] positional args added", "i", pc.i, "args", pc.positionalArgs)
 			continue
 		}
 
-		logz.Verbose("[cmdr] parsing command-line args", "i", pc.i, "arg", w.args[pc.i])
+		logz.VerboseContext(ctx, "[cmdr] parsing command-line args", "i", pc.i, "arg", w.args[pc.i])
 
 		pc.arg, pc.short, pc.pos = w.args[pc.i], false, 0
 		switch c1 := pc.arg[0]; c1 {
@@ -65,14 +65,14 @@ loopArgs:
 					pc.arg, pc.short, pc.dblTilde = pc.arg[1:], true, false
 					return w.matchFlag(ctx, pc, true)
 				}); !w.errIsSignalOrNil(err) {
-					err = w.onUnknownFlagMatched(pc)
+					err = w.onUnknownFlagMatched(ctx, pc)
 					break loopArgs
 				}
 				continue
 			}
 			// single '+': as a positional arg
 			pc.positionalArgs = append(pc.positionalArgs, pc.arg)
-			logz.Verbose("[cmdr] positional args added", "i", pc.i, "args", pc.positionalArgs)
+			logz.VerboseContext(ctx, "[cmdr] positional args added", "i", pc.i, "args", pc.positionalArgs)
 			continue
 
 		case '-', '~':
@@ -80,47 +80,47 @@ loopArgs:
 				if (c1 == '-' && pc.arg[1] == '-') || (c1 == '~' && pc.arg[1] == '~') {
 					if len(pc.arg) == 3 && pc.arg[2] == '-' { //nolint:revive
 						// --: pass-thru found
-						err = w.onPassThruCharMatched(pc)
+						err = w.onPassThruCharMatched(ctx, pc)
 						continue
 					}
 
 					// try match a long flag
 					pc.arg, pc.short, pc.dblTilde = pc.arg[2:], false, c1 == '~'
 					if err = w.matchFlag(ctx, pc, false); !w.errIsSignalOrNil(err) {
-						err = w.onUnknownFlagMatched(pc)
+						err = w.onUnknownFlagMatched(ctx, pc)
 						break loopArgs
 					}
 					continue
 				}
 				if (c1 == '-' && pc.arg[1] == '~') || (c1 == '~' && pc.arg[1] == '-') {
-					err = w.onUnknownFlagMatched(pc)
+					err = w.onUnknownFlagMatched(ctx, pc)
 					break loopArgs
 				}
 
 				// try matching a short flag
 				pc.arg, pc.short, pc.dblTilde = pc.arg[1:], true, false
 				if c1 != '-' {
-					err = w.onUnknownFlagMatched(pc)
+					err = w.onUnknownFlagMatched(ctx, pc)
 					break loopArgs
 				}
 				if err = w.matchFlag(ctx, pc, true); !w.errIsSignalOrNil(err) {
-					err = w.onUnknownFlagMatched(pc)
+					err = w.onUnknownFlagMatched(ctx, pc)
 					break loopArgs
 				}
 				continue
 			}
 			// single '-' matched, is it a wrong state?
-			err = w.onSingleHyphenMatched(pc)
+			err = w.onSingleHyphenMatched(ctx, pc)
 			continue
 
 		default:
 			if pc.NoCandidateChildCommands() {
 				pc.positionalArgs = append(pc.positionalArgs, pc.arg)
-				logz.Verbose("[cmdr] positional args added", "i", pc.i, "args", pc.positionalArgs)
+				logz.VerboseContext(ctx, "[cmdr] positional args added", "i", pc.i, "args", pc.positionalArgs)
 				continue
 			}
 			if err = w.matchCommand(ctx, pc); !w.errIsSignalOrNil(err) {
-				err = w.onUnknownCommandMatched(pc)
+				err = w.onUnknownCommandMatched(ctx, pc)
 			}
 		}
 	}
@@ -134,16 +134,34 @@ func (w *workerS) interpretLeadingPlusSign(pc *parseCtx) bool {
 	return false
 }
 
+func isBaseOptIIsNil(cc cli.BaseOptI) (nilptr bool) {
+	if x, ok := cc.(*cli.Command); ok {
+		nilptr = x == nil
+	} else {
+		nilptr = cc == nil
+	}
+	return
+}
+
+func isBaseOptIIsNotNil(cc cli.BaseOptI) (nilptr bool) {
+	if x, ok := cc.(*cli.Command); ok {
+		nilptr = x != nil
+	} else {
+		nilptr = cc != nil
+	}
+	return
+}
+
 func (w *workerS) matchCommand(ctx context.Context, pc *parseCtx) (err error) {
 	err = cli.ErrUnmatchedCommand
 	cmd := pc.LastCmd()
-	if short, cc := cmd.Match(ctx, pc.arg); cc != nil {
+	if short, cc := cmd.Match(ctx, pc.arg); isBaseOptIIsNotNil(cc) {
 		ms, handled := pc.addCmd(cc, short), false
 		handled, err = cc.TryOnMatched(0, ms)
 		if err == nil {
 			pc.lastCommand, err = len(pc.matchedCommands)-1, nil
 		}
-		logz.Verbose("[cmdr] command matched", "short", short, "cmd", pc.LastCmd(), "handled", handled)
+		logz.VerboseContext(ctx, "[cmdr] command matched", "short", short, "cmd", pc.LastCmd(), "handled", handled)
 	}
 	return
 }
@@ -158,7 +176,7 @@ compactFlags:
 	if vp.Matched != "" && ff != nil && w.errIsSignalOrNil(err1) {
 		ms, handled := pc.addFlag(ff), false
 		handled, err1 = ff.TryOnMatched(0, ms)
-		logz.Verbose("[cmdr] flag matched", "short", vp.Short, "flg", ff, "val-pkg-val", ff.DefaultValue(), "handled", handled)
+		logz.VerboseContext(ctx, "[cmdr] flag matched", "short", vp.Short, "flg", ff, "val-pkg-val", ff.DefaultValue(), "handled", handled)
 
 		pc.i += vp.AteArgs
 		vp.AteArgs = 0

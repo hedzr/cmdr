@@ -1,6 +1,7 @@
 package tool
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -50,7 +51,8 @@ func DataDir(appName string, base ...string) string {
 	case "plan9":
 		dir := os.Getenv("home")
 		if dir == "" {
-			logz.Error("[cmdr] $home is not defined")
+			ctx := context.Background()
+			logz.ErrorContext(ctx, "[cmdr] $home is not defined")
 			return ""
 		}
 		// ?
@@ -102,7 +104,8 @@ func ConfigDir(appName string, base ...string) string {
 	case "plan9":
 		dir := os.Getenv("home")
 		if dir == "" {
-			logz.Error("[cmdr] $home is not defined")
+			ctx := context.Background()
+			logz.ErrorContext(ctx, "[cmdr] $home is not defined")
 			return ""
 		}
 		return filepath.Join(append([]string{dir, "lib", appName}, base...)...)
@@ -145,7 +148,8 @@ func CacheDir(appName string, base ...string) string {
 	case "plan9":
 		dir := os.Getenv("home")
 		if dir == "" {
-			logz.Error("[cmdr] $home is not defined")
+			ctx := context.Background()
+			logz.ErrorContext(ctx, "[cmdr] $home is not defined")
 			return ""
 		}
 		return filepath.Join(append([]string{dir, "lib", "cache", appName}, base...)...)
@@ -188,13 +192,15 @@ func TempFileName(fileNamePattern, defaultFileName string, appName string, base 
 	tmpDir := TempDir(appName, base...)
 	err := dir.EnsureDir(tmpDir)
 	if err != nil {
-		logz.Error("[cmdr] cannot creating tmpdir", "tmpdir", tmpDir, "err", err)
+		ctx := context.Background()
+		logz.ErrorContext(ctx, "[cmdr] cannot creating tmpdir", "tmpdir", tmpDir, "err", err)
 		return defaultFileName
 	}
 
 	f, err := os.CreateTemp(tmpDir, fileNamePattern)
 	if err != nil {
-		logz.Error("[cmdr] cannot create temporary file for flag", "err", err)
+		ctx := context.Background()
+		logz.ErrorContext(ctx, "[cmdr] cannot create temporary file for flag", "err", err)
 		return defaultFileName
 	}
 	filename = f.Name()
@@ -217,7 +223,8 @@ func VarRunDir(appName string, base ...string) string {
 	case "plan9":
 		dir := os.Getenv("home")
 		if dir == "" {
-			logz.Error("[cmdr] $home is not defined")
+			ctx := context.Background()
+			logz.ErrorContext(ctx, "[cmdr] $home is not defined")
 			return ""
 		}
 		return filepath.Join(append([]string{dir, ".var", "run", appName}, base...)...)
@@ -245,7 +252,8 @@ func UsrLibDir(appName string, base ...string) string {
 	case "plan9":
 		dir := os.Getenv("home")
 		if dir == "" {
-			logz.Error("[cmdr] $home is not defined")
+			ctx := context.Background()
+			logz.ErrorContext(ctx, "[cmdr] $home is not defined")
 			return ""
 		}
 		if is.Root() {

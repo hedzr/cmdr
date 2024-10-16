@@ -11,10 +11,9 @@ import (
 	"github.com/hedzr/cmdr/v2/cli/examples"
 )
 
-func cleanApp(t *testing.T, helpScreen bool, opts ...cli.Opt) (app cli.App, ww *workerS) { //nolint:revive
-	ctx := context.TODO()
+func cleanApp(t *testing.T, ctx context.Context, helpScreen bool, opts ...cli.Opt) (app cli.App, ww *workerS) { //nolint:revive
 	app = buildDemoApp(opts...)
-	ww = postBuild(app)
+	ww = postBuild(ctx, app)
 	ww.InitGlobally(ctx)
 	assertTrue(t, ww.Ready())
 
@@ -44,9 +43,8 @@ func cleanApp(t *testing.T, helpScreen bool, opts ...cli.Opt) (app cli.App, ww *
 }
 
 func buildDemoApp(opts ...cli.Opt) (app cli.App) { //nolint:revive
-	// cfg := cli.New(cli.WithStore(store.New()))
-
 	cfg := cli.NewConfig(opts...)
+	// cfg := cli.New(cli.WithStore(store.New()))
 
 	w := New(cfg)
 
@@ -64,7 +62,7 @@ func buildDemoApp(opts ...cli.Opt) (app cli.App) { //nolint:revive
 		Examples(``).
 		Deprecated(``).
 		Hidden(false).
-		OnAction(func(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:revive
+		OnAction(func(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) { //nolint:revive
 			return // handling command action here
 		}).
 		Build()
@@ -134,11 +132,13 @@ func buildDemoApp(opts ...cli.Opt) (app cli.App) { //nolint:revive
 	return
 }
 
-func postBuild(app cli.App) (ww *workerS) {
+func postBuild(ctx context.Context, app cli.App) (ww *workerS) {
 	if sr, ok := app.(interface{ Worker() cli.Runner }); ok {
 		if ww, ok = sr.Worker().(*workerS); ok {
 			if r, ok := app.(interface{ Root() *cli.RootCommand }); ok {
-				r.Root().EnsureTree(context.TODO(), app, r.Root())
+				// call EnsureTree without set internal flag so that we can
+				// run EnsureTree again at next time (but once after Run())
+				r.Root().EnsureTreeAlways(ctx, app, r.Root())
 				ww.SetRoot(r.Root(), ww.args)
 			}
 		}

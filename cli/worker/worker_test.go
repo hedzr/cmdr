@@ -40,7 +40,7 @@ func TestWorkerS_Run2(t *testing.T) { //nolint:revive
 		t.Log()
 		t.Logf("--------------- test #%d: Parsing %q\n", i, c.args)
 
-		app, ww := cleanApp(t, false)
+		app, ww := cleanApp(t, ctx, false)
 		ww.Config.Store = store.New()
 		// ww.Config.Loaders = []cli.Loader{loaders.NewConfigFileLoader(), loaders.NewEnvVarLoader()}
 

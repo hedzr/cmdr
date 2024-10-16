@@ -1,6 +1,7 @@
 package atoa
 
 import (
+	"context"
 	"errors"
 	"reflect"
 	"regexp"
@@ -119,9 +120,10 @@ func (s *toS) extractByDefaultWay( //nolint:revive
 func (s *toS) stepArrayOrSlice( //nolint:revive
 	preferKind reflect.Kind, typArray reflect.Type, runes []rune, fromPos int, meme any,
 ) (pos int, v any, err error) { //nolint:unparam
+	ctx := context.Background()
 	r, rl, elt, rvLen := runes[fromPos:], len(runes), typArray, 0
 	pos = fromPos
-	logz.Verbose("[stepArrayOrSlice]", "pos", pos, "r", string(r), "el", ref.Typfmt(elt))
+	logz.VerboseContext(ctx, "[stepArrayOrSlice]", "pos", pos, "r", string(r), "el", ref.Typfmt(elt))
 
 	var rv reflect.Value
 	switch preferKind {
@@ -149,14 +151,14 @@ func (s *toS) stepArrayOrSlice( //nolint:revive
 forOneElem:
 	for pos < rl && err == nil {
 		r = runes[pos:]
-		logz.Verbose("[stepArrayOrSlice] for each of 'r' from 'pos'", "pos", pos, "r", string(r))
+		logz.VerboseContext(ctx, "[stepArrayOrSlice] for each of 'r' from 'pos'", "pos", pos, "r", string(r))
 		ch, p := preferLookAheadOrEOF(r, '[', ']', '{', '(', ',')
 		pos += p
 
 		var el any
 		switch ch {
 		case '[': // =91
-			logz.Verbose("[stepArrayOrSlice] entering stepArrayOfSlice", "r", string(runes[pos+1:]), "el", ref.Typfmt(elt))
+			logz.VerboseContext(ctx, "[stepArrayOrSlice] entering stepArrayOfSlice", "r", string(runes[pos+1:]), "el", ref.Typfmt(elt))
 			pos, el, err = s.stepArrayOrSlice(reflect.Slice, elt, runes, pos+1, meme)
 			arraySet(&rv, &ix, el, err)
 			if ch, pos = skipWSAndNextChar(runes, pos, ']'); ch == ']' {
@@ -164,7 +166,7 @@ forOneElem:
 			}
 			_, pos = skipWSAndNextChar(runes, pos, ',')
 		case '{': // =123
-			logz.Verbose("[stepArrayOrSlice] entering stepObjectOrMap", "r", string(runes[pos+1:]), "el", ref.Typfmt(elt))
+			logz.VerboseContext(ctx, "[stepArrayOrSlice] entering stepObjectOrMap", "r", string(runes[pos+1:]), "el", ref.Typfmt(elt))
 			pos, el, err = s.stepObjectOrMap(reflect.Map, elt, runes, pos+1, meme)
 			arraySet(&rv, &ix, el, err)
 			if ch, pos = skipWSAndNextChar(runes, pos, ']'); ch == ']' {
@@ -177,12 +179,12 @@ forOneElem:
 			if ch != 0 {
 				pos++
 			}
-			logz.Verbose("[stepArrayOrSlice] append one elem", "el-txt", string(txt), "r", string(runes[pos:]))
+			logz.VerboseContext(ctx, "[stepArrayOrSlice] append one elem", "el-txt", string(txt), "r", string(runes[pos:]))
 			el, err = s.parseImpl(strings.TrimSpace(string(txt)), elt, meme)
 			arraySet(&rv, &ix, el, err)
 			if ch == ']' {
 				_, pos = skipWSAndNextChar(runes, pos, ',')
-				logz.Verbose("[stepArrayOrSlice] end of one elem", "r", string(runes[pos:]))
+				logz.VerboseContext(ctx, "[stepArrayOrSlice] end of one elem", "r", string(runes[pos:]))
 				break forOneElem
 				// } else {
 				// pos++ // skipWSAndNextChar ','
@@ -213,9 +215,10 @@ forOneElem:
 func (s *toS) stepObjectOrMap( //nolint:revive
 	preferKind reflect.Kind, typObjOrMap reflect.Type, runes []rune, fromPos int, meme any, //nolint:revive
 ) (pos int, v any, err error) { //nolint:unparam
+	ctx := context.Background()
 	r, rl, elt := runes[fromPos:], len(runes), typObjOrMap.Elem()
 	pos = fromPos
-	logz.Verbose("[stepObjectOrMap]", "pos", pos, "r", string(r), "el", ref.Typfmt(elt))
+	logz.VerboseContext(ctx, "[stepObjectOrMap]", "pos", pos, "r", string(r), "el", ref.Typfmt(elt))
 
 	var rv reflect.Value
 	switch preferKind {
@@ -244,7 +247,7 @@ func (s *toS) stepObjectOrMap( //nolint:revive
 forOneElem:
 	for pos < rl && err == nil {
 		r = runes[pos:]
-		logz.Verbose("[stepObjectOrMap] for each of 'r' from 'pos'", "pos", pos, "r", string(r))
+		logz.VerboseContext(ctx, "[stepObjectOrMap] for each of 'r' from 'pos'", "pos", pos, "r", string(r))
 		_, keyPos := preferLookAhead(r, '=', ':')
 		ch, p := preferLookAheadOrEOF(r, '[', '{', '}', '(', ',')
 		if keyPos >= 0 && p >= 0 && keyPos < p {
@@ -256,7 +259,7 @@ forOneElem:
 			switch ch {
 			case '[':
 				pos += p - keyPos + 1
-				logz.Verbose("[stepObjectOrMap] entering stepArrayOfSlice", "key", key, "r", string(runes[pos:]), "el", ref.Typfmt(elt))
+				logz.VerboseContext(ctx, "[stepObjectOrMap] entering stepArrayOfSlice", "key", key, "r", string(runes[pos:]), "el", ref.Typfmt(elt))
 				pos, el, err = s.stepArrayOrSlice(reflect.Slice, elt, runes, pos, meme)
 				mapSet(&rv, &ix, key, el, err)
 				if ch, pos = skipWSAndNextChar(runes, pos, '}'); ch == '}' {
@@ -265,7 +268,7 @@ forOneElem:
 				_, pos = skipWSAndNextChar(runes, pos, ',')
 			case '{':
 				pos += p - keyPos + 1
-				logz.Verbose("[stepObjectOrMap] entering stepObjectOrMap", "key", key, "r", string(runes[pos:]), "el", ref.Typfmt(elt))
+				logz.VerboseContext(ctx, "[stepObjectOrMap] entering stepObjectOrMap", "key", key, "r", string(runes[pos:]), "el", ref.Typfmt(elt))
 				pos, el, err = s.stepObjectOrMap(reflect.Map, elt, runes, pos, meme)
 				mapSet(&rv, &ix, key, el, err)
 				if ch, pos = skipWSAndNextChar(runes, pos, '}'); ch == '}' {
@@ -278,12 +281,12 @@ forOneElem:
 				if ch != 0 {
 					pos++
 				}
-				logz.Verbose("[stepObjectOrMap] append one elem", "key", key, "el-txt", string(txt), "r", string(runes[pos:]))
+				logz.VerboseContext(ctx, "[stepObjectOrMap] append one elem", "key", key, "el-txt", string(txt), "r", string(runes[pos:]))
 				el, err = s.parseImpl(strings.TrimSpace(string(txt)), elt, meme)
 				mapSet(&rv, &ix, key, el, err)
 				if ch == '}' {
 					_, pos = skipWSAndNextChar(runes, pos, ',')
-					logz.Verbose("[stepObjectOrMap] end of one elem", "r", string(runes[pos:]))
+					logz.VerboseContext(ctx, "[stepObjectOrMap] end of one elem", "r", string(runes[pos:]))
 					break forOneElem
 					// } else {
 					// 	pos++ // skipWSAndNextChar ','

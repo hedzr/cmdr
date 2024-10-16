@@ -7,6 +7,7 @@ import (
 
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/conf"
+	logz "github.com/hedzr/logg/slog"
 )
 
 type appS struct {
@@ -63,6 +64,7 @@ func (s *appS) Args() []string         { return s.args }
 func (s *appS) Build() {
 	if sr, ok := s.Runner.(setRoot); ok {
 		ctx := context.Background()
+		logz.DebugContext(ctx, "[cmdr] builder.appS.Build() - setRoot")
 		s.root.EnsureTree(ctx, s, s.root)
 		sr.SetRoot(s.root, s.args)
 	}

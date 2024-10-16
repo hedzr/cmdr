@@ -29,10 +29,7 @@ func New(cfg *cli.Config, opts ...cli.Opt) *workerS {
 
 func newWorker(opts ...wOpt) *workerS {
 	s := &workerS{Config: cli.DefaultConfig()}
-	for _, opt := range opts {
-		opt(s)
-	}
-	return s
+	return s.With(opts...)
 }
 
 var _ = cli.Runner((*workerS)(nil))
@@ -115,7 +112,8 @@ func (w *workerS) String() string {
 	if b, err := json.Marshal(w.Config); err == nil {
 		_, _ = sb.Write(b)
 	} else {
-		logz.Error("json marshalling w.Config failed", "config", w.Config, "err", err)
+		ctx := context.Background()
+		logz.ErrorContext(ctx, "json marshalling w.Config failed", "config", w.Config, "err", err)
 	}
 	_, _ = sb.WriteString("\"}")
 	return sb.String()
@@ -186,6 +184,13 @@ func (w *workerS) Actions() (ret map[string]bool) {
 	return
 }
 
+func (w *workerS) With(opts ...wOpt) *workerS {
+	for _, opt := range opts {
+		opt(w)
+	}
+	return w
+}
+
 func (w *workerS) Ready() bool {
 	w.actions = map[actionEnum]onAction{
 		actionShowVersion:         w.showVersion,
@@ -211,7 +216,8 @@ func (w *workerS) reqResourcesReady() (yes bool) {
 
 func (w *workerS) Close() {
 	if atomic.CompareAndSwapInt32(&w.closed, 0, 1) {
-		logz.Debug("[cmdr] Runner(*workerS) closed.")
+		ctx := context.Background()
+		logz.DebugContext(ctx, "[cmdr] Runner(*workerS) closed.")
 	}
 }
 
@@ -271,11 +277,16 @@ func (w *workerS) InitGlobally(ctx context.Context) {
 
 func (w *workerS) initGlobalResources() {
 	defer w.triggerGlobalResourcesInitOK()
-	logz.Debug("[cmdr] workerS.initGlobalResources")
+	ctx := context.Background()
+	logz.DebugContext(ctx, "[cmdr] workerS.initGlobalResources")
+
+	// to do sth...
 }
 
 func (w *workerS) triggerGlobalResourcesInitOK() {
-	logz.Debug("[cmdr] workerS.triggerGlobalResourcesInitOK")
+	// to do sth...
+	ctx := context.Background()
+	logz.DebugContext(ctx, "[cmdr] workerS.triggerGlobalResourcesInitOK")
 }
 
 func (w *workerS) attachErrors(errs ...error) { //nolint:revive,unused

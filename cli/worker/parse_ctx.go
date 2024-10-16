@@ -5,6 +5,7 @@ import (
 	"sync/atomic"
 
 	"github.com/hedzr/cmdr/v2/cli"
+	logz "github.com/hedzr/logg/slog"
 )
 
 type parseCtx struct {
@@ -20,17 +21,18 @@ type parseCtx struct {
 	short                 bool                             // parsing short flags?
 	dblTilde              bool                             // parsing '~~' flag?
 	lastCommand           int                              // index of ...
-	matchedCommands       []*cli.Command                   // matched
-	matchedCommandsStates map[*cli.Command]*cli.MatchState // matched ...
+	matchedCommands       []cli.BaseOptI                   // matched
+	matchedCommandsStates map[cli.BaseOptI]*cli.MatchState // matched ...
 	matchedFlags          map[*cli.Flag]*cli.MatchState    // matched ...
 	positionalArgs        []string                         //
 	passThruMatched       int32                            // >0: index of '--'
 	singleHyphenMatched   int32                            // >0: index of '-'
 	prefixPlusSign        atomic.Bool                      // '+' leading
+
 	// helpScreen            bool
 }
 
-func (s *parseCtx) CommandMatchedState(c *cli.Command) (ms *cli.MatchState) {
+func (s *parseCtx) CommandMatchedState(c cli.BaseOptI) (ms *cli.MatchState) {
 	if m, ok := s.matchedCommandsStates[c]; ok {
 		return m
 	}
@@ -44,9 +46,9 @@ func (s *parseCtx) FlagMatchedState(f *cli.Flag) (ms *cli.MatchState) {
 	return nil
 }
 
-func (s *parseCtx) matchedCommand(longTitle string) (cc *cli.Command) {
+func (s *parseCtx) matchedCommand(longTitle string) (cc cli.BaseOptI) {
 	for _, cc = range s.matchedCommands {
-		if cc.Long == longTitle {
+		if cc.Name() == longTitle {
 			return cc
 		}
 	}
@@ -61,19 +63,23 @@ func (s *parseCtx) matchedFlag(ctx context.Context, longTitle string) (ff *cli.F
 	return nil
 }
 
-func (s *parseCtx) addCmd(cc *cli.Command, short bool) (ms *cli.MatchState) {
+func (s *parseCtx) addCmd(cc cli.BaseOptI, short bool) (ms *cli.MatchState) {
+	if cc == nil {
+		logz.Panic("the adding command shouldn't be nil")
+		panic("")
+	}
 	s.matchedCommands = append(s.matchedCommands, cc)
 	if s.matchedCommandsStates == nil {
-		s.matchedCommandsStates = make(map[*cli.Command]*cli.MatchState)
+		s.matchedCommandsStates = make(map[cli.BaseOptI]*cli.MatchState)
 	}
 	if st, ok := s.matchedCommandsStates[cc]; ok {
-		st.HitStr, st.HitTimes = cc.GetHitStr(), cc.GetTriggeredTimes()
+		st.HitStr, st.HitTimes = cc.HitTitle(), cc.HitTimes()
 		ms = st
 	} else {
 		st = &cli.MatchState{
 			Short:    short,
-			HitStr:   cc.GetHitStr(),
-			HitTimes: cc.GetTriggeredTimes(),
+			HitStr:   cc.HitTitle(),
+			HitTimes: cc.HitTimes(),
 		}
 		s.matchedCommandsStates[cc] = st
 	}
@@ -81,6 +87,10 @@ func (s *parseCtx) addCmd(cc *cli.Command, short bool) (ms *cli.MatchState) {
 }
 
 func (s *parseCtx) addFlag(ff *cli.Flag) (ms *cli.MatchState) {
+	if ff == nil {
+		logz.Panic("the adding flag shouldn't be nil")
+		panic("")
+	}
 	if s.matchedFlags == nil {
 		s.matchedFlags = make(map[*cli.Flag]*cli.MatchState)
 	}
@@ -106,7 +116,7 @@ func (s *parseCtx) flag(ctx context.Context, longTitle string) (f *cli.Flag) { /
 	return
 }
 
-func (s *parseCtx) cmd(ctx context.Context, longTitle string) (c *cli.Command) { //nolint:unused
+func (s *parseCtx) cmd(ctx context.Context, longTitle string) (c cli.BaseOptI) { //nolint:unused
 	// ?? no uses yet ??
 	ret := s.root.FindSubCommand(ctx, longTitle, false)
 	if rc, ok := ret.(*cli.Command); ok {
@@ -115,9 +125,9 @@ func (s *parseCtx) cmd(ctx context.Context, longTitle string) (c *cli.Command) {
 	return
 }
 
-func (s *parseCtx) hasCmd(longTitle string, validator func(cc *cli.Command, state *cli.MatchState) bool) (found bool) { //nolint:revive,unused
+func (s *parseCtx) hasCmd(longTitle string, validator func(cc cli.BaseOptI, state *cli.MatchState) bool) (found bool) { //nolint:revive,unused
 	for _, c := range s.matchedCommands {
-		if c.Long == longTitle {
+		if c.Name() == longTitle {
 			found = validator(c, s.matchedCommandsStates[c])
 			break
 		}
@@ -140,8 +150,8 @@ func (s *parseCtx) NoCandidateChildCommands() bool {
 	return len(cmd.SubCommands()) == 0
 }
 
-func (s *parseCtx) LastCmd() *cli.Command {
-	cmd := s.root.Command
+func (s *parseCtx) LastCmd() cli.BaseOptI {
+	var cmd cli.BaseOptI = s.root.Command
 	if s.lastCommand >= 0 && len(s.matchedCommands) > 0 {
 		cmd = s.matchedCommands[s.lastCommand]
 	}
@@ -152,7 +162,7 @@ func (s *parseCtx) PositionalArgs() []string {
 	return s.positionalArgs
 }
 
-func (s *parseCtx) MatchedCommands() []*cli.Command {
+func (s *parseCtx) MatchedCommands() []cli.BaseOptI {
 	return s.matchedCommands
 }
 

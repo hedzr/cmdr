@@ -56,7 +56,7 @@ func (c *RootCommand) Attach(newRootCommand *Command) {
 		if cx, ok := cc.(interface{ SetRoot(command *RootCommand) }); ok {
 			cx.SetRoot(c)
 		}
-		cc.ForeachFlags(func(f *Flag) (stop bool) { f.root = c; return })
+		cc.ForeachFlags(ctx, func(f *Flag) (stop bool) { f.root = c; return })
 	})
 
 	// c.attachBuiltinCommands()

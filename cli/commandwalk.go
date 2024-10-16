@@ -13,7 +13,7 @@ import (
 )
 
 // ForeachSubCommands is another way to Walk on all commands.
-func (c *Command) ForeachSubCommands(cb func(cc *Command) (stop bool)) (stop bool) {
+func (c *Command) ForeachSubCommands(ctx context.Context, cb func(cc *Command) (stop bool)) (stop bool) {
 	for _, cc := range c.commands {
 		if cc != nil && cb != nil {
 			if stop = cb(cc); stop {
@@ -31,7 +31,7 @@ func (c *Command) ForeachSubCommands(cb func(cc *Command) (stop bool)) (stop boo
 }
 
 // ForeachFlags is another way to WalkEverything on all flags.
-func (c *Command) ForeachFlags(cb func(f *Flag) (stop bool)) (stop bool) {
+func (c *Command) ForeachFlags(ctx context.Context, cb func(f *Flag) (stop bool)) (stop bool) {
 	for _, cc := range c.flags {
 		if cc != nil && cb != nil {
 			if stop = cb(cc); stop {
@@ -53,8 +53,8 @@ func (c *Command) ForeachFlags(cb func(f *Flag) (stop bool)) (stop bool) {
 // This function works proper except EnsureXref called.
 // EnsureXref will link the whole command tree and build all
 // internal indexes and maps.
-func (c *Command) ForeachGroupedSubCommands(cb func(group string, items []*Command)) {
-	c.ensureXrefGroup()
+func (c *Command) ForeachGroupedSubCommands(ctx context.Context, cb func(group string, items []*Command)) {
+	c.ensureXrefGroup(ctx)
 	for group, items := range c.allCommands {
 		cb(group, items.A)
 	}
@@ -65,8 +65,8 @@ func (c *Command) ForeachGroupedSubCommands(cb func(group string, items []*Comma
 // This function works proper except EnsureXref called.
 // EnsureXref will link the whole command tree and build all
 // internal indexes and maps.
-func (c *Command) ForeachGroupedFlags(cb func(group string, items []*Flag)) {
-	c.ensureXrefGroup()
+func (c *Command) ForeachGroupedFlags(ctx context.Context, cb func(group string, items []*Flag)) {
+	c.ensureXrefGroup(ctx)
 	for group, items := range c.allFlags {
 		cb(group, items.A)
 	}
@@ -342,7 +342,7 @@ func (c *Command) walkImpl(ctx context.Context, hist map[BaseOptI]bool, cmd Base
 				hist[cc] = true
 				c.walkImpl(ctx, hist, cc, level+1, cb)
 			} else {
-				logz.Warn("[cmdr] loop ref found", "dad", cmd, "cc", cc)
+				logz.WarnContext(ctx, "[cmdr] loop ref found", "dad", cmd, "cc", cc)
 			}
 		}
 	}
@@ -354,7 +354,7 @@ func (c *Command) walkImpl(ctx context.Context, hist map[BaseOptI]bool, cmd Base
 				hist[cc] = true
 				c.walkImpl(ctx, hist, cc, level+1, cb)
 			} else {
-				logz.Warn("[cmdr] loop ref found", "dad", cmd, "cc", cc)
+				logz.WarnContext(ctx, "[cmdr] loop ref found", "dad", cmd, "cc", cc)
 			}
 		}
 	}
@@ -419,7 +419,7 @@ func (c *Command) walkGroupedImpl(ctx context.Context, hist map[BaseOptI]bool, d
 				// cb(cc,nil, i, 0, level)
 				c.walkGroupedImpl(ctx, hist, cc, dad, i, level+1, cb)
 			} else {
-				logz.Warn("[cmdr] loop ref found", "dad", dad, "grandpa", grandpa, "cc", cc)
+				logz.WarnContext(ctx, "[cmdr] loop ref found", "dad", dad, "grandpa", grandpa, "cc", cc)
 			}
 		}
 	}
@@ -431,7 +431,7 @@ func (c *Command) walkGroupedImpl(ctx context.Context, hist map[BaseOptI]bool, d
 	// 			// cb(cc,nil, i, 0, level)
 	// 			c.walkGrouped(hist, cc, dad, level+1, cb)
 	// 		} else {
-	// 			logz.Warn("[cmdr] loop ref found", "dad", dad, "grandpa", grandpa, "cc", cc)
+	// 			logz.WarnContext(ctx, "[cmdr] loop ref found", "dad", dad, "grandpa", grandpa, "cc", cc)
 	// 		}
 	// 	}
 	// }
@@ -466,7 +466,7 @@ func (c *Command) walkEx(ctx context.Context, hist map[BaseOptI]bool, dad, grand
 				// cb(cc,nil, i, 0, level)
 				c.walkEx(ctx, hist, cc, dad, level+1, i, cb)
 			} else {
-				logz.Warn("[cmdr] loop ref found", "dad", dad, "grandpa", grandpa, "cc", cc)
+				logz.WarnContext(ctx, "[cmdr] loop ref found", "dad", dad, "grandpa", grandpa, "cc", cc)
 			}
 		}
 	}
@@ -479,7 +479,7 @@ func (c *Command) walkEx(ctx context.Context, hist map[BaseOptI]bool, dad, grand
 				// cb(cc,nil, i, 0, level)
 				c.walkEx(ctx, hist, cc, dad, level+1, i, cb)
 			} else {
-				logz.Warn("[cmdr] loop ref found", "dad", dad, "grandpa", grandpa, "cc", cc)
+				logz.WarnContext(ctx, "[cmdr] loop ref found", "dad", dad, "grandpa", grandpa, "cc", cc)
 			}
 		}
 	}
@@ -496,7 +496,7 @@ func (c *Command) walkEx(ctx context.Context, hist map[BaseOptI]bool, dad, grand
 
 func mustEnsureDynCommands(ctx context.Context, cmd BaseOptI) (commands []BaseOptI) {
 	if cclist, err := ensureDynCommands(ctx, cmd); err != nil {
-		logz.Error("cannot evaluate dynamic-commands", "err", err)
+		logz.ErrorContext(ctx, "[cmdr] cannot evaluate dynamic-commands", "err", err)
 		for _, cc := range cmd.OnEvalSubcommandsOnceCache() {
 			commands = append(commands, cc)
 		}
@@ -509,7 +509,7 @@ func mustEnsureDynCommands(ctx context.Context, cmd BaseOptI) (commands []BaseOp
 func mustEnsureDynFlags(ctx context.Context, cmd BaseOptI) (flags []*Flag) {
 	flags = cmd.Flags()
 	if cclist, err := ensureDynFlags(ctx, cmd); err != nil {
-		logz.Error("cannot evaluate dynamic-flags", "err", err)
+		logz.ErrorContext(ctx, "[cmdr] cannot evaluate dynamic-flags", "err", err)
 	} else {
 		flags = append(flags, cclist...)
 	}
@@ -520,6 +520,7 @@ func ensureDynCommands(ctx context.Context, cmd BaseOptI) (list []BaseOptI, err 
 	var c BaseOptI
 
 	if cmd.OnEvalSubcommandsOnce() != nil {
+		logz.InfoContext(ctx, "[cmdr] checking dynamic commands (once)", "cmd", cmd)
 		if !cmd.OnEvalSubcommandsOnceInvoked() {
 			var iter EvalIterator
 			if iter, err = cmd.OnEvalSubcommandsOnce()(ctx, cmd); err != nil {
@@ -540,6 +541,8 @@ func ensureDynCommands(ctx context.Context, cmd BaseOptI) (list []BaseOptI, err 
 	}
 
 	if cb := cmd.OnEvalSubcommands(); cb != nil {
+		logz.InfoContext(ctx, "[cmdr] checking dynamic commands (always)", "cmd", cmd)
+
 		var iter EvalIterator
 		if iter, err = cb(ctx, cmd); err != nil || iter == nil {
 			return
@@ -560,6 +563,7 @@ func ensureDynFlags(ctx context.Context, cmd BaseOptI) (list []*Flag, err error)
 	var f *Flag
 
 	if cb := cmd.OnEvalFlagsOnce(); cb != nil {
+		logz.InfoContext(ctx, "[cmdr] checking dynamic flags (once)", "cmd", cmd)
 		if !cmd.OnEvalFlagsOnceInvoked() {
 			var iter EvalFlagIterator
 			if iter, err = cb(ctx, cmd); err != nil {
@@ -583,6 +587,7 @@ func ensureDynFlags(ctx context.Context, cmd BaseOptI) (list []*Flag, err error)
 	}
 
 	if cb := cmd.OnEvalFlags(); cb != nil {
+		logz.InfoContext(ctx, "[cmdr] checking dynamic flags (always)", "cmd", cmd)
 		var iter EvalFlagIterator
 		if iter, err = cb(ctx, cmd); err != nil || iter == nil {
 			return

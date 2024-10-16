@@ -18,7 +18,9 @@ import (
 )
 
 func TestWorkerS_Pre(t *testing.T) {
-	app, ww := cleanApp(t, true)
+	ctx := context.Background()
+
+	app, ww := cleanApp(t, ctx, true)
 
 	// app := buildDemoApp()
 	// ww := postBuild(app)
@@ -35,8 +37,8 @@ func TestWorkerS_Pre(t *testing.T) {
 	// ww.Loaders = []cli.Loader{loaders.NewConfigFileLoader(), loaders.NewEnvVarLoader()}
 	_ = app
 
-	err := ww.Run(context.TODO(),
-		withTasksBeforeParse(func(ctx context.Context, cmd *cli.Command, runner cli.Runner, extras ...any) (err error) { //nolint:revive
+	err := ww.Run(ctx,
+		withTasksBeforeParse(func(ctx context.Context, cmd cli.BaseOptI, runner cli.Runner, extras ...any) (err error) { //nolint:revive
 			runner.Root().SelfAssert()
 			t.Logf("root.SelfAssert() passed.")
 			return
@@ -48,7 +50,8 @@ func TestWorkerS_Pre(t *testing.T) {
 }
 
 func TestWorkerS_Pre_v1(t *testing.T) {
-	app, ww := cleanApp(t, true)
+	ctx := context.Background()
+	app, ww := cleanApp(t, ctx, true)
 
 	ww.setArgs([]string{"--debug", "-v"})
 	ww.Config.Store = store.New()
@@ -62,7 +65,8 @@ func TestWorkerS_Pre_v1(t *testing.T) {
 }
 
 func TestWorkerS_Pre_v3(t *testing.T) {
-	app, ww := cleanApp(t, true)
+	ctx := context.Background()
+	app, ww := cleanApp(t, ctx, true)
 
 	ww.setArgs([]string{"--debug", "-vv", "--verbose"})
 	ww.Config.Store = store.New()
@@ -98,7 +102,7 @@ func TestWorkerS_Parse(t *testing.T) { //nolint:revive
 		t.Log()
 		t.Logf("--------------- test #%d: Parsing %q\n", i, c.args)
 
-		app, ww := cleanApp(t, false, c.opts...)
+		app, ww := cleanApp(t, ctx, false, c.opts...)
 		ww.Config.Store = store.New()
 		// ww.Config.Loaders = []cli.Loader{loaders.NewConfigFileLoader(), loaders.NewEnvVarLoader()}
 
@@ -115,9 +119,16 @@ func TestWorkerS_Parse(t *testing.T) { //nolint:revive
 }
 
 var (
-	aTaskBeforeRun = func(ctx context.Context, cmd *cli.Command, runner cli.Runner, extras ...any) (err error) { return } //nolint:revive
+	aTaskBeforeRun = func(ctx context.Context, cmd cli.BaseOptI, runner cli.Runner, extras ...any) (err error) { return } //nolint:revive
 
 	testWorkerParseCases = cmdrRunTests{[]cmdrRunTest{
+		{args: "m unk snd cool", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
+			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {
+				logz.Print("[cmdr] expect 'UNKNOWN Command FOUND' error, but not matched.") // "unk"
+			}
+			return /* errParsed */
+		}, opts: []cli.Opt{cli.WithUnmatchedAsError(true)}},
+
 		// ~~tree
 		{args: "~~tree", opts: []cli.Opt{
 			withEnv(map[string]string{"FORCE_RUN": "1"}),
@@ -150,13 +161,6 @@ var (
 			}
 			return errParsed
 		}},
-
-		{args: "m unk snd cool", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
-			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {
-				logz.Print("[cmdr] expect 'UNKNOWN Command FOUND' error, but not matched.") // "unk"
-			}
-			return /* errParsed */
-		}, opts: []cli.Opt{cli.WithUnmatchedAsError(true)}},
 
 		{args: "m snd -n -wn cool fog --pp box", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
 			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {

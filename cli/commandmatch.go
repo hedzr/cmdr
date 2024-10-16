@@ -11,22 +11,20 @@ import (
 	logz "github.com/hedzr/logg/slog"
 )
 
-func (c *Command) Match(ctx context.Context, title string) (short bool, cc *Command) {
+func (c *Command) Match(ctx context.Context, title string) (short bool, cc BaseOptI) {
 	if title == "" {
 		return
 	}
 
-	c.ensureXrefCommands()
+	c.ensureXrefCommands(ctx)
 
 	var ok bool
 	if cc, ok = c.longCommands[title]; ok {
-		cc.hitTitle = title
-		cc.hitTimes++
+		cc.SetHitTitle(title)
 		return
 	}
 	if cc, short = c.shortCommands[title]; short {
-		cc.hitTitle = title
-		cc.hitTimes++
+		cc.SetHitTitle(title)
 		return
 	}
 
@@ -35,11 +33,13 @@ func (c *Command) Match(ctx context.Context, title string) (short bool, cc *Comm
 		for _, cx := range commands {
 			if title == cx.Name() {
 				cx.SetHitTitle(title)
+				cc = cx
 				return
 			}
 			for _, ttl := range cx.AliasNames() {
 				if title == ttl {
 					cx.SetHitTitle(title)
+					cc = cx
 					return
 				}
 			}
@@ -87,7 +87,7 @@ func (s *FlagValuePkg) Reset() {
 //
 // While a flag matched ok, returns vp.Matched != "" && ff != nil && err != nil
 func (c *Command) MatchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, err error) { //nolint:revive
-	c.ensureXrefFlags()
+	c.ensureXrefFlags(ctx)
 
 	var ok bool
 	var matched, remains string
@@ -125,7 +125,7 @@ func (c *Command) MatchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, er
 			if num, err = strconv.ParseInt(vp.Remains, 0, 64); err == nil {
 				vp.Matched, vp.Remains, ff = vp.Remains, "", c.headLikeFlag
 				ff.defaultValue, vp.ValueOK = int(num), true // store the parsed value
-				logz.Verbose("[cmdr] headLike flag matched", "flg", ff, "num", num)
+				logz.VerboseContext(ctx, "[cmdr] headLike flag matched", "flg", ff, "num", num)
 			}
 		}
 	} else {
@@ -214,7 +214,7 @@ func (c *Command) partialMatchFlag(ctx context.Context, title string, short, dbl
 	if maxLen > 0 {
 		// if any flag matched, checking the parents for looking up the longer ones
 		if c.owner != nil && c.owner != c {
-			c.owner.ensureXrefFlags()
+			c.owner.ensureXrefFlags(ctx)
 			mf := c.owner.longFlags
 			if short {
 				mf = c.owner.shortFlags
@@ -233,7 +233,7 @@ func (c *Command) partialMatchFlag(ctx context.Context, title string, short, dbl
 
 	if c.owner != nil && c.owner != c {
 		// if no flag matched, checking the parents
-		c.owner.ensureXrefFlags()
+		c.owner.ensureXrefFlags(ctx)
 
 		var cxlist map[string]*Flag
 		if short {
@@ -287,13 +287,13 @@ func (c *Command) tryParseValue(ctx context.Context, vp *FlagValuePkg, ff *Flag)
 		// try to parse value
 		switch ff.defaultValue.(type) {
 		case bool:
-			ff = c.tryParseBoolValue(vp, ff) //nolint:revive
+			ff = c.tryParseBoolValue(ctx, vp, ff) //nolint:revive
 		case string:
-			ff = c.tryParseStringValue(vp, ff) //nolint:revive
+			ff = c.tryParseStringValue(ctx, vp, ff) //nolint:revive
 		case nil:
-			ff = c.tryParseStringValue(vp, ff) //nolint:revive
+			ff = c.tryParseStringValue(ctx, vp, ff) //nolint:revive
 		default:
-			ff = c.tryParseOthersValue(vp, ff) //nolint:revive
+			ff = c.tryParseOthersValue(ctx, vp, ff) //nolint:revive
 		}
 	}
 
@@ -377,9 +377,9 @@ func (c *Command) checkCircuitBreak(vp *FlagValuePkg, ff *Flag) (ret *Flag, err 
 	return
 }
 
-func (c *Command) tryParseStringValue(vp *FlagValuePkg, ff *Flag) *Flag {
+func (c *Command) tryParseStringValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) *Flag {
 	if ff.externalEditor != "" {
-		if f := c.invokeExternalEditor(vp, ff); f != nil {
+		if f := c.invokeExternalEditor(ctx, vp, ff); f != nil {
 			return f
 		}
 	}
@@ -395,7 +395,7 @@ func (c *Command) tryParseStringValue(vp *FlagValuePkg, ff *Flag) *Flag {
 	return ff
 }
 
-func (c *Command) tryParseBoolValue(vp *FlagValuePkg, ff *Flag) *Flag {
+func (c *Command) tryParseBoolValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) *Flag {
 	if len(vp.Remains) > 0 {
 		switch ch := vp.Remains[0]; ch {
 		case '+':
@@ -419,7 +419,7 @@ func (c *Command) tryParseBoolValue(vp *FlagValuePkg, ff *Flag) *Flag {
 	return ff
 }
 
-func (c *Command) tryParseOthersValue(vp *FlagValuePkg, ff *Flag) *Flag {
+func (c *Command) tryParseOthersValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) *Flag {
 	if vp.Remains != "" {
 		vp.ValueOK, vp.Value, vp.Remains = true, c.fromString(vp.Remains, ff.defaultValue), ""
 	} else {

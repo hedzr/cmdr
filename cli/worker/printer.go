@@ -41,7 +41,7 @@ func (s *helpPrinter) Print(ctx context.Context, pc *parseCtx, lastCmd cli.BaseO
 
 func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, lastCmd cli.BaseOptI) { //nolint:revive //
 	if s.debugScreenMode {
-		s.PrintDebugScreenTo(wr, pc, lastCmd)
+		s.PrintDebugScreenTo(ctx, wr, pc, lastCmd)
 		return
 	}
 
@@ -58,13 +58,13 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, 
 		// ~~tree: list all commands in tree style for a overview
 
 		grouped := true
-		s.printHeader(&sb, lastCmd, pc, cols, tabbedW)
+		s.printHeader(ctx, &sb, lastCmd, pc, cols, tabbedW)
 		lastCmd.WalkGrouped(ctx, func(cc, pp cli.BaseOptI, ff *cli.Flag, group string, idx, level int) { //nolint:revive
 			switch {
 			case ff == nil: // Command
-				s.printCommand(&sb, &verboseCount, cc, group, idx, level, cols, tabbedW, grouped)
+				s.printCommand(ctx, &sb, &verboseCount, cc, group, idx, level, cols, tabbedW, grouped)
 			default: // Flag
-				s.printFlag(&sb, &verboseCount, ff, group, idx, level, cols, tabbedW, grouped)
+				s.printFlag(ctx, &sb, &verboseCount, ff, group, idx, level, cols, tabbedW, grouped)
 			}
 		})
 		_, _ = wr.WriteString(sb.String())
@@ -72,10 +72,10 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, 
 	} else {
 		// normal help screen
 
-		s.printHeader(&sb, lastCmd, pc, cols, tabbedW)
-		s.printUsage(&sb, lastCmd, pc, cols, tabbedW)
-		s.printDesc(&sb, lastCmd, pc, cols, tabbedW)
-		s.printExamples(&sb, lastCmd, pc, cols, tabbedW)
+		s.printHeader(ctx, &sb, lastCmd, pc, cols, tabbedW)
+		s.printUsage(ctx, &sb, lastCmd, pc, cols, tabbedW)
+		s.printDesc(ctx, &sb, lastCmd, pc, cols, tabbedW)
+		s.printExamples(ctx, &sb, lastCmd, pc, cols, tabbedW)
 
 		walkCtx := &cli.WalkBackwardsCtx{
 			Group: !s.w.DontGroupInHelpScreen,
@@ -93,7 +93,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, 
 					// _, _ = sb.WriteString(strconv.Itoa(count))
 					// _, _ = sb.WriteString("]:\n")
 				}
-				s.printCommand(&sb, &verboseCount, cc, cc.GroupHelpTitle(), groupIndex, 1, cols, tabbedW, walkCtx.Group)
+				s.printCommand(ctx, &sb, &verboseCount, cc, cc.GroupHelpTitle(), groupIndex, 1, cols, tabbedW, walkCtx.Group)
 				return
 			}
 
@@ -113,26 +113,26 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, 
 					_, _ = sb.WriteString("):\n")
 				}
 			}
-			s.printFlag(&sb, &verboseCount, ff, ff.GroupHelpTitle(), groupIndex, 1, cols, tabbedW, walkCtx.Group)
+			s.printFlag(ctx, &sb, &verboseCount, ff, ff.GroupHelpTitle(), groupIndex, 1, cols, tabbedW, walkCtx.Group)
 		}, walkCtx)
 
-		s.printTailLine(&sb, lastCmd, pc, cols, tabbedW)
+		s.printTailLine(ctx, &sb, lastCmd, pc, cols, tabbedW)
 
 		_, _ = wr.WriteString(sb.String())
 		_, _ = wr.WriteString("\n")
 	}
 
-	logz.Verbose("[cmdr] tty cols", "cols", cols, "rows", rows, "tree-mode", s.treeMode, "show-tree", s.w.Actions())
+	logz.VerboseContext(ctx, "[cmdr] tty cols", "cols", cols, "rows", rows, "tree-mode", s.treeMode, "show-tree", s.w.Actions())
 
 	if !s.debugMatches {
 		return
 	}
 
 	sb.Reset()
-	s.printDebugMatches(&sb, wr, pc)
+	s.printDebugMatches(ctx, &sb, wr, pc)
 }
 
-func (s *helpPrinter) PrintDebugScreenTo(wr HelpWriter, ctx *parseCtx, lastCmd cli.BaseOptI) { //nolint:revive //
+func (s *helpPrinter) PrintDebugScreenTo(ctx context.Context, wr HelpWriter, pc *parseCtx, lastCmd cli.BaseOptI) { //nolint:revive //
 	if s.Translator == nil {
 		s.Translator = color.GetCPT()
 	}
@@ -152,16 +152,16 @@ func (s *helpPrinter) PrintDebugScreenTo(wr HelpWriter, ctx *parseCtx, lastCmd c
 	// _, _ = wr.WriteString("\n")
 
 	sb.Reset()
-	s.printEnv(&sb, wr, ctx)
+	s.printEnv(ctx, &sb, wr, pc)
 
 	sb.Reset()
-	s.printRaw(&sb, wr, ctx)
+	s.printRaw(ctx, &sb, wr, pc)
 
 	sb.Reset()
-	s.printMore(&sb, wr, ctx)
+	s.printMore(ctx, &sb, wr, pc)
 
 	sb.Reset()
-	s.printDebugMatches(&sb, wr, ctx)
+	s.printDebugMatches(ctx, &sb, wr, pc)
 }
 
 func (s *helpPrinter) safeGetWriter() (wr HelpWriter) {
@@ -181,7 +181,7 @@ func (s *helpPrinter) safeGetTermSize() (cols, rows int) {
 	return
 }
 
-func (s *helpPrinter) printHeader(sb *strings.Builder, cc cli.BaseOptI, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printHeader(ctx context.Context, sb *strings.Builder, cc cli.BaseOptI, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	// app, root := cc.App(), cc.Root()
 	// _ = app
 	if cc.Root() == nil {
@@ -190,10 +190,10 @@ func (s *helpPrinter) printHeader(sb *strings.Builder, cc cli.BaseOptI, ctx *par
 	line := cc.Root().Header()
 	_, _ = sb.WriteString(s.Translate(line, color.FgDefault))
 	_, _ = sb.WriteString("\n")
-	_, _, _ = ctx, cols, tabbedW
+	_, _, _ = pc, cols, tabbedW
 }
 
-func (s *helpPrinter) printUsage(sb *strings.Builder, cc cli.BaseOptI, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printUsage(ctx context.Context, sb *strings.Builder, cc cli.BaseOptI, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	// app, root := cc.App(), cc.Root()
 	// _ = app
 	appName := cc.App().Name()
@@ -206,10 +206,10 @@ func (s *helpPrinter) printUsage(sb *strings.Builder, cc cli.BaseOptI, ctx *pars
 	_, _ = sb.WriteString("\nUsage:\n\n  ")
 	// _, _ = sb.WriteString("\n")
 	_, _ = sb.WriteString(s.Translate(line, color.FgDefault))
-	_, _, _ = ctx, cols, tabbedW
+	_, _, _ = pc, cols, tabbedW
 }
 
-func (s *helpPrinter) printDesc(sb *strings.Builder, cc cli.BaseOptI, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printDesc(ctx context.Context, sb *strings.Builder, cc cli.BaseOptI, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	desc := cc.DescLong()
 	if desc != "" {
 		_, _ = sb.WriteString("\nDescription:\n\n")
@@ -217,10 +217,10 @@ func (s *helpPrinter) printDesc(sb *strings.Builder, cc cli.BaseOptI, ctx *parse
 		line = exec.LeftPad(line, 2)
 		_, _ = sb.WriteString(line)
 	}
-	_, _, _ = ctx, cols, tabbedW
+	_, _, _ = pc, cols, tabbedW
 }
 
-func (s *helpPrinter) printExamples(sb *strings.Builder, cc cli.BaseOptI, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printExamples(ctx context.Context, sb *strings.Builder, cc cli.BaseOptI, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	examples := cc.Examples()
 	if examples != "" {
 		_, _ = sb.WriteString("\nExamples:\n\n")
@@ -228,10 +228,10 @@ func (s *helpPrinter) printExamples(sb *strings.Builder, cc cli.BaseOptI, ctx *p
 		line = exec.LeftPad(line, 2)
 		_, _ = sb.WriteString(line)
 	}
-	_, _, _ = ctx, cols, tabbedW
+	_, _, _ = pc, cols, tabbedW
 }
 
-func (s *helpPrinter) printTailLine(sb *strings.Builder, cc cli.BaseOptI, ctx *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printTailLine(ctx context.Context, sb *strings.Builder, cc cli.BaseOptI, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	footer := strings.TrimSpace(cc.Root().Footer())
 	if footer != "" {
 		_, _ = sb.WriteString("\n")
@@ -244,11 +244,11 @@ func (s *helpPrinter) printTailLine(sb *strings.Builder, cc cli.BaseOptI, ctx *p
 		// 	_, _ = sb.WriteString("~~tree\n")
 		// }
 	}
-	_, _, _ = ctx, cols, tabbedW
+	_, _, _ = pc, cols, tabbedW
 }
 
-func (s *helpPrinter) printEnv(sb *strings.Builder, wr HelpWriter, ctx *parseCtx) {
-	if found := ctx.hasFlag("env", func(ff *cli.Flag, state *cli.MatchState) bool { //nolint:revive
+func (s *helpPrinter) printEnv(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc *parseCtx) {
+	if found := pc.hasFlag("env", func(ff *cli.Flag, state *cli.MatchState) bool { //nolint:revive
 		return state.DblTilde && state.HitTimes > 0
 	}); !found {
 		return
@@ -291,8 +291,8 @@ func (s *helpPrinter) printEnv(sb *strings.Builder, wr HelpWriter, ctx *parseCtx
 	_, _ = wr.WriteString("\n")
 }
 
-func (s *helpPrinter) printRaw(sb *strings.Builder, wr HelpWriter, ctx *parseCtx) {
-	if found := ctx.hasFlag("raw", func(ff *cli.Flag, state *cli.MatchState) bool { //nolint:revive
+func (s *helpPrinter) printRaw(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc *parseCtx) {
+	if found := pc.hasFlag("raw", func(ff *cli.Flag, state *cli.MatchState) bool { //nolint:revive
 		return state.DblTilde && state.HitTimes > 0
 	}); !found {
 		return
@@ -303,8 +303,8 @@ func (s *helpPrinter) printRaw(sb *strings.Builder, wr HelpWriter, ctx *parseCtx
 	_, _ = wr.WriteString("\n")
 }
 
-func (s *helpPrinter) printMore(sb *strings.Builder, wr HelpWriter, ctx *parseCtx) {
-	if found := ctx.hasFlag("more", func(ff *cli.Flag, state *cli.MatchState) bool { //nolint:revive
+func (s *helpPrinter) printMore(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc *parseCtx) {
+	if found := pc.hasFlag("more", func(ff *cli.Flag, state *cli.MatchState) bool { //nolint:revive
 		return state.DblTilde && state.HitTimes > 0
 	}); !found {
 		return
@@ -315,17 +315,17 @@ func (s *helpPrinter) printMore(sb *strings.Builder, wr HelpWriter, ctx *parseCt
 	_, _ = wr.WriteString("\n")
 }
 
-func (s *helpPrinter) printDebugMatches(sb *strings.Builder, wr HelpWriter, ctx *parseCtx) { //nolint:revive
-	if len(ctx.matchedCommands) > 0 {
+func (s *helpPrinter) printDebugMatches(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc *parseCtx) { //nolint:revive
+	if len(pc.matchedCommands) > 0 {
 		_, _ = sb.WriteString("\nMatched commands:\n")
-		for i, cc := range ctx.matchedCommands {
-			_, _ = sb.WriteString(s.Translate(fmt.Sprintf("  - %d. <code>%s</code> | %v\n", i+1, cc.GetHitStr(), cc), color.FgDefault))
+		for i, cc := range pc.matchedCommands {
+			_, _ = sb.WriteString(s.Translate(fmt.Sprintf("  - %d. <code>%s</code> | %v\n", i+1, cc.HitTitle(), cc), color.FgDefault))
 		}
 	}
-	if len(ctx.matchedFlags) > 0 {
+	if len(pc.matchedFlags) > 0 {
 		_, _ = sb.WriteString("\nMatched flags:\n")
 		i := 0
-		for ff, st := range ctx.matchedFlags {
+		for ff, st := range pc.matchedFlags {
 			i++
 			short, tilde := "", ""
 			if st.Short {
@@ -359,7 +359,7 @@ func (s *helpPrinter) printDebugMatches(sb *strings.Builder, wr HelpWriter, ctx 
 	}
 }
 
-func (s *helpPrinter) printCommand(sb *strings.Builder, verboseCount *int, cc cli.BaseOptI, group string, idx, level, cols, tabbedW int, grouped bool) { //nolint:revive
+func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder, verboseCount *int, cc cli.BaseOptI, group string, idx, level, cols, tabbedW int, grouped bool) { //nolint:revive
 	if (cc.Hidden() && *verboseCount < 1) || (cc.VendorHidden() && *verboseCount < 3) { //nolint:revive
 		return
 	}
@@ -465,14 +465,14 @@ func (s *helpPrinter) printCommand(sb *strings.Builder, verboseCount *int, cc cl
 			_, _ = sb.WriteString(" ")
 			_, _ = sb.WriteString(dep)
 		}
-		logz.Verbose("[cmdr] [watching] split flag", "split", split)
+		logz.VerboseContext(ctx, "[cmdr] [watching] split flag", "split", split)
 	}
 
 	s.Reset(sb) // reset fg/bg colors by color Translator
 	_, _ = sb.WriteString("\n")
 }
 
-func (s *helpPrinter) printFlag(sb *strings.Builder, verboseCount *int, ff *cli.Flag, group string, idx, level, cols, tabbedW int, grouped bool) { //nolint:revive
+func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder, verboseCount *int, ff *cli.Flag, group string, idx, level, cols, tabbedW int, grouped bool) { //nolint:revive
 	if (ff.Hidden() && *verboseCount < 1) || (ff.VendorHidden() && *verboseCount < 3) { //nolint:revive
 		return
 	}
@@ -604,7 +604,7 @@ func (s *helpPrinter) printFlag(sb *strings.Builder, verboseCount *int, ff *cli.
 			_, _ = sb.WriteString(" ")
 		}
 		_, _ = sb.WriteString(dep)
-		logz.Verbose("[cmdr] split flag is", "split", split)
+		logz.VerboseContext(ctx, "[cmdr] split flag is", "split", split)
 	}
 	// s.ColoredFast(&sb, CurrentDefaultValueColor, def)
 	// s.ColoredFast(&sb, CurrentDeprecatedColor, dep)

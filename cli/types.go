@@ -6,6 +6,7 @@ import (
 	"context"
 
 	"github.com/hedzr/is/term/color"
+	"github.com/hedzr/store"
 )
 
 const (
@@ -39,7 +40,7 @@ const (
 //
 // There is no TasksAfterParsed, but you can replace it
 // with WithTasksBeforeRun/Config.TasksBeforeRun.
-type Task func(ctx context.Context, cmd *Command, runner Runner, extras ...any) (err error)
+type Task func(ctx context.Context, cmd BaseOptI, runner Runner, extras ...any) (err error)
 
 type Loader interface {
 	Load(app App) (err error)
@@ -59,14 +60,16 @@ type RootCommand struct {
 
 	preActions  []OnPreInvokeHandler
 	postActions []OnPostInvokeHandler
-
-	app App
+	linked      int32 // ensureTree called?
+	app         App
 }
 
 type BaseOptI interface {
 	Backtraceable
 
 	String() string
+
+	Set() store.Store
 
 	OwnerCmd() BaseOptI
 	Root() *RootCommand
@@ -115,6 +118,13 @@ type BaseOptI interface {
 	Walk(ctx context.Context, cb WalkCB)
 	WalkGrouped(ctx context.Context, cb WalkGroupedCB)
 	WalkBackwardsCtx(ctx context.Context, cb WalkBackwardsCB, pc *WalkBackwardsCtx)
+	FindFlagBackwards(ctx context.Context, longName string) (res *Flag)
+
+	CanInvoke() bool
+
+	Match(ctx context.Context, title string) (short bool, cc BaseOptI)
+	TryOnMatched(position int, hitState *MatchState) (handled bool, err error)
+	MatchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, err error)
 }
 
 type BaseOpt struct {
@@ -335,11 +345,11 @@ type MatchState struct {
 	Value           any
 }
 
-type OnInvokeHandler func(ctx context.Context, cmd *Command, args []string) (err error)
+type OnInvokeHandler func(ctx context.Context, cmd BaseOptI, args []string) (err error)
 
-type OnPostInvokeHandler func(ctx context.Context, cmd *Command, args []string, errInvoked error) (err error)
+type OnPostInvokeHandler func(ctx context.Context, cmd BaseOptI, args []string, errInvoked error) (err error)
 
-type OnPreInvokeHandler func(ctx context.Context, cmd *Command, args []string) (err error)
+type OnPreInvokeHandler func(ctx context.Context, cmd BaseOptI, args []string) (err error)
 
 type OnEvaluateSubCommands func(ctx context.Context, c BaseOptI) (it EvalIterator, err error)
 

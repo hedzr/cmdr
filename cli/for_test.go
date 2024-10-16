@@ -158,10 +158,10 @@ func rootCmdForTesting() (root *RootCommand) { //nolint:funlen,revive //for test
 					defaultValue: time.Second,
 				},
 			},
-			preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd *Command, args []string) (err error) {
+			preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
 				return
 			}},
-			postActions: []OnPostInvokeHandler{func(ctx context.Context, cmd *Command, args []string, errInvoked error) (err error) {
+			postActions: []OnPostInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string, errInvoked error) (err error) {
 				return
 			}},
 			commands: []*Command{
@@ -432,8 +432,8 @@ func serverCommandsGet() *Command { //nolint:funlen,revive //for test
 					Aliases:     []string{"run1", "startup1"},
 					description: "dup test: startup this system service/daemon.",
 				},
-				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd *Command, args []string) (err error) {
-					_, _ = fmt.Println(cmd.Owner().Name(), cmd.Name(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
+				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
+					_, _ = fmt.Println(cmd.OwnerCmd().Name(), cmd.Name(), cmd.GroupTitle())
 					_, _ = fmt.Println(cmd.Root().Name(), cmd.Root().Owner())
 					_, _ = fmt.Println(cmd.App().Name())
 					return
@@ -445,8 +445,8 @@ func serverCommandsGet() *Command { //nolint:funlen,revive //for test
 							Aliases:     []string{"run", "startup"},
 							description: "dup test: startup this system service/daemon.",
 						},
-						preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd *Command, args []string) (err error) {
-							_, _ = fmt.Println(cmd.Owner().Name(), cmd.Name(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
+						preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
+							_, _ = fmt.Println(cmd.OwnerCmd().Name(), cmd.Name(), cmd.GroupTitle())
 							return
 						}},
 					},
@@ -516,7 +516,7 @@ func kvCommandsGet() *Command { //nolint:funlen,revive //for test
 					description: "Dump Consul's KV database to a JSON/YAML file",
 					group:       "bbb",
 				},
-				onInvoke: func(ctx context.Context, cmd *Command, args []string) (err error) {
+				onInvoke: func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
 					// for gocov
 
 					// cmd.PrintHelp(false)
@@ -566,10 +566,10 @@ func kvCommandsGet() *Command { //nolint:funlen,revive //for test
 						placeHolder:  "FILE",
 					},
 				},
-				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd *Command, args []string) (err error) {
+				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
 					return
 				}},
-				postActions: []OnPostInvokeHandler{func(ctx context.Context, cmd *Command, args []string, errInvoked error) (err error) {
+				postActions: []OnPostInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string, errInvoked error) (err error) {
 					return
 				}},
 			},
@@ -851,8 +851,8 @@ func msCommandsGet() *Command { //nolint:funlen,revive //for test
 					// Action:      msList,
 					group: " ",
 				},
-				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd *Command, args []string) (err error) {
-					_, _ = fmt.Println(cmd.Owner().Name(), cmd.Name(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
+				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
+					_, _ = fmt.Println(cmd.OwnerCmd().Name(), cmd.Name(), cmd.GroupTitle())
 					return
 				}},
 			},
@@ -864,8 +864,8 @@ func msCommandsGet() *Command { //nolint:funlen,revive //for test
 					description: "an empty subcommand for testing - list services.",
 					group:       "56.vvvvvv",
 				},
-				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd *Command, args []string) (err error) {
-					_, _ = fmt.Println(cmd.Owner().Name(), cmd.Name(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
+				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
+					_, _ = fmt.Println(cmd.OwnerCmd().Name(), cmd.Name(), cmd.GroupTitle())
 					return
 				}},
 			},
@@ -877,8 +877,8 @@ func msCommandsGet() *Command { //nolint:funlen,revive //for test
 					description: "list services.",
 					group:       "56.vvvvvv",
 				},
-				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd *Command, args []string) (err error) {
-					_, _ = fmt.Println(cmd.Owner().Name(), cmd.Name(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
+				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
+					_, _ = fmt.Println(cmd.OwnerCmd().Name(), cmd.Name(), cmd.GroupTitle())
 					return
 				}},
 			},
@@ -890,9 +890,9 @@ func msCommandsGet() *Command { //nolint:funlen,revive //for test
 					description: "list services.",
 					group:       "56.vvvvvv",
 				},
-				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd *Command, args []string) (err error) {
-					_, _ = fmt.Println(cmd, "'s owner is", cmd.Owner())
-					_, _ = fmt.Println(cmd.Owner().Name(), cmd.Name(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
+				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
+					_, _ = fmt.Println(cmd, "'s owner is", cmd.OwnerCmd())
+					_, _ = fmt.Println(cmd.OwnerCmd().Name(), cmd.Name(), cmd.GroupTitle())
 					return
 				}},
 				commands: []*Command{
@@ -904,9 +904,9 @@ func msCommandsGet() *Command { //nolint:funlen,revive //for test
 							description: "list services.",
 							group:       "56.vvvvvv",
 						},
-						preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd *Command, args []string) (err error) {
-							_, _ = fmt.Println(cmd, "'s owner is", cmd.Owner())
-							_, _ = fmt.Println(cmd.Owner().Name(), cmd.Name(), cmd.GetQuotedGroupName(), cmd.GetExpandableNames())
+						preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
+							_, _ = fmt.Println(cmd, "'s owner is", cmd.OwnerCmd())
+							_, _ = fmt.Println(cmd.OwnerCmd().Name(), cmd.Name(), cmd.GroupTitle())
 							return
 						}},
 					},

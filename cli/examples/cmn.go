@@ -122,57 +122,57 @@ func AttachConsulConnectFlags(bdr cli.CommandBuilder) {
 		Build()
 }
 
-func serverStartup(ctx context.Context, cmd *cli.Command, args []string) (err error) {
+func serverStartup(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) {
 	_, _ = cmd, args
 	return
 }
 
-func serverStop(ctx context.Context, cmd *cli.Command, args []string) (err error) {
+func serverStop(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) {
 	_, _ = cmd, args
 	return
 }
 
-func serverShutdown(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:unused
+func serverShutdown(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) { //nolint:unused
 	_, _ = cmd, args
 	return
 }
 
-func serverRestart(ctx context.Context, cmd *cli.Command, args []string) (err error) {
+func serverRestart(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) {
 	_, _ = cmd, args
 	return
 }
 
-func serverLiveReload(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:unused
+func serverLiveReload(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) { //nolint:unused
 	_, _ = cmd, args
 	return
 }
 
-func serverInstall(ctx context.Context, cmd *cli.Command, args []string) (err error) {
+func serverInstall(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) {
 	_, _ = cmd, args
 	return
 }
 
-func serverUninstall(ctx context.Context, cmd *cli.Command, args []string) (err error) {
+func serverUninstall(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) {
 	_, _ = cmd, args
 	return
 }
 
-func serverStatus(ctx context.Context, cmd *cli.Command, args []string) (err error) {
+func serverStatus(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) {
 	_, _ = cmd, args
 	return
 }
 
-func serverPause(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:unused
+func serverPause(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) { //nolint:unused
 	_, _ = cmd, args
 	return
 }
 
-func serverResume(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:unused
+func serverResume(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) { //nolint:unused
 	_, _ = cmd, args
 	return
 }
 
-func kvBackup(ctx context.Context, cmd *cli.Command, args []string) (err error) {
+func kvBackup(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) {
 	// err = consul.Backup()
 	fmt.Printf(`
 cmd: %v
@@ -182,43 +182,43 @@ args: %v
 	return
 }
 
-func kvRestore(ctx context.Context, cmd *cli.Command, args []string) (err error) {
+func kvRestore(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) {
 	_, _ = cmd, args
 	// err = consul.Restore()
 	return
 }
 
-func msList(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:unused
+func msList(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) { //nolint:unused
 	_, _ = cmd, args
 	// err = consul.ServiceList()
 	return
 }
 
-func msTagsList(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:unused
+func msTagsList(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) { //nolint:unused
 	_, _ = cmd, args
 	// err = consul.TagsList()
 	return
 }
 
-func msTagsAdd(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:unused
+func msTagsAdd(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) { //nolint:unused
 	_, _ = cmd, args
 	// err = consul.Tags()
 	return
 }
 
-func msTagsRemove(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:unused
+func msTagsRemove(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) { //nolint:unused
 	_, _ = cmd, args
 	// err = consul.Tags()
 	return
 }
 
-func msTagsModify(ctx context.Context, cmd *cli.Command, args []string) (err error) {
+func msTagsModify(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) {
 	_, _ = cmd, args
 	// err = consul.Tags()
 	return
 }
 
-func msTagsToggle(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:unused
+func msTagsToggle(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) { //nolint:unused
 	_, _ = cmd, args
 	// err = consul.TagsToggle()
 	return

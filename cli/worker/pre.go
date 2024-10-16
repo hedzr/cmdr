@@ -18,10 +18,10 @@ import (
 
 func (w *workerS) preProcess(ctx context.Context) (err error) {
 	// w.Config.Store.Load() // from external providers: 1. consul, 2. local,
-
+	logz.DebugContext(ctx, "[cmdr] pre-processing...")
 	dummyParseCtx := parseCtx{root: w.root, forceDefaultAction: w.ForceDefaultAction}
 
-	w.preEnvSet() // setup envvars: APP, APP_NAME, etc.
+	w.preEnvSet(ctx) // setup envvars: APP, APP_NAME, etc.
 
 	if err = w.linkCommands(ctx, w.root); err != nil {
 		return
@@ -41,16 +41,16 @@ func (w *workerS) preProcess(ctx context.Context) (err error) {
 
 	// w.Config.Store.Load() // from external providers: 3. env
 
-	w.postEnvLoad()
+	w.postEnvLoad(ctx)
 
 	if is.VerboseBuild() || is.DebugBuild() { // `-tags delve` or `-tags verbose` used in building?
-		logz.Verbose("[cmdr] Dumping Store ...")
-		logz.Verbose(w.Store().Dump())
+		logz.VerboseContext(ctx, "[cmdr] Dumping Store ...")
+		logz.VerboseContext(ctx, w.Store().Dump())
 	}
 	return
 }
 
-func (w *workerS) preEnvSet() {
+func (w *workerS) preEnvSet(ctx context.Context) {
 	// NOTE 'CMDR_VERSION' has been setup.
 
 	if w.Env != nil {
@@ -67,12 +67,12 @@ func (w *workerS) preEnvSet() {
 	_ = os.Setenv("APP_VER", w.Version())
 	_ = os.Setenv("APP_VERSION", w.Version())
 
-	logz.Verbose("[cmdr] preEnvSet()", "appName", appName, "appVer", w.Version())
+	logz.VerboseContext(ctx, "[cmdr] preEnvSet()", "appName", appName, "appVer", w.Version())
 
 	// xdgPrefer := true
 	// if w.Store().Has("app.force-xdg-dir-prefer") {
 	// 	xdgPrefer = w.Store().MustBool("app.force-xdg-dir-prefer", false)
-	// 	logz.Verbose("[cmdr] reset force-xdg-dir-prefer from store value", "app.force-xdg-dir-prefer", xdgPrefer)
+	// 	logz.VerboseContext(ctx, "[cmdr] reset force-xdg-dir-prefer from store value", "app.force-xdg-dir-prefer", xdgPrefer)
 	// }
 
 	home := tool.HomeDir()
@@ -111,20 +111,20 @@ func (w *workerS) preEnvSet() {
 	}
 }
 
-func (w *workerS) postEnvLoad() {
-	// logz.Info("[cmdr] postEnvLoad()", "FORCE_DEFAULT_ACTION", os.Getenv("FORCE_DEFAULT_ACTION"))
+func (w *workerS) postEnvLoad(ctx context.Context) {
+	// logz.InfoContext(ctx, "[cmdr] postEnvLoad()", "FORCE_DEFAULT_ACTION", os.Getenv("FORCE_DEFAULT_ACTION"))
 	if w.Store().Has("app.force-default-action") {
 		w.ForceDefaultAction = w.Store().MustBool("app.force-default-action", false)
-		logz.Verbose("[cmdr] postEnvLoad() - reset forceDefaultAction from store value", "ForceDefaultAction", w.ForceDefaultAction)
+		logz.VerboseContext(ctx, "[cmdr] postEnvLoad() - reset forceDefaultAction from store value", "ForceDefaultAction", w.ForceDefaultAction)
 	}
 	if tool.ToBool(os.Getenv("FORCE_DEFAULT_ACTION"), false) {
 		w.ForceDefaultAction = true
-		logz.Info("[cmdr] postEnvLoad() - set ForceDefaultAction true", "ForceDefaultAction", w.ForceDefaultAction)
+		logz.InfoContext(ctx, "[cmdr] postEnvLoad() - set ForceDefaultAction true", "ForceDefaultAction", w.ForceDefaultAction)
 	}
 	if w.ForceDefaultAction {
 		if envForceRun := tool.ToBool(os.Getenv("FORCE_RUN")); envForceRun {
 			w.ForceDefaultAction = false
-			logz.Info("[cmdr] postEnvLoad() - reset forceDefaultAction since FORCE_RUN defined", "ForceDefaultAction", w.ForceDefaultAction)
+			logz.InfoContext(ctx, "[cmdr] postEnvLoad() - reset forceDefaultAction since FORCE_RUN defined", "ForceDefaultAction", w.ForceDefaultAction)
 		}
 	}
 }
@@ -134,7 +134,7 @@ func (w *workerS) linkCommands(ctx context.Context, root *cli.RootCommand) (err 
 		root.EnsureTree(ctx, root.App(), root) // link the added builtin commands too
 		if err = w.xrefCommands(ctx, root); err == nil {
 			if err = w.commandsToStore(ctx, root); err == nil {
-				logz.Verbose("[cmdr] linkCommands() - *RootCommand linked itself")
+				logz.VerboseContext(ctx, "[cmdr] linkCommands() - *RootCommand linked itself")
 			}
 		}
 	}
@@ -152,11 +152,11 @@ func (w *workerS) commandsToStore(ctx context.Context, root *cli.RootCommand) (e
 		return
 	}
 
-	err = w.commandsToStoreChild(ctx, root, conf)
+	err = w.commandsToStoreR(ctx, root, conf)
 	return
 }
 
-func (w *workerS) commandsToStoreChild(ctx context.Context, root *cli.RootCommand, conf store.Store) (err error) { //nolint:revive
+func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, conf store.Store) (err error) { //nolint:revive
 	fromString := func(text string, meme any) (value any) { //nolint:revive
 		var err error
 		value, err = atoa.Parse(text, meme)
@@ -188,7 +188,7 @@ func (w *workerS) commandsToStoreChild(ctx context.Context, root *cli.RootComman
 
 // loadLoaders try to load the external loaders, for loading the config files.
 func (w *workerS) loadLoaders(ctx context.Context) (err error) {
-	w.precheckLoaders()
+	w.precheckLoaders(ctx)
 
 	// By default, we try loading `$(pwd)/.appName.json'.
 	// The main reason is the feature doesn't take new dependence to another 3rd-party lib.
@@ -199,7 +199,7 @@ func (w *workerS) loadLoaders(ctx context.Context) (err error) {
 		appName := w.Name()
 		jsonLoader := &jsonLoaderS{}
 		jsonLoader.filename = path.Join(appDir, "."+appName+".json")
-		logz.Debug("[cmdr] use internal tiny json loader", "filename", jsonLoader.filename)
+		logz.DebugContext(ctx, "[cmdr] use internal tiny json loader", "filename", jsonLoader.filename)
 		w.Config.Loaders = append(w.Config.Loaders, jsonLoader)
 		return
 	}
@@ -214,7 +214,7 @@ func (w *workerS) loadLoaders(ctx context.Context) (err error) {
 	return
 }
 
-func (w *workerS) precheckLoaders() {
+func (w *workerS) precheckLoaders(ctx context.Context) {
 	if w.configFile != "" {
 		found := false
 		for _, loader := range w.Config.Loaders {
@@ -226,7 +226,7 @@ func (w *workerS) precheckLoaders() {
 			}
 		}
 		if !found {
-			logz.Warn("[cmdr] Config file has been ignored", "config-file", w.configFile)
+			logz.WarnContext(ctx, "[cmdr] Config file has been ignored", "config-file", w.configFile)
 		}
 	}
 }
@@ -270,6 +270,7 @@ func (w *workerS) xrefCommands(ctx context.Context, cmd *cli.RootCommand, cb ...
 // }
 
 func (w *workerS) postProcess(ctx context.Context, pc *parseCtx) (err error) {
+	logz.DebugContext(ctx, "[cmdr] post-processing...")
 	_, _ = pc, ctx
 	return
 }

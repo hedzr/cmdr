@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync/atomic"
 
 	"github.com/hedzr/is"
 	"github.com/hedzr/is/states"
@@ -293,24 +294,22 @@ func (c *Command) SetAction(fn OnInvokeHandler) {
 	c.onInvoke = fn
 }
 
-func (c *Command) HasOnAction() bool { return c.onInvoke != nil }
-
 func (c *Command) Invoke(ctx context.Context, args []string) (err error) {
 	var deferActions func(errInvoked error)
 	if deferActions, err = c.RunPreActions(ctx, c, args); err != nil {
-		logz.Verbose("[cmdr] cmd.RunPreActions failed", "err", err)
+		logz.VerboseContext(ctx, "[cmdr] cmd.RunPreActions failed", "err", err)
 		return
 	}
 	defer func() { deferActions(err) }() // err must be delayed caught here
 
-	logz.Verbose("[cmdr] cmd.Invoke()", "onInvoke", c.onInvoke)
+	logz.VerboseContext(ctx, "[cmdr] cmd.Invoke()", "onInvoke", c.onInvoke)
 	if c.onInvoke != nil {
 		err = c.onInvoke(ctx, c, args)
 	}
 	return
 }
 
-func (c *Command) RunPreActions(ctx context.Context, cmd *Command, args []string) (deferAction func(errInvoked error), err error) { //nolint:revive
+func (c *Command) RunPreActions(ctx context.Context, cmd BaseOptI, args []string) (deferAction func(errInvoked error), err error) { //nolint:revive
 	ec := errors.New("[PRE-INVOKE]")
 	defer ec.Defer(&err)
 	if c.root.Command != c {
@@ -336,7 +335,7 @@ func (c *Command) RunPreActions(ctx context.Context, cmd *Command, args []string
 	return
 }
 
-func (c *Command) getDeferAction(ctx context.Context, cmd *Command, args []string) func(errInvoked error) { //nolint:revive
+func (c *Command) getDeferAction(ctx context.Context, cmd BaseOptI, args []string) func(errInvoked error) { //nolint:revive
 	return func(errInvoked error) {
 		ecp := errors.New("[POST-INVOKE]")
 
@@ -389,7 +388,25 @@ func (c *Command) getDeferAction(ctx context.Context, cmd *Command, args []strin
 
 // EnsureTree associates owner and app between all subCommands and app/runner/rootCommand.
 // EnsureTree links all commands as a tree (make root and owner linked).
+//
+// This function will be called for running time once (see also cmdr.Run()).
 func (c *Command) EnsureTree(ctx context.Context, app App, root *RootCommand) {
+	if atomic.CompareAndSwapInt32(&root.linked, 0, 1) {
+		logz.DebugContext(ctx, "[cmdr] cmd.EnsureTree (Once) -> linking to root and owner", "root", root)
+		c.ensureTreeAlways(ctx, app, root)
+	}
+}
+
+// EnsureTreeAlways associates owner and app between all subCommands and app/runner/rootCommand.
+// EnsureTreeAlways links all commands as a tree (make root and owner linked).
+//
+// This func is called only in building command system (see also builder.postBuild).
+func (c *Command) EnsureTreeAlways(ctx context.Context, app App, root *RootCommand) {
+	logz.DebugContext(ctx, "[cmdr] cmd.EnsureTreeAlways -> linking to root and owner", "root", root)
+	c.ensureTreeAlways(ctx, app, root)
+}
+
+func (c *Command) ensureTreeAlways(ctx context.Context, app App, root *RootCommand) {
 	root.app = app // link RootCommand.app to app
 	root.name = app.Name()
 	c.ensureTreeR(ctx, app, root)
@@ -399,18 +416,24 @@ func (c *Command) EnsureTree(ctx context.Context, app App, root *RootCommand) {
 // ensureTreeR links all commands as a tree (make root and owner linked).
 func (c *Command) ensureTreeR(ctx context.Context, app App, root *RootCommand) { //nolint:unparam,revive
 	c.WalkEverything(ctx, func(cc, pp BaseOptI, ff *Flag, cmdIndex, flgIndex, level int) {
-		if cx, ok := cc.(*Command); ok {
+		if cx, ok1 := cc.(*Command); ok1 {
+			logz.VerboseContext(ctx, "    .|. ensureTreeR, (+owner,+root), Command:", "cmd", cx)
 			if pp != nil {
 				cx.owner = pp.(*Command)
+			} else {
+				cx.owner = nil
 			}
 			cx.root, _ = root, app
 			if ff != nil {
 				ff.owner, ff.root = cx, root
 			}
 		} else {
+			logz.VerboseContext(ctx, "    .|. ensureTreeR, (+owner,+root), Non-Command:", "BaseOptI", cc)
 			if cx, ok := cc.(interface{ SetOwner(o *Command) }); ok {
 				if pp != nil {
 					cx.SetOwner(pp.(*Command))
+				} else {
+					cx.SetOwner(nil)
 				}
 			}
 			if cx, ok := cc.(interface{ SetOwner(o BaseOptI) }); ok {
@@ -432,9 +455,9 @@ func (c *Command) ensureTreeR(ctx context.Context, app App, root *RootCommand) {
 func (c *Command) EnsureXref(ctx context.Context, cb ...func(cc BaseOptI, index, level int)) {
 	c.Walk(ctx, func(cc BaseOptI, index, level int) {
 		if cx, ok := cc.(*Command); ok {
-			cx.ensureXrefCommands()
-			cx.ensureXrefFlags()
-			cx.ensureXrefGroup()
+			cx.ensureXrefCommands(ctx)
+			cx.ensureXrefFlags(ctx)
+			cx.ensureXrefGroup(ctx)
 		}
 		for _, fn := range cb {
 			fn(cc, index, level)
@@ -442,7 +465,7 @@ func (c *Command) EnsureXref(ctx context.Context, cb ...func(cc BaseOptI, index,
 	})
 }
 
-func (c *Command) ensureXrefCommands() { //nolint:revive
+func (c *Command) ensureXrefCommands(context.Context) { //nolint:revive
 	if c.longCommands == nil {
 		c.longCommands = make(map[string]*Command)
 		for _, cc := range c.commands {
@@ -470,7 +493,7 @@ func (c *Command) ensureXrefCommands() { //nolint:revive
 	// }
 }
 
-func (c *Command) ensureXrefFlags() { //nolint:revive
+func (c *Command) ensureXrefFlags(ctx context.Context) { //nolint:revive
 	if c.longFlags == nil {
 		c.longFlags = make(map[string]*Flag)
 		for _, ff := range c.flags {
@@ -478,7 +501,7 @@ func (c *Command) ensureXrefFlags() { //nolint:revive
 			ff.ensureXref()
 			if ff.headLike {
 				if ff.owner.headLikeFlag != nil && ff.owner.headLikeFlag != ff {
-					logz.Warn("[cmdr] too much head-like flags", "last-head-like-flag", ff.owner.headLikeFlag, "this-one", ff)
+					logz.WarnContext(ctx, "[cmdr] too much head-like flags", "last-head-like-flag", ff.owner.headLikeFlag, "this-one", ff)
 				}
 				ff.owner.headLikeFlag = ff
 			}
@@ -494,7 +517,7 @@ func (c *Command) ensureXrefFlags() { //nolint:revive
 			ff.ensureXref()
 			if ff.headLike {
 				if ff.owner.headLikeFlag != nil && ff.owner.headLikeFlag != ff {
-					logz.Warn("[cmdr] too much head-like flags", "last-head-like-flag", ff.owner.headLikeFlag, "this-one", ff)
+					logz.WarnContext(ctx, "[cmdr] too much head-like flags", "last-head-like-flag", ff.owner.headLikeFlag, "this-one", ff)
 				}
 				ff.owner.headLikeFlag = ff
 			}
@@ -520,12 +543,12 @@ func (c *Command) ensureToggleGroups(ff *Flag) {
 	}
 }
 
-func (c *Command) ensureXrefGroup() { //nolint:revive
+func (c *Command) ensureXrefGroup(ctx context.Context) { //nolint:revive
 	if c.allCommands == nil {
 		c.allCommands = make(map[string]*CmdSlice)
 		for _, cc := range c.commands {
-			cc.ensureXrefCommands()
-			cc.ensureXrefFlags()
+			cc.ensureXrefCommands(ctx)
+			cc.ensureXrefFlags(ctx)
 			group := cc.SafeGroup()
 			if m, ok := c.allCommands[group]; ok {
 				m.A = append(m.A, cc)
@@ -547,7 +570,7 @@ func (c *Command) ensureXrefGroup() { //nolint:revive
 	}
 }
 
-func (c *Command) invokeExternalEditor(vp *FlagValuePkg, ff *Flag) *Flag {
+func (c *Command) invokeExternalEditor(ctx context.Context, vp *FlagValuePkg, ff *Flag) *Flag {
 	if vp.Remains != "" {
 		arg := c.normalizeStringValue(vp.Remains)
 		vp.ValueOK, vp.Value, vp.Remains = true, arg, ""
@@ -563,31 +586,31 @@ func (c *Command) invokeExternalEditor(vp *FlagValuePkg, ff *Flag) *Flag {
 		}
 	}
 
-	logz.Debug("[cmdr] external editor", "ex-editor", ff.externalEditor)
+	logz.DebugContext(ctx, "[cmdr] external editor", "ex-editor", ff.externalEditor)
 	if cmd := os.Getenv(ff.externalEditor); cmd != "" {
 		file := tool.TempFileName("message*.tmp", "message001.tmp", c.App().Name())
 		cmdS := tool.SplitCommandString(cmd)
 		cmdS = append(cmdS, file)
 		defer func(dst string) {
 			if err := dir.DeleteFile(dst); err != nil {
-				logz.Error("[cmdr] cannot delete temporary file for flag", "flag", ff)
+				logz.ErrorContext(ctx, "[cmdr] cannot delete temporary file for flag", "flag", ff)
 			}
 		}(file)
 
-		logz.Debug("[cmdr] invoke external editor", "ex-editor", ff.externalEditor, "cmd", cmdS)
+		logz.DebugContext(ctx, "[cmdr] invoke external editor", "ex-editor", ff.externalEditor, "cmd", cmdS)
 		if is.DebuggerAttached() {
 			vp.ValueOK, vp.Value = true, "<<stdoutTextForDebugging>>"
-			logz.Warn("[cmdr] use debug text", "flag", ff, "text", vp.Value)
+			logz.WarnContext(ctx, "[cmdr] use debug text", "flag", ff, "text", vp.Value)
 			return ff
 		}
 
 		if err := exec.CallSliceQuiet([]string{"which", cmdS[0]}, func(retCode int, stdoutText string) {
 			if retCode == 0 {
 				cmdS[0] = strings.TrimSpace(strings.TrimSuffix(stdoutText, "\n"))
-				logz.Debug("[cmdr] got external editor real-path", "cmd", cmdS)
+				logz.DebugContext(ctx, "[cmdr] got external editor real-path", "cmd", cmdS)
 			}
 		}); err != nil {
-			logz.Error("[cmdr] cannot invoke which Command", "flag", ff, "cmd", cmdS)
+			logz.ErrorContext(ctx, "[cmdr] cannot invoke which Command", "flag", ff, "cmd", cmdS)
 			return nil
 		}
 
@@ -595,25 +618,25 @@ func (c *Command) invokeExternalEditor(vp *FlagValuePkg, ff *Flag) *Flag {
 		var err error
 		content, err = tool.LaunchEditorWithGetter(cmdS[0], func() string { return cmdS[1] }, false)
 		if err != nil {
-			logz.Error("[cmdr] Error on launching cmd", "err", err, "cmd", cmdS)
+			logz.ErrorContext(ctx, "[cmdr] Error on launching cmd", "err", err, "cmd", cmdS)
 			return nil
 		}
 
 		// content, err = tool.LaunchEditorWith(cmdS[0], cmdS[1])
 		// if err != nil {
-		// 	logz.Error("[cmdr] Error on launching cmd", "err", err, "cmd", cmdS)
+		// 	logz.ErrorContext(ctx, "[cmdr] Error on launching cmd", "err", err, "cmd", cmdS)
 		// 	return nil
 		// }
 		//
 		// content, err = tool.LaunchEditor(cmdS[0])
 		// if err != nil {
-		// 	logz.Error("[cmdr] Error on launching cmd", "err", err, "cmd", cmdS)
+		// 	logz.ErrorContext(ctx, "[cmdr] Error on launching cmd", "err", err, "cmd", cmdS)
 		// 	return nil
 		// }
 
 		// f, err = os.Open(file)
 		// if err != nil {
-		// 	logz.Error("[cmdr] cannot open temporary file for reading content", "file", file, "flag", ff, "cmd", cmdS)
+		// 	logz.ErrorContext(ctx, "[cmdr] cannot open temporary file for reading content", "file", file, "flag", ff, "cmd", cmdS)
 		// 	return nil
 		// }
 		// defer f.Close()
@@ -621,10 +644,10 @@ func (c *Command) invokeExternalEditor(vp *FlagValuePkg, ff *Flag) *Flag {
 
 		vp.ValueOK, vp.Value = true, string(content)
 		ff.defaultValue = string(content)
-		// logz.Debug("[cmdr] invoked external editor", "ex-editor", ff.externalEditor, "text", string(content))
+		// logz.DebugContext(ctx, "[cmdr] invoked external editor", "ex-editor", ff.externalEditor, "text", string(content))
 		return ff
 	}
-	logz.Warn("[cmdr] Unknown External Editor for flag.", "ex-editor", ff.externalEditor, "flag", ff)
+	logz.WarnContext(ctx, "[cmdr] Unknown External Editor for flag.", "ex-editor", ff.externalEditor, "flag", ff)
 	return nil
 }
 
@@ -640,13 +663,15 @@ func (c *Command) EqualTo(rh *Command) (ok bool) {
 }
 
 func (c *Command) GetGroupedCommands(group string) (commands []*Command) {
-	c.ensureXrefGroup()
+	ctx := context.Background()
+	c.ensureXrefGroup(ctx)
 	commands = c.allCommands[group].A
 	return
 }
 
 func (c *Command) GetGroupedFlags(group string) (flags []*Flag) {
-	c.ensureXrefGroup()
+	ctx := context.Background()
+	c.ensureXrefGroup(ctx)
 	flags = c.allFlags[group].A
 	return
 }

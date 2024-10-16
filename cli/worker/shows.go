@@ -11,40 +11,40 @@ import (
 	"github.com/hedzr/cmdr/v2/internal/hs"
 )
 
-func (w *workerS) showVersion(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) (err error) { //nolint:revive,unused
+func (w *workerS) showVersion(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error) { //nolint:revive,unused
 	// (&helpPrinter{w: w}).Print(ctx, pc, lastCmd)
 	return
 }
 
-func (w *workerS) showBuiltInfo(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) (err error) { //nolint:revive,unused
+func (w *workerS) showBuiltInfo(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error) { //nolint:revive,unused
 	// (&helpPrinter{w: w}).Print(ctx, pc, lastCmd)
 	return
 }
 
-func (w *workerS) showSBOM(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) (err error) { //nolint:revive,unused
+func (w *workerS) showSBOM(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error) { //nolint:revive,unused
 	// (&helpPrinter{w: w}).Print(ctx, pc, lastCmd)
 	return
 }
 
-func (w *workerS) showHelpScreen(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) (err error) { //nolint:revive,unused
+func (w *workerS) showHelpScreen(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error) { //nolint:revive,unused
 	(&helpPrinter{w: w}).Print(ctx, pc, lastCmd)
 	return
 }
 
-func (w *workerS) showHelpScreenAsMan(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) (err error) { //nolint:revive,unused
+func (w *workerS) showHelpScreenAsMan(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error) { //nolint:revive,unused
 	(&helpPrinter{w: w}).Print(ctx, pc, lastCmd)
 	return
 }
 
 // helpSystemAction is the reaction for 'help' command at root level.
-func (w *workerS) helpSystemAction(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:revive,unused
+func (w *workerS) helpSystemAction(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) { //nolint:revive,unused
 	if len(args) > 0 {
 		// trying to recognize the given commands and print help screen of it.
 		var cc cli.BaseOptI = cmd.Root().Command
 		for _, arg := range args {
 			cc = cc.FindSubCommand(ctx, arg, true)
 			if cc == nil {
-				logz.Error("[cmdr] Unknown command found.", "commands", args)
+				logz.ErrorContext(ctx, "[cmdr] Unknown command found.", "commands", args)
 				return errors.New("unknown command %v found", args)
 			}
 		}
@@ -57,12 +57,12 @@ func (w *workerS) helpSystemAction(ctx context.Context, cmd *cli.Command, args [
 	return
 }
 
-func (w *workerS) showTree(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) (err error) { //nolint:revive,unused
+func (w *workerS) showTree(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error) { //nolint:revive,unused
 	(&helpPrinter{w: w, debugMatches: true, treeMode: true}).Print(ctx, pc, lastCmd)
 	return
 }
 
-func (w *workerS) showDebugScreen(ctx context.Context, pc *parseCtx, lastCmd *cli.Command) (err error) { //nolint:revive,unused
+func (w *workerS) showDebugScreen(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error) { //nolint:revive,unused
 	(&helpPrinter{w: w, debugScreenMode: true, debugMatches: true}).Print(ctx, pc, lastCmd)
 	return
 }

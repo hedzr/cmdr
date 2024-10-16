@@ -8,24 +8,24 @@ import (
 
 type genS struct{}
 
-func (w *genS) onAction(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:revive,unused
+func (w *genS) onAction(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) { //nolint:revive,unused
 	return
 }
 
 type genShS struct{}
 
-func (w *genShS) onAction(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:revive,unused
+func (w *genShS) onAction(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) { //nolint:revive,unused
 	return
 }
 
 type genDocS struct{}
 
-func (w *genDocS) onAction(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:revive,unused
+func (w *genDocS) onAction(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) { //nolint:revive,unused
 	return
 }
 
 type genManS struct{}
 
-func (w *genManS) onAction(ctx context.Context, cmd *cli.Command, args []string) (err error) { //nolint:revive,unused
+func (w *genManS) onAction(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) { //nolint:revive,unused
 	return
 }

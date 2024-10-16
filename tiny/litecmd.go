@@ -10,6 +10,7 @@ import (
 	"github.com/hedzr/cmdr/v2/pkg/dir"
 	"github.com/hedzr/cmdr/v2/pkg/exec"
 	"github.com/hedzr/is/term/color"
+	"github.com/hedzr/store"
 )
 
 func onEvalJumpSubCommands(ctx context.Context, c cli.BaseOptI) (it cli.EvalIterator, err error) {
@@ -75,6 +76,29 @@ func (s *liteCmdS) WalkGrouped(ctx context.Context, cb cli.WalkGroupedCB) {
 func (s *liteCmdS) WalkBackwardsCtx(ctx context.Context, cb cli.WalkBackwardsCB, pc *cli.WalkBackwardsCtx) {
 	return
 }
+func (s *liteCmdS) FindFlagBackwards(ctx context.Context, longName string) (res *cli.Flag) {
+	return
+}
+
+func (s *liteCmdS) CanInvoke() bool {
+	return s.fi.Type().IsRegular()
+}
+
+func (s *liteCmdS) Match(ctx context.Context, title string) (short bool, cc cli.BaseOptI) {
+	return
+}
+func (s *liteCmdS) TryOnMatched(position int, hitState *cli.MatchState) (handled bool, err error) {
+	return
+}
+func (s *liteCmdS) MatchFlag(ctx context.Context, vp *cli.FlagValuePkg) (ff *cli.Flag, err error) { //nolint:revive
+	return
+}
+
+func (s *liteCmdS) ForeachFlags(context.Context, func(f *cli.Flag) (stop bool)) (stop bool) {
+	return
+}
+
+func (s *liteCmdS) Set() store.Store { return s.Root().App().Store() }
 
 func (s *liteCmdS) OwnerCmd() cli.BaseOptI   { return s.owner }
 func (s *liteCmdS) Root() *cli.RootCommand   { return s.owner.Root() }
@@ -105,8 +129,10 @@ func (s *liteCmdS) CommandsInGroup(groupTitle string) (list []cli.BaseOptI) { re
 func (s *liteCmdS) FlagsInGroup(groupTitle string) (list []*cli.Flag)       { return nil }
 func (s *liteCmdS) Flags() []*cli.Flag                                      { return nil }
 func (s *liteCmdS) SubCommands() []*cli.Command                             { return nil }
+
 func (s *liteCmdS) Invoke(ctx context.Context, args []string) (err error) {
-	err = exec.Run("sh", "-c", s.fi.Name())
+	fullPath := path.Join(s.dirName, s.name())
+	err = exec.Run("sh", "-c", fullPath)
 	return
 }
 func (s *liteCmdS) OnEvalSubcommands() cli.OnEvaluateSubCommands {
@@ -149,6 +175,3 @@ func (s *liteCmdS) SetHitTitle(title string) {
 }
 func (s *liteCmdS) HitTitle() string { return s.hitTitle }
 func (s *liteCmdS) HitTimes() int    { return s.hitTimes }
-func (s *liteCmdS) ForeachFlags(func(f *cli.Flag) (stop bool)) (stop bool) {
-	return
-}

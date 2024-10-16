@@ -66,7 +66,7 @@ type Backtraceable interface {
 	BacktraceableMin
 
 	Walk(ctx context.Context, cb WalkCB)
-	ForeachFlags(func(f *Flag) (stop bool)) (stop bool)
+	ForeachFlags(context.Context, func(f *Flag) (stop bool)) (stop bool)
 }
 
 func DottedPath(cmd BacktraceableMin) string {
@@ -156,7 +156,7 @@ func dottedPathToCommandOrFlagG(c Backtraceable, dottedPath string) (cmd Backtra
 			parts := strings.TrimPrefix(dottedPath, kp+".")
 			if !strings.Contains(parts, ".") {
 				// try matching flags in this command
-				cx.ForeachFlags(func(f *Flag) (stop bool) {
+				cx.ForeachFlags(ctx, func(f *Flag) (stop bool) {
 					if parts == f.Long {
 						cmd, ff, stop = f.OwnerOrParent(), f, true
 						if f.OwnerOrParent() != cx {

@@ -60,7 +60,7 @@ import (
 //	if err := app.Run(
 //	    cmdr.WithForceDefaultAction(false), // true for debug in developing time
 //	); err != nil {
-//	    logz.Error("Application Error:", "err", err)
+//	    logz.ErrorContext(ctx, "Application Error:", "err", err)
 //	}
 //
 // After the root command and all its children are built, use app.[config.App.Run]
@@ -177,7 +177,7 @@ func WithUnmatchedAsError(b bool) cli.Opt {
 //			// ),
 //			cmdr.WithForceDefaultAction(false), // true for debug in developing time
 //		); err != nil {
-//			logz.Error("Application Error:", "err", err)
+//			logz.ErrorContext(ctx, "Application Error:", "err", err)
 //		}
 //
 //	 func prepareApp() cli.App {

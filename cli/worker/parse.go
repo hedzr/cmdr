@@ -134,8 +134,8 @@ func (w *workerS) interpretLeadingPlusSign(pc *parseCtx) bool {
 	return false
 }
 
-func isBaseOptIIsNil(cc cli.BaseOptI) (nilptr bool) {
-	if x, ok := cc.(*cli.Command); ok {
+func isCmdIsNil(cc cli.Cmd) (nilptr bool) {
+	if x, ok := cc.(*cli.CmdS); ok {
 		nilptr = x == nil
 	} else {
 		nilptr = cc == nil
@@ -143,8 +143,8 @@ func isBaseOptIIsNil(cc cli.BaseOptI) (nilptr bool) {
 	return
 }
 
-func isBaseOptIIsNotNil(cc cli.BaseOptI) (nilptr bool) {
-	if x, ok := cc.(*cli.Command); ok {
+func isCmdIsNotNil(cc cli.Cmd) (nilptr bool) {
+	if x, ok := cc.(*cli.CmdS); ok {
 		nilptr = x != nil
 	} else {
 		nilptr = cc != nil
@@ -155,7 +155,7 @@ func isBaseOptIIsNotNil(cc cli.BaseOptI) (nilptr bool) {
 func (w *workerS) matchCommand(ctx context.Context, pc *parseCtx) (err error) {
 	err = cli.ErrUnmatchedCommand
 	cmd := pc.LastCmd()
-	if short, cc := cmd.Match(ctx, pc.arg); isBaseOptIIsNotNil(cc) {
+	if short, cc := cmd.Match(ctx, pc.arg); isCmdIsNotNil(cc) {
 		ms, handled := pc.addCmd(cc, short), false
 		handled, err = cc.TryOnMatched(0, ms)
 		if err == nil {

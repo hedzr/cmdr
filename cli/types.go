@@ -26,7 +26,7 @@ const (
 	// DefaultEditor is 'vim'
 	DefaultEditor = "vim"
 
-	// ExternalToolEditor environment variable name, EDITOR is fit for most of shells.
+	// ExternalToolEditor environment variable name, EDITOR is fit for most of the shells.
 	ExternalToolEditor = "EDITOR"
 
 	// ExternalToolPasswordInput enables secure password input without echo.
@@ -40,7 +40,7 @@ const (
 //
 // There is no TasksAfterParsed, but you can replace it
 // with WithTasksBeforeRun/Config.TasksBeforeRun.
-type Task func(ctx context.Context, cmd BaseOptI, runner Runner, extras ...any) (err error)
+type Task func(ctx context.Context, cmd Cmd, runner Runner, extras ...any) (err error)
 
 type Loader interface {
 	Load(app App) (err error)
@@ -56,7 +56,7 @@ type RootCommand struct {
 	HeaderLine string
 	FooterLine string
 
-	*Command
+	Cmd // root command here
 
 	preActions  []OnPreInvokeHandler
 	postActions []OnPostInvokeHandler
@@ -64,71 +64,8 @@ type RootCommand struct {
 	app         App
 }
 
-type BaseOptI interface {
-	Backtraceable
-
-	String() string
-
-	Set() store.Store
-
-	OwnerCmd() BaseOptI
-	Root() *RootCommand
-	Name() string
-	ShortName() string
-	ShortNames() []string
-	AliasNames() []string
-	Desc() string
-	DescLong() string
-	Examples() string
-	TailPlaceHolder() string
-	GetCommandTitles() string
-
-	GroupTitle() string                          // group title, removed the ordered prefix
-	GroupHelpTitle() string                      // group title, remove the ordered prefix, or UnsortedGroup
-	SafeGroup() string                           // group title, or UnsortedGroup
-	AllGroupKeys(chooseFlag, sort bool) []string // subcommand group-key-titles
-	Hidden() bool
-	VendorHidden() bool
-	Deprecated() string
-	DeprecatedHelpString(trans func(ss string, clr color.Color) string, clr, clrDefault color.Color) (hs, plain string)
-	CountOfCommands() int
-	CommandsInGroup(groupTitle string) (list []BaseOptI)
-	FlagsInGroup(groupTitle string) (list []*Flag)
-	SubCommands() []*Command
-	Flags() []*Flag
-
-	Invoke(ctx context.Context, args []string) (err error)
-
-	OnEvalSubcommands() OnEvaluateSubCommands
-	OnEvalSubcommandsOnce() OnEvaluateSubCommands
-	OnEvalSubcommandsOnceInvoked() bool
-	OnEvalSubcommandsOnceCache() []BaseOptI
-	OnEvalSubcommandsOnceSetCache(list []BaseOptI)
-	OnEvalFlags() OnEvaluateFlags
-	OnEvalFlagsOnce() OnEvaluateFlags
-	OnEvalFlagsOnceInvoked() bool
-	OnEvalFlagsOnceCache() []*Flag
-	OnEvalFlagsOnceSetCache(list []*Flag)
-
-	SetHitTitle(title string)
-	HitTitle() string
-	HitTimes() int
-
-	FindSubCommand(ctx context.Context, longName string, wide bool) (res BaseOptI)
-	Walk(ctx context.Context, cb WalkCB)
-	WalkGrouped(ctx context.Context, cb WalkGroupedCB)
-	WalkBackwardsCtx(ctx context.Context, cb WalkBackwardsCB, pc *WalkBackwardsCtx)
-	FindFlagBackwards(ctx context.Context, longName string) (res *Flag)
-
-	CanInvoke() bool
-
-	Match(ctx context.Context, title string) (short bool, cc BaseOptI)
-	TryOnMatched(position int, hitState *MatchState) (handled bool, err error)
-	MatchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, err error)
-}
-
 type BaseOpt struct {
-	owner *Command
+	owner Cmd
 	root  *RootCommand
 
 	// name is reserved for internal purpose.
@@ -172,20 +109,105 @@ type BaseOpt struct {
 	hitTimes int
 }
 
-type Command struct {
+type Cmd interface {
+	Backtraceable
+
+	String() string
+
+	// App() App
+
+	Set() store.Store
+
+	OwnerIsValid() bool
+	OwnerIsNil() bool
+	OwnerIsNotNil() bool
+	OwnerCmd() Cmd
+	SetOwnerCmd(o Cmd)
+	Root() *RootCommand
+	SetRoot(*RootCommand)
+
+	Name() string
+	SetName(name string)
+	ShortName() string
+	ShortNames() []string
+	AliasNames() []string
+	Desc() string
+	DescLong() string
+	Examples() string
+	TailPlaceHolder() string
+	GetCommandTitles() string
+
+	GroupTitle() string                          // group title, removed the ordered prefix
+	GroupHelpTitle() string                      // group title, remove the ordered prefix, or UnsortedGroup
+	SafeGroup() string                           // group title, or UnsortedGroup
+	AllGroupKeys(chooseFlag, sort bool) []string // subcommand group-key-titles
+	Hidden() bool
+	VendorHidden() bool
+	Deprecated() string
+	DeprecatedHelpString(trans func(ss string, clr color.Color) string, clr, clrDefault color.Color) (hs, plain string)
+
+	CountOfCommands() int
+	CommandsInGroup(groupTitle string) (list []Cmd)
+	FlagsInGroup(groupTitle string) (list []*Flag)
+	SubCommands() []*CmdS
+	Flags() []*Flag
+
+	HeadLikeFlag() *Flag
+	SetHeadLikeFlag(*Flag)
+
+	SetHitTitle(title string)
+	HitTitle() string
+	HitTimes() int
+
+	CanInvoke() bool
+	Invoke(ctx context.Context, args []string) (err error)
+
+	OnEvalSubcommands() OnEvaluateSubCommands
+	OnEvalSubcommandsOnce() OnEvaluateSubCommands
+	OnEvalSubcommandsOnceInvoked() bool
+	OnEvalSubcommandsOnceCache() []Cmd
+	OnEvalSubcommandsOnceSetCache(list []Cmd)
+	OnEvalFlags() OnEvaluateFlags
+	OnEvalFlagsOnce() OnEvaluateFlags
+	OnEvalFlagsOnceInvoked() bool
+	OnEvalFlagsOnceCache() []*Flag
+	OnEvalFlagsOnceSetCache(list []*Flag)
+
+	Match(ctx context.Context, title string) (short bool, cc Cmd)
+	TryOnMatched(position int, hitState *MatchState) (handled bool, err error)
+	MatchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, err error)
+
+	FindSubCommand(ctx context.Context, longName string, wide bool) (res Cmd)
+	FindFlagBackwards(ctx context.Context, longName string) (res *Flag)
+
+	WalkGrouped(ctx context.Context, cb WalkGroupedCB)
+	WalkBackwardsCtx(ctx context.Context, cb WalkBackwardsCB, pc *WalkBackwardsCtx)
+	WalkEverything(ctx context.Context, cb WalkEverythingCB)
+
+	// Walk(ctx context.Context, cb WalkCB)
+}
+
+type CmdPriv interface {
+	partialMatchFlag(ctx context.Context, title string, short, dblTildeMode bool, cclist map[string]*Flag) (matched, remains string, ff *Flag, err error)
+	findSubCommandIn(ctx context.Context, cc Cmd, children []Cmd, longName string, wide bool) (res Cmd)
+	findFlagIn(ctx context.Context, cc Cmd, children []Cmd, longName string, wide bool) (res *Flag)
+	findFlagBackwardsIn(ctx context.Context, cc Cmd, children []Cmd, longName string) (res *Flag)
+}
+
+type CmdS struct {
 	BaseOpt
 
 	// tailPlaceHolders gives two places to place the placeholders.
 	// It looks like the following form:
 	//
-	//     austr dns add <placeholder1st> [Options] [Parent/Global Options] <placeholders more...>
+	//     dns-util dns add <placeholder1st> [Options] [Parent/Global Options] <placeholders more...>
 	//
 	// As shown, you may specify at:
 	//
 	// - before '[Options] [Parent/Global Options]'
 	// - after '[Options] [Parent/Global Options]'
 	//
-	// In TailPlaceHolders slice, [0] is `placeholder1st``, and others
+	// In TailPlaceHolders slice, [0] is `placeholder-1st``, and others
 	// are `placeholders more``.
 	//
 	// Others:
@@ -193,7 +215,7 @@ type Command struct {
 	//   TailArgsDesc string [no plan]
 	tailPlaceHolders []string
 
-	commands []*Command
+	commands []*CmdS
 	flags    []*Flag
 
 	// preActions will be launched before running OnInvoke.
@@ -215,7 +237,7 @@ type Command struct {
 	onEvalSubcommandsOnce *struct {
 		cb       OnEvaluateSubCommands
 		invoked  bool
-		commands []BaseOptI
+		commands []Cmd
 	}
 	onEvalFlags *struct {
 		cb OnEvaluateFlags
@@ -236,7 +258,7 @@ type Command struct {
 	//
 	// NOTE:
 	//
-	//     when redirectTo is valid, Command.OnInvoke handler will be ignored.
+	//     when redirectTo is valid, CmdS.OnInvoke handler will be ignored.
 	redirectTo string
 
 	//
@@ -255,8 +277,8 @@ type Command struct {
 
 	// internal indices ------------------
 
-	longCommands  map[string]*Command
-	shortCommands map[string]*Command
+	longCommands  map[string]*CmdS
+	shortCommands map[string]*CmdS
 
 	longFlags  map[string]*Flag
 	shortFlags map[string]*Flag
@@ -318,7 +340,7 @@ type Flag struct {
 	//
 	// A flag can break cmdr parsing flow with return
 	// ErrShouldStop in its Action handler.
-	// But you' better told zsh system with set circuitBreak
+	// But you'd better told zsh system with set circuitBreak
 	// to true. At this case, cmdr will generate a suitable
 	// completion script.
 	circuitBreak bool
@@ -331,7 +353,7 @@ type Flag struct {
 }
 
 type CmdSlice struct {
-	A []*Command
+	A []*CmdS
 }
 
 type FlgSlice struct {
@@ -345,17 +367,17 @@ type MatchState struct {
 	Value           any
 }
 
-type OnInvokeHandler func(ctx context.Context, cmd BaseOptI, args []string) (err error)
+type OnInvokeHandler func(ctx context.Context, cmd Cmd, args []string) (err error)
 
-type OnPostInvokeHandler func(ctx context.Context, cmd BaseOptI, args []string, errInvoked error) (err error)
+type OnPostInvokeHandler func(ctx context.Context, cmd Cmd, args []string, errInvoked error) (err error)
 
-type OnPreInvokeHandler func(ctx context.Context, cmd BaseOptI, args []string) (err error)
+type OnPreInvokeHandler func(ctx context.Context, cmd Cmd, args []string) (err error)
 
-type OnEvaluateSubCommands func(ctx context.Context, c BaseOptI) (it EvalIterator, err error)
+type OnEvaluateSubCommands func(ctx context.Context, c Cmd) (it EvalIterator, err error)
 
-type OnEvaluateFlags func(ctx context.Context, c BaseOptI) (it EvalFlagIterator, err error)
+type OnEvaluateFlags func(ctx context.Context, c Cmd) (it EvalFlagIterator, err error)
 
-type EvalIterator func(ctx context.Context) (bo BaseOptI, hasNext bool, err error)
+type EvalIterator func(ctx context.Context) (bo Cmd, hasNext bool, err error)
 
 type EvalFlagIterator func(ctx context.Context) (bo *Flag, hasNext bool, err error)
 
@@ -376,11 +398,11 @@ type OnParseValueHandler func(
 	err error,
 )
 
-type OnCommandMatchedHandler func(c *Command, position int, hitState *MatchState) (err error)
+type OnCommandMatchedHandler func(c Cmd, position int, hitState *MatchState) (err error)
 
 type OnMatchedHandler func(f *Flag, position int, hitState *MatchState) (err error)
 
-// OnChangingHandler handles when a flag is been setting by parsing command-line
+// OnChangingHandler handles when a flag has been setting by parsing command-line
 // args, loading from external sources and other cases.
 //
 // You can cancel the parsing before received a formal OnChanged event,

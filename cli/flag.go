@@ -9,29 +9,36 @@ import (
 
 type navigator interface { //nolint:unused
 	Root() *RootCommand
-	Owner() *Command
+	Owner() *CmdS
 }
 
-func (c *Flag) Owner() *Command              { return c.owner } // the owner of this Command
-func (c *Flag) OwnerOrParent() Backtraceable { return c.owner } // the owner of this Command
-func (c *Flag) OwnerCmd() BaseOptI           { return c.owner }
+func (f *Flag) Owner() *CmdS {
+	if cx, ok := f.owner.(*CmdS); ok {
+		return cx
+	}
+	return nil
+}
+func (f *Flag) OwnerOrParent() Backtraceable { return f.owner } // the owner of this CmdS
+func (f *Flag) OwnerCmd() Cmd                { return f.owner }
 
 func (f *Flag) IsToggleGroup() bool { return f.toggleGroup != "" }
 
 func (f *Flag) ToggleGroupLeadHelpString() (lead string) { //nolint:revive
 	if f.toggleGroup != "" {
 		var state, b bool
-		if m, ok := f.owner.toggles[f.toggleGroup]; ok {
-			if _, ok = m.Flags[f.Name()]; ok {
-				if b, ok = f.defaultValue.(bool); ok {
-					state = b
+		if fo := f.Owner(); fo != nil {
+			if m, ok := fo.toggles[f.toggleGroup]; ok {
+				if _, ok = m.Flags[f.Name()]; ok {
+					if b, ok = f.defaultValue.(bool); ok {
+						state = b
+					}
 				}
 			}
-		}
-		if state {
-			lead = "[x] "
-		} else {
-			lead = "[ ] "
+			if state {
+				lead = "[x] "
+			} else {
+				lead = "[ ] "
+			}
 		}
 	}
 	return
@@ -39,8 +46,10 @@ func (f *Flag) ToggleGroupLeadHelpString() (lead string) { //nolint:revive
 
 func (f *Flag) MatchedTG() (tgm *ToggleGroupMatch) {
 	if f.toggleGroup != "" {
-		if m, ok := f.owner.toggles[f.toggleGroup]; ok {
-			tgm = m
+		if fo := f.Owner(); fo != nil {
+			if m, ok := fo.toggles[f.toggleGroup]; ok {
+				tgm = m
+			}
 		}
 	}
 	return
@@ -177,7 +186,7 @@ func (f *Flag) SetOnSetHandler(handler OnSetHandler) {
 //
 
 // func (f *Flag) Root() *RootCommand { return c.root }
-// func (f *Flag) Owner() *Command    { return c.owner }
+// func (f *Flag) Owner() *CmdS    { return c.owner }
 
 // GetTriggeredTimes returns the matched times
 func (f *Flag) GetTriggeredTimes() int { return f.hitTimes }
@@ -349,10 +358,12 @@ func (f *Flag) Delete() {
 		return
 	}
 
-	for i, cc := range f.owner.flags {
-		if f == cc {
-			f.owner.flags = append(f.owner.flags[0:i], f.owner.flags[i+1:]...)
-			return
+	if fo := f.Owner(); fo != nil {
+		for i, cc := range fo.flags {
+			if f == cc {
+				fo.flags = append(fo.flags[0:i], fo.flags[i+1:]...)
+				return
+			}
 		}
 	}
 }

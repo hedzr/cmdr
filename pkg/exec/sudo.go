@@ -115,7 +115,7 @@ func RunCommandFull(command string, readStdout bool, arguments ...string) (retCo
 	if err = cmd.Wait(); err != nil {
 		exitStatus, ok := IsExitError(err)
 		if ok {
-			// Command didn't exit with a zero exit status.
+			// CmdS didn't exit with a zero exit status.
 			return exitStatus, output.String(), slurp.String(), errors.New("%q failed with stderr:\n%v\n  ", command, slurp.String()).WithErrors(err)
 		}
 

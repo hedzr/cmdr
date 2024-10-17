@@ -15,14 +15,14 @@ import (
 // hs - help system - not yet, todo
 //
 
-func New(w cli.Runner, cmd cli.BaseOptI, args []string) *HelpSystem {
+func New(w cli.Runner, cmd cli.Cmd, args []string) *HelpSystem {
 	s := &HelpSystem{worker: w, cmd: cmd, args: args}
 	return s
 }
 
 type HelpSystem struct {
 	worker cli.Runner
-	cmd    cli.BaseOptI
+	cmd    cli.Cmd
 	args   []string
 }
 

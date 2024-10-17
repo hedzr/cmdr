@@ -326,7 +326,7 @@ func (c *calling) runNow() error {
 	if c.err = c.Cmd.Wait(); c.err != nil {
 		exitStatus, ok := IsExitError(c.err)
 		if ok {
-			// Command didn't exit with a zero exit status.
+			// CmdS didn't exit with a zero exit status.
 			c.retCode = exitStatus
 			c.err = errors.New("%q failed with stderr:\n%v\n  ", c.Path, c.slurp.String()).WithErrors(c.err)
 			return c.err

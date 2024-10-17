@@ -12,23 +12,25 @@ import (
 )
 
 func (w *workerS) addBuiltinCommands(root *cli.RootCommand) (err error) { //nolint:unparam //unified form
-	app, cmd := root.App(), root.Command
-	w.builtinCmdrs(app, cmd)
-	w.builtinSBOM(app, cmd)
-	w.builtinGenerators(app, cmd)
-	w.builtinVerboses(app, cmd)
-	w.builtinVersions(app, cmd)
-	w.builtinHelps(app, cmd)
+	app, rcmd := root.App(), root.Cmd
+	if cmd, ok := rcmd.(*cli.CmdS); ok {
+		w.builtinCmdrs(app, cmd)
+		w.builtinSBOM(app, cmd)
+		w.builtinGenerators(app, cmd)
+		w.builtinVerboses(app, cmd)
+		w.builtinVersions(app, cmd)
+		w.builtinHelps(app, cmd)
+	}
 	return
 }
 
-func (w *workerS) builtinVersions(app cli.App, p *cli.Command) {
+func (w *workerS) builtinVersions(app cli.App, p *cli.CmdS) {
 	app.NewCmdFrom(p, func(b cli.CommandBuilder) {
 		b.Titles("version", "ver", "versions").
 			Description("Show app versions information").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, false).
-			OnAction(func(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) { //nolint:revive
+			OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) { //nolint:revive
 				w.actionsMatched |= actionShowVersion
 				// w.showVersion(cmd, args)
 				// return cli.ErrShouldStop
@@ -74,18 +76,18 @@ func (w *workerS) builtinVersions(app cli.App, p *cli.Command) {
 	})
 }
 
-func (w *workerS) builtinHelps(app cli.App, p *cli.Command) { //nolint:revive
+func (w *workerS) builtinHelps(app cli.App, p *cli.CmdS) { //nolint:revive
 	app.NewCmdFrom(p, func(b cli.CommandBuilder) {
 		b.Titles("help", "h", "info", "usage", "__completion", "__complete").
 			Description("Show help system for commands").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, false).
-			OnMatched(func(c *cli.Command, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) { //nolint:revive
 				w.inCompleting = true
 				logz.SetLevel(logz.ErrorLevel) // disable trace, debug, info, warn messages
 				return
 			}).
-			OnAction(func(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) {
+			OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
 				err = w.helpSystemAction(ctx, cmd, args)
 				// w.actionsMatched |= actionShowHelpScreen
 				return // return cli.ErrShouldStop
@@ -176,7 +178,7 @@ $ {{.AppName}} --config=ci/etc/demo-yy/any.yml ~~debug
 	}
 }
 
-func (w *workerS) builtinVerboses(app cli.App, p *cli.Command) { //nolint:revive
+func (w *workerS) builtinVerboses(app cli.App, p *cli.CmdS) { //nolint:revive
 	app.NewFlgFrom(p, false, func(b cli.FlagBuilder) {
 		b.Titles("verbose", "v").
 			Description("Show more progress/debug info with verbose mode").
@@ -298,7 +300,7 @@ func (w *workerS) builtinVerboses(app cli.App, p *cli.Command) { //nolint:revive
 	})
 }
 
-func (w *workerS) builtinCmdrs(app cli.App, p *cli.Command) { //nolint:revive
+func (w *workerS) builtinCmdrs(app cli.App, p *cli.CmdS) { //nolint:revive
 	app.NewFlgFrom(p, false, func(b cli.FlagBuilder) {
 		b.Titles("strict-mode", "").
 			Description("<mark>Strict mode</mark> for '<code>cmdr</code>'").
@@ -343,7 +345,7 @@ func (w *workerS) builtinCmdrs(app cli.App, p *cli.Command) { //nolint:revive
 	})
 }
 
-func (w *workerS) builtinGenerators(app cli.App, p *cli.Command) { //nolint:revive
+func (w *workerS) builtinGenerators(app cli.App, p *cli.CmdS) { //nolint:revive
 	app.NewCmdFrom(p, func(bb cli.CommandBuilder) {
 		bb.Titles("generate", "g", "gen", "generator").
 			Description("Generators for this app", `
@@ -366,7 +368,7 @@ $ {{.AppName}} gen man
 			`).
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
-			OnMatched(func(c *cli.Command, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) { //nolint:revive
 				return
 			}).
 			OnAction((&genS{}).onAction)
@@ -375,7 +377,7 @@ $ {{.AppName}} gen man
 			Description("Generate Linux Manual Documentations").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
-			OnMatched(func(c *cli.Command, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) { //nolint:revive
 				return
 			}).
 			OnAction((&genManS{}).onAction).
@@ -400,7 +402,7 @@ $ {{.AppName}} gen man
 			Description("Generate documentations").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
-			OnMatched(func(c *cli.Command, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) { //nolint:revive
 				return
 			}).
 			OnAction((&genDocS{}).onAction).
@@ -418,7 +420,7 @@ $ {{.AppName}} gen man
 			Description("Generate the shell completion script or install it").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
-			OnMatched(func(c *cli.Command, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) { //nolint:revive
 				return
 			}).
 			OnAction((&genShS{}).onAction).
@@ -491,21 +493,21 @@ $ {{.AppName}} gen man
 	})
 }
 
-func (w *workerS) builtinSBOM(app cli.App, p *cli.Command) { //nolint:revive
+func (w *workerS) builtinSBOM(app cli.App, p *cli.CmdS) { //nolint:revive
 	app.NewCmdFrom(p, func(bb cli.CommandBuilder) {
 		bb.Titles("sbom", "", "").
 			Description("Show SBOM Info", ``).
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
-			OnMatched(func(c *cli.Command, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) { //nolint:revive
 				return
 			}).
 			OnAction((&sbomS{}).onAction)
 	})
 }
 
-func (w *workerS) uniAddCmd(cmd *cli.Command, callbacks ...func(cc *cli.Command)) { //nolint:revive,unused
-	cmd.AddSubCommand(new(cli.Command), callbacks...)
+func (w *workerS) uniAddCmd(cmd *cli.CmdS, callbacks ...func(cc *cli.CmdS)) { //nolint:revive,unused
+	cmd.AddSubCommand(new(cli.CmdS), callbacks...)
 }
 
 //

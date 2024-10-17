@@ -14,8 +14,8 @@ func TestAppS_AddCmd(t *testing.T) {
 	a.AddCmd(func(b cli.CommandBuilder) {
 		b.Titles("ask", "a")
 	})
-	assertEqual(t, a.root.Long, "ask")
-	assertEqual(t, a.root.Short, "a")
+	assertEqual(t, a.root.Cmd.(*cli.CmdS).Long, "ask")
+	assertEqual(t, a.root.Cmd.(*cli.CmdS).Short, "a")
 
 	a.AddCmd(func(b cli.CommandBuilder) {
 		b.Titles("bunny", "b")

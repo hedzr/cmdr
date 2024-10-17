@@ -10,7 +10,7 @@ import (
 
 func (c *RootCommand) SetApp(app App) *RootCommand {
 	c.app = app
-	c.root = c
+	c.SetRoot(c) // c.root = c
 	if a, ok := app.(interface {
 		SetRootCommand(command *RootCommand) App
 	}); ok {
@@ -19,15 +19,19 @@ func (c *RootCommand) SetApp(app App) *RootCommand {
 	return c
 }
 
-func (c *RootCommand) NewCmd(longTitle string) *Command {
-	cc := &Command{
+func (c *RootCommand) NewCmd(longTitle string) *CmdS {
+	cc := &CmdS{
 		BaseOpt: BaseOpt{
 			Long:  longTitle,
-			owner: c.Command,
+			owner: c.Cmd,
 			root:  c,
 		},
 	}
-	c.AddSubCommand(cc)
+	if x, ok := c.Cmd.(interface {
+		AddSubCommand(child *CmdS, callbacks ...func(cc *CmdS))
+	}); ok {
+		x.AddSubCommand(cc)
+	}
 	return cc
 }
 
@@ -35,24 +39,28 @@ func (c *RootCommand) NewFlg(longTitle string) *Flag {
 	cc := &Flag{
 		BaseOpt: BaseOpt{
 			Long:  longTitle,
-			owner: c.root.Command,
-			root:  c.root,
+			owner: c.Root(),
+			root:  c.Root(),
 		},
 	}
-	c.AddFlag(cc)
+	if x, ok := c.Cmd.(interface {
+		AddFlag(ff *Flag, callbacks ...func(ff *Flag))
+	}); ok {
+		x.AddFlag(cc)
+	}
 	return cc
 }
 
 // Attach attaches new root command on it
-func (c *RootCommand) Attach(newRootCommand *Command) {
-	c.Command = newRootCommand
-	newRootCommand.owner = nil
-	newRootCommand.root = c
+func (c *RootCommand) Attach(newRootCommand Cmd) {
+	c.Cmd = newRootCommand
+	newRootCommand.SetOwnerCmd(nil)
+	newRootCommand.SetRoot(c)
 
 	// update 'root' fields in any commands/flags
-	hist := make(map[BaseOptI]bool)
+	// hist := make(map[Cmd]bool)
 	ctx := context.TODO()
-	c.walkImpl(ctx, hist, c.Command, 0, func(cc BaseOptI, index, level int) {
+	c.Walk(ctx, func(cc Cmd, index, level int) {
 		if cx, ok := cc.(interface{ SetRoot(command *RootCommand) }); ok {
 			cx.SetRoot(c)
 		}
@@ -92,7 +100,7 @@ func (c *RootCommand) Header() string {
 		c.Author = fmt.Sprintf("%v Authors", c.AppName)
 	}
 	return fmt.Sprintf("%v v%v ~ %v by %v ~ All Rights Reserved.",
-		c.AppName, c.AppVersion(), c.Copyright, c.Author)
+		c.AppName, c.Version, c.Copyright, c.Author)
 }
 
 func (c *RootCommand) Footer() string {

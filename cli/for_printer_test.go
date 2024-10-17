@@ -17,7 +17,7 @@ type helpPrinter struct {
 	w            *workerS //nolint:unused
 }
 
-func (s *helpPrinter) Print(ctx context.Context, lastCmd *Command) { //nolint:unparam,revive
+func (s *helpPrinter) Print(ctx context.Context, lastCmd Cmd) { //nolint:unparam,revive
 	if s.Translator == nil {
 		s.Translator = color.GetCPT()
 	}
@@ -34,7 +34,7 @@ func (s *helpPrinter) Print(ctx context.Context, lastCmd *Command) { //nolint:un
 	// 	wr = s.w.wrHelpScreen
 	// }
 
-	lastCmd.WalkEverything(ctx, func(cc, pp BaseOptI, ff *Flag, cmdIndex, flgIndex, level int) {
+	lastCmd.WalkEverything(ctx, func(cc, pp Cmd, ff *Flag, cmdIndex, flgIndex, level int) {
 		switch {
 		case ff == nil && level > 0:
 			_, _ = sb.WriteString(strings.Repeat("  ", level))

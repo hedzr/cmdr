@@ -5,23 +5,25 @@ import (
 )
 
 func (c *RootCommand) SelfAssert() {
-	c.Command.SelfAssert(c)
+	if x, ok := c.Cmd.(*CmdS); ok {
+		x.SelfAssert(c)
+	}
 }
 
-func (c *Command) SelfAssert(root *RootCommand) { //nolint:revive
-	c.selfWalk(root, c, nil, func(cc, oo BaseOptI, ff *Flag) {
+func (c *CmdS) SelfAssert(root *RootCommand) { //nolint:revive
+	c.selfWalk(root, c, nil, func(cc, oo Cmd, ff *Flag) {
 		if ff == nil {
 			if cc.Root() != root {
-				if !(cc.Root() == nil && cc == root.Command) {
-					panic(fmt.Sprintf("unexpected Command.root: %v | root: %v | cc: %v", cc.Root(), root, cc))
+				if !(cc.Root() == nil && cc == root.Cmd) {
+					panic(fmt.Sprintf("unexpected CmdS.root: %v | root: %v | cc: %v", cc.Root(), root, cc))
 				}
 			}
 			if cc.OwnerCmd() != oo {
 				if !(cc.OwnerIsNil() && (cc.Root() == cc || oo == nil)) {
-					panic(fmt.Sprintf("unexpected Command.owner: %v | oo: %v | cc: %v", cc.OwnerCmd(), oo, cc))
+					panic(fmt.Sprintf("unexpected CmdS.owner: %v | oo: %v | cc: %v", cc.OwnerCmd(), oo, cc))
 				}
 			}
-			if cx, ok := cc.(*Command); ok {
+			if cx, ok := cc.(*CmdS); ok {
 				if cx.longCommands == nil || cx.shortCommands == nil {
 					panic("internal command maps (longCommands or shortCommands) not ok")
 				}
@@ -40,7 +42,7 @@ func (c *Command) SelfAssert(root *RootCommand) { //nolint:revive
 	})
 }
 
-func (c *Command) selfWalk(root *RootCommand, cmd, owner BaseOptI, cb func(cc, oo BaseOptI, ff *Flag)) { //nolint:unparam
+func (c *CmdS) selfWalk(root *RootCommand, cmd, owner Cmd, cb func(cc, oo Cmd, ff *Flag)) { //nolint:unparam
 	cb(cmd, owner, nil)
 
 	for _, cx := range cmd.SubCommands() {

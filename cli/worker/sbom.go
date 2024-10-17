@@ -13,7 +13,7 @@ import (
 
 type sbomS struct{}
 
-func (w *sbomS) onAction(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) { //nolint:revive,unused
+func (w *sbomS) onAction(ctx context.Context, cmd cli.Cmd, args []string) (err error) { //nolint:revive,unused
 	ec := errors.New("[processing executables]")
 	if len(args) == 0 {
 		args = append(args, dir.GetExecutablePath()) //nolint:revive

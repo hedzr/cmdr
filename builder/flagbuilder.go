@@ -6,7 +6,7 @@ import (
 	"github.com/hedzr/cmdr/v2/cli"
 )
 
-// func NewFlagBuilder(parent *cli.Command, defaultValue any, longTitle string, titles ...string) *ffb {
+// func NewFlagBuilder(parent *cli.CmdS, defaultValue any, longTitle string, titles ...string) *ffb {
 // 	// s := &ffb{
 // 	// 	nil, parent,
 // 	// 	new(cli.Flag),
@@ -20,7 +20,7 @@ func newFlagBuilderShort(b buildable, longTitle string, titles ...string) *ffb {
 	return newFlagBuilderFrom(nil, b, nil, longTitle, titles...)
 }
 
-func newFlagBuilderFrom(parent *cli.Command, b buildable, defaultValue any, longTitle string, titles ...string) *ffb {
+func newFlagBuilderFrom(parent *cli.CmdS, b buildable, defaultValue any, longTitle string, titles ...string) *ffb {
 	s := &ffb{
 		b, parent,
 		new(cli.Flag),
@@ -32,7 +32,7 @@ func newFlagBuilderFrom(parent *cli.Command, b buildable, defaultValue any, long
 
 type ffb struct {
 	buildable
-	parent *cli.Command
+	parent *cli.CmdS
 	*cli.Flag
 }
 

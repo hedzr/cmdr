@@ -11,7 +11,7 @@ import (
 	logz "github.com/hedzr/logg/slog"
 )
 
-func (c *Command) Match(ctx context.Context, title string) (short bool, cc BaseOptI) {
+func (c *CmdS) Match(ctx context.Context, title string) (short bool, cc Cmd) {
 	if title == "" {
 		return
 	}
@@ -86,7 +86,7 @@ func (s *FlagValuePkg) Reset() {
 // MatchFlag try matching command title with vp.Remains, and update the relevant states.
 //
 // While a flag matched ok, returns vp.Matched != "" && ff != nil && err != nil
-func (c *Command) MatchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, err error) { //nolint:revive
+func (c *CmdS) MatchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, err error) { //nolint:revive
 	c.ensureXrefFlags(ctx)
 
 	var ok bool
@@ -182,12 +182,12 @@ func (c *Command) MatchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, er
 	return
 }
 
-func (c *Command) testDblTilde(dblTilde bool, ff *Flag) (matched bool) {
+func (c *CmdS) testDblTilde(dblTilde bool, ff *Flag) (matched bool) {
 	matched = dblTilde || !ff.dblTildeOnly || (ff.dblTildeOnly && dblTilde)
 	return
 }
 
-func (c *Command) partialMatchFlag(ctx context.Context, title string, short, dblTildeMode bool, cclist map[string]*Flag) (matched, remains string, ff *Flag, err error) { //nolint:revive
+func (c *CmdS) partialMatchFlag(ctx context.Context, title string, short, dblTildeMode bool, cclist map[string]*Flag) (matched, remains string, ff *Flag, err error) { //nolint:revive
 	var maxLen int
 	var rightPart string
 
@@ -213,66 +213,70 @@ func (c *Command) partialMatchFlag(ctx context.Context, title string, short, dbl
 
 	if maxLen > 0 {
 		// if any flag matched, checking the parents for looking up the longer ones
-		if c.owner != nil && c.owner != c {
-			c.owner.ensureXrefFlags(ctx)
-			mf := c.owner.longFlags
-			if short {
-				mf = c.owner.shortFlags
-			}
-			matched1, remains1, ff1, err1 := c.owner.partialMatchFlag(ctx, titleOriginal, short, dblTildeMode, mf)
-			if err = err1; err != nil {
-				return
-			}
-			if ff1 != nil && maxLen < len(matched1) {
-				// if longer matched flag from parents exists, use it instead of the lastCommand's
-				matched, remains, ff = matched1, remains1, ff1
+		if c.OwnerIsValid() {
+			if co, ok := c.owner.(*CmdS); ok {
+				co.ensureXrefFlags(ctx)
+				mf := co.longFlags
+				if short {
+					mf = co.shortFlags
+				}
+				matched1, remains1, ff1, err1 := co.partialMatchFlag(ctx, titleOriginal, short, dblTildeMode, mf)
+				if err = err1; err != nil {
+					return
+				}
+				if ff1 != nil && maxLen < len(matched1) {
+					// if longer matched flag from parents exists, use it instead of the lastCommand's
+					matched, remains, ff = matched1, remains1, ff1
+				}
 			}
 		}
 		return
 	}
 
-	if c.owner != nil && c.owner != c {
-		// if no flag matched, checking the parents
-		c.owner.ensureXrefFlags(ctx)
+	if c.OwnerIsValid() {
+		if co, ok := c.owner.(*CmdS); ok {
+			// if no flag matched, checking the parents
+			co.ensureXrefFlags(ctx)
 
-		var cxlist map[string]*Flag
-		if short {
-			if c.owner.onEvalFlagsOnce != nil || c.owner.onEvalFlags != nil {
-				flags := mustEnsureDynFlags(ctx, c.owner)
-				cxlist = make(map[string]*Flag)
-				for _, cx := range flags {
-					if cx.Short != "" {
-						cxlist[cx.Short] = cx
-					}
-				}
-			} else {
-				cxlist = c.owner.shortFlags
-			}
-		} else {
-			if c.owner.onEvalFlagsOnce != nil || c.owner.onEvalFlags != nil {
-				flags := mustEnsureDynFlags(ctx, c.owner)
-				cxlist = make(map[string]*Flag)
-				for _, cx := range flags {
-					if cx.Long != "" {
-						cxlist[cx.Long] = cx
-					}
-					for _, t := range cx.Aliases {
-						if t != "" {
-							cxlist[t] = cx
+			var cxlist map[string]*Flag
+			if short {
+				if co.onEvalFlagsOnce != nil || co.onEvalFlags != nil {
+					flags := mustEnsureDynFlags(ctx, c.owner)
+					cxlist = make(map[string]*Flag)
+					for _, cx := range flags {
+						if cx.Short != "" {
+							cxlist[cx.Short] = cx
 						}
 					}
+				} else {
+					cxlist = co.shortFlags
 				}
 			} else {
-				cxlist = c.owner.longFlags
+				if co.onEvalFlagsOnce != nil || co.onEvalFlags != nil {
+					flags := mustEnsureDynFlags(ctx, c.owner)
+					cxlist = make(map[string]*Flag)
+					for _, cx := range flags {
+						if cx.Long != "" {
+							cxlist[cx.Long] = cx
+						}
+						for _, t := range cx.Aliases {
+							if t != "" {
+								cxlist[t] = cx
+							}
+						}
+					}
+				} else {
+					cxlist = co.longFlags
+				}
 			}
-		}
 
-		matched, remains, ff, err = c.owner.partialMatchFlag(ctx, titleOriginal, short, dblTildeMode, cxlist)
+			matched, remains, ff, err = co.partialMatchFlag(ctx, titleOriginal, short, dblTildeMode, cxlist)
+		}
 	}
 	return
 }
 
-func (c *Command) tryParseValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) (ret *Flag, err error) {
+func (c *CmdS) tryParseValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) (ret *Flag, err error) {
 	if ff != nil {
 		ff = c.matchedForTG(ctx, ff) //nolint:revive
 	}
@@ -302,32 +306,34 @@ func (c *Command) tryParseValue(ctx context.Context, vp *FlagValuePkg, ff *Flag)
 	return
 }
 
-func (c *Command) matchedForTG(ctx context.Context, ff *Flag) *Flag {
+func (c *CmdS) matchedForTG(ctx context.Context, ff *Flag) *Flag {
 	// toggle group
-	if ff.owner.toggles != nil {
-		if m, ok := ff.owner.toggles[ff.ToggleGroup()]; ok {
-			if f, ok := m.Flags[ff.Name()]; ok {
-				for _, v := range m.Flags {
-					v.SetDefaultValue(false)
+	if co, ok := ff.owner.(*CmdS); ok {
+		if co.toggles != nil {
+			if m, ok := co.toggles[ff.ToggleGroup()]; ok {
+				if f, ok := m.Flags[ff.Name()]; ok {
+					for _, v := range m.Flags {
+						v.SetDefaultValue(false)
+					}
+					f.SetDefaultValue(true)
+					m.Matched, m.MatchedTitle = f, f.Name()
 				}
-				f.SetDefaultValue(true)
-				m.Matched, m.MatchedTitle = f, f.Name()
 			}
 		}
-	}
-	// mutual exclusives
-	if len(ff.mutualExclusives) > 0 {
-		root := ff.Root()
-		for _, fn := range ff.mutualExclusives {
-			var f *Flag
-			if strings.ContainsRune(fn, '.') {
-				f = ff.owner.FindFlag(ctx, fn, false)
-			} else {
-				_, f = dottedPathToCommandOrFlagG(root, fn)
-			}
-			if f != nil {
-				if _, ok := f.defaultValue.(bool); ok {
-					f.SetDefaultValue(false)
+		// mutual exclusives
+		if len(ff.mutualExclusives) > 0 {
+			root := ff.Root()
+			for _, fn := range ff.mutualExclusives {
+				var f *Flag
+				if strings.ContainsRune(fn, '.') {
+					f = co.FindFlag(ctx, fn, false)
+				} else {
+					_, f = dottedPathToCommandOrFlagG(root, fn)
+				}
+				if f != nil {
+					if _, ok := f.defaultValue.(bool); ok {
+						f.SetDefaultValue(false)
+					}
 				}
 			}
 		}
@@ -335,7 +341,7 @@ func (c *Command) matchedForTG(ctx context.Context, ff *Flag) *Flag {
 	return ff
 }
 
-func (c *Command) checkJustOnce(vp *FlagValuePkg, ff *Flag) (ret *Flag, err error) {
+func (c *CmdS) checkJustOnce(vp *FlagValuePkg, ff *Flag) (ret *Flag, err error) {
 	if ff != nil && ff.justOnce {
 		if ff.hitTimes > 1 {
 			err = ErrFlagJustOnce.FormatWith(ff)
@@ -346,20 +352,22 @@ func (c *Command) checkJustOnce(vp *FlagValuePkg, ff *Flag) (ret *Flag, err erro
 	return
 }
 
-func (c *Command) checkPrerequisites(ctx context.Context, vp *FlagValuePkg, ff *Flag) (ret *Flag, err error) {
+func (c *CmdS) checkPrerequisites(ctx context.Context, vp *FlagValuePkg, ff *Flag) (ret *Flag, err error) {
 	if ff != nil && len(ff.prerequisites) > 0 {
-		root := ff.Root()
-		for _, fn := range ff.prerequisites {
-			var f *Flag
-			if strings.ContainsRune(fn, '.') {
-				f = ff.owner.FindFlag(ctx, fn, false)
-			} else {
-				_, f = dottedPathToCommandOrFlagG(root, fn)
-			}
-			if f != nil {
-				if f.hitTimes < 0 {
-					err = ErrMissedPrerequisite.FormatWith(ff, f)
-					return
+		if co, ok := c.owner.(*CmdS); ok {
+			root := ff.Root()
+			for _, fn := range ff.prerequisites {
+				var f *Flag
+				if strings.ContainsRune(fn, '.') {
+					f = co.FindFlag(ctx, fn, false)
+				} else {
+					_, f = dottedPathToCommandOrFlagG(root, fn)
+				}
+				if f != nil {
+					if f.hitTimes < 0 {
+						err = ErrMissedPrerequisite.FormatWith(ff, f)
+						return
+					}
 				}
 			}
 		}
@@ -368,7 +376,7 @@ func (c *Command) checkPrerequisites(ctx context.Context, vp *FlagValuePkg, ff *
 	return
 }
 
-func (c *Command) checkCircuitBreak(vp *FlagValuePkg, ff *Flag) (ret *Flag, err error) {
+func (c *CmdS) checkCircuitBreak(vp *FlagValuePkg, ff *Flag) (ret *Flag, err error) {
 	if ff != nil && ff.circuitBreak {
 		err = ErrShouldStop
 		return
@@ -377,7 +385,7 @@ func (c *Command) checkCircuitBreak(vp *FlagValuePkg, ff *Flag) (ret *Flag, err 
 	return
 }
 
-func (c *Command) tryParseStringValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) *Flag {
+func (c *CmdS) tryParseStringValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) *Flag {
 	if ff.externalEditor != "" {
 		if f := c.invokeExternalEditor(ctx, vp, ff); f != nil {
 			return f
@@ -395,7 +403,7 @@ func (c *Command) tryParseStringValue(ctx context.Context, vp *FlagValuePkg, ff 
 	return ff
 }
 
-func (c *Command) tryParseBoolValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) *Flag {
+func (c *CmdS) tryParseBoolValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) *Flag {
 	if len(vp.Remains) > 0 {
 		switch ch := vp.Remains[0]; ch {
 		case '+':
@@ -419,7 +427,7 @@ func (c *Command) tryParseBoolValue(ctx context.Context, vp *FlagValuePkg, ff *F
 	return ff
 }
 
-func (c *Command) tryParseOthersValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) *Flag {
+func (c *CmdS) tryParseOthersValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) *Flag {
 	if vp.Remains != "" {
 		vp.ValueOK, vp.Value, vp.Remains = true, c.fromString(vp.Remains, ff.defaultValue), ""
 	} else {
@@ -437,7 +445,7 @@ func (c *Command) tryParseOthersValue(ctx context.Context, vp *FlagValuePkg, ff 
 	return ff
 }
 
-func (c *Command) fromString(text string, meme any) (value any) { //nolint:revive
+func (c *CmdS) fromString(text string, meme any) (value any) { //nolint:revive
 	var err error
 	value, err = atoa.Parse(text, meme)
 	if err != nil {
@@ -446,11 +454,11 @@ func (c *Command) fromString(text string, meme any) (value any) { //nolint:reviv
 	return
 }
 
-func (c *Command) normalizeStringValue(sv string) string {
+func (c *CmdS) normalizeStringValue(sv string) string {
 	return tool.StripQuotes(sv)
 }
 
-func (c *Command) TryOnMatched(position int, hitState *MatchState) (handled bool, err error) {
+func (c *CmdS) TryOnMatched(position int, hitState *MatchState) (handled bool, err error) {
 	if c.onMatched != nil {
 		handled = true
 		for _, m := range c.onMatched {
@@ -464,7 +472,7 @@ func (c *Command) TryOnMatched(position int, hitState *MatchState) (handled bool
 }
 
 // MatchTitleNameFast matches a given title string without indices built.
-func (c *Command) MatchTitleNameFast(title string) (ok bool) { //nolint:revive
+func (c *CmdS) MatchTitleNameFast(title string) (ok bool) { //nolint:revive
 	if title == "" {
 		return
 	}

@@ -38,7 +38,7 @@ func TestWorkerS_Pre(t *testing.T) {
 	_ = app
 
 	err := ww.Run(ctx,
-		withTasksBeforeParse(func(ctx context.Context, cmd cli.BaseOptI, runner cli.Runner, extras ...any) (err error) { //nolint:revive
+		withTasksBeforeParse(func(ctx context.Context, cmd cli.Cmd, runner cli.Runner, extras ...any) (err error) { //nolint:revive
 			runner.Root().SelfAssert()
 			t.Logf("root.SelfAssert() passed.")
 			return
@@ -119,12 +119,12 @@ func TestWorkerS_Parse(t *testing.T) { //nolint:revive
 }
 
 var (
-	aTaskBeforeRun = func(ctx context.Context, cmd cli.BaseOptI, runner cli.Runner, extras ...any) (err error) { return } //nolint:revive
+	aTaskBeforeRun = func(ctx context.Context, cmd cli.Cmd, runner cli.Runner, extras ...any) (err error) { return } //nolint:revive
 
 	testWorkerParseCases = cmdrRunTests{[]cmdrRunTest{
 		{args: "m unk snd cool", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
-			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {
-				logz.Print("[cmdr] expect 'UNKNOWN Command FOUND' error, but not matched.") // "unk"
+			if !regexp.MustCompile(`UNKNOWN (Cmd|Flag) FOUND:?`).MatchString(errParsed.Error()) {
+				logz.Print("[cmdr] expect 'UNKNOWN Cmd FOUND' error, but not matched.") // "unk"
 			}
 			return /* errParsed */
 		}, opts: []cli.Opt{cli.WithUnmatchedAsError(true)}},
@@ -163,7 +163,7 @@ var (
 		}},
 
 		{args: "m snd -n -wn cool fog --pp box", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
-			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {
+			if !regexp.MustCompile(`UNKNOWN (Cmd|Flag) FOUND:?`).MatchString(errParsed.Error()) {
 				logz.Print("[cmdr] expect 'UNKNOWN Flag FOUND' error, but not matched.") // "--pp"
 			}
 			hitTest(pc, "dry-run", 2)
@@ -191,13 +191,13 @@ var (
 		// general, unknown cmd/flg errors
 		{args: "m snd --help"},
 		{args: "m unk snd cool", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
-			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {
-				logz.Print("[cmdr] expect 'UNKNOWN Command FOUND' error, but not matched.") // "unk"
+			if !regexp.MustCompile(`UNKNOWN (Cmd|Flag) FOUND:?`).MatchString(errParsed.Error()) {
+				logz.Print("[cmdr] expect 'UNKNOWN Cmd FOUND' error, but not matched.") // "unk"
 			}
 			return /* errParsed */
 		}, opts: []cli.Opt{cli.WithUnmatchedAsError(true)}},
 		{args: "m snd -n -wn cool fog --pp box", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
-			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {
+			if !regexp.MustCompile(`UNKNOWN (Cmd|Flag) FOUND:?`).MatchString(errParsed.Error()) {
 				logz.Print("[cmdr] expect 'UNKNOWN Flag FOUND' error, but not matched.") // "--pp"
 			}
 			hitTest(pc, "dry-run", 2)

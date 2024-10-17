@@ -33,7 +33,7 @@ func newDefaultRoot() *cli.RootCommand {
 	}
 
 	root := new(cli.RootCommand)
-	root.Command = new(cli.Command)
+	root.Cmd = new(cli.CmdS)
 	root.AppName = conf.AppName
 	root.Version = conf.Version
 	return root
@@ -44,6 +44,6 @@ type setRoot interface {
 }
 
 type adder interface {
-	addCommand(child *cli.Command)
+	addCommand(child *cli.CmdS)
 	addFlag(child *cli.Flag)
 }

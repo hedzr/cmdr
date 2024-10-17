@@ -10,7 +10,7 @@ import (
 )
 
 func TestServerStartup(t *testing.T) {
-	var cmd *cli.Command
+	var cmd *cli.CmdS
 	var args []string
 
 	ctx := context.Background()
@@ -45,14 +45,14 @@ func TestMxTest(t *testing.T) {
 }
 
 func TestXyPrint(t *testing.T) {
-	var cmd *cli.Command
+	var cmd *cli.CmdS
 	ctx := context.Background()
 	_ = xyPrint(ctx, cmd, []string{"abcdefg"})
 	_ = kbPrint(ctx, cmd, []string{"abcdefg"})
 }
 
 func TestSoundex(t *testing.T) {
-	var cmd *cli.Command
+	var cmd *cli.CmdS
 	ctx := context.Background()
 	_ = soundex(ctx, cmd, []string{"abcdefg"})
 	_ = ttySize(ctx, cmd, []string{})
@@ -73,12 +73,12 @@ func TestAttachKvCommand(t *testing.T) {
 func minimalApp(opts ...cli.Opt) (root *cli.RootCommand, app cli.App) {
 	app = cmdr.New(opts...)
 	root = (&cli.RootCommand{
-		Command: &cli.Command{},
+		Cmd: &cli.CmdS{},
 	}).SetApp(app)
 	return
 }
 
-func minimalCmd(longTitle string, opts ...cli.Opt) (cc *cli.Command) {
+func minimalCmd(longTitle string, opts ...cli.Opt) (cc *cli.CmdS) {
 	root, app := minimalApp(opts...)
 	cc = root.NewCmd(longTitle)
 	_ = app

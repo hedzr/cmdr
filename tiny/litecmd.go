@@ -13,7 +13,7 @@ import (
 	"github.com/hedzr/store"
 )
 
-func onEvalJumpSubCommands(ctx context.Context, c cli.BaseOptI) (it cli.EvalIterator, err error) {
+func onEvalJumpSubCommands(ctx context.Context, c cli.Cmd) (it cli.EvalIterator, err error) {
 	files := make(map[string]*liteCmdS)
 	pos := 0
 	var keys []string
@@ -29,7 +29,7 @@ func onEvalJumpSubCommands(ctx context.Context, c cli.BaseOptI) (it cli.EvalIter
 		return
 	})
 
-	it = func(context.Context) (bo cli.BaseOptI, hasNext bool, err error) {
+	it = func(context.Context) (bo cli.Cmd, hasNext bool, err error) {
 		if pos < len(keys) {
 			key := keys[pos]
 			bo = files[key]
@@ -45,64 +45,47 @@ type liteCmdS struct {
 	dirName string
 	fi      os.DirEntry
 	depth   int
-	owner   cli.BaseOptI
+	owner   cli.Cmd
 	group   string
 
 	hitTitle string
 	hitTimes int
 }
 
-func (s *liteCmdS) name() string { return s.fi.Name() }
+var _ cli.Cmd = (*liteCmdS)(nil)
 
-func (s *liteCmdS) OwnerOrParent() cli.BacktraceableMin { return s.owner.(cli.Backtraceable) }
-func (s *liteCmdS) OwnerIsNil() bool                    { return s.owner == nil }
-func (s *liteCmdS) GetDottedPath() string               { return cli.DottedPath(s) }
-func (s *liteCmdS) GetTitleName() string                { return s.name() }
-func (s *liteCmdS) GetTitleNamesArray() []string        { return []string{s.name()} }
-func (s *liteCmdS) GetTitleNames() string               { return s.name() }
-func (s *liteCmdS) App() cli.App                        { return nil }
+// var _ cli.CmdPriv = (*liteCmdS)(nil)
+
+func (s *liteCmdS) name() string { return s.fi.Name() }
 
 func (s *liteCmdS) String() string { return path.Join(s.dirName, s.name()) }
 
-func (s *liteCmdS) FindSubCommand(ctx context.Context, longName string, wide bool) (res cli.BaseOptI) {
-	return
-}
-func (s *liteCmdS) Walk(ctx context.Context, cb cli.WalkCB) {
-	return
-}
-func (s *liteCmdS) WalkGrouped(ctx context.Context, cb cli.WalkGroupedCB) {
-	return
-}
-func (s *liteCmdS) WalkBackwardsCtx(ctx context.Context, cb cli.WalkBackwardsCB, pc *cli.WalkBackwardsCtx) {
-	return
-}
-func (s *liteCmdS) FindFlagBackwards(ctx context.Context, longName string) (res *cli.Flag) {
-	return
-}
+func (s *liteCmdS) GetDottedPath() string        { return cli.DottedPath(s) }
+func (s *liteCmdS) GetTitleName() string         { return s.name() }
+func (s *liteCmdS) GetTitleNamesArray() []string { return []string{s.name()} }
+func (s *liteCmdS) GetTitleNames() string        { return s.name() }
 
-func (s *liteCmdS) CanInvoke() bool {
-	return s.fi.Type().IsRegular()
-}
-
-func (s *liteCmdS) Match(ctx context.Context, title string) (short bool, cc cli.BaseOptI) {
-	return
-}
-func (s *liteCmdS) TryOnMatched(position int, hitState *cli.MatchState) (handled bool, err error) {
-	return
-}
-func (s *liteCmdS) MatchFlag(ctx context.Context, vp *cli.FlagValuePkg) (ff *cli.Flag, err error) { //nolint:revive
-	return
-}
-
-func (s *liteCmdS) ForeachFlags(context.Context, func(f *cli.Flag) (stop bool)) (stop bool) {
-	return
-}
-
+func (s *liteCmdS) App() cli.App     { return nil }
 func (s *liteCmdS) Set() store.Store { return s.Root().App().Store() }
 
-func (s *liteCmdS) OwnerCmd() cli.BaseOptI   { return s.owner }
-func (s *liteCmdS) Root() *cli.RootCommand   { return s.owner.Root() }
+func (s *liteCmdS) OwnerIsValid() bool {
+	if s.OwnerIsNotNil() {
+		if cx, ok := s.owner.(*liteCmdS); ok {
+			return cx != s
+		}
+	}
+	return false
+}
+func (s *liteCmdS) OwnerIsNil() bool                    { return s.owner == nil }
+func (s *liteCmdS) OwnerIsNotNil() bool                 { return s.owner != nil }
+func (s *liteCmdS) OwnerCmd() cli.Cmd                   { return s.owner }
+func (s *liteCmdS) SetOwnerCmd(c cli.Cmd)               { s.owner = c }
+func (s *liteCmdS) Root() *cli.RootCommand              { return s.owner.Root() }
+func (s *liteCmdS) SetRoot(*cli.RootCommand)            {}
+func (s *liteCmdS) OwnerOrParent() cli.BacktraceableMin { return s.owner.(cli.Backtraceable) }
+
 func (s *liteCmdS) Name() string             { return s.name() }
+func (s *liteCmdS) SetName(string)           {}
 func (s *liteCmdS) ShortName() string        { return s.name() }
 func (s *liteCmdS) ShortNames() []string     { return []string{s.name()} }
 func (s *liteCmdS) AliasNames() []string     { return nil }
@@ -120,21 +103,40 @@ func (s *liteCmdS) SafeGroup() string {
 	}
 	return s.group
 }
-func (s *liteCmdS) AllGroupKeys(chooseFlag, sort bool) []string             { return nil }
-func (s *liteCmdS) Hidden() bool                                            { return false }
-func (s *liteCmdS) VendorHidden() bool                                      { return false }
-func (s *liteCmdS) Deprecated() string                                      { return "" }
-func (s *liteCmdS) CountOfCommands() int                                    { return 0 }
-func (s *liteCmdS) CommandsInGroup(groupTitle string) (list []cli.BaseOptI) { return nil }
-func (s *liteCmdS) FlagsInGroup(groupTitle string) (list []*cli.Flag)       { return nil }
-func (s *liteCmdS) Flags() []*cli.Flag                                      { return nil }
-func (s *liteCmdS) SubCommands() []*cli.Command                             { return nil }
+func (s *liteCmdS) AllGroupKeys(chooseFlag, sort bool) []string { return nil }
+func (s *liteCmdS) Hidden() bool                                { return false }
+func (s *liteCmdS) VendorHidden() bool                          { return false }
+func (s *liteCmdS) Deprecated() string                          { return "" }
+func (s *liteCmdS) DeprecatedHelpString(trans func(ss string, clr color.Color) string, clr, clrDefault color.Color) (hs, plain string) {
+	return
+}
+
+func (s *liteCmdS) CountOfCommands() int                               { return 0 }
+func (s *liteCmdS) CommandsInGroup(groupTitle string) (list []cli.Cmd) { return nil }
+func (s *liteCmdS) FlagsInGroup(groupTitle string) (list []*cli.Flag)  { return nil }
+func (s *liteCmdS) SubCommands() []*cli.CmdS                           { return nil }
+func (s *liteCmdS) Flags() []*cli.Flag                                 { return nil }
+
+func (s *liteCmdS) HeadLikeFlag() *cli.Flag   { return nil }
+func (s *liteCmdS) SetHeadLikeFlag(*cli.Flag) {}
+
+func (s *liteCmdS) SetHitTitle(title string) {
+	s.hitTitle = title
+	s.hitTimes++
+}
+func (s *liteCmdS) HitTitle() string { return s.hitTitle }
+func (s *liteCmdS) HitTimes() int    { return s.hitTimes }
+
+func (s *liteCmdS) CanInvoke() bool {
+	return s.fi.Type().IsRegular()
+}
 
 func (s *liteCmdS) Invoke(ctx context.Context, args []string) (err error) {
 	fullPath := path.Join(s.dirName, s.name())
 	err = exec.Run("sh", "-c", fullPath)
 	return
 }
+
 func (s *liteCmdS) OnEvalSubcommands() cli.OnEvaluateSubCommands {
 	return nil
 }
@@ -144,10 +146,10 @@ func (s *liteCmdS) OnEvalSubcommandsOnce() cli.OnEvaluateSubCommands {
 func (s *liteCmdS) OnEvalSubcommandsOnceInvoked() bool {
 	return false
 }
-func (s *liteCmdS) OnEvalSubcommandsOnceCache() []cli.BaseOptI {
+func (s *liteCmdS) OnEvalSubcommandsOnceCache() []cli.Cmd {
 	return nil
 }
-func (s *liteCmdS) OnEvalSubcommandsOnceSetCache(list []cli.BaseOptI) {
+func (s *liteCmdS) OnEvalSubcommandsOnceSetCache(list []cli.Cmd) {
 }
 
 func (s *liteCmdS) OnEvalFlags() cli.OnEvaluateFlags {
@@ -165,13 +167,46 @@ func (s *liteCmdS) OnEvalFlagsOnceCache() []*cli.Flag {
 func (s *liteCmdS) OnEvalFlagsOnceSetCache(list []*cli.Flag) {
 }
 
-func (s *liteCmdS) DeprecatedHelpString(trans func(ss string, clr color.Color) string, clr, clrDefault color.Color) (hs, plain string) {
+func (s *liteCmdS) findSubCommandIn(ctx context.Context, cc cli.Cmd, children []cli.Cmd, longName string, wide bool) (res cli.Cmd) {
+	return
+}
+func (s *liteCmdS) findFlagIn(ctx context.Context, cc cli.Cmd, children []cli.Cmd, longName string, wide bool) (res *cli.Flag) {
+	return
+}
+func (s *liteCmdS) findFlagBackwardsIn(ctx context.Context, cc cli.Cmd, children []cli.Cmd, longName string) (res *cli.Flag) {
+	return
+}
+func (s *liteCmdS) partialMatchFlag(context.Context, string, bool, bool, map[string]*cli.Flag) (matched, remains string, ff *cli.Flag, err error) {
 	return
 }
 
-func (s *liteCmdS) SetHitTitle(title string) {
-	s.hitTitle = title
-	s.hitTimes++
+func (s *liteCmdS) Match(ctx context.Context, title string) (short bool, cc cli.Cmd) {
+	return
 }
-func (s *liteCmdS) HitTitle() string { return s.hitTitle }
-func (s *liteCmdS) HitTimes() int    { return s.hitTimes }
+func (s *liteCmdS) TryOnMatched(position int, hitState *cli.MatchState) (handled bool, err error) {
+	return
+}
+func (s *liteCmdS) MatchFlag(ctx context.Context, vp *cli.FlagValuePkg) (ff *cli.Flag, err error) { //nolint:revive
+	return
+}
+
+func (s *liteCmdS) FindSubCommand(ctx context.Context, longName string, wide bool) (res cli.Cmd) {
+	return
+}
+func (s *liteCmdS) FindFlagBackwards(ctx context.Context, longName string) (res *cli.Flag) {
+	return
+}
+func (s *liteCmdS) ForeachFlags(context.Context, func(f *cli.Flag) (stop bool)) (stop bool) {
+	return
+}
+func (s *liteCmdS) Walk(ctx context.Context, cb cli.WalkCB) {
+	return
+}
+func (s *liteCmdS) WalkGrouped(ctx context.Context, cb cli.WalkGroupedCB) {
+	return
+}
+func (s *liteCmdS) WalkBackwardsCtx(ctx context.Context, cb cli.WalkBackwardsCB, pc *cli.WalkBackwardsCtx) {
+	return
+}
+func (s *liteCmdS) WalkEverything(ctx context.Context, cb cli.WalkEverythingCB) {
+}

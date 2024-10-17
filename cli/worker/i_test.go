@@ -62,7 +62,7 @@ func buildDemoApp(opts ...cli.Opt) (app cli.App) { //nolint:revive
 		Examples(``).
 		Deprecated(``).
 		Hidden(false).
-		OnAction(func(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) { //nolint:revive
+		OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) { //nolint:revive
 			return // handling command action here
 		}).
 		Build()
@@ -138,7 +138,9 @@ func postBuild(ctx context.Context, app cli.App) (ww *workerS) {
 			if r, ok := app.(interface{ Root() *cli.RootCommand }); ok {
 				// call EnsureTree without set internal flag so that we can
 				// run EnsureTree again at next time (but once after Run())
-				r.Root().EnsureTreeAlways(ctx, app, r.Root())
+				if cx, ok := r.Root().Cmd.(*cli.CmdS); ok {
+					cx.EnsureTreeAlways(ctx, app, r.Root())
+				}
 				ww.SetRoot(r.Root(), ww.args)
 			}
 		}

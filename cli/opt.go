@@ -9,7 +9,7 @@ import (
 	"github.com/hedzr/cmdr/v2/conf"
 )
 
-func uniAddCmd(cmds []*Command, cmd *Command) []*Command { //nolint:unused
+func uniAddCmd(cmds []*CmdS, cmd *CmdS) []*CmdS { //nolint:unused
 	for _, f := range cmds {
 		if f == cmd || f.EqualTo(cmd) {
 			return cmds
@@ -119,7 +119,7 @@ func backtraceCmdNamesG(cmd BacktraceableMin, delimiter string, verboseLast bool
 
 func dottedPathToCommandOrFlagG(c Backtraceable, dottedPath string) (cmd Backtraceable, ff *Flag) { //nolint:revive
 	if c == nil {
-		// anyCmd = &internalGetWorker().rootCommand.Command
+		// anyCmd = &internalGetWorker().rootCommand.CmdS
 		return
 	}
 
@@ -135,7 +135,7 @@ func dottedPathToCommandOrFlagG(c Backtraceable, dottedPath string) (cmd Backtra
 	}
 
 	ctx := context.TODO()
-	c.Walk(ctx, func(cc BaseOptI, index, level int) {
+	c.Walk(ctx, func(cc Cmd, index, level int) {
 		var cx Backtraceable
 		var ok bool
 		if cx, ok = cc.(Backtraceable); !ok {
@@ -171,15 +171,15 @@ func dottedPathToCommandOrFlagG(c Backtraceable, dottedPath string) (cmd Backtra
 	return
 }
 
-func (c *Command) dottedPathToCommandOrFlag(dottedPath string) (cmd Backtraceable, ff *Flag) { //nolint:revive
+func (c *CmdS) dottedPathToCommandOrFlag(dottedPath string) (cmd Backtraceable, ff *Flag) { //nolint:revive
 	if c == nil {
-		// anyCmd = &internalGetWorker().rootCommand.Command
+		// anyCmd = &internalGetWorker().rootCommand.CmdS
 		return
 	}
 	return dottedPathToCommandOrFlagG(c, dottedPath)
 }
 
-// DottedPathToCommandOrFlag1 searches the matched Command or Flag with the specified dotted-path.
+// DottedPathToCommandOrFlag1 searches the matched CmdS or Flag with the specified dotted-path.
 // The searching will start from root if anyCmd is nil.
 func DottedPathToCommandOrFlag1(dottedPath string, anyCmd Backtraceable) (cc Backtraceable, ff *Flag) {
 	return dottedPathToCommandOrFlagG(anyCmd, dottedPath)
@@ -222,17 +222,17 @@ func DottedPathToCommandOrFlag1(dottedPath string, anyCmd Backtraceable) (cc Bac
 // 	return
 // }
 //
-// // DottedPathToCommandOrFlag searches the matched Command or Flag with the specified dotted-path.
+// // DottedPathToCommandOrFlag searches the matched CmdS or Flag with the specified dotted-path.
 // // The searching will start from root if anyCmd is nil.
-// func DottedPathToCommandOrFlag(dottedPath string, anyCmd *Command) (cc *Command, ff *Flag) {
+// func DottedPathToCommandOrFlag(dottedPath string, anyCmd *CmdS) (cc *CmdS, ff *Flag) {
 // 	return anyCmd.dottedPathToCommandOrFlag(dottedPath)
 // }
 //
-// // dottedPathToCommandOrFlag searches the matched Command or Flag with the specified dotted-path.
+// // dottedPathToCommandOrFlag searches the matched CmdS or Flag with the specified dotted-path.
 // // The searching will start from root if anyCmd is nil.
-// func (c *Command) dottedPathToCommandOrFlag(dottedPath string) (cmd *Command, ff *Flag) { //nolint:revive
+// func (c *CmdS) dottedPathToCommandOrFlag(dottedPath string) (cmd *CmdS, ff *Flag) { //nolint:revive
 // 	if c == nil {
-// 		// anyCmd = &internalGetWorker().rootCommand.Command
+// 		// anyCmd = &internalGetWorker().rootCommand.CmdS
 // 		return
 // 	}
 //
@@ -248,7 +248,7 @@ func DottedPathToCommandOrFlag1(dottedPath string, anyCmd Backtraceable) (cc Bac
 // 	}
 //
 // 	ctx := context.TODO()
-// 	c.Walk(ctx, func(cc BaseOptI, index, level int) {
+// 	c.Walk(ctx, func(cc Cmd, index, level int) {
 // 		kp := cc.GetDottedPath()
 // 		if !strings.HasPrefix(kp, appName) {
 // 			kp = appName + "." + kp

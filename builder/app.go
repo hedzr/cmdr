@@ -26,7 +26,7 @@ func (s *appS) Run(ctx context.Context, opts ...cli.Opt) (err error) {
 		return errors.New("a NewFlagBuilder()/Flg() call needs ending with Build()")
 	}
 
-	if s.root == nil || s.root.Command == nil {
+	if s.root == nil || s.root.Cmd == nil {
 		return cli.ErrEmptyRootCommand
 	}
 
@@ -65,7 +65,9 @@ func (s *appS) Build() {
 	if sr, ok := s.Runner.(setRoot); ok {
 		ctx := context.Background()
 		logz.DebugContext(ctx, "[cmdr] builder.appS.Build() - setRoot")
-		s.root.EnsureTree(ctx, s, s.root)
+		if cx, ok := s.root.Cmd.(*cli.CmdS); ok {
+			cx.EnsureTree(ctx, s, s.root)
+		}
 		sr.SetRoot(s.root, s.args)
 	}
 }
@@ -79,12 +81,12 @@ func (s *appS) ensureNewApp() cli.App { //nolint:unparam
 			// Author:     "",
 			// HeaderLine: "",
 			// FooterLine: "",
-			// Command:    nil,
+			// CmdS:    nil,
 		}
 	}
-	if s.root.Command == nil {
-		s.root.Command = new(cli.Command)
-		s.root.Command.SetName(s.root.AppName)
+	if s.root.Cmd == nil {
+		s.root.Cmd = new(cli.CmdS)
+		s.root.Cmd.SetName(s.root.AppName)
 	}
 	return s
 }
@@ -107,13 +109,17 @@ func (s *appS) Info(name, version string, desc ...string) cli.App {
 			conf.Version = version
 		}
 	}
-	s.root.SetDescription("", desc...)
+	if cx, ok := s.root.Cmd.(*cli.CmdS); ok {
+		cx.SetDescription("", desc...)
+	}
 	return s
 }
 
 func (s *appS) Examples(examples ...string) cli.App {
 	s.ensureNewApp()
-	s.root.SetExamples(examples...)
+	if cx, ok := s.root.Cmd.(*cli.CmdS); ok {
+		cx.SetExamples(examples...)
+	}
 	return s
 }
 
@@ -176,14 +182,14 @@ func (s *appS) Flg(longTitle string, titles ...string) cli.FlagBuilder {
 	return newFlagBuilderShort(s, longTitle, titles...)
 }
 
-func (s *appS) NewCmdFrom(from *cli.Command, cb func(b cli.CommandBuilder)) cli.App {
+func (s *appS) NewCmdFrom(from *cli.CmdS, cb func(b cli.CommandBuilder)) cli.App {
 	b := newCommandBuilderFrom(from, s, "")
 	defer b.Build()
 	cb(b)
 	return s
 }
 
-func (s *appS) NewFlgFrom(from *cli.Command, defaultValue any, cb func(b cli.FlagBuilder)) cli.App {
+func (s *appS) NewFlgFrom(from *cli.CmdS, defaultValue any, cb func(b cli.FlagBuilder)) cli.App {
 	b := newFlagBuilderFrom(from, s, defaultValue, "")
 	defer b.Build()
 	cb(b)
@@ -204,16 +210,20 @@ func (s *appS) AddFlg(cb func(b cli.FlagBuilder)) cli.App {
 	return s
 }
 
-func (s *appS) addCommand(child *cli.Command) {
+func (s *appS) addCommand(child *cli.CmdS) {
 	atomic.AddInt32(&s.inCmd, -1)
 	if s.root == nil {
-		s.root = &cli.RootCommand{Command: child}
+		s.root = &cli.RootCommand{Cmd: child}
 	} else {
-		s.root.AddSubCommand(child)
+		if cx, ok := s.root.Cmd.(*cli.CmdS); ok {
+			cx.AddSubCommand(child)
+		}
 	}
 }
 
 func (s *appS) addFlag(child *cli.Flag) {
 	atomic.AddInt32(&s.inFlg, -1)
-	s.root.AddFlag(child)
+	if cx, ok := s.root.Cmd.(*cli.CmdS); ok {
+		cx.AddFlag(child)
+	}
 }

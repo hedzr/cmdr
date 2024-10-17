@@ -34,12 +34,12 @@ type helpPrinter struct {
 
 const colLeftTabbedWidth = 56
 
-func (s *helpPrinter) Print(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) { //nolint:revive //
+func (s *helpPrinter) Print(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) { //nolint:revive //
 	wr := s.safeGetWriter()
 	s.PrintTo(ctx, wr, pc, lastCmd)
 }
 
-func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, lastCmd cli.BaseOptI) { //nolint:revive //
+func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, lastCmd cli.Cmd) { //nolint:revive //
 	if s.debugScreenMode {
 		s.PrintDebugScreenTo(ctx, wr, pc, lastCmd)
 		return
@@ -59,9 +59,9 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, 
 
 		grouped := true
 		s.printHeader(ctx, &sb, lastCmd, pc, cols, tabbedW)
-		lastCmd.WalkGrouped(ctx, func(cc, pp cli.BaseOptI, ff *cli.Flag, group string, idx, level int) { //nolint:revive
+		lastCmd.WalkGrouped(ctx, func(cc, pp cli.Cmd, ff *cli.Flag, group string, idx, level int) { //nolint:revive
 			switch {
-			case ff == nil: // Command
+			case ff == nil: // CmdS
 				s.printCommand(ctx, &sb, &verboseCount, cc, group, idx, level, cols, tabbedW, grouped)
 			default: // Flag
 				s.printFlag(ctx, &sb, &verboseCount, ff, group, idx, level, cols, tabbedW, grouped)
@@ -81,7 +81,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, 
 			Group: !s.w.DontGroupInHelpScreen,
 			Sort:  s.w.SortInHelpScreen,
 		}
-		lastCmd.WalkBackwardsCtx(ctx, func(ctx context.Context, pc *cli.WalkBackwardsCtx, cc cli.BaseOptI, ff *cli.Flag, index, groupIndex, count, level int) {
+		lastCmd.WalkBackwardsCtx(ctx, func(ctx context.Context, pc *cli.WalkBackwardsCtx, cc cli.Cmd, ff *cli.Flag, index, groupIndex, count, level int) {
 			if ff == nil {
 				cnt := cc.OwnerCmd().CountOfCommands()
 				if index == 0 && min(cnt, count) > 0 {
@@ -132,7 +132,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, 
 	s.printDebugMatches(ctx, &sb, wr, pc)
 }
 
-func (s *helpPrinter) PrintDebugScreenTo(ctx context.Context, wr HelpWriter, pc *parseCtx, lastCmd cli.BaseOptI) { //nolint:revive //
+func (s *helpPrinter) PrintDebugScreenTo(ctx context.Context, wr HelpWriter, pc *parseCtx, lastCmd cli.Cmd) { //nolint:revive //
 	if s.Translator == nil {
 		s.Translator = color.GetCPT()
 	}
@@ -181,7 +181,7 @@ func (s *helpPrinter) safeGetTermSize() (cols, rows int) {
 	return
 }
 
-func (s *helpPrinter) printHeader(ctx context.Context, sb *strings.Builder, cc cli.BaseOptI, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printHeader(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	// app, root := cc.App(), cc.Root()
 	// _ = app
 	if cc.Root() == nil {
@@ -193,7 +193,7 @@ func (s *helpPrinter) printHeader(ctx context.Context, sb *strings.Builder, cc c
 	_, _, _ = pc, cols, tabbedW
 }
 
-func (s *helpPrinter) printUsage(ctx context.Context, sb *strings.Builder, cc cli.BaseOptI, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printUsage(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	// app, root := cc.App(), cc.Root()
 	// _ = app
 	appName := cc.App().Name()
@@ -209,7 +209,7 @@ func (s *helpPrinter) printUsage(ctx context.Context, sb *strings.Builder, cc cl
 	_, _, _ = pc, cols, tabbedW
 }
 
-func (s *helpPrinter) printDesc(ctx context.Context, sb *strings.Builder, cc cli.BaseOptI, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printDesc(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	desc := cc.DescLong()
 	if desc != "" {
 		_, _ = sb.WriteString("\nDescription:\n\n")
@@ -220,7 +220,7 @@ func (s *helpPrinter) printDesc(ctx context.Context, sb *strings.Builder, cc cli
 	_, _, _ = pc, cols, tabbedW
 }
 
-func (s *helpPrinter) printExamples(ctx context.Context, sb *strings.Builder, cc cli.BaseOptI, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printExamples(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	examples := cc.Examples()
 	if examples != "" {
 		_, _ = sb.WriteString("\nExamples:\n\n")
@@ -231,7 +231,7 @@ func (s *helpPrinter) printExamples(ctx context.Context, sb *strings.Builder, cc
 	_, _, _ = pc, cols, tabbedW
 }
 
-func (s *helpPrinter) printTailLine(ctx context.Context, sb *strings.Builder, cc cli.BaseOptI, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printTailLine(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
 	footer := strings.TrimSpace(cc.Root().Footer())
 	if footer != "" {
 		_, _ = sb.WriteString("\n")
@@ -359,7 +359,7 @@ func (s *helpPrinter) printDebugMatches(ctx context.Context, sb *strings.Builder
 	}
 }
 
-func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder, verboseCount *int, cc cli.BaseOptI, group string, idx, level, cols, tabbedW int, grouped bool) { //nolint:revive
+func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder, verboseCount *int, cc cli.Cmd, group string, idx, level, cols, tabbedW int, grouped bool) { //nolint:revive
 	if (cc.Hidden() && *verboseCount < 1) || (cc.VendorHidden() && *verboseCount < 3) { //nolint:revive
 		return
 	}

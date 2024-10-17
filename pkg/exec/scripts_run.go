@@ -23,7 +23,7 @@ type issCtx struct {
 	isFile      bool
 	delayedOpts []func(c *issCtx) // not yet
 	expander    func(source string) string
-	// cmd        *Command
+	// cmd        *CmdS
 	// args       []string
 }
 
@@ -41,8 +41,8 @@ func WithScriptShell(knownShell string) ISSOpt {
 }
 
 // // WithCmdrEnviron provides the current command hit with its args.
-// // Its generally come from cmdr.Command.Action of a cmdr Command.
-// func WithCmdrEnviron(cmd *Command, args []string) ISSOpt {
+// // Its generally come from cmdr.CmdS.Action of a cmdr CmdS.
+// func WithCmdrEnviron(cmd *CmdS, args []string) ISSOpt {
 //	return func(c *issCtx) {
 //		c.cmd, c.args = cmd, args
 //	}
@@ -135,7 +135,7 @@ func invokeShellScripts(scripts string, opts ...ISSOpt) (err error) {
 		if c.isFile {
 			a = append(a, "-File", scriptFragments)
 		} else {
-			a = append(a, "-Command", scriptFragments)
+			a = append(a, "-CmdS", scriptFragments)
 		}
 	} else {
 		if c.isFile {

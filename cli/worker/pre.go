@@ -131,10 +131,12 @@ func (w *workerS) postEnvLoad(ctx context.Context) {
 
 func (w *workerS) linkCommands(ctx context.Context, root *cli.RootCommand) (err error) {
 	if err = w.addBuiltinCommands(root); err == nil {
-		root.EnsureTree(ctx, root.App(), root) // link the added builtin commands too
-		if err = w.xrefCommands(ctx, root); err == nil {
-			if err = w.commandsToStore(ctx, root); err == nil {
-				logz.VerboseContext(ctx, "[cmdr] linkCommands() - *RootCommand linked itself")
+		if cx, ok := root.Cmd.(*cli.CmdS); ok {
+			cx.EnsureTree(ctx, root.App(), root) // link the added builtin commands too
+			if err = w.xrefCommands(ctx, root); err == nil {
+				if err = w.commandsToStore(ctx, root); err == nil {
+					logz.VerboseContext(ctx, "[cmdr] linkCommands() - *RootCommand linked itself")
+				}
 			}
 		}
 	}
@@ -165,24 +167,25 @@ func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, c
 		}
 		return
 	}
-
-	conf.WithinLoading(func() {
-		root.WalkEverything(ctx, func(cc, pp cli.BaseOptI, ff *cli.Flag, cmdIndex, flgIndex, level int) { //nolint:revive
-			if ff != nil {
-				if evs := ff.EnvVars(); len(evs) > 0 {
-					for _, ev := range evs {
-						if v, has := os.LookupEnv(ev); has {
-							data := fromString(v, ff.DefaultValue())
-							ff.SetDefaultValue(data)
+	if cx, ok := w.root.Cmd.(*cli.CmdS); ok {
+		conf.WithinLoading(func() {
+			cx.WalkEverything(ctx, func(cc, pp cli.Cmd, ff *cli.Flag, cmdIndex, flgIndex, level int) { //nolint:revive
+				if ff != nil {
+					if evs := ff.EnvVars(); len(evs) > 0 {
+						for _, ev := range evs {
+							if v, has := os.LookupEnv(ev); has {
+								data := fromString(v, ff.DefaultValue())
+								ff.SetDefaultValue(data)
+							}
 						}
 					}
+					if conf != nil {
+						conf.Set(ff.GetDottedPath(), ff.DefaultValue())
+					}
 				}
-				if conf != nil {
-					conf.Set(ff.GetDottedPath(), ff.DefaultValue())
-				}
-			}
+			})
 		})
-	})
+	}
 	return
 }
 
@@ -248,16 +251,18 @@ func (w *workerS) writeBackToLoaders(ctx context.Context) (err error) {
 	return
 }
 
-func (w *workerS) xrefCommands(ctx context.Context, cmd *cli.RootCommand, cb ...func(cc cli.BaseOptI, index, level int)) (err error) { //nolint:unparam
-	cmd.EnsureXref(ctx, cb...)
+func (w *workerS) xrefCommands(ctx context.Context, root *cli.RootCommand, cb ...func(cc cli.Cmd, index, level int)) (err error) { //nolint:unparam
+	if cx, ok := root.Cmd.(*cli.CmdS); ok {
+		cx.EnsureXref(ctx, cb...)
+	}
 	return
 }
 
-// func (w *workerS) walk(cmd *cli.Command, cb func(cc *cli.Command, ff *cli.Flag)) {
+// func (w *workerS) walk(cmd *cli.CmdS, cb func(cc *cli.CmdS, ff *cli.Flag)) {
 // 	w.walkR(cmd, cb, 0)
 // }
 //
-// func (w *workerS) walkR(cmd *cli.Command, cb func(cc *cli.Command, ff *cli.Flag), level int) {
+// func (w *workerS) walkR(cmd *cli.CmdS, cb func(cc *cli.CmdS, ff *cli.Flag), level int) {
 // 	cb(cmd, nil)
 //
 // 	for _, ff := range cmd.Flags() {

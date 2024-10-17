@@ -35,7 +35,7 @@ func rootCmdForTesting() (root *RootCommand) { //nolint:funlen,revive //for test
 		Copyright: "consul-tags is an effective devops tool",
 		Author:    "Hedzr Yeh <hedzr@duck.com>",
 
-		Command: &Command{
+		Cmd: &CmdS{
 			BaseOpt: BaseOpt{
 				name: "consul-tags",
 			},
@@ -158,13 +158,13 @@ func rootCmdForTesting() (root *RootCommand) { //nolint:funlen,revive //for test
 					defaultValue: time.Second,
 				},
 			},
-			preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
+			preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd Cmd, args []string) (err error) {
 				return
 			}},
-			postActions: []OnPostInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string, errInvoked error) (err error) {
+			postActions: []OnPostInvokeHandler{func(ctx context.Context, cmd Cmd, args []string, errInvoked error) (err error) {
 				return
 			}},
-			commands: []*Command{
+			commands: []*CmdS{
 				// dnsCommands,
 				// playCommand,
 				// generatorCommands,
@@ -200,8 +200,8 @@ func rootCmdForTesting() (root *RootCommand) { //nolint:funlen,revive //for test
 
 	ctx := context.TODO()
 	app.root = root
-	root.EnsureTree(ctx, app, root)
-	root.EnsureXref(ctx)
+	root.Cmd.(*CmdS).EnsureTree(ctx, app, root)
+	root.Cmd.(*CmdS).EnsureXref(ctx)
 	return
 }
 
@@ -326,8 +326,8 @@ func consulConnectFlagsGet() []*Flag { //nolint:funlen,revive //for test
 	return consulConnectFlags
 }
 
-func serverCommandsGet() *Command { //nolint:funlen,revive //for test
-	serverCommands := &Command{
+func serverCommandsGet() *CmdS { //nolint:funlen,revive //for test
+	serverCommands := &CmdS{
 		BaseOpt: BaseOpt{
 			// name:        "server",
 			Short:       "s",
@@ -375,7 +375,7 @@ func serverCommandsGet() *Command { //nolint:funlen,revive //for test
 				placeHolder:  "RETRY",
 			},
 		},
-		commands: []*Command{
+		commands: []*CmdS{
 			{
 				BaseOpt: BaseOpt{
 					Short:       "s",
@@ -432,20 +432,20 @@ func serverCommandsGet() *Command { //nolint:funlen,revive //for test
 					Aliases:     []string{"run1", "startup1"},
 					description: "dup test: startup this system service/daemon.",
 				},
-				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
+				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd Cmd, args []string) (err error) {
 					_, _ = fmt.Println(cmd.OwnerCmd().Name(), cmd.Name(), cmd.GroupTitle())
-					_, _ = fmt.Println(cmd.Root().Name(), cmd.Root().Owner())
+					_, _ = fmt.Println(cmd.Root().Name(), cmd.Root().OwnerCmd())
 					_, _ = fmt.Println(cmd.App().Name())
 					return
 				}},
-				commands: []*Command{
+				commands: []*CmdS{
 					{
 						BaseOpt: BaseOpt{
 							Short:       "nf", // parent no Full
 							Aliases:     []string{"run", "startup"},
 							description: "dup test: startup this system service/daemon.",
 						},
-						preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
+						preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd Cmd, args []string) (err error) {
 							_, _ = fmt.Println(cmd.OwnerCmd().Name(), cmd.Name(), cmd.GroupTitle())
 							return
 						}},
@@ -498,8 +498,8 @@ func serverCommandsGet() *Command { //nolint:funlen,revive //for test
 	return serverCommands
 }
 
-func kvCommandsGet() *Command { //nolint:funlen,revive //for test
-	kvCommands := &Command{
+func kvCommandsGet() *CmdS { //nolint:funlen,revive //for test
+	kvCommands := &CmdS{
 		BaseOpt: BaseOpt{
 			name:        "kvstore",
 			Long:        "kv",
@@ -507,7 +507,7 @@ func kvCommandsGet() *Command { //nolint:funlen,revive //for test
 			description: "consul kv store operations...",
 		},
 		flags: consulConnectFlagsGet(), // *Clone(&consulConnectFlags, &[]*Flag{}).(*[]*Flag),
-		commands: []*Command{
+		commands: []*CmdS{
 			{
 				BaseOpt: BaseOpt{
 					Short:       "b",
@@ -516,7 +516,7 @@ func kvCommandsGet() *Command { //nolint:funlen,revive //for test
 					description: "Dump Consul's KV database to a JSON/YAML file",
 					group:       "bbb",
 				},
-				onInvoke: func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
+				onInvoke: func(ctx context.Context, cmd Cmd, args []string) (err error) {
 					// for gocov
 
 					// cmd.PrintHelp(false)
@@ -566,10 +566,10 @@ func kvCommandsGet() *Command { //nolint:funlen,revive //for test
 						placeHolder:  "FILE",
 					},
 				},
-				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
+				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd Cmd, args []string) (err error) {
 					return
 				}},
-				postActions: []OnPostInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string, errInvoked error) (err error) {
+				postActions: []OnPostInvokeHandler{func(ctx context.Context, cmd Cmd, args []string, errInvoked error) (err error) {
 					return
 				}},
 			},
@@ -612,8 +612,8 @@ func kvCommandsGet() *Command { //nolint:funlen,revive //for test
 	return kvCommands
 }
 
-func tagsCommandsGet() *Command { //nolint:funlen,revive //for test
-	tagsCommands := &Command{
+func tagsCommandsGet() *CmdS { //nolint:funlen,revive //for test
+	tagsCommands := &CmdS{
 		BaseOpt: BaseOpt{
 			// Short:       "t",
 			Long:        "tags",
@@ -621,7 +621,7 @@ func tagsCommandsGet() *Command { //nolint:funlen,revive //for test
 			description: "tags op.",
 		},
 		flags: consulConnectFlagsGet(), // *Clone(&consulConnectFlags, &[]*Flag{}).(*[]*Flag),
-		commands: []*Command{
+		commands: []*CmdS{
 			{
 				BaseOpt: BaseOpt{
 					Short:       "ls",
@@ -793,8 +793,8 @@ func tagsCommandsGet() *Command { //nolint:funlen,revive //for test
 	return tagsCommands
 }
 
-func msCommandsGet() *Command { //nolint:funlen,revive //for test
-	msCommands := &Command{
+func msCommandsGet() *CmdS { //nolint:funlen,revive //for test
+	msCommands := &CmdS{
 		BaseOpt: BaseOpt{
 			name:        "microservices",
 			Long:        "ms",
@@ -840,7 +840,7 @@ func msCommandsGet() *Command { //nolint:funlen,revive //for test
 				placeHolder:  "ID",
 			},
 		},
-		commands: []*Command{
+		commands: []*CmdS{
 			tagsCommandsGet(),
 			{
 				BaseOpt: BaseOpt{
@@ -851,7 +851,7 @@ func msCommandsGet() *Command { //nolint:funlen,revive //for test
 					// Action:      msList,
 					group: " ",
 				},
-				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
+				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd Cmd, args []string) (err error) {
 					_, _ = fmt.Println(cmd.OwnerCmd().Name(), cmd.Name(), cmd.GroupTitle())
 					return
 				}},
@@ -864,7 +864,7 @@ func msCommandsGet() *Command { //nolint:funlen,revive //for test
 					description: "an empty subcommand for testing - list services.",
 					group:       "56.vvvvvv",
 				},
-				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
+				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd Cmd, args []string) (err error) {
 					_, _ = fmt.Println(cmd.OwnerCmd().Name(), cmd.Name(), cmd.GroupTitle())
 					return
 				}},
@@ -877,7 +877,7 @@ func msCommandsGet() *Command { //nolint:funlen,revive //for test
 					description: "list services.",
 					group:       "56.vvvvvv",
 				},
-				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
+				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd Cmd, args []string) (err error) {
 					_, _ = fmt.Println(cmd.OwnerCmd().Name(), cmd.Name(), cmd.GroupTitle())
 					return
 				}},
@@ -890,12 +890,12 @@ func msCommandsGet() *Command { //nolint:funlen,revive //for test
 					description: "list services.",
 					group:       "56.vvvvvv",
 				},
-				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
+				preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd Cmd, args []string) (err error) {
 					_, _ = fmt.Println(cmd, "'s owner is", cmd.OwnerCmd())
 					_, _ = fmt.Println(cmd.OwnerCmd().Name(), cmd.Name(), cmd.GroupTitle())
 					return
 				}},
-				commands: []*Command{
+				commands: []*CmdS{
 					{
 						BaseOpt: BaseOpt{
 							name: "dz",
@@ -904,7 +904,7 @@ func msCommandsGet() *Command { //nolint:funlen,revive //for test
 							description: "list services.",
 							group:       "56.vvvvvv",
 						},
-						preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd BaseOptI, args []string) (err error) {
+						preActions: []OnPreInvokeHandler{func(ctx context.Context, cmd Cmd, args []string) (err error) {
 							_, _ = fmt.Println(cmd, "'s owner is", cmd.OwnerCmd())
 							_, _ = fmt.Println(cmd.OwnerCmd().Name(), cmd.Name(), cmd.GroupTitle())
 							return
@@ -1003,28 +1003,32 @@ func (s *appS) AddFlg(cb func(b FlagBuilder)) App { //nolint:revive
 	return s
 }
 
-func (s *appS) NewCmdFrom(from *Command, cb func(b CommandBuilder)) App { //nolint:revive
+func (s *appS) NewCmdFrom(from *CmdS, cb func(b CommandBuilder)) App { //nolint:revive
 	// b := newCommandBuilderFrom(from, s, "")
 	// defer b.Build()
 	// cb(b)
 	return s
 }
 
-func (s *appS) NewFlgFrom(from *Command, defaultValue any, cb func(b FlagBuilder)) App { //nolint:revive
+func (s *appS) NewFlgFrom(from *CmdS, defaultValue any, cb func(b FlagBuilder)) App { //nolint:revive
 	// b := newFlagBuilderFrom(from, s, defaultValue, "")
 	// defer b.Build()
 	// cb(b)
 	return s
 }
 
-func (s *appS) addCommand(child *Command) { //nolint:unused
+func (s *appS) addCommand(child *CmdS) { //nolint:unused
 	s.inCmd = false
-	s.root.AddSubCommand(child)
+	if cx, ok := s.root.Cmd.(*CmdS); ok {
+		cx.AddSubCommand(child)
+	}
 }
 
 func (s *appS) addFlag(child *Flag) { //nolint:unused
 	s.inFlg = false
-	s.root.AddFlag(child)
+	if cx, ok := s.root.Cmd.(*CmdS); ok {
+		cx.AddFlag(child)
+	}
 }
 
 func (s *appS) Info(name, version string, desc ...string) App {
@@ -1035,13 +1039,17 @@ func (s *appS) Info(name, version string, desc ...string) App {
 	if s.root.Version == "" {
 		s.root.Version = version
 	}
-	s.root.SetDescription("", desc...)
+	if cx, ok := s.root.Cmd.(*CmdS); ok {
+		cx.SetDescription("", desc...)
+	}
 	return s
 }
 
 func (s *appS) Examples(examples ...string) App {
 	s.ensureNewApp()
-	s.root.SetExamples(examples...)
+	if cx, ok := s.root.Cmd.(*CmdS); ok {
+		cx.SetExamples(examples...)
+	}
 	return s
 }
 
@@ -1097,12 +1105,12 @@ func (s *appS) ensureNewApp() App { //nolint:unparam
 			// Author:     "",
 			// HeaderLine: "",
 			// FooterLine: "",
-			// Command:    nil,
+			// CmdS:    nil,
 		}
 	}
-	if s.root.Command == nil {
-		s.root.Command = new(Command)
-		s.root.Command.SetName(s.root.AppName)
+	if s.root.Cmd == nil {
+		s.root.Cmd = new(CmdS)
+		s.root.Cmd.SetName(s.root.AppName)
 	}
 	return s
 }
@@ -1113,7 +1121,9 @@ func (s *appS) Build() {
 	}
 	if sr, ok := s.Runner.(setRoot); ok {
 		ctx := context.Background()
-		s.root.EnsureTree(ctx, s, s.root)
+		if cx, ok := s.root.Cmd.(*CmdS); ok {
+			cx.EnsureTree(ctx, s, s.root)
+		}
 		sr.SetRoot(s.root, s.args)
 	}
 }
@@ -1126,7 +1136,7 @@ func (s *appS) Run(ctx context.Context, opts ...Opt) (err error) {
 		return errors.New("a NewFlagBuilder()/Flg() call needs ending with Build()")
 	}
 
-	if s.root == nil || s.root.Command == nil {
+	if s.root == nil || s.root.Cmd == nil {
 		return errors.New("the RootCommand hasn't been built")
 	}
 

@@ -37,7 +37,7 @@ import (
 //				Examples(``).
 //				Deprecated(`v0.1.1`).
 //				Hidden(false).
-//				OnAction(func(cmd *cli.Command, args []string) (err error) {
+//				OnAction(func(cmd *cli.CmdS, args []string) (err error) {
 //					main1()
 //					return // handling command action here
 //				}).
@@ -242,7 +242,7 @@ func WithTasksBeforeRun(tasks ...cli.Task) cli.Opt {
 //	type Obj struct{}
 //	func (o *Obj) Init(context.Context) *Obj { return o } // initialize itself
 //	func (o *Obj) Close(){...}                            // destory itself
-//	app := cmdr.New(cmdr.WithTasksSetupPeripherals(func(ctx context.Context, cmd *Command, runner Runner, extras ...any) (err error) {
+//	app := cmdr.New(cmdr.WithTasksSetupPeripherals(func(ctx context.Context, cmd *CmdS, runner Runner, extras ...any) (err error) {
 //	    obj := new(Obj)
 //	    basics.RegisterPeripheral(obj.Init(ctx))          // initialize obj at first, and register it to basics.Closers for auto-shutting-down
 //	    return

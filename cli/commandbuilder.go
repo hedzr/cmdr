@@ -82,7 +82,7 @@ type CommandBuilder interface {
 	//
 	// NOTE:
 	//
-	//     when redirectTo is valid, Command.OnInvoke handler will be ignored.
+	//     when redirectTo is valid, CmdS.OnInvoke handler will be ignored.
 	RedirectTo(dottedPath string) CommandBuilder
 
 	// OnAction is the main action or entry point when the command
@@ -204,7 +204,7 @@ type CommandBuilder interface {
 	//                Deprecated(`v0.1.1`).
 	//                // Group(cli.UnsortedGroup).
 	//                Hidden(false).
-	//                OnAction(func(cmd *cli.Command, args []string) (err error) {
+	//                OnAction(func(cmd *cli.CmdS, args []string) (err error) {
 	//                    app.Store().Set("app.demo.working", dir.GetCurrentDir())
 	//                    println()
 	//                    println(dir.GetCurrentDir())

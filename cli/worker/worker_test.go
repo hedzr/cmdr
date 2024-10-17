@@ -18,8 +18,8 @@ func TestWorkerS_Run2(t *testing.T) { //nolint:revive
 		opts     []cli.Opt
 	}{
 		{args: "m unk snd cool", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
-			if !regexp.MustCompile(`UNKNOWN (Command|Flag) FOUND:?`).MatchString(errParsed.Error()) {
-				t.Log("expect 'UNKNOWN Command FOUND' error, but not matched.") // "unk"
+			if !regexp.MustCompile(`UNKNOWN (Cmd|Flag) FOUND:?`).MatchString(errParsed.Error()) {
+				t.Log("expect 'UNKNOWN Cmd FOUND' error, but not matched.") // "unk"
 			}
 			return /* errParsed */
 		}, opts: []cli.Opt{cli.WithUnmatchedAsError(true)}},

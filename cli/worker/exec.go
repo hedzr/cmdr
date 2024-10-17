@@ -84,27 +84,29 @@ func (w *workerS) handleActions(ctx context.Context, pc *parseCtx) (handled bool
 	return
 }
 
-type onAction func(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error)
+type onAction func(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) (err error)
 
-func (w *workerS) beforeExec(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (deferActions func(errInvoked error), err error) {
+func (w *workerS) beforeExec(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) (deferActions func(errInvoked error), err error) {
 	err = w.checkRequiredFlags(ctx, pc, lastCmd)
 	deferActions = func(error) {}
 	if err != nil {
 		return
 	}
 
-	if lastCmd != w.root.Command {
-		deferActions, err = w.root.RunPreActions(ctx, lastCmd, pc.positionalArgs)
+	if lastCmd != w.root.Cmd {
+		if cx, ok := w.root.Cmd.(*cli.CmdS); ok {
+			deferActions, err = cx.RunPreActions(ctx, lastCmd, pc.positionalArgs)
+		}
 	}
 	return
 }
 
-func (w *workerS) checkRequiredFlags(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error) { //nolint:revive
+func (w *workerS) checkRequiredFlags(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) (err error) { //nolint:revive
 	wbc := &cli.WalkBackwardsCtx{
 		Group: true,
 		Sort:  false,
 	}
-	lastCmd.WalkBackwardsCtx(ctx, func(ctx context.Context, pc *cli.WalkBackwardsCtx, cc cli.BaseOptI, ff *cli.Flag, index, groupIndex, count, level int) {
+	lastCmd.WalkBackwardsCtx(ctx, func(ctx context.Context, pc *cli.WalkBackwardsCtx, cc cli.Cmd, ff *cli.Flag, index, groupIndex, count, level int) {
 		if ff != nil {
 			if ff.Required() && ff.GetTriggeredTimes() < 0 {
 				err = cli.ErrRequiredFlag.FormatWith(ff, lastCmd)
@@ -116,23 +118,23 @@ func (w *workerS) checkRequiredFlags(ctx context.Context, pc *parseCtx, lastCmd 
 	return
 }
 
-func (w *workerS) afterExec(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error) { //nolint:revive
+func (w *workerS) afterExec(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) (err error) { //nolint:revive
 	_, _, _ = ctx, pc, lastCmd
 	return
 }
 
-func (w *workerS) finalActions(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error) { //nolint:revive,unparam
+func (w *workerS) finalActions(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) (err error) { //nolint:revive,unparam
 	_, _ = pc, lastCmd
 	err = w.writeBackToLoaders(ctx)
 	return
 }
 
-func (w *workerS) onPrintHelpScreen(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error) { //nolint:unparam
+func (w *workerS) onPrintHelpScreen(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) (err error) { //nolint:unparam
 	(&helpPrinter{w: w}).Print(ctx, pc, lastCmd)
 	return
 }
 
-func (w *workerS) onDefaultAction(ctx context.Context, pc *parseCtx, lastCmd cli.BaseOptI) (err error) { //nolint:unparam
+func (w *workerS) onDefaultAction(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) (err error) { //nolint:unparam
 	(&helpPrinter{w: w, debugMatches: true}).Print(ctx, pc, lastCmd)
 	return
 }
@@ -152,7 +154,7 @@ func (w *workerS) onSingleHyphenMatched(ctx context.Context, pc *parseCtx) (err 
 }
 
 func (w *workerS) onUnknownCommandMatched(ctx context.Context, pc *parseCtx) (err error) {
-	logz.WarnContext(ctx, "[cmdr] UNKNOWN <mark>Command</mark> FOUND", "arg", pc.arg)
+	logz.WarnContext(ctx, "[cmdr] UNKNOWN <mark>CmdS</mark> FOUND", "arg", pc.arg)
 	err = cli.ErrUnmatchedCommand.FormatWith(pc.arg, pc.LastCmd())
 	return
 }

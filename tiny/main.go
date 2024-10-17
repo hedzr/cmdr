@@ -31,7 +31,7 @@ func main() {
 		// 	local.NewEnvVarLoader(),
 		// ),
 
-		cmdr.WithTasksBeforeRun(func(ctx context.Context, cmd cli.BaseOptI, runner cli.Runner, extras ...any) (err error) {
+		cmdr.WithTasksBeforeRun(func(ctx context.Context, cmd cli.Cmd, runner cli.Runner, extras ...any) (err error) {
 			logz.DebugContext(ctx, "command running...", "cmd", cmd, "runner", runner, "extras", extras)
 			return
 		}), // cmdr.WithTasksBeforeParse(), cmdr.WithTasksBeforeRun(), cmdr.WithTasksAfterRun
@@ -84,7 +84,7 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 				Deprecated(`v0.1.1`).
 				// Group(cli.UnsortedGroup).
 				Hidden(false).
-				OnAction(func(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) {
+				OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
 					app.Store().Set("app.demo.working", dir.GetCurrentDir())
 					println()
 					println(dir.GetCurrentDir())
@@ -116,7 +116,7 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 
 	app.Cmd("wrong").
 		Description("a wrong command to return error for testing").
-		OnAction(func(ctx context.Context, cmd cli.BaseOptI, args []string) (err error) {
+		OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
 			ec := errors.New()
 			defer ec.Defer(&err) // store the collected errors in native err and return it
 			ec.Attach(io.ErrClosedPipe, errors.New("something's wrong"), os.ErrPermission)

@@ -12,10 +12,10 @@ type buildable interface {
 	Build()
 }
 
-// func NewCommandBuilder(parent *cli.Command, longTitle string, titles ...string) *ccb {
+// func NewCommandBuilder(parent *cli.CmdS, longTitle string, titles ...string) *ccb {
 // 	// s := &ccb{
 // 	// 	nil, parent,
-// 	// 	new(cli.Command),
+// 	// 	new(cli.CmdS),
 // 	// 	false, false,
 // 	// }
 // 	// s.Long, s.Short, s.Aliases = theTitles(longTitle, titles...)
@@ -24,13 +24,13 @@ type buildable interface {
 // }
 
 func newCommandBuilderShort(b buildable, longTitle string, titles ...string) *ccb {
-	return newCommandBuilderFrom(new(cli.Command), b, longTitle, titles...)
+	return newCommandBuilderFrom(new(cli.CmdS), b, longTitle, titles...)
 }
 
-func newCommandBuilderFrom(from *cli.Command, b buildable, longTitle string, titles ...string) *ccb {
+func newCommandBuilderFrom(from *cli.CmdS, b buildable, longTitle string, titles ...string) *ccb {
 	s := &ccb{
 		b, from,
-		new(cli.Command),
+		new(cli.CmdS),
 		0, 0,
 	}
 	s.Long, s.Short, s.Aliases = theTitles(longTitle, titles...)
@@ -39,20 +39,20 @@ func newCommandBuilderFrom(from *cli.Command, b buildable, longTitle string, tit
 
 type ccb struct {
 	buildable
-	parent *cli.Command
-	*cli.Command
+	parent *cli.CmdS
+	*cli.CmdS
 	inCmd int32
 	inFlg int32
 }
 
 func (s *ccb) Build() {
 	if a, ok := s.buildable.(adder); ok {
-		a.addCommand(s.Command)
+		a.addCommand(s.CmdS)
 	}
 	// if s.parent != nil {
-	// 	s.parent.AddSubCommand(s.Command)
+	// 	s.parent.AddSubCommand(s.CmdS)
 	// 	// if a, ok := s.b.(adder); ok {
-	// 	// 	a.addCommand(s.Command)
+	// 	// 	a.addCommand(s.CmdS)
 	// 	// }
 	// }
 
@@ -71,20 +71,20 @@ func (s *ccb) WithSubCmd(cb func(b cli.CommandBuilder)) {
 	// }
 
 	bc := newCommandBuilderShort(s, "new-command")
-	defer bc.Build() // `Build' will add `bc'(Command) to s.Command as its SubCommand
+	defer bc.Build() // `Build' will add `bc'(CmdS) to s.CmdS as its SubCommand
 	cb(bc)
 	// atomic.AddInt32(&s.inCmd, 1)
 	// return s
 }
 
-// addCommand adds a in-building Cmd into current Command as a child-/sub-command.
+// addCommand adds a in-building Cmd into current CmdS as a child-/sub-command.
 // used by adder when ccb.Build.
-func (s *ccb) addCommand(child *cli.Command) {
+func (s *ccb) addCommand(child *cli.CmdS) {
 	atomic.AddInt32(&s.inCmd, -1) // reset increased inCmd at AddCmd or Cmd
 	s.AddSubCommand(child)
 }
 
-// addFlag adds a in-building Flg into current Command as its flag.
+// addFlag adds a in-building Flg into current CmdS as its flag.
 // used by adder when ccb.Build.
 func (s *ccb) addFlag(child *cli.Flag) {
 	atomic.AddInt32(&s.inFlg, -1)
@@ -121,7 +121,7 @@ func (s *ccb) AddCmd(cb func(b cli.CommandBuilder)) cli.CommandBuilder {
 	// }
 
 	bc := newCommandBuilderShort(s, "new-command")
-	defer bc.Build() // `Build' will add `bc'(Command) to s.Command as its SubCommand
+	defer bc.Build() // `Build' will add `bc'(CmdS) to s.CmdS as its SubCommand
 	cb(bc)
 	atomic.AddInt32(&s.inCmd, 1)
 	return s
@@ -133,7 +133,7 @@ func (s *ccb) AddFlg(cb func(b cli.FlagBuilder)) cli.CommandBuilder {
 	// }
 
 	bc := newFlagBuilderShort(s, "new-flag")
-	defer bc.Build() // `Build' will add `bc'(Flag) to s.Command as its Flag
+	defer bc.Build() // `Build' will add `bc'(Flag) to s.CmdS as its Flag
 	// atomic.AddInt32(&s.inFlg, 1)
 	// defer func() { atomic.AddInt32(&s.inFlg, -1) }()
 	cb(bc)

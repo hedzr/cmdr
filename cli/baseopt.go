@@ -60,14 +60,17 @@ func (c *BaseOpt) SetHidden(hidden bool, vendorHidden ...bool) {
 	}
 }
 
+// func (c *BaseOpt) Owner() *CmdS                    { return c.owner }            // the owner of this CmdS
+
 func (c *BaseOpt) OwnerOrParent() BacktraceableMin { return c.owner }
 func (c *BaseOpt) OwnerIsNil() bool                { return c.owner == nil }
-func (c *BaseOpt) OwnerCmd() BaseOptI              { return c.owner }
-func (c *BaseOpt) Owner() *Command                 { return c.owner }            // the owner of this Command
-func (c *BaseOpt) Root() *RootCommand              { return c.root }             // returns Root Command (*RootCommand),
+func (c *BaseOpt) OwnerIsNotNil() bool             { return c.owner != nil }
+func (c *BaseOpt) OwnerCmd() Cmd                   { return c.owner }
+func (c *BaseOpt) Root() *RootCommand              { return c.root }             // returns Root CmdS (*RootCommand),
 func (c *BaseOpt) App() App                        { return c.root.app }         // App returns the current App
 func (c *BaseOpt) Set() store.Store                { return c.root.app.Store() } // Set returns store.Store associated with the current App
-func (c *BaseOpt) SetOwner(o *Command)             { c.owner = o }
+func (c *BaseOpt) SetOwner(o *CmdS)                { c.owner = o }
+func (c *BaseOpt) SetOwnerCmd(o Cmd)               { c.owner = o }
 func (c *BaseOpt) SetRoot(root *RootCommand)       { c.root = root }
 
 // func (c *BaseOpt) AppName() string {
@@ -113,7 +116,7 @@ func (c *BaseOpt) Shorts() (shorts []string) {
 	return
 }
 
-// GetName returns the name of a `Command`.
+// GetName returns the name of a `CmdS`.
 func (c *BaseOpt) GetName() string {
 	if len(c.name) > 0 {
 		return c.name

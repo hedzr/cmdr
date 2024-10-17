@@ -134,10 +134,10 @@ import (
 func main() {
 	ctx := context.Background()
 	app := prepareApp(
-		cmdr.WithStore(store.New()), // use a option store, if not specified by store.New(), a dummy store allocated
+		cmdr.WithStore(store.New()), // use a option store explicitly, or a dummy store by default
 
 		// cmdr.WithExternalLoaders(
-		// 	local.NewConfigFileLoader(),      // import "github.com/hedzr/cmdr-loaders/local" to get in advanced external loading features
+		// 	local.NewConfigFileLoader(), // import "github.com/hedzr/cmdr-loaders/local" to get in advanced external loading features
 		// 	local.NewEnvVarLoader(),
 		// ),
 

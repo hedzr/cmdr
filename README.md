@@ -132,22 +132,27 @@ import (
 )
 
 func main() {
-	app := prepareApp()
+	ctx := context.Background()
+	app := prepareApp(
+		cmdr.WithStore(store.New()), // use a option store, if not specified by store.New(), a dummy store allocated
 
-	// // simple run the parser of app and trigger the matched command's action
-	// _ = app.Run(
-	// 	cmdr.WithForceDefaultAction(false), // true for debug in developing time
-	// )
-
-	if err := app.Run(
-		cmdr.WithStore(store.New()),
 		// cmdr.WithExternalLoaders(
-		// 	local.NewConfigFileLoader(),
+		// 	local.NewConfigFileLoader(),      // import "github.com/hedzr/cmdr-loaders/local" to get in advanced external loading features
 		// 	local.NewEnvVarLoader(),
 		// ),
-		cmdr.WithForceDefaultAction(true), // true for debug in developing time
-	); err != nil {
-		logz.Error("Application Error:", "err", err)
+
+		cmdr.WithTasksBeforeRun(func(ctx context.Context, cmd cli.Cmd, runner cli.Runner, extras ...any) (err error) {
+			logz.DebugContext(ctx, "command running...", "cmd", cmd, "runner", runner, "extras", extras)
+			return
+		}),
+
+		// true for debug in developing time, it'll disable onAction on each Cmd.
+		// for productive mode, comment this line.
+		cmdr.WithForceDefaultAction(true),
+	)
+	if err := app.Run(ctx); err != nil {
+		logz.ErrorContext(ctx, "Application Error:", "err", err)
+		os.Exit(app.SuggestRetCode())
 	}
 }
 

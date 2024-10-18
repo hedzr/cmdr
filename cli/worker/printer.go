@@ -12,10 +12,10 @@ import (
 	"github.com/hedzr/is/states"
 	"github.com/hedzr/is/term"
 	"github.com/hedzr/is/term/color"
-	logz "github.com/hedzr/logg/slog"
 
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/pkg/exec"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 )
 
 type discardP struct{}
@@ -122,7 +122,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, 
 		_, _ = wr.WriteString("\n")
 	}
 
-	logz.VerboseContext(ctx, "[cmdr] tty cols", "cols", cols, "rows", rows, "tree-mode", s.treeMode, "show-tree", s.w.Actions())
+	logz.VerboseContext(ctx, "tty cols", "cols", cols, "rows", rows, "tree-mode", s.treeMode, "show-tree", s.w.Actions())
 
 	if !s.debugMatches {
 		return
@@ -465,7 +465,7 @@ func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder, ver
 			_, _ = sb.WriteString(" ")
 			_, _ = sb.WriteString(dep)
 		}
-		logz.VerboseContext(ctx, "[cmdr] [watching] split flag", "split", split)
+		logz.VerboseContext(ctx, "[watching] split flag", "split", split)
 	}
 
 	s.Reset(sb) // reset fg/bg colors by color Translator
@@ -604,7 +604,7 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder, verbos
 			_, _ = sb.WriteString(" ")
 		}
 		_, _ = sb.WriteString(dep)
-		logz.VerboseContext(ctx, "[cmdr] split flag is", "split", split)
+		logz.VerboseContext(ctx, "split flag is", "split", split)
 	}
 	// s.ColoredFast(&sb, CurrentDefaultValueColor, def)
 	// s.ColoredFast(&sb, CurrentDeprecatedColor, dep)

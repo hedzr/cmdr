@@ -6,19 +6,19 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/hedzr/cmdr/v2/internal/tool"
-	"github.com/hedzr/cmdr/v2/pkg/dir"
 	"github.com/hedzr/is"
-	logz "github.com/hedzr/logg/slog"
 	"github.com/hedzr/store"
 
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/cli/atoa"
+	"github.com/hedzr/cmdr/v2/internal/tool"
+	"github.com/hedzr/cmdr/v2/pkg/dir"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 )
 
 func (w *workerS) preProcess(ctx context.Context) (err error) {
 	// w.Config.Store.Load() // from external providers: 1. consul, 2. local,
-	logz.DebugContext(ctx, "[cmdr] pre-processing...")
+	logz.DebugContext(ctx, "pre-processing...")
 	dummyParseCtx := parseCtx{root: w.root, forceDefaultAction: w.ForceDefaultAction}
 
 	w.preEnvSet(ctx) // setup envvars: APP, APP_NAME, etc.
@@ -44,7 +44,7 @@ func (w *workerS) preProcess(ctx context.Context) (err error) {
 	w.postEnvLoad(ctx)
 
 	if is.VerboseBuild() || is.DebugBuild() { // `-tags delve` or `-tags verbose` used in building?
-		logz.VerboseContext(ctx, "[cmdr] Dumping Store ...")
+		logz.VerboseContext(ctx, "Dumping Store ...")
 		logz.VerboseContext(ctx, w.Store().Dump())
 	}
 	return
@@ -67,12 +67,12 @@ func (w *workerS) preEnvSet(ctx context.Context) {
 	_ = os.Setenv("APP_VER", w.Version())
 	_ = os.Setenv("APP_VERSION", w.Version())
 
-	logz.VerboseContext(ctx, "[cmdr] preEnvSet()", "appName", appName, "appVer", w.Version())
+	logz.VerboseContext(ctx, "preEnvSet()", "appName", appName, "appVer", w.Version())
 
 	// xdgPrefer := true
 	// if w.Store().Has("app.force-xdg-dir-prefer") {
 	// 	xdgPrefer = w.Store().MustBool("app.force-xdg-dir-prefer", false)
-	// 	logz.VerboseContext(ctx, "[cmdr] reset force-xdg-dir-prefer from store value", "app.force-xdg-dir-prefer", xdgPrefer)
+	// 	logz.VerboseContext(ctx, "reset force-xdg-dir-prefer from store value", "app.force-xdg-dir-prefer", xdgPrefer)
 	// }
 
 	home := tool.HomeDir()
@@ -112,19 +112,19 @@ func (w *workerS) preEnvSet(ctx context.Context) {
 }
 
 func (w *workerS) postEnvLoad(ctx context.Context) {
-	// logz.InfoContext(ctx, "[cmdr] postEnvLoad()", "FORCE_DEFAULT_ACTION", os.Getenv("FORCE_DEFAULT_ACTION"))
+	// logz.InfoContext(ctx, "postEnvLoad()", "FORCE_DEFAULT_ACTION", os.Getenv("FORCE_DEFAULT_ACTION"))
 	if w.Store().Has("app.force-default-action") {
 		w.ForceDefaultAction = w.Store().MustBool("app.force-default-action", false)
-		logz.VerboseContext(ctx, "[cmdr] postEnvLoad() - reset forceDefaultAction from store value", "ForceDefaultAction", w.ForceDefaultAction)
+		logz.VerboseContext(ctx, "postEnvLoad() - reset forceDefaultAction from store value", "ForceDefaultAction", w.ForceDefaultAction)
 	}
 	if tool.ToBool(os.Getenv("FORCE_DEFAULT_ACTION"), false) {
 		w.ForceDefaultAction = true
-		logz.InfoContext(ctx, "[cmdr] postEnvLoad() - set ForceDefaultAction true", "ForceDefaultAction", w.ForceDefaultAction)
+		logz.InfoContext(ctx, "postEnvLoad() - set ForceDefaultAction true", "ForceDefaultAction", w.ForceDefaultAction)
 	}
 	if w.ForceDefaultAction {
 		if envForceRun := tool.ToBool(os.Getenv("FORCE_RUN")); envForceRun {
 			w.ForceDefaultAction = false
-			logz.InfoContext(ctx, "[cmdr] postEnvLoad() - reset forceDefaultAction since FORCE_RUN defined", "ForceDefaultAction", w.ForceDefaultAction)
+			logz.InfoContext(ctx, "postEnvLoad() - reset forceDefaultAction since FORCE_RUN defined", "ForceDefaultAction", w.ForceDefaultAction)
 		}
 	}
 }
@@ -135,7 +135,7 @@ func (w *workerS) linkCommands(ctx context.Context, root *cli.RootCommand) (err 
 			cx.EnsureTree(ctx, root.App(), root) // link the added builtin commands too
 			if err = w.xrefCommands(ctx, root); err == nil {
 				if err = w.commandsToStore(ctx, root); err == nil {
-					logz.VerboseContext(ctx, "[cmdr] linkCommands() - *RootCommand linked itself")
+					logz.VerboseContext(ctx, "linkCommands() - *RootCommand linked itself")
 				}
 			}
 		}
@@ -202,7 +202,7 @@ func (w *workerS) loadLoaders(ctx context.Context) (err error) {
 		appName := w.Name()
 		jsonLoader := &jsonLoaderS{}
 		jsonLoader.filename = path.Join(appDir, "."+appName+".json")
-		logz.DebugContext(ctx, "[cmdr] use internal tiny json loader", "filename", jsonLoader.filename)
+		logz.DebugContext(ctx, "use internal tiny json loader", "filename", jsonLoader.filename)
 		w.Config.Loaders = append(w.Config.Loaders, jsonLoader)
 		return
 	}
@@ -229,7 +229,7 @@ func (w *workerS) precheckLoaders(ctx context.Context) {
 			}
 		}
 		if !found {
-			logz.WarnContext(ctx, "[cmdr] Config file has been ignored", "config-file", w.configFile)
+			logz.WarnContext(ctx, "Config file has been ignored", "config-file", w.configFile)
 		}
 	}
 }
@@ -275,7 +275,7 @@ func (w *workerS) xrefCommands(ctx context.Context, root *cli.RootCommand, cb ..
 // }
 
 func (w *workerS) postProcess(ctx context.Context, pc *parseCtx) (err error) {
-	logz.DebugContext(ctx, "[cmdr] post-processing...")
+	logz.DebugContext(ctx, "post-processing...")
 	_, _ = pc, ctx
 	return
 }

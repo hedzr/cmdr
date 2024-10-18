@@ -6,7 +6,7 @@ import (
 
 	errorsv3 "gopkg.in/hedzr/errors.v3"
 
-	logz "github.com/hedzr/logg/slog"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 
 	"github.com/hedzr/cmdr/v2/cli"
 )
@@ -29,7 +29,7 @@ func (w *workerS) parse(ctx context.Context, pc *parseCtx) (err error) { //nolin
 		}
 	}()
 
-	logz.VerboseContext(ctx, "[cmdr] parsing command line args ...", "args", w.args)
+	logz.VerboseContext(ctx, "parsing command line args ...", "args", w.args)
 
 loopArgs:
 	for pc.i = 1; pc.i < len(w.args); pc.i++ {
@@ -39,11 +39,11 @@ loopArgs:
 
 		if atomic.LoadInt32(&pc.passThruMatched) > 0 || errorsv3.Is(err, cli.ErrShouldStop) || w.errIsUnmatchedArg(err) {
 			pc.positionalArgs = append(pc.positionalArgs, w.args[pc.i])
-			logz.VerboseContext(ctx, "[cmdr] positional args added", "i", pc.i, "args", pc.positionalArgs)
+			logz.VerboseContext(ctx, "positional args added", "i", pc.i, "args", pc.positionalArgs)
 			continue
 		}
 
-		logz.VerboseContext(ctx, "[cmdr] parsing command-line args", "i", pc.i, "arg", w.args[pc.i])
+		logz.VerboseContext(ctx, "parsing command-line args", "i", pc.i, "arg", w.args[pc.i])
 
 		pc.arg, pc.short, pc.pos = w.args[pc.i], false, 0
 		switch c1 := pc.arg[0]; c1 {
@@ -72,7 +72,7 @@ loopArgs:
 			}
 			// single '+': as a positional arg
 			pc.positionalArgs = append(pc.positionalArgs, pc.arg)
-			logz.VerboseContext(ctx, "[cmdr] positional args added", "i", pc.i, "args", pc.positionalArgs)
+			logz.VerboseContext(ctx, "positional args added", "i", pc.i, "args", pc.positionalArgs)
 			continue
 
 		case '-', '~':
@@ -116,7 +116,7 @@ loopArgs:
 		default:
 			if pc.NoCandidateChildCommands() {
 				pc.positionalArgs = append(pc.positionalArgs, pc.arg)
-				logz.VerboseContext(ctx, "[cmdr] positional args added", "i", pc.i, "args", pc.positionalArgs)
+				logz.VerboseContext(ctx, "positional args added", "i", pc.i, "args", pc.positionalArgs)
 				continue
 			}
 			if err = w.matchCommand(ctx, pc); !w.errIsSignalOrNil(err) {
@@ -161,7 +161,7 @@ func (w *workerS) matchCommand(ctx context.Context, pc *parseCtx) (err error) {
 		if err == nil {
 			pc.lastCommand, err = len(pc.matchedCommands)-1, nil
 		}
-		logz.VerboseContext(ctx, "[cmdr] command matched", "short", short, "cmd", pc.LastCmd(), "handled", handled)
+		logz.VerboseContext(ctx, "command matched", "short", short, "cmd", pc.LastCmd(), "handled", handled)
 	}
 	return
 }
@@ -176,7 +176,7 @@ compactFlags:
 	if vp.Matched != "" && ff != nil && w.errIsSignalOrNil(err1) {
 		ms, handled := pc.addFlag(ff), false
 		handled, err1 = ff.TryOnMatched(0, ms)
-		logz.VerboseContext(ctx, "[cmdr] flag matched", "short", vp.Short, "flg", ff, "val-pkg-val", ff.DefaultValue(), "handled", handled)
+		logz.VerboseContext(ctx, "flag matched", "short", vp.Short, "flg", ff, "val-pkg-val", ff.DefaultValue(), "handled", handled)
 
 		pc.i += vp.AteArgs
 		vp.AteArgs = 0

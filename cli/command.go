@@ -9,11 +9,11 @@ import (
 
 	"github.com/hedzr/is"
 	"github.com/hedzr/is/states"
-	logz "github.com/hedzr/logg/slog"
 
 	"github.com/hedzr/cmdr/v2/internal/tool"
 	"github.com/hedzr/cmdr/v2/pkg/dir"
 	"github.com/hedzr/cmdr/v2/pkg/exec"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 
 	"gopkg.in/hedzr/errors.v3"
 )
@@ -310,12 +310,12 @@ func (c *CmdS) SetAction(fn OnInvokeHandler) {
 func (c *CmdS) Invoke(ctx context.Context, args []string) (err error) {
 	var deferActions func(errInvoked error)
 	if deferActions, err = c.RunPreActions(ctx, c, args); err != nil {
-		logz.VerboseContext(ctx, "[cmdr] cmd.RunPreActions failed", "err", err)
+		logz.VerboseContext(ctx, "cmd.RunPreActions failed", "err", err)
 		return
 	}
 	defer func() { deferActions(err) }() // err must be delayed caught here
 
-	logz.VerboseContext(ctx, "[cmdr] cmd.Invoke()", "onInvoke", c.onInvoke)
+	logz.VerboseContext(ctx, "cmd.Invoke()", "onInvoke", c.onInvoke)
 	if c.onInvoke != nil {
 		err = c.onInvoke(ctx, c, args)
 	}
@@ -370,7 +370,7 @@ func (c *CmdS) getDeferAction(ctx context.Context, cmd Cmd, args []string) func(
 		}
 
 		if !ecp.IsEmpty() {
-			logz.Panic("[cmdr] Error(s) occurred when running post-actions:", "error", ecp.Error())
+			logz.Panic("Error(s) occurred when running post-actions:", "error", ecp.Error())
 		}
 	}
 }
@@ -388,7 +388,7 @@ func (c *CmdS) getDeferAction(ctx context.Context, cmd Cmd, args []string) func(
 // 			ecp.Attach(c.postInvoke(cmd, args, errInvoked))
 // 		}
 // 		if !ecp.IsEmpty() {
-// 			logz.Fatalf("[cmdr] Error(s) occurred when running post-actions: %v", ecp)
+// 			logz.Fatalf("Error(s) occurred when running post-actions: %v", ecp)
 // 		}
 // 		return
 // 	}
@@ -405,7 +405,7 @@ func (c *CmdS) getDeferAction(ctx context.Context, cmd Cmd, args []string) func(
 // This function will be called for running time once (see also cmdr.Run()).
 func (c *CmdS) EnsureTree(ctx context.Context, app App, root *RootCommand) {
 	if atomic.CompareAndSwapInt32(&root.linked, 0, 1) {
-		logz.DebugContext(ctx, "[cmdr] cmd.EnsureTree (Once) -> linking to root and owner", "root", root)
+		logz.DebugContext(ctx, "cmd.EnsureTree (Once) -> linking to root and owner", "root", root)
 		c.ensureTreeAlways(ctx, app, root)
 	}
 }
@@ -415,7 +415,7 @@ func (c *CmdS) EnsureTree(ctx context.Context, app App, root *RootCommand) {
 //
 // This func is called only in building command system (see also builder.postBuild).
 func (c *CmdS) EnsureTreeAlways(ctx context.Context, app App, root *RootCommand) {
-	logz.DebugContext(ctx, "[cmdr] cmd.EnsureTreeAlways -> linking to root and owner", "root", root)
+	logz.DebugContext(ctx, "cmd.EnsureTreeAlways -> linking to root and owner", "root", root)
 	c.ensureTreeAlways(ctx, app, root)
 }
 
@@ -514,7 +514,7 @@ func (c *CmdS) ensureXrefFlags(ctx context.Context) { //nolint:revive
 			ff.ensureXref()
 			if ff.headLike {
 				if ff.owner.HeadLikeFlag() != nil && ff.owner.HeadLikeFlag() != ff {
-					logz.WarnContext(ctx, "[cmdr] too much head-like flags", "last-head-like-flag", ff.owner.HeadLikeFlag(), "this-one", ff)
+					logz.WarnContext(ctx, "too much head-like flags", "last-head-like-flag", ff.owner.HeadLikeFlag(), "this-one", ff)
 				}
 				ff.owner.SetHeadLikeFlag(ff)
 			}
@@ -530,7 +530,7 @@ func (c *CmdS) ensureXrefFlags(ctx context.Context) { //nolint:revive
 			ff.ensureXref()
 			if ff.headLike {
 				if ff.owner.HeadLikeFlag() != nil && ff.owner.HeadLikeFlag() != ff {
-					logz.WarnContext(ctx, "[cmdr] too much head-like flags", "last-head-like-flag", ff.owner.HeadLikeFlag(), "this-one", ff)
+					logz.WarnContext(ctx, "too much head-like flags", "last-head-like-flag", ff.owner.HeadLikeFlag(), "this-one", ff)
 				}
 				ff.owner.SetHeadLikeFlag(ff)
 			}
@@ -599,31 +599,31 @@ func (c *CmdS) invokeExternalEditor(ctx context.Context, vp *FlagValuePkg, ff *F
 		}
 	}
 
-	logz.DebugContext(ctx, "[cmdr] external editor", "ex-editor", ff.externalEditor)
+	logz.DebugContext(ctx, "external editor", "ex-editor", ff.externalEditor)
 	if cmd := os.Getenv(ff.externalEditor); cmd != "" {
 		file := tool.TempFileName("message*.tmp", "message001.tmp", c.App().Name())
 		cmdS := tool.SplitCommandString(cmd)
 		cmdS = append(cmdS, file)
 		defer func(dst string) {
 			if err := dir.DeleteFile(dst); err != nil {
-				logz.ErrorContext(ctx, "[cmdr] cannot delete temporary file for flag", "flag", ff)
+				logz.ErrorContext(ctx, "cannot delete temporary file for flag", "flag", ff)
 			}
 		}(file)
 
-		logz.DebugContext(ctx, "[cmdr] invoke external editor", "ex-editor", ff.externalEditor, "cmd", cmdS)
+		logz.DebugContext(ctx, "invoke external editor", "ex-editor", ff.externalEditor, "cmd", cmdS)
 		if is.DebuggerAttached() {
 			vp.ValueOK, vp.Value = true, "<<stdoutTextForDebugging>>"
-			logz.WarnContext(ctx, "[cmdr] use debug text", "flag", ff, "text", vp.Value)
+			logz.WarnContext(ctx, "use debug text", "flag", ff, "text", vp.Value)
 			return ff
 		}
 
 		if err := exec.CallSliceQuiet([]string{"which", cmdS[0]}, func(retCode int, stdoutText string) {
 			if retCode == 0 {
 				cmdS[0] = strings.TrimSpace(strings.TrimSuffix(stdoutText, "\n"))
-				logz.DebugContext(ctx, "[cmdr] got external editor real-path", "cmd", cmdS)
+				logz.DebugContext(ctx, "got external editor real-path", "cmd", cmdS)
 			}
 		}); err != nil {
-			logz.ErrorContext(ctx, "[cmdr] cannot invoke which CmdS", "flag", ff, "cmd", cmdS)
+			logz.ErrorContext(ctx, "cannot invoke which CmdS", "flag", ff, "cmd", cmdS)
 			return nil
 		}
 
@@ -631,25 +631,25 @@ func (c *CmdS) invokeExternalEditor(ctx context.Context, vp *FlagValuePkg, ff *F
 		var err error
 		content, err = tool.LaunchEditorWithGetter(cmdS[0], func() string { return cmdS[1] }, false)
 		if err != nil {
-			logz.ErrorContext(ctx, "[cmdr] Error on launching cmd", "err", err, "cmd", cmdS)
+			logz.ErrorContext(ctx, "Error on launching cmd", "err", err, "cmd", cmdS)
 			return nil
 		}
 
 		// content, err = tool.LaunchEditorWith(cmdS[0], cmdS[1])
 		// if err != nil {
-		// 	logz.ErrorContext(ctx, "[cmdr] Error on launching cmd", "err", err, "cmd", cmdS)
+		// 	logz.ErrorContext(ctx, "Error on launching cmd", "err", err, "cmd", cmdS)
 		// 	return nil
 		// }
 		//
 		// content, err = tool.LaunchEditor(cmdS[0])
 		// if err != nil {
-		// 	logz.ErrorContext(ctx, "[cmdr] Error on launching cmd", "err", err, "cmd", cmdS)
+		// 	logz.ErrorContext(ctx, "Error on launching cmd", "err", err, "cmd", cmdS)
 		// 	return nil
 		// }
 
 		// f, err = os.Open(file)
 		// if err != nil {
-		// 	logz.ErrorContext(ctx, "[cmdr] cannot open temporary file for reading content", "file", file, "flag", ff, "cmd", cmdS)
+		// 	logz.ErrorContext(ctx, "cannot open temporary file for reading content", "file", file, "flag", ff, "cmd", cmdS)
 		// 	return nil
 		// }
 		// defer f.Close()
@@ -657,10 +657,10 @@ func (c *CmdS) invokeExternalEditor(ctx context.Context, vp *FlagValuePkg, ff *F
 
 		vp.ValueOK, vp.Value = true, string(content)
 		ff.defaultValue = string(content)
-		// logz.DebugContext(ctx, "[cmdr] invoked external editor", "ex-editor", ff.externalEditor, "text", string(content))
+		// logz.DebugContext(ctx, "invoked external editor", "ex-editor", ff.externalEditor, "text", string(content))
 		return ff
 	}
-	logz.WarnContext(ctx, "[cmdr] Unknown External Editor for flag.", "ex-editor", ff.externalEditor, "flag", ff)
+	logz.WarnContext(ctx, "Unknown External Editor for flag.", "ex-editor", ff.externalEditor, "flag", ff)
 	return nil
 }
 

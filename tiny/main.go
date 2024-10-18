@@ -12,11 +12,13 @@ import (
 
 	"gopkg.in/hedzr/errors.v3"
 
+	logzorig "github.com/hedzr/logg/slog"
+
 	"github.com/hedzr/cmdr/v2"
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/pkg/dir"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 	"github.com/hedzr/is"
-	logz "github.com/hedzr/logg/slog"
 	"github.com/hedzr/store"
 )
 
@@ -24,10 +26,10 @@ func main() {
 	ctx := context.Background()
 
 	app := prepareApp(
-		cmdr.WithStore(store.New()), // use a option store, if not specified by store.New(), a dummy store allocated
+		cmdr.WithStore(store.New()), // use an option store explicitly, or a dummy store by default
 
 		// cmdr.WithExternalLoaders(
-		// 	local.NewConfigFileLoader(),      // import "github.com/hedzr/cmdr-loaders/local" to get in advanced external loading features
+		// 	local.NewConfigFileLoader(), // import "github.com/hedzr/cmdr-loaders/local" to get in advanced external loading features
 		// 	local.NewEnvVarLoader(),
 		// ),
 
@@ -60,11 +62,13 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 		Info("tiny-app", "0.3.1").
 		Author("hedzr")
 
+	// another way to disable `cmdr.WithForceDefaultAction(true)` is using
+	// env-var FORCE_RUN=1 (builtin already).
 	app.Flg("no-default").
 		Description("disable force default action").
 		OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 			if b, ok := hitState.Value.(bool); ok {
-				app.Store().Set("app.force-default-action", b) // disable/enable the final state about 'force default action'
+				f.Set().Set("app.force-default-action", b) // disable/enable the final state about 'force default action'
 			}
 			return
 		}).
@@ -85,11 +89,11 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 				// Group(cli.UnsortedGroup).
 				Hidden(false).
 				OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
-					app.Store().Set("app.demo.working", dir.GetCurrentDir())
+					cmd.Set().Set("app.demo.working", dir.GetCurrentDir())
 					println()
 					println(dir.GetCurrentDir())
 					println()
-					println(app.Store().Dump())
+					println(cmd.Set().Dump())
 					app.SetSuggestRetCode(1) // ret code must be in 0-255
 					return                   // handling command action here
 				}).
@@ -111,7 +115,6 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 	app.Flg("wet-run", "w").
 		Default(false).
 		Description("run all but with committing").
-		// Group(cli.UnsortedGroup).
 		Build() // no matter even if you're adding the duplicated one.
 
 	app.Cmd("wrong").
@@ -164,22 +167,22 @@ func init() {
 
 		if devMode {
 			is.SetDebugMode(true)
-			logz.SetLevel(logz.DebugLevel)
+			logz.SetLevel(logzorig.DebugLevel)
 			logz.Debug(".dev-mode file detected, entering Debug Mode...")
 		}
 
 		if is.DebugBuild() {
 			is.SetDebugMode(true)
-			logz.SetLevel(logz.DebugLevel)
+			logz.SetLevel(logzorig.DebugLevel)
 		}
 
 		if is.VerboseBuild() {
 			is.SetVerboseMode(true)
-			if logz.GetLevel() < logz.InfoLevel {
-				logz.SetLevel(logz.InfoLevel)
+			if logz.GetLevel() < logzorig.InfoLevel {
+				logz.SetLevel(logzorig.InfoLevel)
 			}
-			if logz.GetLevel() < logz.TraceLevel {
-				logz.SetLevel(logz.TraceLevel)
+			if logz.GetLevel() < logzorig.TraceLevel {
+				logz.SetLevel(logzorig.TraceLevel)
 			}
 		}
 	})

@@ -6,9 +6,8 @@ import (
 
 	errorsv3 "gopkg.in/hedzr/errors.v3"
 
-	logz "github.com/hedzr/logg/slog"
-
 	"github.com/hedzr/cmdr/v2/cli"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 )
 
 func (w *workerS) exec(ctx context.Context, pc *parseCtx) (err error) {
@@ -35,9 +34,9 @@ func (w *workerS) exec(ctx context.Context, pc *parseCtx) (err error) {
 	}()
 
 	if !forceDefaultAction && lastCmd.CanInvoke() {
-		logz.VerboseContext(ctx, "[cmdr] invoke action of cmd, with args", "cmd", lastCmd, "args", pc.positionalArgs)
+		logz.VerboseContext(ctx, "invoke action of cmd, with args", "cmd", lastCmd, "args", pc.positionalArgs)
 		err = lastCmd.Invoke(ctx, pc.positionalArgs)
-		logz.VerboseContext(ctx, "[cmdr] invoke action ends.", "err", err)
+		logz.VerboseContext(ctx, "invoke action ends.", "err", err)
 		if !w.errIsSignalFallback(err) {
 			return
 		}
@@ -47,7 +46,7 @@ func (w *workerS) exec(ctx context.Context, pc *parseCtx) (err error) {
 	handled, err1 := w.handleActions(ctx, pc)
 	// for k, action := range w.actions {
 	// 	if k&w.actionsMatched != 0 {
-	// 		logz.VerboseContext(ctx, "[cmdr] Invoking worker.actionsMatched", "hit-action", k, "actions", w.Actions())
+	// 		logz.VerboseContext(ctx, "Invoking worker.actionsMatched", "hit-action", k, "actions", w.Actions())
 	// 		err, handled = action(pc, lastCmd), true
 	// 		break
 	// 	}

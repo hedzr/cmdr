@@ -159,6 +159,8 @@ type Cmd interface {
 	HitTitle() string
 	HitTimes() int
 
+	SetRedirectTo(dottedPath string)
+
 	CanInvoke() bool
 	Invoke(ctx context.Context, args []string) (err error)
 

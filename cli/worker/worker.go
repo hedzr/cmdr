@@ -12,12 +12,11 @@ import (
 	"gopkg.in/hedzr/errors.v3"
 
 	"github.com/hedzr/is/basics"
-
-	logz "github.com/hedzr/logg/slog"
 	"github.com/hedzr/store"
 
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/conf"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 )
 
 func New(cfg *cli.Config, opts ...cli.Opt) *workerS {
@@ -217,7 +216,7 @@ func (w *workerS) reqResourcesReady() (yes bool) {
 func (w *workerS) Close() {
 	if atomic.CompareAndSwapInt32(&w.closed, 0, 1) {
 		ctx := context.Background()
-		logz.DebugContext(ctx, "[cmdr] Runner(*workerS) closed.")
+		logz.DebugContext(ctx, "Runner(*workerS) closed.")
 	}
 }
 
@@ -278,7 +277,7 @@ func (w *workerS) InitGlobally(ctx context.Context) {
 func (w *workerS) initGlobalResources() {
 	defer w.triggerGlobalResourcesInitOK()
 	ctx := context.Background()
-	logz.DebugContext(ctx, "[cmdr] workerS.initGlobalResources")
+	logz.DebugContext(ctx, "workerS.initGlobalResources")
 
 	// to do sth...
 }
@@ -286,7 +285,7 @@ func (w *workerS) initGlobalResources() {
 func (w *workerS) triggerGlobalResourcesInitOK() {
 	// to do sth...
 	ctx := context.Background()
-	logz.DebugContext(ctx, "[cmdr] workerS.triggerGlobalResourcesInitOK")
+	logz.DebugContext(ctx, "workerS.triggerGlobalResourcesInitOK")
 }
 
 func (w *workerS) attachErrors(errs ...error) { //nolint:revive,unused

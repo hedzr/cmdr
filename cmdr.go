@@ -7,12 +7,12 @@ import (
 	"os"
 
 	"github.com/hedzr/is/basics"
-	logz "github.com/hedzr/logg/slog"
 	"github.com/hedzr/store"
 
 	"github.com/hedzr/cmdr/v2/builder"
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/cli/worker"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 )
 
 // func NewOpt[T any](defaultValue ...T) config.Opt {
@@ -71,7 +71,7 @@ import (
 // its subcommands are the main characters - but you still can do that.
 func New(opts ...cli.Opt) cli.App {
 	_ = os.Setenv("CMDR_VERSION", Version)
-	logz.Verbose("[cmdr] setup env-var at earlier time", "CMDR_VERSION", Version)
+	logz.Verbose("setup env-var at earlier time", "CMDR_VERSION", Version)
 	cfg := cli.NewConfig(opts...)
 	w := worker.New(cfg)
 	return builder.New(w)

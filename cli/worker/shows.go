@@ -5,10 +5,9 @@ import (
 
 	"gopkg.in/hedzr/errors.v3"
 
-	logz "github.com/hedzr/logg/slog"
-
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/internal/hs"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 )
 
 func (w *workerS) showVersion(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) (err error) { //nolint:revive,unused

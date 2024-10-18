@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 
 	"github.com/hedzr/cmdr/v2/cli"
-	logz "github.com/hedzr/logg/slog"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 )
 
 type parseCtx struct {

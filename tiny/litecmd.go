@@ -127,6 +127,8 @@ func (s *liteCmdS) SetHitTitle(title string) {
 func (s *liteCmdS) HitTitle() string { return s.hitTitle }
 func (s *liteCmdS) HitTimes() int    { return s.hitTimes }
 
+func (s *liteCmdS) SetRedirectTo(dottedPath string) {}
+
 func (s *liteCmdS) CanInvoke() bool {
 	return s.fi.Type().IsRegular()
 }

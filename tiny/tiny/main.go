@@ -19,10 +19,10 @@ import (
 func main() {
 	ctx := context.Background()
 	app := prepareApp(
-		cmdr.WithStore(store.New()), // use a option store, if not specified by store.New(), a dummy store allocated
+		cmdr.WithStore(store.New()), // use an option store explicitly, or a dummy store by default
 
 		// cmdr.WithExternalLoaders(
-		// 	local.NewConfigFileLoader(),      // import "github.com/hedzr/cmdr-loaders/local" to get in advanced external loading features
+		// 	local.NewConfigFileLoader(), // import "github.com/hedzr/cmdr-loaders/local" to get in advanced external loading features
 		// 	local.NewEnvVarLoader(),
 		// ),
 
@@ -46,12 +46,14 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 		Info("tiny-app", "0.3.1").
 		Author("hedzr")
 
+	// another way to disable `cmdr.WithForceDefaultAction(true)` is using
+	// env-var FORCE_RUN=1 (builtin already).
 	app.Flg("no-default").
 		Description("disable force default action").
 		OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 			if b, ok := hitState.Value.(bool); ok {
 				// disable/enable the final state about 'force default action'
-				app.Store().Set("app.force-default-action", b)
+				f.Set().Set("app.force-default-action", b)
 			}
 			return
 		}).
@@ -71,7 +73,7 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 				// Group(cli.UnsortedGroup).
 				Hidden(false).
 				OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
-					app.Store().Set("app.demo.working", dir.GetCurrentDir())
+					cmd.Set().Set("app.demo.working", dir.GetCurrentDir())
 					println()
 					println(dir.GetCurrentDir())
 					println()
@@ -104,6 +106,7 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 			ec := errors.New()
 			defer ec.Defer(&err) // store the collected errors in native err and return it
 			ec.Attach(io.ErrClosedPipe, errors.New("something's wrong"), os.ErrPermission)
+			// see the application error by running `go run ./tiny/tiny/main.go wrong`.
 			return
 		}).
 		With(func(b cli.CommandBuilder) {

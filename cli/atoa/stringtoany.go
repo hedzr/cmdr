@@ -23,10 +23,10 @@ import (
 	"time"
 
 	"github.com/hedzr/evendeep/ref"
-	logz "github.com/hedzr/logg/slog"
 
 	"github.com/hedzr/cmdr/v2/internal/tool"
 	"github.com/hedzr/cmdr/v2/pkg/exec"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 )
 
 // Parse convert a string to any type following a given meme.
@@ -107,7 +107,7 @@ func (s *toS) parseImpl(str string, rt reflect.Type, meme any) (v any, err error
 			rt = rt.Elem() //nolint:revive
 			rv := reflect.New(rt)
 			ctx := context.Background()
-			logz.DebugContext(ctx, "[cmdr] toS.parseImpl - rv", "rv", ref.Valfmt(&rv))
+			logz.DebugContext(ctx, "toS.parseImpl - rv", "rv", ref.Valfmt(&rv))
 			err = rv.Interface().(encoding.TextUnmarshaler).UnmarshalText([]byte(str))
 			if err == nil {
 				v = rv.Interface()
@@ -204,7 +204,7 @@ func (s *toS) parseArray(preferKind reflect.Kind, typArray reflect.Type, str str
 	position, v, err = s.stepComplexObject(preferKind, typArray, runes, pos, meme)
 	if position == pos || position < len(runes) {
 		ctx := context.Background()
-		logz.WarnContext(ctx, "[cmdr] the given string is empty or has too much data?", "str", str, "posAfterParsed", position)
+		logz.WarnContext(ctx, "the given string is empty or has too much data?", "str", str, "posAfterParsed", position)
 	}
 	return
 }

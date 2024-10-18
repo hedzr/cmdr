@@ -6,9 +6,10 @@ import (
 	"runtime"
 
 	"github.com/hedzr/is/states"
-	logz "github.com/hedzr/logg/slog"
+	logzorig "github.com/hedzr/logg/slog"
 
 	"github.com/hedzr/cmdr/v2/cli"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 )
 
 func (w *workerS) addBuiltinCommands(root *cli.RootCommand) (err error) { //nolint:unparam //unified form
@@ -84,7 +85,7 @@ func (w *workerS) builtinHelps(app cli.App, p *cli.CmdS) { //nolint:revive
 			Hidden(true, false).
 			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) { //nolint:revive
 				w.inCompleting = true
-				logz.SetLevel(logz.ErrorLevel) // disable trace, debug, info, warn messages
+				logz.SetLevel(logzorig.ErrorLevel) // disable trace, debug, info, warn messages
 				return
 			}).
 			OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {

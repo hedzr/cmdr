@@ -50,6 +50,7 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 	// env-var FORCE_RUN=1 (builtin already).
 	app.Flg("no-default").
 		Description("disable force default action").
+		// Group(cli.UnsortedGroup).
 		OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 			if b, ok := hitState.Value.(bool); ok {
 				// disable/enable the final state about 'force default action'
@@ -71,8 +72,6 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 				Description("to command").
 				Examples(``).
 				Deprecated(`v0.1.1`).
-				// Group(cli.UnsortedGroup).
-				Hidden(false).
 				OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
 					cmd.Set().Set("app.demo.working", dir.GetCurrentDir())
 					println()
@@ -102,7 +101,11 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 
 	app.Cmd("wrong").
 		Description("a wrong command to return error for testing").
+		// cmdline `FORCE_RUN=1 go run ./tiny wrong -d 8s` to verify this command to see the returned application error.
 		OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
+			dur := cmdr.CmdStore().MustDuration("wrong.duration")
+			println("the duration is:", dur.String())
+
 			ec := errors.New()
 			defer ec.Defer(&err) // store the collected errors in native err and return it
 			ec.Attach(io.ErrClosedPipe, errors.New("something's wrong"), os.ErrPermission)
@@ -110,9 +113,9 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 			return
 		}).
 		With(func(b cli.CommandBuilder) {
-			b.Flg("full", "f").
-				Default(false).
-				Description("full command").
+			b.Flg("duration", "d").
+				Default("5s").
+				Description("a duration var").
 				Build()
 		})
 	return

@@ -18,7 +18,7 @@ import (
 
 func (w *workerS) preProcess(ctx context.Context) (err error) {
 	// w.Config.Store.Load() // from external providers: 1. consul, 2. local,
-	logz.DebugContext(ctx, "pre-processing...")
+	logz.VerboseContext(ctx, "pre-processing...")
 	dummyParseCtx := parseCtx{root: w.root, forceDefaultAction: w.ForceDefaultAction}
 
 	w.preEnvSet(ctx) // setup envvars: APP, APP_NAME, etc.
@@ -275,7 +275,7 @@ func (w *workerS) xrefCommands(ctx context.Context, root *cli.RootCommand, cb ..
 // }
 
 func (w *workerS) postProcess(ctx context.Context, pc *parseCtx) (err error) {
-	logz.DebugContext(ctx, "post-processing...")
+	logz.VerboseContext(ctx, "post-processing...")
 	_, _ = pc, ctx
 	return
 }

@@ -64,7 +64,7 @@ func (s *appS) Args() []string         { return s.args }
 func (s *appS) Build() {
 	if sr, ok := s.Runner.(setRoot); ok {
 		ctx := context.Background()
-		logz.DebugContext(ctx, "builder.appS.Build() - setRoot")
+		logz.VerboseContext(ctx, "builder.appS.Build() - setRoot")
 		if cx, ok := s.root.Cmd.(*cli.CmdS); ok {
 			cx.EnsureTree(ctx, s, s.root)
 		}

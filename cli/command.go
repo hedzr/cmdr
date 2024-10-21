@@ -405,7 +405,7 @@ func (c *CmdS) getDeferAction(ctx context.Context, cmd Cmd, args []string) func(
 // This function will be called for running time once (see also cmdr.Run()).
 func (c *CmdS) EnsureTree(ctx context.Context, app App, root *RootCommand) {
 	if atomic.CompareAndSwapInt32(&root.linked, 0, 1) {
-		logz.DebugContext(ctx, "cmd.EnsureTree (Once) -> linking to root and owner", "root", root)
+		logz.VerboseContext(ctx, "cmd.EnsureTree (Once) -> linking to root and owner", "root", root)
 		c.ensureTreeAlways(ctx, app, root)
 	}
 }

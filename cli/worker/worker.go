@@ -277,7 +277,7 @@ func (w *workerS) InitGlobally(ctx context.Context) {
 func (w *workerS) initGlobalResources() {
 	defer w.triggerGlobalResourcesInitOK()
 	ctx := context.Background()
-	logz.DebugContext(ctx, "workerS.initGlobalResources")
+	logz.VerboseContext(ctx, "workerS.initGlobalResources")
 
 	// to do sth...
 }
@@ -285,7 +285,7 @@ func (w *workerS) initGlobalResources() {
 func (w *workerS) triggerGlobalResourcesInitOK() {
 	// to do sth...
 	ctx := context.Background()
-	logz.DebugContext(ctx, "workerS.triggerGlobalResourcesInitOK")
+	logz.VerboseContext(ctx, "workerS.triggerGlobalResourcesInitOK")
 }
 
 func (w *workerS) attachErrors(errs ...error) { //nolint:revive,unused

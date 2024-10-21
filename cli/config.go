@@ -65,6 +65,7 @@ type Runner interface {
 
 	SuggestRetCode() int       // os process return code
 	SetSuggestRetCode(ret int) // update ret code (0-255) from onAction, onTask, ...
+	ParsedState() ParsedState  // the parsed states
 
 	// Actions return a state map.
 	// The states can be:
@@ -79,6 +80,20 @@ type Runner interface {
 	// For examples, `~~tree` causes 'show-tree' state ON,
 	// `--help` causes 'show-help' state ON.
 	Actions() (ret map[string]bool)
+}
+
+type ParsedState interface {
+	NoCandidateChildCommands() bool
+	LastCmd() Cmd
+	MatchedCommands() []Cmd
+	MatchedFlags() map[*Flag]*MatchState
+	PositionalArgs() []string
+
+	CommandMatchedState(c Cmd) (ms *MatchState)
+	FlagMatchedState(f *Flag) (ms *MatchState)
+
+	HasCmd(longTitle string, validator func(cc Cmd, state *MatchState) bool) (found bool)
+	HasFlag(longTitle string, validator func(ff *Flag, state *MatchState) bool) (found bool)
 }
 
 func WithForceDefaultAction(b bool) Opt {

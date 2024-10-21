@@ -100,7 +100,7 @@ type workerS struct {
 
 	inCompleting bool
 	actions      map[actionEnum]onAction
-	parsingCtx   *parseCtx
+	parsingCtx   cli.ParsedState
 }
 
 func (w *workerS) String() string {
@@ -337,10 +337,11 @@ func (w *workerS) errIsSignalFallback(err error) bool {
 	return errors.Is(err, cli.ErrShouldFallback)
 }
 
-func (w *workerS) setArgs(args []string)     { w.args = args }
-func (w *workerS) Args() (args []string)     { return w.args }
-func (w *workerS) SuggestRetCode() int       { return w.retCode } //
-func (w *workerS) SetSuggestRetCode(ret int) { w.retCode = ret }
+func (w *workerS) setArgs(args []string)        { w.args = args }
+func (w *workerS) Args() (args []string)        { return w.args }
+func (w *workerS) SuggestRetCode() int          { return w.retCode } //
+func (w *workerS) SetSuggestRetCode(ret int)    { w.retCode = ret }
+func (w *workerS) ParsedState() cli.ParsedState { return w.parsingCtx }
 
 func bindOpts[Opt cli.Opt](w *workerS, installAsUnique bool, opts ...Opt) {
 	for _, opt := range opts {
@@ -378,13 +379,13 @@ func (w *workerS) Run(ctx context.Context, opts ...cli.Opt) (err error) {
 	}
 
 	dummy := func() bool { return true }
-	pc := parseCtx{root: w.root, forceDefaultAction: w.ForceDefaultAction}
-	defer func() { w.attachError(w.postProcess(ctx, &pc)) }()
-	if w.invokeTasks(ctx, &pc, w.errs, w.Config.TasksBeforeParse...) ||
-		w.attachError(w.parse(ctx, &pc)) ||
-		w.invokeTasks(ctx, &pc, w.errs, w.Config.TasksBeforeRun...) ||
-		w.attachError(w.exec(ctx, &pc)) ||
-		w.invokeTasks(ctx, &pc, w.errs, w.Config.TasksAfterRun...) ||
+	pc := &parseCtx{root: w.root, forceDefaultAction: w.ForceDefaultAction}
+	defer func() { w.attachError(w.postProcess(ctx, pc)) }()
+	if w.invokeTasks(ctx, pc, w.errs, w.Config.TasksBeforeParse...) ||
+		w.attachError(w.parse(ctx, pc)) ||
+		w.invokeTasks(ctx, pc, w.errs, w.Config.TasksBeforeRun...) ||
+		w.attachError(w.exec(ctx, pc)) ||
+		w.invokeTasks(ctx, pc, w.errs, w.Config.TasksAfterRun...) ||
 		dummy() {
 		// any errors occurred
 		return

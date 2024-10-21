@@ -131,7 +131,7 @@ func (s *parseCtx) cmd(ctx context.Context, longTitle string) (c cli.Cmd) { //no
 	return
 }
 
-func (s *parseCtx) hasCmd(longTitle string, validator func(cc cli.Cmd, state *cli.MatchState) bool) (found bool) { //nolint:revive,unused
+func (s *parseCtx) HasCmd(longTitle string, validator func(cc cli.Cmd, state *cli.MatchState) bool) (found bool) { //nolint:revive,unused
 	for _, c := range s.matchedCommands {
 		if c.Name() == longTitle {
 			found = validator(c, s.matchedCommandsStates[c])
@@ -141,7 +141,7 @@ func (s *parseCtx) hasCmd(longTitle string, validator func(cc cli.Cmd, state *cl
 	return
 }
 
-func (s *parseCtx) hasFlag(longTitle string, validator func(ff *cli.Flag, state *cli.MatchState) bool) (found bool) {
+func (s *parseCtx) HasFlag(longTitle string, validator func(ff *cli.Flag, state *cli.MatchState) bool) (found bool) {
 	for k, v := range s.matchedFlags {
 		if k.Long == longTitle {
 			found = validator(k, v)
@@ -171,6 +171,8 @@ func (s *parseCtx) PositionalArgs() []string {
 func (s *parseCtx) MatchedCommands() []cli.Cmd {
 	return s.matchedCommands
 }
+
+func (s *parseCtx) MatchedFlags() map[*cli.Flag]*cli.MatchState { return s.matchedFlags }
 
 func (s *parseCtx) parsedCommandsStrings() (ret []string) { //nolint:revive,unused
 	for _, cc := range s.matchedCommands {

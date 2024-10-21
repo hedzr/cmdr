@@ -34,12 +34,12 @@ type helpPrinter struct {
 
 const colLeftTabbedWidth = 56
 
-func (s *helpPrinter) Print(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) { //nolint:revive //
+func (s *helpPrinter) Print(ctx context.Context, pc cli.ParsedState, lastCmd cli.Cmd) { //nolint:revive //
 	wr := s.safeGetWriter()
 	s.PrintTo(ctx, wr, pc, lastCmd)
 }
 
-func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, lastCmd cli.Cmd) { //nolint:revive //
+func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedState, lastCmd cli.Cmd) { //nolint:revive //
 	if s.debugScreenMode {
 		s.PrintDebugScreenTo(ctx, wr, pc, lastCmd)
 		return
@@ -132,7 +132,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc *parseCtx, 
 	s.printDebugMatches(ctx, &sb, wr, pc)
 }
 
-func (s *helpPrinter) PrintDebugScreenTo(ctx context.Context, wr HelpWriter, pc *parseCtx, lastCmd cli.Cmd) { //nolint:revive //
+func (s *helpPrinter) PrintDebugScreenTo(ctx context.Context, wr HelpWriter, pc cli.ParsedState, lastCmd cli.Cmd) { //nolint:revive //
 	if s.Translator == nil {
 		s.Translator = color.GetCPT()
 	}
@@ -181,7 +181,7 @@ func (s *helpPrinter) safeGetTermSize() (cols, rows int) {
 	return
 }
 
-func (s *helpPrinter) printHeader(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printHeader(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) { //nolint:revive,unparam
 	// app, root := cc.App(), cc.Root()
 	// _ = app
 	if cc.Root() == nil {
@@ -193,7 +193,7 @@ func (s *helpPrinter) printHeader(ctx context.Context, sb *strings.Builder, cc c
 	_, _, _ = pc, cols, tabbedW
 }
 
-func (s *helpPrinter) printUsage(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printUsage(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) { //nolint:revive,unparam
 	// app, root := cc.App(), cc.Root()
 	// _ = app
 	appName := cc.App().Name()
@@ -209,7 +209,7 @@ func (s *helpPrinter) printUsage(ctx context.Context, sb *strings.Builder, cc cl
 	_, _, _ = pc, cols, tabbedW
 }
 
-func (s *helpPrinter) printDesc(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printDesc(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) { //nolint:revive,unparam
 	desc := cc.DescLong()
 	if desc != "" {
 		_, _ = sb.WriteString("\nDescription:\n\n")
@@ -220,7 +220,7 @@ func (s *helpPrinter) printDesc(ctx context.Context, sb *strings.Builder, cc cli
 	_, _, _ = pc, cols, tabbedW
 }
 
-func (s *helpPrinter) printExamples(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printExamples(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) { //nolint:revive,unparam
 	examples := cc.Examples()
 	if examples != "" {
 		_, _ = sb.WriteString("\nExamples:\n\n")
@@ -231,7 +231,7 @@ func (s *helpPrinter) printExamples(ctx context.Context, sb *strings.Builder, cc
 	_, _, _ = pc, cols, tabbedW
 }
 
-func (s *helpPrinter) printTailLine(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc *parseCtx, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printTailLine(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) { //nolint:revive,unparam
 	footer := strings.TrimSpace(cc.Root().Footer())
 	if footer != "" {
 		_, _ = sb.WriteString("\n")
@@ -247,8 +247,8 @@ func (s *helpPrinter) printTailLine(ctx context.Context, sb *strings.Builder, cc
 	_, _, _ = pc, cols, tabbedW
 }
 
-func (s *helpPrinter) printEnv(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc *parseCtx) {
-	if found := pc.hasFlag("env", func(ff *cli.Flag, state *cli.MatchState) bool { //nolint:revive
+func (s *helpPrinter) printEnv(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc cli.ParsedState) {
+	if found := pc.HasFlag("env", func(ff *cli.Flag, state *cli.MatchState) bool { //nolint:revive
 		return state.DblTilde && state.HitTimes > 0
 	}); !found {
 		return
@@ -291,8 +291,8 @@ func (s *helpPrinter) printEnv(ctx context.Context, sb *strings.Builder, wr Help
 	_, _ = wr.WriteString("\n")
 }
 
-func (s *helpPrinter) printRaw(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc *parseCtx) {
-	if found := pc.hasFlag("raw", func(ff *cli.Flag, state *cli.MatchState) bool { //nolint:revive
+func (s *helpPrinter) printRaw(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc cli.ParsedState) {
+	if found := pc.HasFlag("raw", func(ff *cli.Flag, state *cli.MatchState) bool { //nolint:revive
 		return state.DblTilde && state.HitTimes > 0
 	}); !found {
 		return
@@ -303,8 +303,8 @@ func (s *helpPrinter) printRaw(ctx context.Context, sb *strings.Builder, wr Help
 	_, _ = wr.WriteString("\n")
 }
 
-func (s *helpPrinter) printMore(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc *parseCtx) {
-	if found := pc.hasFlag("more", func(ff *cli.Flag, state *cli.MatchState) bool { //nolint:revive
+func (s *helpPrinter) printMore(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc cli.ParsedState) {
+	if found := pc.HasFlag("more", func(ff *cli.Flag, state *cli.MatchState) bool { //nolint:revive
 		return state.DblTilde && state.HitTimes > 0
 	}); !found {
 		return
@@ -315,17 +315,17 @@ func (s *helpPrinter) printMore(ctx context.Context, sb *strings.Builder, wr Hel
 	_, _ = wr.WriteString("\n")
 }
 
-func (s *helpPrinter) printDebugMatches(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc *parseCtx) { //nolint:revive
-	if len(pc.matchedCommands) > 0 {
+func (s *helpPrinter) printDebugMatches(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc cli.ParsedState) { //nolint:revive
+	if len(pc.MatchedCommands()) > 0 {
 		_, _ = sb.WriteString("\nMatched commands:\n")
-		for i, cc := range pc.matchedCommands {
+		for i, cc := range pc.MatchedCommands() {
 			_, _ = sb.WriteString(s.Translate(fmt.Sprintf("  - %d. <code>%s</code> | %v\n", i+1, cc.HitTitle(), cc), color.FgDefault))
 		}
 	}
-	if len(pc.matchedFlags) > 0 {
+	if len(pc.MatchedFlags()) > 0 {
 		_, _ = sb.WriteString("\nMatched flags:\n")
 		i := 0
-		for ff, st := range pc.matchedFlags {
+		for ff, st := range pc.MatchedFlags() {
 			i++
 			short, tilde := "", ""
 			if st.Short {

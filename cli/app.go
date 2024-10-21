@@ -18,9 +18,9 @@ type App interface {
 	// // After the closure invoked, Build() will be called implicitly.
 	// AddFlg(cb func(b FlagBuilder)) App
 
-	// NewCmdFrom creates a CommandBuilder from 'from' CmdS.
+	// NewCmdFrom creates a CommandBuilder from 'from' Cmd.
 	NewCmdFrom(from *CmdS, cb func(b CommandBuilder)) App
-	// NewFlgFrom creates a CommandBuilder from 'from' CmdS.
+	// NewFlgFrom creates a CommandBuilder from 'from' Cmd.
 	NewFlgFrom(from *CmdS, defaultValue any, cb func(b FlagBuilder)) App
 
 	Runner

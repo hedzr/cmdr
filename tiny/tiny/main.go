@@ -65,6 +65,7 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 		Deprecated(`v1.1.0`).
 		// Group(cli.UnsortedGroup).
 		Hidden(false).
+		// Both With(cb) and Build() to end a building sequence
 		With(func(b cli.CommandBuilder) {
 			b.Cmd("to").
 				Description("to command").
@@ -85,7 +86,6 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 					b.Flg("full", "f").
 						Default(false).
 						Description("full command").
-						// Group(cli.UnsortedGroup).
 						Build()
 				})
 		})

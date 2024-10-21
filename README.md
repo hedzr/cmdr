@@ -123,18 +123,23 @@ A simple cli-app can be:
 package main
 
 import (
-	logz "github.com/hedzr/logg/slog"
+	"context"
+	"io"
+	"os"
+
+	"gopkg.in/hedzr/errors.v3"
 
 	"github.com/hedzr/cmdr/v2"
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/pkg/dir"
+	logz "github.com/hedzr/logg/slog"
 	"github.com/hedzr/store"
 )
 
 func main() {
 	ctx := context.Background()
 	app := prepareApp(
-		cmdr.WithStore(store.New()), // use a option store explicitly, or a dummy store by default
+		cmdr.WithStore(store.New()), // use an option store explicitly, or a dummy store by default
 
 		// cmdr.WithExternalLoaders(
 		// 	local.NewConfigFileLoader(), // import "github.com/hedzr/cmdr-loaders/local" to get in advanced external loading features
@@ -156,45 +161,54 @@ func main() {
 	}
 }
 
-func prepareApp() (app cli.App) {
-	app = cmdr.New().
-		Info("demo-app", "0.3.1").
+func prepareApp(opts ...cli.Opt) (app cli.App) {
+	app = cmdr.New(opts...).
+		Info("tiny-app", "0.3.1").
 		Author("hedzr")
 
+	// another way to disable `cmdr.WithForceDefaultAction(true)` is using
+	// env-var FORCE_RUN=1 (builtin already).
 	app.Flg("no-default").
 		Description("disable force default action").
 		OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
-			app.Store().Set("app.force-default-action", false)
+			if b, ok := hitState.Value.(bool); ok {
+				// disable/enable the final state about 'force default action'
+				f.Set().Set("app.force-default-action", b)
+			}
 			return
 		}).
 		Build()
 
-	b := app.Cmd("jump").
+	app.Cmd("jump").
 		Description("jump command").
 		Examples(`jump example`).
-		Deprecated(`jump is a demo command`).
-		Hidden(false)
-
-	b1 := b.Cmd("to").
-		Description("to command").
-		Examples(``).
-		Deprecated(`v0.1.1`).
+		Deprecated(`v1.1.0`).
+		// Group(cli.UnsortedGroup).
 		Hidden(false).
-		OnAction(func(cmd *cli.Command, args []string) (err error) {
-			app.Store().Set("app.demo.working", dir.GetCurrentDir())
-			println()
-			println(dir.GetCurrentDir())
-			println()
-			println(app.Store().Dump())
-			return // handling command action here
+		// Both With(cb) and Build() to end a building sequence
+		With(func(b cli.CommandBuilder) {
+			b.Cmd("to").
+				Description("to command").
+				Examples(``).
+				Deprecated(`v0.1.1`).
+				// Group(cli.UnsortedGroup).
+				Hidden(false).
+				OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
+					cmd.Set().Set("app.demo.working", dir.GetCurrentDir())
+					println()
+					println(dir.GetCurrentDir())
+					println()
+					println(app.Store().Dump())
+					app.SetSuggestRetCode(1) // ret code must be in 0-255
+					return                   // handling command action here
+				}).
+				With(func(b cli.CommandBuilder) {
+					b.Flg("full", "f").
+						Default(false).
+						Description("full command").
+						Build()
+				})
 		})
-	b1.Flg("full", "f").
-		Default(false).
-		Description("full command").
-		Build()
-	b1.Build()
-
-	b.Build()
 
 	app.Flg("dry-run", "n").
 		Default(false).
@@ -205,6 +219,22 @@ func prepareApp() (app cli.App) {
 		Default(false).
 		Description("run all but with committing").
 		Build() // no matter even if you're adding the duplicated one.
+
+	app.Cmd("wrong").
+		Description("a wrong command to return error for testing").
+		OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
+			ec := errors.New()
+			defer ec.Defer(&err) // store the collected errors in native err and return it
+			ec.Attach(io.ErrClosedPipe, errors.New("something's wrong"), os.ErrPermission)
+			// see the application error by running `go run ./tiny/tiny/main.go wrong`.
+			return
+		}).
+		With(func(b cli.CommandBuilder) {
+			b.Flg("full", "f").
+				Default(false).
+				Description("full command").
+				Build()
+		})
 	return
 }
 ```

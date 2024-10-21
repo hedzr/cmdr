@@ -116,7 +116,10 @@ type Cmd interface {
 
 	// App() App
 
+	// Set returns the application Store [store.Store]
 	Set() store.Store
+	// Store returns the commands subset of the application Store.
+	Store() store.Store
 
 	OwnerIsValid() bool
 	OwnerIsNil() bool

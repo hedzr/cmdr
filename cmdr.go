@@ -193,7 +193,7 @@ func WithStore(conf store.Store) cli.Opt {
 
 func WithExternalLoaders(loaders ...cli.Loader) cli.Opt {
 	return func(s *cli.Config) {
-		s.Loaders = loaders
+		s.Loaders = append(s.Loaders, loaders...)
 	}
 }
 
@@ -202,7 +202,7 @@ func WithExternalLoaders(loaders ...cli.Loader) cli.Opt {
 // The internal stages are: initial -> preload + xref -> parse -> run/invoke -> post-actions.
 func WithTasksBeforeParse(tasks ...cli.Task) cli.Opt {
 	return func(s *cli.Config) {
-		s.TasksBeforeParse = tasks
+		s.TasksBeforeParse = append(s.TasksBeforeParse, tasks...)
 	}
 }
 
@@ -220,7 +220,7 @@ func WithTasksBeforeParse(tasks ...cli.Task) cli.Opt {
 //   - <tasksAfterRun>
 func WithTasksBeforeRun(tasks ...cli.Task) cli.Opt {
 	return func(s *cli.Config) {
-		s.TasksBeforeRun = tasks
+		s.TasksBeforeRun = append(s.TasksBeforeRun, tasks...)
 	}
 }
 
@@ -250,7 +250,7 @@ func WithTasksBeforeRun(tasks ...cli.Task) cli.Opt {
 //	...
 func WithTasksSetupPeripherals(tasks ...cli.Task) cli.Opt {
 	return func(s *cli.Config) {
-		s.TasksBeforeRun = tasks
+		s.TasksBeforeRun = append(s.TasksBeforeRun, tasks...)
 	}
 }
 
@@ -276,7 +276,7 @@ func WithPeripherals(peripherals ...basics.Peripheral) cli.Opt {
 // The internal stages are: initial -> preload + xref -> parse -> run/invoke -> post-actions.
 func WithTasksAfterRun(tasks ...cli.Task) cli.Opt {
 	return func(s *cli.Config) {
-		s.TasksAfterRun = tasks
+		s.TasksAfterRun = append(s.TasksAfterRun, tasks...)
 	}
 }
 

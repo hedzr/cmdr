@@ -152,7 +152,7 @@ func WrappedLogger() *stdlog.Logger { return Logger }
 
 func init() {
 	onceLog.Do(func() {
-		log00 := logz.New("[cmdr]").WithLevel(logz.DebugLevel)
+		log00 := logz.New("[cmdr]") // .SetLevel(logz.DebugLevel)
 		log = log00.
 			WithSkip(1) // extra stack frame(s) shall be ignored for dbglog.Info/...
 		log00.Verbose("init dbglog")

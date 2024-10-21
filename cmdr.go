@@ -82,6 +82,8 @@ func New(opts ...cli.Opt) cli.App {
 // Generally it's a unique instance in one system.
 //
 // It's available once New() / Exec() called, else nil.
+//
+// App returns a cli.Runner instance, which is different with builder.App.
 func App() cli.Runner { return worker.UniqueWorker() }
 
 func AppName() string            { return App().Name() }            // the app's name
@@ -89,7 +91,13 @@ func AppVersion() string         { return App().Version() }         // the app's
 func AppDescription() string     { return App().Root().Desc() }     // the app's short description
 func AppDescriptionLong() string { return App().Root().DescLong() } // the app's long description
 
+// CmdLines returns the whole command-line as space-separated slice.
 func CmdLines() []string { return worker.UniqueWorker().Args() }
+
+func Parsed() bool                   { return App().ParsedState() != nil }            // is parsed ok?
+func ParsedLastCmd() cli.Cmd         { return App().ParsedState().LastCmd() }         // the parsed last command
+func ParsedCommands() []cli.Cmd      { return App().ParsedState().MatchedCommands() } // the parsed commands
+func ParsedPositionalArgs() []string { return App().ParsedState().PositionalArgs() }  // the rest positional args
 
 // func Parsed() bool { return worker.UniqueWorker(). }
 

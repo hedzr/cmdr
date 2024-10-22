@@ -1,7 +1,7 @@
 # cmdr
 
 ![Go](https://github.com/hedzr/cmdr/workflows/Go/badge.svg)
-![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/hedzr/store)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/hedzr/cmdr)
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/hedzr/cmdr.svg?label=release)](https://github.com/hedzr/cmdr/releases)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/hedzr/cmdr) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fhedzr%2Fcmdr.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fhedzr%2Fcmdr?ref=badge_shield)
 [![go.dev](https://img.shields.io/badge/go.dev-reference-green)](https://pkg.go.dev/github.com/hedzr/cmdr)

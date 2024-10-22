@@ -19,18 +19,18 @@ func (w *workerS) parse(ctx context.Context, pc *parseCtx) (err error) { //nolin
 	ec := errorsv3.New("tasks failed")
 
 	defer func() {
-		ec.Defer(&err)
-
-		if err == nil {
-			w.parsingCtx = pc // save pc for later, OnAction might need it.
-		}
-
 		if len(w.tasksAfterParse) > 0 {
 			for _, task := range w.tasksAfterParse {
 				if task != nil {
 					ec.Attach(task(w, pc, err))
 				}
 			}
+		}
+
+		ec.Defer(&err)
+
+		if err == nil {
+			w.parsingCtx = pc // save pc for later, OnAction might need it.
 		}
 	}()
 

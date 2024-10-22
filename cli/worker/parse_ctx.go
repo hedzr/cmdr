@@ -2,7 +2,9 @@ package worker
 
 import (
 	"context"
+	"strings"
 	"sync/atomic"
+	"text/template"
 
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
@@ -30,6 +32,56 @@ type parseCtx struct {
 	prefixPlusSign        atomic.Bool                   // '+' leading
 
 	// helpScreen            bool
+}
+
+func (s *parseCtx) Translate(pattern string) (result string) {
+	if tpl, err := template.New("cool").Parse(pattern); err != nil {
+		logz.Warn("given pattern cannot be transalted or expanded", "pattern", pattern, "err", err)
+		return
+	} else {
+		var sb strings.Builder
+		cmd := s.LastCmd()
+		if err = tpl.Execute(&sb, struct {
+			AppName     string
+			AppVersion  string
+			DadCommands string
+			Commands    string
+			*parseCtx
+		}{
+			cmd.App().Name(),
+			cmd.App().Version(),
+			s.DadCommandsText(),
+			s.CommandsText(),
+			s,
+		}); err != nil {
+			logz.Warn("given pattern cannot be transalted", "pattern", pattern, "err", err)
+			return
+		}
+		result = sb.String()
+	}
+	return
+}
+
+func (s *parseCtx) DadCommandsText() (result string) {
+	if len(s.matchedCommands) > 1 {
+		var ss []string
+		for _, z := range s.matchedCommands[:len(s.matchedCommands)-1] {
+			ss = append(ss, z.Name())
+		}
+		result = strings.Join(ss, " ")
+	}
+	return
+}
+
+func (s *parseCtx) CommandsText() (result string) {
+	if len(s.matchedCommands) > 0 {
+		var ss []string
+		for _, z := range s.matchedCommands {
+			ss = append(ss, z.Name())
+		}
+		result = strings.Join(ss, " ")
+	}
+	return
 }
 
 func (s *parseCtx) CommandMatchedState(c cli.Cmd) (ms *cli.MatchState) {

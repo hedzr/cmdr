@@ -94,6 +94,11 @@ type ParsedState interface {
 
 	HasCmd(longTitle string, validator func(cc Cmd, state *MatchState) bool) (found bool)
 	HasFlag(longTitle string, validator func(ff *Flag, state *MatchState) bool) (found bool)
+
+	Translate(pattern string) (result string)
+
+	DadCommandsText() string
+	CommandsText() string
 }
 
 func WithForceDefaultAction(b bool) Opt {

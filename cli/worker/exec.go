@@ -32,6 +32,12 @@ func (w *workerS) exec(ctx context.Context, pc *parseCtx) (err error) {
 		}
 	}()
 
+	handled, err1 := w.handleActions(ctx, pc)
+	if handled || !w.errIsSignalOrNil(err1) {
+		err = err1
+		return
+	}
+
 	if !forceDefaultAction && lastCmd.CanInvoke() {
 		logz.VerboseContext(ctx, "invoke action of cmd, with args", "cmd", lastCmd, "args", pc.positionalArgs)
 		err = lastCmd.Invoke(ctx, pc.positionalArgs)
@@ -42,30 +48,12 @@ func (w *workerS) exec(ctx context.Context, pc *parseCtx) (err error) {
 		pc.forceDefaultAction, err = true, nil
 	}
 
-	handled, err1 := w.handleActions(ctx, pc)
-	// for k, action := range w.actions {
-	// 	if k&w.actionsMatched != 0 {
-	// 		logz.VerboseContext(ctx, "Invoking worker.actionsMatched", "hit-action", k, "actions", w.Actions())
-	// 		err, handled = action(pc, lastCmd), true
-	// 		break
-	// 	}
-	// }
-	if handled || !w.errIsSignalOrNil(err1) {
-		err = err1
-		return
-	}
-
-	// if pc.helpScreen {
-	// 	err = w.onPrintHelpScreen(pc, lastCmd)
-	// 	return
-	// }
-
 	if pc.forceDefaultAction {
 		err = w.onDefaultAction(ctx, pc, lastCmd)
 		return
 	}
 
-	logz.VerboseContext(ctx, "[cmdr] no onAction associate to cmd", "cmd", lastCmd)
+	logz.VerboseContext(ctx, "[cmdr] no onAction associated to cmd", "cmd", lastCmd)
 	err = w.onPrintHelpScreen(ctx, pc, lastCmd)
 	return
 }

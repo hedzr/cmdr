@@ -26,7 +26,6 @@ func toStringSimple(i interface{}) string {
 func StripLeftTabs(s string) string { return stripLeftTabs(s) }
 
 func stripLeftTabs(s string) string {
-
 	var lines []string
 	var tabs int = 1000
 	var emptyLines []int

@@ -187,7 +187,8 @@ func (s *helpPrinter) printHeader(ctx context.Context, sb *strings.Builder, cc c
 	if cc.Root() == nil {
 		logz.Fatal("unsatisfied link to root: cc.Root() is invalid", "cc", cc)
 	}
-	line := cc.Root().Header()
+	header := cc.Root().Header()
+	line := exec.StripLeftTabs(header)
 	_, _ = sb.WriteString(s.Translate(line, color.FgDefault))
 	_, _ = sb.WriteString("\n")
 	_, _, _ = pc, cols, tabbedW
@@ -213,6 +214,8 @@ func (s *helpPrinter) printDesc(ctx context.Context, sb *strings.Builder, cc cli
 	desc := cc.DescLong()
 	if desc != "" {
 		_, _ = sb.WriteString("\nDescription:\n\n")
+		desc = exec.StripLeftTabs(desc)
+		desc = pc.Translate(desc)
 		line := s.Translate(desc, color.FgDefault)
 		line = exec.LeftPad(line, 2)
 		_, _ = sb.WriteString(line)
@@ -224,7 +227,9 @@ func (s *helpPrinter) printExamples(ctx context.Context, sb *strings.Builder, cc
 	examples := cc.Examples()
 	if examples != "" {
 		_, _ = sb.WriteString("\nExamples:\n\n")
-		line := s.Translate(examples, color.FgDefault)
+		str := exec.StripLeftTabs(examples)
+		str = pc.Translate(str)
+		line := s.Translate(str, color.FgDefault)
 		line = exec.LeftPad(line, 2)
 		_, _ = sb.WriteString(line)
 	}
@@ -235,7 +240,8 @@ func (s *helpPrinter) printTailLine(ctx context.Context, sb *strings.Builder, cc
 	footer := strings.TrimSpace(cc.Root().Footer())
 	if footer != "" {
 		_, _ = sb.WriteString("\n")
-		line := fmt.Sprintf("<dim>%s</dim>", footer)
+		str := exec.StripLeftTabs(footer)
+		line := fmt.Sprintf("<dim>%s</dim>", str)
 		_, _ = sb.WriteString(s.Translate(line, color.FgDefault))
 		if !strings.HasSuffix(footer, "\n") {
 			_, _ = sb.WriteString("\n")

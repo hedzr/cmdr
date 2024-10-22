@@ -28,6 +28,7 @@ type Config struct {
 
 	ForceDefaultAction    bool              `json:"force_default_action,omitempty"`    // use builtin action for debugging if no Action specified to a command
 	DontGroupInHelpScreen bool              `json:"no_group_in_help_screen,omitempty"` // group commands and flags by its group-name
+	DontExecuteAction     bool              `json:"no_execute_action,omitempty"`       // just parsing, without executing [cli.Cmd.OnAction]
 	SortInHelpScreen      bool              `json:"sort_in_help_screen,omitempty"`     // auto sort commands and flags rather than creating order
 	UnmatchedAsError      bool              `json:"unmatched_as_error,omitempty"`      // unmatched command or flag as an error and threw it
 	TasksAfterXref        []Task            `json:"-"`                                 // while command linked and xref'd, it's time to insert user-defined commands dynamically.

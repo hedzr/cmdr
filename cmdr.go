@@ -99,8 +99,6 @@ func ParsedLastCmd() cli.Cmd         { return App().ParsedState().LastCmd() }   
 func ParsedCommands() []cli.Cmd      { return App().ParsedState().MatchedCommands() } // the parsed commands
 func ParsedPositionalArgs() []string { return App().ParsedState().PositionalArgs() }  // the rest positional args
 
-// func Parsed() bool { return worker.UniqueWorker(). }
-
 // Store returns the KVStore associated with current App().
 func Store() store.Store { return App().Store() }
 
@@ -297,6 +295,21 @@ func WithSortInHelpScreen(b bool) cli.Opt {
 func WithDontGroupInHelpScreen(b bool) cli.Opt {
 	return func(s *cli.Config) {
 		s.DontGroupInHelpScreen = b
+	}
+}
+
+// WithDontExecuteAction prevents internal exec stage which will
+// invoke the matched command's [cli.Cmd.OnAction] handler.
+//
+// If [cli.Config.DontExecuteAction] is true, cmdr works like
+// classical golang stdlib 'flag', which will stop after parsed
+// without any further actions.
+//
+// cmdr itself is a parsing-and-executing processor. We will
+// launch a matched command's handlers by default.
+func WithDontExecuteAction(b bool) cli.Opt {
+	return func(s *cli.Config) {
+		s.DontExecuteAction = b
 	}
 }
 

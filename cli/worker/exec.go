@@ -11,6 +11,10 @@ import (
 )
 
 func (w *workerS) exec(ctx context.Context, pc *parseCtx) (err error) {
+	if w.DontExecuteAction {
+		return
+	}
+
 	lastCmd := pc.LastCmd()
 	logz.VerboseContext(ctx, "[cmdr] exec...", "last-matched-cmd", lastCmd)
 

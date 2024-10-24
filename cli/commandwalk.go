@@ -336,16 +336,16 @@ func (c *CmdS) walkImpl(ctx context.Context, hist map[Cmd]bool, cmd Cmd, level i
 		cb(cmd, 0, level)
 	}
 
-	for _, cc := range cmd.SubCommands() {
-		if cc != nil {
-			if _, ok := hist[cc]; !ok {
-				hist[cc] = true
-				c.walkImpl(ctx, hist, cc, level+1, cb)
-			} else {
-				logz.WarnContext(ctx, "[cmdr] loop ref found", "dad", cmd, "cc", cc)
-			}
-		}
-	}
+	// for _, cc := range cmd.SubCommands() {
+	// 	if cc != nil {
+	// 		if _, ok := hist[cc]; !ok {
+	// 			hist[cc] = true
+	// 			c.walkImpl(ctx, hist, cc, level+1, cb)
+	// 		} else {
+	// 			logz.WarnContext(ctx, "[cmdr] loop ref found", "dad", cmd, "cc", cc)
+	// 		}
+	// 	}
+	// }
 
 	commands := mustEnsureDynCommands(ctx, cmd)
 	for _, cc := range commands {
@@ -459,17 +459,17 @@ func (c *CmdS) WalkEverything(ctx context.Context, cb WalkEverythingCB) {
 func (c *CmdS) walkEx(ctx context.Context, hist map[Cmd]bool, dad, grandpa Cmd, level, cmdIndex int, cb WalkEverythingCB) { //nolint:revive
 	cb(dad, grandpa, nil, cmdIndex, 0, level)
 
-	for i, cc := range dad.SubCommands() {
-		if cc != nil {
-			if _, ok := hist[cc]; !ok {
-				hist[cc] = true
-				// cb(cc,nil, i, 0, level)
-				c.walkEx(ctx, hist, cc, dad, level+1, i, cb)
-			} else {
-				logz.WarnContext(ctx, "[cmdr] loop ref found", "dad", dad, "grandpa", grandpa, "cc", cc)
-			}
-		}
-	}
+	// for i, cc := range dad.SubCommands() {
+	// 	if cc != nil {
+	// 		if _, ok := hist[cc]; !ok {
+	// 			hist[cc] = true
+	// 			// cb(cc,nil, i, 0, level)
+	// 			c.walkEx(ctx, hist, cc, dad, level+1, i, cb)
+	// 		} else {
+	// 			logz.WarnContext(ctx, "[cmdr] loop ref found", "dad", dad, "grandpa", grandpa, "cc", cc)
+	// 		}
+	// 	}
+	// }
 
 	commands := mustEnsureDynCommands(ctx, dad)
 	for i, cc := range commands {
@@ -519,25 +519,8 @@ func mustEnsureDynFlags(ctx context.Context, cmd Cmd) (flags []*Flag) {
 func ensureDynCommands(ctx context.Context, cmd Cmd) (list []Cmd, err error) {
 	var c Cmd
 
-	if cmd.OnEvalSubcommandsOnce() != nil {
-		logz.InfoContext(ctx, "[cmdr] checking dynamic commands (once)", "cmd", cmd)
-		if !cmd.OnEvalSubcommandsOnceInvoked() {
-			var iter EvalIterator
-			if iter, err = cmd.OnEvalSubcommandsOnce()(ctx, cmd); err != nil {
-				return
-			}
-
-			hasNext := true
-			for hasNext {
-				if c, hasNext, err = iter(ctx); err != nil {
-					return
-				}
-				list = append(list, c)
-			}
-			cmd.OnEvalSubcommandsOnceSetCache(list)
-		} else {
-			list = cmd.OnEvalSubcommandsOnceCache()
-		}
+	for _, cc := range cmd.SubCommands() {
+		list = append(list, cc)
 	}
 
 	if cb := cmd.OnEvalSubcommands(); cb != nil {
@@ -556,6 +539,30 @@ func ensureDynCommands(ctx context.Context, cmd Cmd) (list []Cmd, err error) {
 			list = append(list, c)
 		}
 	}
+
+	if cmd.OnEvalSubcommandsOnce() != nil {
+		logz.InfoContext(ctx, "[cmdr] checking dynamic commands (once)", "cmd", cmd)
+		var lst []Cmd
+		if !cmd.OnEvalSubcommandsOnceInvoked() {
+			var iter EvalIterator
+			if iter, err = cmd.OnEvalSubcommandsOnce()(ctx, cmd); err != nil {
+				return
+			}
+
+			hasNext := true
+			for hasNext {
+				if c, hasNext, err = iter(ctx); err != nil {
+					return
+				}
+				lst = append(lst, c)
+			}
+			cmd.OnEvalSubcommandsOnceSetCache(lst)
+		} else {
+			lst = cmd.OnEvalSubcommandsOnceCache()
+		}
+		list = append(list, lst...)
+	}
+
 	return
 }
 

@@ -1,5 +1,11 @@
 # CHANGELOG
 
+- v2.0.8
+
+  - fixed help screen, the missing envvars list
+  - fixed dirs.VarRunDir, ...
+  - fixed dyn-commands
+
 - v2.0.7
 
   - update deps

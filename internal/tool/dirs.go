@@ -215,7 +215,7 @@ func VarRunDir(appName string, base ...string) string {
 	case "darwin":
 		// t := filepath.Join(append([]string{homeDir(), ".config", appName}, base...)...)
 		// return filepath.Join(homeDir(), "Library", "Application Supports", base)
-		t := filepath.Join(append([]string{"var", "run", appName}, base...)...)
+		t := filepath.Join(append([]string{"/var", "run", appName}, base...)...)
 		return t
 	case "windows":
 		return filepath.Join(append([]string{homeDir(), ".var", "run", appName}, base...)...)
@@ -231,7 +231,7 @@ func VarRunDir(appName string, base ...string) string {
 	}
 
 	// Unix
-	return filepath.Join(append([]string{"var", "run", appName}, base...)...)
+	return filepath.Join(append([]string{"/var", "run", appName}, base...)...)
 }
 
 // UsrLibDir is todo, not exact right yet.
@@ -240,11 +240,11 @@ func UsrLibDir(appName string, base ...string) string {
 	switch runtime.GOOS {
 	case "darwin":
 		if is.Root() {
-			return filepath.Join(append([]string{"usr", "lib", appName}, base...)...)
+			return filepath.Join(append([]string{"/usr", "lib", appName}, base...)...)
 		}
 		// t := filepath.Join(append([]string{homeDir(), ".config", appName}, base...)...)
 		// return filepath.Join(homeDir(), "Library", "Application Supports", base)
-		t := filepath.Join(append([]string{"usr", "local", "lib", appName}, base...)...)
+		t := filepath.Join(append([]string{"/usr", "local", "lib", appName}, base...)...)
 		return t
 	case "windows":
 		return filepath.Join(append([]string{homeDir(), ".usr", "lib", appName}, base...)...)
@@ -264,7 +264,7 @@ func UsrLibDir(appName string, base ...string) string {
 
 	// Unix
 	if is.Root() {
-		return filepath.Join(append([]string{"usr", "lib", appName}, base...)...)
+		return filepath.Join(append([]string{"/usr", "lib", appName}, base...)...)
 	}
-	return filepath.Join(append([]string{"usr", "local", "lib", appName}, base...)...)
+	return filepath.Join(append([]string{"/usr", "local", "lib", appName}, base...)...)
 }

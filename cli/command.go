@@ -440,8 +440,9 @@ func (c *CmdS) ensureTreeR(ctx context.Context, app App, root *RootCommand) { //
 			if ff != nil {
 				ff.owner, ff.root = cx, root
 			}
-		} else {
-			logz.VerboseContext(ctx, "    .|. ensureTreeR, (+owner,+root), Non-CmdS:", "Cmd", cc)
+		} else if ff == nil {
+			// others: commands
+			logz.VerboseContext(ctx, "    .|. ensureTreeR, (+owner,+root), Non-CmdS:", "cmd", cc)
 			if cx, ok := cc.(interface{ SetOwner(o *CmdS) }); ok {
 				if pp != nil {
 					cx.SetOwner(pp.(*CmdS))
@@ -452,9 +453,18 @@ func (c *CmdS) ensureTreeR(ctx context.Context, app App, root *RootCommand) { //
 			if cx, ok := cc.(interface{ SetOwner(o Cmd) }); ok {
 				cx.SetOwner(pp)
 			}
+			if cx, ok := cc.(interface{ SetOwnerCmd(o Cmd) }); ok {
+				cx.SetOwnerCmd(pp)
+			}
 			if cx, ok := cc.(interface{ SetRoot(root *RootCommand) }); ok {
 				cx.SetRoot(root)
 			}
+
+			// } else {
+			// 	// others: flags (if ff is not nil)
+			// 	logz.VerboseContext(ctx, "    .|. ensureTreeR, (+owner,+root), Flags:", "flg", ff)
+			// 	ff.SetOwnerCmd(cx)
+			// 	ff.SetRoot(root)
 		}
 	})
 }

@@ -1,11 +1,8 @@
-//go:build !windows
-// +build !windows
-
 package dir
 
 import (
 	"os"
-	"syscall"
+	"strings"
 )
 
 // IsSameVolume detects if two files are in same volume (Unix like)
@@ -19,15 +16,23 @@ import (
 // without file content copying; but on the contrary, it needs
 // to copy source to destine and deleting source file to take
 // affects.
+//
+// TODO:For Windows, this function is not tested yet.
 func IsSameVolume(f1, f2 string) bool {
 	stat1, _ := os.Stat(f1)
 	stat2, _ := os.Stat(f2)
 
-	// // returns *syscall.Stat_t
-	// fmt.Println(reflect.TypeOf(stat1.Sys()))
-	//
-	// fmt.Println(stat1.Sys().(*syscall.Stat_t).Dev)
-	// fmt.Println(stat2.Sys().(*syscall.Stat_t).Dev)
+	// todo
 
-	return stat1.Sys().(*syscall.Stat_t).Dev == stat2.Sys().(*syscall.Stat_t).Dev
+	n1 := stat1.Name()
+	n2 := stat2.Name()
+	if strings.Contains(n1, ":") {
+		pos := strings.Index(n1, ":")
+		n1 = n1[:pos+1]
+	}
+	if strings.Contains(n2, ":") {
+		pos := strings.Index(n2, ":")
+		n2 = n2[:pos+1]
+	}
+	return n1 == n2
 }

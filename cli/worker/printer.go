@@ -516,6 +516,7 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder, verbos
 	tg := ff.ToggleGroupLeadHelpString()
 	def, defPlain := ff.DefaultValueHelpString(trans, CurrentDefaultValueColor, CurrentDescColor)
 	dep, depPlain := ff.DeprecatedHelpString(trans, CurrentDeprecatedColor, CurrentDescColor)
+	env, envPlain := ff.EnvVarsHelpString(trans, CurrentEnvVarsColor, CurrentDescColor)
 
 	if (ff.Hidden() && *verboseCount > 0) || (ff.VendorHidden() && *verboseCount >= 3) { //nolint:revive
 		s.WriteBgColor(sb, color.BgDim)
@@ -547,7 +548,7 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder, verbos
 	if right != "" {
 		s.WriteColor(sb, CurrentDescColor)
 
-		_, l, l1st := len(right), len(right)+len(defPlain)+len(depPlain), len(tg)
+		_, l, l1st := len(right), len(right)+len(defPlain)+len(depPlain)+len(envPlain), len(tg)
 		// aa := []string{}
 		if l+l1st >= rCols {
 			var prt string
@@ -584,12 +585,28 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder, verbos
 		printed += 4
 	}
 
+	if env != "" && printed >= 0 {
+		if split {
+			envlen := len(envPlain)
+			printed += envlen
+			if printed >= rCols {
+				printleftpad(split)
+				printed = envlen
+			}
+		}
+		if sb.String()[sb.Len()-1] != ' ' {
+			_, _ = sb.WriteString(" ")
+		}
+		_, _ = sb.WriteString(env)
+	}
+
 	if def != "" && printed >= 0 {
 		if split {
-			deflen := len(is.StripEscapes(def))
+			deflen := len(defPlain) // len(is.StripEscapes(def))
 			printed += deflen
 			if printed >= rCols {
 				printleftpad(split)
+				printed = deflen
 			}
 		}
 		if sb.String()[sb.Len()-1] != ' ' {
@@ -600,10 +617,11 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder, verbos
 
 	if dep != "" {
 		if split {
-			deplen := len(is.StripEscapes(dep))
+			deplen := len(depPlain) // len(is.StripEscapes(dep))
 			printed += deplen
 			if printed >= rCols {
 				printleftpad(split)
+				printed = deplen
 			}
 		}
 		if sb.String()[sb.Len()-1] != ' ' {
@@ -656,6 +674,8 @@ var (
 
 	// CurrentDeprecatedColor the print color for deprecated opt line
 	CurrentDeprecatedColor = color.FgDarkGray
+
+	CurrentEnvVarsColor = color.FgLightGray
 
 	// CurrentDescColor the print color for description line
 	CurrentDescColor = color.FgDarkGray

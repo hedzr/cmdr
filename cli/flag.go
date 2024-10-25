@@ -380,3 +380,18 @@ func (f *Flag) GetDottedNamePath() string {
 func (f *Flag) ensureXref() {
 	//
 }
+
+func (c *Flag) EnvVarsHelpString(trans func(ss string, clr color.Color) string, clr, clrDefault color.Color) (hs, plain string) {
+	if len(c.envVars) != 0 {
+		var envVars []string
+		for _, v := range c.envVars {
+			if v != "" {
+				envVars = append(envVars, v)
+			}
+		}
+		dep := strings.Join(envVars, ",")
+		plain = fmt.Sprintf("[Env: %s]", dep)
+		hs = trans(fmt.Sprintf("[Env: <font color=%v>%s</font>]", color.ToColorString(clr), dep), clrDefault)
+	}
+	return
+}

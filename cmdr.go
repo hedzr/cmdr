@@ -313,6 +313,41 @@ func WithDontExecuteAction(b bool) cli.Opt {
 	}
 }
 
+// WithAutoEnvBindings enables the feature which can auto-bind env-vars
+// to flags default value.
+//
+// For example, APP_JUMP_TO_FULL=1 -> Cmd{"jump.to"}.Flag{"full"}.default-value = true.
+// In this case, `APP` is default prefix so the env-var is different
+// than other normal OS env-vars (like HOME, etc.).
+//
+// You may specify another prefix optionally. For instance, prefix
+// "CT" will cause CT_JUMP_TO_FULL=1 binding to
+// Cmd{"jump.to"}.Flag{"full"}.default-value = true.
+//
+// Also you can specify the prefix with multiple section just
+// like "CT_ACCOUNT_SERVICE", it will be treated as a normal
+// plain string and concatted with the rest parts, so
+// "CT_ACCOUNT_SERVICE_JUMP_TO_FULL=1" will be bound in.
+func WithAutoEnvBindings(b bool, prefix ...string) cli.Opt {
+	return func(s *cli.Config) {
+		s.AutoEnv = b
+		for _, p := range prefix {
+			s.AutoEnvPrefix = p
+		}
+	}
+}
+
+// WithConfig allows you passing a [*cli.Config] object directly.
+func WithConfig(conf *cli.Config) cli.Opt {
+	return func(s *cli.Config) {
+		if conf == nil {
+			*s = cli.Config{}
+		} else {
+			*s = *conf
+		}
+	}
+}
+
 // func WithOnInterpretLeadingPlusSign(cb func()) cli.Opt {
 // 	return func(s *cli.Config) {
 // 		s.onInterpretLeadingPlusSign = cb

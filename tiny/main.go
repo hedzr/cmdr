@@ -44,6 +44,8 @@ func main() {
 
 		cmdr.WithSortInHelpScreen(true),       // default it's false
 		cmdr.WithDontGroupInHelpScreen(false), // default it's false
+
+		cmdr.WithAutoEnvBindings(true),
 	)
 
 	// // simple run the parser of app and trigger the matched command's action

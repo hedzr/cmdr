@@ -167,24 +167,41 @@ func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, c
 		}
 		return
 	}
-	if cx, ok := w.root.Cmd.(*cli.CmdS); ok {
-		conf.WithinLoading(func() {
-			cx.WalkEverything(ctx, func(cc, pp cli.Cmd, ff *cli.Flag, cmdIndex, flgIndex, level int) { //nolint:revive
-				if ff != nil {
-					if evs := ff.EnvVars(); len(evs) > 0 {
-						for _, ev := range evs {
-							if v, has := os.LookupEnv(ev); has {
-								data := fromString(v, ff.DefaultValue())
-								ff.SetDefaultValue(data)
-							}
+	if w.Config.AutoEnvPrefix == "" {
+		w.Config.AutoEnvPrefix = "APP"
+	}
+	worker := func(cx cli.Cmd) {
+		// lookup all flags...
+		//    and bind the value with its envvars field;
+		//    also bind the auto-binding env vars;
+		cx.WalkEverything(ctx, func(cc, pp cli.Cmd, ff *cli.Flag, cmdIndex, flgIndex, level int) { //nolint:revive
+			if ff != nil {
+				if evs := ff.EnvVars(); len(evs) > 0 {
+					for _, ev := range evs {
+						if v, has := os.LookupEnv(ev); has {
+							data := fromString(v, ff.DefaultValue())
+							ff.SetDefaultValue(data)
 						}
 					}
-					if conf != nil {
-						conf.Set(ff.GetDottedPath(), ff.DefaultValue())
+				}
+				if w.Config.AutoEnv {
+					ev := ff.GetAutoEnvVarName(w.Config.AutoEnvPrefix, true)
+					if v, has := os.LookupEnv(ev); has {
+						data := fromString(v, ff.DefaultValue())
+						ff.SetDefaultValue(data)
 					}
 				}
-			})
+				if conf != nil {
+					conf.Set(ff.GetDottedPath(), ff.DefaultValue())
+				}
+			}
 		})
+	}
+	if cx, ok := w.root.Cmd.(*cli.CmdS); ok && cx != nil && conf != nil {
+		// using store.WithinLoading to disable onSet callbacks and reset internal modified states.
+		conf.WithinLoading(func() { worker(cx) })
+	} else if cx := w.root.Cmd; cx != nil {
+		worker(cx)
 	}
 	return
 }

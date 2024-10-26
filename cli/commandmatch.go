@@ -320,6 +320,7 @@ func (c *CmdS) matchedForTG(ctx context.Context, ff *Flag) *Flag {
 				}
 			}
 		}
+
 		// mutual exclusives
 		if len(ff.mutualExclusives) > 0 {
 			root := ff.Root()

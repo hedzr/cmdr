@@ -174,6 +174,23 @@ func (c *BaseOpt) GetCommandTitles() string {
 	return backtraceCmdNamesG(c, " ", false)
 }
 
+func (c *BaseOpt) GetAutoEnvVarName(prefix string, upperCase ...bool) string {
+	t := backtraceCmdNamesG(c, "_", false)
+	// last := c.Name()
+	u := false
+	for _, b := range upperCase {
+		u = b
+	}
+	if u {
+		t = strings.ToUpper(t)
+		// last = strings.ToUpper(last)
+	}
+	if prefix != "" {
+		return prefix + "_" + t // + "_" + last
+	}
+	return t // + "_" + last
+}
+
 // GetTitleName returns name/full/short string
 func (c *BaseOpt) GetTitleName() string {
 	if c.name != "" {

@@ -41,6 +41,8 @@ type Config struct {
 	DebugScreenWriter     HelpWriter        `json:"debug_screen_writer,omitempty"`     // redirect stdout for debugging outputs
 	Args                  []string          `json:"args,omitempty"`                    // for testing
 	Env                   map[string]string `json:"env,omitempty"`                     // inject env var & values
+	AutoEnv               bool              `json:"auto_env,omitempty"`                // enable envvars auto-binding?
+	AutoEnvPrefix         string            `json:"auto_env_prefix,omitempty"`         // envvars auto-binding prefix
 }
 
 // Opt for cmdr system

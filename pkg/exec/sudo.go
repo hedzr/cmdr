@@ -13,6 +13,8 @@ import (
 	"syscall"
 
 	"gopkg.in/hedzr/errors.v3"
+
+	"github.com/hedzr/is"
 )
 
 // Run runs an OS command
@@ -23,6 +25,11 @@ func Run(command string, arguments ...string) (err error) {
 
 // Sudo runs an OS command with sudo prefix
 func Sudo(command string, arguments ...string) (retCode int, stdoutText string, err error) {
+	if is.Root() {
+		retCode, stdoutText, err = RunCommand(command, true, arguments...)
+		return
+	}
+
 	var sudocmd string
 	sudocmd, err = exec.LookPath("sudo")
 	if err != nil {

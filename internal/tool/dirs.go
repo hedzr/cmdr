@@ -215,7 +215,7 @@ func VarRunDir(appName string, base ...string) string {
 	case "darwin":
 		// t := filepath.Join(append([]string{homeDir(), ".config", appName}, base...)...)
 		// return filepath.Join(homeDir(), "Library", "Application Supports", base)
-		t := filepath.Join(append([]string{"/var", "run", appName}, base...)...)
+		t := filepath.Join(append([]string{"/var", "local", "run", appName}, base...)...)
 		return t
 	case "windows":
 		return filepath.Join(append([]string{homeDir(), ".var", "run", appName}, base...)...)
@@ -230,8 +230,8 @@ func VarRunDir(appName string, base ...string) string {
 		return filepath.Join(append([]string{dir, ".var", "run", appName}, base...)...)
 	}
 
-	// Unix
-	return filepath.Join(append([]string{"/var", "run", appName}, base...)...)
+	// Unix/Linux
+	return filepath.Join(append([]string{"/run", appName}, base...)...)
 }
 
 // UsrLibDir is todo, not exact right yet.

@@ -28,6 +28,7 @@ type App interface {
 	Info(name, version string, desc ...string) App // setup basic information about this app
 	Copyright(copy string) App                     // setup copyright declaration about this app
 	Author(author string) App                      // setup author or team information
+	Description(desc string) App                   //
 	Header(headerLine string) App                  // setup header line(s) instead of copyright+author fields
 	Footer(footerLine string) App                  // setup footer line(s)
 

@@ -1066,6 +1066,12 @@ func (s *appS) Author(author string) App {
 	return s
 }
 
+func (s *appS) Description(desc string) App {
+	s.ensureNewApp()
+	s.root.SetDesc(desc)
+	return s
+}
+
 func (s *appS) Header(headerLine string) App {
 	s.ensureNewApp()
 	s.root.HeaderLine = headerLine

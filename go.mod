@@ -53,12 +53,12 @@ go 1.22.7
 // replace github.com/hedzr/store/providers/maps => ../libs.store/providers/maps
 
 require (
-	github.com/hedzr/evendeep v1.2.0
-	github.com/hedzr/is v0.5.27
-	github.com/hedzr/logg v0.7.0
-	github.com/hedzr/store v1.0.18
-	github.com/hedzr/store/codecs/json v1.0.18
-	github.com/hedzr/store/providers/file v1.0.18
+	github.com/hedzr/evendeep v1.2.1
+	github.com/hedzr/is v0.5.29
+	github.com/hedzr/logg v0.7.1
+	github.com/hedzr/store v1.0.19
+	github.com/hedzr/store/codecs/json v1.0.19
+	github.com/hedzr/store/providers/file v1.0.19
 	golang.org/x/crypto v0.28.0
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c
 	gopkg.in/hedzr/errors.v3 v3.3.3

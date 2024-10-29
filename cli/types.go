@@ -136,6 +136,7 @@ type Cmd interface {
 	AliasNames() []string
 	Desc() string
 	DescLong() string
+	SetDesc(desc string)
 	Examples() string
 	TailPlaceHolder() string
 	GetCommandTitles() string

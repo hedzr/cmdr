@@ -92,6 +92,7 @@ func (s *liteCmdS) ShortNames() []string     { return []string{s.name()} }
 func (s *liteCmdS) AliasNames() []string     { return nil }
 func (s *liteCmdS) Desc() string             { return s.String() }
 func (s *liteCmdS) DescLong() string         { return "" }
+func (s *liteCmdS) SetDesc(desc string)      {}
 func (s *liteCmdS) Examples() string         { return "" }
 func (s *liteCmdS) TailPlaceHolder() string  { return "" }
 func (s *liteCmdS) GetCommandTitles() string { return s.name() }

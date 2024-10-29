@@ -225,6 +225,10 @@ func (c *BaseOpt) DescLong() string {
 	return c.description
 }
 
+func (c *BaseOpt) SetDesc(desc string) {
+	c.description = desc
+}
+
 func (c *BaseOpt) Examples() string   { return c.examples }
 func (c *BaseOpt) Deprecated() string { return c.deprecated }
 func (c *BaseOpt) Hidden() bool       { return c.hidden }

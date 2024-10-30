@@ -89,6 +89,9 @@ func TempFileName(fileNamePattern, defaultFileName string, base ...string) (file
 	return tool.TempFileName(fileNamePattern, defaultFileName, AppName(), base...)
 }
 
+// VarLogDir is todo, not exact right yet.
+func VarLogDir(base ...string) string { return tool.VarLogDir(AppName(), base...) }
+
 // VarRunDir is the runtime temp dir. "/var/run/<app>/"
 func VarRunDir(base ...string) string { return tool.VarRunDir(AppName(), base...) }
 

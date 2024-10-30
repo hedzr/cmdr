@@ -208,6 +208,33 @@ func TempFileName(fileNamePattern, defaultFileName string, appName string, base 
 	return
 }
 
+// VarLogDir is todo, not exact right yet.
+func VarLogDir(appName string, base ...string) string {
+	// appName := App().Name()
+	switch runtime.GOOS {
+	case "darwin":
+		// t := filepath.Join(append([]string{homeDir(), ".config", appName}, base...)...)
+		// return filepath.Join(homeDir(), "Library", "Application Supports", base)
+		// t := filepath.Join(append([]string{"/var", "log", appName}, base...)...)
+		t := filepath.Join(append([]string{homeDir(), ".cache", appName}, base...)...)
+		return t
+	case "windows":
+		return filepath.Join(append([]string{homeDir(), ".cache", appName}, base...)...)
+
+	case "plan9":
+		dir := os.Getenv("home")
+		if dir == "" {
+			ctx := context.Background()
+			logz.ErrorContext(ctx, "[cmdr] $home is not defined")
+			return ""
+		}
+		return filepath.Join(append([]string{dir, ".cache", appName}, base...)...)
+	}
+
+	// Unix/Linux
+	return filepath.Join(append([]string{"/var", "log", appName}, base...)...)
+}
+
 // VarRunDir is todo, not exact right yet.
 func VarRunDir(appName string, base ...string) string {
 	// appName := App().Name()

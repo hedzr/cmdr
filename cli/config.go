@@ -66,9 +66,10 @@ type Runner interface {
 	Root() *RootCommand // root command
 	Args() []string     // command-line
 
-	SuggestRetCode() int       // os process return code
-	SetSuggestRetCode(ret int) // update ret code (0-255) from onAction, onTask, ...
-	ParsedState() ParsedState  // the parsed states
+	SuggestRetCode() int                      // os process return code
+	SetSuggestRetCode(ret int)                // update ret code (0-255) from onAction, onTask, ...
+	ParsedState() ParsedState                 // the parsed states
+	LoadedSources() (results []LoadedSources) // the loaded sources
 
 	// Actions return a state map.
 	// The states can be:

@@ -99,6 +99,8 @@ func ParsedLastCmd() cli.Cmd         { return App().ParsedState().LastCmd() }   
 func ParsedCommands() []cli.Cmd      { return App().ParsedState().MatchedCommands() } // the parsed commands
 func ParsedPositionalArgs() []string { return App().ParsedState().PositionalArgs() }  // the rest positional args
 
+func LoadedSources() []cli.LoadedSources { return App().LoadedSources() } // the loaded config files or other sources
+
 // Store returns the KVStore associated with current App().
 func Store() store.Store { return App().Store() }
 

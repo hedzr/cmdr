@@ -950,6 +950,7 @@ func (*workerS) Root() *RootCommand                                 { return nil
 func (*workerS) Args() []string                                     { return nil }       //
 func (w *workerS) SuggestRetCode() int                              { return w.retCode } //
 func (w *workerS) ParsedState() ParsedState                         { return nil }
+func (w *workerS) LoadedSources() (results []LoadedSources)         { return }
 
 //
 

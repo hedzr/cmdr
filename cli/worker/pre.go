@@ -210,10 +210,15 @@ func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, c
 func (w *workerS) loadLoaders(ctx context.Context) (err error) {
 	w.precheckLoaders(ctx)
 
-	// By default, we try loading `$(pwd)/.appName.json'.
-	// The main reason is the feature doesn't take new dependence to another 3rd-party lib.
-	// For cmdr/v2, we restrict to go builtins, google, and ours libraries.
-	// And, ours libraries will not import any others except go builtins and google's.
+	// By default, we try loading `$(pwd)/.appName.json' if there
+	// is no any loaders specified.
+	//
+	// The main reason is the feature doesn't take new dependence
+	// to another 3rd-party lib.
+	//
+	// For cmdr/v2, we restrict to go builtins, google, and ours
+	// libraries. And, ours libraries will not import any others
+	// except go builtins and google's.
 	if len(w.Config.Loaders) == 0 {
 		appDir := dir.GetCurrentDir()
 		appName := w.Name()
@@ -221,13 +226,23 @@ func (w *workerS) loadLoaders(ctx context.Context) (err error) {
 		jsonLoader.filename = path.Join(appDir, "."+appName+".json")
 		logz.DebugContext(ctx, "use internal tiny json loader", "filename", jsonLoader.filename)
 		w.Config.Loaders = append(w.Config.Loaders, jsonLoader)
-		return
 	}
 
 	for _, loader := range w.Config.Loaders {
 		if loader != nil {
-			if err = loader.Load(w.root.App()); err != nil {
+			if err = loader.Load(ctx, w.root.App()); err != nil {
 				break
+			}
+		}
+	}
+	return
+}
+
+func (w *workerS) LoadedSources() (results []cli.LoadedSources) {
+	for _, loader := range w.Config.Loaders {
+		if loader != nil {
+			if q, ok := loader.(cli.QueryLoadedSources); ok {
+				results = append(results, q.LoadedSources())
 			}
 		}
 	}

@@ -46,6 +46,32 @@ type Loader interface {
 	Load(app App) (err error)
 }
 
+// SingleFileLoadable finds out a loader if it supports loading single file
+type SingleFileLoadable interface {
+	LoadFile(ctx context.Context, filename string, app App) (err error)
+}
+
+// WriteBackHandler is same with [store.Writable].
+type WriteBackHandler interface {
+	Save(ctx context.Context) error
+}
+
+// LoadedSource is a package which contains all loaded
+// files/sources.
+type LoadedSource struct {
+	Main     []string // such as main config file(s)
+	Children []string // the config files in conf.d/ subdirectory
+}
+
+// LoadedSources collect the assorted sources.
+type LoadedSources map[string]*LoadedSource
+
+// QueryLoadedSources will be available if a loader allows
+// which loaded sources are queried.
+type QueryLoadedSources interface {
+	LoadedSources() LoadedSources
+}
+
 type RootCommand struct {
 	AppName string
 	Version string

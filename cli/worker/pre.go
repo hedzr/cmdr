@@ -231,7 +231,10 @@ func (w *workerS) loadLoaders(ctx context.Context) (err error) {
 	for _, loader := range w.Config.Loaders {
 		if loader != nil {
 			if err = loader.Load(ctx, w.root.App()); err != nil {
-				break
+				if _, ok := loader.(*jsonLoaderS); !ok {
+					break
+				}
+				err = nil
 			}
 		}
 	}

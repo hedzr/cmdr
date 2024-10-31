@@ -40,6 +40,7 @@ func main() {
 
 		// true for debug in developing time, it'll disable onAction on each Cmd.
 		// for productive mode, comment this line.
+		// The envvars FORCE_DEFAULT_ACTION & FORCE_RUN can override this.
 		cmdr.WithForceDefaultAction(true),
 
 		cmdr.WithSortInHelpScreen(true),       // default it's false
@@ -54,7 +55,7 @@ func main() {
 	// )
 
 	if err := app.Run(ctx); err != nil {
-		logz.ErrorContext(ctx, "Application Error:", "err", err)
+		logz.ErrorContext(ctx, "Application Error:", "err", err) // stacktrace if in debug mode/build
 		os.Exit(app.SuggestRetCode())
 	}
 }
@@ -62,7 +63,7 @@ func main() {
 func prepareApp(opts ...cli.Opt) (app cli.App) {
 	app = cmdr.New(opts...).
 		Info("tiny-app", "0.3.1").
-		Author("hedzr")
+		Author("The Example Authors") // .Description(``).Header(``).Footer(``)
 
 	// another way to disable `cmdr.WithForceDefaultAction(true)` is using
 	// env-var FORCE_RUN=1 (builtin already).
@@ -78,7 +79,7 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 
 	app.Cmd("jump").
 		Description("jump command").
-		Examples(`jump example`).
+		Examples(`jump example`). // {{.AppName}}, {{.AppVersion}}, {{.DadCommands}}, {{.Commands}}, ...
 		Deprecated(`v1.1.0`).
 		// Group(cli.UnsortedGroup).
 		Hidden(false).

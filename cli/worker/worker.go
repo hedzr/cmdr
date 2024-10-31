@@ -22,7 +22,7 @@ import (
 func New(cfg *cli.Config, opts ...cli.Opt) *workerS {
 	w := &workerS{Config: cfg}
 	w.setArgs(cfg.Args)
-	bindOpts(w, false, opts...)
+	bindOpts(context.TODO(), w, false, opts...)
 	return w
 }
 
@@ -343,7 +343,7 @@ func (w *workerS) SuggestRetCode() int          { return w.retCode } //
 func (w *workerS) SetSuggestRetCode(ret int)    { w.retCode = ret }
 func (w *workerS) ParsedState() cli.ParsedState { return w.parsingCtx }
 
-func bindOpts[Opt cli.Opt](w *workerS, installAsUnique bool, opts ...Opt) {
+func bindOpts[Opt cli.Opt](ctx context.Context, w *workerS, installAsUnique bool, opts ...Opt) {
 	for _, opt := range opts {
 		opt(w.Config)
 	}
@@ -355,6 +355,15 @@ func bindOpts[Opt cli.Opt](w *workerS, installAsUnique bool, opts ...Opt) {
 		w.wrDebugScreen = w.DebugScreenWriter
 	}
 
+	// if cx, ok := w.root.Cmd.(*cli.CmdS); ok {
+	// 	cx.EnsureTree(ctx, w, w.root)
+	// }
+
+	// update args with w.Config.Args
+	if len(w.Config.Args) > 0 {
+		w.args = w.Config.Args
+	}
+
 	if installAsUnique {
 		if app := UniqueWorker(); app != w {
 			SetUniqueWorker(w)
@@ -363,7 +372,7 @@ func bindOpts[Opt cli.Opt](w *workerS, installAsUnique bool, opts ...Opt) {
 }
 
 func (w *workerS) Run(ctx context.Context, opts ...cli.Opt) (err error) {
-	bindOpts(w, true, opts...)
+	bindOpts(ctx, w, true, opts...)
 
 	// shutdown basics.Closers for the registered Peripheral, Closers.
 	// See also: basics.RegisterPeripheral, basics.RegisterClosable,
@@ -374,7 +383,8 @@ func (w *workerS) Run(ctx context.Context, opts ...cli.Opt) (err error) {
 	w.errs = errors.New(w.root.AppName)
 	defer w.errs.Defer(&err)
 
-	if w.attachError(w.preProcess(ctx)) {
+	if err = w.preProcess(ctx); err != nil {
+		w.attachErrors(err)
 		return
 	}
 

@@ -502,7 +502,8 @@ func ForFileMax(
 	// rootDir := os.ExpandEnv(root)
 	rootDir := path.Clean(NormalizeDir(root))
 
-	return forFileMaxR(rootDir, initialDepth, maxDepth, cb, excludes...)
+	err = forFileMaxR(rootDir, initialDepth, maxDepth, cb, excludes...)
+	return err
 }
 
 func forFileMaxR( //nolint:revive
@@ -552,7 +553,8 @@ func forFileMaxR( //nolint:revive
 
 			// log.Infof(" - %s", f.Name())
 			// fi, _ := f.Info()
-			if stop, err = cb(initialDepth, rootDir, f); stop {
+			if stop, err = cb(initialDepth, rootDir, f); stop || err != nil {
+				ec.Attach(err)
 				return
 			}
 		}

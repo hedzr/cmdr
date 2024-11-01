@@ -57,8 +57,8 @@ require (
 	github.com/hedzr/is v0.6.0
 	github.com/hedzr/logg v0.7.3
 	github.com/hedzr/store v1.1.1
-	github.com/hedzr/store/codecs/json v1.1.0
-	github.com/hedzr/store/providers/file v1.1.0
+	github.com/hedzr/store/codecs/json v1.1.1
+	github.com/hedzr/store/providers/file v1.1.1
 	golang.org/x/crypto v0.28.0
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c
 	gopkg.in/hedzr/errors.v3 v3.3.5

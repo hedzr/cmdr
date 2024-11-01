@@ -1,5 +1,24 @@
 # CHANGELOG
 
+- v2.0.9
+
+  - security patches
+  - bugs fixed
+  - uniform Store() & CmdStore() apis: `Set()` and `Store()`
+  - change `loader.Load`
+  - removed `exec` subpackage since it had been removed to `hedzr/is`
+  - fix bindOpts to detect user's Args via `WithArgs(...)`
+  - prevent internal jsonLoaderS's file not exists error
+  - fixed `ForFileMax` to return errors
+  - update tiny app / sample codes
+  - add `LoadedSources`
+  - add `VarLogDir`
+  - fix `VarRunDir`
+  - add `app.SetDesc()`
+  - add `app.Description()`
+  - add auto-env-vars-bindings feature
+  - fix building on windows
+
 - v2.0.8
 
   - fixed help screen, the missing envvars list

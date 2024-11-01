@@ -160,10 +160,18 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
-
-
-
-
-
+        with:
+          generate_release_notes: true
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
+          # body: |
+          #   ${{ steps.read_release_notes_0.outputs.RELEASE_BODY }}
+          # body_path: ${{ github.workspace }}-CHANGELOG.txt
+          # body_path: RELNOTES.md
+          # files: |
+          #   LICENSE
+          #   RELNOTES.md
 
 

@@ -42,8 +42,9 @@ const (
 // with WithTasksBeforeRun/Config.TasksBeforeRun.
 type Task func(ctx context.Context, cmd Cmd, runner Runner, extras ...any) (err error)
 
+// Loader interface for external loaders
 type Loader interface {
-	Load(app App) (err error)
+	Load(ctx context.Context, app App) (err error)
 }
 
 // SingleFileLoadable finds out a loader if it supports loading single file
@@ -142,9 +143,18 @@ type Cmd interface {
 
 	// App() App
 
-	// Set returns the application Store [store.Store]
+	// Set returns the application Store [store.Store].
+	//
+	// Set is equals to cmdr.Set().
 	Set() store.Store
 	// Store returns the commands subset of the application Store.
+	//
+	// Store() is associated with the owner Cmd.
+	//
+	// So cmd.Store() on command "jump.to" has implicit
+	// key-path prefix "app.cmd.jump.to". The similar thing
+	// is, root.Store() has prefix "app.cmd", it equals
+	// to cmdr.Store().
 	Store() store.Store
 
 	OwnerIsValid() bool

@@ -81,7 +81,7 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 		Examples(`jump example`). // {{.AppName}}, {{.AppVersion}}, {{.DadCommands}}, {{.Commands}}, ...
 		Deprecated(`v1.1.0`).
 		// Group(cli.UnsortedGroup).
-		Hidden(false).
+		Hidden(false, false).
 		OnEvaluateSubCommands(onEvalJumpSubCommands).
 		With(func(b cli.CommandBuilder) {
 			b.Cmd("to").
@@ -91,11 +91,20 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 				// Group(cli.UnsortedGroup).
 				Hidden(false).
 				OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
+					// cmd.Set() == cmdr.Store(), cmd.Store() == cmdr.Store()
 					cmd.Set().Set("app.demo.working", dir.GetCurrentDir())
 					println()
-					println(dir.GetCurrentDir())
-					println()
-					println(cmd.Set().Dump())
+					println(cmd.Set().WithPrefix("app.demo").MustString("working"))
+
+					cs := cmdr.Store().WithPrefix("jump.to")
+					if cs.MustBool("full") {
+						println()
+						println(cmd.Set().Dump())
+					}
+					cs2 := cmd.Store()
+					if cs2.MustBool("full") != cs.MustBool("full") {
+						logz.Panic("a bug found")
+					}
 					app.SetSuggestRetCode(1) // ret code must be in 0-255
 					return                   // handling command action here
 				}).
@@ -123,7 +132,7 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 		Description("a wrong command to return error for testing").
 		// cmdline `FORCE_RUN=1 go run ./tiny wrong -d 8s` to verify this command to see the returned application error.
 		OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
-			dur := cmd.Store().MustDuration("wrong.duration")
+			dur := cmd.Store().MustDuration("duration")
 			println("the duration is:", dur.String())
 
 			ec := errors.New()

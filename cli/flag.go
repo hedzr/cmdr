@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/hedzr/is/term/color"
+	"github.com/hedzr/store"
 )
 
 type navigator interface { //nolint:unused
@@ -20,6 +21,14 @@ func (f *Flag) Owner() *CmdS {
 }
 func (f *Flag) OwnerOrParent() Backtraceable { return f.owner } // the owner of this CmdS
 func (f *Flag) OwnerCmd() Cmd                { return f.owner }
+
+// Store returns the commands subset of the application Store.
+func (f *Flag) Store() store.Store {
+	if f.owner != nil {
+		return f.owner.Store()
+	}
+	return nil
+}
 
 func (f *Flag) IsToggleGroup() bool { return f.toggleGroup != "" }
 
@@ -381,10 +390,10 @@ func (f *Flag) ensureXref() {
 	//
 }
 
-func (c *Flag) EnvVarsHelpString(trans func(ss string, clr color.Color) string, clr, clrDefault color.Color) (hs, plain string) {
-	if len(c.envVars) != 0 {
+func (f *Flag) EnvVarsHelpString(trans func(ss string, clr color.Color) string, clr, clrDefault color.Color) (hs, plain string) {
+	if len(f.envVars) != 0 {
 		var envVars []string
-		for _, v := range c.envVars {
+		for _, v := range f.envVars {
 			if v != "" {
 				envVars = append(envVars, v)
 			}

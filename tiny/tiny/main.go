@@ -115,7 +115,7 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 		Description("a wrong command to return error for testing").
 		// cmdline `FORCE_RUN=1 go run ./tiny wrong -d 8s` to verify this command to see the returned application error.
 		OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
-			dur := cmd.Store().MustDuration("wrong.duration")
+			dur := cmd.Store().MustDuration("duration")
 			println("the duration is:", dur.String())
 
 			ec := errors.New()

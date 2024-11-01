@@ -66,13 +66,18 @@ func (c *BaseOpt) OwnerOrParent() BacktraceableMin { return c.owner }
 func (c *BaseOpt) OwnerIsNil() bool                { return c.owner == nil }
 func (c *BaseOpt) OwnerIsNotNil() bool             { return c.owner != nil }
 func (c *BaseOpt) OwnerCmd() Cmd                   { return c.owner }
-func (c *BaseOpt) Root() *RootCommand              { return c.root }                        // returns Root CmdS (*RootCommand),
-func (c *BaseOpt) App() App                        { return c.root.app }                    // App returns the current App
-func (c *BaseOpt) Set() store.Store                { return c.root.app.Store() }            // Set returns the application Store [store.Store]
-func (c *BaseOpt) Store() store.Store              { return c.Set().WithPrefix("app.cmd") } // Store returns the commands subset of the application Store.
+func (c *BaseOpt) Root() *RootCommand              { return c.root }          // returns Root CmdS (*RootCommand),
+func (c *BaseOpt) App() App                        { return c.root.app }      // App returns the current App
+func (c *BaseOpt) Set() store.Store                { return c.App().Store() } // Set returns the application Store [store.Store]
 func (c *BaseOpt) SetOwner(o *CmdS)                { c.owner = o }
 func (c *BaseOpt) SetOwnerCmd(o Cmd)               { c.owner = o }
 func (c *BaseOpt) SetRoot(root *RootCommand)       { c.root = root }
+
+// Store returns the commands subset of the application Store.
+func (c *BaseOpt) Store() store.Store {
+	cs := c.Set().WithPrefix("app.cmd", c.GetDottedPath())
+	return cs
+}
 
 // func (c *BaseOpt) AppName() string {
 // 	if conf.AppName != "" {

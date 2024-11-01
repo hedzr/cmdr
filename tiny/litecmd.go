@@ -65,9 +65,9 @@ func (s *liteCmdS) GetTitleName() string         { return s.name() }
 func (s *liteCmdS) GetTitleNamesArray() []string { return []string{s.name()} }
 func (s *liteCmdS) GetTitleNames() string        { return s.name() }
 
-func (s *liteCmdS) App() cli.App       { return nil }
+func (s *liteCmdS) App() cli.App       { return s.Root().App() }
 func (s *liteCmdS) Set() store.Store   { return s.Root().App().Store() }
-func (s *liteCmdS) Store() store.Store { return cmdr.CmdStore() }
+func (s *liteCmdS) Store() store.Store { return cmdr.Store() }
 
 func (s *liteCmdS) OwnerIsValid() bool {
 	if s.OwnerIsNotNil() {

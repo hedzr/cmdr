@@ -101,12 +101,13 @@ func ParsedPositionalArgs() []string { return App().ParsedState().PositionalArgs
 
 func LoadedSources() []cli.LoadedSources { return App().LoadedSources() } // the loaded config files or other sources
 
-// Store returns the KVStore associated with current App().
-func Store() store.Store { return App().Store() }
+// Set returns the KVStore associated with current App().
+func Set() store.Store { return App().Store() }
 
-// CmdStore returns the child Store at 'app.cmd'.
+// Store returns the child Store at location 'app.cmd'.
+//
 // By default, cmdr maintains all command-line subcommands and flags
-// as a child tree in the associated Store internally.
+// as a child tree in the associated Set ("store") internally.
 //
 // You can check out the flags state by querying in this child store.
 //
@@ -114,12 +115,17 @@ func Store() store.Store { return App().Store() }
 // flag 'foreground', therefore we can query the flag what if
 // it was given by user's 'app server start --foreground':
 //
-//	fore := cmdr.CmdStore().MustBool("server.start.foreground", false)
+//	fore := cmdr.Store().MustBool("server.start.foreground", false)
 //	if fore {
-//	    runRealMain()
+//	   runRealMain()
 //	} else {
-//	    service.Start("start", runRealMain) // start the real main as a service
+//	   service.Start("start", runRealMain) // start the real main as a service
 //	}
+//
+//	// second form:
+//	cs := cmdr.Store().WithPrefix("server.start")
+//	fore := cs.MustBool("foreground")
+//	port := cs.MustInt("port", 7893)
 //
 // Q: How to inspect the internal Store()?
 //
@@ -130,8 +136,9 @@ func Store() store.Store { return App().Store() }
 //
 // A: Running `app ~~tree`, `app -v ~~tree` or `app ~~tree -vvv` can get
 // a list of subcommands tree, and with those builtin hidden commands,
-// and with those vendor hidden commands.
-func CmdStore() store.Store { return Store().WithPrefix("app.cmd") }
+// and with those vendor hidden commands. In this case, `-vvv` dumps the
+// hidden commands and vendor-hidden commands.
+func Store() store.Store { return Set().WithPrefix("app.cmd") }
 
 // RemoveOrderedPrefix removes '[a-z0-9]+\.' at front of string.
 func RemoveOrderedPrefix(s string) string {

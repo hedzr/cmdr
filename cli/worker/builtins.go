@@ -147,7 +147,7 @@ func (w *workerS) builtinHelps(app cli.App, p *cli.CmdS) { //nolint:revive
 	found := false
 	for _, l := range w.Loaders {
 		if _, found = l.(interface {
-			LoadFile(filename string, app cli.App) (err error)
+			LoadFile(ctx context.Context, filename string, app cli.App) (err error)
 		}); found {
 			break
 		}

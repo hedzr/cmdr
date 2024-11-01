@@ -22,9 +22,9 @@ type writeBackHandler interface {
 	Save(ctx context.Context) error
 }
 
-func (j *jsonLoaderS) Load(app cli.App) (err error) {
+func (j *jsonLoaderS) Load(ctx context.Context, app cli.App) (err error) {
 	var wr writeBackHandler
-	wr, err = app.Store().Load(context.Background(),
+	wr, err = app.Store().Load(ctx,
 		// test: store.WithStorePrefix("app.yaml"),
 		// test: store.WithPosition("app"),
 		store.WithCodec(j.codec()),

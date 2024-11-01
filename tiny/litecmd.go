@@ -13,12 +13,25 @@ import (
 	"github.com/hedzr/store"
 )
 
+// onEvalJumpSubCommands querys shell scripts in EXT directory
+// (typically it is `/usr/local/lib/<app-name>/ext/`) and build
+// as subcommands dynamically.
+//
+// In this demo app, we looks up `./ci/pkg/usr.local.lib.large-app/ext`
+// with hard-code.
+//
+// EXT directory: see the [cmdr.UsrLibDir()] for its location.
 func onEvalJumpSubCommands(ctx context.Context, c cli.Cmd) (it cli.EvalIterator, err error) {
 	files := make(map[string]*liteCmdS)
 	pos := 0
 	var keys []string
 
-	baseDir := path.Join("ci", "pkg", "usr.local.lib.tiny-app", "ext")
+	baseDir := cmdr.UsrLibDir()
+	if !dir.FileExists(baseDir) {
+		baseDir = path.Join("ci", "pkg", "usr.local.lib", c.App().Name(), "ext")
+	} else {
+		baseDir = path.Join(baseDir, "ext")
+	}
 	err = dir.ForFile(baseDir, func(depth int, dirName string, fi os.DirEntry) (stop bool, err error) {
 		if fi.Name()[0] == '.' {
 			return

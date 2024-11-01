@@ -22,11 +22,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hedzr/evendeep/ref"
-
 	"github.com/hedzr/cmdr/v2/internal/tool"
-	"github.com/hedzr/cmdr/v2/pkg/exec"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
+	"github.com/hedzr/evendeep/ref"
+	"github.com/hedzr/is/exec"
 )
 
 // Parse convert a string to any type following a given meme.

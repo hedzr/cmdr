@@ -14,8 +14,8 @@ import (
 	"github.com/hedzr/is/term/color"
 
 	"github.com/hedzr/cmdr/v2/cli"
-	"github.com/hedzr/cmdr/v2/pkg/exec"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
+	"github.com/hedzr/is/exec"
 )
 
 type discardP struct{}

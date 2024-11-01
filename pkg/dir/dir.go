@@ -15,7 +15,7 @@ import (
 
 	"gopkg.in/hedzr/errors.v3"
 
-	"github.com/hedzr/cmdr/v2/pkg/exec"
+	"github.com/hedzr/is/exec"
 )
 
 // GetExecutableDir returns the executable file directory

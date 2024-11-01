@@ -7,10 +7,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hedzr/evendeep/ref"
-
-	"github.com/hedzr/cmdr/v2/pkg/exec"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
+	"github.com/hedzr/evendeep/ref"
+	"github.com/hedzr/is/exec"
 )
 
 //

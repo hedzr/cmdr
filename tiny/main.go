@@ -12,13 +12,12 @@ import (
 
 	"gopkg.in/hedzr/errors.v3"
 
-	logzorig "github.com/hedzr/logg/slog"
-
 	"github.com/hedzr/cmdr/v2"
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/pkg/dir"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
 	"github.com/hedzr/is"
+	logzorig "github.com/hedzr/logg/slog"
 	"github.com/hedzr/store"
 )
 

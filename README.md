@@ -106,6 +106,8 @@ v2 is in earlier state but the baseline is stable:
 
 More minor details need to be evaluated and reimplemented if it's still meaningful in v2.
 
+### cmdr-loaders
+
 Since v2.0.3, loaders had been splitted as a standalone repo so that we can keep cmdr v2 smaller and independer. See the
 relevant subproject [cmdr-loaders](https://github.com/hedzr/cmdr-loaders).
 

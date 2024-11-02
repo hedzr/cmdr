@@ -113,5 +113,5 @@ func (c *RootCommand) Footer() string {
 const (
 	defaultTailLine = `
 Type '-h'/'-?' or '--help' to get command help screen. 
-More: '-D'/'--debug'['--env'|'--raw'|'--more'], '-V'/'--version', '-#'/'--build-info', '--no-color', '--strict-mode', '--no-env-overrides'...`
+More: '-D'/'--debug', '-V'/'--version', '-#'/'--build-info', '--no-color'...`
 )

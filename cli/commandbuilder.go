@@ -25,9 +25,17 @@ type CommandBuilder interface {
 	// aliases will be used as is.
 	Titles(longTitle string, titles ...string) CommandBuilder
 	// Description specifies the one-line description and a multi-line
-	// description (optional)
+	// description (optional).
+	//
+	// For the longDescription, some tips are:
+	//
+	// 1. the extra leading and following blank lines will be stripped.
+	// 2. the given params will be joint together as a one big multi-line
+	// string.
 	Description(description string, longDescription ...string) CommandBuilder
 	// Examples can be a multi-line string.
+	//
+	// Tip: the extra leading and following blank lines will be stripped.
 	Examples(examples string) CommandBuilder
 	// Group specify a group name,
 	// A special prefix could sort it, has a form like `[0-9a-zA-Z]+\.`.

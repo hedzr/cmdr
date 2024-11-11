@@ -1,5 +1,13 @@
 # CHANGELOG
 
+- v2.0.10
+
+  - security patches
+  - bugs fixed
+  - improved `Description(...)`, `Examples(...)`
+  - shorten default tail-line
+  - update litecmd.go
+
 - v2.0.9
 
   - security patches

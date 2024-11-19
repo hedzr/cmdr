@@ -2,6 +2,12 @@
 
 - v2.0.10
 
+  - upgrade deps
+  - bugs fixed
+  - safer api (ParsedState) even if cmdr.Run not invoked yet
+
+- v2.0.10
+
   - security patches
   - bugs fixed
   - improved `Description(...)`, `Examples(...)`

@@ -99,6 +99,13 @@ type ParsedState interface {
 	HasCmd(longTitle string, validator func(cc Cmd, state *MatchState) bool) (found bool)
 	HasFlag(longTitle string, validator func(ff *Flag, state *MatchState) bool) (found bool)
 
+	// Translate is a helper function, which can interpret the
+	// placeholders and translate them to the real value.
+	// Translate is used for formatting command/flag's description
+	// or examples string.
+	//
+	// The avaliable placeholders could be: `{{.AppNmae}}`,
+	// `{{.AppVersion}}`, `{{.DadCommands}}`, `{{.Commands}}` ...
 	Translate(pattern string) (result string)
 
 	DadCommandsText() string

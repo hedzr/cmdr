@@ -337,11 +337,16 @@ func (w *workerS) errIsSignalFallback(err error) bool {
 	return errors.Is(err, cli.ErrShouldFallback)
 }
 
-func (w *workerS) setArgs(args []string)        { w.args = args }
-func (w *workerS) Args() (args []string)        { return w.args }
-func (w *workerS) SuggestRetCode() int          { return w.retCode } //
-func (w *workerS) SetSuggestRetCode(ret int)    { w.retCode = ret }
-func (w *workerS) ParsedState() cli.ParsedState { return w.parsingCtx }
+func (w *workerS) setArgs(args []string)     { w.args = args }
+func (w *workerS) Args() (args []string)     { return w.args }
+func (w *workerS) SuggestRetCode() int       { return w.retCode } //
+func (w *workerS) SetSuggestRetCode(ret int) { w.retCode = ret }
+func (w *workerS) ParsedState() cli.ParsedState {
+	if w != nil {
+		return w.parsingCtx
+	}
+	return nil
+}
 
 func bindOpts[Opt cli.Opt](ctx context.Context, w *workerS, installAsUnique bool, opts ...Opt) {
 	for _, opt := range opts {

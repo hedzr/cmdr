@@ -63,7 +63,7 @@ func (s *parseCtx) Translate(pattern string) (result string) {
 }
 
 func (s *parseCtx) DadCommandsText() (result string) {
-	if len(s.matchedCommands) > 1 {
+	if s != nil && len(s.matchedCommands) > 1 {
 		var ss []string
 		for _, z := range s.matchedCommands[:len(s.matchedCommands)-1] {
 			ss = append(ss, z.Name())
@@ -74,7 +74,7 @@ func (s *parseCtx) DadCommandsText() (result string) {
 }
 
 func (s *parseCtx) CommandsText() (result string) {
-	if len(s.matchedCommands) > 0 {
+	if s != nil && len(s.matchedCommands) > 0 {
 		var ss []string
 		for _, z := range s.matchedCommands {
 			ss = append(ss, z.Name())
@@ -85,15 +85,19 @@ func (s *parseCtx) CommandsText() (result string) {
 }
 
 func (s *parseCtx) CommandMatchedState(c cli.Cmd) (ms *cli.MatchState) {
-	if m, ok := s.matchedCommandsStates[c]; ok {
-		return m
+	if s != nil {
+		if m, ok := s.matchedCommandsStates[c]; ok {
+			return m
+		}
 	}
 	return nil
 }
 
 func (s *parseCtx) FlagMatchedState(f *cli.Flag) (ms *cli.MatchState) {
-	if m, ok := s.matchedFlags[f]; ok {
-		return m
+	if s != nil {
+		if m, ok := s.matchedFlags[f]; ok {
+			return m
+		}
 	}
 	return nil
 }
@@ -185,6 +189,9 @@ func (s *parseCtx) cmd(ctx context.Context, longTitle string) (c cli.Cmd) { //no
 }
 
 func (s *parseCtx) HasCmd(longTitle string, validator func(cc cli.Cmd, state *cli.MatchState) bool) (found bool) { //nolint:revive,unused
+	if s == nil {
+		return false
+	}
 	for _, c := range s.matchedCommands {
 		if c.Name() == longTitle {
 			found = validator(c, s.matchedCommandsStates[c])
@@ -195,6 +202,9 @@ func (s *parseCtx) HasCmd(longTitle string, validator func(cc cli.Cmd, state *cl
 }
 
 func (s *parseCtx) HasFlag(longTitle string, validator func(ff *cli.Flag, state *cli.MatchState) bool) (found bool) {
+	if s == nil {
+		return false
+	}
 	for k, v := range s.matchedFlags {
 		if k.Long == longTitle {
 			found = validator(k, v)
@@ -205,27 +215,43 @@ func (s *parseCtx) HasFlag(longTitle string, validator func(ff *cli.Flag, state 
 }
 
 func (s *parseCtx) NoCandidateChildCommands() bool {
+	if s == nil {
+		return false
+	}
 	cmd := s.LastCmd()
 	return len(cmd.SubCommands()) == 0
 }
 
 func (s *parseCtx) LastCmd() cli.Cmd {
 	var cmd = s.root.Cmd
-	if s.lastCommand >= 0 && len(s.matchedCommands) > 0 {
-		cmd = s.matchedCommands[s.lastCommand]
+	if s != nil {
+		if s.lastCommand >= 0 && len(s.matchedCommands) > 0 {
+			cmd = s.matchedCommands[s.lastCommand]
+		}
 	}
 	return cmd
 }
 
 func (s *parseCtx) PositionalArgs() []string {
-	return s.positionalArgs
+	if s != nil {
+		return s.positionalArgs
+	}
+	return nil
 }
 
 func (s *parseCtx) MatchedCommands() []cli.Cmd {
-	return s.matchedCommands
+	if s != nil {
+		return s.matchedCommands
+	}
+	return nil
 }
 
-func (s *parseCtx) MatchedFlags() map[*cli.Flag]*cli.MatchState { return s.matchedFlags }
+func (s *parseCtx) MatchedFlags() map[*cli.Flag]*cli.MatchState {
+	if s != nil {
+		return s.matchedFlags
+	}
+	return nil
+}
 
 func (s *parseCtx) parsedCommandsStrings() (ret []string) { //nolint:revive,unused
 	for _, cc := range s.matchedCommands {

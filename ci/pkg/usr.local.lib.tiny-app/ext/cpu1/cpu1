@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-echo "cpu test"
-# echo "test error" 1>&2 && false

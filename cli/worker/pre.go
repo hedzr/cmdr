@@ -112,7 +112,7 @@ func (w *workerS) preEnvSet(ctx context.Context) {
 }
 
 func (w *workerS) postEnvLoad(ctx context.Context) {
-	// logz.InfoContext(ctx, "postEnvLoad()", "FORCE_DEFAULT_ACTION", os.Getenv("FORCE_DEFAULT_ACTION"))
+	logz.VerboseContext(ctx, "postEnvLoad()", "FORCE_DEFAULT_ACTION", os.Getenv("FORCE_DEFAULT_ACTION"))
 	if w.Store().Has("app.force-default-action") {
 		w.ForceDefaultAction = w.Store().MustBool("app.force-default-action", false)
 		logz.VerboseContext(ctx, "postEnvLoad() - reset forceDefaultAction from store value", "ForceDefaultAction", w.ForceDefaultAction)

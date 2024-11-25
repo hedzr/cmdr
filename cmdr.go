@@ -206,6 +206,41 @@ func WithStore(conf store.Store) cli.Opt {
 	}
 }
 
+// WithExternalLoaders sets the loaders of external sources, which will be loaded
+// at cmdr's preparing time (xref-building time).
+//
+// The orders could be referred as:
+//
+// - constructing cmdr commands system (by your prepareApp)
+// - entering cmdr.Run
+// - cmdr preparing stage
+//   - build commands and flags xref
+//   - load and apply envvars if matched
+//   - load external sources
+//   - post preparing time
+//
+// - cmdr parsing stage
+// - cmdr invoking stage
+// - cmdr cleanup stage
+//
+// Using our loaders repo is a good idea: https://github.com/hedzr/cmdr-loaders
+//
+// Typical app:
+//
+//	app = cmdr.New(opts...).
+//		Info("tiny-app", "0.3.1").
+//		Author("The Example Authors") // .Description(``).Header(``).Footer(``)
+//		cmdr.WithStore(store.New()), // use an option store explicitly, or a dummy store by default
+//
+//		cmdr.WithExternalLoaders(
+//			local.NewConfigFileLoader(), // import "github.com/hedzr/cmdr-loaders/local" to get in advanced external loading features
+//			local.NewEnvVarLoader(),
+//		),
+//	)
+//	if err := app.Run(ctx); err != nil {
+//		logz.ErrorContext(ctx, "Application Error:", "err", err) // stacktrace if in debug mode/build
+//		os.Exit(app.SuggestRetCode())
+//	}
 func WithExternalLoaders(loaders ...cli.Loader) cli.Opt {
 	return func(s *cli.Config) {
 		s.Loaders = append(s.Loaders, loaders...)
@@ -221,6 +256,17 @@ func WithTasksBeforeParse(tasks ...cli.Task) cli.Opt {
 	}
 }
 
+// WithTasksParsed installs callbacks after parsing stage.
+//
+// The internal stages are: initial -> preload + xref -> parse -> run/invoke -> post-actions.
+//
+// Another way is disabling cmdr default executing/run/invoke stage by WithDontExecuteAction(true).
+func WithTasksParsed(tasks ...cli.Task) cli.Opt {
+	return func(s *cli.Config) {
+		s.TasksParsed = append(s.TasksParsed, tasks...)
+	}
+}
+
 // WithTasksBeforeRun installs callbacks before run/invoke stage.
 //
 // The internal stages are: initial -> preload + xref -> parse -> run/invoke -> post-actions.
@@ -230,12 +276,35 @@ func WithTasksBeforeParse(tasks ...cli.Task) cli.Opt {
 //   - preload & xref
 //   - <tasksBeforeParse>
 //   - parse
+//   - <tasksParsed>
 //   - <tasksBeforeRun> ( = tasksAfterParse )
 //   - exec (run/invoke)
 //   - <tasksAfterRun>
+//   - <tasksPostCleanup>
+//   - basics.closers...Close()
 func WithTasksBeforeRun(tasks ...cli.Task) cli.Opt {
 	return func(s *cli.Config) {
 		s.TasksBeforeRun = append(s.TasksBeforeRun, tasks...)
+	}
+}
+
+// WithTasksAfterRun installs callbacks after run/invoke stage.
+//
+// The internal stages are: initial -> preload + xref -> parse -> run/invoke -> post-actions.
+func WithTasksAfterRun(tasks ...cli.Task) cli.Opt {
+	return func(s *cli.Config) {
+		s.TasksAfterRun = append(s.TasksAfterRun, tasks...)
+	}
+}
+
+// WithTasksPostCleanup install callbacks at cmdr ending.
+//
+// See the stagings order introduce at [WithTasksBeforeRun].
+//
+// See also WithTasksSetupPeripherals, WithPeripherals.
+func WithTasksPostCleanup(tasks ...cli.Task) cli.Opt {
+	return func(s *cli.Config) {
+		s.TasksPostCleanup = append(s.TasksPostCleanup, tasks...)
 	}
 }
 
@@ -256,8 +325,8 @@ func WithTasksBeforeRun(tasks ...cli.Task) cli.Opt {
 //	import "github.com/hedzr/is/basics"
 //	type Obj struct{}
 //	func (o *Obj) Init(context.Context) *Obj { return o } // initialize itself
-//	func (o *Obj) Close(){...}                            // destory itself
-//	app := cmdr.New(cmdr.WithTasksSetupPeripherals(func(ctx context.Context, cmd *CmdS, runner Runner, extras ...any) (err error) {
+//	func (o *Obj) Close(){...}                            // destroy itself
+//	app := cmdr.New(cmdr.WithTasksSetupPeripherals(func(ctx context.Context, cmd cli.Cmd, runner cli.Runner, extras ...any) (err error) {
 //	    obj := new(Obj)
 //	    basics.RegisterPeripheral(obj.Init(ctx))          // initialize obj at first, and register it to basics.Closers for auto-shutting-down
 //	    return
@@ -283,15 +352,6 @@ func WithTasksSetupPeripherals(tasks ...cli.Task) cli.Opt {
 func WithPeripherals(peripherals ...basics.Peripheral) cli.Opt {
 	return func(s *cli.Config) {
 		basics.RegisterPeripheral(peripherals...)
-	}
-}
-
-// WithTasksAfterRun installs callbacks after run/invoke stage.
-//
-// The internal stages are: initial -> preload + xref -> parse -> run/invoke -> post-actions.
-func WithTasksAfterRun(tasks ...cli.Task) cli.Opt {
-	return func(s *cli.Config) {
-		s.TasksAfterRun = append(s.TasksAfterRun, tasks...)
 	}
 }
 

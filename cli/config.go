@@ -34,15 +34,17 @@ type Config struct {
 	TasksAfterXref        []Task            `json:"-"`                                 // while command linked and xref'd, it's time to insert user-defined commands dynamically.
 	TasksAfterLoader      []Task            `json:"-"`                                 // while external loaders loaded.
 	TasksBeforeParse      []Task            `json:"-"`                                 // globally pre-parse tasks
+	TasksParsed           []Task            `json:"-"`                                 // globally post-parse tasks
 	TasksBeforeRun        []Task            `json:"-"`                                 // globally pre-run tasks, it's also used as TasksAfterParsed
 	TasksAfterRun         []Task            `json:"-"`                                 // globally post-run tasks
+	TasksPostCleanup      []Task            `json:"-"`                                 // globally post-run tasks, specially for cleanup actions
 	Loaders               []Loader          `json:"-"`                                 // external loaders. use cli.WithLoader() prefer
 	HelpScreenWriter      HelpWriter        `json:"help_screen_writer,omitempty"`      // redirect stdout for help screen printing
 	DebugScreenWriter     HelpWriter        `json:"debug_screen_writer,omitempty"`     // redirect stdout for debugging outputs
 	Args                  []string          `json:"args,omitempty"`                    // for testing
 	Env                   map[string]string `json:"env,omitempty"`                     // inject env var & values
 	AutoEnv               bool              `json:"auto_env,omitempty"`                // enable envvars auto-binding?
-	AutoEnvPrefix         string            `json:"auto_env_prefix,omitempty"`         // envvars auto-binding prefix
+	AutoEnvPrefix         string            `json:"auto_env_prefix,omitempty"`         // envvars auto-binding prefix, bind them to corresponding flags
 }
 
 // Opt for cmdr system

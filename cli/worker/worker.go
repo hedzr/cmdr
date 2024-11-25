@@ -398,9 +398,11 @@ func (w *workerS) Run(ctx context.Context, opts ...cli.Opt) (err error) {
 	defer func() { w.attachError(w.postProcess(ctx, pc)) }()
 	if w.invokeTasks(ctx, pc, w.errs, w.Config.TasksBeforeParse...) ||
 		w.attachError(w.parse(ctx, pc)) ||
+		w.invokeTasks(ctx, pc, w.errs, w.Config.TasksParsed...) ||
 		w.invokeTasks(ctx, pc, w.errs, w.Config.TasksBeforeRun...) ||
 		w.attachError(w.exec(ctx, pc)) ||
 		w.invokeTasks(ctx, pc, w.errs, w.Config.TasksAfterRun...) ||
+		w.invokeTasks(ctx, pc, w.errs, w.Config.TasksPostCleanup...) ||
 		dummy() {
 		// any errors occurred
 		return

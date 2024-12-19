@@ -1,5 +1,18 @@
 # CHANGELOG
 
+- v2.0.13
+
+  - upgrade deps
+  - security patch
+  - fixed ext file location moved
+  - added TasksParsed and TasksPostCleanup
+
+- v2.0.11
+
+  - upgrade deps
+  - bugs fixed
+  - safe guard while cmdr not parsed
+
 - v2.0.10
 
   - upgrade deps

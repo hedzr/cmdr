@@ -199,6 +199,11 @@ type Cmd interface {
 	HitTitle() string
 	HitTimes() int
 
+	// RedirectTo provides the real command target for current CmdS.
+	//
+	// Suppose command [app build] is being redirected to [app gcc build]. There
+	// [app build] is a shortcut to its full commands [app gcc build].
+	RedirectTo() (dottedPath string)
 	SetRedirectTo(dottedPath string)
 
 	CanInvoke() bool

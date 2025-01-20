@@ -19,16 +19,19 @@ func (w *workerS) exec(ctx context.Context, pc *parseCtx) (err error) {
 	logz.VerboseContext(ctx, "[cmdr] exec...", "last-matched-cmd", lastCmd)
 
 	forceDefaultAction := pc.forceDefaultAction
+	return w.execCmd(ctx, pc, lastCmd, forceDefaultAction)
+}
 
+func (w *workerS) execCmd(ctx context.Context, pc *parseCtx, cmd cli.Cmd, forceDefaultAction bool) (err error) {
 	var deferActions func(errInvoked error)
-	if deferActions, err = w.beforeExec(ctx, pc, lastCmd); err != nil {
+	if deferActions, err = w.beforeExec(ctx, pc, cmd); err != nil {
 		return
 	}
 	defer func() {
 		deferActions(err) // err must be delayed caught here
-		if err1 := w.afterExec(ctx, pc, lastCmd); err1 == nil {
+		if err1 := w.afterExec(ctx, pc, cmd); err1 == nil {
 			c := context.Background()
-			if err1 = w.finalActions(c, pc, lastCmd); err1 != nil {
+			if err1 = w.finalActions(c, pc, cmd); err1 != nil {
 				ec := errorsv3.New()
 				ec.Attach(err, err1)
 				ec.Defer(&err)
@@ -42,9 +45,9 @@ func (w *workerS) exec(ctx context.Context, pc *parseCtx) (err error) {
 		return
 	}
 
-	if !forceDefaultAction && lastCmd.CanInvoke() {
-		logz.VerboseContext(ctx, "invoke action of cmd, with args", "cmd", lastCmd, "args", pc.positionalArgs)
-		err = lastCmd.Invoke(ctx, pc.positionalArgs)
+	if !forceDefaultAction && cmd.CanInvoke() {
+		logz.VerboseContext(ctx, "invoke action of cmd, with args", "cmd", cmd, "args", pc.positionalArgs)
+		err = cmd.Invoke(ctx, pc.positionalArgs)
 		logz.VerboseContext(ctx, "invoke action ends.", "err", err)
 		if !w.errIsSignalFallback(err) {
 			return
@@ -52,13 +55,24 @@ func (w *workerS) exec(ctx context.Context, pc *parseCtx) (err error) {
 		pc.forceDefaultAction, err = true, nil
 	}
 
+	if redirectTo := cmd.RedirectTo(); redirectTo != "" {
+		if cc, ff := cli.DottedPathToCommandOrFlag1(redirectTo, cmd.Root()); cc != nil && ff == nil {
+			if cmd1, ok := cc.(*cli.CmdS); ok {
+				logz.VerboseContext(ctx, "invoke action of cmd (redirect), with args", "cmd", cmd1, "args", pc.positionalArgs)
+				err = w.execCmd(ctx, pc, cmd1, forceDefaultAction)
+				logz.VerboseContext(ctx, "invoke action ends (redirect).", "err", err)
+				return
+			}
+		}
+	}
+
 	if pc.forceDefaultAction {
-		err = w.onDefaultAction(ctx, pc, lastCmd)
+		err = w.onDefaultAction(ctx, pc, cmd)
 		return
 	}
 
-	logz.VerboseContext(ctx, "[cmdr] no onAction associated to cmd", "cmd", lastCmd)
-	err = w.onPrintHelpScreen(ctx, pc, lastCmd)
+	logz.VerboseContext(ctx, "[cmdr] no onAction associated to cmd", "cmd", cmd)
+	err = w.onPrintHelpScreen(ctx, pc, cmd)
 	return
 }
 

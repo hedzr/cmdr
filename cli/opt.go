@@ -119,7 +119,7 @@ func backtraceCmdNamesG(cmd BacktraceableMin, delimiter string, verboseLast bool
 
 func dottedPathToCommandOrFlagG(c Backtraceable, dottedPath string) (cmd Backtraceable, ff *Flag) { //nolint:revive
 	if c == nil {
-		// anyCmd = &internalGetWorker().rootCommand.CmdS
+		// c = internalGetWorker().rootCommand.Cmd
 		return
 	}
 
@@ -180,7 +180,7 @@ func (c *CmdS) dottedPathToCommandOrFlag(dottedPath string) (cmd Backtraceable, 
 }
 
 // DottedPathToCommandOrFlag1 searches the matched CmdS or Flag with the specified dotted-path.
-// The searching will start from root if anyCmd is nil.
+// anyCmd is the starting of this searching.
 func DottedPathToCommandOrFlag1(dottedPath string, anyCmd Backtraceable) (cc Backtraceable, ff *Flag) {
 	return dottedPathToCommandOrFlagG(anyCmd, dottedPath)
 }

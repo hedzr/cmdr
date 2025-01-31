@@ -176,7 +176,7 @@ func (s *toS) parseImpl(str string, rt reflect.Type, meme any) (v any, err error
 	case reflect.String:
 		v = exec.StripQuotes(str)
 	case reflect.Bool:
-		v = tool.ToBool(str)
+		v = is.ToBool(str)
 
 	default:
 		v, err = str, errParse

@@ -1,3 +1,4 @@
+// Package logz is a tiny wrapper to logg/slog.
 package logz
 
 import (
@@ -153,9 +154,9 @@ func WrappedLogger() *stdlog.Logger { return Logger }
 func init() {
 	onceLog.Do(func() {
 		log00 := logz.New("[cmdr]") // .SetLevel(logz.DebugLevel)
-		log = log00.
-			WithSkip(1) // extra stack frame(s) shall be ignored for dbglog.Info/...
-		log00.Verbose("init dbglog")
+		log = log00.                // make a child logger here.
+						WithSkip(1) // extra stack frame(s) shall be ignored for dbglog.Info/...
+		log00.Verbose("init logz")
 
 		sll := logz.NewSlogHandler(log, &logz.HandlerOptions{
 			NoColor:  false,

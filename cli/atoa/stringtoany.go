@@ -25,6 +25,7 @@ import (
 	"github.com/hedzr/cmdr/v2/internal/tool"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
 	"github.com/hedzr/evendeep/ref"
+	"github.com/hedzr/is"
 	"github.com/hedzr/is/exec"
 )
 

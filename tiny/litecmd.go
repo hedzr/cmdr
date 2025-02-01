@@ -32,6 +32,10 @@ func onEvalJumpSubCommands(ctx context.Context, c cli.Cmd) (it cli.EvalIterator,
 	} else {
 		baseDir = path.Join(baseDir, "ext")
 	}
+	if !dir.FileExists(baseDir) {
+		return
+	}
+
 	err = dir.ForFile(baseDir, func(depth int, dirName string, fi os.DirEntry) (stop bool, err error) {
 		if fi.Name()[0] == '.' {
 			return
@@ -78,7 +82,7 @@ func (s *liteCmdS) GetTitleName() string         { return s.name() }
 func (s *liteCmdS) GetTitleNamesArray() []string { return []string{s.name()} }
 func (s *liteCmdS) GetTitleNames() string        { return s.name() }
 
-func (s *liteCmdS) App() cli.App       { return s.Root().App() }
+func (s *liteCmdS) App() cli.App       { return nil }
 func (s *liteCmdS) Set() store.Store   { return s.Root().App().Store() }
 func (s *liteCmdS) Store() store.Store { return cmdr.Store() }
 
@@ -142,6 +146,7 @@ func (s *liteCmdS) SetHitTitle(title string) {
 func (s *liteCmdS) HitTitle() string { return s.hitTitle }
 func (s *liteCmdS) HitTimes() int    { return s.hitTimes }
 
+func (s *liteCmdS) RedirectTo() (dottedPath string) { return }
 func (s *liteCmdS) SetRedirectTo(dottedPath string) {}
 
 func (s *liteCmdS) CanInvoke() bool {

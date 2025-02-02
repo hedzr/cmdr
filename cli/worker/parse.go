@@ -50,12 +50,14 @@ loopArgs:
 
 		logz.VerboseContext(ctx, "parsing command-line args", "i", pc.i, "arg", w.args[pc.i])
 
-		pc.arg, pc.short, pc.pos = w.args[pc.i], false, 0
+		pc.arg, pc.short, pc.dblTilde, pc.leadingPlus, pc.pos = w.args[pc.i], false, false, false, 0
 		switch c1 := pc.arg[0]; c1 {
 		// TODO need more design for form '+flag'.
 		// currently, +flag is designed as a bool value flipper
 		case '+': // for bool flag it's a flipper;
 			if len(pc.arg) > 1 {
+				pc.leadingPlus = true
+
 				if w.interpretLeadingPlusSign(pc) {
 					continue
 				}

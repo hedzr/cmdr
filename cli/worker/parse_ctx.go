@@ -20,8 +20,9 @@ type parseCtx struct {
 
 	// parsed:
 
-	short                 bool                          // parsing short flags?
+	short                 bool                          // parsing short flags? ('-' or '--')
 	dblTilde              bool                          // parsing '~~' flag?
+	leadingPlus           bool                          // parsing '+' flag?
 	lastCommand           int                           // index of ...
 	matchedCommands       []cli.Cmd                     // matched
 	matchedCommandsStates map[cli.Cmd]*cli.MatchState   // matched ...
@@ -32,6 +33,21 @@ type parseCtx struct {
 	prefixPlusSign        atomic.Bool                   // '+' leading
 
 	// helpScreen            bool
+}
+
+func (s *parseCtx) LeadingIs(r rune) bool {
+	switch r {
+	case '+':
+		return s.leadingPlus
+	case '~':
+		return s.dblTilde
+	case '-':
+		return !s.leadingPlus && !s.dblTilde
+	case '/':
+		return !s.leadingPlus && !s.dblTilde
+	default:
+		return false
+	}
 }
 
 func (s *parseCtx) Translate(pattern string) (result string) {
@@ -157,6 +173,7 @@ func (s *parseCtx) addFlag(ff *cli.Flag) (ms *cli.MatchState) {
 		ms = &cli.MatchState{
 			Short:    s.short,
 			DblTilde: s.dblTilde,
+			Plus:     s.leadingPlus,
 			HitStr:   ff.GetHitStr(),
 			HitTimes: ff.GetTriggeredTimes(),
 			Value:    ff.DefaultValue(),

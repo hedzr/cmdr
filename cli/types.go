@@ -408,10 +408,12 @@ type FlgSlice struct {
 }
 
 type MatchState struct {
-	Short, DblTilde bool
-	HitStr          string
-	HitTimes        int
-	Value           any
+	DblTilde bool // '~~xxx'?
+	Plus     bool // '+xxx'?
+	Short    bool // '-xxx' or '--xxx'?
+	HitStr   string
+	HitTimes int
+	Value    any
 }
 
 type OnInvokeHandler func(ctx context.Context, cmd Cmd, args []string) (err error)

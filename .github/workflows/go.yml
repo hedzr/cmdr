@@ -65,11 +65,11 @@ jobs:
             ${{ runner.os }}-go-
       - name: Test & Coverage
         run: go mod tidy && go test -v -coverprofile=profile.cov ./...
-      - name: Send coverage
-        uses: shogo82148/actions-goveralls@v1
-        with:
-          path-to-profile: profile.cov
-          parallel: true
+      # - name: Send coverage
+      #   uses: shogo82148/actions-goveralls@v1
+      #   with:
+      #     path-to-profile: profile.cov
+      #     parallel: true
 
   #  build:
   #    #env:
@@ -140,15 +140,15 @@ jobs:
   ##          asset_name: my-artifact.zip
   ##          asset_content_type: application/zip
 
-  # notifies coveralls that all test jobs are finished
-  finish-coverage:
-    name: Finish Coverage
-    needs: coverage
-    runs-on: ubuntu-latest
-    steps:
-      - uses: shogo82148/actions-goveralls@v1
-        with:
-          parallel-finished: true
+  # # notifies coveralls that all test jobs are finished
+  # finish-coverage:
+  #   name: Finish Coverage
+  #   needs: coverage
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: shogo82148/actions-goveralls@v1
+  #       with:
+  #         parallel-finished: true
 
   do-release:
     permissions: write-all # this is the FIX

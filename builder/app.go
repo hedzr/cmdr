@@ -97,21 +97,25 @@ func (s *appS) ensureNewApp() cli.App { //nolint:unparam
 
 func (s *appS) Info(name, version string, desc ...string) cli.App {
 	s.ensureNewApp()
+
 	if name != "" {
 		s.root.AppName = name
 		if name != conf.AppName {
 			conf.AppName = name
 		}
 	}
+
 	if version != "" {
 		s.root.Version = version
 		if version != conf.Version {
 			conf.Version = version
 		}
 	}
+
 	if cx, ok := s.root.Cmd.(*cli.CmdS); ok {
 		cx.SetDescription("", desc...)
 	}
+
 	return s
 }
 

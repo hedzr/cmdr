@@ -188,10 +188,11 @@ func (s *helpPrinter) printHeader(ctx context.Context, sb *strings.Builder, cc c
 		logz.Fatal("unsatisfied link to root: cc.Root() is invalid", "cc", cc)
 	}
 	header := cc.Root().Header()
-	line := exec.StripLeftTabs(header)
+	line := exec.StripLeftTabs(os.ExpandEnv(header))
 	_, _ = sb.WriteString(s.Translate(line, color.FgDefault))
 	_, _ = sb.WriteString("\n")
 	_, _, _ = pc, cols, tabbedW
+	_ = ctx
 }
 
 func (s *helpPrinter) printUsage(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) { //nolint:revive,unparam
@@ -206,28 +207,30 @@ func (s *helpPrinter) printUsage(ctx context.Context, sb *strings.Builder, cc cl
 	line := fmt.Sprintf("$ <kbd>%s</kbd> %s [Options...]%s\n", appName, titles, tail)
 	_, _ = sb.WriteString("\nUsage:\n\n  ")
 	// _, _ = sb.WriteString("\n")
-	_, _ = sb.WriteString(s.Translate(line, color.FgDefault))
+	_, _ = sb.WriteString(s.Translate(os.ExpandEnv(line), color.FgDefault))
 	_, _, _ = pc, cols, tabbedW
+	_ = ctx
 }
 
 func (s *helpPrinter) printDesc(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) { //nolint:revive,unparam
 	desc := cc.DescLong()
 	if desc != "" {
 		_, _ = sb.WriteString("\nDescription:\n\n")
-		desc = exec.StripLeftTabs(desc)
+		desc = exec.StripLeftTabs(os.ExpandEnv(desc))
 		desc = pc.Translate(desc)
 		line := s.Translate(desc, color.FgDefault)
 		line = exec.LeftPad(line, 2)
 		_, _ = sb.WriteString(line)
 	}
 	_, _, _ = pc, cols, tabbedW
+	_ = ctx
 }
 
 func (s *helpPrinter) printExamples(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) { //nolint:revive,unparam
 	examples := cc.Examples()
 	if examples != "" {
 		_, _ = sb.WriteString("\nExamples:\n\n")
-		str := exec.StripLeftTabs(examples)
+		str := exec.StripLeftTabs(os.ExpandEnv(examples))
 		str = pc.Translate(str)
 		line := s.Translate(str, color.FgDefault)
 		line = exec.LeftPad(line, 2)
@@ -255,7 +258,7 @@ func (s *helpPrinter) printTailLine(ctx context.Context, sb *strings.Builder, cc
 	footer := strings.TrimSpace(cc.Root().Footer())
 	if footer != "" {
 		_, _ = sb.WriteString("\n")
-		str := exec.StripLeftTabs(footer)
+		str := exec.StripLeftTabs(os.ExpandEnv(footer))
 		line := fmt.Sprintf("<dim>%s</dim>", str)
 		_, _ = sb.WriteString(s.Translate(line, color.FgDefault))
 		if !strings.HasSuffix(footer, "\n") {
@@ -266,6 +269,7 @@ func (s *helpPrinter) printTailLine(ctx context.Context, sb *strings.Builder, cc
 		// }
 	}
 	_, _, _ = pc, cols, tabbedW
+	_ = ctx
 }
 
 func (s *helpPrinter) printEnv(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc cli.ParsedState) {
@@ -310,6 +314,7 @@ func (s *helpPrinter) printEnv(ctx context.Context, sb *strings.Builder, wr Help
 
 	_, _ = wr.WriteString(sb.String())
 	_, _ = wr.WriteString("\n")
+	_ = ctx
 }
 
 func (s *helpPrinter) printRaw(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc cli.ParsedState) {
@@ -322,6 +327,7 @@ func (s *helpPrinter) printRaw(ctx context.Context, sb *strings.Builder, wr Help
 	_, _ = sb.WriteString("\nRaw:\n")
 	_, _ = wr.WriteString(sb.String())
 	_, _ = wr.WriteString("\n")
+	_ = ctx
 }
 
 func (s *helpPrinter) printMore(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc cli.ParsedState) {
@@ -334,6 +340,7 @@ func (s *helpPrinter) printMore(ctx context.Context, sb *strings.Builder, wr Hel
 	_, _ = sb.WriteString("\nMore:\n")
 	_, _ = wr.WriteString(sb.String())
 	_, _ = wr.WriteString("\n")
+	_ = ctx
 }
 
 func (s *helpPrinter) printDebugMatches(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc cli.ParsedState) { //nolint:revive
@@ -378,6 +385,7 @@ func (s *helpPrinter) printDebugMatches(ctx context.Context, sb *strings.Builder
 		_, _ = wr.WriteString(sb.String())
 		// _, _ = wr.WriteString("\n")
 	}
+	_ = ctx
 }
 
 func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder, verboseCount *int, cc cli.Cmd, group string, idx, level, cols, tabbedW int, grouped bool) { //nolint:revive

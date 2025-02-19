@@ -23,8 +23,10 @@ func (c *CmdS) ForeachSubCommands(ctx context.Context, cb func(cc *CmdS) (stop b
 	}
 
 	if c.onEvalSubcommandsOnce != nil && !c.onEvalSubcommandsOnce.invoked {
+		// todo onEvalSubcommandsOnce
 	}
 	if c.onEvalSubcommands != nil {
+		// todo onEvalSubcommands
 	}
 
 	return
@@ -524,7 +526,7 @@ func ensureDynCommands(ctx context.Context, cmd Cmd) (list []Cmd, err error) {
 	}
 
 	if cb := cmd.OnEvalSubcommands(); cb != nil {
-		logz.InfoContext(ctx, "[cmdr] checking dynamic commands (always)", "cmd", cmd)
+		logz.VerboseContext(ctx, "[cmdr] checking dynamic commands (always)", "cmd", cmd)
 
 		var iter EvalIterator
 		if iter, err = cb(ctx, cmd); err != nil || iter == nil {

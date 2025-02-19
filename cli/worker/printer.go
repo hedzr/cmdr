@@ -30,6 +30,8 @@ type helpPrinter struct {
 	debugMatches    bool
 	treeMode        bool
 	w               *workerS
+	lastGroup       string
+	lastCmdGroup    string
 }
 
 const colLeftTabbedWidth = 46
@@ -395,7 +397,8 @@ func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder, ver
 
 	groupedInc := 0
 	if grouped && group != "" {
-		if idx == 0 {
+		if group != s.lastCmdGroup {
+			s.lastCmdGroup = group
 			_, _ = sb.WriteString(strings.Repeat("  ", level))
 			s.WriteColor(sb, CurrentGroupTitleColor)
 			s.WriteBgColor(sb, CurrentGroupTitleBgColor)
@@ -507,8 +510,13 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder, verbos
 	}
 
 	groupedInc := 0
+	if s.treeMode {
+		groupedInc++
+	}
+
 	if grouped && group != "" {
-		if idx == 0 {
+		if group != s.lastGroup {
+			s.lastGroup = group
 			_, _ = sb.WriteString(strings.Repeat("  ", level+groupedInc))
 			s.WriteColor(sb, CurrentGroupTitleColor)
 			s.WriteBgColor(sb, CurrentGroupTitleBgColor)

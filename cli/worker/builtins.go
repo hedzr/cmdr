@@ -52,7 +52,7 @@ func (w *workerS) builtinVersions(app cli.App, p *cli.CmdS) {
 			CompJustOnce(true)
 	})
 	app.NewFlgFrom(p, "", func(b cli.FlagBuilder) {
-		b.Titles("version-sim", "VS", "ver-sim", "version-simulate").
+		b.Titles("version-sim", "VS", "ver-sim").
 			Description("Simulate a faked version for this app").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).

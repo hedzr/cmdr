@@ -234,6 +234,21 @@ func (s *helpPrinter) printExamples(ctx context.Context, sb *strings.Builder, cc
 		_, _ = sb.WriteString(line)
 	}
 	_, _, _ = pc, cols, tabbedW
+
+	s.printNotes(ctx, sb, cc, pc, cols, tabbedW)
+}
+
+func (s *helpPrinter) printNotes(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) { //nolint:revive,unparam
+	if root := cc.Root(); root.Cmd == cc && root.RedirectTo() != "" {
+		_, _ = sb.WriteString("\nNotes:\n\n")
+		str := exec.StripLeftTabs(fmt.Sprintf(`<i>Root Command was been redirected to Subcommand</i>: "<b>%s</b>"`, root.RedirectTo()))
+		str = pc.Translate(str)
+		line := s.Translate(str, color.FgDefault)
+		line = exec.LeftPad(line, 2)
+		_, _ = sb.WriteString(line)
+	}
+	_, _, _ = pc, cols, tabbedW
+	_ = ctx
 }
 
 func (s *helpPrinter) printTailLine(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) { //nolint:revive,unparam

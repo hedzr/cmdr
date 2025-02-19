@@ -13,6 +13,7 @@ import (
 	"github.com/hedzr/is"
 	"github.com/hedzr/is/exec"
 	"github.com/hedzr/is/states"
+	"github.com/hedzr/store"
 
 	"gopkg.in/hedzr/errors.v3"
 )
@@ -133,6 +134,11 @@ func (c *CmdS) AddSubCommand(child *CmdS, callbacks ...func(cc *CmdS)) { //nolin
 			cb(child)
 		}
 	}
+	for _, x := range c.commands {
+		if x.EqualTo(child) {
+			return
+		}
+	}
 	c.commands = append(c.commands, child)
 	child.owner = c
 	child.root = c.root
@@ -151,6 +157,11 @@ func (c *CmdS) AddFlag(child *Flag, callbacks ...func(ff *Flag)) { //nolint:revi
 	for _, cb := range callbacks {
 		if cb != nil {
 			cb(child)
+		}
+	}
+	for _, x := range c.flags {
+		if x.EqualTo(child) {
+			return
 		}
 	}
 	c.flags = append(c.flags, child)

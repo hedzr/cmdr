@@ -106,10 +106,16 @@ func (f *Flag) Prerequisites() []string    { return f.prerequisites }
 func (f *Flag) CircuitBreak() bool         { return f.circuitBreak }
 func (f *Flag) DoubleTildeOnly() bool      { return f.dblTildeOnly }
 
-func (f *Flag) SetToggleGroup(group string)             { f.toggleGroup = group }
-func (f *Flag) SetPlaceHolder(placeHolder string)       { f.placeHolder = placeHolder }
-func (f *Flag) SetDefaultValue(val any)                 { f.defaultValue = val }
-func (f *Flag) SetEnvVars(vars ...string)               { f.envVars = vars }
+func (f *Flag) SetToggleGroup(group string)       { f.toggleGroup = group }
+func (f *Flag) SetPlaceHolder(placeHolder string) { f.placeHolder = placeHolder }
+func (f *Flag) SetDefaultValue(val any)           { f.defaultValue = val }
+func (f *Flag) SetEnvVars(vars ...string) {
+	for _, v := range vars {
+		if v != "" {
+			f.envVars = append(f.envVars, v)
+		}
+	}
+}
 func (f *Flag) AppendEnvVars(vars ...string)            { f.envVars = append(f.envVars, vars...) }
 func (f *Flag) SetExternalEditor(externalEditor string) { f.externalEditor = externalEditor }
 func (f *Flag) SetValidArgs(validArgs ...string)        { f.validArgs = validArgs }

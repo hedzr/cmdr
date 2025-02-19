@@ -242,6 +242,14 @@ func (c *CmdS) OnEvalSubcommandsOnceSetCache(list []Cmd) {
 
 //
 
+func (c *CmdS) IsDynamicCommandsLoading() bool {
+	return c.OnEvalSubcommandsOnce() != nil || c.OnEvalSubcommands() != nil
+}
+
+func (c *CmdS) IsDynamicFlagsLoading() bool {
+	return c.OnEvalFlagsOnce() != nil || c.OnEvalFlags() != nil
+}
+
 func (c *CmdS) OnEvalFlags() OnEvaluateFlags {
 	if c.onEvalFlags == nil {
 		return nil

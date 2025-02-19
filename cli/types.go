@@ -199,11 +199,19 @@ type Cmd interface {
 	HitTitle() string
 	HitTimes() int
 
-	// RedirectTo provides the real command target for current CmdS.
+	// RedirectTo provides the real command target for current Cmd.
 	//
-	// Suppose command [app build] is being redirected to [app gcc build]. There
-	// [app build] is a shortcut to its full commands [app gcc build].
+	// Suppose command [app build] is being redirected to [app gcc build].
+	// The [app build] is a shortcut to its full commands [app gcc build].
 	RedirectTo() (dottedPath string)
+	// SetRedirectTo specify a target subcmd (support dotted
+	// path like "server.stop").
+	//
+	// The end-user's root command requesting will be redirected
+	// into this target command.
+	//
+	// For a dad command such as "server" command, it
+	// would translate `app start|stop` -> `app server start|stop`.
 	SetRedirectTo(dottedPath string)
 
 	CanInvoke() bool
@@ -219,6 +227,9 @@ type Cmd interface {
 	OnEvalFlagsOnceInvoked() bool
 	OnEvalFlagsOnceCache() []*Flag
 	OnEvalFlagsOnceSetCache(list []*Flag)
+
+	IsDynamicCommandsLoading() bool // loading the subcmds dynamically?
+	IsDynamicFlagsLoading() bool    // loading the flags dynamically?
 
 	Match(ctx context.Context, title string) (short bool, cc Cmd)
 	TryOnMatched(position int, hitState *MatchState) (handled bool, err error)

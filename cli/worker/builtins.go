@@ -78,8 +78,8 @@ func (w *workerS) builtinVersions(app cli.App, p *cli.CmdS) {
 }
 
 func (w *workerS) builtinHelps(app cli.App, p *cli.CmdS) { //nolint:revive
-	app.NewCmdFrom(p, func(b cli.CommandBuilder) {
-		b.Titles("help", "h", "info", "usage", "__completion", "__complete").
+	app.NewCmdFrom(p, func(b cli.CommandBuilder) { // "usage",
+		b.Titles("help", "h", "info", "__completion", "__complete").
 			Description("Show help system for commands").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, false).

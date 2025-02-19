@@ -66,6 +66,8 @@ func (w *workerS) preEnvSet(ctx context.Context) {
 	_ = os.Setenv("APP_NAME", appName)
 	_ = os.Setenv("APP_VER", w.Version())
 	_ = os.Setenv("APP_VERSION", w.Version())
+	_ = os.Setenv("EXE", dir.GetExecutablePath())
+	_ = os.Setenv("EXE_DIR", dir.GetExecutableDir())
 
 	logz.VerboseContext(ctx, "preEnvSet()", "appName", appName, "appVer", w.Version())
 

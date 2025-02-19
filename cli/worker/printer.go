@@ -32,7 +32,7 @@ type helpPrinter struct {
 	w               *workerS
 }
 
-const colLeftTabbedWidth = 56
+const colLeftTabbedWidth = 46
 
 func (s *helpPrinter) Print(ctx context.Context, pc cli.ParsedState, lastCmd cli.Cmd) { //nolint:revive //
 	wr := s.safeGetWriter()

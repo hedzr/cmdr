@@ -24,7 +24,7 @@ type FlagBuilder interface {
 	// Default is a synonym to DefaultValue
 	Default(defaultValue any) FlagBuilder
 
-	// ExtraShorts sets more short titles
+	// ExtraShorts sets more short titles.
 	ExtraShorts(shorts ...string) FlagBuilder
 
 	// Description specifies the one-line description and a multi-line
@@ -33,6 +33,7 @@ type FlagBuilder interface {
 	// Examples can be a multi-line string.
 	Examples(examples string) FlagBuilder
 	// Group specify a group name,
+	//
 	// A special prefix could sort it, has a form like `[0-9a-zA-Z]+\.`.
 	// The prefix will be removed from help screen.
 	//
@@ -45,6 +46,9 @@ type FlagBuilder interface {
 	Group(group string) FlagBuilder
 	// Deprecated is a version string just like '0.5.9' or 'v0.5.9', that
 	// means this command/flag was/will be deprecated since `v0.5.9`.
+	//
+	// In a colorful console, the deprecated commands and
+	// flags will be shown with strike-through line.
 	Deprecated(deprecated string) FlagBuilder
 	// Hidden command/flag won't be shown in help-screen and others output.
 	//
@@ -53,6 +57,8 @@ type FlagBuilder interface {
 	//
 	// The VendorHidden commands/flags will be hidden at any time even if
 	// in vert verbose mode.
+	//
+	// If user specified forcing it shown, dimmed in a colorful console.
 	Hidden(hidden bool, vendorHidden ...bool) FlagBuilder
 
 	// ToggleGroup sets group name with toggleable items.
@@ -88,20 +94,26 @@ type FlagBuilder interface {
 	ExternalEditor(externalEditor string) FlagBuilder
 	// ValidArgs provides the selectable choice from a set of values.
 	//
-	// As end-user inputs not in the preset values, an error will be threw up.
+	// The given enumerable list will be used for verifying end-user's
+	// input.
+	//
+	// As end-user inputs not in the preset values, an error will be thrown up.
 	ValidArgs(validArgs ...string) FlagBuilder
 	// AppendValidArgs provides the selectable choice from a set of values.
 	//
-	// As end-user inputs not in the preset values, an error will be threw up.
+	// As end-user inputs not in the preset values, an error will be thrown up.
 	AppendValidArgs(validArgs ...string) FlagBuilder
 	// Range _
 	// not yet
 	Range(min, max int) FlagBuilder
 	// HeadLike identifies this flag is head-like.
+	//
+	// A head-like flag is a receiver for cmdline option `-number`.
+	// For example, `head -1` means the real call `head --lines 1`.
 	HeadLike(headLike bool, bounds ...int) FlagBuilder
 	// Required identifies this flag is must-required.
 	//
-	// As end-user input missed, an error will be threw up.
+	// Once end-user input missed, an error will be thrown up.
 	Required(required bool) FlagBuilder
 
 	// CompJustOnce is used for zsh completion.

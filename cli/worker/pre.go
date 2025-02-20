@@ -196,6 +196,8 @@ func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, c
 				if conf != nil {
 					conf.Set(ff.GetDottedPath(), ff.DefaultValue())
 				}
+			} else if x, ok := cc.(interface{ TransferIntoStore(store.Store, bool) }); ok {
+				x.TransferIntoStore(conf, false)
 			}
 		})
 	}

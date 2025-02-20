@@ -584,6 +584,15 @@ func (c *CmdS) ensureToggleGroups(ff *Flag) {
 	}
 }
 
+func (c *CmdS) TransferIntoStore(conf store.Store, recursive bool) {
+	if c.toggles != nil {
+		for k, v := range c.toggles {
+			key := c.GetDottedPath() + "." + k
+			conf.Set(key, v.MatchedTitle)
+		}
+	}
+}
+
 func (c *CmdS) ensureXrefGroup(ctx context.Context) { //nolint:revive
 	if c.allCommands == nil {
 		c.allCommands = make(map[string]*CmdSlice)

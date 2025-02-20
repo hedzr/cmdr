@@ -6,6 +6,8 @@ type App interface {
 
 	With(cb func(app App))
 
+	WithOpts(opts ...Opt) App
+
 	// Cmd is a shortcut to NewCommandBuilder and starts a stream building for a new sub-command
 	Cmd(longTitle string, titles ...string) CommandBuilder
 	// Flg is a shortcut to NewFlagBuilder and starts a stream building for a new flag

@@ -12,6 +12,7 @@ import (
 
 type appS struct {
 	cli.Runner
+	opts  []cli.Opt
 	root  *cli.RootCommand
 	args  []string
 	inCmd int32
@@ -43,7 +44,7 @@ func (s *appS) Run(ctx context.Context, opts ...cli.Opt) (err error) {
 		return cli.ErrCommandsNotReady
 	}
 
-	err = s.Runner.Run(ctx, opts...)
+	err = s.Runner.Run(ctx, append(s.opts, opts...)...)
 
 	// if err != nil {
 	// 	s.Runner.DumpErrors(os.Stderr)
@@ -70,6 +71,16 @@ func (s *appS) Build() {
 		}
 		sr.SetRoot(s.root, s.args)
 	}
+}
+
+func (s *appS) With(cb func(app cli.App)) {
+	defer s.Build()
+	cb(s)
+}
+
+func (s *appS) WithOpts(opts ...cli.Opt) cli.App {
+	s.opts = append(s.opts, opts...)
+	return s
 }
 
 func (s *appS) ensureNewApp() cli.App { //nolint:unparam
@@ -168,11 +179,6 @@ func (s *appS) WithRootCommand(cb func(root *cli.RootCommand)) cli.App {
 }
 
 func (s *appS) RootCommand() *cli.RootCommand { return s.root }
-
-func (s *appS) With(cb func(app cli.App)) {
-	defer s.Build()
-	cb(s)
-}
 
 func (s *appS) NewCommandBuilder(longTitle string, titles ...string) cli.CommandBuilder {
 	return s.Cmd(longTitle, titles...)

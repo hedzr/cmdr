@@ -206,6 +206,15 @@ func (s *appS) NewFlgFrom(from *cli.CmdS, defaultValue any, cb func(b cli.FlagBu
 	return s
 }
 
+func (s *appS) RootBuilder(cb func(b cli.CommandBuilder)) cli.App {
+	from := s.root.Cmd.(*cli.CmdS)
+	b := asCommandBuilder(from, s, "")
+	cb(b)
+	b.Build()
+	// atomic.AddInt32(&s.inCmd, 1)
+	return s
+}
+
 func (s *appS) AddCmd(cb func(b cli.CommandBuilder)) cli.App {
 	b := newCommandBuilderShort(s, "")
 	defer b.Build()

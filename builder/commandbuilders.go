@@ -29,9 +29,24 @@ func newCommandBuilderShort(b buildable, longTitle string, titles ...string) *cc
 
 func newCommandBuilderFrom(from *cli.CmdS, b buildable, longTitle string, titles ...string) *ccb {
 	s := &ccb{
-		b, from,
+		b,
+		from,
 		new(cli.CmdS),
 		0, 0,
+	}
+	s.Long, s.Short, s.Aliases = theTitles(longTitle, titles...)
+	return s
+}
+
+func asCommandBuilder(from *cli.CmdS, b buildable, longTitle string, titles ...string) *ccb {
+	s := &ccb{
+		b,
+		nil,
+		from,
+		0, 0,
+	}
+	if from.OwnerIsNotNil() {
+		s.parent = from.OwnerCmd().(*cli.CmdS)
 	}
 	s.Long, s.Short, s.Aliases = theTitles(longTitle, titles...)
 	return s

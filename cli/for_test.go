@@ -985,6 +985,10 @@ func (s *appS) With(cb func(app App)) { //nolint:revive
 	cb(s)
 }
 
+func (s *appS) WithOpts(opts ...Opt) App {
+	return s
+}
+
 func (s *appS) Flg(longTitle string, titles ...string) FlagBuilder { //nolint:revive
 	s.inFlg = true
 	// return newFlagBuilder(s, longTitle, titles...)
@@ -1018,6 +1022,8 @@ func (s *appS) NewFlgFrom(from *CmdS, defaultValue any, cb func(b FlagBuilder)) 
 	// cb(b)
 	return s
 }
+
+func (s *appS) RootBuilder(cb func(b CommandBuilder)) App { return s }
 
 func (s *appS) addCommand(child *CmdS) { //nolint:unused
 	s.inCmd = false

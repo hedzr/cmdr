@@ -23,6 +23,17 @@ type App interface {
 	// NewFlgFrom creates a CommandBuilder from 'from' Cmd.
 	NewFlgFrom(from *CmdS, defaultValue any, cb func(b FlagBuilder)) App
 
+	// RootBuilder starts a session so you can build the subcommands from here.
+	//
+	// Sample code:
+	//
+	//    app.RootBuilder(func(parent CommandBuilder){
+	//        parent.Cmd("sub1").Build()
+	//        parent.Cmd("sub2").Build()
+	//        // ...
+	//    })
+	RootBuilder(cb func(parent CommandBuilder)) App
+
 	Runner
 
 	Info(name, version string, desc ...string) App // setup basic information about this app

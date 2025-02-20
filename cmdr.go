@@ -138,7 +138,7 @@ func Set() store.Store { return App().Store() }
 // a list of subcommands tree, and with those builtin hidden commands,
 // and with those vendor hidden commands. In this case, `-vvv` dumps the
 // hidden commands and vendor-hidden commands.
-func Store() store.Store { return Set().WithPrefix("app.cmd") }
+func Store() store.Store { return Set().WithPrefix(cli.CommandsStoreKey) }
 
 // RemoveOrderedPrefix removes '[a-z0-9]+\.' at front of string.
 func RemoveOrderedPrefix(s string) string {

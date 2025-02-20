@@ -153,8 +153,8 @@ type Cmd interface {
 	//
 	// So cmd.Store() on command "jump.to" has implicit
 	// key-path prefix "app.cmd.jump.to". The similar thing
-	// is, root.Store() has prefix "app.cmd", it equals
-	// to cmdr.Store().
+	// is, root.Store() has prefix "app.cmd" (CommandsStoreKey),
+	// it equals to cmdr.Store().
 	Store() store.Store
 
 	OwnerIsValid() bool
@@ -237,6 +237,8 @@ type Cmd interface {
 
 	FindSubCommand(ctx context.Context, longName string, wide bool) (res Cmd)
 	FindFlagBackwards(ctx context.Context, longName string) (res *Flag)
+	SubCmdBy(longName string) (res Cmd) // find subcommand by longTitle
+	FlagBy(longName string) (res *Flag) // find flag by longTitle
 
 	WalkGrouped(ctx context.Context, cb WalkGroupedCB)
 	WalkBackwardsCtx(ctx context.Context, cb WalkBackwardsCB, pc *WalkBackwardsCtx)

@@ -9,6 +9,8 @@ import (
 	"github.com/hedzr/store"
 )
 
+const CommandsStoreKey = "app.cmd"
+
 func NewConfig(opts ...Opt) *Config {
 	s := DefaultConfig()
 	for _, opt := range opts {

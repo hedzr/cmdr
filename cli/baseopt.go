@@ -106,7 +106,7 @@ func (c *BaseOpt) SetRoot(root *RootCommand)       { c.root = root }
 
 // Store returns the commands subset of the application Store.
 func (c *BaseOpt) Store() store.Store {
-	cs := c.Set().WithPrefix("app.cmd", c.GetDottedPath())
+	cs := c.Set().WithPrefix(CommandsStoreKey, c.GetDottedPath())
 	return cs
 }
 

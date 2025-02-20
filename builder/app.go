@@ -236,6 +236,12 @@ func (s *appS) AddFlg(cb func(b cli.FlagBuilder)) cli.App {
 }
 
 func (s *appS) addCommand(child *cli.CmdS) {
+	if s.root != nil && s.root.Cmd != nil {
+		if rc, ok := s.root.Cmd.(*cli.CmdS); ok && rc == child {
+			return
+		}
+	}
+
 	atomic.AddInt32(&s.inCmd, -1)
 	if s.root == nil {
 		s.root = &cli.RootCommand{Cmd: child}

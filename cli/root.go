@@ -99,8 +99,14 @@ func (c *RootCommand) Header() string {
 	if c.Author == "" {
 		c.Author = fmt.Sprintf("%v Authors", c.AppName)
 	}
+	ver := c.Version
+	if ver != "" && ver[0] == 'v' {
+		ver = ver[1:]
+	} else if ver == "" {
+		ver = "?"
+	}
 	return fmt.Sprintf("%v v%v ~ %v by %v ~ All Rights Reserved.",
-		c.AppName, c.Version, c.Copyright, c.Author)
+		c.AppName, ver, c.Copyright, c.Author)
 }
 
 func (c *RootCommand) Footer() string {

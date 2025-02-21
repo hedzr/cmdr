@@ -670,6 +670,17 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder, verbos
 	// sb.WriteString(s.Translate(right, color.BgDefault))
 	s.Reset(sb)
 	_, _ = sb.WriteString("\n")
+
+	if ff.HeadLike() {
+		_, _ = sb.WriteString(indentSpaces)
+		_, _ = sb.WriteString("    ")
+		if ff.Required() {
+			_, _ = sb.WriteString("  ")
+		}
+		row := fmt.Sprintf("-<i>number</i> = --%s=<i>number</i>\n", ff.Title())
+		esc := s.Translate(row, CurrentFlagTitleColor)
+		_, _ = sb.WriteString(esc)
+	}
 }
 
 var (

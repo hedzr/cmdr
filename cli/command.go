@@ -581,6 +581,9 @@ func (c *CmdS) ensureToggleGroups(ff *Flag) {
 		if ff.group == "" {
 			ff.group = tg
 		}
+		if v, ok := ff.defaultValue.(bool); ok && v {
+			c.toggles[tg].Matched, c.toggles[tg].MatchedTitle = ff, ff.Title()
+		}
 	}
 }
 

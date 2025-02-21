@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	errorsv3 "gopkg.in/hedzr/errors.v3"
 
@@ -122,12 +123,8 @@ var (
 	aTaskBeforeRun = func(ctx context.Context, cmd cli.Cmd, runner cli.Runner, extras ...any) (err error) { return } //nolint:revive
 
 	testWorkerParseCases = cmdrRunTests{[]cmdrRunTest{
-		{args: "m unk snd cool", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
-			if !regexp.MustCompile(`UNKNOWN (Cmd|Flag) FOUND:?`).MatchString(errParsed.Error()) {
-				logz.Print("expect 'UNKNOWN Cmd FOUND' error, but not matched.") // "unk"
-			}
-			return /* errParsed */
-		}, opts: []cli.Opt{cli.WithUnmatchedAsError(true)}},
+		{},
+		{},
 
 		// ~~tree
 		{args: "~~tree", opts: []cli.Opt{
@@ -141,7 +138,7 @@ var (
 			return errParsed
 		}},
 
-		// ~~tree
+		// ~~tree 1
 		{args: "ms t t --tree", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
 			if errorsv3.Is(errParsed, cli.ErrUnmatchedFlag) {
 				logz.Print("[INFO] ErrUnmatchedFlag FOUND, that's expecting.", "err", errParsed)
@@ -151,7 +148,7 @@ var (
 		}},
 
 		// ~~tree 2
-		{args: "ms t t ~~tree", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
+		{args: "ms t t ~~tree -v", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
 			if errorsv3.Is(errParsed, cli.ErrUnmatchedFlag) {
 				logz.Fatal("ErrUnmatchedFlag FOUND, that's NOT expecting.")
 			}
@@ -162,6 +159,7 @@ var (
 			return errParsed
 		}},
 
+		// hit times
 		{args: "m snd -n -wn cool fog --pp box", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
 			if !regexp.MustCompile(`UNKNOWN (Cmd|Flag) FOUND:?`).MatchString(errParsed.Error()) {
 				logz.Print("expect 'UNKNOWN Flag FOUND' error, but not matched.") // "--pp"
@@ -178,6 +176,7 @@ var (
 			hitTest(pc, "dry-run", 1)
 			return errParsed
 		}},
+
 		// compact flags
 		{args: "-qvqDq gen --debug sh --zsh -b -Dwmann --dry-run", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
 			hitTest(pc, "quiet", 3)
@@ -259,6 +258,33 @@ var (
 			valTest(pc, "clear", true)
 			valTest(pc, "unset", []string{"foo", "bar", "noz"})
 			return errParsed
+		}},
+
+		// parse duration
+		{args: "m -dur 9s", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
+			hitTest(pc, "dry-run", 0)
+			hitTest(pc, "wet-run", 0)
+			// argsAre(pc, "cool", "fog")
+
+			valTest(pc, "duration", 9*time.Second) //nolint:revive
+			return nil                             /* errParsed */
+		}},
+
+		// parse integer, float, complex
+		{args: "m -i -9 -i64 3 -u 8 -u64 13 -f 3.14 -f64 2.718 -c64 1.23+4.567i -c128 2.313+9.87i", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
+			hitTest(pc, "dry-run", 0)
+			hitTest(pc, "wet-run", 0)
+			// argsAre(pc, "cool", "fog")
+
+			valTest(pc, "int", -9)                           //nolint:revive
+			valTest(pc, "int64", int64(3))                   //nolint:revive
+			valTest(pc, "uint", uint(8))                     //nolint:revive
+			valTest(pc, "uint64", uint64(13))                //nolint:revive
+			valTest(pc, "float32", float32(3.14))            //nolint:revive
+			valTest(pc, "float64", 2.718)                    //nolint:revive
+			valTest(pc, "complex64", complex64(1.23+4.567i)) //nolint:revive
+			valTest(pc, "complex128", 2.313+9.87i)           //nolint:revive
+			return nil                                       /* errParsed */
 		}},
 
 		{},

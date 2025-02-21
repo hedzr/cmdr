@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/hedzr/evendeep"
 	"github.com/hedzr/is"
 	"github.com/hedzr/is/states"
 	"github.com/hedzr/is/term"
@@ -650,6 +651,40 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder, verbos
 		_, _ = sb.WriteString(def)
 	}
 
+	if va := ff.ValidArgs(); len(va) > 0 {
+		cvt := evendeep.Cvt{}
+		str := cvt.String(va)
+		if split {
+			deflen := len(str)
+			printed += deflen
+			if printed >= rCols {
+				printleftpad(split)
+				printed = deflen
+			}
+		}
+		if sb.String()[sb.Len()-1] != ' ' {
+			_, _ = sb.WriteString(" ")
+		}
+		_, _ = sb.WriteString(str)
+	}
+
+	if ff.Required() {
+		str := "<kbd>REQUIRED</kbd>"
+		esc := s.Translate(str, CurrentFlagTitleColor)
+		if split {
+			deflen := len(str)
+			printed += deflen
+			if printed >= rCols {
+				printleftpad(split)
+				printed = deflen
+			}
+		}
+		if sb.String()[sb.Len()-1] != ' ' {
+			_, _ = sb.WriteString(" ")
+		}
+		_, _ = sb.WriteString(esc)
+	}
+
 	if dep != "" {
 		if split {
 			deplen := len(depPlain) // len(is.StripEscapes(dep))
@@ -665,6 +700,7 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder, verbos
 		_, _ = sb.WriteString(dep)
 		logz.VerboseContext(ctx, "split flag is", "split", split)
 	}
+
 	// s.ColoredFast(&sb, CurrentDefaultValueColor, def)
 	// s.ColoredFast(&sb, CurrentDeprecatedColor, dep)
 	// sb.WriteString(s.Translate(right, color.BgDefault))

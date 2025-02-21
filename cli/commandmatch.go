@@ -310,13 +310,15 @@ func (c *CmdS) matchedForTG(ctx context.Context, ff *Flag) *Flag {
 	// toggle group
 	if co, ok := ff.owner.(*CmdS); ok {
 		if co.toggles != nil {
-			if m, ok := co.toggles[ff.ToggleGroup()]; ok {
-				if f, ok := m.Flags[ff.Name()]; ok {
+			toggleGroup, title := ff.ToggleGroup(), ff.Name()
+			if m, ok := co.toggles[toggleGroup]; ok {
+				if f, ok := m.Flags[title]; ok {
 					for _, v := range m.Flags {
 						v.SetDefaultValue(false)
 					}
 					f.SetDefaultValue(true)
-					m.Matched, m.MatchedTitle = f, f.Name()
+					m.Matched, m.MatchedTitle = f, title
+					f.Store().Set(toggleGroup, title)
 				}
 			}
 		}

@@ -533,6 +533,10 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder, verbos
 	// ttl := strings.Join(ff.GetTitleZshFlagNamesArray(), ",")
 	ttl := ff.GetTitleFlagNamesBy(",")
 	w := tabbedW - (level+groupedInc)*2 // - len(ttl)
+	if ff.Short == "" {
+		sb.WriteRune(' ')
+		w--
+	}
 
 	deprecated := ff.Deprecated() != ""
 	trans := func(ss string, clr color.Color) string {

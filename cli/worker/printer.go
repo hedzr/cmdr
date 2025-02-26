@@ -31,7 +31,7 @@ type helpPrinter struct {
 	debugMatches    bool
 	treeMode        bool
 	w               *workerS
-	lastGroup       string
+	lastFlagGroup   string
 	lastCmdGroup    string
 }
 
@@ -86,8 +86,11 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedS
 		}
 		lastCmd.WalkBackwardsCtx(ctx, func(ctx context.Context, pc *cli.WalkBackwardsCtx, cc cli.Cmd, ff *cli.Flag, index, groupIndex, count, level int) {
 			if ff == nil {
-				cnt := cc.OwnerCmd().CountOfCommands()
-				if index == 0 && min(cnt, count) > 0 {
+				p := cc.OwnerCmd()
+				cnt := p.CountOfCommands()
+				parentIsDynamicLoading := p.IsDynamicCommandsLoading()
+				isFirstItem := index == 0 && (min(cnt, count) > 0 || parentIsDynamicLoading)
+				if isFirstItem {
 					_, _ = sb.WriteString("\nCommands:\n")
 				} else { //nolint:revive,staticcheck
 					// _, _ = sb.WriteString("\nCommands[")
@@ -397,19 +400,21 @@ func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder, ver
 	}
 
 	groupedInc := 0
-	if grouped && group != "" {
-		if group != s.lastCmdGroup {
-			s.lastCmdGroup = group
-			_, _ = sb.WriteString(strings.Repeat("  ", level))
-			s.WriteColor(sb, CurrentGroupTitleColor)
-			s.WriteBgColor(sb, CurrentGroupTitleBgColor)
-			_, _ = sb.WriteString("[")
-			_, _ = sb.WriteString(group)
-			_, _ = sb.WriteString("]")
-			s.Reset(sb)
-			_, _ = sb.WriteString("\n")
+	if grouped {
+		if group != "" {
+			if group != s.lastCmdGroup {
+				s.lastCmdGroup = group
+				_, _ = sb.WriteString(strings.Repeat("  ", level+groupedInc))
+				s.WriteColor(sb, CurrentGroupTitleColor)
+				s.WriteBgColor(sb, CurrentGroupTitleBgColor)
+				_, _ = sb.WriteString("[")
+				_, _ = sb.WriteString(group)
+				_, _ = sb.WriteString("]")
+				s.Reset(sb)
+				_, _ = sb.WriteString("\n")
+			}
+			groupedInc++
 		}
-		groupedInc++
 	}
 
 	_, _ = sb.WriteString(strings.Repeat("  ", level+groupedInc))

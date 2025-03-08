@@ -103,8 +103,11 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedS
 				return
 			}
 
-			cnt := ff.Owner().CountOfFlags()
-			if index == 0 && min(cnt, count) > 0 {
+			p := ff.Owner()
+			cnt := p.CountOfFlags()
+			parentIsDynamicLoading := p.IsDynamicFlagsLoading()
+			isFirstItem := index == 0 && (min(cnt, count) > 0 || parentIsDynamicLoading)
+			if isFirstItem {
 				if cc.OwnerCmd() == nil {
 					_, _ = sb.WriteString("\nGlobal Flags:\n")
 				} else if level == 0 {

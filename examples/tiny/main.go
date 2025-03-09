@@ -1,6 +1,6 @@
 package main
 
-// Simplest tiny app
+// normally tiny app
 
 import (
 	"context"
@@ -17,7 +17,8 @@ import (
 )
 
 func main() {
-	ctx := context.Background() // with cancel can be passed thru in your actions
+	ctx := context.Background()
+
 	app := prepareApp(
 		cmdr.WithStore(store.New()), // use an option store explicitly, or a dummy store by default
 
@@ -29,14 +30,17 @@ func main() {
 		cmdr.WithTasksBeforeRun(func(ctx context.Context, cmd cli.Cmd, runner cli.Runner, extras ...any) (err error) {
 			logz.DebugContext(ctx, "command running...", "cmd", cmd, "runner", runner, "extras", extras)
 			return
-		}),
+		}), // cmdr.WithTasksBeforeParse(), cmdr.WithTasksBeforeRun(), cmdr.WithTasksAfterRun
 
 		// true for debug in developing time, it'll disable onAction on each Cmd.
 		// for productive mode, comment this line.
 		// The envvars FORCE_DEFAULT_ACTION & FORCE_RUN can override this.
-		// cmdr.WithForceDefaultAction(true),
+		cmdr.WithForceDefaultAction(true),
 
-		// cmdr.WithAutoEnvBindings(true),
+		cmdr.WithSortInHelpScreen(true),       // default it's false
+		cmdr.WithDontGroupInHelpScreen(false), // default it's false
+
+		cmdr.WithAutoEnvBindings(true),
 	)
 	if err := app.Run(ctx); err != nil {
 		logz.ErrorContext(ctx, "Application Error:", "err", err) // stacktrace if in debug mode/build
@@ -53,11 +57,9 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 	// env-var FORCE_RUN=1 (builtin already).
 	app.Flg("no-default").
 		Description("disable force default action").
-		// Group(cli.UnsortedGroup).
 		OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 			if b, ok := hitState.Value.(bool); ok {
-				// disable/enable the final state about 'force default action'
-				f.Set().Set("app.force-default-action", b)
+				f.Set().Set("app.force-default-action", b) // disable/enable the final state about 'force default action'
 			}
 			return
 		}).
@@ -75,6 +77,8 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 				Description("to command").
 				Examples(``).
 				Deprecated(`v0.1.1`).
+				// Group(cli.UnsortedGroup).
+				Hidden(false).
 				OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
 					// cmd.Set() == cmdr.Store(), cmd.Store() == cmdr.Store()
 					cmd.Set().Set("app.demo.working", dir.GetCurrentDir())
@@ -97,6 +101,7 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 					b.Flg("full", "f").
 						Default(false).
 						Description("full command").
+						// Group(cli.UnsortedGroup).
 						Build()
 				})
 		})
@@ -104,6 +109,7 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 	app.Flg("dry-run", "n").
 		Default(false).
 		Description("run all but without committing").
+		Group(cli.UnsortedGroup).
 		Build()
 
 	app.Flg("wet-run", "w").

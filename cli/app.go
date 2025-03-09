@@ -45,6 +45,8 @@ type App interface {
 	Header(headerLine string) App                  // setup header line(s) instead of copyright+author fields
 	Footer(footerLine string) App                  // setup footer line(s)
 
+	OnAction(handler OnInvokeHandler) App
+
 	// Examples(examples ...string) App               // set examples field of root command
 
 	RootCommand() *RootCommand            // get root command

@@ -221,6 +221,33 @@ func (s *appS) RootBuilder(cb func(b cli.CommandBuilder)) cli.App {
 	return s
 }
 
+func (s *appS) OnAction(handler cli.OnInvokeHandler) cli.App {
+	s.RootBuilder(func(b cli.CommandBuilder) {
+		b.OnAction(handler)
+	})
+	return s
+}
+
+// func (s *ccb) OnAction(handler cli.OnInvokeHandler) cli.CommandBuilder {
+// 	s.SetAction(handler)
+// 	return s
+// }
+//
+// func (s *ccb) OnPreAction(handlers ...cli.OnPreInvokeHandler) cli.CommandBuilder {
+// 	s.SetPreActions(handlers...)
+// 	return s
+// }
+//
+// func (s *ccb) OnPostAction(handlers ...cli.OnPostInvokeHandler) cli.CommandBuilder {
+// 	s.SetPostActions(handlers...)
+// 	return s
+// }
+//
+// func (s *ccb) OnMatched(handler cli.OnCommandMatchedHandler) cli.CommandBuilder {
+// 	s.SetOnMatched(handler)
+// 	return s
+// }
+
 func (s *appS) AddCmd(cb func(b cli.CommandBuilder)) cli.App {
 	b := newCommandBuilderShort(s, "")
 	defer b.Build()

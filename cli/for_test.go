@@ -1091,6 +1091,10 @@ func (s *appS) Footer(footerLine string) App {
 	return s
 }
 
+func (s *appS) OnAction(handler OnInvokeHandler) App {
+	return s
+}
+
 func (s *appS) SetRootCommand(root *RootCommand) App {
 	s.root = root
 	return s

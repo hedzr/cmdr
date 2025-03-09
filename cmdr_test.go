@@ -1,6 +1,7 @@
 package cmdr_test
 
 import (
+	"context"
 	"testing"
 
 	cmdr "github.com/hedzr/cmdr/v2"
@@ -20,3 +21,26 @@ func TestExecNoRoot(t *testing.T) {
 // 		t.Errorf("Error: %v", err)
 // 	}
 // }
+
+func TestGetSet(t *testing.T) {
+	ctx := context.Background()
+	app := cmdr.Create("app", "v1", `author`, `desc`,
+		cli.WithArgs("test-app", "--debug"),
+	).
+		With(func(app cli.App) {
+			app.OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
+				b := cmdr.Store().MustBool("debug")
+				println("debug flag: ", b)
+				if !b {
+					t.Fail()
+				}
+				// println(cmdr.Set().Dump())
+				return
+			})
+		}).
+		Build()
+	err := app.Run(ctx)
+	if err != nil {
+		t.Errorf("Error: %v", err)
+	}
+}

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"slices"
-	"strconv"
 	"strings"
 
 	"github.com/hedzr/evendeep"
@@ -420,11 +419,13 @@ func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder, ver
 		}
 	}
 
-	_, _ = sb.WriteString(strings.Repeat("  ", level+groupedInc))
+	indentSpaces := strings.Repeat("  ", level+groupedInc)
+	_, _ = sb.WriteString(indentSpaces)
+
 	w := tabbedW - (level+groupedInc)*2
 	ttl := cc.GetTitleNames()
 	if ttl == "" {
-		ttl = "(empty)"
+		ttl = "(not-specified)"
 	}
 
 	if !grouped && group != "" {
@@ -440,7 +441,20 @@ func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder, ver
 		return ss
 	}
 
-	left, right := fmt.Sprintf("%-"+strconv.Itoa(w)+"s", ttl), cc.Desc()
+	if w >= len(ttl) {
+		w -= len(ttl)
+	}
+	if root := cc.Root(); root != nil && root.RedirectTo() == cc.Name() {
+		var ss strings.Builder
+		s.Translator.HighlightFast(&ss, ttl)
+		s.Translator.DimFast(&ss, " <- (root)")
+		if w >= 10 {
+			w -= 10
+		}
+		ttl = ss.String()
+	}
+
+	left, right := fmt.Sprintf("%s%s", ttl, strings.Repeat(" ", w)), cc.Desc()
 	dep, depPlain := cc.DeprecatedHelpString(trans, CurrentDeprecatedColor, CurrentDescColor)
 
 	if (cc.Hidden() && *verboseCount > 0) || (cc.VendorHidden() && *verboseCount >= 3) { //nolint:revive
@@ -523,9 +537,10 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder, verbos
 		groupedInc++
 	}
 
-	if grouped && group != "" {
-		if group != s.lastGroup {
-			s.lastGroup = group
+	ofs := 0
+	if group != "" {
+		if group != s.lastFlagGroup {
+			s.lastFlagGroup = group
 			_, _ = sb.WriteString(strings.Repeat("  ", level+groupedInc))
 			s.WriteColor(sb, CurrentGroupTitleColor)
 			s.WriteBgColor(sb, CurrentGroupTitleBgColor)
@@ -536,9 +551,23 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder, verbos
 			_, _ = sb.WriteString("\n")
 		}
 		groupedInc++
+		if ff.Required() {
+			ofs = -1
+		}
+	} else if grouped && !ff.OwnerIsNotNil() { // don't apply on a detached flag item
+		groupedInc++
+		if ff.Required() {
+			ofs = -1
+		}
 	}
 
-	_, _ = sb.WriteString(strings.Repeat("  ", level+groupedInc))
+	indentSpaces := strings.Repeat("  ", level+groupedInc+ofs)
+	_, _ = sb.WriteString(indentSpaces)
+
+	if ff.Required() {
+		_, _ = sb.WriteString("* ")
+	}
+
 	// ttl := strings.Join(ff.GetTitleZshFlagNamesArray(), ",")
 	ttl := ff.GetTitleFlagNamesBy(",")
 	w := tabbedW - (level+groupedInc)*2 // - len(ttl)
@@ -556,7 +585,11 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder, verbos
 		return ss
 	}
 
-	left, right := fmt.Sprintf("%-"+strconv.Itoa(w)+"s", ttl), ff.Desc()
+	// left, right := fmt.Sprintf("%-"+strconv.Itoa(w)+"s", ttl), ff.Desc()
+	if w >= len(ttl) {
+		w -= len(ttl)
+	}
+	left, right := fmt.Sprintf("%s%s", ttl, strings.Repeat(" ", w)), ff.Desc()
 	tg := ff.ToggleGroupLeadHelpString()
 	def, defPlain := ff.DefaultValueHelpString(trans, CurrentDefaultValueColor, CurrentDescColor)
 	dep, depPlain := ff.DeprecatedHelpString(trans, CurrentDeprecatedColor, CurrentDescColor)

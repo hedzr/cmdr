@@ -6,7 +6,8 @@ import (
 	"context"
 	"os"
 
-	"github.com/hedzr/is/basics"
+	"gopkg.in/hedzr/errors.v3"
+
 	"github.com/hedzr/store"
 
 	"github.com/hedzr/cmdr/v2/builder"
@@ -92,19 +93,35 @@ func AppDescription() string     { return App().Root().Desc() }     // the app's
 func AppDescriptionLong() string { return App().Root().DescLong() } // the app's long description
 
 // CmdLines returns the whole command-line as space-separated slice.
-func CmdLines() []string { return worker.UniqueWorker().Args() }
+func CmdLines() []string { return App().Args() }
 
+// Error returns all errors occurred with a leading parent.
+//
+// Suppose a long term action raised many errors in runtime,
+// these errors will be collected and bundled as one package
+// so that they could be traced at the app terminating time.
+func Error() errors.Error { return App().Error() }
+
+// Recycle collects your errors into a container.
+// You can retrieve the error container with Error() later.
+func Recycle(errs ...error) { App().Recycle(errs...) }
+
+// Parsed identify cmdr.v2 ended the command-line arguments
+// parsing task.
 func Parsed() bool                   { return App().ParsedState() != nil }            // is parsed ok?
 func ParsedLastCmd() cli.Cmd         { return App().ParsedState().LastCmd() }         // the parsed last command
 func ParsedCommands() []cli.Cmd      { return App().ParsedState().MatchedCommands() } // the parsed commands
 func ParsedPositionalArgs() []string { return App().ParsedState().PositionalArgs() }  // the rest positional args
 
+// LoadedSources records all external sources loaded ok.
+//
+// Each type LoadedSources is a map which collect the children
+// objects if a external source loaded them successfully.
+//
+// LoadedSources() is an array to represent all loaders.
 func LoadedSources() []cli.LoadedSources { return App().LoadedSources() } // the loaded config files or other sources
 
-// Set returns the KVStore associated with current App().
-func Set() store.Store { return App().Store() }
-
-// Store returns the child Store at location 'app.cmd'.
+// Store returns the child Store tree at location 'app.cmd'.
 //
 // By default, cmdr maintains all command-line subcommands and flags
 // as a child tree in the associated Set ("store") internally.
@@ -134,11 +151,70 @@ func Set() store.Store { return App().Store() }
 //
 // Q: Can I list all subcommands?
 //
-// A: Running `app ~~tree`, `app -v ~~tree` or `app ~~tree -vvv` can get
-// a list of subcommands tree, and with those builtin hidden commands,
-// and with those vendor hidden commands. In this case, `-vvv` dumps the
-// hidden commands and vendor-hidden commands.
-func Store() store.Store { return Set().WithPrefix(cli.CommandsStoreKey) }
+// A: A end-user can run `app ~~tree` in the shell to list them.
+// Also, `app -v ~~tree` or `app ~~tree -vvv` can get a list
+// of subcommands tree, and with those builtin hidden
+// commands, and with those vendor hidden commands. In
+// this case, `-vvv` dumps the hidden commands and
+// vendor-hidden commands.
+func Store(prefix ...string) store.Store {
+	var pre string
+	for _, p := range prefix {
+		if p != "" {
+			pre = p
+		}
+	}
+	if pre == "" {
+		return Set().WithPrefix(cli.CommandsStoreKey)
+	}
+	return Set().WithPrefix(pre)
+}
+
+// Set returns the `app` subtree as a KVStore associated
+// with current App().
+//
+//	conf := cmdr.Set()
+//	cmdStore := conf.WithPrefix(cli.CommandsStoreKey)
+//	assert(cmdrStore == cmdr.Store())
+//
+// Set() can be used for accessing the app settings.
+//
+// cmdr will load and merge all found external config
+// files and sources into Set/Store.
+//
+// So, if you have a config file at `/etc/<app>/<app>.toml`
+// with the following content,
+//
+//	[logging]
+//	file = "/var/log/app/stdout.log"
+//
+// The file will be loaded to `app.logging`. Now you
+// can access it with this,
+//
+//	println(cmdr.Set().MustString("logging.file"))
+//
+// NOTE:
+//
+// To enable external source loading mechanism, you may
+// need to use `hedzr/cmdr-loader`. Please surf it
+// for more detail.
+//
+// You can also create your own external source if absent.
+func Set(prefix ...string) store.Store {
+	var pre string
+	for _, p := range prefix {
+		if p != "" {
+			pre = p
+		}
+	}
+	if pre == "" {
+		return App().Store() // .WithPrefix(cli.DefaultStoreKeyPrefix)
+	}
+	return App().Store().WithPrefix(pre)
+}
+
+const DefaultStorePrefix = cli.DefaultStoreKeyPrefix
+const CommandsStoreKey = cli.CommandsStoreKey
 
 // RemoveOrderedPrefix removes '[a-z0-9]+\.' at front of string.
 func RemoveOrderedPrefix(s string) string {
@@ -164,261 +240,3 @@ func Exec(rootCmd *cli.RootCommand, opts ...cli.Opt) (err error) {
 	err = app.Run(context.Background())
 	return
 }
-
-func WithForceDefaultAction(b bool) cli.Opt {
-	return func(s *cli.Config) {
-		s.ForceDefaultAction = b
-	}
-}
-
-func WithUnmatchedAsError(b bool) cli.Opt {
-	return func(s *cli.Config) {
-		s.UnmatchedAsError = b
-	}
-}
-
-// WithStore gives a user-defined Store as initial, or by default
-// cmdr makes a dummy Store internally.
-//
-// So you must have a new Store to be transferred into cmdr if
-// you want integrating cmdr and fully-functional Store. Like this,
-//
-//		app := prepareApp()
-//		if err := app.Run(
-//			cmdr.WithStore(store.New()),        // create a standard Store instead of internal dummyStore
-//			// cmdr.WithExternalLoaders(
-//			// 	local.NewConfigFileLoader(),    // import "github.com/hedzr/cmdr-loaders/local" to get in advanced external loading features
-//			// 	local.NewEnvVarLoader(),
-//			// ),
-//			cmdr.WithForceDefaultAction(false), // true for debug in developing time
-//		); err != nil {
-//			logz.ErrorContext(ctx, "Application Error:", "err", err)
-//		}
-//
-//	 func prepareApp() cli.App {
-//			app = cmdr.New().                   // the minimal app is `cmdr.New()`
-//				Info("tiny-app", "0.3.1").
-//				Author("example.com Authors")
-//		}
-func WithStore(conf store.Store) cli.Opt {
-	return func(s *cli.Config) {
-		s.Store = conf
-	}
-}
-
-// WithExternalLoaders sets the loaders of external sources, which will be loaded
-// at cmdr's preparing time (xref-building time).
-//
-// The orders could be referred as:
-//
-// - constructing cmdr commands system (by your prepareApp)
-// - entering cmdr.Run
-// - cmdr preparing stage
-//   - build commands and flags xref
-//   - load and apply envvars if matched
-//   - load external sources
-//   - post preparing time
-//
-// - cmdr parsing stage
-// - cmdr invoking stage
-// - cmdr cleanup stage
-//
-// Using our loaders repo is a good idea: https://github.com/hedzr/cmdr-loaders
-//
-// Typical app:
-//
-//	app = cmdr.New(opts...).
-//		Info("tiny-app", "0.3.1").
-//		Author("The Example Authors") // .Description(``).Header(``).Footer(``)
-//		cmdr.WithStore(store.New()), // use an option store explicitly, or a dummy store by default
-//
-//		cmdr.WithExternalLoaders(
-//			local.NewConfigFileLoader(), // import "github.com/hedzr/cmdr-loaders/local" to get in advanced external loading features
-//			local.NewEnvVarLoader(),
-//		),
-//	)
-//	if err := app.Run(ctx); err != nil {
-//		logz.ErrorContext(ctx, "Application Error:", "err", err) // stacktrace if in debug mode/build
-//		os.Exit(app.SuggestRetCode())
-//	}
-func WithExternalLoaders(loaders ...cli.Loader) cli.Opt {
-	return func(s *cli.Config) {
-		s.Loaders = append(s.Loaders, loaders...)
-	}
-}
-
-// WithTasksBeforeParse installs callbacks before parsing stage.
-//
-// The internal stages are: initial -> preload + xref -> parse -> run/invoke -> post-actions.
-func WithTasksBeforeParse(tasks ...cli.Task) cli.Opt {
-	return func(s *cli.Config) {
-		s.TasksBeforeParse = append(s.TasksBeforeParse, tasks...)
-	}
-}
-
-// WithTasksParsed installs callbacks after parsing stage.
-//
-// The internal stages are: initial -> preload + xref -> parse -> run/invoke -> post-actions.
-//
-// Another way is disabling cmdr default executing/run/invoke stage by WithDontExecuteAction(true).
-func WithTasksParsed(tasks ...cli.Task) cli.Opt {
-	return func(s *cli.Config) {
-		s.TasksParsed = append(s.TasksParsed, tasks...)
-	}
-}
-
-// WithTasksBeforeRun installs callbacks before run/invoke stage.
-//
-// The internal stages are: initial -> preload + xref -> parse -> run/invoke -> post-actions.
-//
-// The internal stages and user-defined tasks are:
-//   - initial
-//   - preload & xref
-//   - <tasksBeforeParse>
-//   - parse
-//   - <tasksParsed>
-//   - <tasksBeforeRun> ( = tasksAfterParse )
-//   - exec (run/invoke)
-//   - <tasksAfterRun>
-//   - <tasksPostCleanup>
-//   - basics.closers...Close()
-func WithTasksBeforeRun(tasks ...cli.Task) cli.Opt {
-	return func(s *cli.Config) {
-		s.TasksBeforeRun = append(s.TasksBeforeRun, tasks...)
-	}
-}
-
-// WithTasksAfterRun installs callbacks after run/invoke stage.
-//
-// The internal stages are: initial -> preload + xref -> parse -> run/invoke -> post-actions.
-func WithTasksAfterRun(tasks ...cli.Task) cli.Opt {
-	return func(s *cli.Config) {
-		s.TasksAfterRun = append(s.TasksAfterRun, tasks...)
-	}
-}
-
-// WithTasksPostCleanup install callbacks at cmdr ending.
-//
-// See the stagings order introduce at [WithTasksBeforeRun].
-//
-// See also WithTasksSetupPeripherals, WithPeripherals.
-func WithTasksPostCleanup(tasks ...cli.Task) cli.Opt {
-	return func(s *cli.Config) {
-		s.TasksPostCleanup = append(s.TasksPostCleanup, tasks...)
-	}
-}
-
-// WithTasksSetupPeripherals gives a special chance to setup
-// your server's peripherals (such as database, redis, message
-// queues, or others).
-//
-// For these server peripherals, a better practices would be
-// initializing them with WithTasksSetupPeripherals and
-// destroying them at WithTasksAfterRun.
-//
-// Another recommendation is implementing your server peripherals
-// as a [basics.Closeable] component, and register it with
-// basics.RegisterPeripherals(), and that's it. These objects
-// will be destroyed at cmdr ends (later than WithTasksAfterRun
-// but it's okay).
-//
-//	import "github.com/hedzr/is/basics"
-//	type Obj struct{}
-//	func (o *Obj) Init(context.Context) *Obj { return o } // initialize itself
-//	func (o *Obj) Close(){...}                            // destroy itself
-//	app := cmdr.New(cmdr.WithTasksSetupPeripherals(func(ctx context.Context, cmd cli.Cmd, runner cli.Runner, extras ...any) (err error) {
-//	    obj := new(Obj)
-//	    basics.RegisterPeripheral(obj.Init(ctx))          // initialize obj at first, and register it to basics.Closers for auto-shutting-down
-//	    return
-//	}))
-//	...
-func WithTasksSetupPeripherals(tasks ...cli.Task) cli.Opt {
-	return func(s *cli.Config) {
-		s.TasksBeforeRun = append(s.TasksBeforeRun, tasks...)
-	}
-}
-
-// WithPeripherals is a better way to register your server peripherals
-// than WithTasksSetupPeripherals. But the 'better' is less.
-//
-//	import "github.com/hedzr/is/basics"
-//	type Obj struct{}
-//	func (o *Obj) Init(context.Context) *Obj { return o } // initialize itself
-//	func (o *Obj) Close(){...}                            // destory itself
-//	obj := new(Obj)                                       // initialize obj at first
-//	ctx := context.Background()                           //
-//	app := cmdr.New(cmdr.WithPeripherals(obj.Init(ctx))   // and register it to basics.Closers for auto-shutting-down
-//	...
-func WithPeripherals(peripherals ...basics.Peripheral) cli.Opt {
-	return func(s *cli.Config) {
-		basics.RegisterPeripheral(peripherals...)
-	}
-}
-
-func WithSortInHelpScreen(b bool) cli.Opt {
-	return func(s *cli.Config) {
-		s.SortInHelpScreen = b
-	}
-}
-
-func WithDontGroupInHelpScreen(b bool) cli.Opt {
-	return func(s *cli.Config) {
-		s.DontGroupInHelpScreen = b
-	}
-}
-
-// WithDontExecuteAction prevents internal exec stage which will
-// invoke the matched command's [cli.Cmd.OnAction] handler.
-//
-// If [cli.Config.DontExecuteAction] is true, cmdr works like
-// classical golang stdlib 'flag', which will stop after parsed
-// without any further actions.
-//
-// cmdr itself is a parsing-and-executing processor. We will
-// launch a matched command's handlers by default.
-func WithDontExecuteAction(b bool) cli.Opt {
-	return func(s *cli.Config) {
-		s.DontExecuteAction = b
-	}
-}
-
-// WithAutoEnvBindings enables the feature which can auto-bind env-vars
-// to flags default value.
-//
-// For example, APP_JUMP_TO_FULL=1 -> Cmd{"jump.to"}.Flag{"full"}.default-value = true.
-// In this case, `APP` is default prefix so the env-var is different
-// than other normal OS env-vars (like HOME, etc.).
-//
-// You may specify another prefix optionally. For instance, prefix
-// "CT" will cause CT_JUMP_TO_FULL=1 binding to
-// Cmd{"jump.to"}.Flag{"full"}.default-value = true.
-//
-// Also you can specify the prefix with multiple section just
-// like "CT_ACCOUNT_SERVICE", it will be treated as a normal
-// plain string and concatted with the rest parts, so
-// "CT_ACCOUNT_SERVICE_JUMP_TO_FULL=1" will be bound in.
-func WithAutoEnvBindings(b bool, prefix ...string) cli.Opt {
-	return func(s *cli.Config) {
-		s.AutoEnv = b
-		for _, p := range prefix {
-			s.AutoEnvPrefix = p
-		}
-	}
-}
-
-// WithConfig allows you passing a [*cli.Config] object directly.
-func WithConfig(conf *cli.Config) cli.Opt {
-	return func(s *cli.Config) {
-		if conf == nil {
-			*s = cli.Config{}
-		} else {
-			*s = *conf
-		}
-	}
-}
-
-// func WithOnInterpretLeadingPlusSign(cb func()) cli.Opt {
-// 	return func(s *cli.Config) {
-// 		s.onInterpretLeadingPlusSign = cb
-// 	}
-// }

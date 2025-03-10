@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"io"
+	"strings"
 
 	"gopkg.in/hedzr/errors.v3"
 
@@ -175,4 +176,52 @@ func WithTasksBeforeRun(tasks ...Task) Opt {
 	return func(s *Config) {
 		s.TasksBeforeRun = tasks
 	}
+}
+
+// ActionEnum abstracts the internal OnAction(s).
+//
+// The available internal actions were defined as ActionEnum.
+// Such as ActionShowHelpScreen, or ActionShowVersion.
+type ActionEnum int
+
+const (
+	ActionShowVersion         ActionEnum = 1 << iota // show version screen
+	ActionShowBuiltInfo                              // show build info screen
+	ActionShowHelpScreen                             // show help screen
+	ActionShowHelpScreenAsMan                        // show help screen in a man-like interactive TUI (by using `less`).
+	ActionShowTree                                   // Tree. `~~tree` | show all commands (& flags) as a tree
+	ActionShowDebug                                  // Debug. `~~debug` | show debug information for debugging cmdr internal states
+	ActionShowDebugEnv                               // with `~~env`
+	ActionShowDebugMore                              // with `~~more`
+	ActionShowDebugRaw                               // with `~~raw`
+	ActionShowDebugValueType                         // with `~~type` (?)
+	ActionShowSBOM                                   // show SBOM screen
+	// actionShortMode
+	// actionDblTildeMode
+)
+
+func (e ActionEnum) String() string {
+	var sb strings.Builder
+	if e&ActionShowVersion != 0 {
+		_, _ = sb.WriteString("- ShowVersion\n")
+	}
+	if e&ActionShowBuiltInfo != 0 {
+		_, _ = sb.WriteString("- ShowBuiltInfo\n")
+	}
+	if e&ActionShowHelpScreen != 0 {
+		_, _ = sb.WriteString("- ShowHelpScreen\n")
+	}
+	if e&ActionShowHelpScreenAsMan != 0 {
+		_, _ = sb.WriteString("- ShowHelpScreenAsMan\n")
+	}
+	if e&ActionShowTree != 0 {
+		_, _ = sb.WriteString("- ShowTree\n")
+	}
+	if e&ActionShowDebug != 0 {
+		_, _ = sb.WriteString("- ShowDebug\n")
+	}
+	if e&ActionShowSBOM != 0 {
+		_, _ = sb.WriteString("- ShowSBOM\n")
+	}
+	return sb.String()
 }

@@ -21,7 +21,7 @@ type Creator interface {
 	// WithAdders receives a couple of cli.CmdAdder adders
 	// which can initialize a command standalone.
 	WithAdders(adders ...cli.CmdAdder) Creator
-	// WithBuilder receives a couple of callbacks of cli.CommandBuilder
+	// WithBuilders receives a couple of callbacks of cli.CommandBuilder
 	// which can initialize command and flag.
 	WithBuilders(builders ...func(b cli.CommandBuilder)) Creator
 	// With a callback, you can initialize commands and

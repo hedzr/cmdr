@@ -102,6 +102,10 @@ func (c *CmdS) GetExpandableNames() string {
 	return c.name
 }
 
+func (c *CmdS) DottedPathToCommandOrFlag(dottedPath string) (cc Backtraceable, ff *Flag) {
+	return dottedPathToCommandOrFlagG(c, dottedPath)
+}
+
 //
 //
 

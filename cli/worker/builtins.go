@@ -32,7 +32,7 @@ func (w *workerS) builtinVersions(app cli.App, p *cli.CmdS) {
 			Group(cli.SysMgmtGroup).
 			Hidden(true, false).
 			OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) { //nolint:revive
-				w.actionsMatched |= actionShowVersion
+				w.actionsMatched |= cli.ActionShowVersion
 				// w.showVersion(cmd, args)
 				// return cli.ErrShouldStop
 				return
@@ -45,7 +45,7 @@ func (w *workerS) builtinVersions(app cli.App, p *cli.CmdS) {
 			Hidden(true, false).
 			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
 				// app.Store().Set("app.cmd.show.version", true)
-				w.actionsMatched |= actionShowVersion
+				w.actionsMatched |= cli.ActionShowVersion
 				return
 			}).
 			CompCircuitBreak(true).
@@ -69,7 +69,7 @@ func (w *workerS) builtinVersions(app cli.App, p *cli.CmdS) {
 			Hidden(true, true).
 			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
 				// app.Store().Set("app.version.simulate", value)
-				w.actionsMatched |= actionShowBuiltInfo
+				w.actionsMatched |= cli.ActionShowBuiltInfo
 				return
 			}).
 			CompCircuitBreak(true).
@@ -102,7 +102,7 @@ func (w *workerS) builtinHelps(app cli.App, p *cli.CmdS) { //nolint:revive
 			Hidden(false, false).
 			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
 				// app.Store().Set("app.version.simulate", value)
-				w.actionsMatched |= actionShowHelpScreen
+				w.actionsMatched |= cli.ActionShowHelpScreen
 				return
 			}).
 			CompCircuitBreak(true).
@@ -122,7 +122,7 @@ func (w *workerS) builtinHelps(app cli.App, p *cli.CmdS) { //nolint:revive
 				Hidden(true, true).
 				OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
 					// app.Store().Set("app.version.simulate", value)
-					w.actionsMatched |= actionShowHelpScreenAsMan
+					w.actionsMatched |= cli.ActionShowHelpScreenAsMan
 					return
 				}).
 				EnvVars("MAN")
@@ -136,7 +136,7 @@ func (w *workerS) builtinHelps(app cli.App, p *cli.CmdS) { //nolint:revive
 			Hidden(true, true).
 			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
 				// app.Store().Set("app.version.simulate", value)
-				w.actionsMatched |= actionShowTree
+				w.actionsMatched |= cli.ActionShowTree
 				return
 			}).
 			EnvVars("TREE").
@@ -223,7 +223,7 @@ func (w *workerS) builtinVerboses(app cli.App, p *cli.CmdS) { //nolint:revive
 					states.Env().SetDebugMode(v)
 					states.Env().SetDebugLevel(hitState.HitTimes)
 					if hitState.DblTilde {
-						w.actionsMatched |= actionShowDebug // ~~debug to show debug states screen
+						w.actionsMatched |= cli.ActionShowDebug // ~~debug to show debug states screen
 					}
 				}
 				return
@@ -254,7 +254,7 @@ func (w *workerS) builtinVerboses(app cli.App, p *cli.CmdS) { //nolint:revive
 			Hidden(true, true).
 			// EnvVars("ENV").
 			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
-				w.actionsMatched |= actionShowDebugEnv
+				w.actionsMatched |= cli.ActionShowDebugEnv
 				return
 			}).
 			CompPrerequisites("debug").
@@ -267,7 +267,7 @@ func (w *workerS) builtinVerboses(app cli.App, p *cli.CmdS) { //nolint:revive
 			Hidden(true, true).
 			// EnvVars("MORE").
 			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
-				w.actionsMatched |= actionShowDebugMore
+				w.actionsMatched |= cli.ActionShowDebugMore
 				return
 			}).
 			CompPrerequisites("debug").
@@ -280,7 +280,7 @@ func (w *workerS) builtinVerboses(app cli.App, p *cli.CmdS) { //nolint:revive
 			Hidden(true, true).
 			EnvVars("RAW").
 			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
-				w.actionsMatched |= actionShowDebugRaw
+				w.actionsMatched |= cli.ActionShowDebugRaw
 				return
 			}).
 			CompPrerequisites("debug").
@@ -293,7 +293,7 @@ func (w *workerS) builtinVerboses(app cli.App, p *cli.CmdS) { //nolint:revive
 			Hidden(true, true).
 			// EnvVars("RAW").
 			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
-				w.actionsMatched |= actionShowDebugValueType
+				w.actionsMatched |= cli.ActionShowDebugValueType
 				return
 			}).
 			CompPrerequisites("debug").

@@ -93,13 +93,13 @@ type workerS struct {
 	configFile      string
 	versionSimulate string
 	debugOutputFile string
-	actionsMatched  actionEnum
+	actionsMatched  cli.ActionEnum
 	strictMode      bool
 	strictModeLevel int
 	noLoadEnv       bool
 
 	inCompleting bool
-	actions      map[actionEnum]onAction
+	actions      map[cli.ActionEnum]onAction
 	parsingCtx   cli.ParsedState
 }
 
@@ -118,66 +118,25 @@ func (w *workerS) String() string {
 	return sb.String()
 }
 
-type actionEnum int
-
-const (
-	actionShowVersion actionEnum = 1 << iota
-	actionShowBuiltInfo
-	actionShowHelpScreen
-	actionShowHelpScreenAsMan
-	actionShowTree  // Tree. `~~tree` | show all of commands (& flags) as a tree
-	actionShowDebug // Debug. `~~debug` | show debug information for debugging cmdr internal states
-	actionShowDebugEnv
-	actionShowDebugMore
-	actionShowDebugRaw
-	actionShowDebugValueType
-	actionShowSBOM
-	// actionShortMode
-	// actionDblTildeMode
-)
-
-func (e actionEnum) String() string {
-	var sb strings.Builder
-	if e&actionShowVersion != 0 {
-		_, _ = sb.WriteString("- ShowVersion\n")
-	}
-	if e&actionShowBuiltInfo != 0 {
-		_, _ = sb.WriteString("- ShowBuiltInfo\n")
-	}
-	if e&actionShowHelpScreen != 0 {
-		_, _ = sb.WriteString("- ShowHelpScreen\n")
-	}
-	if e&actionShowHelpScreenAsMan != 0 {
-		_, _ = sb.WriteString("- ShowHelpScreenAsMan\n")
-	}
-	if e&actionShowTree != 0 {
-		_, _ = sb.WriteString("- ShowTree\n")
-	}
-	if e&actionShowDebug != 0 {
-		_, _ = sb.WriteString("- ShowDebug\n")
-	}
-	return sb.String()
-}
-
 func (w *workerS) Actions() (ret map[string]bool) {
 	ret = make(map[string]bool)
 	e := w.actionsMatched
-	if e&actionShowVersion != 0 {
+	if e&cli.ActionShowVersion != 0 {
 		ret["show-version"] = true
 	}
-	if e&actionShowBuiltInfo != 0 {
+	if e&cli.ActionShowBuiltInfo != 0 {
 		ret["show-built-info"] = true
 	}
-	if e&actionShowHelpScreen != 0 {
+	if e&cli.ActionShowHelpScreen != 0 {
 		ret["show-help"] = true
 	}
-	if e&actionShowHelpScreenAsMan != 0 {
+	if e&cli.ActionShowHelpScreenAsMan != 0 {
 		ret["show-help-man"] = true
 	}
-	if e&actionShowTree != 0 {
+	if e&cli.ActionShowTree != 0 {
 		ret["show-tree"] = true
 	}
-	if e&actionShowDebug != 0 {
+	if e&cli.ActionShowDebug != 0 {
 		ret["show-debug"] = true
 	}
 	return
@@ -191,14 +150,14 @@ func (w *workerS) With(opts ...wOpt) *workerS {
 }
 
 func (w *workerS) Ready() bool {
-	w.actions = map[actionEnum]onAction{
-		actionShowVersion:         w.showVersion,
-		actionShowBuiltInfo:       w.showBuiltInfo,
-		actionShowHelpScreen:      w.showHelpScreen,
-		actionShowHelpScreenAsMan: w.showHelpScreenAsMan,
-		actionShowTree:            w.showTree,
-		actionShowDebug:           w.showDebugScreen,
-		actionShowSBOM:            w.showSBOM,
+	w.actions = map[cli.ActionEnum]onAction{
+		cli.ActionShowVersion:         w.showVersion,
+		cli.ActionShowBuiltInfo:       w.showBuiltInfo,
+		cli.ActionShowHelpScreen:      w.showHelpScreen,
+		cli.ActionShowHelpScreenAsMan: w.showHelpScreenAsMan,
+		cli.ActionShowTree:            w.showTree,
+		cli.ActionShowDebug:           w.showDebugScreen,
+		cli.ActionShowSBOM:            w.showSBOM,
 	}
 	return atomic.LoadInt32(&w.ready) >= 2
 }

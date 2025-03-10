@@ -55,8 +55,8 @@ func rootCmdForTesting() (root *RootCommand) { //nolint:funlen,revive //for test
 				{
 					BaseOpt: BaseOpt{
 						Short:       "s",
-						Long:        "",
-						description: "",
+						Long:        "s",
+						description: "s",
 					},
 					defaultValue: uint(1),
 					onMatched: func(flg *Flag, position int, hitState *MatchState) (err error) {
@@ -351,10 +351,10 @@ func serverCommandsGet() *CmdS { //nolint:funlen,revive //for test
 				BaseOpt: BaseOpt{
 					Short:       "l",
 					Long:        "tail",
-					description: "tail -1 like",
+					description: "tail -1 like [not support]",
 				},
 				defaultValue: 0,
-				headLike:     true,
+				headLike:     false,
 			},
 			{
 				BaseOpt: BaseOpt{
@@ -405,14 +405,14 @@ func serverCommandsGet() *CmdS { //nolint:funlen,revive //for test
 					// 	defaultValue:            1,
 					// 	placeHolder: "RETRY",
 					// },
-					// {
-					// 	BaseOpt: BaseOpt{
-					// 		name:        "retry",
-					// 		description: "ss: dup test",
-					// 	},
-					// 	defaultValue:            1,
-					// 	placeHolder: "RETRY",
-					// },
+					{
+						BaseOpt: BaseOpt{
+							Long:        "foreground",
+							Short:       "f",
+							description: "run foreground",
+						},
+						defaultValue: false,
+					},
 				},
 			},
 			// {
@@ -941,6 +941,7 @@ func (w *workerS) InitGlobally(ctx context.Context)                 {}
 func (w *workerS) Ready() bool                                      { return true }
 func (w *workerS) DumpErrors(wr io.Writer)                          {}                    //nolint:revive
 func (w *workerS) Error() errorsv3.Error                            { return nil }        //nolint:revive
+func (w *workerS) Recycle(errs ...error)                            {}                    //
 func (w *workerS) Store() store.Store                               { return w.store }    //
 func (w *workerS) Run(ctx context.Context, opts ...Opt) (err error) { return }            //nolint:revive
 func (w *workerS) Actions() (ret map[string]bool)                   { return }            //nolint:revive
@@ -951,6 +952,10 @@ func (*workerS) Args() []string                                     { return nil
 func (w *workerS) SuggestRetCode() int                              { return w.retCode } //
 func (w *workerS) ParsedState() ParsedState                         { return nil }
 func (w *workerS) LoadedSources() (results []LoadedSources)         { return }
+
+func (w *workerS) DoBuiltinAction(ctx context.Context, action ActionEnum) (handled bool, err error) {
+	return
+}
 
 //
 

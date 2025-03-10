@@ -10,7 +10,9 @@ import (
 	"github.com/hedzr/store"
 )
 
-const CommandsStoreKey = "app.cmd"
+const DefaultStoreKeyPrefix = "app"
+const CommandsStoreKey = "cmd"
+const PeripheralsStoreKey = "peripherals"
 
 func NewConfig(opts ...Opt) *Config {
 	s := DefaultConfig()

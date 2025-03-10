@@ -63,7 +63,8 @@ type Runner interface {
 	Run(ctx context.Context, opts ...Opt) (err error) // Run enter the main entry
 	DumpErrors(wr io.Writer)                          // prints the errors
 
-	Error() errors.Error // return the collected errors in parsing args and invoke actions
+	Error() errors.Error   // return the collected errors in parsing args and invoke actions
+	Recycle(errs ...error) // collect the errs object and return the bundled error to main()
 
 	Store() store.Store // app settings store, config set
 	Name() string       // app name

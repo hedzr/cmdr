@@ -232,6 +232,10 @@ func (w *workerS) Error() (err errors.Error) {
 	return
 }
 
+func (w *workerS) Recycle(errs ...error) {
+	w.errs.Attach(errs...)
+}
+
 func (w *workerS) SetRoot(root *cli.RootCommand, args []string) {
 	// trigger the Ready signal
 	if w.reqRootCmdReady() {

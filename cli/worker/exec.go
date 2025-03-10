@@ -76,6 +76,18 @@ func (w *workerS) execCmd(ctx context.Context, pc *parseCtx, cmd cli.Cmd, forceD
 	return
 }
 
+func (w *workerS) DoBuiltinAction(ctx context.Context, action cli.ActionEnum) (handled bool, err error) {
+	for k, handler := range w.actions {
+		if k&action != 0 {
+			logz.VerboseContext(ctx, "[cmdr] Invoking action", "hit-action", k, "actions", w.Actions())
+			pc, lastCmd := w.parsingCtx, w.parsingCtx.LastCmd()
+			err, handled = handler(ctx, pc.(*parseCtx), lastCmd), true
+			break
+		}
+	}
+	return
+}
+
 func (w *workerS) handleActions(ctx context.Context, pc *parseCtx) (handled bool, err error) {
 	lastCmd := pc.LastCmd()
 	for k, action := range w.actions {

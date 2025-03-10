@@ -151,7 +151,7 @@ func (w *workerS) commandsToStore(ctx context.Context, root *cli.RootCommand) (e
 	}
 
 	// get a new Store with prefix "app.cmd"
-	conf := w.Store().WithPrefixReplaced(cli.CommandsStoreKey)
+	conf := w.Store().WithPrefix(cli.CommandsStoreKey)
 	if conf == nil {
 		return
 	}

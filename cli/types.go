@@ -69,58 +69,83 @@ type LoadedSources map[string]*LoadedSource
 
 // QueryLoadedSources will be available if a loader allows
 // which loaded sources are queried.
+//
+// An external source could implement this interface to
+// exposing some internal data items itself.
+//
+// For example, a file loader may expose all loaded config
+// files as a list with this interface.
 type QueryLoadedSources interface {
 	LoadedSources() LoadedSources
 }
 
+// RootCommand attaches onto a App object and you can
+// access all subcommands and flags with it.
 type RootCommand struct {
-	AppName string
-	Version string
-	// AppDescription string
-	// AppLongDesc    string
-	Copyright  string
-	Author     string
-	HeaderLine string
-	FooterLine string
+	AppName    string // AppName field
+	Version    string // Version field
+	Copyright  string // Copyright is a part of top banner line
+	Author     string // Author is a part of top banner line
+	HeaderLine string // HeaderLine override Copyright and Author field, it's final top banner in help screen
+	FooterLine string // FooterLine is optional banner line to override the internal bottom line.
 
 	Cmd // root command here
 
-	preActions  []OnPreInvokeHandler
-	postActions []OnPostInvokeHandler
-	linked      int32 // ensureTree called?
-	app         App
+	preActions  []OnPreInvokeHandler  // optional
+	postActions []OnPostInvokeHandler // optional
+	linked      int32                 // ensureTree called?
+	app         App                   // back reference to App
 }
 
 type BaseOpt struct {
-	owner Cmd
-	root  *RootCommand
+	owner Cmd          // parent Cmd
+	root  *RootCommand // root Cmd
 
 	// name is reserved for internal purpose.
+	// exposed as Name.
 	name string
 	// Long is a full/long form flag/command title name.
+	//
 	// word string. example for flag: "addr" -> "--addr"
 	Long string
 	// Short 'rune' string. short option/command name.
-	// single char. example for flag: "a" -> "-a"
+	//
+	// Typically a single char. example for flag: "a" -> "-a".
+	//
+	// But multi-chars is allowed, eg: "of" -> "-of"
+	// (abbreviation of "--output-file").
 	Short string
-	// Aliases are the more synonyms
+	// Aliases are the more synonyms of Long title.
 	Aliases     []string
-	description string
-	longDesc    string
-	examples    string
-	// group specify a group name,
-	// A special prefix could sort it, has a form like `[0-9a-zA-Z]+\.`.
+	description string // exposed by Desc
+	longDesc    string // exposed by DescLong
+	examples    string // exposed by Examples
+	// group specify a group name, exposed by GroupTitle.
+	//
+	// A special prefix could sort it, has a form
+	// like `[0-9a-zA-Z!#$%^&]+\.`.
+	//
 	// The prefix will be removed from help screen.
 	//
 	// Some examples are:
 	//    "A001.Host Params"
 	//    "A002.User Params"
+	//    "!!!!.Unsorted"
 	//
-	// If ToggleGroup specified, Group field can be omitted because we will copy
-	// from there.
+	// If ToggleGroup specified, Group field can be omitted
+	// because we will copy from there.
+	//
+	// The builtin group name UnsortedGroup will be shown
+	// as a first class group without its group title line.
 	group string
 
-	extraShorts []string // more short titles
+	// extraShorts provides more short titles.
+	//
+	// Now you can specify multiple short title to a one
+	// single command or flag.
+	//
+	// Exposed as Shorts.
+	extraShorts []string
 
 	// deprecated is a version string just like '0.5.9' or 'v0.5.9', that
 	// means this command/flag was/will be deprecated since `v0.5.9`.
@@ -168,6 +193,10 @@ type Cmd interface {
 	Name() string
 	SetName(name string)
 	ShortName() string
+	// ShortNames collect and return all short titles
+	// as one array without duplicated items.
+	//
+	// include both the internal Short and extraShorts field.
 	ShortNames() []string
 	AliasNames() []string
 	Desc() string
@@ -240,6 +269,9 @@ type Cmd interface {
 	SubCmdBy(longName string) (res Cmd) // find subcommand by longTitle
 	FlagBy(longName string) (res *Flag) // find flag by longTitle
 
+	GetDottedPath() string
+	DottedPathToCommandOrFlag(dottedPath string) (cc Backtraceable, ff *Flag)
+
 	WalkGrouped(ctx context.Context, cb WalkGroupedCB)
 	WalkBackwardsCtx(ctx context.Context, cb WalkBackwardsCB, pc *WalkBackwardsCtx)
 	WalkEverything(ctx context.Context, cb WalkEverythingCB)
@@ -254,6 +286,10 @@ type CmdPriv interface {
 	findFlagBackwardsIn(ctx context.Context, cc Cmd, children []Cmd, longName string) (res *Flag)
 }
 
+var _ Cmd = (*CmdS)(nil)
+var _ CmdPriv = (*CmdS)(nil)
+
+// CmdS is the official Command implementation of a Cmd interface.
 type CmdS struct {
 	BaseOpt
 

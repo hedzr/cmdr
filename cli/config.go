@@ -89,6 +89,12 @@ type Runner interface {
 	// For examples, `~~tree` causes 'show-tree' state ON,
 	// `--help` causes 'show-help' state ON.
 	Actions() (ret map[string]bool)
+
+	// DoBuiltinAction runs a internal action for you.
+	//
+	// The available internal actions were defined as ActionEnum.
+	// Such as ActionShowHelpScreen, or ActionShowVersion.
+	DoBuiltinAction(ctx context.Context, action ActionEnum) (handled bool, err error)
 }
 
 type ParsedState interface {

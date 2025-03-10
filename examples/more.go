@@ -13,7 +13,6 @@ import (
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/pkg/dir"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
-	"github.com/hedzr/cmdr/v2/pkg/text"
 )
 
 func AttachServerCommand(parent cli.CommandBuilder) { //nolint:revive
@@ -366,18 +365,20 @@ func AttachMoreCommandsForTest(parent cli.CommandBuilder, moreAndMore bool) { //
 	parent.Titles("more", "m").
 		Description("More commands").
 		With(func(b cli.CommandBuilder) {
-			cmdrXyPrint(b)
-			cmdrKbPrint(b)
-			cmdrSoundex(b)
-			cmdrTtySize(b)
+			AddXyPrintCommand(b)
+			AddKilobytesCommand(b)
+			AddSoundexCommand(b)
+			AddTtySizeTestCommand(b)
 
-			tgCommand(b)
-			mxCommand(b)
+			AddToggleGroupCommand(b)
+			AddMxCommand(b)
 
-			cmdrPanic(b)
+			AddPanicTestCommand(b)
+			AddExternalEditorFlag(b)
+			AddTypedFlags(b)
 
 			if moreAndMore {
-				cmdrMultiLevelTest(b)
+				AddMultiLevelTestCommand(b)
 				cmdrManyCommandsTest(b)
 			}
 
@@ -386,72 +387,55 @@ func AttachMoreCommandsForTest(parent cli.CommandBuilder, moreAndMore bool) { //
 	// pprof.AttachToCmdr(more.RootCmdOpt())
 }
 
-func tgCommand(parent cli.CommandBuilder) { //nolint:revive
-	// toggle-group-test - without a default choice
-
-	cb := parent.Cmd("tg-test", "tg", "toggle-group-test").
-		Description("tg test new features", "tg test new features,\nverbose long descriptions here.").
+func AddMxCommand(parent cli.CommandBuilder) { //nolint:revive
+	cb := parent.Cmd("mx-test", "mx").
+		Description("mx test new features", "mx test new features,\nverbose long descriptions here.").
 		Group("Test").
-		OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
-			fmt.Printf("*** Got fruit (toggle group): %v\n", cmd.Set().MustString("app.tg-test.fruit"))
+		OnAction(mxTest)
 
-			fmt.Printf("> STDIN MODE: %v \n", cmd.Set().MustBool("mx-test.stdin"))
-			fmt.Println()
-
-			// logrus.Debug("debug")
-			// logrus.Info("debug")
-			// logrus.Warning("debug")
-			// logrus.WithField(logex.SKIP, 1).Warningf("dsdsdsds")
-			_, _ = cmd, args
-
-			return
-		})
-
-	cb.Flg("apple", "").
-		Default(false).
+	cb.Flg("test", "t").
+		Default("").
 		Description("the test text.", "").
-		ToggleGroup("fruit").
+		EnvVars("COOLT", "TEST").
+		Group("").
 		Build()
-	cb.Flg("banana", "").
-		Default(false).
-		Description("the test text.", "").
-		ToggleGroup("fruit").
-		Build()
-	cb.Flg("orange", "").
-		Default(true).
-		Description("the test text.", "").
-		ToggleGroup("fruit").
-		Build()
-	cb.Build()
 
-	// tg2 - with a default choice
-
-	cb = parent.Cmd("tg-test2", "tg2", "toggle-group-test2").
-		Description("tg2 test new features", "tg2 test new features,\nverbose long descriptions here.").
-		Group("Test").
-		OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
-			fmt.Printf("*** Got fruit (toggle group): %v\n", cmd.Set().MustString("app.tg-test2.fruit"))
-			_, _ = cmd, args
-
-			fmt.Printf("> STDIN MODE: %v \n", cmd.Set().MustBool("mx-test.stdin"))
-			fmt.Println()
-			return
-		})
-
-	cb.Flg("apple", "").
-		Default(false).
-		Description("the test text.", "").
-		ToggleGroup("fruit").
+	cb.Flg("password", "pp").
+		Default("").
+		Description("the password requesting.", "").
+		Group("").
+		PlaceHolder("PASSWORD").
+		ExternalEditor(cli.ExternalToolPasswordInput).
 		Build()
-	cb.Flg("banana", "").
-		Default(false).
-		Description("the test text.", "").
-		ToggleGroup("fruit").
+
+	cb.Flg("message", "m", "msg").
+		Default("").
+		Description("the message requesting.", "").
+		Group("").
+		PlaceHolder("MESG").
+		ExternalEditor(cli.ExternalToolEditor).
 		Build()
-	cb.Flg("orange", "").
+
+	cb.Flg("fruit", "fr").
+		Default("").
+		Description("the message.", "").
+		Group("").
+		PlaceHolder("FRUIT").
+		ValidArgs("apple", "banana", "orange").
+		Build()
+
+	cb.Flg("head", "hd").
+		Default(1).
+		Description("the head lines.", "").
+		Group("").
+		PlaceHolder("LINES").
+		HeadLike(true, 1, 3000).
+		Build()
+
+	cb.Flg("stdin", "c").
 		Default(false).
-		Description("the test text.", "").
-		ToggleGroup("fruit").
+		Description("read file content from stdin.", "").
+		Group("").
 		Build()
 
 	cb.Build()
@@ -509,63 +493,7 @@ func mxTest(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
 	return
 }
 
-func mxCommand(parent cli.CommandBuilder) { //nolint:revive
-	// mx-test
-
-	cb := parent.Cmd("mx-test", "mx").
-		Description("mx test new features", "mx test new features,\nverbose long descriptions here.").
-		Group("Test").
-		OnAction(mxTest)
-
-	cb.Flg("test", "t").
-		Default("").
-		Description("the test text.", "").
-		EnvVars("COOLT", "TEST").
-		Group("").
-		Build()
-
-	cb.Flg("password", "pp").
-		Default("").
-		Description("the password requesting.", "").
-		Group("").
-		PlaceHolder("PASSWORD").
-		ExternalEditor(cli.ExternalToolPasswordInput).
-		Build()
-
-	cb.Flg("message", "m", "msg").
-		Default("").
-		Description("the message requesting.", "").
-		Group("").
-		PlaceHolder("MESG").
-		ExternalEditor(cli.ExternalToolEditor).
-		Build()
-
-	cb.Flg("fruit", "fr").
-		Default("").
-		Description("the message.", "").
-		Group("").
-		PlaceHolder("FRUIT").
-		ValidArgs("apple", "banana", "orange").
-		Build()
-
-	cb.Flg("head", "hd").
-		Default(1).
-		Description("the head lines.", "").
-		Group("").
-		PlaceHolder("LINES").
-		HeadLike(true, 1, 3000).
-		Build()
-
-	cb.Flg("stdin", "c").
-		Default(false).
-		Description("read file content from stdin.", "").
-		Group("").
-		Build()
-
-	cb.Build()
-}
-
-func cmdrXyPrint(parent cli.CommandBuilder) {
+func AddXyPrintCommand(parent cli.CommandBuilder) {
 	// xy-print
 
 	parent.Cmd("xy-print", "xy").
@@ -593,38 +521,7 @@ func xyPrint(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
 	return
 }
 
-func cmdrKbPrint(parent cli.CommandBuilder) {
-	// kb-print
-
-	cb := parent.Cmd("kb-print", "kb").
-		Description("kilobytes test", "test kibibytes' input,\nverbose long descriptions here.").
-		Group("Test").
-		Examples(`
-$ {{.AppName}} kb --size 5kb
-  5kb = 5,120 bytes
-$ {{.AppName}} kb --size 8T
-  8TB = 8,796,093,022,208 bytes
-$ {{.AppName}} kb --size 1g
-  1GB = 1,073,741,824 bytes
-		`).
-		OnAction(kbPrint)
-
-	cb.Flg("size", "s").
-		Default("1k").
-		Description("max message size. Valid formats: 2k, 2kb, 2kB, 2KB. Suffixes: k, m, g, t, p, e.", "").
-		Group("").
-		Build()
-
-	cb.Build()
-}
-
-func kbPrint(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
-	// fmt.Printf("Got size: %v (literal: %v)\n\n", cmdr.GetKibibytesR("kb-print.size"), cmdr.GetStringR("kb-print.size"))
-	_, _ = cmd, args
-	return
-}
-
-func cmdrPanic(parent cli.CommandBuilder) {
+func AddPanicTestCommand(parent cli.CommandBuilder) {
 	// panic test
 
 	cb := parent.Cmd("panic-test", "pa").
@@ -655,24 +552,7 @@ func cmdrPanic(parent cli.CommandBuilder) {
 	cb.Build()
 }
 
-func cmdrSoundex(parent cli.CommandBuilder) {
-	parent.Cmd("soundex", "snd", "sndx", "sound").
-		Description("soundex test").
-		Group("Test").
-		TailPlaceHolders("[text1, text2, ...]").
-		OnAction(soundex).
-		Build()
-}
-
-func soundex(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
-	_, _ = cmd, args
-	for ix, s := range args {
-		fmt.Printf("%5d. %s => %s\n", ix, s, text.Soundex(s))
-	}
-	return
-}
-
-func cmdrTtySize(parent cli.CommandBuilder) {
+func AddTtySizeTestCommand(parent cli.CommandBuilder) {
 	parent.Cmd("cols", "rows", "tty-size").
 		Description("detected tty size").
 		Group("Test").
@@ -719,170 +599,10 @@ func cmdrManyCommandsTest(parent cli.CommandBuilder) {
 		cb := parent.Cmd(t, fmt.Sprintf("sc%v", i)).
 			Description(fmt.Sprintf("subcommands %v.sc%v test", ttl, i)).
 			Group("Test")
-		cmdrAddFlags(cb)
+		AddToggleGroupFlags(cb)
+		AddValidArgsFlag(cb)
 		cb.Build()
 	}
-}
-
-func cmdrMultiLevelTest(parent cli.CommandBuilder) {
-	cb := parent.Cmd("mls", "mls").
-		Description("multi-level subcommands test").
-		Group("Test")
-
-	// Sets(func(cmd obj.CommandBuilder) {
-	//	cmdrAddFlags(cmd)
-	// })
-
-	// cmd := root.NewSubCommand("mls", "mls").
-	//	Description("multi-level subcommands test").
-	//	Group("Test")
-	cmdrAddFlags(cb)
-	cmdrMultiLevel(cb, 1)
-
-	cb.Build()
-}
-
-func cmdrMultiLevel(parent cli.CommandBuilder, depth int) {
-	if depth > 3 {
-		return
-	}
-
-	for i := 1; i < 4; i++ {
-		t := fmt.Sprintf("subcmd-%v", i)
-		// var ttls []string
-		// for o, l := parent, obj.CommandBuilder(nil); o != nil && o != l; {
-		// 	ttls = append(ttls, o.ToCommand().GetTitleName())
-		// 	l, o = o, o.OwnerCommand()
-		// }
-		// ttl := strings.Join(tool.ReverseStringSlice(ttls), ".")
-		ttl := ""
-
-		cb := parent.Cmd(t, fmt.Sprintf("sc%v", i)).
-			// cc := parent.NewSubCommand(t, fmt.Sprintf("sc%v", i)).
-			Description(fmt.Sprintf("subcommands %v.sc%v test", ttl, i)).
-			Group("Test")
-		cmdrAddFlags(cb)
-		cmdrMultiLevel(cb, depth+1)
-		cb.Build()
-	}
-}
-
-func cmdrAddFlags(c cli.CommandBuilder) { //nolint:revive
-	c.Flg("apple", "").
-		Default(false).
-		Description("the test text.", "").
-		ToggleGroup("fruit").
-		Build()
-
-	c.Flg("banana", "").
-		Default(false).
-		Description("the test text.", "").
-		ToggleGroup("fruit").
-		Build()
-
-	c.Flg("orange", "").
-		Default(false).
-		Description("the test text.", "").
-		ToggleGroup("fruit").
-		Build()
-
-	c.Flg("message", "m", "msg").
-		Default("").
-		Description("the message requesting.", "").
-		Group("").
-		PlaceHolder("MESG").
-		ExternalEditor(cli.ExternalToolEditor).
-		Build()
-
-	c.Flg("fruit", "fr").
-		Default("").
-		Description("the message.", "").
-		Group("").
-		PlaceHolder("FRUIT").
-		ValidArgs("apple", "banana", "orange").
-		Build()
-
-	c.Flg("bool", "b").
-		Default(false).
-		Description("A bool flag", "").
-		Group("").
-		Build()
-
-	c.Flg("int", "i").
-		Default(1).
-		Description("A int flag", "").
-		Group("1000.Integer").
-		Build()
-
-	c.Flg("int64", "i64").
-		Default(int64(2)).
-		Description("A int64 flag", "").
-		Group("1000.Integer").
-		Build()
-
-	c.Flg("uint", "u").
-		Default(uint(3)).
-		Description("A uint flag", "").
-		Group("1000.Integer").
-		Build()
-
-	c.Flg("uint64", "u64").
-		Default(uint64(4)).
-		Description("A uint64 flag", "").
-		Group("1000.Integer").
-		Build()
-
-	c.Flg("float32", "f", "float").
-		Default(float32(2.71828)).
-		Description("A float32 flag with 'e' value", "").
-		Group("2000.Float").
-		Build()
-
-	c.Flg("float64", "f64").
-		Default(3.14159265358979323846264338327950288419716939937510582097494459230781640628620899).
-		Description("A float64 flag with a `PI` value", "").
-		Group("2000.Float").
-		Build()
-
-	c.Flg("complex64", "c64").
-		Default(complex64(3.14+9i)).
-		Description("A complex64 flag", "").
-		Group("2010.Complex").
-		Build()
-
-	c.Flg("complex128", "c128").
-		Default(complex128(3.14+9i)).
-		Description("A complex128 flag", "").
-		Group("2010.Complex").
-		Build()
-
-	// a set of booleans
-
-	c.Flg("single", "s").
-		Default(false).
-		Description("A bool flag: single", "").
-		Group("Boolean").
-		EnvVars("").
-		Build()
-
-	c.Flg("double", "d").
-		Default(false).
-		Description("A bool flag: double", "").
-		Group("Boolean").
-		EnvVars("").
-		Build()
-
-	c.Flg("norway", "n", "nw").
-		Default(false).
-		Description("A bool flag: norway", "").
-		Group("Boolean").
-		Build()
-
-	c.Flg("mongo", "mongo").
-		Default(false).
-		Description("A bool flag: mongo", "").
-		Group("Boolean").
-		Build()
 }
 
 const zero = 0

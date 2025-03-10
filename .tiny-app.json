@@ -1,7 +1,5 @@
 {
-  "app": {
-    "tiny-app": {
-      "hello": "world"
-    }
+  "tiny-app": {
+    "hello": "world"
   }
 }

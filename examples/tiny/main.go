@@ -11,8 +11,10 @@ import (
 
 	"github.com/hedzr/cmdr/v2"
 	"github.com/hedzr/cmdr/v2/cli"
+	"github.com/hedzr/cmdr/v2/examples/devmode"
+	"github.com/hedzr/cmdr/v2/examples/dyncmd"
 	"github.com/hedzr/cmdr/v2/pkg/dir"
-	logz "github.com/hedzr/logg/slog"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 	"github.com/hedzr/store"
 )
 
@@ -42,6 +44,14 @@ func main() {
 
 		cmdr.WithAutoEnvBindings(true),
 	)
+
+	logz.Debug("in dev mode?", "mode", devmode.InDevelopmentMode())
+
+	// // simple run the parser of app and trigger the matched command's action
+	// _ = app.Run(
+	// 	cmdr.WithForceDefaultAction(false), // true for debug in developing time
+	// )
+
 	if err := app.Run(ctx); err != nil {
 		logz.ErrorContext(ctx, "Application Error:", "err", err) // stacktrace if in debug mode/build
 		os.Exit(app.SuggestRetCode())
@@ -70,8 +80,8 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 		Examples(`jump example`). // {{.AppName}}, {{.AppVersion}}, {{.DadCommands}}, {{.Commands}}, ...
 		Deprecated(`v1.1.0`).
 		// Group(cli.UnsortedGroup).
-		Hidden(false).
-		// Both With(cb) and Build() to end a building sequence
+		Hidden(false, false).
+		OnEvaluateSubCommands(dyncmd.OnEvalJumpSubCommands).
 		With(func(b cli.CommandBuilder) {
 			b.Cmd("to").
 				Description("to command").

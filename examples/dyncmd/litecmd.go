@@ -1,4 +1,4 @@
-package main
+package dyncmd
 
 import (
 	"context"
@@ -27,10 +27,10 @@ func onEvalJumpSubCommands(ctx context.Context, c cli.Cmd) (it cli.EvalIterator,
 	var keys []string
 
 	baseDir := cmdr.UsrLibDir()
-	if !dir.FileExists(baseDir) {
-		baseDir = path.Join("ci", "pkg", "usr.local.lib", c.App().Name(), "ext")
-	} else {
+	if dir.FileExists(baseDir) {
 		baseDir = path.Join(baseDir, "ext")
+	} else {
+		baseDir = path.Join("ci", "pkg", "usr.local.lib", c.App().Name(), "ext")
 	}
 	if !dir.FileExists(baseDir) {
 		return
@@ -114,8 +114,14 @@ func (s *liteCmdS) Examples() string         { return "" }
 func (s *liteCmdS) TailPlaceHolder() string  { return "" }
 func (s *liteCmdS) GetCommandTitles() string { return s.name() }
 
-func (s *liteCmdS) GroupTitle() string     { return cmdr.RemoveOrderedPrefix(s.SafeGroup()) }
-func (s *liteCmdS) GroupHelpTitle() string { return s.GroupTitle() }
+func (s *liteCmdS) GroupTitle() string { return cmdr.RemoveOrderedPrefix(s.SafeGroup()) }
+func (s *liteCmdS) GroupHelpTitle() string {
+	tmp := s.SafeGroup()
+	if tmp == cli.UnsortedGroup {
+		return ""
+	}
+	return cmdr.RemoveOrderedPrefix(tmp)
+}
 func (s *liteCmdS) SafeGroup() string {
 	if s.group == "" {
 		return cli.UnsortedGroup
@@ -174,6 +180,9 @@ func (s *liteCmdS) OnEvalSubcommandsOnceCache() []cli.Cmd {
 func (s *liteCmdS) OnEvalSubcommandsOnceSetCache(list []cli.Cmd) {
 }
 
+func (c *liteCmdS) IsDynamicCommandsLoading() bool { return false }
+func (c *liteCmdS) IsDynamicFlagsLoading() bool    { return false }
+
 func (s *liteCmdS) OnEvalFlags() cli.OnEvaluateFlags {
 	return nil
 }
@@ -218,6 +227,8 @@ func (s *liteCmdS) FindSubCommand(ctx context.Context, longName string, wide boo
 func (s *liteCmdS) FindFlagBackwards(ctx context.Context, longName string) (res *cli.Flag) {
 	return
 }
+func (c *liteCmdS) SubCmdBy(longName string) (res cli.Cmd) { return }
+func (c *liteCmdS) FlagBy(longName string) (res *cli.Flag) { return }
 func (s *liteCmdS) ForeachFlags(context.Context, func(f *cli.Flag) (stop bool)) (stop bool) {
 	return
 }
@@ -231,4 +242,9 @@ func (s *liteCmdS) WalkBackwardsCtx(ctx context.Context, cb cli.WalkBackwardsCB,
 	return
 }
 func (s *liteCmdS) WalkEverything(ctx context.Context, cb cli.WalkEverythingCB) {
+}
+func (s *liteCmdS) WalkFast(ctx context.Context, cb cli.WalkFastCB) (stop bool) { return }
+
+func (s *liteCmdS) DottedPathToCommandOrFlag(dottedPath string) (cc cli.Backtraceable, ff *cli.Flag) {
+	return
 }

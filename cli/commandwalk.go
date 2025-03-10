@@ -98,6 +98,8 @@ type WalkBackwardsCB func(ctx context.Context, pc *WalkBackwardsCtx, cc Cmd, ff 
 
 type WalkCB func(cc Cmd, index, level int)
 
+type WalkFastCB func(cc Cmd, index, level int) (stop bool)
+
 type WalkGroupedCB func(cc, pp Cmd, ff *Flag, group string, idx, level int)
 
 type WalkEverythingCB func(cc, pp Cmd, ff *Flag, cmdIndex, flgIndex, level int)
@@ -325,6 +327,33 @@ func sortAndPrintFlags(ctx context.Context, sort bool, pc *WalkBackwardsCtx, cmd
 			cb(ctx, pc, cmd, ff, i, -1, count, level)
 		}
 	}
+}
+
+// WalkFast is a simple way to loop for all commands in original order.
+func (c *CmdS) WalkFast(ctx context.Context, cb WalkFastCB) (stop bool) {
+	hist := make(map[Cmd]bool)
+	return c.walkFastImpl(ctx, hist, c, 0, cb)
+}
+
+func (c *CmdS) walkFastImpl(ctx context.Context, hist map[Cmd]bool, cmd Cmd, level int, cb WalkFastCB) (stop bool) {
+	if cb != nil {
+		cb(cmd, 0, level)
+	}
+
+	commands := mustEnsureDynCommands(ctx, cmd)
+	for _, cc := range commands {
+		if cc != nil {
+			if _, ok := hist[cc]; !ok {
+				hist[cc] = true
+				if stop = c.walkFastImpl(ctx, hist, cc, level+1, cb); stop {
+					return
+				}
+			} else {
+				logz.WarnContext(ctx, "[cmdr] loop ref found", "dad", cmd, "cc", cc)
+			}
+		}
+	}
+	return
 }
 
 // Walk is a simple way to loop for all commands in original order.

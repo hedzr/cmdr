@@ -66,6 +66,7 @@ type Backtraceable interface {
 	BacktraceableMin
 
 	Walk(ctx context.Context, cb WalkCB)
+	WalkFast(ctx context.Context, cb WalkFastCB) (stop bool)
 	ForeachFlags(context.Context, func(f *Flag) (stop bool)) (stop bool)
 }
 
@@ -129,13 +130,16 @@ func dottedPathToCommandOrFlagG(c Backtraceable, dottedPath string) (cmd Backtra
 	} else if conf.AppName != "" {
 		appName = conf.AppName
 	}
+	if appName != appNameDefault {
+		appName = ""
+	}
 
 	if !strings.HasPrefix(dottedPath, appName) {
 		dottedPath = appName + "." + dottedPath //nolint:revive
 	}
 
 	ctx := context.TODO()
-	c.Walk(ctx, func(cc Cmd, index, level int) {
+	c.WalkFast(ctx, func(cc Cmd, index, level int) (stop bool) {
 		var cx Backtraceable
 		var ok bool
 		if cx, ok = cc.(Backtraceable); !ok {
@@ -147,7 +151,7 @@ func dottedPathToCommandOrFlagG(c Backtraceable, dottedPath string) (cmd Backtra
 			kp = appName + "." + kp
 		}
 
-		if kp == dottedPath {
+		if stop = kp == dottedPath; stop {
 			cmd = cx
 			return
 		}
@@ -156,7 +160,7 @@ func dottedPathToCommandOrFlagG(c Backtraceable, dottedPath string) (cmd Backtra
 			parts := strings.TrimPrefix(dottedPath, kp+".")
 			if !strings.Contains(parts, ".") {
 				// try matching flags in this command
-				cx.ForeachFlags(ctx, func(f *Flag) (stop bool) {
+				stop = cx.ForeachFlags(ctx, func(f *Flag) (stop bool) {
 					if parts == f.Long {
 						cmd, ff, stop = f.OwnerOrParent(), f, true
 						if f.OwnerOrParent() != cx {
@@ -167,6 +171,7 @@ func dottedPathToCommandOrFlagG(c Backtraceable, dottedPath string) (cmd Backtra
 				})
 			}
 		}
+		return
 	})
 	return
 }

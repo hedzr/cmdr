@@ -145,11 +145,16 @@ func (c *BaseOpt) Title() string {
 	return "> ? <"
 }
 
+// Shorts collect and return all short titles
+// as one array without duplicated items.
+//
+// include both the internal Short and extraShorts field.
 func (c *BaseOpt) Shorts() (shorts []string) {
 	if c.Short != "" {
 		shorts = append(shorts, c.Short)
 	}
-	shorts = append(shorts, c.extraShorts...)
+	shorts = uniAddStrS(shorts, c.extraShorts...)
+	// shorts = append(shorts, c.extraShorts...)
 	return
 }
 
@@ -199,15 +204,15 @@ func (c *BaseOpt) GetTriggeredTimes() int { return c.hitTimes }
 // more information about Option Prefix, refer
 // to [WithOptionsPrefix]
 func (c *BaseOpt) GetDottedPath() string {
-	return backtraceCmdNamesG(c, ".", false)
+	return strings.ReplaceAll(strings.ReplaceAll(backtraceCmdNamesG(c, ".", false), "<root>.", ""), "<root>", "")
 }
 
 func (c *BaseOpt) GetDottedPathFull() string {
-	return backtraceCmdNamesG(c, ",", true)
+	return strings.ReplaceAll(strings.ReplaceAll(backtraceCmdNamesG(c, ",", true), "<root>.", ""), "<root>", "")
 }
 
 func (c *BaseOpt) GetCommandTitles() string {
-	return backtraceCmdNamesG(c, " ", false)
+	return strings.ReplaceAll(strings.ReplaceAll(backtraceCmdNamesG(c, " ", false), "<root>.", ""), "<root>", "")
 }
 
 func (c *BaseOpt) GetAutoEnvVarName(prefix string, upperCase ...bool) string {

@@ -1,6 +1,7 @@
 module github.com/hedzr/cmdr/v2
 
 go 1.22.7
+toolchain go1.23.7
 
 // github.com/hedzr/cmdr/v2 => ../cmdr.v3
 
@@ -59,14 +60,14 @@ require (
 	github.com/hedzr/store v1.2.15
 	github.com/hedzr/store/codecs/json v1.2.15
 	github.com/hedzr/store/providers/file v1.2.15
-	golang.org/x/crypto v0.33.0
+	golang.org/x/crypto v0.35.0
 	golang.org/x/exp v0.0.0-20250210185358-939b2ce775ac
 	gopkg.in/hedzr/errors.v3 v3.3.5
 )
 
 require (
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
-	golang.org/x/net v0.35.0 // indirect
+	golang.org/x/net v0.36.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/term v0.29.0 // indirect
 )

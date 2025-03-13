@@ -1,5 +1,63 @@
 # CHANGELOG
 
+- v2.1.0
+
+  - upgrade toolchain to go1.23.7
+  - lots of improvements and fixes
+    - fix typo in doc of `WithBuilders`
+    - exposed more package-level functions
+    - fix test definition
+    - add test `TestBaseOpt_GetDottedPath`
+    - cmdr: define group name constants
+    - more walk functions
+    - fix `Shorts()` returned unique items
+    - some subtests for parsing duration, parse int,float,complex, ...
+    - make ActionEnum constants public too
+    - make `dottedPathToCommandOrFlagG` public (as `DottedPathToCommandOrFlag(dottedPath)`
+    - cmdr: add `Error` and `Recycle()` to `Runner`
+    - cmdr: add `DoBuiltinAction` to `Runner`
+    - cmdr: add App.OnAction
+    - cmdr: help-screen: fix the right part alignment
+    - cmdr: help-screen: fix no `Flags:` title when a cmd owns all hidden flags
+    - cmdr: help-screen: fix no `Commands:` title when a cmd owns all hidden subcmds
+    - cmdr: help-screen: improved display style of required flag, valid-args flag
+    - cmdr: help-screen: improved display style of header line
+    - cmdr: help-screen: improved display style of head-like flag
+    - cmdr: help-screen: improved display style if a flag has no short title
+    - cmdr: toggle-group: fix to update into Stpre when matched
+    - cmdr: toggle-group: fix to update default matched value
+    - cmdr: help-screen: improved display style of redirect-to command
+    - cmdr: help-screen: improved display style of required flag
+    - cmdr: help-screen: improved display style of required flag, valid-args flag
+    - cmdr: process `TransferIntoStore` interface to support default toggle-group value, and other cases for future
+    - cmdr: defined constant `cli.CommandsStoreKey` = "app.cmd"
+    - cmdr: builder: fix addCommand - avoid loop ref by insert itself as a child
+    - cmdr: builder: added WithOpts(opts...)
+    - cmdr: builder: added `RootBuilder(func(cli.CommandBuilder))`
+    - cmdr: added `cmdr.Create(...)` for creating a new app, a replacement for `New()`
+    - added CmdS/Cmd.`IsDynamicCommandsLoading()` & `IsDynamicFlagsLoading()`
+    - improved OnEvalSubcommands `Info` log line to `Verbose`
+    - improved Flag.SetEnvVars to ignore empty string
+    - improved godoc for flagbuilder.go
+    - improved godoc for `RedirectTo`...
+    - cli/worker: builtins: `help` command, removed `usage` alias name
+    - cli/worker: builtins: `version-sim` command, removed `version-simulate` alias name
+    - cli: added `CmdAdder` interface
+    - cli: added `SubCmdBy(longName)` and `FlagBy(longName)` to find them by title
+    - CmdS: exclude duplicated insertion
+    - predefined envvars: added `$EXE`, `$EXE_DIR`
+    - move out cli/examples to top level
+    - help-screen: record last group name to improve printing list (esp for some hidden items at first of a group)
+    - help-screen: expand env vars for the strings
+    - help-screen: colLeftTabbedWidth 56 -> 46, decrease it
+    - help-screen: added `printNotes()`, in printing redirect-to feature
+    - builder: Info(): added some blank lines
+  - other fixes and improvements
+  - more docs
+  - remove unused file and cleanup
+  - upgrade deps
+  - security patch
+
 - v2.0.17
 
   - upgrade deps

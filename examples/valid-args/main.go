@@ -2,10 +2,14 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
+
+	"gopkg.in/hedzr/errors.v3"
 
 	"github.com/hedzr/cmdr/v2"
 	"github.com/hedzr/cmdr/v2/cli"
+	"github.com/hedzr/is/term/color"
 	logz "github.com/hedzr/logg/slog"
 )
 
@@ -19,7 +23,7 @@ const (
 func main() {
 	app := cmdr.Create(appName, version, author, desc).
 		With(func(app cli.App) {}).
-		WithBuilders(headLikeCommand).
+		WithBuilders(validArgsCommand).
 		WithAdders().
 		Build()
 
@@ -27,6 +31,15 @@ func main() {
 	defer cancel()
 
 	if err := app.Run(ctx); err != nil {
+		if errors.Is(err, cli.ErrValidArgs) {
+			fmt.Printf(color.StripLeftTabsC(`
+				The input is not in valid list:
+				
+				<font color="red">%s</red>
+				`),
+				err)
+			os.Exit(1)
+		}
 		logz.ErrorContext(ctx, "Application Error:", "err", err) // stacktrace if in debug mode/build
 		os.Exit(app.SuggestRetCode())
 	} else if rc := app.SuggestRetCode(); rc != 0 {
@@ -34,7 +47,7 @@ func main() {
 	}
 }
 
-func headLikeCommand(parent cli.CommandBuilder) { //nolint:revive
+func validArgsCommand(parent cli.CommandBuilder) { //nolint:revive
 	parent.Flg("enum", "e").
 		Description("valid args option", "").
 		Group("Test").

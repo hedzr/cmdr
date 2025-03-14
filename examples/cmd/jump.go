@@ -31,7 +31,7 @@ func (jumpCmd) Add(app cli.App) {
 					// cmd.Set() == cmdr.Store(), cmd.Store() == cmdr.Store()
 					cmd.Set().Set("tiny3.working", dir.GetCurrentDir())
 					println()
-					println(cmd.Set().WithPrefix("tiny3").MustString("working"))
+					println("dir:", cmd.Set().WithPrefix("tiny3").MustString("working"))
 
 					cs := cmdr.Store().WithPrefix("jump.to")
 					if cs.MustBool("full") {

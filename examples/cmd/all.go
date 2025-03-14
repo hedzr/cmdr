@@ -7,4 +7,6 @@ import (
 var Commands = []cli.CmdAdder{
 	jumpCmd{},
 	wrongCmd{},
+	invokeCmd{},
+	presetCmd{},
 }

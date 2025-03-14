@@ -67,7 +67,7 @@ func AddToggleGroupCommand(parent cli.CommandBuilder) { //nolint:revive
 		}).
 		With(func(cb cli.CommandBuilder) {
 			cb.Flg("apple", "a").
-				Default(false).
+				Default(true).
 				Description("the test text.", "").
 				ToggleGroup("fruit").
 				Build()

@@ -140,21 +140,27 @@ func (c *CmdS) findFlagBackwardsIn(ctx context.Context, cc Cmd, children []Cmd, 
 }
 
 func (c *CmdS) SubCmdBy(longName string) (res Cmd) {
-	for _, cx := range c.commands {
-		if longName == cx.Long {
-			res = cx
-			return
-		}
+	// for _, cx := range c.commands {
+	// 	if longName == cx.Long {
+	// 		res = cx
+	// 		return
+	// 	}
+	// }
+	if cc, ok := c.longCommands[longName]; ok {
+		res = cc
 	}
 	return
 }
 
 func (c *CmdS) FlagBy(longName string) (res *Flag) {
-	for _, cx := range c.flags {
-		if longName == cx.Long {
-			res = cx
-			return
-		}
+	// for _, cx := range c.flags {
+	// 	if longName == cx.Long {
+	// 		res = cx
+	// 		return
+	// 	}
+	// }
+	if ff, ok := c.longFlags[longName]; ok {
+		res = ff
 	}
 	return
 }

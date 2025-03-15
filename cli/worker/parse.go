@@ -6,9 +6,8 @@ import (
 
 	errorsv3 "gopkg.in/hedzr/errors.v3"
 
-	"github.com/hedzr/cmdr/v2/pkg/logz"
-
 	"github.com/hedzr/cmdr/v2/cli"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 )
 
 func (w *workerS) SetTasksAfterParse(tasks ...taskAfterParse) {
@@ -34,23 +33,23 @@ func (w *workerS) parse(ctx context.Context, pc *parseCtx) (err error) { //nolin
 		}
 	}()
 
-	logz.VerboseContext(ctx, "parsing command line args ...", "args", w.args)
+	logz.VerboseContext(ctx, "parsing command line args ...", "args", (*pc.argsPtr))
 
 loopArgs:
-	for pc.i = 1; pc.i < len(w.args); pc.i++ {
-		if w.args[pc.i] == "" {
+	for pc.i = 1; pc.i < len(*pc.argsPtr); pc.i++ {
+		if (*pc.argsPtr)[pc.i] == "" {
 			continue
 		}
 
 		if atomic.LoadInt32(&pc.passThruMatched) > 0 || errorsv3.Is(err, cli.ErrShouldStop) || w.errIsUnmatchedArg(err) {
-			pc.positionalArgs = append(pc.positionalArgs, w.args[pc.i])
+			pc.positionalArgs = append(pc.positionalArgs, (*pc.argsPtr)[pc.i])
 			logz.VerboseContext(ctx, "positional args added", "i", pc.i, "args", pc.positionalArgs)
 			continue
 		}
 
-		logz.VerboseContext(ctx, "parsing command-line args", "i", pc.i, "arg", w.args[pc.i])
+		logz.VerboseContext(ctx, "parsing command-line args", "i", pc.i, "arg", (*pc.argsPtr)[pc.i])
 
-		pc.arg, pc.short, pc.dblTilde, pc.leadingPlus, pc.pos = w.args[pc.i], false, false, false, 0
+		pc.arg, pc.short, pc.dblTilde, pc.leadingPlus, pc.pos = (*pc.argsPtr)[pc.i], false, false, false, 0
 		switch c1 := pc.arg[0]; c1 {
 		// TODO need more design for form '+flag'.
 		// currently, +flag is designed as a bool value flipper
@@ -169,13 +168,19 @@ func (w *workerS) matchCommand(ctx context.Context, pc *parseCtx) (err error) {
 			pc.lastCommand, err = len(pc.matchedCommands)-1, nil
 		}
 		logz.VerboseContext(ctx, "command matched", "short", short, "cmd", pc.LastCmd(), "handled", handled)
+
+		if pcl := cc.PresetCmdLines(); pcl != nil {
+			a := *pc.argsPtr
+			a = append(append(a[:pc.i], pcl...), a[pc.i:]...)
+			*pc.argsPtr = a
+		}
 	}
 	return
 }
 
 func (w *workerS) matchFlag(ctx context.Context, pc *parseCtx, short bool) (err error) {
 	err = cli.ErrUnmatchedFlag
-	cmd, vp := pc.LastCmd(), cli.NewFVP(w.args[pc.i+1:], pc.arg, short, pc.prefixPlusSign.Load(), pc.dblTilde)
+	cmd, vp := pc.LastCmd(), cli.NewFVP((*pc.argsPtr)[pc.i+1:], pc.arg, short, pc.prefixPlusSign.Load(), pc.dblTilde)
 	// defer func() { pc.i, vp.AteArgs = pc.i+vp.AteArgs, 0 }()
 
 compactFlags:

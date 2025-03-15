@@ -361,7 +361,7 @@ func (w *workerS) Run(ctx context.Context, opts ...cli.Opt) (err error) {
 	}
 
 	dummy := func() bool { return true }
-	pc := &parseCtx{root: w.root, forceDefaultAction: w.ForceDefaultAction}
+	pc := &parseCtx{argsPtr: &w.args, root: w.root, forceDefaultAction: w.ForceDefaultAction}
 	defer func() { w.attachError(w.postProcess(ctx, pc)) }()
 	if w.invokeTasks(ctx, pc, w.errs, w.Config.TasksBeforeParse...) ||
 		w.attachError(w.parse(ctx, pc)) ||

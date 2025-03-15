@@ -15,6 +15,8 @@ type parseCtx struct {
 	i   int
 	pos int
 
+	argsPtr *[]string // the parsing command-line args
+
 	root               *cli.RootCommand
 	forceDefaultAction bool
 

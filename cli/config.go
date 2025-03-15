@@ -207,6 +207,8 @@ const (
 	ActionShowSBOM                                   // show SBOM screen
 	// actionShortMode
 	// actionDblTildeMode
+
+	ActionDefault // builtin internal action handler
 )
 
 func (e ActionEnum) String() string {
@@ -231,6 +233,9 @@ func (e ActionEnum) String() string {
 	}
 	if e&ActionShowSBOM != 0 {
 		_, _ = sb.WriteString("- ShowSBOM\n")
+	}
+	if e&ActionDefault != 0 {
+		_, _ = sb.WriteString("- Default\n")
 	}
 	return sb.String()
 }

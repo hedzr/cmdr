@@ -139,6 +139,9 @@ func (w *workerS) Actions() (ret map[string]bool) {
 	if e&cli.ActionShowDebug != 0 {
 		ret["show-debug"] = true
 	}
+	if e&cli.ActionDefault != 0 {
+		ret["default"] = true
+	}
 	return
 }
 
@@ -158,6 +161,7 @@ func (w *workerS) Ready() bool {
 		cli.ActionShowTree:            w.showTree,
 		cli.ActionShowDebug:           w.showDebugScreen,
 		cli.ActionShowSBOM:            w.showSBOM,
+		cli.ActionDefault:             w.onDefaultAction,
 	}
 	return atomic.LoadInt32(&w.ready) >= 2
 }

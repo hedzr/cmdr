@@ -8,6 +8,7 @@ import (
 
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
+	"github.com/hedzr/is/exec"
 )
 
 func (w *workerS) exec(ctx context.Context, pc *parseCtx) (err error) {
@@ -43,6 +44,23 @@ func (w *workerS) execCmd(ctx context.Context, pc *parseCtx, cmd cli.Cmd, forceD
 	if handled || !w.errIsSignalOrNil(err1) {
 		err = err1
 		return
+	}
+
+	if is := cmd.InvokeShell(); is != "" {
+		if !cmd.CanInvoke() {
+			if sh := cmd.Shell(); sh != "" {
+				err = exec.New().WithCommand(sh, "-c", is).RunAndCheckError()
+				return
+			}
+			err = exec.Call(is, nil)
+			return
+		}
+	}
+	if ip := cmd.InvokeProc(); ip != "" {
+		if !cmd.CanInvoke() {
+			err = exec.Call(ip, nil)
+			return
+		}
 	}
 
 	if !forceDefaultAction && cmd.CanInvoke() {

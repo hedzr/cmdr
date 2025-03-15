@@ -2,6 +2,8 @@ package worker
 
 import (
 	"context"
+	"fmt"
+	"slices"
 	"sync/atomic"
 
 	errorsv3 "gopkg.in/hedzr/errors.v3"
@@ -121,8 +123,12 @@ func (w *workerS) handleActions(ctx context.Context, pc *parseCtx) (handled bool
 type onAction func(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) (err error)
 
 func (w *workerS) beforeExec(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) (deferActions func(errInvoked error), err error) {
-	err = w.checkRequiredFlags(ctx, pc, lastCmd)
 	deferActions = func(error) {}
+	err = w.checkRequiredFlags(ctx, pc, lastCmd)
+	if err != nil {
+		return
+	}
+	err = w.checkValidArgs(ctx, pc, lastCmd)
 	if err != nil {
 		return
 	}
@@ -130,6 +136,16 @@ func (w *workerS) beforeExec(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd)
 	if lastCmd != w.root.Cmd {
 		if cx, ok := w.root.Cmd.(*cli.CmdS); ok {
 			deferActions, err = cx.RunPreActions(ctx, lastCmd, pc.positionalArgs)
+		}
+	}
+	return
+}
+
+func (w *workerS) checkValidArgs(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) (err error) { //nolint:revive
+	for ff, ms := range pc.matchedFlags {
+		val := fmt.Sprintf("%v", ms.Value)
+		if ff != nil && len(ff.ValidArgs()) > 0 && slices.Contains(ff.ValidArgs(), val) == false {
+			err = cli.ErrValidArgs.FormatWith(ff, ff.ValidArgs(), lastCmd)
 		}
 	}
 	return

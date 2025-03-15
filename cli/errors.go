@@ -18,6 +18,7 @@ var (
 	ErrUnmatchedFlag = errorsv3.New("UNKNOWN Flag FOUND: %q | cmd=%v")
 	// ErrRequiredFlag means required flag must be set explicitly
 	ErrRequiredFlag = errorsv3.New("Flag %q is REQUIRED | cmd=%v")
+	ErrValidArgs    = errorsv3.New("Flag %q expects a valid input is in list: %v | cmd=%v")
 
 	ErrMissedPrerequisite = errorsv3.New("Flag %q needs %q was set at first") // flag need a prerequisite flag exists.
 	ErrFlagJustOnce       = errorsv3.New("Flag %q MUST BE set once only")     // flag cannot be set more than one time.

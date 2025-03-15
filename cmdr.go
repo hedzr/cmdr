@@ -221,6 +221,56 @@ func RemoveOrderedPrefix(s string) string {
 	return cli.RemoveOrderedPrefix(s)
 }
 
+// DottedPathToCommandOrFlag searches the matched CmdS or
+// Flag with the specified dotted-path.
+//
+// anyCmd is the starting of this searching.
+// Give it a nil if you have no idea.
+func DottedPathToCommandOrFlag(dottedPath string, anyCmd cli.Backtraceable) (cc cli.Backtraceable, ff *cli.Flag) {
+	if anyCmd == nil {
+		anyCmd = App().Root()
+	}
+	return cli.DottedPathToCommandOrFlag1(dottedPath, anyCmd)
+}
+
+// To finds a given path and loads the subtree into
+// 'holder', typically 'holder' could be a struct.
+//
+// For yaml input
+//
+//	app:
+//	  server:
+//	    sites:
+//	      - name: default
+//	        addr: ":7999"
+//	        location: ~/Downloads/w/docs
+//
+// The following codes can load it into sitesS struct:
+//
+//	var sites sitesS
+//	err = cmdr.To("server.sites", &sites)
+//
+//	type sitesS struct{ Sites []siteS }
+//
+//	type siteS struct {
+//	  Name        string
+//	  Addr        string
+//	  Location    string
+//	}
+//
+// In this above case, 'store' loaded yaml and built it
+// into memory, and extract 'server.sites' into 'sitesS'.
+// Since 'server.sites' is a yaml array, it was loaded
+// as a store entry and holds a slice value, so GetSectionFrom
+// extract it to sitesS.Sites field.
+//
+// The optional MOpt operators could be:
+//   - WithKeepPrefix
+//   - WithFilter
+func To[T any](path string, holder *T, opts ...radix.MOpt[any]) (err error) {
+	return App().Store().To(path, holder, opts...)
+}
+
 // Exec starts a new cmdr app (parsing cmdline args based on the given rootCmd)
 // from scratch.
 //

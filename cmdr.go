@@ -112,6 +112,7 @@ func Parsed() bool                   { return App().ParsedState() != nil }      
 func ParsedLastCmd() cli.Cmd         { return App().ParsedState().LastCmd() }         // the parsed last command
 func ParsedCommands() []cli.Cmd      { return App().ParsedState().MatchedCommands() } // the parsed commands
 func ParsedPositionalArgs() []string { return App().ParsedState().PositionalArgs() }  // the rest positional args
+func ParsedState() cli.ParsedState   { return App().ParsedState() }                   // return the parsed state
 
 // LoadedSources records all external sources loaded ok.
 //

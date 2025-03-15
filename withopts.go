@@ -214,7 +214,7 @@ func WithTasksSetupPeripherals(tasks ...cli.Task) cli.Opt {
 //
 // If a peripheral implements `Open(ctx context.Context) error`, it
 // will be initialized before running a hit subcommand.
-func WithPeripherals(peripherals map[string]basics.Peripheral) cli.Opt {
+func WithPeripherals(peripherals PeripheralMap) cli.Opt {
 	return func(s *cli.Config) {
 		s.Store.Set(cli.PeripheralsStoreKey, peripherals)
 		for _, peripheral := range peripherals {
@@ -230,6 +230,8 @@ func WithPeripherals(peripherals map[string]basics.Peripheral) cli.Opt {
 		}
 	}
 }
+
+type PeripheralMap map[string]basics.Peripheral
 
 func Peripheral(name string) basics.Peripheral {
 	var pm = Set().MustGet(cli.PeripheralsStoreKey)

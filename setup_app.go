@@ -28,6 +28,9 @@ type Creator interface {
 	// flags by app object directly.
 	With(cb func(app cli.App)) Creator
 
+	// OnAction apply the root-level onAction handler to the app object.
+	OnAction(handler cli.OnInvokeHandler) Creator
+
 	// Build creates the final app object and stop the
 	// building sequence of a builder pattern.
 	Build() (app cli.App)
@@ -35,6 +38,11 @@ type Creator interface {
 
 type cs struct {
 	app cli.App
+}
+
+func (s *cs) OnAction(handler cli.OnInvokeHandler) Creator {
+	s.app.OnAction(handler)
+	return s
 }
 
 func (s *cs) Create(appName, version, author, desc string, opts ...cli.Opt) Creator {

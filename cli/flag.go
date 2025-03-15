@@ -204,7 +204,8 @@ func (f *Flag) SetOnSetHandler(handler OnSetHandler) {
 // func (f *Flag) Owner() *CmdS    { return c.owner }
 
 // GetTriggeredTimes returns the matched times
-func (f *Flag) GetTriggeredTimes() int { return f.hitTimes }
+func (f *Flag) GetTriggeredTimes() int    { return f.hitTimes }
+func (f *Flag) GetTriggeredTitle() string { return f.hitTitle }
 
 // GetDescZsh temp
 func (f *Flag) GetDescZsh() (desc string) {

@@ -243,6 +243,15 @@ type Cmd interface {
 	// would translate `app start|stop` -> `app server start|stop`.
 	SetRedirectTo(dottedPath string)
 
+	PresetCmdLines() []string // preset command line arguments
+	InvokeProc() string       // invokeProc field
+	InvokeShell() string      // invokeShell field
+	Shell() string            // used shell (for invokeShell field)
+	SetPresetCmdLines(args ...string)
+	SetInvokeProc(str string)
+	SetInvokeShell(str string)
+	SetShell(str string)
+
 	CanInvoke() bool
 	Invoke(ctx context.Context, args []string) (err error)
 

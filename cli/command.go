@@ -120,6 +120,11 @@ func (c *CmdS) SetInvokeProc(str string)                  { c.invokeProc = str }
 func (c *CmdS) SetInvokeShell(str string)                 { c.invokeShell = str }
 func (c *CmdS) SetShell(str string)                       { c.shell = str }
 
+func (c *CmdS) PresetCmdLines() []string { return c.presetCmdLines }
+func (c *CmdS) InvokeProc() string       { return c.invokeProc }
+func (c *CmdS) InvokeShell() string      { return c.invokeShell }
+func (c *CmdS) Shell() string            { return c.shell }
+
 //
 //
 

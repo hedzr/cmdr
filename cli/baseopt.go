@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"regexp"
+	"slices"
 	"strings"
 
 	"gopkg.in/hedzr/errors.v3"
@@ -13,6 +14,27 @@ import (
 
 	"github.com/hedzr/cmdr/v2/conf"
 )
+
+func (c *BaseOpt) Clone() any {
+	return &BaseOpt{
+		owner:        c.owner,
+		root:         c.root,
+		name:         c.name,
+		Long:         c.Long,
+		Short:        c.Short,
+		Aliases:      slices.Clone(c.Aliases),
+		description:  c.description,
+		longDesc:     c.longDesc,
+		examples:     c.examples,
+		group:        c.group,
+		extraShorts:  slices.Clone(c.extraShorts),
+		deprecated:   c.deprecated,
+		hidden:       c.hidden,
+		vendorHidden: c.vendorHidden,
+		hitTitle:     c.hitTitle,
+		hitTimes:     c.hitTimes,
+	}
+}
 
 func (c *BaseOpt) errIsSignalFallback(err error) bool {
 	if err == nil {
@@ -355,6 +377,20 @@ func (c *BaseOpt) GetLongTitleNamesArray() []string {
 	return a
 }
 
+// LongTitle returns long name
+func (c *BaseOpt) LongTitle() string {
+	if n := c.Long; n != "" {
+		return n
+	}
+	if n := c.Name(); n != "" {
+		return n
+	}
+	for _, n := range c.Aliases {
+		return n
+	}
+	return "(noname)"
+}
+
 // GetTitleNames return the joint string of short,full,aliases names
 func (c *BaseOpt) GetTitleNames() string {
 	return c.GetTitleNamesBy(", ")
@@ -407,9 +443,6 @@ func EraseAnyWSs(s string) string {
 	return reSimpSimp.ReplaceAllString(s, "")
 }
 
-// var reSimp = regexp.MustCompile(`[ \t][ \t]+`)
-var reSimpSimp = regexp.MustCompile(`[ \t]+`)
-
 func (c *BaseOpt) DeprecatedHelpString(trans func(ss string, clr color.Color) string, clr, clrDefault color.Color) (hs, plain string) {
 	if c.deprecated != "" {
 		re := regexp.MustCompile(`[Ss]ince:? `)
@@ -428,4 +461,7 @@ var (
 	// reULs  = regexp.MustCompile("_+")
 
 	reSortingPrefix = regexp.MustCompile(`[0-9A-Za-z!#$%^&]+\.`)
+
+	reSimpSimp = regexp.MustCompile(`[ \t]+`)
+	// reSimp = regexp.MustCompile(`[ \t][ \t]+`)
 )

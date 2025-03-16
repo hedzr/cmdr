@@ -3,13 +3,16 @@ package cli
 import (
 	"context"
 	"fmt"
+	"maps"
 	"os"
+	"slices"
 	"strings"
 	"sync/atomic"
 
 	"github.com/hedzr/cmdr/v2/internal/tool"
 	"github.com/hedzr/cmdr/v2/pkg/dir"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
+	"github.com/hedzr/evendeep"
 	"github.com/hedzr/is"
 	"github.com/hedzr/is/exec"
 	"github.com/hedzr/is/states"
@@ -21,6 +24,36 @@ import (
 //
 //
 //
+
+func (c *CmdS) Clone() any {
+	return &CmdS{
+		BaseOpt:               *(c.BaseOpt.Clone().(*BaseOpt)),
+		tailPlaceHolders:      c.tailPlaceHolders,
+		commands:              slices.Clone(c.commands),
+		flags:                 slices.Clone(c.flags),
+		preActions:            slices.Clone(c.preActions),
+		onInvoke:              c.onInvoke,
+		postActions:           slices.Clone(c.postActions),
+		onMatched:             slices.Clone(c.onMatched),
+		onEvalSubcommands:     c.onEvalSubcommands,
+		onEvalSubcommandsOnce: c.onEvalSubcommandsOnce,
+		onEvalFlags:           c.onEvalFlags,
+		onEvalFlagsOnce:       c.onEvalFlagsOnce,
+		redirectTo:            c.redirectTo,
+		presetCmdLines:        slices.Clone(c.presetCmdLines),
+		invokeProc:            c.invokeProc,
+		invokeShell:           c.invokeShell,
+		shell:                 c.shell,
+		longCommands:          maps.Clone(c.longCommands),
+		shortCommands:         maps.Clone(c.shortCommands),
+		longFlags:             maps.Clone(c.longFlags),
+		shortFlags:            maps.Clone(c.shortFlags),
+		allCommands:           maps.Clone(c.allCommands),
+		allFlags:              maps.Clone(c.allFlags),
+		toggles:               maps.Clone(c.toggles),
+		headLikeFlag:          c.headLikeFlag,
+	}
+}
 
 func (c *CmdS) IsRoot() bool {
 	if x, ok := c.root.Cmd.(*CmdS); ok && x == c {

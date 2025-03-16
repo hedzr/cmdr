@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/hedzr/is/term/color"
@@ -410,4 +411,32 @@ func (f *Flag) EnvVarsHelpString(trans func(ss string, clr color.Color) string, 
 		hs = trans(fmt.Sprintf("[Env: <font color=%v>%s</font>]", color.ToColorString(clr), dep), clrDefault)
 	}
 	return
+}
+
+func (f *Flag) Clone() any {
+	return &Flag{
+		BaseOpt:          *(f.BaseOpt.Clone().(*BaseOpt)),
+		toggleGroup:      f.toggleGroup,
+		placeHolder:      f.placeHolder,
+		defaultValue:     f.defaultValue,
+		envVars:          slices.Clone(f.envVars),
+		externalEditor:   f.externalEditor,
+		validArgs:        slices.Clone(f.validArgs),
+		min:              f.min,
+		max:              f.max,
+		headLike:         f.headLike,
+		requited:         f.requited,
+		onParseValue:     f.onParseValue,
+		onMatched:        f.onMatched,
+		onChanging:       f.onChanging,
+		onChanged:        f.onChanged,
+		onSet:            f.onSet,
+		actionStr:        f.actionStr,
+		mutualExclusives: slices.Clone(f.mutualExclusives),
+		prerequisites:    slices.Clone(f.prerequisites),
+		justOnce:         f.justOnce,
+		circuitBreak:     f.circuitBreak,
+		dblTildeOnly:     f.dblTildeOnly,
+		negatable:        f.negatable,
+	}
 }

@@ -339,6 +339,11 @@ func (c *BaseOpt) GroupHelpTitle() string {
 // GetTitleNamesArray returns short,full,aliases names
 func (c *BaseOpt) GetTitleNamesArray() []string {
 	a := c.GetTitleNamesArrayMainly()
+	for _, x := range c.extraShorts {
+		if x != "" {
+			a = uniAddStr(a, x)
+		}
+	}
 	a = uniAddStrS(a, c.Aliases...)
 	return a
 }

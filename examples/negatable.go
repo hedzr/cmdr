@@ -14,6 +14,7 @@ func AddNegatableFlagImpl(parent cli.CommandBuilder, dontHandlingParentCmd ...bo
 		Description("negatable flag: <code>--no-warning</code> is available", "").
 		Group("Negatable").
 		Negatable(true).
+		LeadingPlusSign(true).
 		Default(false).
 		Build()
 
@@ -30,6 +31,10 @@ func AddNegatableFlagImpl(parent cli.CommandBuilder, dontHandlingParentCmd ...bo
 			w := cmd.Store().MustBool("no-warning")
 			println("warning flag: ", v)
 			println("no-warning flag: ", w)
+			wf := cmd.FlagBy("warning")
+			if wf != nil && wf.LeadingPlusSign() {
+				println("warning flag with leading plus sign: +w FOUND.")
+			}
 			return
 		})
 	}

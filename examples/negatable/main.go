@@ -31,6 +31,11 @@ func main() {
 			w := cmd.Store().MustBool("no-warning")
 			println("warning flag: ", v)
 			println("no-warning flag: ", w)
+
+			wf := cmd.FlagBy("warning")
+			if wf != nil && wf.LeadingPlusSign() {
+				println("warning flag with leading plus sign: +w FOUND.")
+			}
 			return
 		}).
 		Build()

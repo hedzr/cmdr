@@ -190,9 +190,13 @@ type Cmd interface {
 	Root() *RootCommand
 	SetRoot(*RootCommand)
 
+	// Name will be shown in help screen as long-title preferred than Long field.
 	Name() string
 	SetName(name string)
-	ShortName() string
+	// ShortTitle extract short-title ordering by: Short field, Shorts field, ...
+	ShortTitle() string
+	// LongTitle extracts long-title ordering by: Long field, name field, aliases...
+	LongTitle() string
 	// ShortNames collect and return all short titles
 	// as one array without duplicated items.
 	//
@@ -255,6 +259,7 @@ type Cmd interface {
 	CanInvoke() bool
 	Invoke(ctx context.Context, args []string) (err error)
 
+	OnEvaluateSubCommandsFromConfig() string
 	OnEvalSubcommands() OnEvaluateSubCommands
 	OnEvalSubcommandsOnce() OnEvaluateSubCommands
 	OnEvalSubcommandsOnceInvoked() bool
@@ -334,6 +339,8 @@ type CmdS struct {
 	postActions []OnPostInvokeHandler
 
 	onMatched []OnCommandMatchedHandler
+
+	onEvalSubcommandsFrom string
 
 	onEvalSubcommands *struct {
 		cb OnEvaluateSubCommands
@@ -461,6 +468,8 @@ type Flag struct {
 	// For a flag named as 'warning`, both `--warning` and
 	// `--no-warning` are avaliable in cmdline.
 	negatable bool
+
+	leadingPlusSign bool
 }
 
 type CmdSlice struct {

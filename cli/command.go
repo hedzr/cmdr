@@ -381,10 +381,8 @@ func (c *CmdS) SetHitTitle(title string) {
 	c.hitTitle = title
 	c.hitTimes++
 }
-func (c *CmdS) HitTitle() string { return c.hitTitle }
-func (c *CmdS) HitTimes() int    { return c.hitTimes }
-
-func (c *CmdS) ShortName() string    { return c.Short }
+func (c *CmdS) HitTitle() string     { return c.hitTitle }
+func (c *CmdS) HitTimes() int        { return c.hitTimes }
 func (c *CmdS) ShortNames() []string { return c.Shorts() }
 func (c *CmdS) AliasNames() []string { return c.Aliases }
 

@@ -391,6 +391,19 @@ func (c *BaseOpt) LongTitle() string {
 	return "(noname)"
 }
 
+// ShortTitle _
+func (c *BaseOpt) ShortTitle() string {
+	if s := c.Short; s != "" {
+		return s
+	}
+	for _, s := range c.extraShorts {
+		if s != "" {
+			return s
+		}
+	}
+	return ""
+}
+
 // GetTitleNames return the joint string of short,full,aliases names
 func (c *BaseOpt) GetTitleNames() string {
 	return c.GetTitleNamesBy(", ")

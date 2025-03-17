@@ -213,3 +213,12 @@ func (s *ffb) Negatable(b ...bool) cli.FlagBuilder {
 	s.Flag.SetNegatable(v)
 	return s
 }
+
+func (s *ffb) LeadingPlusSign(b ...bool) cli.FlagBuilder {
+	v := true
+	for _, bv := range b {
+		v = v && bv
+	}
+	s.Flag.SetLeadingPlusSign(v)
+	return s
+}

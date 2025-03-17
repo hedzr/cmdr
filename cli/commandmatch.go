@@ -54,6 +54,7 @@ type FlagValuePkg struct {
 
 	SpecialTilde bool
 	Short        bool
+	PlusSign     bool
 
 	Matched string
 	Remains string
@@ -70,6 +71,7 @@ func NewFVP(args []string, remains string, short, plusSign, dblTilde bool) (vp *
 	vp = &FlagValuePkg{
 		Args:         args,
 		Short:        short,
+		PlusSign:     plusSign,
 		SpecialTilde: dblTilde,
 		Remains:      remains,
 	}
@@ -107,8 +109,10 @@ func (c *CmdS) MatchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, err e
 			cclist = c.shortFlags
 		}
 
+		// short flag matched?
 		if ff, ok = cclist[vp.Remains]; ok && c.testDblTilde(vp.SpecialTilde, ff) {
-			vp.PartialMatched, vp.Matched, vp.Remains, ff.hitTitle, ff.hitTimes = false, vp.Remains, "", vp.Remains, ff.hitTimes+1
+			ff.hitTitle, ff.hitTimes, ff.leadingPlusSign = vp.Remains, ff.hitTimes+1, vp.PlusSign
+			vp.PartialMatched, vp.Matched, vp.Remains = false, vp.Remains, ""
 			return c.tryParseValue(ctx, vp, ff)
 		}
 

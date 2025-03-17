@@ -56,6 +56,7 @@ loopArgs:
 		case '+': // for bool flag it's a flipper;
 			if len(pc.arg) > 1 {
 				pc.leadingPlus = true
+				pc.arg, pc.short, pc.dblTilde = pc.arg[1:], true, false
 
 				if w.interpretLeadingPlusSign(pc) {
 					continue
@@ -68,7 +69,6 @@ loopArgs:
 					return cb(w, pc)
 				}
 				if err = plusFound(func(w *workerS, pc *parseCtx) error {
-					pc.arg, pc.short, pc.dblTilde = pc.arg[1:], true, false
 					return w.matchFlag(ctx, pc, true)
 				}); !w.errIsSignalOrNil(err) {
 					err = w.onUnknownFlagMatched(ctx, pc)
@@ -134,8 +134,8 @@ loopArgs:
 }
 
 func (w *workerS) interpretLeadingPlusSign(pc *parseCtx) bool {
-	if w.onInterpretLeadingPlusSign != nil {
-		return w.onInterpretLeadingPlusSign(w, pc)
+	if w.OnInterpretLeadingPlusSign != nil {
+		return w.OnInterpretLeadingPlusSign(w, pc)
 	}
 	return false
 }

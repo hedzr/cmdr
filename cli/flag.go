@@ -208,6 +208,12 @@ func (f *Flag) SetNegatable(b bool) {
 // `--no-warning` are available in cmdline.
 func (f *Flag) Negatable() bool { return f.negatable }
 
+func (f *Flag) SetLeadingPlusSign(b bool) {
+	f.leadingPlusSign = b
+}
+
+func (f *Flag) LeadingPlusSign() bool { return f.leadingPlusSign }
+
 //
 //
 

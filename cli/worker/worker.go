@@ -75,10 +75,10 @@ type HelpWriter interface {
 type workerS struct {
 	*cli.Config
 
-	tasksAfterParse            []taskAfterParse
-	onInterpretLeadingPlusSign func(w *workerS, ctx *parseCtx) bool
-	wrHelpScreen               HelpWriter
-	wrDebugScreen              HelpWriter
+	tasksAfterParse []taskAfterParse
+	wrHelpScreen    HelpWriter
+	wrDebugScreen   HelpWriter
+	// onInterpretLeadingPlusSign cli.OnInterpretLeadingPlusSign
 
 	// app app.App
 

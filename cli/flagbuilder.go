@@ -198,4 +198,6 @@ type FlagBuilder interface {
 	// For a flag named as 'warning`, both `--warning` and
 	// `--no-warning` are available in cmdline.
 	Negatable(b ...bool) FlagBuilder
+
+	LeadingPlusSign(b ...bool) FlagBuilder
 }

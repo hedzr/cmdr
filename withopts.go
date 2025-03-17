@@ -312,8 +312,8 @@ func WithConfig(conf *cli.Config) cli.Opt {
 	}
 }
 
-// func WithOnInterpretLeadingPlusSign(cb func()) cli.Opt {
-// 	return func(s *cli.Config) {
-// 		s.onInterpretLeadingPlusSign = cb
-// 	}
-// }
+func WithOnInterpretLeadingPlusSign(cb cli.OnInterpretLeadingPlusSign) cli.Opt {
+	return func(s *cli.Config) {
+		s.OnInterpretLeadingPlusSign = cb
+	}
+}

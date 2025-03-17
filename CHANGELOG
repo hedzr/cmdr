@@ -1,19 +1,56 @@
 # CHANGELOG
 
+- v2.1.1
+
+  - lots of improvements and fixes
+    - add `.LeadingPlusSign()` to negatable testing
+    - fix litecmd.go to fit for `cli.Cmd`
+    - add `.OnEvaluateSubCommandsFromConfig()` to `jumpCmd` - for cmdr-tests/examples/concise app
+    - cmdr: fix `GetTitleNamesArrayMainly()` by prefered extracting name field
+    - cmdr: fix `GetTitleNamesArray()` by adding missed `shorts` titles
+    - cmdr: fix `CmdS.EqualTo()`
+    - cmdr: fix `BaseOpt.ShotTitle()`
+    - cmdr: add `OnEvaluateSubCommandsFromConfig()`
+    - cmdr: add `LeadingPlusSign()`
+    - fix CmdS. `AddSubCommand` & `AddFlag`
+    - cmdr: add `negatable` flag (auto `--no-XXX`)
+    - cmdr: improved `WithPeripherals(peripherals PeripheralMap)`
+    - cmdr: implement PresetCmdLines
+    - cmdr: implement InvokeProc and InvokeShell
+    - cmdr: fix checkValidArgs
+    - cmdr: fix checkRequired
+    - cmdr: exposed `InvokeProc/Shell/Shell/PresetCmdLines`
+    - cmdr: add `To()`
+    - cmdr: add Flag.`GetTriggerredTitle()` (=`GetHitStr()`)
+    - cmdr: add `ParsedState()`
+    - cmdr: add `TestStoreGetSectionFrom()`
+    - cmdr: add `OnAction` to `Creator`
+    - cmdr: add `DottedPathToCommandOrFlag()`
+    - cmdr: add `ActionDefault` to `ActionEnum`
+    - fixed/improved `CmdS.SubCmdBy()/FlagBy()` Hedzr
+    - improved examples/
+    - add examples/cmd/preset-cmdline.go
+    - add examples/cmd/invoke.go
+    - add example app: valid-args
+    - add example app: required
+    - add example app: external-editor
+  - upgrade deps
+  - security patches
+
 - v2.1.0
 
   - upgrade toolchain to go1.23.7
   - lots of improvements and fixes
     - fix typo in doc of `WithBuilders`
-    - exposed more package-level functions
     - fix test definition
-    - add test `TestBaseOpt_GetDottedPath`
-    - cmdr: define group name constants
-    - more walk functions
     - fix `Shorts()` returned unique items
+    - exposed more package-level functions
+    - add test `TestBaseOpt_GetDottedPath`
+    - more walk functions
     - some subtests for parsing duration, parse int,float,complex, ...
     - make ActionEnum constants public too
     - make `dottedPathToCommandOrFlagG` public (as `DottedPathToCommandOrFlag(dottedPath)`
+    - cmdr: define group name constants
     - cmdr: add `Error` and `Recycle()` to `Runner`
     - cmdr: add `DoBuiltinAction` to `Runner`
     - cmdr: add App.OnAction
@@ -54,6 +91,7 @@
     - builder: Info(): added some blank lines
   - other fixes and improvements
   - more docs
+  - more examples
   - remove unused file and cleanup
   - upgrade deps
   - security patch

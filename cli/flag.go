@@ -198,6 +198,16 @@ func (f *Flag) SetOnSetHandler(handler OnSetHandler) {
 	f.onSet = handler
 }
 
+func (f *Flag) SetNegatable(b bool) {
+	f.negatable = b
+}
+
+// Negatable flag supports auto-orefixing by `--no-`.
+//
+// For a flag named as 'warning`, both `--warning` and
+// `--no-warning` are available in cmdline.
+func (f *Flag) Negatable() bool { return f.negatable }
+
 //
 //
 

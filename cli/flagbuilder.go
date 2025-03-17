@@ -192,4 +192,10 @@ type FlagBuilder interface {
 	// OnSet handler will be called when this flag is being modified
 	// programmatically.
 	OnSet(handler OnSetHandler) FlagBuilder
+
+	// Negatable flag supports auto-orefixing by `--no-`.
+	//
+	// For a flag named as 'warning`, both `--warning` and
+	// `--no-warning` are available in cmdline.
+	Negatable(b ...bool) FlagBuilder
 }

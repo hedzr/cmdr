@@ -204,3 +204,12 @@ func (s *ffb) OnSet(handler cli.OnSetHandler) cli.FlagBuilder {
 	s.Flag.SetOnSetHandler(handler)
 	return s
 }
+
+func (s *ffb) Negatable(b ...bool) cli.FlagBuilder {
+	v := true
+	for _, bv := range b {
+		v = v && bv
+	}
+	s.Flag.SetNegatable(v)
+	return s
+}

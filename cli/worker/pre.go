@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -195,6 +196,11 @@ func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, c
 				}
 				if conf != nil {
 					conf.Set(ff.GetDottedPath(), ff.DefaultValue())
+					if ff.Negatable() {
+						title := fmt.Sprintf("no-%s", ff.LongTitle())
+						nf := ff.Owner().FlagBy(title)
+						conf.Set(nf.GetDottedPath(), nf.DefaultValue())
+					}
 				}
 			} else if x, ok := cc.(interface{ TransferIntoStore(store.Store, bool) }); ok {
 				x.TransferIntoStore(conf, false)

@@ -588,6 +588,33 @@ func (c *CmdS) ensureXrefFlags(ctx context.Context) { //nolint:revive
 				}
 				ff.owner.SetHeadLikeFlag(ff)
 			}
+			if ff.negatable {
+				// add `--no-xxx` flag automatically
+				if ff.defaultValue == nil {
+					ff.defaultValue = false
+				}
+				ensureNegatable := func(c *CmdS, f, ff *Flag, title string) {
+					f.negatable, f.defaultValue, f.Long = false, true, title
+					c.longFlags[title] = f
+
+					tg := title
+					if c.toggles == nil {
+						c.toggles = make(map[string]*ToggleGroupMatch)
+					}
+					if c.toggles[tg] == nil {
+						c.toggles[tg] = &ToggleGroupMatch{Flags: make(map[string]*Flag)}
+					}
+					c.toggles[tg].Flags[f.Title()] = f
+					c.toggles[tg].Flags[ff.Title()] = ff
+				}
+				title := fmt.Sprintf("no-%s", ff.LongTitle())
+				nf := evendeep.MakeClone(ff)
+				if f, ok := nf.(*Flag); ok {
+					ensureNegatable(c, f, ff, title)
+				} else if f, ok := nf.(Flag); ok {
+					ensureNegatable(c, &f, ff, title)
+				}
+			}
 			for _, ss := range ff.GetLongTitleNamesArray() {
 				c.longFlags[ss] = ff
 			}

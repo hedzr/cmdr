@@ -89,17 +89,17 @@ type RootCommand struct {
 	HeaderLine string // HeaderLine override Copyright and Author field, it's final top banner in help screen
 	FooterLine string // FooterLine is optional banner line to override the internal bottom line.
 
-	Cmd // root command here
+	Cmd `copy:",shallow"` // root command here
 
 	preActions  []OnPreInvokeHandler  // optional
 	postActions []OnPostInvokeHandler // optional
 	linked      int32                 // ensureTree called?
-	app         App                   // back reference to App
+	app         App                   `copy:",shallow"` // back reference to App
 }
 
 type BaseOpt struct {
-	owner Cmd          // parent Cmd
-	root  *RootCommand // root Cmd
+	owner Cmd          `copy:",shallow"` // parent Cmd
+	root  *RootCommand `copy:",shallow"` // root Cmd
 
 	// name is reserved for internal purpose.
 	// exposed as Name.
@@ -382,19 +382,19 @@ type CmdS struct {
 
 	// internal indices ------------------
 
-	longCommands  map[string]*CmdS
-	shortCommands map[string]*CmdS
+	longCommands  map[string]*CmdS `copy:",shallow"`
+	shortCommands map[string]*CmdS `copy:",shallow"`
 
-	longFlags  map[string]*Flag
-	shortFlags map[string]*Flag
+	longFlags  map[string]*Flag `copy:",shallow"`
+	shortFlags map[string]*Flag `copy:",shallow"`
 	// allLongFlags  map[string]*Flag
 	// allShortFlags map[string]*Flag
 
-	allCommands map[string]*CmdSlice
-	allFlags    map[string]*FlgSlice
+	allCommands map[string]*CmdSlice `copy:",shallow"`
+	allFlags    map[string]*FlgSlice `copy:",shallow"`
 
-	toggles      map[string]*ToggleGroupMatch // key: toggle-group
-	headLikeFlag *Flag
+	toggles      map[string]*ToggleGroupMatch `copy:",shallow"` // key: toggle-group
+	headLikeFlag *Flag                        `copy:",shallow"`
 }
 
 type ToggleGroupMatch struct {
@@ -455,6 +455,12 @@ type Flag struct {
 	// invalid form and couldn't be used for other Flag
 	// anymore.
 	dblTildeOnly bool // such as '~~tree'
+
+	// A negatable flag supports auto-orefixing by `--no-`.
+	//
+	// For a flag named as 'warning`, both `--warning` and
+	// `--no-warning` are avaliable in cmdline.
+	negatable bool
 }
 
 type CmdSlice struct {

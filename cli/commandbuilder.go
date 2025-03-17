@@ -111,6 +111,8 @@ type CommandBuilder interface {
 	OnEvaluateFlags(handler OnEvaluateFlags) CommandBuilder
 	OnEvaluateFlagsOnce(handler OnEvaluateFlags) CommandBuilder
 
+	OnEvaluateSubCommandsFromConfig(path ...string) CommandBuilder
+
 	// PresetCmdLines provides a set of args so that end-user can
 	// type the command-line bypass its.
 	PresetCmdLines(args ...string) CommandBuilder

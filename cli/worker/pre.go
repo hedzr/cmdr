@@ -6,9 +6,12 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
+	"github.com/hedzr/evendeep"
 	"github.com/hedzr/is"
 	"github.com/hedzr/store"
+	"github.com/hedzr/store/radix"
 
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/cli/atoa"
@@ -24,7 +27,8 @@ func (w *workerS) preProcess(ctx context.Context) (err error) {
 
 	w.preEnvSet(ctx) // setup envvars: APP, APP_NAME, etc.
 
-	if err = w.linkCommands(ctx, w.root); err != nil {
+	var aliasMap map[string]*cli.CmdS
+	if aliasMap, err = w.linkCommands(ctx, w.root); err != nil {
 		return
 	}
 
@@ -44,9 +48,42 @@ func (w *workerS) preProcess(ctx context.Context) (err error) {
 
 	w.postEnvLoad(ctx)
 
+	if err = w.postLinkCommands(ctx, w.root, aliasMap); err != nil {
+		return
+	}
+
 	if is.VerboseBuild() || is.DebugBuild() { // `-tags delve` or `-tags verbose` used in building?
 		logz.VerboseContext(ctx, "Dumping Store ...")
 		logz.VerboseContext(ctx, w.Store().Dump())
+	}
+	return
+}
+
+func (w *workerS) postLinkCommands(ctx context.Context, root *cli.RootCommand, aliasMap map[string]*cli.CmdS) (err error) {
+	for k, cc := range aliasMap {
+		conf := w.Store().WithPrefix(k)
+		from := conf.Prefix() + "."
+		cvt := evendeep.Cvt{}
+		conf.Walk(from, func(path, fragment string, node radix.Node[any]) {
+			logz.VerboseContext(ctx, "post-link-command", "path", path, "fragment", fragment, "value", node.Data())
+			if path != from {
+				line := cvt.String(node.Data())
+				c := &cli.CmdS{
+					BaseOpt: cli.BaseOpt{
+						Long: fmt.Sprintf("alias-%s", fragment),
+					},
+				}
+				if strings.HasPrefix(line, "!") {
+					c.SetInvokeProc(strings.TrimSpace(line[1:]))
+				} else {
+					c.SetInvokeShell(strings.TrimSpace(line[1:]))
+				}
+				c.SetName(fragment)
+				c.SetGroup("Alias")
+				err = cc.AddSubCommand(c)
+			}
+		})
+		_ = cc
 	}
 	return
 }
@@ -132,11 +169,20 @@ func (w *workerS) postEnvLoad(ctx context.Context) {
 	}
 }
 
-func (w *workerS) linkCommands(ctx context.Context, root *cli.RootCommand) (err error) {
+func (w *workerS) linkCommands(ctx context.Context, root *cli.RootCommand) (aliasMap map[string]*cli.CmdS, err error) {
 	if err = w.addBuiltinCommands(root); err == nil {
 		if cx, ok := root.Cmd.(*cli.CmdS); ok {
 			cx.EnsureTree(ctx, root.App(), root) // link the added builtin commands too
-			if err = w.xrefCommands(ctx, root); err == nil {
+			if err = w.xrefCommands(ctx, root, func(cc cli.Cmd, index, level int) {
+				if x := cc.OnEvaluateSubCommandsFromConfig(); x != "" {
+					if aliasMap == nil {
+						aliasMap = make(map[string]*cli.CmdS)
+					}
+					if c, ok1 := cc.(*cli.CmdS); ok1 {
+						aliasMap[x] = c
+					}
+				}
+			}); err == nil {
 				if err = w.commandsToStore(ctx, root); err == nil {
 					logz.VerboseContext(ctx, "linkCommands() - *RootCommand linked itself")
 				}

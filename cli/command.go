@@ -35,6 +35,7 @@ func (c *CmdS) Clone() any {
 		onInvoke:              c.onInvoke,
 		postActions:           slices.Clone(c.postActions),
 		onMatched:             slices.Clone(c.onMatched),
+		onEvalSubcommandsFrom: c.onEvalSubcommandsFrom,
 		onEvalSubcommands:     c.onEvalSubcommands,
 		onEvalSubcommandsOnce: c.onEvalSubcommandsOnce,
 		onEvalFlags:           c.onEvalFlags,
@@ -249,6 +250,19 @@ func (c *CmdS) SetOnMatched(functions ...OnCommandMatchedHandler) {
 	c.onMatched = append(c.onMatched, functions...)
 }
 
+func (c *CmdS) SetOnEvaluateSubCommandsFromConfig(path ...string) {
+	from := ""
+	for _, p := range path {
+		if p != "" {
+			from = p
+		}
+	}
+	if from == "" {
+		from = "alias"
+	}
+	c.onEvalSubcommandsFrom = from
+}
+
 func (c *CmdS) SetOnEvaluateSubCommands(handler OnEvaluateSubCommands) {
 	c.onEvalSubcommands = &struct{ cb OnEvaluateSubCommands }{cb: handler}
 }
@@ -274,6 +288,10 @@ func (c *CmdS) SetOnEvaluateFlagsOnce(handler OnEvaluateFlags) {
 }
 
 //
+
+func (c *CmdS) OnEvaluateSubCommandsFromConfig() string {
+	return c.onEvalSubcommandsFrom
+}
 
 func (c *CmdS) OnEvalSubcommands() OnEvaluateSubCommands {
 	if c.onEvalSubcommands == nil {

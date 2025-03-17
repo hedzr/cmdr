@@ -226,6 +226,11 @@ func (s *ccb) OnMatched(handler cli.OnCommandMatchedHandler) cli.CommandBuilder 
 	return s
 }
 
+func (s *ccb) OnEvaluateSubCommandsFromConfig(path ...string) cli.CommandBuilder {
+	s.SetOnEvaluateSubCommandsFromConfig(path...)
+	return s
+}
+
 func (s *ccb) OnEvaluateSubCommands(handler cli.OnEvaluateSubCommands) cli.CommandBuilder {
 	s.SetOnEvaluateSubCommands(handler)
 	return s

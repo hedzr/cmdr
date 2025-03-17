@@ -161,14 +161,17 @@ func (c *CmdS) Shell() string            { return c.shell }
 //
 //
 
-func (c *CmdS) AddSubCommand(child *CmdS, callbacks ...func(cc *CmdS)) { //nolint:revive
+var errDuplicated = errors.New("duplicated command")
+var errDuplicatedFlag = errors.New("duplicated flag")
+
+func (c *CmdS) AddSubCommand(child *CmdS, callbacks ...func(cc *CmdS)) (err error) { //nolint:revive
 	if child == nil {
 		return
 	}
 
 	for _, cc := range c.commands {
 		if cc == child || cc.EqualTo(child) {
-			return
+			return errDuplicated
 		}
 	}
 	for _, cb := range callbacks {
@@ -178,22 +181,35 @@ func (c *CmdS) AddSubCommand(child *CmdS, callbacks ...func(cc *CmdS)) { //nolin
 	}
 	for _, x := range c.commands {
 		if x.EqualTo(child) {
-			return
+			return errDuplicated
 		}
 	}
 	c.commands = append(c.commands, child)
 	child.owner = c
 	child.root = c.root
+
+	if g := c.GroupTitle(); g != "" && c.allCommands != nil {
+		if cs := c.allCommands[g]; cs != nil {
+			cs.A = append(cs.A, child)
+		}
+	}
+	if lt := child.LongTitle(); c.longCommands != nil && lt != "" {
+		c.longCommands[lt] = child
+	}
+	if lt := child.ShortTitle(); c.shortCommands != nil && lt != "" {
+		c.shortCommands[lt] = child
+	}
+	return
 }
 
-func (c *CmdS) AddFlag(child *Flag, callbacks ...func(ff *Flag)) { //nolint:revive
+func (c *CmdS) AddFlag(child *Flag, callbacks ...func(ff *Flag)) (err error) { //nolint:revive
 	if child == nil {
 		return
 	}
 
 	for _, cc := range c.flags {
 		if cc == child || cc.EqualTo(child) {
-			return
+			return errDuplicatedFlag
 		}
 	}
 	for _, cb := range callbacks {
@@ -203,12 +219,25 @@ func (c *CmdS) AddFlag(child *Flag, callbacks ...func(ff *Flag)) { //nolint:revi
 	}
 	for _, x := range c.flags {
 		if x.EqualTo(child) {
-			return
+			return errDuplicatedFlag
 		}
 	}
 	c.flags = append(c.flags, child)
 	child.owner = c
 	child.root = c.root
+
+	if g := c.GroupTitle(); g != "" && c.allCommands != nil {
+		if cs := c.allFlags[g]; cs != nil {
+			cs.A = append(cs.A, child)
+		}
+	}
+	if lt := child.LongTitle(); c.longFlags != nil && lt != "" {
+		c.longFlags[lt] = child
+	}
+	if lt := child.ShortTitle(); c.shortFlags != nil && lt != "" {
+		c.shortFlags[lt] = child
+	}
+	return
 }
 
 //

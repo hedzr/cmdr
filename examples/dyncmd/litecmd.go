@@ -104,7 +104,8 @@ func (s *liteCmdS) OwnerOrParent() cli.BacktraceableMin { return s.owner.(cli.Ba
 
 func (s *liteCmdS) Name() string             { return s.name() }
 func (s *liteCmdS) SetName(string)           {}
-func (s *liteCmdS) ShortName() string        { return s.name() }
+func (s *liteCmdS) ShortTitle() string       { return s.name() }
+func (s *liteCmdS) LongTitle() string        { return s.name() }
 func (s *liteCmdS) ShortNames() []string     { return []string{s.name()} }
 func (s *liteCmdS) AliasNames() []string     { return nil }
 func (s *liteCmdS) Desc() string             { return s.String() }
@@ -172,6 +173,10 @@ func (s *liteCmdS) Invoke(ctx context.Context, args []string) (err error) {
 	fullPath := path.Join(s.dirName, s.name())
 	err = exec.Run("sh", "-c", fullPath)
 	return
+}
+
+func (c *liteCmdS) OnEvaluateSubCommandsFromConfig() string {
+	return ""
 }
 
 func (s *liteCmdS) OnEvalSubcommands() cli.OnEvaluateSubCommands {

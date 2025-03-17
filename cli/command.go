@@ -826,7 +826,7 @@ func (c *CmdS) EqualTo(rh *CmdS) (ok bool) {
 	if rh == nil {
 		return false
 	}
-	return c.GetTitleName() == rh.GetTitleName()
+	return c.Name() == rh.Name() && c.Long == rh.Long
 }
 
 func (c *CmdS) GetGroupedCommands(group string) (commands []*CmdS) {

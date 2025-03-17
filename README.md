@@ -10,15 +10,16 @@
 [![Coverage Status](https://coveralls.io/repos/github/hedzr/cmdr/badge.svg?branch=master)](https://coveralls.io/github/hedzr/cmdr?branch=master)-->
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go#command-line)
 
-> **Preview v2.1.0**:
-> A preview release - v2.1.x series  
-> `cmdr-docs-dev` in composing.
+> **Preview v2.1.1**:
+> A preview release for the frozen stable API - v2.1.x series  
+> `[cmdr-docs-dev](https://github.com/hedzr/cmdr-docs-dev)` in composing.
 
 `cmdr` is a POSIX-compliant, command-line argument parser library with Golang.
 
 Since v2, our license moved to Apache 2.0.
 
-Since v2.1, the minimal toolchain move to go1.23.7. A preview version released at v2.1.0, next minor version will be stable.
+Since v2.1, the minimal toolchain move to go1.23.7.
+A preview version released at v2.1.0, the stable API has been freezing.
 
 ![cover](https://user-images.githubusercontent.com/12786150/72876202-f49ee500-3d30-11ea-9de0-434bf8decf90.gif)<!-- built by https://ezgif.com/ -->
 

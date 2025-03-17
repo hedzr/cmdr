@@ -354,7 +354,9 @@ func (c *BaseOpt) GetTitleNamesArrayMainly() []string {
 	if c.Short != "" {
 		a = uniAddStr(a, c.Short)
 	}
-	if c.Long != "" {
+	if c.name != "" {
+		a = uniAddStr(a, c.name)
+	} else if c.Long != "" {
 		a = uniAddStr(a, c.Long)
 	}
 	return a

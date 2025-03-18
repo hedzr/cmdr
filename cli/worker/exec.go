@@ -120,8 +120,6 @@ func (w *workerS) handleActions(ctx context.Context, pc *parseCtx) (handled bool
 	return
 }
 
-type onAction func(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) (err error)
-
 func (w *workerS) beforeExec(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) (deferActions func(errInvoked error), err error) {
 	deferActions = func(error) {}
 	err = w.checkRequiredFlags(ctx, pc, lastCmd)
@@ -192,6 +190,9 @@ func (w *workerS) onDefaultAction(ctx context.Context, pc *parseCtx, lastCmd cli
 func (w *workerS) onPassThruCharMatched(ctx context.Context, pc *parseCtx) (err error) { //nolint:unparam
 	if atomic.CompareAndSwapInt32(&pc.passThruMatched, 0, 1) {
 		atomic.StoreInt32(&pc.passThruMatched, int32(pc.i))
+		if w.OnPassThruCharMatched != nil {
+			err = w.OnPassThruCharMatched(ctx, pc)
+		}
 	}
 	return
 }
@@ -199,6 +200,9 @@ func (w *workerS) onPassThruCharMatched(ctx context.Context, pc *parseCtx) (err 
 func (w *workerS) onSingleHyphenMatched(ctx context.Context, pc *parseCtx) (err error) { //nolint:unparam
 	if atomic.CompareAndSwapInt32(&pc.singleHyphenMatched, 0, 1) {
 		atomic.StoreInt32(&pc.singleHyphenMatched, int32(pc.i))
+		if w.OnSingleHyphenMatched != nil {
+			err = w.OnSingleHyphenMatched(ctx, pc)
+		}
 	}
 	return
 }
@@ -206,12 +210,18 @@ func (w *workerS) onSingleHyphenMatched(ctx context.Context, pc *parseCtx) (err 
 func (w *workerS) onUnknownCommandMatched(ctx context.Context, pc *parseCtx) (err error) {
 	logz.WarnContext(ctx, "[cmdr] UNKNOWN <mark>CmdS</mark> FOUND", "arg", pc.arg)
 	err = cli.ErrUnmatchedCommand.FormatWith(pc.arg, pc.LastCmd())
+	if w.OnUnknownCommandHandler != nil {
+		err = w.OnUnknownCommandHandler(ctx, pc.arg, pc.LastCmd(), err)
+	}
 	return
 }
 
 func (w *workerS) onUnknownFlagMatched(ctx context.Context, pc *parseCtx) (err error) {
 	logz.WarnContext(ctx, "[cmdr] UNKNOWN <mark>Flag</mark> FOUND", "arg", pc.arg)
 	err = cli.ErrUnmatchedFlag.FormatWith(pc.arg, pc.LastCmd())
+	if w.OnUnknownFlagHandler != nil {
+		err = w.OnUnknownFlagHandler(ctx, pc.arg, pc.LastCmd(), err)
+	}
 	return
 }
 

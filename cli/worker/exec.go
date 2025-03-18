@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"slices"
+	"strings"
 	"sync/atomic"
 
 	errorsv3 "gopkg.in/hedzr/errors.v3"
@@ -54,13 +55,17 @@ func (w *workerS) execCmd(ctx context.Context, pc *parseCtx, cmd cli.Cmd, forceD
 				err = exec.New().WithCommand(sh, "-c", is).RunAndCheckError()
 				return
 			}
-			err = exec.Call(is, nil)
+			err = exec.New().WithCommandString(is).RunAndCheckError()
 			return
 		}
 	}
 	if ip := cmd.InvokeProc(); ip != "" {
 		if !cmd.CanInvoke() {
-			err = exec.Call(ip, nil)
+			if strings.Contains(ip, "sh -c ") {
+				err = exec.New().WithCommandString(ip).RunAndCheckError()
+			} else {
+				err = exec.Call(ip, nil)
+			}
 			return
 		}
 	}

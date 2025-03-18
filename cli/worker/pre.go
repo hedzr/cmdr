@@ -67,10 +67,15 @@ func (w *workerS) postLinkCommands(ctx context.Context, root *cli.RootCommand, a
 		conf.Walk(from, func(path, fragment string, node radix.Node[any]) {
 			logz.VerboseContext(ctx, "post-link-command", "path", path, "fragment", fragment, "value", node.Data())
 			if path != from {
-				line := cvt.String(node.Data())
+				line := strings.TrimSpace(cvt.String(node.Data()))
+				key := path[len(from):]
+				if len(line) < 1 {
+					return
+				}
+
 				c := &cli.CmdS{
 					BaseOpt: cli.BaseOpt{
-						Long: fmt.Sprintf("alias-%s", fragment),
+						Long: fmt.Sprintf("alias-%s", key),
 					},
 				}
 				c.SetName(key)

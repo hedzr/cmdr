@@ -31,26 +31,34 @@ func DefaultConfig() *Config {
 type Config struct {
 	store.Store `json:"store,omitempty"` // default is a dummy store. create yours with store.New().
 
-	ForceDefaultAction         bool                       `json:"force_default_action,omitempty"`    // use builtin action for debugging if no Action specified to a command
-	DontGroupInHelpScreen      bool                       `json:"no_group_in_help_screen,omitempty"` // group commands and flags by its group-name
-	DontExecuteAction          bool                       `json:"no_execute_action,omitempty"`       // just parsing, without executing [cli.Cmd.OnAction]
-	SortInHelpScreen           bool                       `json:"sort_in_help_screen,omitempty"`     // auto sort commands and flags rather than creating order
-	UnmatchedAsError           bool                       `json:"unmatched_as_error,omitempty"`      // unmatched command or flag as an error and threw it
-	TasksAfterXref             []Task                     `json:"-"`                                 // while command linked and xref'd, it's time to insert user-defined commands dynamically.
-	TasksAfterLoader           []Task                     `json:"-"`                                 // while external loaders loaded.
-	TasksBeforeParse           []Task                     `json:"-"`                                 // globally pre-parse tasks
-	TasksParsed                []Task                     `json:"-"`                                 // globally post-parse tasks
-	TasksBeforeRun             []Task                     `json:"-"`                                 // globally pre-run tasks, it's also used as TasksAfterParsed
-	TasksAfterRun              []Task                     `json:"-"`                                 // globally post-run tasks
-	TasksPostCleanup           []Task                     `json:"-"`                                 // globally post-run tasks, specially for cleanup actions
-	Loaders                    []Loader                   `json:"-"`                                 // external loaders. use cli.WithLoader() prefer
-	HelpScreenWriter           HelpWriter                 `json:"help_screen_writer,omitempty"`      // redirect stdout for help screen printing
-	DebugScreenWriter          HelpWriter                 `json:"debug_screen_writer,omitempty"`     // redirect stdout for debugging outputs
-	Args                       []string                   `json:"args,omitempty"`                    // for testing
-	Env                        map[string]string          `json:"env,omitempty"`                     // inject env var & values
-	AutoEnv                    bool                       `json:"auto_env,omitempty"`                // enable envvars auto-binding?
-	AutoEnvPrefix              string                     `json:"auto_env_prefix,omitempty"`         // envvars auto-binding prefix, bind them to corresponding flags
-	OnInterpretLeadingPlusSign OnInterpretLeadingPlusSign `json:"-"`                                 // parsing '+shortFlag`
+	ForceDefaultAction    bool              `json:"force_default_action,omitempty"`    // use builtin action for debugging if no Action specified to a command
+	DontGroupInHelpScreen bool              `json:"no_group_in_help_screen,omitempty"` // group commands and flags by its group-name
+	DontExecuteAction     bool              `json:"no_execute_action,omitempty"`       // just parsing, without executing [cli.Cmd.OnAction]
+	SortInHelpScreen      bool              `json:"sort_in_help_screen,omitempty"`     // auto sort commands and flags rather than creating order
+	UnmatchedAsError      bool              `json:"unmatched_as_error,omitempty"`      // unmatched command or flag as an error and threw it
+	TasksAfterXref        []Task            `json:"-"`                                 // while command linked and xref'd, it's time to insert user-defined commands dynamically.
+	TasksAfterLoader      []Task            `json:"-"`                                 // while external loaders loaded.
+	TasksBeforeParse      []Task            `json:"-"`                                 // globally pre-parse tasks
+	TasksParsed           []Task            `json:"-"`                                 // globally post-parse tasks
+	TasksBeforeRun        []Task            `json:"-"`                                 // globally pre-run tasks, it's also used as TasksAfterParsed
+	TasksAfterRun         []Task            `json:"-"`                                 // globally post-run tasks
+	TasksPostCleanup      []Task            `json:"-"`                                 // globally post-run tasks, specially for cleanup actions
+	Loaders               []Loader          `json:"-"`                                 // external loaders. use cli.WithLoader() prefer
+	HelpScreenWriter      HelpWriter        `json:"help_screen_writer,omitempty"`      // redirect stdout for help screen printing
+	DebugScreenWriter     HelpWriter        `json:"debug_screen_writer,omitempty"`     // redirect stdout for debugging outputs
+	Args                  []string          `json:"args,omitempty"`                    // for testing
+	Env                   map[string]string `json:"env,omitempty"`                     // inject env var & values
+	AutoEnv               bool              `json:"auto_env,omitempty"`                // enable envvars auto-binding?
+	AutoEnvPrefix         string            `json:"auto_env_prefix,omitempty"`         // envvars auto-binding prefix, bind them to corresponding flags
+
+	OnInterpretLeadingPlusSign OnInterpretLeadingPlusSign `json:"-"` // parsing '+shortFlag`
+	OnShowVersion              OnInvokeHandler            `json:"-"`
+	OnShowBuildInfo            OnInvokeHandler            `json:"-"`
+	OnSBOM                     OnInvokeHandler            `json:"-"`
+	OnPassThruCharMatched      OnPassThruCharHandler      `json:"-"`
+	OnSingleHyphenMatched      OnSingleHyphenHandler      `json:"-"`
+	OnUnknownCommandHandler    OnUnknownCommandHandler    `json:"-"`
+	OnUnknownFlagHandler       OnUnknownCommandHandler    `json:"-"`
 }
 
 // Opt for cmdr system
@@ -126,8 +134,6 @@ type ParsedState interface {
 	DadCommandsText() string
 	CommandsText() string
 }
-
-type OnInterpretLeadingPlusSign func(w Runner, ctx ParsedState) bool
 
 func WithForceDefaultAction(b bool) Opt {
 	return func(s *Config) {

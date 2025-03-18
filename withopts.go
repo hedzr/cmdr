@@ -317,3 +317,45 @@ func WithOnInterpretLeadingPlusSign(cb cli.OnInterpretLeadingPlusSign) cli.Opt {
 		s.OnInterpretLeadingPlusSign = cb
 	}
 }
+
+func WithOnShowVersion(cb cli.OnInvokeHandler) cli.Opt {
+	return func(s *cli.Config) {
+		s.OnShowVersion = cb
+	}
+}
+
+func WithOnShowBuildInfo(cb cli.OnInvokeHandler) cli.Opt {
+	return func(s *cli.Config) {
+		s.OnShowBuildInfo = cb
+	}
+}
+
+func WithOnSBOM(cb cli.OnInvokeHandler) cli.Opt {
+	return func(s *cli.Config) {
+		s.OnSBOM = cb
+	}
+}
+
+func WithOnPassThruCharMatched(cb cli.OnPassThruCharHandler) cli.Opt {
+	return func(s *cli.Config) {
+		s.OnPassThruCharMatched = cb
+	}
+}
+
+func WithOnSingleHyphenMatched(cb cli.OnSingleHyphenHandler) cli.Opt {
+	return func(s *cli.Config) {
+		s.OnSingleHyphenMatched = cb
+	}
+}
+
+func WithOnUnknownCommandHandler(cb cli.OnUnknownCommandHandler) cli.Opt {
+	return func(s *cli.Config) {
+		s.OnUnknownCommandHandler = cb
+	}
+}
+
+func WithOnUnknownFlagHandler(cb cli.OnUnknownCommandHandler) cli.Opt {
+	return func(s *cli.Config) {
+		s.OnUnknownFlagHandler = cb
+	}
+}

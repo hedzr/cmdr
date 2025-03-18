@@ -1,5 +1,5 @@
 ARG BASE_BUILD_IMAGE
-FROM ${BASE_BUILD_IMAGE:-golang:1.19} AS builder
+FROM ${BASE_BUILD_IMAGE:-golang:1.23} AS builder
 
 ARG VERSION
 ARG W_PKG
@@ -15,9 +15,9 @@ ENV AN=${APPNAME:-fluent}
 ENV SRCS=./examples/fluent
 ENV WDIR=${WORKDIR:-/var/lib/$AN}
 ENV GIT_REVISION	""
-ENV GOVERSION			"1.15"
-ENV BUILDTIME			""
-ENV LDFLAGS				""
+ENV GOVERSION		"1.15"
+ENV BUILDTIME		""
+ENV LDFLAGS			""
 
 WORKDIR /go/src/github.com/hedzr/$AN/
 COPY    .    .
@@ -60,10 +60,10 @@ ENV WDIR=${WORKDIR:-/var/lib/$AN}
 ENV CDIR=${CONFDIR:-/etc/$AN}
 
 LABEL by="hedzr" \
-			version="$VERSION" \
-			com.hedzr.cmdr-fluent.version="$VERSION" \
-			com.hedzr.cmdr-fluent.release-date="$(date -u '+%Y-%m-%d_%H-%M-%S')" \
-			description="awesome-tool a command-line tool to retrieve the stars of all repos in an awesome-list"
+	version="$VERSION" \
+	com.hedzr.cmdr-fluent.version="$VERSION" \
+	com.hedzr.cmdr-fluent.release-date="$(date -u '+%Y-%m-%d_%H-%M-%S')" \
+	description="awesome-tool a command-line tool to retrieve the stars of all repos in an awesome-list"
 
 COPY --from=builder /go/src/github.com/hedzr/$AN/ci/etc/$AN /etc/$AN
 
@@ -77,7 +77,7 @@ RUN ls -la $CDIR/ $CDIR/conf.d && echo "    CN: $CN"; \
     ls -la $WDIR/output /var/log/$AN /var/run/$AN
     
 
-VOLUME  [	"$WDIR/output", "$CDIR/conf.d" ]
+VOLUME  [ "$WDIR/output", "$CDIR/conf.d" ]
 WORKDIR $WDIR
 COPY --from=builder /go/src/github.com/hedzr/$AN/bin/$AN .
 RUN echo $WDIR && echo $AN && ls -la $WDIR

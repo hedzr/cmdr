@@ -503,6 +503,8 @@ type EvalIterator func(ctx context.Context) (bo Cmd, hasNext bool, err error)
 
 type EvalFlagIterator func(ctx context.Context) (bo *Flag, hasNext bool, err error)
 
+type OnInterpretLeadingPlusSign func(w Runner, ctx ParsedState) bool
+
 // OnParseValueHandler could be used for parsing value string as you want,
 // and/or check the validation of the input value or flag, and so on.
 //
@@ -523,6 +525,12 @@ type OnParseValueHandler func(
 type OnCommandMatchedHandler func(c Cmd, position int, hitState *MatchState) (err error)
 
 type OnMatchedHandler func(f *Flag, position int, hitState *MatchState) (err error)
+
+type OnPassThruCharHandler func(ctx context.Context, state ParsedState) (err error)
+
+type OnSingleHyphenHandler func(ctx context.Context, state ParsedState) (err error)
+
+type OnUnknownCommandHandler func(ctx context.Context, title string, cmd Cmd, errUnmatched error) (err error)
 
 // OnChangingHandler handles when a flag has been setting by parsing command-line
 // args, loading from external sources and other cases.

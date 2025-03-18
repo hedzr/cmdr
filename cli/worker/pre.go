@@ -73,13 +73,22 @@ func (w *workerS) postLinkCommands(ctx context.Context, root *cli.RootCommand, a
 						Long: fmt.Sprintf("alias-%s", fragment),
 					},
 				}
-				if strings.HasPrefix(line, "!") {
-					c.SetInvokeProc(strings.TrimSpace(line[1:]))
-				} else {
-					c.SetInvokeShell(strings.TrimSpace(line[1:]))
-				}
-				c.SetName(fragment)
+				c.SetName(key)
+				c.SetDesc(fmt.Sprintf("%s: [%s]/%s", cc.LongTitle(), k, key))
 				c.SetGroup("Alias")
+
+				switch prefix := line[0]; prefix {
+				case '!':
+					c.SetInvokeProc(strings.TrimSpace(line[1:]))
+					logz.VerboseContext(ctx, "invoke proc cmd", "target", c.InvokeProc())
+				case '>':
+					c.SetRedirectTo(strings.ReplaceAll(strings.TrimSpace(line[1:]), " ", "."))
+					logz.VerboseContext(ctx, "redirectTo cmd", "target", c.RedirectTo())
+				default:
+					c.SetInvokeShell(strings.TrimSpace(line))
+					logz.VerboseContext(ctx, "invoke shell cmd", "target", c.InvokeShell())
+				}
+
 				err = cc.AddSubCommand(c)
 			}
 		})

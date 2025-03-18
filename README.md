@@ -10,7 +10,6 @@
 [![Coverage Status](https://coveralls.io/repos/github/hedzr/cmdr/badge.svg?branch=master)](https://coveralls.io/github/hedzr/cmdr?branch=master)-->
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go#command-line)
 
-> **Preview v2.1.1**:
 > A preview release for the frozen stable API - v2.1.x series  
 > `[cmdr-docs-dev](https://github.com/hedzr/cmdr-docs-dev)` in composing.
 

@@ -1,5 +1,18 @@
 # CHANGELOG
 
+- v2.1.2
+
+  - lots of improvements and fixes
+    - fix dockerfile
+    - fix InvokeProc/InvokeShell
+    - fix `OnEvaluateSubCommandsFromConfig`
+    - added WithOnShowVersion, ...
+    - added conf.GitDesc, BuilderComment
+    - implements onPassThruCharMatched, ...
+    - implements onShowVersion, ...
+    - improved dyncmd (alias) feature
+    - cleanup
+
 - v2.1.1
 
   - lots of improvements and fixes

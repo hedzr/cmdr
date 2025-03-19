@@ -9,7 +9,7 @@
 [![codecov](https://codecov.io/gh/hedzr/cmdr/branch/master/graph/badge.svg)](https://codecov.io/gh/hedzr/cmdr)<!--
 [![Coverage Status](https://coveralls.io/repos/github/hedzr/cmdr/badge.svg?branch=master)](https://coveralls.io/github/hedzr/cmdr?branch=master)-->
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go#command-line)
-![DocSite](https://img.shields.io/badge/Doc-Site-blue?link=https%3A%2F%2Fdocs.hedzr.com%2Fdocs%2Fcmdr.v2%2F)
+[![DocSite](https://img.shields.io/badge/Doc-Site-blue)](https://docs.hedzr.com/docs/cmdr.v2/)
 
 > A preview release for the frozen stable API - v2.1.x series  
 > `[cmdr-docs-dev](https://github.com/hedzr/cmdr-docs-dev)` in composing.

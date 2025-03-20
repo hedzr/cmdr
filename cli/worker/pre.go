@@ -293,10 +293,10 @@ func (w *workerS) loadLoaders(ctx context.Context) (err error) {
 	if len(w.Config.Loaders) == 0 {
 		appDir := dir.GetCurrentDir()
 		appName := w.Name()
-		jsonLoader := &jsonLoaderS{}
-		jsonLoader.filename = path.Join(appDir, "."+appName+".json")
-		logz.DebugContext(ctx, "use internal tiny json loader", "filename", jsonLoader.filename)
-		w.Config.Loaders = append(w.Config.Loaders, jsonLoader)
+		jsonLoader1 := &jsonLoaderS{filename: path.Join(appDir, "."+appName+".json")}
+		jsonLoader2 := &jsonLoaderS{filename: path.Join(appDir, appName+".json")}
+		logz.DebugContext(ctx, "use internal tiny json loader", "filename", jsonLoader1.filename)
+		w.Config.Loaders = append(w.Config.Loaders, jsonLoader1, jsonLoader2)
 	}
 
 	for _, loader := range w.Config.Loaders {

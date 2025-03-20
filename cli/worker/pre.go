@@ -186,7 +186,8 @@ func (w *workerS) postEnvLoad(ctx context.Context) {
 func (w *workerS) linkCommands(ctx context.Context, root *cli.RootCommand) (aliasMap map[string]*cli.CmdS, err error) {
 	if err = w.addBuiltinCommands(root); err == nil {
 		if cx, ok := root.Cmd.(*cli.CmdS); ok {
-			cx.EnsureTree(ctx, root.App(), root) // link the added builtin commands too
+			// second time to link cmd.root and cmd.owner fields, include builtins commands and flags now.
+			cx.EnsureTree(ctx, root.App(), root)
 			if err = w.xrefCommands(ctx, root, func(cc cli.Cmd, index, level int) {
 				if x := cc.OnEvaluateSubCommandsFromConfig(); x != "" {
 					if aliasMap == nil {

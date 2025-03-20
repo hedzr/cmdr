@@ -67,7 +67,8 @@ func (s *appS) Build() {
 		ctx := context.Background()
 		logz.VerboseContext(ctx, "builder.appS.Build() - setRoot")
 		if cx, ok := s.root.Cmd.(*cli.CmdS); ok {
-			cx.EnsureTree(ctx, s, s.root)
+			// first time to link cmd.root and cmd.owner fields
+			cx.EnsureTreeAlways(ctx, s, s.root)
 		}
 		sr.SetRoot(s.root, s.args)
 	}

@@ -33,8 +33,7 @@ func (w *workerS) builtinVersions(app cli.App, p *cli.CmdS) {
 			Hidden(true, false).
 			OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) { //nolint:revive
 				w.actionsMatched |= cli.ActionShowVersion
-				// w.showVersion(cmd, args)
-				// return cli.ErrShouldStop
+				_, err = w.DoBuiltinAction(ctx, w.actionsMatched)
 				return
 			})
 	})
@@ -103,10 +102,12 @@ func (w *workerS) builtinHelps(app cli.App, p *cli.CmdS) { //nolint:revive
 			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
 				// app.Store().Set("app.version.simulate", value)
 				w.actionsMatched |= cli.ActionShowHelpScreen
+				w.actionsMatched &^= cli.ActionShowHelpScreenAsMan
 				return
 			}).
 			CompCircuitBreak(true).
 			CompJustOnce(true).
+			CompMutualExclusives(`manual`).
 			EnvVars("HELP").
 			ExtraShorts("?")
 	})
@@ -116,16 +117,29 @@ func (w *workerS) builtinHelps(app cli.App, p *cli.CmdS) { //nolint:revive
 	}
 	if _, ok := m[runtime.GOOS]; ok {
 		app.NewFlgFrom(p, false, func(b cli.FlagBuilder) {
-			b.Titles("manual", "man").
+			b.Titles("manual", "man", "man").
 				Description("Show help screen in manpage format (INSTALL NEEDED!)").
 				Group(cli.SysMgmtGroup).
 				Hidden(true, true).
 				OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
 					// app.Store().Set("app.version.simulate", value)
 					w.actionsMatched |= cli.ActionShowHelpScreenAsMan
+					w.actionsMatched &^= cli.ActionShowHelpScreen
 					return
 				}).
-				EnvVars("MAN")
+				CompCircuitBreak(true).
+				CompJustOnce(true).
+				CompMutualExclusives(`help`).
+				EnvVars("SHOW_MAN")
+		})
+		app.NewFlgFrom(p, false, func(b cli.FlagBuilder) {
+			b.Titles("keep", "K").
+				Description("keep temporary file?").
+				Group(cli.SysMgmtGroup).
+				Hidden(true, true).
+				CompPrerequisites("manual").
+				CompJustOnce(true).
+				EnvVars("KEEP")
 		})
 	}
 
@@ -377,7 +391,7 @@ $ {{.AppName}} gen man
 		bb.Cmd("manual", "m", "man").
 			Description("Generate Linux Manual Documentations").
 			Group(cli.SysMgmtGroup).
-			Hidden(true, true).
+			Hidden(false, false).
 			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) { //nolint:revive
 				return
 			}).
@@ -387,14 +401,14 @@ $ {{.AppName}} gen man
 					Default("").
 					Description("The output directory").
 					Group("Output").
-					Hidden(true, true).
+					// Hidden(true, true).
 					PlaceHolder("DIR").
 					Build()
 
 				b.Flg("type", "t").
 					Default(1).
 					Description("Linux man type").
-					Hidden(true, true).
+					// Hidden(true, true).
 					HeadLike(true, 1, 9).
 					Build()
 			})
@@ -412,7 +426,7 @@ $ {{.AppName}} gen man
 					Default("").
 					Description("The output directory").
 					Group("Output").
-					Hidden(true, true).
+					// Hidden(true, true).
 					PlaceHolder("DIR").
 					Build()
 			})
@@ -420,7 +434,7 @@ $ {{.AppName}} gen man
 		bb.Cmd("shell", "s", "sh", "bash", "zsh", "fish", "elvish", "fig", "powershell", "ps").
 			Description("Generate the shell completion script or install it").
 			Group(cli.SysMgmtGroup).
-			Hidden(true, true).
+			Hidden(false, false).
 			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) { //nolint:revive
 				return
 			}).
@@ -430,7 +444,6 @@ $ {{.AppName}} gen man
 					Default("").
 					Description("The output directory").
 					Group("Output").
-					Hidden(true, true).
 					PlaceHolder("DIR").
 					Build()
 
@@ -438,7 +451,6 @@ $ {{.AppName}} gen man
 					Default("").
 					Description("The output filename").
 					Group("Output").
-					Hidden(true, true).
 					PlaceHolder("FILE").
 					Build()
 
@@ -446,49 +458,42 @@ $ {{.AppName}} gen man
 					Default(true).
 					Description("Generate auto completion script to fit for your current env").
 					ToggleGroup("Shell").
-					Hidden(true, true).
 					Build()
 
 				b.Flg("zsh", "z").
 					Default(false).
 					Description("Generate auto completion script for Zsh").
 					ToggleGroup("Shell").
-					Hidden(true, true).
 					Build()
 
 				b.Flg("bash", "b").
 					Default(false).
 					Description("Generate auto completion script for Bash").
 					ToggleGroup("Shell").
-					Hidden(true, true).
 					Build()
 
 				b.Flg("fish", "f").
 					Default(false).
 					Description("Generate auto completion script for Fish").
 					ToggleGroup("Shell").
-					Hidden(true, true).
 					Build()
 
 				b.Flg("powershell", "p").
 					Default(false).
 					Description("Generate auto completion script for PowerShell").
 					ToggleGroup("Shell").
-					Hidden(true, true).
 					Build()
 
 				b.Flg("elvish", "e").
 					Default(false).
 					Description("Generate auto completion script for Elvish [TODO]").
 					ToggleGroup("Shell").
-					Hidden(true, true).
 					Build()
 
 				b.Flg("fig", "f").
 					Default(false).
 					Description("Generate auto completion script for fig-shell [TODO]").
 					ToggleGroup("Shell").
-					Hidden(true, true).
 					Build()
 			})
 	})

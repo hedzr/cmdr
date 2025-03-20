@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -167,7 +169,51 @@ func (w *workerS) showHelpScreen(ctx context.Context, pc *parseCtx, lastCmd cli.
 }
 
 func (w *workerS) showHelpScreenAsMan(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) (err error) { //nolint:revive,unused
-	(&helpPrinter{w: w}).Print(ctx, pc, lastCmd)
+	hp := &helpPrinter{w: w, asManual: true}
+
+	// err = w.pipeToReader(func(stdout io.Writer) {
+	// 	ws1 := &ws{stdout}
+	// 	hp.PrintTo(ctx, ws1, pc, lastCmd)
+	// },
+	// 	"man", "1",
+	// 	// "less", os.Getenv("LESS"),
+	// )
+
+	var f *os.File
+	f, err = os.CreateTemp(os.TempDir(), lastCmd.GetDottedPath()+".man.1")
+	if err != nil {
+		return
+	}
+	defer func() {
+		f.Close()
+		if keep := lastCmd.Root().Store().MustBool("keep"); keep {
+			fmt.Printf("manpage file %q kept.\n", f.Name())
+		} else {
+			os.Remove(f.Name())
+		}
+	}()
+
+	hp.PrintTo(ctx, f, pc, lastCmd)
+
+	f.Close()
+
+	// logz.InfoContext(ctx, "temp manpage written", "path", f.Name())
+
+	program := "man"
+	fname, err := exec.LookPath(program)
+	if err == nil {
+		program, err = filepath.Abs(fname)
+	}
+	if err != nil {
+		return
+	}
+
+	// logz.InfoContext(ctx, "manpage", "man", program, "path", f.Name())
+	cmd := exec.Command(program, f.Name())
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err = cmd.Run()
 	return
 }
 

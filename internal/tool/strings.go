@@ -1,6 +1,9 @@
 package tool
 
-import "strings"
+import (
+	"regexp"
+	"strings"
+)
 
 // StripQuotes strips first and last quote char (double quote or single quote).
 func StripQuotes(s string) string { return trimQuotes(s) }
@@ -75,3 +78,25 @@ func SplitCommandString(s string, quoteChars ...rune) []string {
 
 	return b
 }
+
+// StripOrderPrefix strips the prefix string fragment for sorting order.
+// see also: Command.Group, Flag.Group, ...
+// An order prefix is a dotted string with multiple alphabet and digit. Such as:
+// "zzzz.", "0001.", "700.", "A1." ...
+func StripOrderPrefix(s string) string {
+	a := xre.FindStringSubmatch(s)
+	return a[2]
+	// if xre.MatchString(s) {
+	//	s = s[strings.Index(s, ".")+1:]
+	// }
+	// return s
+}
+
+// HasOrderPrefix tests whether an order prefix is present or not.
+// An order prefix is a dotted string with multiple alphabet and digit. Such as:
+// "zzzz.", "0001.", "700.", "A1." ...
+func HasOrderPrefix(s string) bool {
+	return xre.MatchString(s)
+}
+
+var xre = regexp.MustCompile(`^([0-9A-Za-z]+[.])?(.+)$`)

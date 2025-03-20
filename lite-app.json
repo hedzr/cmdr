@@ -1,0 +1,11 @@
+{
+  "logging": {
+    "file": "/var/log/lite-app/stdout.log",
+    "rotate": 7,
+    "slice-size": "10M", "slice-size-comment": "a kilo-bytes field here"
+  },
+  
+  "lite-app": {
+    "hello": "world"
+  }
+}

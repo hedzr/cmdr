@@ -70,7 +70,7 @@ func (w *workerS) showBuiltInfo(ctx context.Context, pc *parseCtx, lastCmd cli.C
 
 	ts := conf.Buildstamp
 	if ts == "" {
-		ts = time.Now().UTC().Format("")
+		ts = time.Now().UTC().Format(time.RFC3339)
 	}
 	dt, err := times.SmartParseTime(ts)
 	// dt, err := time.Parse("", ts)

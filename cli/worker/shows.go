@@ -29,6 +29,16 @@ func (w *workerS) showVersion(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd
 		return
 	}
 
+	ts := conf.Buildstamp
+	if ts == "" {
+		ts = time.Now().UTC().Format(time.RFC3339)
+	}
+	dt, err := times.SmartParseTime(ts)
+	// dt, err := time.Parse("", ts)
+	if err == nil {
+		ts = dt.Format(time.RFC3339)
+	}
+
 	fp(`v%v
 %v
 %v
@@ -40,7 +50,7 @@ func (w *workerS) showVersion(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd
 %v`,
 		strings.TrimLeft(conf.Version, "v"),
 		conf.AppName,
-		conf.Buildstamp,
+		ts,
 		conf.Githash,
 		conf.GoVersion,
 		conf.GitSummary,

@@ -11,10 +11,7 @@
       "mode": "auto",
       "program": "${fileDirname}",
       // "program": "${workspaceFolder}",
-      "args": [
-        "-o",
-        "output.log"
-      ]
+      "args": ["-o", "output.log"]
     },
     {
       "name": "Launch Package (workspace.dir)",
@@ -22,10 +19,40 @@
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}",
-      "args": [
-        "-o",
-        "output.log"
-      ]
+      "args": ["-o", "output.log"]
+    },
+    {
+      "name": "> Launch examples/tiny/lite/ help ...",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "buildFlags": "-tags='delve verbose'",
+      "cwd": "${workspaceRoot}",
+      "program": "${workspaceRoot}/examples/tiny/lite/",
+      "args": ["help"]
+    },
+    {
+      "name": "> Launch file",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${file}"
+    },
+    {
+      "name": "> Launch dir",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${fileDirname}",
+      "env": {},
+      "args": []
+    },
+    {
+      "name": "> Launch test package",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${workspaceFolder}"
     }
   ]
 }

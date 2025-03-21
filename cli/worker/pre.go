@@ -59,49 +59,6 @@ func (w *workerS) preProcess(ctx context.Context) (err error) {
 	return
 }
 
-func (w *workerS) postLinkCommands(ctx context.Context, root *cli.RootCommand, aliasMap map[string]*cli.CmdS) (err error) {
-	for k, cc := range aliasMap {
-		conf := w.Store().WithPrefix(k)
-		from := conf.Prefix() + "."
-		cvt := evendeep.Cvt{}
-		conf.Walk(from, func(path, fragment string, node radix.Node[any]) {
-			logz.VerboseContext(ctx, "post-link-command", "path", path, "fragment", fragment, "value", node.Data())
-			if path != from {
-				line := strings.TrimSpace(cvt.String(node.Data()))
-				key := path[len(from):]
-				if len(line) < 1 {
-					return
-				}
-
-				c := &cli.CmdS{
-					BaseOpt: cli.BaseOpt{
-						Long: fmt.Sprintf("alias-%s", key),
-					},
-				}
-				c.SetName(key)
-				c.SetDesc(fmt.Sprintf("%s: [%s]/%s", cc.LongTitle(), k, key))
-				c.SetGroup("Alias")
-
-				switch prefix := line[0]; prefix {
-				case '!':
-					c.SetInvokeProc(strings.TrimSpace(line[1:]))
-					logz.VerboseContext(ctx, "invoke proc cmd", "target", c.InvokeProc())
-				case '>':
-					c.SetRedirectTo(strings.ReplaceAll(strings.TrimSpace(line[1:]), " ", "."))
-					logz.VerboseContext(ctx, "redirectTo cmd", "target", c.RedirectTo())
-				default:
-					c.SetInvokeShell(strings.TrimSpace(line))
-					logz.VerboseContext(ctx, "invoke shell cmd", "target", c.InvokeShell())
-				}
-
-				err = cc.AddSubCommand(c)
-			}
-		})
-		_ = cc
-	}
-	return
-}
-
 func (w *workerS) preEnvSet(ctx context.Context) {
 	// NOTE 'CMDR_VERSION' has been setup.
 
@@ -203,6 +160,48 @@ func (w *workerS) linkCommands(ctx context.Context, root *cli.RootCommand) (alia
 				}
 			}
 		}
+	}
+	return
+}
+func (w *workerS) postLinkCommands(ctx context.Context, root *cli.RootCommand, aliasMap map[string]*cli.CmdS) (err error) {
+	for k, cc := range aliasMap {
+		conf := w.Store().WithPrefix(k)
+		from := conf.Prefix() + "."
+		cvt := evendeep.Cvt{}
+		conf.Walk(from, func(path, fragment string, node radix.Node[any]) {
+			logz.VerboseContext(ctx, "post-link-command", "path", path, "fragment", fragment, "value", node.Data())
+			if path != from {
+				line := strings.TrimSpace(cvt.String(node.Data()))
+				key := path[len(from):]
+				if len(line) < 1 {
+					return
+				}
+
+				c := &cli.CmdS{
+					BaseOpt: cli.BaseOpt{
+						Long: fmt.Sprintf("alias-%s", key),
+					},
+				}
+				c.SetName(key)
+				c.SetDesc(fmt.Sprintf("%s: [%s]/%s", cc.LongTitle(), k, key))
+				c.SetGroup("Alias")
+
+				switch prefix := line[0]; prefix {
+				case '!':
+					c.SetInvokeProc(strings.TrimSpace(line[1:]))
+					logz.VerboseContext(ctx, "invoke proc cmd", "target", c.InvokeProc())
+				case '>':
+					c.SetRedirectTo(strings.ReplaceAll(strings.TrimSpace(line[1:]), " ", "."))
+					logz.VerboseContext(ctx, "redirectTo cmd", "target", c.RedirectTo())
+				default:
+					c.SetInvokeShell(strings.TrimSpace(line))
+					logz.VerboseContext(ctx, "invoke shell cmd", "target", c.InvokeShell())
+				}
+
+				err = cc.AddSubCommand(c)
+			}
+		})
+		_ = cc
 	}
 	return
 }
@@ -379,9 +378,3 @@ func (w *workerS) xrefCommands(ctx context.Context, root *cli.RootCommand, cb ..
 // 		w.walkR(child, cb, level+1)
 // 	}
 // }
-
-func (w *workerS) postProcess(ctx context.Context, pc *parseCtx) (err error) {
-	logz.VerboseContext(ctx, "post-processing...")
-	_, _ = pc, ctx
-	return
-}

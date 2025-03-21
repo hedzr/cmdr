@@ -101,12 +101,18 @@ func (w *workerS) execCmd(ctx context.Context, pc *parseCtx, cmd cli.Cmd, forceD
 	return
 }
 
-func (w *workerS) DoBuiltinAction(ctx context.Context, action cli.ActionEnum) (handled bool, err error) {
+func (w *workerS) DoBuiltinAction(ctx context.Context, action cli.ActionEnum, args ...any) (handled bool, err error) {
 	for k, handler := range w.actions {
 		if k&action != 0 {
 			logz.VerboseContext(ctx, "[cmdr] Invoking action", "hit-action", k, "actions", w.Actions())
 			pc, lastCmd := w.parsingCtx, w.parsingCtx.LastCmd()
-			err, handled = handler(ctx, pc.(*parseCtx), lastCmd), true
+			if len(args) > 0 {
+				if c, ok := args[0].(cli.Cmd); ok {
+					lastCmd = c
+					args = args[1:]
+				}
+			}
+			err, handled = handler(ctx, pc.(*parseCtx), lastCmd, args...), true
 			break
 		}
 	}
@@ -182,13 +188,13 @@ func (w *workerS) finalActions(ctx context.Context, pc *parseCtx, lastCmd cli.Cm
 	return
 }
 
-func (w *workerS) onPrintHelpScreen(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) (err error) { //nolint:unparam
-	(&helpPrinter{w: w}).Print(ctx, pc, lastCmd)
+func (w *workerS) onPrintHelpScreen(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error) { //nolint:unparam
+	(&helpPrinter{w: w}).Print(ctx, pc, lastCmd, args...)
 	return
 }
 
-func (w *workerS) onDefaultAction(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) (err error) { //nolint:unparam
-	(&helpPrinter{w: w, debugMatches: true}).Print(ctx, pc, lastCmd)
+func (w *workerS) onDefaultAction(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error) { //nolint:unparam
+	(&helpPrinter{w: w, debugMatches: true}).Print(ctx, pc, lastCmd, args...)
 	return
 }
 

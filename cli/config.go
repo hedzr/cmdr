@@ -106,7 +106,7 @@ type Runner interface {
 	//
 	// The available internal actions were defined as ActionEnum.
 	// Such as ActionShowHelpScreen, or ActionShowVersion.
-	DoBuiltinAction(ctx context.Context, action ActionEnum) (handled bool, err error)
+	DoBuiltinAction(ctx context.Context, action ActionEnum, args ...any) (handled bool, err error)
 }
 
 type ParsedState interface {

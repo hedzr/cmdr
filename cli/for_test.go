@@ -953,7 +953,7 @@ func (w *workerS) SuggestRetCode() int                              { return w.r
 func (w *workerS) ParsedState() ParsedState                         { return nil }
 func (w *workerS) LoadedSources() (results []LoadedSources)         { return }
 
-func (w *workerS) DoBuiltinAction(ctx context.Context, action ActionEnum) (handled bool, err error) {
+func (w *workerS) DoBuiltinAction(ctx context.Context, action ActionEnum, args ...any) (handled bool, err error) {
 	return
 }
 

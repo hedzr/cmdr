@@ -3,6 +3,7 @@ package worker
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"slices"
 	"strings"
@@ -37,12 +38,40 @@ type helpPrinter struct {
 
 const colLeftTabbedWidth = 46
 
-func (s *helpPrinter) Print(ctx context.Context, pc cli.ParsedState, lastCmd cli.Cmd) { //nolint:revive //
-	wr := s.safeGetWriter()
-	s.PrintTo(ctx, wr, pc, lastCmd)
+type wHW struct {
+	io.Writer
 }
 
-func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedState, lastCmd cli.Cmd) { //nolint:revive //
+func (w *wHW) WriteString(s string) (n int, err error) { return w.Write([]byte(s)) }
+
+func (s *helpPrinter) safeGetWriter() (wr HelpWriter) {
+	wr = os.Stdout
+	if s.w != nil && s.w.wrHelpScreen != nil {
+		wr = s.w.wrHelpScreen
+		// logz.Debug("Using helpWriter")
+		// fmt.Fprintln(s.w.wrHelpScreen, "Using helpWriter / 1")
+	}
+	return
+}
+
+func (s *helpPrinter) Print(ctx context.Context, pc cli.ParsedState, lastCmd cli.Cmd, args ...any) { //nolint:revive //
+	wr := s.safeGetWriter()
+	if len(args) > 0 {
+		if t, ok := args[0].(io.Writer); ok {
+			if h, ok1 := t.(HelpWriter); ok1 {
+				wr = h
+			} else {
+				wr = &wHW{t}
+			}
+		}
+	}
+
+	// fmt.Fprintln(wr, "Using helpWriter : ", wr, s.w.wrHelpScreen)
+
+	s.PrintTo(ctx, wr, pc, lastCmd, args...)
+}
+
+func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedState, lastCmd cli.Cmd, args ...any) { //nolint:revive //
 	if s.debugScreenMode {
 		s.PrintDebugScreenTo(ctx, wr, pc, lastCmd)
 		return
@@ -182,14 +211,6 @@ func (s *helpPrinter) PrintDebugScreenTo(ctx context.Context, wr HelpWriter, pc 
 
 	sb.Reset()
 	s.printDebugMatches(ctx, &sb, wr, pc)
-}
-
-func (s *helpPrinter) safeGetWriter() (wr HelpWriter) {
-	wr = os.Stdout
-	if s.w != nil && s.w.wrHelpScreen != nil {
-		wr = s.w.wrHelpScreen
-	}
-	return
 }
 
 func (s *helpPrinter) safeGetTermSize() (cols, rows int) {

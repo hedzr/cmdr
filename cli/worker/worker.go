@@ -152,7 +152,7 @@ func (w *workerS) With(opts ...wOpt) *workerS {
 	return w
 }
 
-type onAction func(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) (err error)
+type onAction func(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error)
 
 func (w *workerS) Ready() bool {
 	w.actions = map[cli.ActionEnum]onAction{

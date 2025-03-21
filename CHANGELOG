@@ -1,5 +1,18 @@
 # CHANGELOG
 
+- v2.1.5
+
+  - lots of improvements and fixes
+    - cmdr: add a pure `prompt` app (not a cmdr example)
+    - cmdr: fix unnecessary required flag in head_like.go
+    - cmdr: implements help-system (part 1)
+    - update local `SplitCommandString()`
+    - cmdr: update onAction, passing writer into builtin action handlers
+    - cmdr: fix helpScreenWriter/debugScreenWriter
+    - cmdr: relayout postProcess()/preProcess()
+    - update .vscode/launch.json
+  - upgrade deps
+
 - v2.1.3
 
   - lots of improvements and fixes

@@ -322,10 +322,10 @@ func bindOpts[Opt cli.Opt](ctx context.Context, w *workerS, installAsUnique bool
 		opt(w.Config)
 	}
 
-	if w.HelpScreenWriter == nil {
+	if w.HelpScreenWriter != nil {
 		w.wrHelpScreen = w.HelpScreenWriter
 	}
-	if w.DebugScreenWriter == nil {
+	if w.DebugScreenWriter != nil {
 		w.wrDebugScreen = w.DebugScreenWriter
 	}
 

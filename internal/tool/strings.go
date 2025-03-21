@@ -2,7 +2,8 @@ package tool
 
 import (
 	"regexp"
-	"strings"
+
+	"github.com/hedzr/is/exec"
 )
 
 // StripQuotes strips first and last quote char (double quote or single quote).
@@ -52,31 +53,7 @@ func trimQuotes(s string) string {
 //	out := SplitCommandString(in, '\'', '"')
 //	println(out)   // will got: []string{ "bash", "-c", "echo hello world!"}
 func SplitCommandString(s string, quoteChars ...rune) []string {
-	var qc rune = '"'
-	var m = map[rune]bool{qc: true}
-	for _, q := range quoteChars {
-		qc, m[q] = q, true //nolint:ineffassign
-	}
-
-	quoted, ch := false, rune(0)
-
-	a := strings.FieldsFunc(s, func(r rune) bool {
-		if ch == 0 {
-			if _, ok := m[r]; ok {
-				quoted, ch = !quoted, r
-			}
-		} else if ch == r {
-			quoted, ch = !quoted, r
-		}
-		return !quoted && r == ' '
-	})
-
-	var b []string
-	for _, s := range a {
-		b = append(b, trimQuotes(s))
-	}
-
-	return b
+	return exec.SplitCommandString(s, quoteChars...)
 }
 
 // StripOrderPrefix strips the prefix string fragment for sorting order.

@@ -15,7 +15,7 @@ func AddHeadLikeFlagImpl(parent cli.CommandBuilder, dontHandlingParentCmd ...boo
 		Group("Head Like").
 		HeadLike(true).
 		Default(1).
-		Required(true).
+		// Required(true).
 		Build()
 
 	var noHpc bool

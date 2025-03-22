@@ -1,5 +1,12 @@
 # CHANGELOG
 
+- v2.1.6
+
+  - cmdr: fix calling `finalAction()` twice when redirectTo
+  - cmdr: fix modified state of peripheral object in store
+  - cmdr: fix external config file loading and write-back feature
+  - upgrade deps
+
 - v2.1.5
 
   - lots of improvements and fixes

@@ -216,7 +216,9 @@ func WithTasksSetupPeripherals(tasks ...cli.Task) cli.Opt {
 // will be initialized before running a hit subcommand.
 func WithPeripherals(peripherals PeripheralMap) cli.Opt {
 	return func(s *cli.Config) {
-		s.Store.Set(cli.PeripheralsStoreKey, peripherals)
+		s.Store.WithinLoading(func() {
+			s.Store.Set(cli.PeripheralsStoreKey, peripherals)
+		})
 		for _, peripheral := range peripherals {
 			basics.RegisterPeripheral(peripheral)
 			if p, ok := peripheral.(interface {

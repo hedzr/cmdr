@@ -99,7 +99,7 @@ func (s *HelpSystem) Run(ctx context.Context) (err error) {
 			// // cancel()
 			exitChan <- struct{}{}
 		}).
-		Wait(func(stopChan chan<- os.Signal, wgShutdown *sync.WaitGroup) {
+		WaitFor(func(closer func()) {
 			// server.WithOnShutdown(func(err error, ss net.Server) { wgShutdown.Done() })
 			// err := server.ListenAndServe(ctx, nil)
 			// if err != nil {
@@ -108,8 +108,9 @@ func (s *HelpSystem) Run(ctx context.Context) (err error) {
 
 			defer func() {
 				_, _ = fmt.Fprintln(term, byeString)
-				stopChan <- syscall.SIGINT
-				wgShutdown.Done()
+				// stopChan <- syscall.SIGINT
+				// wgShutdown.Done()
+				closer()
 				// _, _ = fmt.Println("end")
 			}()
 

@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
+	"gopkg.in/hedzr/errors.v3"
+
 	cmdr "github.com/hedzr/cmdr/v2"
 	"github.com/hedzr/cmdr/v2/cli"
-
-	"gopkg.in/hedzr/errors.v3"
 )
 
 func TestDottedPathToCommandOrFlag(t *testing.T) {
@@ -52,7 +52,8 @@ func TestStoreGetSectionFrom(t *testing.T) {
 			Manual manS
 		}
 		var v genS
-		err = cmdr.Set().GetSectionFrom("cmd.generate", &v)
+		set := cmdr.Set()
+		err = set.GetSectionFrom("cmd.generate", &v)
 		if err != nil {
 			t.Fail()
 		}

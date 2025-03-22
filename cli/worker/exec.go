@@ -23,6 +23,15 @@ func (w *workerS) exec(ctx context.Context, pc *parseCtx) (err error) {
 	logz.VerboseContext(ctx, "[cmdr] exec...", "last-matched-cmd", lastCmd)
 
 	forceDefaultAction := pc.forceDefaultAction
+
+	defer func() {
+		c := context.Background()
+		if err1 := w.finalActions(c, pc, lastCmd); err1 != nil {
+			ec := errorsv3.New()
+			ec.Attach(err, err1)
+			ec.Defer(&err)
+		}
+	}()
 	return w.execCmd(ctx, pc, lastCmd, forceDefaultAction)
 }
 
@@ -34,12 +43,15 @@ func (w *workerS) execCmd(ctx context.Context, pc *parseCtx, cmd cli.Cmd, forceD
 	defer func() {
 		deferActions(err) // err must be delayed caught here
 		if err1 := w.afterExec(ctx, pc, cmd); err1 == nil {
-			c := context.Background()
-			if err1 = w.finalActions(c, pc, cmd); err1 != nil {
-				ec := errorsv3.New()
-				ec.Attach(err, err1)
-				ec.Defer(&err)
-			}
+			// c := context.Background()
+			// if err1 = w.finalActions(c, pc, cmd); err1 != nil {
+			// 	ec := errorsv3.New()
+			// 	ec.Attach(err, err1)
+			// 	ec.Defer(&err)
+			// }
+			ec := errorsv3.New()
+			ec.Attach(err, err1)
+			ec.Defer(&err)
 		}
 	}()
 

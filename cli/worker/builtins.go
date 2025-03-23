@@ -130,22 +130,24 @@ func (w *workerS) builtinHelps(app cli.App, p *cli.CmdS) { //nolint:revive
 				CompCircuitBreak(true).
 				CompJustOnce(true).
 				CompMutualExclusives(`help`).
+				Default(false).
 				EnvVars("SHOW_MAN")
 		})
 		app.NewFlgFrom(p, false, func(b cli.FlagBuilder) {
 			b.Titles("keep", "K").
-				Description("keep temporary file?").
+				Description("keep temporary file? (for -man only)").
 				Group(cli.SysMgmtGroup).
 				Hidden(true, true).
 				CompPrerequisites("manual").
 				CompJustOnce(true).
+				Default(false).
 				EnvVars("KEEP")
 		})
 	}
 
 	app.NewFlgFrom(p, false, func(b cli.FlagBuilder) {
 		b.Titles("tree").
-			Description("Show help screen in manpage format (INSTALL NEEDED!)").
+			Description("List commands and flags in tree mode").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
 			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
@@ -154,6 +156,7 @@ func (w *workerS) builtinHelps(app cli.App, p *cli.CmdS) { //nolint:revive
 				return
 			}).
 			EnvVars("TREE").
+			Default(false).
 			DoubleTildeOnly(true)
 	})
 
@@ -397,6 +400,7 @@ $ {{.AppName}} gen man
 			}).
 			OnAction((&genManS{}).onAction).
 			With(func(b cli.CommandBuilder) {
+				// , "outdir", "out-dir", "output-dir", "target-dir", "tgt-dir"
 				b.Flg("dir", "d").
 					Default("").
 					Description("The output directory").
@@ -407,9 +411,10 @@ $ {{.AppName}} gen man
 
 				b.Flg("type", "t").
 					Default(1).
-					Description("Linux man type").
+					Description("Linux man type [1..9]").
+					Range(1, 9).
 					// Hidden(true, true).
-					HeadLike(true, 1, 9).
+					// HeadLike(true, 1, 9).
 					Build()
 			})
 

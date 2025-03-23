@@ -1,5 +1,22 @@
 # CHANGELOG
 
+- v2.1.7
+
+  - downgrade toolchain to go1.23.0
+  - upgrade deps
+  - cmdr: review & improve builtins commands and flags
+  - cmdr: add `OwnerIsRoot()`, `IsRoot()`
+  - cmdr: improved help screen
+    - cut overlong titles to a new line
+    - rename to `printCommandHeading()`, ...
+    - rename to `printFlagHeading()`, ...
+    - optimize the gap between short and long title if short is not a single char
+    - cut off aliases if titles width is greater than tabstop, and move them to the next line
+    - improved head-like flag, add a new line to remark it
+  - cmdr: improved head-like flag matching algor to search the parents commands if they own a head-like flag
+  - cmdr: change to `Flag.GetTitleFlagNamesBy(delimiter string, maxW...int) (title,rest string)`
+  - cmdr: change to `BaseOpt.GetTitleNames(maxWidth ...int) (title, rest string)`
+
 - v2.1.6
 
   - cmdr: fix calling `finalAction()` twice when redirectTo

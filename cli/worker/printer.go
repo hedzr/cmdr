@@ -594,7 +594,7 @@ func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder,
 	// _, _ = sb.WriteString(indentSpaces)
 
 	w := tabbedW - (level+groupedInc)*2
-	ttl := cc.GetTitleNames()
+	ttl, restTitles := cc.GetTitleNames(tabbedW - (level+groupedInc)*2)
 	if ttl == "" {
 		ttl = "(not-specified)"
 	}
@@ -632,76 +632,17 @@ func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder,
 		return trans(ss, s, clr, deprecated)
 	}, CurrentDeprecatedColor, CurrentDescColor)
 
-	// if dim {
-	// 	s.WriteBgColor(sb, color.BgDim)
-	// }
-	//
-	// if deprecated {
-	// 	s.WriteBgColor(sb, color.BgStrikeout)
-	// 	s.WriteColor(sb, CurrentDescColor)
-	// } else {
-	// 	s.WriteColor(sb, CurrentTitleColor)
-	// }
-	// _, _ = sb.WriteString(left)
-	//
-	// var split bool
-	// var printed int
-	// // printleftpad := func(cond bool, tabbedW int) {
-	// // 	if cond {
-	// // 		_, _ = sb.WriteString("\n")
-	// // 		_, _ = sb.WriteString(strings.Repeat(" ", tabbedW))
-	// // 	}
-	// // }
-	//
-	// // s.DimFast(&sb, s.Translate(right, color.BgNormal))
-	// // s.ColoredFast(&sb, CurrentDescColor, s.Translate(right, CurrentDescColor))
-	// if right != "" {
-	// 	s.WriteColor(sb, CurrentDescColor)
-	//
-	// 	rCols := cols - tabbedW
-	// 	l := len(right) + len(depPlain)
-	// 	if l >= rCols {
-	// 		var prt string
-	// 		var ix int
-	// 		for len(right) > rCols {
-	// 			prt, right = right[:rCols], right[rCols:]
-	// 			printleftpad(sb, ix > 0, tabbedW)
-	// 			_, _ = sb.WriteString(trans(prt, s, CurrentDescColor, deprecated))
-	// 			ix++
-	// 		}
-	// 		if right != "" {
-	// 			if ix > 0 {
-	// 				printleftpad(sb, ix > 0, tabbedW)
-	// 			} else {
-	// 				split, printed = true, len(right)
-	// 			}
-	// 			_, _ = sb.WriteString(trans(right, s, CurrentDescColor, deprecated))
-	// 		}
-	// 	} else {
-	// 		_, _ = sb.WriteString(trans(right, s, CurrentDescColor, deprecated))
-	// 	}
-	// 	// sb.WriteString(trans(right, CurrentDescColor))
-	// } else {
-	// 	s.WriteColor(sb, CurrentDescColor)
-	// 	_, _ = sb.WriteString(trans("<i>desc</i>", s, CurrentDescColor, deprecated))
-	// }
-	//
-	// if dep != "" {
-	// 	if split {
-	// 		printleftpad(sb, split, tabbedW)
-	// 		split = false
-	// 	}
-	// 	if printed >= 0 {
-	// 		_, _ = sb.WriteString(" ")
-	// 		_, _ = sb.WriteString(dep)
-	// 	}
-	// 	logz.VerboseContext(ctx, "[watching] split flag", "split", split)
-	// }
-	//
-	// s.Reset(sb) // reset fg/bg colors by color Translator
-
 	painter.printCommandRow(ctx, sb, cc, indentSpaces, left, right, dep, depPlain, cols, tabbedW, deprecated, dim)
 	_, _ = sb.WriteString("\n")
+
+	if restTitles != "" {
+		_, _ = sb.WriteString(indentSpaces)
+		_, _ = sb.WriteString("   = ")
+		s.WriteBgColor(sb, color.BgItalic)
+		_, _ = sb.WriteString(restTitles)
+		s.Reset(sb)
+		_, _ = sb.WriteString("\n")
+	}
 }
 
 func (s *helpPrinter) printFlagGroupTitle(ctx context.Context, sb *strings.Builder, group string, indent int) {

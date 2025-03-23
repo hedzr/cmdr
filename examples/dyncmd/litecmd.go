@@ -94,13 +94,15 @@ func (s *liteCmdS) OwnerIsValid() bool {
 	}
 	return false
 }
+func (s *liteCmdS) OwnerOrParent() cli.BacktraceableMin { return s.owner.(cli.Backtraceable) }
 func (s *liteCmdS) OwnerIsNil() bool                    { return s.owner == nil }
 func (s *liteCmdS) OwnerIsNotNil() bool                 { return s.owner != nil }
 func (s *liteCmdS) OwnerCmd() cli.Cmd                   { return s.owner }
-func (s *liteCmdS) SetOwnerCmd(c cli.Cmd)               { s.owner = c }
+func (c *liteCmdS) OwnerIsRoot() bool                   { return c.owner != nil && c.owner.OwnerIsNil() }
+func (c *liteCmdS) IsRoot() bool                        { return c.owner == nil }
 func (s *liteCmdS) Root() *cli.RootCommand              { return s.owner.Root() }
+func (s *liteCmdS) SetOwnerCmd(c cli.Cmd)               { s.owner = c }
 func (s *liteCmdS) SetRoot(*cli.RootCommand)            {}
-func (s *liteCmdS) OwnerOrParent() cli.BacktraceableMin { return s.owner.(cli.Backtraceable) }
 
 func (s *liteCmdS) Name() string             { return s.name() }
 func (s *liteCmdS) SetName(string)           {}

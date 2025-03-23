@@ -242,7 +242,7 @@ func (f *Flag) GetDescZsh() (desc string) {
 }
 
 // GetTitleFlagNames temp
-func (f *Flag) GetTitleFlagNames() string {
+func (f *Flag) GetTitleFlagNames() (title, rest string) {
 	return f.GetTitleFlagNamesBy(",")
 }
 
@@ -326,13 +326,19 @@ func (f *Flag) GetTitleZshFlagNamesArray() (ary []string) {
 }
 
 // GetTitleFlagNamesBy temp
-func (f *Flag) GetTitleFlagNamesBy(delimiter string) string {
-	return f.GetTitleFlagNamesByMax(delimiter, len(f.Short))
+//
+// A title with prefix '_'/'__' will be hidden from the
+// result array.
+func (f *Flag) GetTitleFlagNamesBy(delimiter string, maxW ...int) (title, rest string) {
+	return f.GetTitleFlagNamesByMax(delimiter, len(f.Short), maxW...)
 }
 
 // GetTitleFlagNamesByMax temp
-func (f *Flag) GetTitleFlagNamesByMax(delimiter string, maxShort int) string {
-	var sb strings.Builder
+//
+// A title with prefix '_'/'__' will be hidden from the
+// result array.
+func (f *Flag) GetTitleFlagNamesByMax(delimiter string, maxShort int, maxW ...int) (title, rest string) {
+	var sb, sbr strings.Builder
 
 	if f.Short == "" {
 		// if no flag.Short,
@@ -351,19 +357,48 @@ func (f *Flag) GetTitleFlagNamesByMax(delimiter string, maxShort int) string {
 		_, _ = sb.WriteRune(' ')
 	}
 	_, _ = sb.WriteRune(' ')
-	_, _ = sb.WriteString("--")
+	if f.dblTildeOnly {
+		_, _ = sb.WriteString("~~")
+	} else {
+		_, _ = sb.WriteString("--")
+	}
 	_, _ = sb.WriteString(f.Long)
 	if len(f.placeHolder) > 0 {
 		// str += fmt.Sprintf("=\x1b[2m\x1b[%dm%s\x1b[0m", DarkColor, s.PlaceHolder)
 		_, _ = sb.WriteString(fmt.Sprintf("=%s", f.placeHolder))
 	}
 
-	for _, sz := range f.Aliases {
+	si := len(f.Aliases)
+	ll := sb.Len()
+	maxWidth := 0
+	for _, w := range maxW {
+		maxWidth = max(maxWidth, w)
+	}
+	for i, sz := range f.Aliases {
+		if sz == "" || strings.HasPrefix(sz, "_") {
+			continue
+		}
+
+		if i > si {
+			_, _ = sbr.WriteString(delimiter)
+			_, _ = sbr.WriteString("--")
+			_, _ = sbr.WriteString(sz)
+			continue
+		}
+		if maxWidth > 0 && ll+len(delimiter)+2+len(sz) >= maxWidth {
+			_, _ = sbr.WriteString("--")
+			_, _ = sbr.WriteString(sz)
+			si = i
+			continue
+		}
+
+		ll += len(delimiter) + 2 + len(sz)
 		_, _ = sb.WriteString(delimiter)
 		_, _ = sb.WriteString("--")
 		_, _ = sb.WriteString(sz)
 	}
-	return sb.String()
+	title, rest = sb.String(), sbr.String()
+	return
 }
 
 func (f *Flag) String() string {

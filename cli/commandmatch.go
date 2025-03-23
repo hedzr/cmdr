@@ -124,12 +124,24 @@ func (c *CmdS) MatchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, err e
 		}
 
 		// try to parse headLike flag
-		if vp.Matched == "" && c.headLikeFlag != nil && ref.IsNumeric(c.headLikeFlag.defaultValue) {
-			var num int64
-			if num, err = strconv.ParseInt(vp.Remains, 0, 64); err == nil {
-				vp.Matched, vp.Remains, ff = vp.Remains, "", c.headLikeFlag
-				ff.defaultValue, vp.ValueOK = int(num), true // store the parsed value
-				logz.VerboseContext(ctx, "[cmdr] headLike flag matched", "flg", ff, "num", num)
+		if vp.Matched == "" {
+			hlf := func(c *CmdS) *Flag {
+				var cc BacktraceableMin = c
+				for cc.OwnerIsNotNil() {
+					if cx, ok := cc.(*CmdS); ok && cx.headLikeFlag != nil && ref.IsNumeric(cx.headLikeFlag.defaultValue) {
+						return cx.headLikeFlag
+					}
+					cc = cc.OwnerOrParent()
+				}
+				return nil
+			}(c)
+			if hlf != nil {
+				var num int64
+				if num, err = strconv.ParseInt(vp.Remains, 0, 64); err == nil {
+					vp.Matched, vp.Remains, ff = vp.Remains, "", hlf
+					ff.defaultValue, vp.ValueOK = int(num), true // store the parsed value
+					logz.VerboseContext(ctx, "[cmdr] headLike flag matched", "flg", ff, "num", num)
+				}
 			}
 		}
 	} else {

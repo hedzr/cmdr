@@ -18,7 +18,7 @@
 
 Since v2, our license moved to Apache 2.0.
 
-Since v2.1, the minimal toolchain move to go1.23.7.
+Since v2.1, the minimal toolchain move to go1.23.
 A preview version released at v2.1.0, the stable API has been freezing.
 
 ![cover](https://user-images.githubusercontent.com/12786150/72876202-f49ee500-3d30-11ea-9de0-434bf8decf90.gif)<!-- built by https://ezgif.com/ -->

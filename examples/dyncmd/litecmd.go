@@ -77,10 +77,10 @@ func (s *liteCmdS) name() string { return s.fi.Name() }
 
 func (s *liteCmdS) String() string { return path.Join(s.dirName, s.name()) }
 
-func (s *liteCmdS) GetDottedPath() string        { return cli.DottedPath(s) }
-func (s *liteCmdS) GetTitleName() string         { return s.name() }
-func (s *liteCmdS) GetTitleNamesArray() []string { return []string{s.name()} }
-func (s *liteCmdS) GetTitleNames() string        { return s.name() }
+func (s *liteCmdS) GetDottedPath() string                              { return cli.DottedPath(s) }
+func (s *liteCmdS) GetTitleName() string                               { return s.name() }
+func (s *liteCmdS) GetTitleNamesArray() []string                       { return []string{s.name()} }
+func (s *liteCmdS) GetTitleNames(maxWidth ...int) (title, rest string) { return s.name(), "" }
 
 func (s *liteCmdS) App() cli.App       { return nil }
 func (s *liteCmdS) Set() store.Store   { return s.Root().App().Store() }

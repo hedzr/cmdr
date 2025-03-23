@@ -337,6 +337,9 @@ func (c *BaseOpt) GroupHelpTitle() string {
 }
 
 // GetTitleNamesArray returns short,full,aliases names
+//
+// A title with prefix '_'/'__' will be hidden from the
+// result array.
 func (c *BaseOpt) GetTitleNamesArray() []string {
 	a := c.GetTitleNamesArrayMainly()
 	for _, x := range c.extraShorts {
@@ -344,7 +347,13 @@ func (c *BaseOpt) GetTitleNamesArray() []string {
 			a = uniAddStr(a, x)
 		}
 	}
-	a = uniAddStrS(a, c.Aliases...)
+	for _, x := range c.Aliases {
+		if x == "" || strings.HasPrefix(x, "_") {
+			continue
+		}
+		a = uniAddStr(a, x)
+	}
+	// a = uniAddStrS(a, c.Aliases...)
 	return a
 }
 
@@ -412,15 +421,111 @@ func (c *BaseOpt) ShortTitle() string {
 }
 
 // GetTitleNames return the joint string of short,full,aliases names
-func (c *BaseOpt) GetTitleNames() string {
-	return c.GetTitleNamesBy(", ")
+func (c *BaseOpt) GetTitleNames(maxWidth ...int) (title, rest string) {
+	maxW := 0
+	for _, x := range maxWidth {
+		maxW = x
+	}
+
+	if maxW <= 0 {
+		a := c.GetTitleNamesArray()
+		title = strings.Join(a, ", ")
+		return
+	}
+
+	var sb, sbr strings.Builder
+	var delimiter = ""
+	var ll = 3
+	if c.Short != "" {
+		sb.WriteString(c.Short)
+		if len(c.Short) == 1 {
+			delimiter = ", "
+		} else {
+			delimiter = ","
+		}
+		sb.WriteString(delimiter)
+		delimiter = ","
+	} else {
+		sb.WriteString("   ")
+	}
+	if c.Long != "" {
+		sb.WriteString(c.Long)
+		delimiter = ","
+		ll += len(c.Long) + 1
+	}
+
+	si := len(c.Aliases)
+	for i, x := range c.Aliases {
+		if x == "" || strings.HasPrefix(x, "_") {
+			continue
+		}
+
+		if i > si {
+			sbr.WriteString(delimiter)
+			sbr.WriteString(x)
+			continue
+		}
+		if ll+len(x)+1 >= maxW {
+			si = i
+			sbr.WriteString(x)
+			continue
+		}
+
+		ll += len(x) + len(delimiter)
+		sb.WriteString(delimiter)
+		sb.WriteString(x)
+	}
+
+	if sbr.Len() > 0 {
+		si = -1
+	} else {
+		si = 0
+	}
+	delimiter = ","
+	for i, x := range c.extraShorts {
+		if i > si {
+			sbr.WriteString(delimiter)
+		}
+		sbr.WriteString(x)
+	}
+
+	title = sb.String()
+	rest = sbr.String()
+	return
+	// return c.GetTitleNamesBy(", ", maxWidth...)
 }
 
 // GetTitleNamesBy returns the joint string of short,full,aliases names
-func (c *BaseOpt) GetTitleNamesBy(delimiter string) string {
+func (c *BaseOpt) GetTitleNamesBy(delimiter string, maxWidth ...int) (title, rest string) {
 	a := c.GetTitleNamesArray()
-	str := strings.Join(a, delimiter)
-	return str
+	maxW := 0
+	for _, x := range maxWidth {
+		maxW = x
+	}
+	if maxW > 0 {
+		var sb, sbr strings.Builder
+		var ri int = len(a)
+		for i, x := range a {
+			if i >= ri || sb.Len()+len(delimiter)+len(x) > maxW {
+				if ri > i {
+					ri = i
+					sbr.WriteString(x)
+				} else {
+					sbr.WriteString(delimiter)
+					sbr.WriteString(x)
+				}
+				continue
+			}
+			if i > 0 {
+				sb.WriteString(delimiter)
+			}
+			sb.WriteString(x)
+		}
+		title, rest = sb.String(), sbr.String()
+	} else {
+		title = strings.Join(a, delimiter)
+	}
+	return
 }
 
 // GetTitleZshNames temp

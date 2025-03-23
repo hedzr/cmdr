@@ -68,7 +68,7 @@ func rootCmdForTesting() (app *appS, root *cli.RootCommand, err error) { //nolin
 		if flg.GetDescZsh() != "ss" {
 			err = errors.New("err `t`.GetDescZsh()")
 		}
-		if flg.GetTitleNamesBy(",") == "" {
+		if ttl, _ := flg.GetTitleNamesBy(","); ttl == "" {
 			err = errors.New("err ss.GetTitleNamesBy()")
 		}
 		if len(flg.GetTitleZshFlagNamesArray()) != 2 {

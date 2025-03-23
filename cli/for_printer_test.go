@@ -39,7 +39,7 @@ func (s *helpPrinter) Print(ctx context.Context, lastCmd Cmd) { //nolint:unparam
 		case ff == nil && level > 0:
 			_, _ = sb.WriteString(strings.Repeat("  ", level))
 			w := 56 - level*2
-			ttl := cc.GetTitleNames()
+			ttl, _ := cc.GetTitleNames(32768)
 			if ttl == "" {
 				ttl = "(empty)"
 			}
@@ -52,7 +52,7 @@ func (s *helpPrinter) Print(ctx context.Context, lastCmd Cmd) { //nolint:unparam
 		case ff != nil:
 			_, _ = sb.WriteString(strings.Repeat("  ", level+1))
 			// ttl := strings.Join(ff.GetTitleZshFlagNamesArray(), ",")
-			ttl := ff.GetTitleFlagNamesBy(",")
+			ttl, _ := ff.GetTitleFlagNamesBy(",")
 			w := 56 - (level+1)*2 // - len(ttl)
 
 			left, right := fmt.Sprintf("%-"+strconv.Itoa(w)+"s", ttl), fmt.Sprintf("%s\n", ff.Desc())

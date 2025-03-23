@@ -505,7 +505,7 @@ func (c *CmdS) getDeferAction(ctx context.Context, cmd Cmd, args []string) func(
 //
 
 // EnsureTree associates owner and app between all subCommands and app/runner/rootCommand.
-// EnsureTree links all commands as a tree (make root and owner linked).
+// It also links all commands as a tree (make root and owner linked).
 //
 // This function will be called for running time once (see also cmdr.Run()).
 func (c *CmdS) EnsureTree(ctx context.Context, app App, root *RootCommand) {
@@ -516,7 +516,7 @@ func (c *CmdS) EnsureTree(ctx context.Context, app App, root *RootCommand) {
 }
 
 // EnsureTreeAlways associates owner and app between all subCommands and app/runner/rootCommand.
-// EnsureTreeAlways links all commands as a tree (make root and owner linked).
+// It also links all commands as a tree (make root and owner linked).
 //
 // This func is called only in building command system (see also builder.postBuild).
 func (c *CmdS) EnsureTreeAlways(ctx context.Context, app App, root *RootCommand) {
@@ -531,7 +531,7 @@ func (c *CmdS) ensureTreeAlways(ctx context.Context, app App, root *RootCommand)
 }
 
 // ensureTreeR link CmdS.owner to its parent, and CmdS.root to root.
-// ensureTreeR links all commands as a tree (make root and owner linked).
+// It links all commands as a tree (make root and owner linked).
 func (c *CmdS) ensureTreeR(ctx context.Context, app App, root *RootCommand) { //nolint:unparam,revive
 	c.WalkEverything(ctx, func(cc, pp Cmd, ff *Flag, cmdIndex, flgIndex, level int) {
 		if cx, ok1 := cc.(*CmdS); ok1 {

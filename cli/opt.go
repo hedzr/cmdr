@@ -56,9 +56,23 @@ type BacktraceableMin interface {
 	GetDottedPath() string
 	GetTitleName() string
 	GetTitleNamesArray() []string
-	GetTitleNames() string // return the joint string of short,full,aliases names
+	GetTitleNames(maxWidth ...int) (title, rest string) // return the joint string of short,full,aliases names
+
+	// OwnerOrParent return parent owner cmdS as a BacktraceableMin.
+	//
+	// A typical backtracing loop is:
+	//
+	//	var cc BacktraceableMin = cmd
+	//	for cc.OwnerIsNotNil() {
+	//	  // do sth with cc.(*CmdS)
+	//	  cc = cc.OwnerOrParent()
+	//	}
 	OwnerOrParent() BacktraceableMin
 	OwnerIsNil() bool
+	OwnerIsNotNil() bool
+	OwnerIsRoot() bool
+	IsRoot() bool
+	Root() *RootCommand
 	App() App
 }
 

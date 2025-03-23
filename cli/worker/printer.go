@@ -125,7 +125,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedS
 				parentIsDynamicLoading := p.IsDynamicCommandsLoading()
 				isFirstItem := index == 0 && (min(cnt, count) > 0 || parentIsDynamicLoading)
 				if isFirstItem {
-					painter.printCommandTitle(ctx, &sb, cc, "Commands")
+					painter.printCommandHeading(ctx, &sb, cc, "Commands")
 				} else { //nolint:revive,staticcheck
 					// _, _ = sb.WriteString("\nCommands[")
 					// _, _ = sb.WriteString(strconv.Itoa(cnt))
@@ -144,19 +144,19 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedS
 			if isFirstItem {
 				if cc.OwnerCmd() == nil {
 					// _, _ = sb.WriteString("\nGlobal Flags:\n")
-					painter.printFlagTitle(ctx, &sb, cc, ff, "Global Flags")
+					painter.printFlagHeading(ctx, &sb, cc, ff, "Global Flags")
 					_, _ = sb.WriteString("\n")
 				} else if level == 0 {
 					// _, _ = sb.WriteString("\nFlags:\n")
-					painter.printFlagTitle(ctx, &sb, cc, ff, "Flags")
+					painter.printFlagHeading(ctx, &sb, cc, ff, "Flags")
 					_, _ = sb.WriteString("\n")
 				} else if level == 1 {
-					painter.printFlagTitle(ctx, &sb, cc, ff, "Parent Flags")
+					painter.printFlagHeading(ctx, &sb, cc, ff, "Parent Flags")
 					_, _ = sb.WriteString("(")
 					_, _ = sb.WriteString(color.ToDim(cc.String()))
 					_, _ = sb.WriteString("):\n")
 				} else {
-					painter.printFlagTitle(ctx, &sb, cc, ff, "Grandpa Flags")
+					painter.printFlagHeading(ctx, &sb, cc, ff, "Grandpa Flags")
 					_, _ = sb.WriteString("(")
 					_, _ = sb.WriteString(color.ToDim(cc.String()))
 					_, _ = sb.WriteString("):\n")
@@ -237,7 +237,7 @@ type Painter interface {
 
 	// printCommand(ctx context.Context, sb *strings.Builder, verboseCount *int, cc cli.Cmd, group string, idx, level, cols, tabbedW int, grouped bool)
 
-	printCommandTitle(ctx context.Context, sb *strings.Builder, cc cli.Cmd, title string)
+	printCommandHeading(ctx context.Context, sb *strings.Builder, cc cli.Cmd, title string)
 	printCommandGroupTitle(ctx context.Context, sb *strings.Builder, group string, indent int)
 	printCommandRow(ctx context.Context, sb *strings.Builder,
 		cc cli.Cmd,
@@ -246,7 +246,7 @@ type Painter interface {
 
 	// printFlag(ctx context.Context, sb *strings.Builder, verboseCount *int, ff *cli.Flag, group string, idx, level, cols, tabbedW int, grouped bool)
 
-	printFlagTitle(ctx context.Context, sb *strings.Builder, cc cli.Cmd, ff *cli.Flag, title string)
+	printFlagHeading(ctx context.Context, sb *strings.Builder, cc cli.Cmd, ff *cli.Flag, title string)
 	printFlagGroupTitle(ctx context.Context, sb *strings.Builder, group string, indent int)
 	printFlagRow(ctx context.Context, sb *strings.Builder,
 		ff *cli.Flag,
@@ -477,11 +477,11 @@ func trans(ss string, translator color.Translator, clr color.Color, deprecated b
 	return ss
 }
 
-func (s *helpPrinter) printCommandTitle(ctx context.Context, sb *strings.Builder, cc cli.Cmd, title string) {
+func (s *helpPrinter) printCommandHeading(ctx context.Context, sb *strings.Builder, cc cli.Cmd, title string) {
 	_, _ = sb.WriteString(fmt.Sprintf("\n%s:\n", title))
 }
 
-func (s *helpPrinter) printFlagTitle(ctx context.Context, sb *strings.Builder, cc cli.Cmd, ff *cli.Flag, title string) {
+func (s *helpPrinter) printFlagHeading(ctx context.Context, sb *strings.Builder, cc cli.Cmd, ff *cli.Flag, title string) {
 	_, _ = sb.WriteString(fmt.Sprintf("\n%s:\n", title))
 }
 
@@ -499,7 +499,8 @@ func (s *helpPrinter) printCommandGroupTitle(ctx context.Context, sb *strings.Bu
 func (s *helpPrinter) printCommandRow(ctx context.Context, sb *strings.Builder,
 	cc cli.Cmd,
 	indentSpaces, left, right, dep, depPlain string,
-	cols, tabbedW int, deprecated, dim bool) {
+	cols, tabbedW int, deprecated, dim bool,
+) {
 	_, _ = sb.WriteString(indentSpaces)
 
 	if dim { //nolint:revive
@@ -923,7 +924,7 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder,
 
 	indentSpaces := strings.Repeat("  ", level+groupedInc+ofs)
 	// ttl := strings.Join(ff.GetTitleZshFlagNamesArray(), ",")
-	ttl := ff.GetTitleFlagNamesBy(",")
+	ttl, restTitles := ff.GetTitleFlagNamesBy(",", tabbedW-len(indentSpaces))
 	w := tabbedW - (level+groupedInc)*2 // - len(ttl)
 
 	// _, _ = sb.WriteString(indentSpaces)
@@ -962,161 +963,17 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder,
 	dep, depPlain := ff.DeprecatedHelpString(trans1, CurrentDeprecatedColor, CurrentDescColor)
 	env, envPlain := ff.EnvVarsHelpString(trans1, CurrentEnvVarsColor, CurrentDescColor)
 
-	// if dim { //nolint:revive
-	// 	s.WriteBgColor(sb, color.BgDim)
-	// }
-	//
-	// if deprecated {
-	// 	s.WriteBgColor(sb, color.BgStrikeout)
-	// 	s.WriteColor(sb, CurrentDescColor)
-	// } else {
-	// 	s.WriteColor(sb, CurrentTitleColor)
-	// }
-	// _, _ = sb.WriteString(left)
-	//
-	// // s.DimFast(&sb, s.Translate(right, color.BgNormal))
-	// if tg != "" {
-	// 	// s.ColoredFast(&sb, CurrentFlagTitleColor, tg)
-	// 	s.WriteColor(sb, CurrentFlagTitleColor)
-	// 	_, _ = sb.WriteString(tg)
-	// }
-
-	// var split bool
-	// var printed int
-	// // printleftpad := func(cond bool) {
-	// // 	if cond {
-	// // 		_, _ = sb.WriteString("\n")
-	// // 		_, _ = sb.WriteString(strings.Repeat(" ", tabbedW))
-	// // 	}
-	// // }
-	// rCols := cols - tabbedW
-	// if right != "" {
-	// 	s.WriteColor(sb, CurrentDescColor)
-	//
-	// 	_, l, l1st := len(right), len(right)+len(defPlain)+len(depPlain)+len(envPlain), len(tg)
-	// 	// aa := []string{}
-	// 	if l+l1st >= rCols {
-	// 		var prt string
-	// 		var ix int
-	// 		for len(right)+l1st >= rCols {
-	// 			prt, right = right[:rCols-l1st], right[rCols-l1st:]
-	// 			printleftpad(sb, ix > 0, tabbedW)
-	// 			// aa = append(aa, prt)
-	// 			_, _ = sb.WriteString(trans(prt, s, CurrentDescColor, deprecated))
-	// 			ix++
-	// 			l1st = 0
-	// 		}
-	// 		if right != "" {
-	// 			str := trans(right, s, CurrentDescColor, deprecated)
-	// 			if ix > 0 {
-	// 				printleftpad(sb, ix > 0, tabbedW)
-	// 			} else {
-	// 				split, printed = true, len(is.StripEscapes(str))
-	// 			}
-	// 			_, _ = sb.WriteString(str)
-	// 		}
-	// 	} else {
-	// 		_, _ = sb.WriteString(trans(right, s, CurrentDescColor, deprecated))
-	// 	}
-	//
-	// 	// if ff.Long == "addr" {
-	// 	// 	sb.WriteString(fmt.Sprintf(" / l=%d, l1st=%d, len(right)/def=%d/%d, rCols=%d", l, l1st, len(right), len(defPlain), rCols))
-	// 	// }
-	// 	// sb.WriteString(fmt.Sprintf(" / l=%d/%d, l1st=%d, len(right)=%d, rCols=%d", l, lr, l1st, len(right), rCols))
-	// 	// sb.WriteString(trans(right, CurrentDescColor))
-	// } else {
-	// 	s.WriteColor(sb, CurrentDescColor)
-	// 	_, _ = sb.WriteString(trans("<i>desc</i>", s, CurrentDescColor, deprecated))
-	// 	printed += 4
-	// }
-	//
-	// if env != "" && printed >= 0 {
-	// 	if split {
-	// 		envlen := len(envPlain)
-	// 		printed += envlen
-	// 		if printed >= rCols {
-	// 			printleftpad(sb, split, tabbedW)
-	// 			printed = envlen
-	// 		}
-	// 	}
-	// 	if sb.String()[sb.Len()-1] != ' ' {
-	// 		_, _ = sb.WriteString(" ")
-	// 	}
-	// 	_, _ = sb.WriteString(env)
-	// }
-	//
-	// if def != "" && printed >= 0 {
-	// 	if split {
-	// 		deflen := len(defPlain) // len(is.StripEscapes(def))
-	// 		printed += deflen
-	// 		if printed >= rCols {
-	// 			printleftpad(sb, split, tabbedW)
-	// 			printed = deflen
-	// 		}
-	// 	}
-	// 	if sb.String()[sb.Len()-1] != ' ' {
-	// 		_, _ = sb.WriteString(" ")
-	// 	}
-	// 	_, _ = sb.WriteString(def)
-	// }
-	//
-	// if va := ff.ValidArgs(); len(va) > 0 {
-	// 	cvt := evendeep.Cvt{}
-	// 	str := cvt.String(va)
-	// 	if split {
-	// 		deflen := len(str)
-	// 		printed += deflen
-	// 		if printed >= rCols {
-	// 			printleftpad(sb, split, tabbedW)
-	// 			printed = deflen
-	// 		}
-	// 	}
-	// 	if sb.String()[sb.Len()-1] != ' ' {
-	// 		_, _ = sb.WriteString(" ")
-	// 	}
-	// 	_, _ = sb.WriteString(str)
-	// }
-	//
-	// if ff.Required() {
-	// 	str := "<kbd>REQUIRED</kbd>"
-	// 	esc := s.Translate(str, CurrentFlagTitleColor)
-	// 	if split {
-	// 		deflen := len(str)
-	// 		printed += deflen
-	// 		if printed >= rCols {
-	// 			printleftpad(sb, split, tabbedW)
-	// 			printed = deflen
-	// 		}
-	// 	}
-	// 	if sb.String()[sb.Len()-1] != ' ' {
-	// 		_, _ = sb.WriteString(" ")
-	// 	}
-	// 	_, _ = sb.WriteString(esc)
-	// }
-	//
-	// if dep != "" {
-	// 	if split {
-	// 		deplen := len(depPlain) // len(is.StripEscapes(dep))
-	// 		printed += deplen
-	// 		if printed >= rCols {
-	// 			printleftpad(sb, split, tabbedW)
-	// 			printed = deplen
-	// 		}
-	// 	}
-	// 	if sb.String()[sb.Len()-1] != ' ' {
-	// 		_, _ = sb.WriteString(" ")
-	// 	}
-	// 	_, _ = sb.WriteString(dep)
-	// 	logz.VerboseContext(ctx, "split flag is", "split", split)
-	// }
-	//
-	// // s.ColoredFast(&sb, CurrentDefaultValueColor, def)
-	// // s.ColoredFast(&sb, CurrentDeprecatedColor, dep)
-	// // sb.WriteString(s.Translate(right, color.BgDefault))
-	// s.Reset(sb)
-
 	painter.printFlagRow(ctx, sb, ff, indentSpaces, left, right, tg, def, defPlain, dep, depPlain, env, envPlain, cols, tabbedW, deprecated, dim)
 	_, _ = sb.WriteString("\n")
+
+	if restTitles != "" {
+		_, _ = sb.WriteString(indentSpaces)
+		_, _ = sb.WriteString("    = ")
+		s.WriteBgColor(sb, color.BgItalic)
+		_, _ = sb.WriteString(restTitles)
+		s.Reset(sb)
+		_, _ = sb.WriteString("\n")
+	}
 
 	if ff.HeadLike() && !s.asManual {
 		_, _ = sb.WriteString(indentSpaces)

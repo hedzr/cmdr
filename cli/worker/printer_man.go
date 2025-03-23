@@ -157,7 +157,7 @@ func (s *manPainter) printTailLine(ctx context.Context, sb *strings.Builder, cc 
 // 	s.bufPrintf(sb, "\n.SH %s\n", title)
 // }
 
-func (s *manPainter) printCommandTitle(ctx context.Context, sb *strings.Builder, cc cli.Cmd, title string) {
+func (s *manPainter) printCommandHeading(ctx context.Context, sb *strings.Builder, cc cli.Cmd, title string) {
 	title = "COMMANDS AND SUB-COMMANDS"
 	s.bufPrintf(sb, "\n.SH %s\n", title)
 }
@@ -199,7 +199,7 @@ func (s *manPainter) printCommandRow(ctx context.Context, sb *strings.Builder,
 // 	panic("implement me")
 // }
 
-func (s *manPainter) printFlagTitle(ctx context.Context, sb *strings.Builder, cc cli.Cmd, ff *cli.Flag, title string) {
+func (s *manPainter) printFlagHeading(ctx context.Context, sb *strings.Builder, cc cli.Cmd, ff *cli.Flag, title string) {
 	// title = "COMMANDS AND SUB-COMMANDS"
 	// s.bufPrintf(sb, "\n.SH %s\n", title)
 	s.bufPrintf(sb, "\n.SH %s\n", "OPTIONS")
@@ -218,7 +218,8 @@ func (s *manPainter) printFlagRow(ctx context.Context, sb *strings.Builder,
 	indentSpaces, left, right, tg, def, defPlain, dep, depPlain, env, envPlain string,
 	cols, tabbedW int, deprecated, dim bool) {
 	// s.Printf(".TP\n.BI %s\n%s\n%s\n", manWs(flag.GetTitleFlagNames()), flag.Description, defValStr)
-	s.bufPrintf(sb, ".TP\n.BI %s", manWs(ff.GetTitleFlagNames()))
+	title, rest := ff.GetTitleFlagNames()
+	s.bufPrintf(sb, ".TP\n.BI %s", manWs("%s %s", title, rest))
 	s.bufPrintf(sb, "\n%s\n%s\n", ff.DescLong(), defPlain)
 }
 

@@ -8,7 +8,7 @@ import (
 	"gopkg.in/hedzr/errors.v3"
 
 	"github.com/hedzr/cmdr/v2/cli"
-	"github.com/hedzr/cmdr/v2/pkg/dir"
+	"github.com/hedzr/is/dir"
 )
 
 type sbomS struct{}

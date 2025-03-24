@@ -7,9 +7,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/hedzr/cmdr/v2/pkg/dir"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
 	"github.com/hedzr/is"
+	"github.com/hedzr/is/dir"
 	logzorig "github.com/hedzr/logg/slog"
 )
 

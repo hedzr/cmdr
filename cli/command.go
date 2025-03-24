@@ -10,10 +10,10 @@ import (
 	"sync/atomic"
 
 	"github.com/hedzr/cmdr/v2/internal/tool"
-	"github.com/hedzr/cmdr/v2/pkg/dir"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
 	"github.com/hedzr/evendeep"
 	"github.com/hedzr/is"
+	"github.com/hedzr/is/dir"
 	"github.com/hedzr/is/exec"
 	"github.com/hedzr/is/states"
 	"github.com/hedzr/store"

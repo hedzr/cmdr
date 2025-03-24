@@ -7,7 +7,7 @@ import (
 
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/conf"
-	"github.com/hedzr/cmdr/v2/pkg/dir"
+	"github.com/hedzr/is/dir"
 )
 
 func New(w cli.Runner) cli.App {

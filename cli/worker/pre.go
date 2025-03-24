@@ -16,8 +16,8 @@ import (
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/cli/atoa"
 	"github.com/hedzr/cmdr/v2/internal/tool"
-	"github.com/hedzr/cmdr/v2/pkg/dir"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
+	"github.com/hedzr/is/dir"
 )
 
 func (w *workerS) preProcess(ctx context.Context) (err error) {

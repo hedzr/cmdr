@@ -7,7 +7,7 @@ import (
 
 	"github.com/hedzr/cmdr/v2"
 	"github.com/hedzr/cmdr/v2/cli"
-	"github.com/hedzr/cmdr/v2/pkg/dir"
+	"github.com/hedzr/is/dir"
 	"github.com/hedzr/is/exec"
 	"github.com/hedzr/is/term/color"
 	"github.com/hedzr/store"

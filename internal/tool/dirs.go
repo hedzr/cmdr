@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/hedzr/cmdr/v2/pkg/dir"
 	"github.com/hedzr/is"
+	"github.com/hedzr/is/dir"
 	logz "github.com/hedzr/logg/slog"
 )
 

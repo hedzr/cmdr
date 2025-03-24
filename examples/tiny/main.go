@@ -13,8 +13,8 @@ import (
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/examples/devmode"
 	"github.com/hedzr/cmdr/v2/examples/dyncmd"
-	"github.com/hedzr/cmdr/v2/pkg/dir"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
+	"github.com/hedzr/is/dir"
 	"github.com/hedzr/store"
 )
 

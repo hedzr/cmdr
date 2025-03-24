@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/hedzr/cmdr/v2/pkg/dir"
+	"github.com/hedzr/is/dir"
 	"github.com/hedzr/is/stringtool"
 )
 

@@ -9,11 +9,10 @@ import (
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/examples/cmd"
 	"github.com/hedzr/cmdr/v2/examples/dyncmd"
-	"github.com/hedzr/cmdr/v2/pkg/dir"
 
-	"gopkg.in/hedzr/errors.v3"
-
+	"github.com/hedzr/is/dir"
 	logz "github.com/hedzr/logg/slog"
+	"gopkg.in/hedzr/errors.v3"
 )
 
 const (

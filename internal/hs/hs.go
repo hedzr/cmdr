@@ -88,28 +88,15 @@ func (s *HelpSystem) Run(ctx context.Context) (err error) {
 	catcher.
 		WithVerboseFn(func(msg string, args ...any) {
 			// logz.WithSkip(2).PrintlnContext(ctx, fmt.Sprintf("[verbose] %s\n", fmt.Sprintf(msg, args...)))
-			// // server.Verbose(fmt.Sprintf("[verbose] %s", fmt.Sprintf(msg, args...)))
 		}).
 		WithOnSignalCaught(func(sig os.Signal, wg *sync.WaitGroup) {
 			println()
 			// logz.Debug("signal caught", "sig", sig)
-			// // if err := server.Shutdown(); err != nil {
-			// // 	logger.Error("server shutdown error", "err", err)
-			// // }
-			// // cancel()
 			exitChan <- struct{}{}
 		}).
 		WaitFor(func(closer func()) {
-			// server.WithOnShutdown(func(err error, ss net.Server) { wgShutdown.Done() })
-			// err := server.ListenAndServe(ctx, nil)
-			// if err != nil {
-			// 	server.Fatal("server serve failed", "err", err)
-			// }
-
 			defer func() {
 				_, _ = fmt.Fprintln(term, byeString)
-				// stopChan <- syscall.SIGINT
-				// wgShutdown.Done()
 				closer()
 				// _, _ = fmt.Println("end")
 			}()

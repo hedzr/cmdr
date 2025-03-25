@@ -1,5 +1,13 @@
 # CHANGELOG
 
+- v2.1.8
+
+  - cmdr: fix command indent (help screen)
+  - cmdr: remove `pkg/dir` since it moved into `hedzr/is`
+  - cmdr: update ref to hedzr/is/dir
+  - cmdr: mv `pkg/dir` into `hedzr/is`
+  - upgrade deps
+
 - v2.1.7
 
   - downgrade toolchain to go1.23.0

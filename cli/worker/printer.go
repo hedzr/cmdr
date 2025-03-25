@@ -585,8 +585,8 @@ func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder,
 				// _, _ = sb.WriteString("]")
 				// s.Reset(sb)
 				// _, _ = sb.WriteString("\n")
+				groupedInc++
 			}
-			groupedInc++
 		}
 	}
 

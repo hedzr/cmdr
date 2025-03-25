@@ -16,10 +16,10 @@
 
 `cmdr` is a POSIX-compliant, command-line argument parser library with Golang.
 
-Since v2, our license moved to Apache 2.0.
+1. Our license moved to Apache 2.0 from v2.
+2. The minimal toolchain move to go1.23+ from v2.1.
 
-Since v2.1, the minimal toolchain move to go1.23.
-A preview version released at v2.1.0, the stable API has been freezing.
+A preview version released at v2.1, the stable API has been frozen.
 
 ![cover](https://user-images.githubusercontent.com/12786150/72876202-f49ee500-3d30-11ea-9de0-434bf8decf90.gif)<!-- built by https://ezgif.com/ -->
 
@@ -120,7 +120,7 @@ The full-featured tests and examples are moved into [cmdr-tests](https://github.
 
 v2.1 is a stable version:
 
-- v2.1.3 or v2.2.0 PLANNED: the final stable version for v2.
+- v2.2.0 PLANNED: the final stable version for v2.
 - v2.1.x: preview version for the new APIs.
 - Full list: [CHANGELOG](https://github.com/hedzr/cmdr/blob/master/CHANGELOG)
 
@@ -140,11 +140,10 @@ import (
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/examples/cmd"
 	"github.com/hedzr/cmdr/v2/examples/dyncmd"
-	"github.com/hedzr/cmdr/v2/pkg/dir"
 
-	"gopkg.in/hedzr/errors.v3"
-
+	"github.com/hedzr/is/dir"
 	logz "github.com/hedzr/logg/slog"
+	"gopkg.in/hedzr/errors.v3"
 )
 
 const (

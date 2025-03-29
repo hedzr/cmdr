@@ -10,6 +10,7 @@ import (
 	"gopkg.in/hedzr/errors.v3"
 
 	"github.com/hedzr/is/term/color"
+
 	"github.com/hedzr/store"
 
 	"github.com/hedzr/cmdr/v2/conf"
@@ -447,8 +448,8 @@ func (c *BaseOpt) GetTitleNames(maxWidth ...int) (title, rest string) {
 		}
 		sb.WriteString(delimiter)
 		delimiter = ","
-	} else {
-		sb.WriteString("   ")
+		// } else if c.OwnerIsNotNil() { // don't adding spaces for a Root Cmd
+		// 	sb.WriteString("   ")
 	}
 	if c.Long != "" {
 		sb.WriteString(c.Long)

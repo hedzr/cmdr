@@ -407,7 +407,9 @@ func (c *CmdS) SetPreActions(functions ...OnPreInvokeHandler) {
 	c.preActions = append(c.preActions, functions...)
 }
 
-// SetAction adds the onInvoke action to a command
+// SetAction adds the onInvoke action to a command.
+//
+// a call to `SetAction(nil)` will set the underlying onAction handlet empty.
 func (c *CmdS) SetAction(fn OnInvokeHandler) {
 	c.onInvoke = fn
 }

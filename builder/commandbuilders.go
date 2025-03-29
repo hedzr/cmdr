@@ -206,6 +206,9 @@ func (s *ccb) RedirectTo(dottedPath string) cli.CommandBuilder {
 	return s
 }
 
+// OnAction sets the onAction handler.
+//
+// a call to `OnAction(nil)` will set the underlying onAction handlet empty.
 func (s *ccb) OnAction(handler cli.OnInvokeHandler) cli.CommandBuilder {
 	s.SetAction(handler)
 	return s

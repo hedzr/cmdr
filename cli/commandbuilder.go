@@ -90,11 +90,13 @@ type CommandBuilder interface {
 	//
 	// NOTE:
 	//
-	//     when redirectTo is valid, CmdS.OnInvoke handler will be ignored.
+	//   when redirectTo is valid, CmdS.OnInvoke handler will be ignored.
 	RedirectTo(dottedPath string) CommandBuilder
 
 	// OnAction is the main action or entry point when the command
 	// was hit from parsing command-line arguments.
+	//
+	// a call to `OnAction(nil)` will set the underlying onAction handlet empty.
 	OnAction(handler OnInvokeHandler) CommandBuilder
 	// OnPreAction will be launched before running OnInvoke.
 	// The return value obj.ErrShouldStop will cause the remained

@@ -11,9 +11,6 @@
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go#command-line)
 [![DocSite](https://img.shields.io/badge/Doc-Site-blue)](https://docs.hedzr.com/docs/cmdr.v2/)
 
-> A preview release for the frozen stable API - v2.1.x series  
-> `[cmdr-docs-dev](https://github.com/hedzr/cmdr-docs-dev)` in composing.
-
 `cmdr` is a POSIX-compliant, command-line argument parser library with Golang.
 
 1. Our license moved to Apache 2.0 from v2.
@@ -56,6 +53,7 @@ graph BT
 
 > 1. The .netCore version [Cmdr.Core](https://github.com/hedzr/Cmdr.Core) is available now.
 > 2. A cxx version [`cmdr-cxx`](https://github.com/hedzr/cmdr-cxx) was released (Happy Spring Festival 2021).
+> 3. The docsite has been released at <https://docs.hedzr.com/>.
 
 ## Features
 
@@ -273,16 +271,8 @@ func (presetCmd) Add(app cli.App) {
 
 More examples please go to [cmdr-tests/examples](https://github.com/hedzr/cmdr-tests/tree/master/examples).
 
-## Thanks to JODL
-
-Thanks to [JetBrains](https://www.jetbrains.com/?from=cmdr) for donating product licenses to help develop **cmdr**  
-[![jetbrains](https://gist.githubusercontent.com/hedzr/447849cb44138885e75fe46f1e35b4a0/raw/bedfe6923510405ade4c034c5c5085487532dee4/jetbrains-variant-4.svg)](https://www.jetbrains.com/?from=hedzr/cmdr)
-[![goland](https://gist.githubusercontent.com/hedzr/447849cb44138885e75fe46f1e35b4a0/raw/ca8ac2694906f5650d585263dbabfda52072f707/logo-goland.svg)](https://www.jetbrains.com/?from=hedzr/cmdr)
-
 ## License
 
 Since v2, our license moved to Apache 2.0.
-
-The v1 keeps under MIT itself.
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fhedzr%2Fcmdr.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fhedzr%2Fcmdr?ref=badge_large)

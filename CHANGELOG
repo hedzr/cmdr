@@ -1,5 +1,12 @@
 # CHANGELOG
 
+- v2.1.9
+
+  - fix `~~tree` printing the root command
+  - docs
+  - upgrade deps
+  - security patches
+
 - v2.1.8
 
   - cmdr: fix command indent (help screen)

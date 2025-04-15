@@ -16,6 +16,7 @@
 1. Our license moved to Apache 2.0 from v2.
 2. The minimal toolchain move to go1.23+ from v2.1.
 3. DocSite published at [here](https://docs.hedzr.com/docs/cmdr.v2/).
+4. Starting a new app with [cmdr-go-started Template repo](https://github.com/hedzr/cmdr-go-starter).
 
 A preview version released at v2.1, the stable API has been frozen.
 

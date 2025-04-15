@@ -1,5 +1,11 @@
 # CHANGELOG
 
+- v2.1.10
+
+  - fix a crash in printUsage() on a dyncmd object
+  - upgrade deps
+  - security patches
+
 - v2.1.9
 
   - fix `~~tree` printing the root command

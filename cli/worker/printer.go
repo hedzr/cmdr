@@ -272,7 +272,9 @@ func (s *helpPrinter) printHeader(ctx context.Context, sb *strings.Builder, cc c
 }
 
 func (s *helpPrinter) printUsage(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) { //nolint:revive,unparam
-	appName := cc.App().Name()
+	// cc.App() could have a nil value while cc is a dynamic command.
+	// But cc.Root() is always available and point to the proper target.
+	appName := cc.Root().App().Name()
 	titles := cc.GetCommandTitles()
 	tail := "[files...]"
 	if tph := cc.TailPlaceHolder(); tph != "" {

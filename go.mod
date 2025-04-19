@@ -17,7 +17,7 @@ require (
 	github.com/hedzr/is v0.7.13
 	github.com/hedzr/logg v0.8.13
 	github.com/hedzr/store v1.3.13
-	github.com/hedzr/store/codecs/json v1.3.11
+	github.com/hedzr/store/codecs/json v1.3.13
 	github.com/hedzr/store/providers/file v1.3.13
 	golang.org/x/crypto v0.37.0
 	golang.org/x/exp v0.0.0-20250408133849-7e4ce0ab07d0

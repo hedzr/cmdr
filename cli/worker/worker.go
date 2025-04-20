@@ -106,13 +106,21 @@ type workerS struct {
 func (w *workerS) String() string {
 	var sb strings.Builder
 	_, _ = sb.WriteString("workerS{root: \"")
-	_, _ = sb.WriteString(w.Root().String())
-	_, _ = sb.WriteString("\", config: ")
-	if b, err := json.Marshal(w.Config); err == nil {
-		_, _ = sb.Write(b)
+	if root := w.Root(); root != nil {
+		_, _ = sb.WriteString(root.String())
 	} else {
-		ctx := context.Background()
-		logz.ErrorContext(ctx, "json marshalling w.Config failed", "config", w.Config, "err", err)
+		_, _ = sb.WriteString("(root-unset)")
+	}
+	_, _ = sb.WriteString("\", config: ")
+	if w.Config != nil {
+		if b, err := json.Marshal(w.Config); err == nil {
+			_, _ = sb.Write(b)
+		} else {
+			ctx := context.Background()
+			logz.ErrorContext(ctx, "json marshalling w.Config failed", "config", w.Config, "err", err)
+		}
+	} else {
+		sb.WriteString("(config-unset)")
 	}
 	_, _ = sb.WriteString("\"}")
 	return sb.String()

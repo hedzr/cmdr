@@ -392,7 +392,7 @@ $ {{.AppName}} gen man
 			OnAction((&genS{}).onAction)
 
 		bb.Cmd("manual", "m", "man").
-			Description("Generate Linux Manual Documentations").
+			Description("Generate Linux Manpage(s)").
 			Group(cli.SysMgmtGroup).
 			Hidden(false, false).
 			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) { //nolint:revive
@@ -401,14 +401,18 @@ $ {{.AppName}} gen man
 			OnAction((&genManS{}).onAction).
 			With(func(b cli.CommandBuilder) {
 				// , "outdir", "out-dir", "output-dir", "target-dir", "tgt-dir"
-				b.Flg("dir", "d").
-					Default("").
+				b.Flg("dir", "d", "out-dir").
+					Default("./man1").
 					Description("The output directory").
 					Group("Output").
 					// Hidden(true, true).
 					PlaceHolder("DIR").
 					Build()
 
+				b.Flg("all", "a").
+					Default(false).
+					Description("For all commands?").
+					Build()
 				b.Flg("type", "t").
 					Default(1).
 					Description("Linux man type [1..9]").

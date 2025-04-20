@@ -119,23 +119,17 @@ func fp(fmtStr string, args ...interface{}) {
 	_fpz(needln, s)
 }
 
-func fpK(fmtStr string, args ...interface{}) {
-	s := fmt.Sprintf(fmtStr, args...)
-	_fpz(false, s)
-}
+// func fpK(fmtStr string, args ...interface{}) {
+// 	s := fmt.Sprintf(fmtStr, args...)
+// 	_fpz(false, s)
+// }
 
 func _fpz(needln bool, s string) {
 	var w io.Writer = os.Stdout
 	if wkr := UniqueWorker(); wkr != nil {
-		// uniqueWorkerLock.RLock()
-		// defer uniqueWorkerLock.RUnlock()
-		//
-		// if wkr.rootCommand != nil {
-		// 	if wkr.rootCommand.ow == nil {
-		// 		return
-		// 	}
-		// 	w = wkr.rootCommand.ow
-		// }
+		if r, ok := wkr.(interface{ GetHelpScreenWriter() HelpWriter }); ok {
+			w = r.GetHelpScreenWriter()
+		}
 		if w != nil {
 			_fpzz(needln, s, w)
 		}
@@ -192,6 +186,7 @@ func (w *workerS) showHelpScreenAsMan(ctx context.Context, pc *parseCtx, lastCmd
 
 	hp.PrintTo(ctx, f, pc, lastCmd, args...)
 
+	// close xxx.man.1, so that we can launch it into as parameter of `man` command
 	_ = f.Close()
 
 	// logz.InfoContext(ctx, "temp manpage written", "path", f.Name())

@@ -9,6 +9,7 @@ import (
 	logzorig "github.com/hedzr/logg/slog"
 
 	"github.com/hedzr/cmdr/v2/cli"
+	"github.com/hedzr/cmdr/v2/conf"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
 )
 
@@ -367,7 +368,7 @@ func (w *workerS) builtinGenerators(app cli.App, p *cli.CmdS) { //nolint:revive
 	app.NewCmdFrom(p, func(bb cli.CommandBuilder) {
 		bb.Titles("generate", "g", "gen", "generator").
 			Description("Generators for this app", `
-[cmdr] includes multiple generators like:
+[cmdr] includes multiple generators:
 
 - linux man page generator
 - shell completion script generator
@@ -376,11 +377,11 @@ func (w *workerS) builtinGenerators(app cli.App, p *cli.CmdS) { //nolint:revive
 			`).
 			Examples(`
 $ {{.AppName}} gen sh --bash
-			generate bash completion script
+	generate bash completion script
 $ {{.AppName}} gen shell --auto
-			generate shell completion script with detecting on current shell environment.
+	generate shell completion script with detecting on current shell environment.
 $ {{.AppName}} gen sh
-			generate shell completion script with detecting on current shell environment.
+	generate shell completion script with detecting on current shell environment.
 $ {{.AppName}} gen man
 			generate linux manual (man page)
 			`).
@@ -450,14 +451,14 @@ $ {{.AppName}} gen man
 			OnAction((&genShS{}).onAction).
 			With(func(b cli.CommandBuilder) {
 				b.Flg("dir", "d").
-					Default("").
+					Default(".").
 					Description("The output directory").
 					Group("Output").
 					PlaceHolder("DIR").
 					Build()
 
 				b.Flg("output", "o").
-					Default("").
+					Default("_" + conf.AppName).
 					Description("The output filename").
 					Group("Output").
 					PlaceHolder("FILE").

@@ -86,6 +86,38 @@ func New(opts ...cli.Opt) cli.App {
 // It's available once New() / Exec() called, else nil.
 //
 // App returns a cli.Runner instance, which is different with builder.App.
+//
+// In most cases, App() return the exact app object (a &workerS{} instance).
+// But it' not the real worker if you're requesting shared app instance.
+// A shared app instance must be made by New() and valued context:
+//
+//	ctx := context.Background()
+//	ctx = context.WithValue(ctx, "shared.cmdr.app", true)
+//
+//	app := cmdr.Create(appName, version, author, desc).
+//		WithAdders(cmd.Commands...).
+//		OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
+//			fmt.Printf("app.name = %s\n", cmdr.App().Name())
+//			fmt.Printf("app.unique = %v\n", cmdr.App()) // return an uncertain app object
+//			app := cmd.Root().App()                     // this is the real app object associate with current RootCommand
+//			fmt.Printf("app = %v\n", app)
+//			return
+//		}).
+//		Build()
+//
+//	if err := app.Run(ctx); err != nil {
+//		logz.ErrorContext(ctx, "Application Error:", "err", err) // stacktrace if in debug mode/build
+//		os.Exit(app.SuggestRetCode())
+//	} else if rc := app.SuggestRetCode(); rc != 0 {
+//		os.Exit(rc)
+//	}
+//
+// What effect words with a shared app object?
+//
+// Suppose you have a standard app running, and also you're requesting
+// to build a new child app instance for some special purpose, thought
+// you could declare it as a shared instance so that the main app never
+// be replaced with the new one.
 func App() cli.Runner { return worker.UniqueWorker() }
 
 func AppName() string            { return App().Name() }            // the app's name

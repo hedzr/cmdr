@@ -22,7 +22,7 @@ import (
 func New(cfg *cli.Config, opts ...cli.Opt) *workerS {
 	w := &workerS{Config: cfg}
 	w.setArgs(cfg.Args)
-	bindOpts(context.TODO(), w, false, opts...)
+	bindOpts(context.TODO(), w, opts...)
 	return w
 }
 
@@ -314,6 +314,9 @@ func (w *workerS) errIsSignalFallback(err error) bool {
 	return errors.Is(err, cli.ErrShouldFallback)
 }
 
+func (w *workerS) GetHelpScreenWriter() HelpWriter  { return w.wrHelpScreen }
+func (w *workerS) GetDebugScreenWriter() HelpWriter { return w.wrDebugScreen }
+
 func (w *workerS) setArgs(args []string)     { w.args = args }
 func (w *workerS) Args() (args []string)     { return w.args }
 func (w *workerS) SuggestRetCode() int       { return w.retCode } //
@@ -325,7 +328,7 @@ func (w *workerS) ParsedState() cli.ParsedState {
 	return nil
 }
 
-func bindOpts[Opt cli.Opt](ctx context.Context, w *workerS, installAsUnique bool, opts ...Opt) {
+func bindOpts[Opt cli.Opt](ctx context.Context, w *workerS, opts ...Opt) {
 	for _, opt := range opts {
 		opt(w.Config)
 	}
@@ -336,7 +339,10 @@ func bindOpts[Opt cli.Opt](ctx context.Context, w *workerS, installAsUnique bool
 	if w.DebugScreenWriter != nil {
 		w.wrDebugScreen = w.DebugScreenWriter
 	}
+	w.HelpScreenWriter = w.wrHelpScreen
+	w.DebugScreenWriter = w.wrDebugScreen
 
+	_ = ctx
 	// if cx, ok := w.root.Cmd.(*cli.CmdS); ok {
 	// 	cx.EnsureTree(ctx, w, w.root)
 	// }
@@ -345,8 +351,15 @@ func bindOpts[Opt cli.Opt](ctx context.Context, w *workerS, installAsUnique bool
 	if len(w.Config.Args) > 0 {
 		w.args = w.Config.Args
 	}
+}
 
-	if installAsUnique {
+func setUniqueWorker(ctx context.Context, w *workerS) {
+	installAsUniqueWorker := true
+	logz.DebugContext(ctx, "ctx.Value(\"shared.cmdr.app\")", "value", ctx.Value("shared.cmdr.app"))
+	if shared, ok := ctx.Value("shared.cmdr.app").(bool); ok {
+		installAsUniqueWorker = !shared
+	}
+	if installAsUniqueWorker {
 		if app := UniqueWorker(); app != w {
 			SetUniqueWorker(w)
 		}
@@ -354,7 +367,8 @@ func bindOpts[Opt cli.Opt](ctx context.Context, w *workerS, installAsUnique bool
 }
 
 func (w *workerS) Run(ctx context.Context, opts ...cli.Opt) (err error) {
-	bindOpts(ctx, w, true, opts...)
+	bindOpts(ctx, w, opts...)
+	setUniqueWorker(ctx, w)
 
 	// shutdown basics.Closers for the registered Peripheral, Closers.
 	// See also: basics.RegisterPeripheral, basics.RegisterClosable,

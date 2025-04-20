@@ -112,6 +112,8 @@ More minor details need to be evaluated and reimplemented if it's still meaningf
 
 Since v2.0.3, loaders had been splitted as a standalone repo so that we can keep cmdr v2 smaller and independer. See the relevant subproject [cmdr-loaders](https://github.com/hedzr/cmdr-loaders)[^5].
 
+Since v2.1.11, we did main alternative features like autocompletion generating, manpage reading and generating, and made quite a lot of fixes and improvments. Now the main APIs come to stable.
+
 The full-featured tests and examples are moved into [cmdr-tests](https://github.com/hedzr/cmdr-tests).
 
 [^5]: `hedzr/cmdr-loaders` provides an external config file loaders with GNU File Standard supports.

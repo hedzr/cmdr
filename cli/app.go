@@ -38,6 +38,8 @@ type App interface {
 
 	Runner
 
+	GetRunner() Runner // return the embedded runner object
+
 	Info(name, version string, desc ...string) App // setup basic information about this app
 	Copyright(copy string) App                     // setup copyright declaration about this app
 	Author(author string) App                      // setup author or team information

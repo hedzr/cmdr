@@ -1163,6 +1163,8 @@ type appS struct {
 	inFlg bool
 }
 
+func (s *appS) GetRunner() cli.Runner { return s.Runner }
+
 func (s *appS) NewCommandBuilder(longTitle string, titles ...string) cli.CommandBuilder {
 	return s.Cmd(longTitle, titles...)
 }

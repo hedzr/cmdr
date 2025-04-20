@@ -19,6 +19,8 @@ type appS struct {
 	inFlg int32
 }
 
+func (s *appS) GetRunner() cli.Runner { return s.Runner }
+
 func (s *appS) Run(ctx context.Context, opts ...cli.Opt) (err error) {
 	if atomic.LoadInt32(&s.inCmd) != 0 {
 		return errors.New("app/rootCmd: a Cmd() call needs ending with Build()")

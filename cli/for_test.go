@@ -972,6 +972,8 @@ type appS struct {
 	inFlg bool
 }
 
+func (s *appS) GetRunner() Runner { return s.Runner }
+
 func (s *appS) NewCommandBuilder(longTitle string, titles ...string) CommandBuilder {
 	return s.Cmd(longTitle, titles...)
 }

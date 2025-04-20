@@ -1,5 +1,15 @@
 # CHANGELOG
 
+- v2.1.11
+
+  - impl: `generate shell`
+  - impl: `generate man`
+  - added `App.GetRunner() Runner`
+  - fix unique worker and add shared app feature, added examples/shared/
+  - fix workerS.String()
+  - upgrade deps
+  - security patches
+
 - v2.1.10
 
   - fix a crash in printUsage() on a dyncmd object

@@ -1,10 +1,51 @@
 package tool
 
 import (
+	"cmp"
 	"regexp"
 
 	"github.com/hedzr/is/exec"
 )
+
+// Min _
+func Min[T cmp.Ordered](a, b T) T {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+// Max _
+func Max[T cmp.Ordered](a, b T) T {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+// ReverseSlice reverse any slice/array.
+// ReverseStringSlice reverse a string slice.
+func ReverseSlice[T any](s []T) {
+	n := len(s)
+	for i, j := 0, n-1; i < j; i, j = i+1, j-1 {
+		s[i], s[j] = s[j], s[i]
+	}
+}
+
+// ReverseStringSlice reverse a string slice
+func ReverseStringSlice(s []string) []string {
+	ReverseSlice(s)
+	return s
+
+	// // reverse it
+	// i := 0
+	// j := len(a) - 1
+	// for i < j {
+	// 	a[i], a[j] = a[j], a[i]
+	// 	i++
+	// 	j--
+	// }
+}
 
 // StripQuotes strips first and last quote char (double quote or single quote).
 func StripQuotes(s string) string { return trimQuotes(s) }

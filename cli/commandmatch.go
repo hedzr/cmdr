@@ -437,6 +437,7 @@ func (c *CmdS) tryParseBoolValue(ctx context.Context, vp *FlagValuePkg, ff *Flag
 			vp.Value, vp.ValueOK = true, true
 			ff.defaultValue = vp.Value
 		}
+		_ = ctx
 	} else if !vp.ValueOK {
 		vp.Value, vp.ValueOK = true, true
 		ff.defaultValue = vp.Value
@@ -461,6 +462,7 @@ func (c *CmdS) tryParseOthersValue(ctx context.Context, vp *FlagValuePkg, ff *Fl
 	} else {
 		ff.defaultValue = vp.Value
 	}
+	_ = ctx
 	return ff
 }
 

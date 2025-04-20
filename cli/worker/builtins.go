@@ -423,7 +423,7 @@ $ {{.AppName}} gen man
 			})
 
 		bb.Cmd("doc", "d", "docx", "tex", "pdf", "markdown").
-			Description("Generate documentations").
+			Description("Generate documentations (not-yet)").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
 			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) { //nolint:revive

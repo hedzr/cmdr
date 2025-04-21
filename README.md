@@ -128,7 +128,7 @@ v2.1 is a stable version:
 
 ## Guide
 
-A simple cli-app can be:
+A typical cli-app can be (its concise version at [here](https://github.com/hedzr/cmdr/blob/master/examples/tiny/concise/main.go)):
 
 ```go
 package main

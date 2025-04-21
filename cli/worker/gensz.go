@@ -13,7 +13,6 @@ import (
 
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/internal/tool"
-	"github.com/hedzr/gsvc/pkg/dbglog"
 	"github.com/hedzr/is/dir"
 	"github.com/hedzr/is/exec"
 	logz "github.com/hedzr/logg/slog"
@@ -92,7 +91,7 @@ func (g *genzsh) generateFileIntoWriter(
 	var wr io.Writer = os.Stdout
 	var f *os.File
 	for _, s := range g.locations {
-		logz.DebugContext(ctx, "for location...", "location", s)
+		logz.InfoContext(ctx, "for location...", "location", s)
 		// dbglog.Infof("--- checking %s", s)
 		if dir.FileExists(s) { //nolint:gocritic //like it
 			file = path.Join(s, "_"+g.appName)
@@ -104,8 +103,8 @@ func (g *genzsh) generateFileIntoWriter(
 				}
 				return
 			}
-			dbglog.Debugf("    generating %s", file)
-			logz.DebugContext(ctx, "generating to...", "file", file)
+			// dbglog.Debugf("    generating %s", file)
+			logz.InfoContext(ctx, "generating to...", "file", file)
 			wr = f
 			// err = fn(file, f)
 			// if !linuxRoot {

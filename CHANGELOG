@@ -1,5 +1,9 @@
 # CHANGELOG
 
+- v2.1.12
+
+  - fix wrong dep in last release
+
 - v2.1.11
 
   - impl: `generate shell`

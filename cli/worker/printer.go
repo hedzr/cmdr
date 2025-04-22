@@ -574,6 +574,7 @@ func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder,
 	}
 
 	groupedInc := 0
+	_ = idx
 	if grouped {
 		if group != "" {
 			if group != s.lastCmdGroup {
@@ -841,6 +842,7 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder,
 	}
 
 	ofs := 0
+	_ = idx
 	if group != "" {
 		if group != s.lastFlagGroup {
 			s.lastFlagGroup = group

@@ -294,7 +294,7 @@ func (g *genzsh) gzt2(descCommands *strings.Builder, cmd cli.Cmd, ix int, f *cli
 	// if c.Full == "pprof" {
 	//	println()
 	// }
-	ph := f.PlaceHolder()
+	ph, _, _ := f.PlaceHolder(), cmd, ix
 	switch {
 	case len(f.ValidArgs()) != 0:
 		g.gzAction(descCommands, f, "("+strings.Join(f.ValidArgs(), " ")+")", mutualExclusives, shortTitleOnly)
@@ -388,11 +388,12 @@ func (g *genzsh) gzChkMEForToggleGroup(toggleGroupName string, v []*cli.Flag) (m
 		sb.WriteString(f.GetTitleZshNamesExtBy(" ", false, quoted, false, false))
 		sb.WriteString(" ")
 	}
-	mutualExclusives = strings.TrimRight(sb.String(), " ")
+	mutualExclusives, _ = strings.TrimRight(sb.String(), " "), toggleGroupName
 	return
 }
 
 func (g *genzsh) safeZshFnName(s, rest string) string {
+	_ = rest
 	return strings.ReplaceAll(s, "-", "_")
 }
 

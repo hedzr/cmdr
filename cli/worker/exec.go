@@ -169,6 +169,7 @@ func (w *workerS) checkValidArgs(ctx context.Context, pc *parseCtx, lastCmd cli.
 			err = cli.ErrValidArgs.FormatWith(ff, ff.ValidArgs(), lastCmd)
 		}
 	}
+	_ = ctx
 	return
 }
 
@@ -177,6 +178,7 @@ func (w *workerS) checkRequiredFlags(ctx context.Context, pc *parseCtx, lastCmd 
 		Group: true,
 		Sort:  false,
 	}
+	_ = pc
 	lastCmd.WalkBackwardsCtx(ctx, func(ctx context.Context, pc *cli.WalkBackwardsCtx, cc cli.Cmd, ff *cli.Flag, index, groupIndex, count, level int) {
 		if ff != nil {
 			if ff.Required() && ff.GetTriggeredTimes() <= 0 {

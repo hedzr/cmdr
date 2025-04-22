@@ -201,8 +201,8 @@ func (w *workerS) postLinkCommands(ctx context.Context, root *cli.RootCommand, a
 				err = cc.AddSubCommand(c)
 			}
 		})
-		_ = cc
 	}
+	_ = root
 	return
 }
 
@@ -233,6 +233,7 @@ func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, c
 	if w.Config.AutoEnvPrefix == "" {
 		w.Config.AutoEnvPrefix = "APP"
 	}
+	_ = root
 	worker := func(cx cli.Cmd) {
 		// lookup all flags...
 		//    and bind the value with its envvars field;

@@ -1,5 +1,10 @@
 # CHANGELOG
 
+- v2.1.15
+
+  - remove deprecated ref (/x/term)
+  - upgrade deps
+
 - v2.1.12
 
   - fix wrong dep in last release

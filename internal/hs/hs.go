@@ -9,7 +9,7 @@ import (
 	"sync"
 	"syscall"
 
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 	"gopkg.in/hedzr/errors.v3"
 
 	"github.com/hedzr/cmdr/v2/cli"
@@ -40,12 +40,12 @@ type HelpSystem struct {
 // }
 
 func (s *HelpSystem) Run(ctx context.Context) (err error) {
-	if !terminal.IsTerminal(0) || !terminal.IsTerminal(1) {
+	if !term.IsTerminal(0) || !term.IsTerminal(1) {
 		return fmt.Errorf("stdin/stdout should be terminal")
 	}
 
-	var oldState *terminal.State
-	oldState, err = terminal.MakeRaw(0)
+	var oldState *term.State
+	oldState, err = term.MakeRaw(0)
 	if err != nil {
 		if !errors.Is(err, syscall.ENOTTY) {
 			return err
@@ -64,7 +64,7 @@ func (s *HelpSystem) Run(ctx context.Context) (err error) {
 			}
 		}
 
-		if e1 := terminal.Restore(0, oldState); e1 != nil {
+		if e1 := term.Restore(0, oldState); e1 != nil {
 			if err == nil {
 				err = e1
 			} else {
@@ -76,7 +76,7 @@ func (s *HelpSystem) Run(ctx context.Context) (err error) {
 		io.Reader
 		io.Writer
 	}{os.Stdin, os.Stdout}
-	term := terminal.NewTerminal(screen, promptString)
+	term := term.NewTerminal(screen, promptString)
 	term.SetPrompt(string(term.Escape.Red) + promptString + string(term.Escape.Reset))
 
 	rePrefix := string(term.Escape.Cyan) + replyPrefix + string(term.Escape.Reset)
@@ -142,7 +142,7 @@ func (s *HelpSystem) Run(ctx context.Context) (err error) {
 	return
 }
 
-func (s *HelpSystem) interpretCommand(ctx context.Context, line string, term *terminal.Terminal) (err error) {
+func (s *HelpSystem) interpretCommand(ctx context.Context, line string, term *term.Terminal) (err error) {
 	a := exec.SplitCommandString(line, '\'')
 	// _, _ = fmt.Fprintln(term, a)
 	// logz.InfoContext(ctx, "cmd line", "a", a)
@@ -213,7 +213,7 @@ func (s *HelpSystem) FindCmd(ctx context.Context, cmd cli.Cmd, args []string) (h
 	return
 }
 
-func (s *HelpSystem) runSession(ctx context.Context, a []string, term *terminal.Terminal) (err error) {
+func (s *HelpSystem) runSession(ctx context.Context, a []string, term *term.Terminal) (err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			if err == nil {
@@ -246,7 +246,7 @@ func (w *crlfWriter) WriteString(s string) (n int, err error) {
 	return w.Write([]byte(rpl))
 }
 
-func (s *HelpSystem) runProtectedSession(ctx context.Context, a []string, term *terminal.Terminal) (err error) {
+func (s *HelpSystem) runProtectedSession(ctx context.Context, a []string, term *term.Terminal) (err error) {
 	savedScreen := struct {
 		in  *os.File
 		out *os.File

@@ -11,7 +11,7 @@ import (
 	"github.com/hedzr/is"
 	"github.com/hedzr/is/exec"
 	logz "github.com/hedzr/logg/slog"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 func main() {
@@ -26,8 +26,8 @@ func promptMode() (err error) {
 	// 	return fmt.Errorf("stdin/stdout should be terminal")
 	// }
 
-	var oldState *terminal.State
-	oldState, err = terminal.MakeRaw(0)
+	var oldState *term.State
+	oldState, err = term.MakeRaw(0)
 	if err != nil {
 		if !errors.Is(err, syscall.ENOTTY) {
 			return err
@@ -46,7 +46,7 @@ func promptMode() (err error) {
 			}
 		}
 
-		if e1 := terminal.Restore(0, oldState); e1 != nil {
+		if e1 := term.Restore(0, oldState); e1 != nil {
 			if err == nil {
 				err = e1
 			} else {
@@ -58,7 +58,7 @@ func promptMode() (err error) {
 		io.Reader
 		io.Writer
 	}{os.Stdin, os.Stdout}
-	term := terminal.NewTerminal(screen, promptString)
+	term := term.NewTerminal(screen, promptString)
 	term.SetPrompt(string(term.Escape.Red) + promptString + string(term.Escape.Reset))
 
 	rePrefix := string(term.Escape.Cyan) + replyPrefix + string(term.Escape.Reset)
@@ -126,7 +126,7 @@ func promptMode() (err error) {
 	return
 }
 
-func interpretCommand(line string, term *terminal.Terminal) (err error) {
+func interpretCommand(line string, term *term.Terminal) (err error) {
 	a := exec.SplitCommandString(line)
 	_, _ = fmt.Fprintln(term, a)
 	return

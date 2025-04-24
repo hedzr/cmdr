@@ -198,15 +198,51 @@ func (f *Flag) SetOnSetHandler(handler OnSetHandler) {
 	f.onSet = handler
 }
 
-func (f *Flag) SetNegatable(b bool) {
+func (f *Flag) SetNegatable(b bool, items ...string) {
 	f.negatable = b
+	f.negItems = items
 }
 
 // Negatable flag supports auto-orefixing by `--no-`.
 //
 // For a flag named as 'warning`, both `--warning` and
 // `--no-warning` are available in cmdline.
+//
+// While items slice are supplied, it would create a
+// `-W`-style nesatable flag. It's a gcc `-W` style
+// flag, for example, `-Wunused-variable` in gcc is raising
+// a warning for unused variables, `-Wno-unused-variable`
+// is disabling warning for unused variable.
+//
+// So, our `-W`-style can be building with:
+//
+//	parent.Flg("warnings", "W").
+//	  Description("gcc-style negatable flag: <code>-Wunused-variable</code> and -Wno-unused-variable", "").
+//	  Group("Negatable").
+//	  Negatable(true, "unused-variable", "unused-parameter",
+//	    "unused-function", "unused-but-set-variable",
+//	    "unused-private-field", "unused-label").
+//	  Default(false).
+//	  Build()
+//
+// For a negatable flag `--warning`, extracting the final
+// flag values from `cmd.Store().MustBool("warning")` and
+// `cmd.Store().MustBool("no-warning")`.
+//
+// For a `-W`-style nesatable flag `--warnings`/`-W` in
+// above sample code, extracting the final values from
+// `cmd.Store().MustBool("warnings.unused-variable")`
+// and so on. And you can also extract a selected items
+// set from `cmd.Store().MustStringSlice("warnings.selected")`.
+//
+// See also [Flag.NegatableItems]
 func (f *Flag) Negatable() bool { return f.negatable }
+
+// NegatableItems provides the alternative items for a `-W`-style
+// negatable flag.
+//
+// See also [Flag.Negatable]
+func (f *Flag) NegatableItems() []string { return f.negItems }
 
 func (f *Flag) SetLeadingPlusSign(b bool) {
 	f.leadingPlusSign = b
@@ -436,15 +472,6 @@ func (f *Flag) Delete() {
 	}
 }
 
-// GetDottedNamePath return the dotted key path of this flag
-// in the options store.
-func (f *Flag) GetDottedNamePath() string {
-	if f.owner != nil {
-		return f.owner.GetDottedPath() + "." + f.GetTitleName()
-	}
-	return f.GetTitleName()
-}
-
 func (f *Flag) ensureXref() {
 	//
 }
@@ -489,5 +516,6 @@ func (f *Flag) Clone() any {
 		circuitBreak:     f.circuitBreak,
 		dblTildeOnly:     f.dblTildeOnly,
 		negatable:        f.negatable,
+		negItems:         f.negItems,
 	}
 }

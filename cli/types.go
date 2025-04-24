@@ -406,6 +406,7 @@ type CmdS struct {
 
 type ToggleGroupMatch struct {
 	Flags        map[string]*Flag // key: flg.Long
+	Main         *Flag            // pointed to a `-W`-style negatable main flag
 	Matched      *Flag
 	MatchedTitle string
 }
@@ -467,7 +468,35 @@ type Flag struct {
 	//
 	// For a flag named as 'warning`, both `--warning` and
 	// `--no-warning` are avaliable in cmdline.
+	//
+	// While items slice are supplied, it would create a
+	// `-W`-style nesatable flag. It's a gcc `-W` style
+	// flag, for example, `-Wunused-variable` in gcc is raising
+	// a warning for unused variables, `-Wno-unused-variable`
+	// is disabling warning for unused variable.
+	//
+	// So, our `-W`-style can be building with:
+	//
+	//	parent.Flg("warnings", "W").
+	//	  Description("gcc-style negatable flag: <code>-Wunused-variable</code> and -Wno-unused-variable", "").
+	//	  Group("Negatable").
+	//	  Negatable(true, "unused-variable", "unused-parameter",
+	//	    "unused-function", "unused-but-set-variable",
+	//	    "unused-private-field", "unused-label").
+	//	  Default(false).
+	//	  Build()
+	//
+	// For a negatable flag `--warning`, extracting the final
+	// flag values from `cmd.Store().MustBool("warning")` and
+	// `cmd.Store().MustBool("no-warning")`.
+	//
+	// For a `-W`-style nesatable flag `--warnings`/`-W` in
+	// above sample code, extracting the final values from
+	// `cmd.Store().MustBool("warnings.unused-variable")`
+	// and so on. And you can also extract a selected items
+	// set from `cmd.Store().MustStringSlice("warnings.selected")`.
 	negatable bool
+	negItems  []string
 
 	leadingPlusSign bool
 }

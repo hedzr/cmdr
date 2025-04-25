@@ -6,7 +6,7 @@ import (
 
 	"github.com/hedzr/cmdr/v2"
 	"github.com/hedzr/cmdr/v2/cli"
-	"github.com/hedzr/cmdr/v2/examples"
+	"github.com/hedzr/cmdr/v2/examples/common"
 	logz "github.com/hedzr/logg/slog"
 )
 
@@ -26,7 +26,7 @@ func main() {
 				return
 			})
 		}).
-		WithBuilders(examples.AddExternalEditorFlag).
+		WithBuilders(common.AddExternalEditorFlag).
 		WithAdders().
 		Build()
 

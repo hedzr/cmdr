@@ -6,7 +6,7 @@ import (
 
 	"github.com/hedzr/cmdr/v2"
 	"github.com/hedzr/cmdr/v2/cli"
-	"github.com/hedzr/cmdr/v2/examples"
+	"github.com/hedzr/cmdr/v2/examples/common"
 	logz "github.com/hedzr/logg/slog"
 )
 
@@ -20,7 +20,7 @@ const (
 func main() {
 	app := cmdr.Create(appName, version, author, desc).
 		With(func(app cli.App) {}).
-		WithBuilders(examples.AddHeadLikeFlag).
+		WithBuilders(common.AddHeadLikeFlag).
 		WithAdders().
 		Build()
 

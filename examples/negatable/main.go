@@ -7,7 +7,7 @@ import (
 
 	"github.com/hedzr/cmdr/v2"
 	"github.com/hedzr/cmdr/v2/cli"
-	"github.com/hedzr/cmdr/v2/examples"
+	"github.com/hedzr/cmdr/v2/examples/common"
 	"github.com/hedzr/cmdr/v2/examples/devmode"
 	logz "github.com/hedzr/logg/slog"
 )
@@ -22,9 +22,9 @@ const (
 func main() {
 	app := cmdr.Create(appName, version, author, desc).
 		With(func(app cli.App) { logz.Debug("in dev mode?", "mode", devmode.InDevelopmentMode()) }).
-		WithBuilders(examples.AddNegatableFlag).
+		WithBuilders(common.AddNegatableFlag).
 		WithAdders().
-		// override the onAction defined in examples.AddNegatableFlag()
+		// override the onAction defined in common.AddNegatableFlag()
 		OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
 			// logz.PrintlnContext(ctx, cmd.Set().Dump())
 

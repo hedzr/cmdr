@@ -10,6 +10,8 @@
     - improved the report in toggle_group example
     - add new params as `Negatable(b bool, items ...string)`
   - fix `Flag.GetDottedNamePath()`
+  - mv examples/*.go into examples/common to clear cycle imports
+    - update all example apps codes
   - remove some unused params
   - remove unprocessed return values
   - upgrade deps

@@ -8,8 +8,8 @@ import (
 
 	"github.com/hedzr/cmdr/v2"
 	"github.com/hedzr/cmdr/v2/cli"
-	"github.com/hedzr/cmdr/v2/examples"
 	"github.com/hedzr/cmdr/v2/examples/blueprint/cmd"
+	"github.com/hedzr/cmdr/v2/examples/common"
 	"github.com/hedzr/cmdr/v2/examples/devmode"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
 )
@@ -40,11 +40,11 @@ func main() {
 	).
 		With(func(app cli.App) { logz.Debug("in dev mode?", "mode", devmode.InDevelopmentMode()) }).
 		WithBuilders(
-			examples.AddHeadLikeFlagWithoutCmd, // add a `--line` option, feel free to remove it.
-			examples.AddToggleGroupFlags,       //
-			examples.AddTypedFlags,             //
-			examples.AddKilobytesFlag,          //
-			examples.AddValidArgsFlag,          //
+			common.AddHeadLikeFlagWithoutCmd, // add a `--line` option, feel free to remove it.
+			common.AddToggleGroupFlags,       //
+			common.AddTypedFlags,             //
+			common.AddKilobytesFlag,          //
+			common.AddValidArgsFlag,          //
 		).
 		WithAdders(cmd.Commands...). // added subcommands here
 		Build()

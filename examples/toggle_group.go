@@ -26,29 +26,29 @@ func AddToggleGroupCommand(parent cli.CommandBuilder) { //nolint:revive
 		Description("toggable group, with a default choice", "tg test new features,\nverbose long descriptions here.").
 		Group("Toggleable Group").
 		OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
-			fmt.Printf("*** Got fruit (toggle group): %v\n", cmd.Store().MustString("fruit"))
+			fmt.Printf("*** Got fruit (toggle group): %q\n", cmd.Store().MustString(toggleGroupName))
+			fmt.Printf("         multiple selections: %q\n", cmd.Store().MustStringSlice(toggleGroupName+".selected"))
 
+			println()
 			// fmt.Printf("> STDIN MODE: %v \n", cmd.Set().MustBool("mx-test.stdin"))
 			// fmt.Println()
-
-			_, _ = cmd, args
 			return
 		}).
 		With(func(cb cli.CommandBuilder) {
 			cb.Flg("apple", "").
 				Default(false).
 				Description("the test text.", "").
-				ToggleGroup("fruit").
+				ToggleGroup(toggleGroupName).
 				Build()
 			cb.Flg("banana", "").
 				Default(false).
 				Description("the test text.", "").
-				ToggleGroup("fruit").
+				ToggleGroup(toggleGroupName).
 				Build()
 			cb.Flg("orange", "").
 				Default(true).
 				Description("the test text.", "").
-				ToggleGroup("fruit").
+				ToggleGroup(toggleGroupName).
 				Build()
 		})
 
@@ -58,28 +58,29 @@ func AddToggleGroupCommand(parent cli.CommandBuilder) { //nolint:revive
 		Description("toggable group 2, without default choice", "tg2 test new features,\nverbose long descriptions here.").
 		Group("Toggleable Group").
 		OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
-			fmt.Printf("*** Got fruit (toggle group): %v\n", cmd.Store().MustString("fruit"))
-			_, _ = cmd, args
+			fmt.Printf("*** Got fruit (toggle group): %q\n", cmd.Store().MustString(toggleGroupName))
+			fmt.Printf("         multiple selections: %q\n", cmd.Store().MustStringSlice(toggleGroupName+".selected"))
 
-			fmt.Printf("> STDIN MODE: %v \n", cmd.Set().MustBool("mx-test.stdin"))
-			fmt.Println()
+			println()
+			// fmt.Printf("> STDIN MODE: %v \n", cmd.Set().MustBool("mx-test.stdin"))
+			// fmt.Println()
 			return
 		}).
 		With(func(cb cli.CommandBuilder) {
 			cb.Flg("apple", "a").
 				Default(true).
 				Description("the test text.", "").
-				ToggleGroup("fruit").
+				ToggleGroup(toggleGroupName).
 				Build()
 			cb.Flg("banana", "b").
 				Default(false).
 				Description("the test text.", "").
-				ToggleGroup("fruit").
+				ToggleGroup(toggleGroupName).
 				Build()
 			cb.Flg("orange", "o").
 				Default(false).
 				Description("the test text.", "").
-				ToggleGroup("fruit").
+				ToggleGroup(toggleGroupName).
 				Build()
 		})
 }
@@ -88,21 +89,23 @@ func AddToggleGroupFlags(c cli.CommandBuilder) { //nolint:revive
 	c.Flg("apple", "a").
 		Default(false).
 		Description("the test text.", "").
-		ToggleGroup("fruit").
+		ToggleGroup(toggleGroupName).
 		Group("Toggleable Group").
 		Build()
 
 	c.Flg("banana", "b").
 		Default(false).
 		Description("the test text.", "").
-		ToggleGroup("fruit").
+		ToggleGroup(toggleGroupName).
 		Group("Toggleable Group").
 		Build()
 
 	c.Flg("orange", "o").
 		Default(true).
 		Description("the test text.", "").
-		ToggleGroup("fruit").
+		ToggleGroup(toggleGroupName).
 		Group("Toggleable Group").
 		Build()
 }
+
+const toggleGroupName = "fruit"

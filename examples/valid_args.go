@@ -2,14 +2,9 @@ package examples
 
 import (
 	"github.com/hedzr/cmdr/v2/cli"
+	"github.com/hedzr/cmdr/v2/examples/common"
 )
 
-func AddValidArgsFlag(c cli.CommandBuilder) { //nolint:revive
-	c.Flg("fruit", "fr").
-		Default("").
-		Description("the message.", "").
-		Group("Valid Args").
-		PlaceHolder("FRUIT").
-		ValidArgs("apple", "banana", "orange").
-		Build()
+func AddValidArgsFlag(c cli.CommandBuilder) {
+	common.AddValidArgsFlag(c)
 }

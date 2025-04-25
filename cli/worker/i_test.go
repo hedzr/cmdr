@@ -8,7 +8,7 @@ import (
 
 	"github.com/hedzr/cmdr/v2/builder"
 	"github.com/hedzr/cmdr/v2/cli"
-	"github.com/hedzr/cmdr/v2/examples"
+	"github.com/hedzr/cmdr/v2/examples/common"
 )
 
 func cleanApp(t *testing.T, ctx context.Context, helpScreen bool, opts ...cli.Opt) (app cli.App, ww *workerS) { //nolint:revive
@@ -96,13 +96,13 @@ func buildDemoApp(opts ...cli.Opt) (app cli.App) { //nolint:revive
 		Build()
 	b.Build()
 
-	examples.AttachServerCommand(app.Cmd("server"))
+	common.AttachServerCommand(app.Cmd("server"))
 
-	examples.AttachKvCommand(app.Cmd("kv"))
+	common.AttachKvCommand(app.Cmd("kv"))
 
-	examples.AttachMsCommand(app.Cmd("ms"))
+	common.AttachMsCommand(app.Cmd("ms"))
 
-	examples.AttachMoreCommandsForTest(app.Cmd("more"), true)
+	common.AttachMoreCommandsForTest(app.Cmd("more"), true)
 
 	b = app.Cmd("display", "da").
 		Description("command set for display adapter operations")

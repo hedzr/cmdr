@@ -1,12 +1,10 @@
-package examples
+package common
 
 import (
 	"context"
 	"testing"
 
-	"github.com/hedzr/cmdr/v2"
 	"github.com/hedzr/cmdr/v2/cli"
-	"github.com/hedzr/store"
 )
 
 func TestServerStartup(t *testing.T) {
@@ -37,13 +35,6 @@ func TestServerStartup(t *testing.T) {
 	_ = msTagsToggle(ctx, cmd, args)
 }
 
-func TestMxTest(t *testing.T) {
-	cmd := minimalCmd("mx", cli.WithStore(store.New()))
-	cmd.Set().Set("mx-test.stdin", true)
-	ctx := context.Background()
-	_ = mxTest(ctx, cmd, []string{"abcdefg"})
-}
-
 func TestXyPrint(t *testing.T) {
 	var cmd *cli.CmdS
 	ctx := context.Background()
@@ -56,31 +47,4 @@ func TestSoundex(t *testing.T) {
 	ctx := context.Background()
 	_ = soundex(ctx, cmd, []string{"abcdefg"})
 	_ = ttySize(ctx, cmd, []string{})
-}
-
-func TestAttachKvCommand(t *testing.T) {
-	_, app := minimalApp(cli.WithStore(store.New()))
-	b := app.Cmd("x")
-
-	AttachServerCommand(b)
-	AttachKvCommand(b)
-	AttachMsCommand(b)
-
-	AttachMoreCommandsForTest(b, false)
-	AttachMoreCommandsForTest(b, true)
-}
-
-func minimalApp(opts ...cli.Opt) (root *cli.RootCommand, app cli.App) {
-	app = cmdr.New(opts...)
-	root = (&cli.RootCommand{
-		Cmd: &cli.CmdS{},
-	}).SetApp(app)
-	return
-}
-
-func minimalCmd(longTitle string, opts ...cli.Opt) (cc *cli.CmdS) {
-	root, app := minimalApp(opts...)
-	cc = root.NewCmd(longTitle)
-	_ = app
-	return
 }

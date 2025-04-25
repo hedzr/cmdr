@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 
-	"github.com/hedzr/cmdr/v2"
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/examples/dyncmd"
 	"github.com/hedzr/is/dir"
@@ -34,7 +33,7 @@ func (jumpCmd) Add(app cli.App) {
 					println()
 					println("dir:", cmd.Set().WithPrefix("tiny3").MustString("working"))
 
-					cs := cmdr.Store().WithPrefix("jump.to")
+					cs := cmd.Set().WithPrefix("jump.to")
 					if cs.MustBool("full") {
 						println()
 						println(cmd.Set().Dump())

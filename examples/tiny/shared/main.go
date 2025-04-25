@@ -28,11 +28,23 @@ func main() {
 	// defer cancel()
 
 	ctx := context.Background()
+
+	// declare a shared app.
+	//
+	// In a shared app, cmdr.App() doesn't point to the first
+	// created app instance by you any more.
+	// So you must manage each app instance by youself, and
+	// some cmdr package-level functions can not be used,
+	// such as cmdr.App() and its derivants.
+	//
+	//
 	ctx = context.WithValue(ctx, "shared.cmdr.app", true)
 
 	app := cmdr.Create(appName, version, author, desc).
 		WithAdders(cmd.Commands...).
 		OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
+			// In a shared app, cmdr.App() doesn't point to the first
+			// created app instance by you any more.
 			fmt.Printf("app.name = %s\n", cmdr.App().Name())
 			fmt.Printf("app.unique = %v\n", cmdr.App()) // return an uncertain app object
 			app := cmd.Root().App()                     // this is the real app object associate with current RootCommand

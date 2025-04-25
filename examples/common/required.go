@@ -1,8 +1,7 @@
-package examples
+package common
 
 import (
 	"github.com/hedzr/cmdr/v2/cli"
-	"github.com/hedzr/cmdr/v2/examples/common"
 )
 
 // AddRequiredFlag _
@@ -18,5 +17,10 @@ import (
 //		Build()
 //	app.Run(context.TODO())
 func AddRequiredFlag(c cli.CommandBuilder) { //nolint:revive
-	common.AddRequiredFlag(c)
+	c.Flg("required", "r").
+		Default("").
+		Required(true).
+		Description("the required text string wanted.", "").
+		Group("Test").
+		Build()
 }

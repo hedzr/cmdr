@@ -14,7 +14,7 @@ import (
 	"github.com/hedzr/cmdr/v2/conf"
 )
 
-func rootCmdForTesting() (root *RootCommand) { //nolint:funlen,revive //for test
+func rootCmdForTesting() (root *RootCommand) {
 	app := &appS{
 		Runner: newTestRunner(),
 	}
@@ -211,7 +211,7 @@ func rootCmdForTesting() (root *RootCommand) { //nolint:funlen,revive //for test
 
 //
 
-func consulConnectFlagsGet() []*Flag { //nolint:funlen,revive //for test
+func consulConnectFlagsGet() []*Flag {
 	consulConnectFlags := []*Flag{
 		{
 			BaseOpt: BaseOpt{
@@ -326,7 +326,7 @@ func consulConnectFlagsGet() []*Flag { //nolint:funlen,revive //for test
 	return consulConnectFlags
 }
 
-func serverCommandsGet() *CmdS { //nolint:funlen,revive //for test
+func serverCommandsGet() *CmdS {
 	serverCommands := &CmdS{
 		BaseOpt: BaseOpt{
 			// name:        "server",
@@ -498,7 +498,7 @@ func serverCommandsGet() *CmdS { //nolint:funlen,revive //for test
 	return serverCommands
 }
 
-func kvCommandsGet() *CmdS { //nolint:funlen,revive //for test
+func kvCommandsGet() *CmdS {
 	kvCommands := &CmdS{
 		BaseOpt: BaseOpt{
 			name:        "kvstore",
@@ -612,7 +612,7 @@ func kvCommandsGet() *CmdS { //nolint:funlen,revive //for test
 	return kvCommands
 }
 
-func tagsCommandsGet() *CmdS { //nolint:funlen,revive //for test
+func tagsCommandsGet() *CmdS {
 	tagsCommands := &CmdS{
 		BaseOpt: BaseOpt{
 			// Short:       "t",
@@ -793,7 +793,7 @@ func tagsCommandsGet() *CmdS { //nolint:funlen,revive //for test
 	return tagsCommands
 }
 
-func msCommandsGet() *CmdS { //nolint:funlen,revive //for test
+func msCommandsGet() *CmdS {
 	msCommands := &CmdS{
 		BaseOpt: BaseOpt{
 			name:        "microservices",

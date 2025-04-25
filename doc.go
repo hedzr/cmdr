@@ -2,4 +2,4 @@
 
 package cmdr
 
-const Version = "v2.1.15" // Version fir hedzr/cmdr/v2
+const Version = "v2.1.16" // Version fir hedzr/cmdr/v2

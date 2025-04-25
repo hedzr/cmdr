@@ -130,6 +130,14 @@ func (s *ccb) Flg(longTitle string, titles ...string) cli.FlagBuilder {
 	return newFlagBuilderShort(s, longTitle, titles...)
 }
 
+func (s *ccb) ToggleableFlags(longTitle string, titles ...string) cli.FlagBuilder {
+	if atomic.LoadInt32(&s.inFlg) != 0 {
+		panic("cannot call Flg() without Build() last Flg()")
+	}
+	atomic.AddInt32(&s.inFlg, 1)
+	return newFlagBuilderShort(s, longTitle, titles...)
+}
+
 func (s *ccb) AddCmd(cb func(b cli.CommandBuilder)) cli.CommandBuilder {
 	// if atomic.LoadInt32(&s.inCmd) != 0 {
 	// 	panic("cannot call AddCmd() without Build() last Cmd()/AddCmd()")

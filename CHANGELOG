@@ -1,5 +1,19 @@
 # CHANGELOG
 
+- v2.1.16
+
+  - new feature `-W`-style for `Negatable Flag`
+    - fix `workerS.commandsToStoreR` to support negatable `-W`-style
+    - review the toggle-group matched branch and improve it to support negatable `-W`-style
+    - improved CmdS.ensureXrefFlags to support new negatable-style (`-W`-style)
+    - add debug branch for `CmdS.FlagBy()` for debuggiing the longName not found case
+    - improved the report in toggle_group example
+    - add new params as `Negatable(b bool, items ...string)`
+  - fix `Flag.GetDottedNamePath()`
+  - remove some unused params
+  - remove unprocessed return values
+  - upgrade deps
+
 - v2.1.15
 
   - remove deprecated ref (/x/term)

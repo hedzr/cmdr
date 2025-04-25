@@ -90,7 +90,7 @@ func prepareApp(opts ...cli.Opt) (app cli.App) {
 				// Group(cli.UnsortedGroup).
 				Hidden(false).
 				OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
-					// cmd.Set() == cmdr.Store(), cmd.Store() == cmdr.Store()
+					// cmd.Set() == cmdr.Set(), cmd.Store() == cmdr.Store()
 					cmd.Set().Set("app.demo.working", dir.GetCurrentDir())
 					println()
 					println(cmd.Set().WithPrefix("app.demo").MustString("working"))

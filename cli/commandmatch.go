@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -329,12 +330,61 @@ func (c *CmdS) matchedForTG(ctx context.Context, ff *Flag) *Flag {
 			toggleGroup, title := ff.ToggleGroup(), ff.Name()
 			if m, ok := co.toggles[toggleGroup]; ok {
 				if f, ok := m.Flags[title]; ok {
-					for _, v := range m.Flags {
-						v.SetDefaultValue(false)
+					fs := f.Store()
+
+					tgtState := true
+					// if strings.Contains(f.LongTitle(), ".no-") {
+					// 	tgtState = false
+					// }
+
+					logz.VerboseContext(ctx, fmt.Sprintf("matching tg %q", toggleGroup), "title", title)
+					var keys []string
+					for k, v := range m.Flags {
+						state := !tgtState
+						// if strings.Contains(k, ".no-") {
+						// 	state = !state
+						// }
+						v.SetDefaultValue(state)
+						_, _ = fs.Set(k, state)
+						logz.VerboseContext(ctx, fmt.Sprintf(".  set %q.%q to %v", fs.Prefix(), k, state))
+						keys = append(keys, k)
 					}
-					f.SetDefaultValue(true)
+					f.SetDefaultValue(tgtState)
+					_, _ = fs.Set(f.LongTitle(), tgtState)
+					logz.VerboseContext(ctx, fmt.Sprintf(".  set finally %q.%q to %v", fs.Prefix(), f.LongTitle(), tgtState))
+					logz.VerboseContext(ctx, fmt.Sprintf(".  keys: %q", keys))
 					m.Matched, m.MatchedTitle = f, title
-					f.Store().Set(toggleGroup, title)
+
+					_, _ = fs.Set(toggleGroup, title)
+
+					if m.Main != nil {
+						mainTG := m.Main.LongTitle()
+						tgmsel := mainTG + ".selected"
+						msel := fs.MustStringSlice(tgmsel)
+						msel = uniAddStr(msel, title)
+						_, _ = fs.Set(tgmsel, msel)
+						if title != mainTG {
+							// if m1, ok := co.toggles[mainTG]; ok {
+							// 	logz.DebugContext(ctx, fmt.Sprintf("matching tg %q", mainTG), "title", title, "TGM.keys", keys)
+							// 	var keys []string
+							// 	for k, v := range m1.Flags {
+							// 		state := false
+							// 		if strings.Contains(k, ".no-") {
+							// 			state = !state
+							// 		}
+							// 		v.SetDefaultValue(state)
+							// 		_, _ = fs.Set(k, state)
+							// 		keys = append(keys, k)
+							// 		logz.DebugContext(ctx, fmt.Sprintf(".  set %q.%q to %v", fs.Prefix(), k, state))
+							// 	}
+							// 	f.SetDefaultValue(tgtState)
+							// 	_, _ = fs.Set(f.LongTitle(), tgtState)
+							// 	logz.DebugContext(ctx, fmt.Sprintf(".  set %q.%q to %v finally", fs.Prefix(), f.LongTitle(), tgtState))
+							// 	m.Matched, m.MatchedTitle = f, title
+							// 	_, _ = fs.Set(mainTG, title)
+							// }
+						}
+					}
 				}
 			}
 		}

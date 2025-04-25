@@ -215,6 +215,13 @@ func (s *appS) NewFlgFrom(from *cli.CmdS, defaultValue any, cb func(b cli.FlagBu
 	return s
 }
 
+func (s *appS) ToggleableFlags(toggleGroupName string, items ...cli.BatchToggleFlag) {
+	from := s.root.Cmd.(*cli.CmdS)
+	b := asCommandBuilder(from, s, "")
+	b.ToggleableFlags(toggleGroupName, items...)
+	b.Build()
+}
+
 func (s *appS) RootBuilder(cb func(b cli.CommandBuilder)) cli.App {
 	from := s.root.Cmd.(*cli.CmdS)
 	b := asCommandBuilder(from, s, "")

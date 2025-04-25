@@ -140,6 +140,7 @@ func testNewCommandBuilder(t *testing.T) {
 	// fb := bb.NewFlagBuilder("flag", "f", "ff", "flg")
 	// fb.OnMatched(nil)
 
+	t.Log("ok")
 }
 
 func testNewFlagBuilder(t *testing.T) {
@@ -182,4 +183,6 @@ func testNewFlagBuilder(t *testing.T) {
 	bb.OnSet(nil)
 
 	bb.Build()
+
+	t.Log("ok")
 }

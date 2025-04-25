@@ -1128,12 +1128,17 @@ func (w *workerS) SetSuggestRetCode(ret int) {
 	w.retCode = ret
 }
 
-func (w *workerS) InitGlobally(ctx context.Context)                     {}
-func (w *workerS) Ready() bool                                          { return true }
-func (w *workerS) DumpErrors(wr io.Writer)                              {}                    //nolint:revive
-func (w *workerS) Error() errorsv3.Error                                { return nil }        //nolint:revive
-func (w *workerS) Recycle(errs ...error)                                {}                    //
-func (w *workerS) Store() store.Store                                   { return w.store }    //
+func (w *workerS) InitGlobally(ctx context.Context) {}
+func (w *workerS) Ready() bool                      { return true }
+func (w *workerS) DumpErrors(wr io.Writer)          {}             //nolint:revive
+func (w *workerS) Error() errorsv3.Error            { return nil } //nolint:revive
+func (w *workerS) Recycle(errs ...error)            {}             //
+func (w *workerS) Store(prefix ...string) store.Store {
+	if len(prefix) > 0 {
+		return w.store.WithPrefix(prefix...)
+	}
+	return w.store
+}
 func (w *workerS) Run(ctx context.Context, opts ...cli.Opt) (err error) { return }            //nolint:revive
 func (w *workerS) Actions() (ret map[string]bool)                       { return }            //nolint:revive
 func (w *workerS) Name() string                                         { return "for-test" } //
@@ -1220,6 +1225,8 @@ func (s *appS) NewFlgFrom(from *cli.CmdS, defaultValue any, cb func(b cli.FlagBu
 	// cb(b)
 	return s
 }
+
+func (s *appS) ToggleableFlags(toggleGroupName string, items ...cli.BatchToggleFlag) {}
 
 func (s *appS) RootBuilder(cb func(b cli.CommandBuilder)) cli.App { return s }
 

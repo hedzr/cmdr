@@ -67,21 +67,26 @@ func AddToggleGroupCommand(parent cli.CommandBuilder) { //nolint:revive
 			return
 		}).
 		With(func(cb cli.CommandBuilder) {
-			cb.Flg("apple", "a").
-				Default(true).
-				Description("the test text.", "").
-				ToggleGroup(toggleGroupName).
-				Build()
-			cb.Flg("banana", "b").
-				Default(false).
-				Description("the test text.", "").
-				ToggleGroup(toggleGroupName).
-				Build()
-			cb.Flg("orange", "o").
-				Default(false).
-				Description("the test text.", "").
-				ToggleGroup(toggleGroupName).
-				Build()
+			cb.ToggleableFlags(toggleGroupName,
+				cli.BatchToggleFlag{L: "apple", S: "a", DV: true},
+				cli.BatchToggleFlag{L: "banana", S: "b"},
+				cli.BatchToggleFlag{L: "orange", S: "o"},
+			)
+			// cb.Flg("apple", "a").
+			// 	Default(true).
+			// 	Description("the test text.", "").
+			// 	ToggleGroup(toggleGroupName).
+			// 	Build()
+			// cb.Flg("banana", "b").
+			// 	Default(false).
+			// 	Description("the test text.", "").
+			// 	ToggleGroup(toggleGroupName).
+			// 	Build()
+			// cb.Flg("orange", "o").
+			// 	Default(false).
+			// 	Description("the test text.", "").
+			// 	ToggleGroup(toggleGroupName).
+			// 	Build()
 		})
 }
 

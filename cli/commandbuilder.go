@@ -169,6 +169,7 @@ type CommandBuilder interface {
 	//    b.Build()
 	//
 	Cmd(longTitle string, titles ...string) CommandBuilder
+
 	// Flg is a shortcut to NewFlagBuilder and starts a stream
 	// building for a new flag.
 	//
@@ -195,6 +196,17 @@ type CommandBuilder interface {
 	//    b.Build()
 	//
 	Flg(longTitle string, titles ...string) FlagBuilder
+
+	// ToggleableFlags creates a batch of toggleable flags.
+	//
+	// For example:
+	//
+	//	s.ToggleableFlags("fruit",
+	//	  cli.BatchToggleFlag{L: "apple", S: "a"},
+	//	  cli.BatchToggleFlag{L: "banana"},
+	//	  cli.BatchToggleFlag{L: "orange", S: "o", DV: true},
+	//	)
+	ToggleableFlags(toggleGroupName string, items ...BatchToggleFlag)
 
 	// With starts a closure to help you make changes on this builder.
 	//

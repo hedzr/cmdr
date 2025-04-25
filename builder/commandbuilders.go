@@ -3,6 +3,7 @@
 package builder
 
 import (
+	"fmt"
 	"sync/atomic"
 
 	"github.com/hedzr/cmdr/v2/cli"
@@ -75,6 +76,8 @@ func (s *ccb) Build() {
 	atomic.StoreInt32(&s.inFlg, 0)
 }
 
+var _ cli.CommandBuilder = (*ccb)(nil)
+
 func (s *ccb) With(cb func(b cli.CommandBuilder)) {
 	defer s.Build()
 	cb(s)
@@ -130,12 +133,23 @@ func (s *ccb) Flg(longTitle string, titles ...string) cli.FlagBuilder {
 	return newFlagBuilderShort(s, longTitle, titles...)
 }
 
-func (s *ccb) ToggleableFlags(longTitle string, titles ...string) cli.FlagBuilder {
-	if atomic.LoadInt32(&s.inFlg) != 0 {
-		panic("cannot call Flg() without Build() last Flg()")
+// ToggleableFlags creates a batch of toggleable flags.
+//
+// For example:
+//
+//	s.ToggleableFlags(
+//	  cli.BatchToggleFlag{L: "apple", S: "a"},
+//	  cli.BatchToggleFlag{L: "banana"},
+//	  cli.BatchToggleFlag{L: "orange", S: "o", DV: true},
+//	)
+func (s *ccb) ToggleableFlags(toggleGroupName string, items ...cli.BatchToggleFlag) {
+	for _, tf := range items {
+		s.Flg(tf.L, tf.S).
+			DefaultValue(tf.DV).
+			ToggleGroup(toggleGroupName).
+			Description(fmt.Sprintf("Item of toggle group %q: %q", toggleGroupName, tf.L)).
+			Build()
 	}
-	atomic.AddInt32(&s.inFlg, 1)
-	return newFlagBuilderShort(s, longTitle, titles...)
 }
 
 func (s *ccb) AddCmd(cb func(b cli.CommandBuilder)) cli.CommandBuilder {

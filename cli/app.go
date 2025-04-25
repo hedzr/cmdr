@@ -13,6 +13,17 @@ type App interface {
 	// Flg is a shortcut to NewFlagBuilder and starts a stream building for a new flag
 	Flg(longTitle string, titles ...string) FlagBuilder
 
+	// ToggleableFlags creates a batch of toggleable flags associated with root command.
+	//
+	// For example:
+	//
+	//	app.ToggleableFlags("fruit",
+	//	  BatchToggleFlag{L: "apple", S: "a"},
+	//	  BatchToggleFlag{L: "banana"},
+	//	  BatchToggleFlag{L: "orange", S: "o", DV: true},
+	//	)
+	ToggleableFlags(toggleGroupName string, items ...BatchToggleFlag)
+
 	// // AddCmd starts a closure to build a new sub-command and its children.
 	// // After the closure invoked, Build() will be called implicitly.
 	// AddCmd(func(b CommandBuilder)) App
@@ -59,4 +70,11 @@ type App interface {
 	Version() string // this app version
 
 	Args() []string // command-line args
+}
+
+// BatchToggleFlag for [CommandBuilder].[ToggleableFlags(string, ...BatchToggleFlag)]
+type BatchToggleFlag struct {
+	L  string // long title
+	S  string // short title
+	DV bool   // default value
 }

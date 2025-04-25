@@ -77,11 +77,11 @@ type Runner interface {
 	Error() errors.Error   // return the collected errors in parsing args and invoke actions
 	Recycle(errs ...error) // collect the errs object and return the bundled error to main()
 
-	Store() store.Store // app settings store, config set
-	Name() string       // app name
-	Version() string    // app version
-	Root() *RootCommand // root command
-	Args() []string     // command-line
+	Store(prefix ...string) store.Store // app settings store, config set
+	Name() string                       // app name
+	Version() string                    // app version
+	Root() *RootCommand                 // root command
+	Args() []string                     // command-line
 
 	SuggestRetCode() int                      // os process return code
 	SetSuggestRetCode(ret int)                // update ret code (0-255) from onAction, onTask, ...

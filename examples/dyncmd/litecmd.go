@@ -82,9 +82,9 @@ func (s *liteCmdS) GetTitleName() string                               { return 
 func (s *liteCmdS) GetTitleNamesArray() []string                       { return []string{s.name()} }
 func (s *liteCmdS) GetTitleNames(maxWidth ...int) (title, rest string) { return s.name(), "" }
 
-func (s *liteCmdS) App() cli.App       { return nil }
-func (s *liteCmdS) Set() store.Store   { return s.Root().App().Store() }
-func (s *liteCmdS) Store() store.Store { return cmdr.Store() }
+func (s *liteCmdS) App() cli.App                       { return s.Root().App() }
+func (s *liteCmdS) Set(prefix ...string) store.Store   { return s.Root().App().Store(prefix...) }
+func (s *liteCmdS) Store(prefix ...string) store.Store { return cmdr.Store(prefix...) }
 
 func (s *liteCmdS) OwnerIsValid() bool {
 	if s.OwnerIsNotNil() {

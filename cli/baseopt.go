@@ -122,18 +122,33 @@ func (c *BaseOpt) OwnerIsNotNil() bool             { return c.owner != nil }
 func (c *BaseOpt) OwnerCmd() Cmd                   { return c.owner }
 func (c *BaseOpt) OwnerIsRoot() bool               { return c.owner != nil && c.owner.OwnerIsNil() }
 func (c *BaseOpt) IsRoot() bool                    { return c.owner == nil }
-func (c *BaseOpt) Root() *RootCommand              { return c.root }          // returns Root CmdS (*RootCommand),
-func (c *BaseOpt) App() App                        { return c.root.app }      // App returns the current App
-func (c *BaseOpt) Set() store.Store                { return c.App().Store() } // Set returns the application Store [store.Store]
+func (c *BaseOpt) Root() *RootCommand              { return c.root }     // returns Root CmdS (*RootCommand),
+func (c *BaseOpt) App() App                        { return c.root.app } // App returns the current App
 func (c *BaseOpt) SetOwner(o *CmdS)                { c.owner = o }
 func (c *BaseOpt) SetOwnerCmd(o Cmd)               { c.owner = o }
 func (c *BaseOpt) SetRoot(root *RootCommand)       { c.root = root }
 
 // Store returns the commands subset of the application Store.
-func (c *BaseOpt) Store() store.Store {
-	cs := c.Set().WithPrefix(CommandsStoreKey, c.GetDottedPath())
-	return cs
+func (c *BaseOpt) Store(prefix ...string) store.Store {
+	if len(prefix) == 0 {
+		return c.Set(CommandsStoreKey)
+	}
+	return c.Set(append([]string{CommandsStoreKey}, prefix...)...)
+	// cs := c.Set().WithPrefix(CommandsStoreKey, c.GetDottedPath())
+	// return cs
 }
+
+func (c *BaseOpt) Set(prefix ...string) store.Store {
+	if len(prefix) == 0 {
+		return c.root.app.Store()
+	}
+	var pre = strings.Join(prefix, ".")
+	if pre == "" {
+		return c.root.app.Store()
+		// return App().Store() // .WithPrefix(cli.DefaultStoreKeyPrefix)
+	}
+	return c.root.app.Store().WithPrefix(pre)
+} // Set returns the application Store [store.Store]
 
 // func (c *BaseOpt) AppName() string {
 // 	if conf.AppName != "" {

@@ -243,7 +243,12 @@ func (w *workerS) Version() string {
 }
 
 func (w *workerS) Root() *cli.RootCommand { return w.root }
-func (w *workerS) Store() store.Store     { return w.Config.Store }
+func (w *workerS) Store(prefix ...string) store.Store {
+	if len(prefix) > 0 {
+		return w.Config.Store.WithPrefix(prefix...)
+	}
+	return w.Config.Store
+}
 
 func (w *workerS) InitGlobally(ctx context.Context) {
 	if w.reqResourcesReady() {

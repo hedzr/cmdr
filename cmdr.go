@@ -5,6 +5,7 @@ package cmdr
 import (
 	"context"
 	"os"
+	"strings"
 
 	"gopkg.in/hedzr/errors.v3"
 
@@ -174,7 +175,7 @@ func LoadedSources() []cli.LoadedSources { return App().LoadedSources() } // the
 //	}
 //
 //	// second form:
-//	cs := cmdr.Store().WithPrefix("server.start")
+//	cs := cmdr.Store("server.start")
 //	fore := cs.MustBool("foreground")
 //	port := cs.MustInt("port", 7893)
 //
@@ -191,17 +192,19 @@ func LoadedSources() []cli.LoadedSources { return App().LoadedSources() } // the
 // commands, and with those vendor hidden commands. In
 // this case, `-vvv` dumps the hidden commands and
 // vendor-hidden commands.
+//
+// Since v2.1.16, the passing prefix parameters will be
+// joint as a dottedPath with dot char.
+// So `Set("a", "b", "c")` is equivelant with `Set("a.b.c")`.
 func Store(prefix ...string) store.Store {
-	var pre string
-	for _, p := range prefix {
-		if p != "" {
-			pre = p
-		}
+	switch len(prefix) {
+	case 0:
+		return Set(cli.CommandsStoreKey)
+	case 1:
+		return Set(cli.CommandsStoreKey, prefix[0])
+	default:
+		return Set(append([]string{cli.CommandsStoreKey}, prefix...)...)
 	}
-	if pre == "" {
-		return Set().WithPrefix(cli.CommandsStoreKey)
-	}
-	return Set().WithPrefix(pre)
 }
 
 // Set returns the `app` subtree as a KVStore associated
@@ -234,13 +237,15 @@ func Store(prefix ...string) store.Store {
 // for more detail.
 //
 // You can also create your own external source if absent.
+//
+// Since v2.1.16, the passing prefix parameters will be
+// joint as a dottedPath with dot char.
+// So `Set("a", "b", "c")` is equivelant with `Set("a.b.c")`.
 func Set(prefix ...string) store.Store {
-	var pre string
-	for _, p := range prefix {
-		if p != "" {
-			pre = p
-		}
+	if len(prefix) == 0 {
+		return App().Store()
 	}
+	var pre = strings.Join(prefix, ".")
 	if pre == "" {
 		return App().Store() // .WithPrefix(cli.DefaultStoreKeyPrefix)
 	}

@@ -170,17 +170,26 @@ type Cmd interface {
 
 	// Set returns the application Store [store.Store].
 	//
-	// Set is equals to cmdr.Set().
-	Set() store.Store
-	// Store returns the commands subset of the application Store.
+	// Set is equalalent with cmdr.Set().
 	//
-	// Store() is associated with the owner Cmd.
+	// Since v2.1.16, the passing prefix parameters will be
+	// joint as a dottedPath with dot char.
+	// So `Set("a", "b", "c")` is equivelant with `Set("a.b.c")`.
+	Set(prefix ...string) store.Store
+	// Store returns the commands subset of the application
+	// Store [store.Store].
+	//
+	// Store() is associated with its owner Cmd.
 	//
 	// So cmd.Store() on command "jump.to" has implicit
 	// key-path prefix "app.cmd.jump.to". The similar thing
 	// is, root.Store() has prefix "app.cmd" (CommandsStoreKey),
-	// it equals to cmdr.Store().
-	Store() store.Store
+	// it equavalent with cmdr.Store().
+	//
+	// Since v2.1.16, the passing prefix parameters will be
+	// joint as a dottedPath with dot char.
+	// So `Set("a", "b", "c")` is equivelant with `Set("a.b.c")`.
+	Store(prefix ...string) store.Store
 
 	OwnerIsValid() bool
 	OwnerIsNil() bool

@@ -2,6 +2,11 @@ package cli
 
 import (
 	"context"
+	"sort"
+	"strings"
+
+	"github.com/hedzr/cmdr/v2/pkg/logz"
+	"github.com/hedzr/is"
 )
 
 // FindSubCommand find sub-command with `longName` from `cmd`.
@@ -161,6 +166,21 @@ func (c *CmdS) FlagBy(longName string) (res *Flag) {
 	// }
 	if ff, ok := c.longFlags[longName]; ok {
 		res = ff
+	}
+
+	// for debugging
+	if res == nil && is.DebugMode() {
+		logz.Debug("\nNOT FOUND! querying %q on cmd = \n", longName)
+		var keys []string
+		for k := range c.longFlags {
+			keys = append(keys, k)
+		}
+		sort.Slice(keys, func(i, j int) bool { return strings.ToLower(keys[i]) < strings.ToLower(keys[j]) })
+		for _, k := range keys {
+			if strings.HasPrefix(k, "warn") {
+				logz.Debug("    %q => %v\n", k, c.longFlags[k])
+			}
+		}
 	}
 	return
 }

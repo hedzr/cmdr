@@ -258,7 +258,7 @@ func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, c
 				if conf != nil {
 					key := ff.GetDottedPath()
 					_, _ = conf.Set(key, ff.DefaultValue())
-					logz.DebugContext(ctx, "linking a flag", "ff", ff, "key", key, "TG", ff.ToggleGroup())
+					logz.VerboseContext(ctx, "linking a flag", "ff", ff, "key", key, "TG", ff.ToggleGroup())
 					if ff.Negatable() {
 						if items := ff.NegatableItems(); len(items) > 0 {
 							// in this branch, all following codes are no effects,
@@ -287,7 +287,7 @@ func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, c
 							nf := ff.Owner().FlagBy(title)
 							key1 := nf.GetDottedPath()
 							_, _ = conf.Set(key1, nf.DefaultValue())
-							logz.DebugContext(ctx, "linking a shadowed negatable flag", "ff", nf, "title", title, "key.1", key, "TG", nf.ToggleGroup())
+							logz.VerboseContext(ctx, "linking a shadowed negatable flag", "ff", nf, "title", title, "key.1", key, "TG", nf.ToggleGroup())
 							// _, _ = conf.Set(nf.GetDottedPath(), nf.DefaultValue())
 						}
 					}

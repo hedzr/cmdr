@@ -256,6 +256,10 @@ type Painter interface {
 
 var _ Painter = (*helpPrinter)(nil)
 
+func (s *helpPrinter) translate(pc cli.ParsedState, pattern string, fg color.Color) string {
+	return s.Translate(pc.Translate(os.ExpandEnv(pattern)), fg)
+}
+
 func (s *helpPrinter) printHeader(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) { //nolint:revive,unparam
 	if cc.Root() == nil {
 		if cc.OwnerCmd() != cc {
@@ -265,7 +269,7 @@ func (s *helpPrinter) printHeader(ctx context.Context, sb *strings.Builder, cc c
 	}
 	header := cc.Root().Header()
 	line := exec.StripLeftTabs(os.ExpandEnv(header))
-	_, _ = sb.WriteString(s.Translate(line, color.FgDefault))
+	_, _ = sb.WriteString(s.translate(pc, line, color.FgDefault))
 	_, _ = sb.WriteString("\n")
 	_, _, _ = pc, cols, tabbedW
 	_ = ctx
@@ -283,7 +287,7 @@ func (s *helpPrinter) printUsage(ctx context.Context, sb *strings.Builder, cc cl
 	line := fmt.Sprintf("$ <kbd>%s</kbd> %s [Options...]%s\n", appName, titles, tail)
 	_, _ = sb.WriteString("\nUsage:\n\n  ")
 	// _, _ = sb.WriteString("\n")
-	_, _ = sb.WriteString(s.Translate(os.ExpandEnv(line), color.FgDefault))
+	_, _ = sb.WriteString(s.translate(pc, line, color.FgDefault))
 	_, _, _ = pc, cols, tabbedW
 	_ = ctx
 }
@@ -293,8 +297,7 @@ func (s *helpPrinter) printDesc(ctx context.Context, sb *strings.Builder, cc cli
 	if desc != "" {
 		_, _ = sb.WriteString("\nDescription:\n\n")
 		desc = exec.StripLeftTabs(os.ExpandEnv(desc))
-		desc = pc.Translate(desc)
-		line := s.Translate(desc, color.FgDefault)
+		line := s.translate(pc, desc, color.FgDefault)
 		line = exec.LeftPad(line, 2)
 		_, _ = sb.WriteString(line)
 	}
@@ -307,8 +310,7 @@ func (s *helpPrinter) printExamples(ctx context.Context, sb *strings.Builder, cc
 	if examples != "" {
 		_, _ = sb.WriteString("\nExamples:\n\n")
 		str := exec.StripLeftTabs(os.ExpandEnv(examples))
-		str = pc.Translate(str)
-		line := s.Translate(str, color.FgDefault)
+		line := s.translate(pc, str, color.FgDefault)
 		line = exec.LeftPad(line, 2)
 		_, _ = sb.WriteString(line)
 	}
@@ -321,8 +323,7 @@ func (s *helpPrinter) printNotes(ctx context.Context, sb *strings.Builder, cc cl
 	if root := cc.Root(); root.Cmd == cc && root.RedirectTo() != "" {
 		_, _ = sb.WriteString("\nNotes:\n\n")
 		str := exec.StripLeftTabs(fmt.Sprintf(`<i>Root Command was been redirected to Subcommand</i>: "<b>%s</b>"`, root.RedirectTo()))
-		str = pc.Translate(str)
-		line := s.Translate(str, color.FgDefault)
+		line := s.translate(pc, str, color.FgDefault)
 		line = exec.LeftPad(line, 2)
 		_, _ = sb.WriteString(line)
 	}
@@ -336,7 +337,7 @@ func (s *helpPrinter) printTailLine(ctx context.Context, sb *strings.Builder, cc
 		_, _ = sb.WriteString("\n")
 		str := exec.StripLeftTabs(os.ExpandEnv(footer))
 		line := fmt.Sprintf("<dim>%s</dim>", str)
-		_, _ = sb.WriteString(s.Translate(line, color.FgDefault))
+		_, _ = sb.WriteString(s.translate(pc, line, color.FgDefault))
 		if !strings.HasSuffix(footer, "\n") {
 			_, _ = sb.WriteString("\n")
 		}
@@ -442,9 +443,11 @@ func (s *helpPrinter) printDebugMatches(ctx context.Context, sb *strings.Builder
 					tilde = "TILDE"
 				}
 			}
-			_, _ = sb.WriteString(s.Translate(fmt.Sprintf(
-				"  - %d. <code>%s</code> <dim>(+%v)</dim> %v <dim>/%v%v/</dim> | <dim>[owner: %v]</dim>\n",
-				i, ff.GetHitStr(), ff.GetTriggeredTimes(), ff, short, tilde, ff.Owner().String()), color.FgDefault))
+			_, _ = sb.WriteString(s.translate(pc,
+				fmt.Sprintf(
+					"  - %d. <code>%s</code> <dim>(+%v)</dim> %v <dim>/%v%v/</dim> | <dim>[owner: %v]</dim>\n",
+					i, ff.GetHitStr(), ff.GetTriggeredTimes(), ff, short, tilde, ff.Owner().String()),
+				color.FgDefault))
 		}
 	}
 
@@ -662,7 +665,8 @@ func (s *helpPrinter) printFlagGroupTitle(ctx context.Context, sb *strings.Build
 func (s *helpPrinter) printFlagRow(ctx context.Context, sb *strings.Builder,
 	ff *cli.Flag,
 	indentSpaces, left, right, tg, def, defPlain, dep, depPlain, env, envPlain string,
-	cols, tabbedW int, deprecated, dim bool) {
+	cols, tabbedW int, deprecated, dim bool,
+) {
 	_, _ = sb.WriteString(indentSpaces)
 
 	if ff.Required() {

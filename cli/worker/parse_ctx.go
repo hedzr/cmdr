@@ -188,7 +188,7 @@ func (s *parseCtx) addFlag(ff *cli.Flag) (ms *cli.MatchState) {
 	// path := ff.GetDottedPath()
 	title := ff.Name()
 	val := ff.DefaultValue()
-	cmdstore.Set(title, val)
+	_, _ = cmdstore.Set(title, val)
 	return
 }
 

@@ -256,11 +256,40 @@ func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, c
 					}
 				}
 				if conf != nil {
-					conf.Set(ff.GetDottedPath(), ff.DefaultValue())
+					key := ff.GetDottedPath()
+					_, _ = conf.Set(key, ff.DefaultValue())
+					logz.DebugContext(ctx, "linking a flag", "ff", ff, "key", key, "TG", ff.ToggleGroup())
 					if ff.Negatable() {
-						title := fmt.Sprintf("no-%s", ff.LongTitle())
-						nf := ff.Owner().FlagBy(title)
-						conf.Set(nf.GetDottedPath(), nf.DefaultValue())
+						if items := ff.NegatableItems(); len(items) > 0 {
+							// in this branch, all following codes are no effects,
+							// so its could be removed safely.
+							// but we kept them because it is a reference specially
+							// for negatable items stlye.
+
+							// a := strings.Split(ff.LongTitle(), ".")
+							// title := fmt.Sprintf("%s.no-%s", a[0], a[1])
+							title := ff.LongTitle()
+							nf := ff.Owner().FlagBy(title)
+							if nf == nil {
+								logz.WarnContext(ctx, "FlagBy() return nil", "querying title", title)
+							}
+							// logz.DebugContext(ctx, "linking a negatable item", "ff", nf, "title", title)
+
+							// key := nf.GetDottedNamePath()
+							// key1 := nf.GetDottedPath()
+							// _, _ = conf.Set(key1, nf.DefaultValue())
+						} else {
+							// in fact, this branch would never be reached.
+							// because a normal negatable flag will be reset
+							// once its shadowed flag created.
+
+							title := fmt.Sprintf("no-%s", ff.LongTitle())
+							nf := ff.Owner().FlagBy(title)
+							key1 := nf.GetDottedPath()
+							_, _ = conf.Set(key1, nf.DefaultValue())
+							logz.DebugContext(ctx, "linking a shadowed negatable flag", "ff", nf, "title", title, "key.1", key, "TG", nf.ToggleGroup())
+							// _, _ = conf.Set(nf.GetDottedPath(), nf.DefaultValue())
+						}
 					}
 				}
 			} else if x, ok := cc.(interface{ TransferIntoStore(store.Store, bool) }); ok {

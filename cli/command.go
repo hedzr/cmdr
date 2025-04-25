@@ -624,8 +624,26 @@ func (c *CmdS) ensureXrefCommands(context.Context) { //nolint:revive
 }
 
 func (c *CmdS) ensureXrefFlags(ctx context.Context) { //nolint:revive
+	shortFlags := make(map[string]*Flag)
 	if c.longFlags == nil {
 		c.longFlags = make(map[string]*Flag)
+		var addFlags []*Flag
+		defer func() {
+			if addFlags != nil {
+				c.flags = append(c.flags, addFlags...)
+			}
+		}()
+		uniadder := func(nf *Flag) (found bool) {
+			found = false
+			for _, fx := range c.flags {
+				if fx == nf || fx.EqualTo(nf) {
+					found = true
+					return
+				}
+			}
+			addFlags = append(addFlags, nf)
+			return
+		}
 		for _, ff := range c.flags {
 			c.ensureToggleGroups(ff)
 			ff.ensureXref()
@@ -637,14 +655,25 @@ func (c *CmdS) ensureXrefFlags(ctx context.Context) { //nolint:revive
 			}
 			if ff.negatable {
 				// add `--no-xxx` flag automatically
+
 				if ff.defaultValue == nil {
 					ff.defaultValue = false
 				}
-				ensureNegatable := func(c *CmdS, f, ff *Flag, title string) {
-					f.negatable, f.defaultValue, f.Long = false, true, title
-					c.longFlags[title] = f
 
-					tg := title
+				ensureNegatable := func(c *CmdS, f, ff *Flag, title, toggleGroup string, v bool) {
+					f.negatable, f.defaultValue, f.Long = false, v, title
+
+					// c.longFlags[title] = f
+					for _, ss := range f.GetLongTitleNamesArray() {
+						if ss != "" {
+							c.longFlags[ss] = f
+						}
+					}
+
+					tg := toggleGroup
+					f.SetToggleGroup(tg)
+					ff.SetToggleGroup(tg)
+					f.SetHidden(true, true)
 					if c.toggles == nil {
 						c.toggles = make(map[string]*ToggleGroupMatch)
 					}
@@ -653,22 +682,93 @@ func (c *CmdS) ensureXrefFlags(ctx context.Context) { //nolint:revive
 					}
 					c.toggles[tg].Flags[f.Title()] = f
 					c.toggles[tg].Flags[ff.Title()] = ff
+					if v, ok := f.defaultValue.(bool); ok && v {
+						c.toggles[tg].Matched, c.toggles[tg].MatchedTitle = f, f.Title()
+					}
+
+					if len(ff.negItems) > 0 {
+						c.toggles[tg].Main = ff
+						tg = ff.LongTitle()
+						if c.toggles[tg] == nil {
+							c.toggles[tg] = &ToggleGroupMatch{Flags: make(map[string]*Flag)}
+						}
+						c.toggles[tg].Flags[f.Title()] = f
+						c.toggles[tg].Flags[ff.Title()] = ff
+						c.toggles[tg].Main = ff
+					}
 				}
+
+				if len(ff.negItems) > 0 {
+					sTitle, lTitle := ff.ShortTitle(), ff.LongTitle()
+					if lTitle != "" {
+						lTitle += "."
+					}
+					logz.DebugContext(ctx, "negatable items for flag", "short", sTitle, "long", lTitle)
+					for _, it := range ff.negItems {
+						for _, titles := range []struct {
+							pre, ttl string
+							v        bool
+						}{
+							{"", it, false},
+							{"no-", it, true},
+						} {
+							title := fmt.Sprintf("%s%s%s", lTitle, titles.pre, titles.ttl)
+							tg := fmt.Sprintf("%s%s%s", lTitle, "", titles.ttl)
+							nf := evendeep.MakeClone(ff).(Flag)
+							nf.Short = fmt.Sprintf("%s%s%s", sTitle, titles.pre, titles.ttl)
+							ensureNegatable(c, &nf, ff, title, tg, titles.v)
+							nf.negatable = true
+							uniadder(&nf)
+							logz.DebugContext(ctx, "negatable items cloned", "nf", nf.Long, "owner", nf.owner, "z.n", nf.negatable, "z.n.items", nf.negItems)
+							// logz.DebugContext(ctx, "negatable items duplicated (short)", "nf", nf.Short, "owner", nf.owner)
+
+							for _, ss := range nf.Shorts() {
+								if ss != "" {
+									shortFlags[ss] = &nf
+								}
+							}
+						}
+					}
+					// remove negatable state from `-W` main flag.
+					// since the children created, such as `-Wunused-aa` & `-Wno-unused-aa`
+					ff.negItems = nil
+					ff.negatable = false
+					continue
+				}
+
 				title := fmt.Sprintf("no-%s", ff.LongTitle())
 				nf := evendeep.MakeClone(ff)
 				if f, ok := nf.(*Flag); ok {
-					ensureNegatable(c, f, ff, title)
+					ensureNegatable(c, f, ff, title, title, true)
+					uniadder(f)
 				} else if f, ok := nf.(Flag); ok {
-					ensureNegatable(c, &f, ff, title)
+					logz.DebugContext(ctx, "negatable items cloned", "nf", f.Long, "owner", f.owner, "z.n", f.negatable, "z.n.items", f.negItems)
+					ensureNegatable(c, &f, ff, title, ff.LongTitle(), true)
+					uniadder(&f)
+
+					tg := f.toggleGroup
+					ff.toggleGroup = tg
+					if c.toggles == nil {
+						c.toggles = make(map[string]*ToggleGroupMatch)
+					}
+					if c.toggles[tg] == nil {
+						c.toggles[tg] = &ToggleGroupMatch{Flags: make(map[string]*Flag)}
+					}
+					c.toggles[tg].Flags[ff.Title()] = ff
 				}
+				// continue
 			}
+
 			for _, ss := range ff.GetLongTitleNamesArray() {
-				c.longFlags[ss] = ff
+				if ss != "" {
+					c.longFlags[ss] = ff
+				}
 			}
 		}
 	}
 	if c.shortFlags == nil {
 		c.shortFlags = make(map[string]*Flag)
+		maps.Copy(c.shortFlags, shortFlags)
 		for _, ff := range c.flags {
 			c.ensureToggleGroups(ff)
 			ff.ensureXref()
@@ -707,7 +807,7 @@ func (c *CmdS) TransferIntoStore(conf store.Store, recursive bool) {
 	if c.toggles != nil {
 		for k, v := range c.toggles {
 			key := c.GetDottedPath() + "." + k
-			conf.Set(key, v.MatchedTitle)
+			_, _ = conf.Set(key, v.MatchedTitle)
 		}
 	}
 }

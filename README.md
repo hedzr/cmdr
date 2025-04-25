@@ -13,12 +13,14 @@
 
 `cmdr` is a POSIX-compliant, command-line argument parser library with Golang.
 
-1. Our license moved to Apache 2.0 from v2.
-2. The minimal toolchain move to go1.23+ from v2.1.
+`cmdr` integrates app-settings manager (`Store`) for developing CLI app rapidly.
+
+1. Our license moved to Apache 2.0 since v2.
+2. The minimal toolchain move to go1.23+ since v2.1.
 3. DocSite published at [here](https://docs.hedzr.com/docs/cmdr.v2/).
 4. Starting a new app with [cmdr-go-starter Template repo](https://github.com/hedzr/cmdr-go-starter).
 
-A preview version released at v2.1, the stable API has been frozen.
+The stable API starts since v2.1 and v2.2.
 
 ![cover](https://user-images.githubusercontent.com/12786150/72876202-f49ee500-3d30-11ea-9de0-434bf8decf90.gif)<!-- built by https://ezgif.com/ -->
 
@@ -97,8 +99,13 @@ v2 is in earlier state but the baseline is stable:
   - Secondary: 2ndry config. Wrapped by reseller(s).
   - Alternative: user's local config, writeable. The runtime changeset will be written back to this file while app stopping.
 
+- Generating shell autocompletion scripts
+  - supported shells are: zsh, bash, fish, powershell, ...
+  - auto install the scripts for zsh shell.
+
+- Generating command manpages for software deployment time.
+
 - TODO
-  - Shell autocompletion
   - ...
 
 [^1]: `hedzr/store` is a high-performance configure management library
@@ -114,7 +121,7 @@ Since v2.0.3, loaders had been splitted as a standalone repo so that we can keep
 
 Since v2.1.12, we did main alternative features like autocompletion generating, manpage reading and generating, and made quite a lot of fixes and improvments. Now the main APIs come to stable.
 
-The full-featured tests and examples are moved into [cmdr-tests](https://github.com/hedzr/cmdr-tests).
+The full-functional tests and examples are moved into [cmdr-tests](https://github.com/hedzr/cmdr-tests).
 
 [^5]: `hedzr/cmdr-loaders` provides an external config file loaders with GNU File Standard supports.
 
@@ -134,142 +141,142 @@ A typical cli-app can be (its concise version at [here](https://github.com/hedzr
 package main
 
 import (
-	"context"
-	"io"
-	"os"
+    "context"
+    "io"
+    "os"
 
-	"github.com/hedzr/cmdr/v2"
-	"github.com/hedzr/cmdr/v2/cli"
-	"github.com/hedzr/cmdr/v2/examples/cmd"
-	"github.com/hedzr/cmdr/v2/examples/dyncmd"
+    "github.com/hedzr/cmdr/v2"
+    "github.com/hedzr/cmdr/v2/cli"
+    "github.com/hedzr/cmdr/v2/examples/cmd"
+    "github.com/hedzr/cmdr/v2/examples/dyncmd"
 
-	"github.com/hedzr/is/dir"
-	logz "github.com/hedzr/logg/slog"
-	"gopkg.in/hedzr/errors.v3"
+    "github.com/hedzr/is/dir"
+    logz "github.com/hedzr/logg/slog"
+    "gopkg.in/hedzr/errors.v3"
 )
 
 const (
-	appName = "lite-app"
-	desc    = `lite-app version of tiny app.`
-	version = cmdr.Version
-	author  = `The Example Authors`
+    appName = "lite-app"
+    desc    = `lite-app version of tiny app.`
+    version = cmdr.Version
+    author  = `The Example Authors`
 )
 
 func main() {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+    ctx, cancel := context.WithCancel(context.Background())
+    defer cancel()
 
-	app := cmdr.Create(appName, version, author, desc).
-		WithAdders(cmd.Commands...).
-		Build()
+    app := cmdr.Create(appName, version, author, desc).
+        WithAdders(cmd.Commands...).
+        Build()
 
-	if err := app.Run(ctx); err != nil {
-		logz.ErrorContext(ctx, "Application Error:", "err", err) // stacktrace if in debug mode/build
-		os.Exit(app.SuggestRetCode())
-	} else if rc := app.SuggestRetCode(); rc != 0 {
-		os.Exit(rc)
-	}
+    if err := app.Run(ctx); err != nil {
+        logz.ErrorContext(ctx, "Application Error:", "err", err) // stacktrace if in debug mode/build
+        os.Exit(app.SuggestRetCode())
+    } else if rc := app.SuggestRetCode(); rc != 0 {
+        os.Exit(rc)
+    }
 }
 
 var Commands = []cli.CmdAdder{
-	jumpCmd{},
-	wrongCmd{},
-	invokeCmd{},
-	presetCmd{},
+    jumpCmd{},
+    wrongCmd{},
+    invokeCmd{},
+    presetCmd{},
 }
 
 type jumpCmd struct{}
 
 func (jumpCmd) Add(app cli.App) {
-	app.Cmd("jump").
-		Description("jump command").
-		Examples(`jump example`). // {{.AppName}}, {{.AppVersion}}, {{.DadCommands}}, {{.Commands}}, ...
-		Deprecated(`v1.1.0`).
-		Group("Test").
-		// Group(cli.UnsortedGroup).
-		// Hidden(false).
-		OnEvaluateSubCommands(dyncmd.OnEvalJumpSubCommands).
-		OnEvaluateSubCommandsFromConfig().
-		// Both With(cb) and Build() to end a building sequence
-		With(func(b cli.CommandBuilder) {
-			b.Cmd("to").
-				Description("to command").
-				Examples(``).
-				Deprecated(`v0.1.1`).
-				OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
-					// cmd.Set() == cmdr.Store(), cmd.Store() == cmdr.Store()
-					cmd.Set().Set("tiny3.working", dir.GetCurrentDir())
-					println()
-					println("dir:", cmd.Set().WithPrefix("tiny3").MustString("working"))
+    app.Cmd("jump").
+        Description("jump command").
+        Examples(`jump example`). // {{.AppName}}, {{.AppVersion}}, {{.DadCommands}}, {{.Commands}}, ...
+        Deprecated(`v1.1.0`).
+        Group("Test").
+        // Group(cli.UnsortedGroup).
+        // Hidden(false).
+        OnEvaluateSubCommands(dyncmd.OnEvalJumpSubCommands).
+        OnEvaluateSubCommandsFromConfig().
+        // Both With(cb) and Build() to end a building sequence
+        With(func(b cli.CommandBuilder) {
+            b.Cmd("to").
+                Description("to command").
+                Examples(``).
+                Deprecated(`v0.1.1`).
+                OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
+                    // cmd.Set() == cmdr.Store(), cmd.Store() == cmdr.Store()
+                    cmd.Set().Set("tiny3.working", dir.GetCurrentDir())
+                    println()
+                    println("dir:", cmd.Set().WithPrefix("tiny3").MustString("working"))
 
-					cs := cmdr.Store().WithPrefix("jump.to")
-					if cs.MustBool("full") {
-						println()
-						println(cmd.Set().Dump())
-					}
-					cs2 := cmd.Store()
-					if cs2.MustBool("full") != cs.MustBool("full") {
-						logz.Panic("a bug found")
-					}
-					app.SetSuggestRetCode(1) // ret code must be in 0-255
-					return                   // handling command action here
-				}).
-				With(func(b cli.CommandBuilder) {
-					b.Flg("full", "f").
-						Default(false).
-						Description("full command").
-						Build()
-				})
-		})
+                    cs := cmdr.Store().WithPrefix("jump.to")
+                    if cs.MustBool("full") {
+                        println()
+                        println(cmd.Set().Dump())
+                    }
+                    cs2 := cmd.Store()
+                    if cs2.MustBool("full") != cs.MustBool("full") {
+                        logz.Panic("a bug found")
+                    }
+                    app.SetSuggestRetCode(1) // ret code must be in 0-255
+                    return                   // handling command action here
+                }).
+                With(func(b cli.CommandBuilder) {
+                    b.Flg("full", "f").
+                        Default(false).
+                        Description("full command").
+                        Build()
+                })
+        })
 }
 
 type wrongCmd struct{}
 
 func (wrongCmd) Add(app cli.App) {
-	app.Cmd("wrong").
-		Description("a wrong command to return error for testing").
-		Group("Test").
-		// cmdline `FORCE_RUN=1 go run ./tiny wrong -d 8s` to verify this command to see the returned application error.
-		OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
-			dur := cmd.Store().MustDuration("duration")
-			println("the duration is:", dur.String())
+    app.Cmd("wrong").
+        Description("a wrong command to return error for testing").
+        Group("Test").
+        // cmdline `FORCE_RUN=1 go run ./tiny wrong -d 8s` to verify this command to see the returned application error.
+        OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
+            dur := cmd.Store().MustDuration("duration")
+            println("the duration is:", dur.String())
 
-			ec := errors.New()
-			defer ec.Defer(&err) // store the collected errors in native err and return it
-			ec.Attach(io.ErrClosedPipe, errors.New("something's wrong"), os.ErrPermission)
-			// see the application error by running `go run ./tiny/tiny/main.go wrong`.
-			return
-		}).
-		Build()
+            ec := errors.New()
+            defer ec.Defer(&err) // store the collected errors in native err and return it
+            ec.Attach(io.ErrClosedPipe, errors.New("something's wrong"), os.ErrPermission)
+            // see the application error by running `go run ./tiny/tiny/main.go wrong`.
+            return
+        }).
+        Build()
 }
 
 type invokeCmd struct{}
 
 func (invokeCmd) Add(app cli.App) {
-	app.Cmd("invoke").Description(`test invoke feature`).
-		With(func(b cli.CommandBuilder) {
-			b.Cmd("shell").Description(`invoke shell cmd`).InvokeShell(`ls -la`).UseShell("/bin/bash").OnAction(nil).Build()
-			b.Cmd("proc").Description(`invoke gui program`).InvokeProc(`say "hello, world!"`).OnAction(nil).Build()
-		})
+    app.Cmd("invoke").Description(`test invoke feature`).
+        With(func(b cli.CommandBuilder) {
+            b.Cmd("shell").Description(`invoke shell cmd`).InvokeShell(`ls -la`).UseShell("/bin/bash").OnAction(nil).Build()
+            b.Cmd("proc").Description(`invoke gui program`).InvokeProc(`say "hello, world!"`).OnAction(nil).Build()
+        })
 }
 
 type presetCmd struct{}
 
 func (presetCmd) Add(app cli.App) {
-	app.Cmd("preset", "p").
-		Description("preset command to inject into user input").
-		With(func(b cli.CommandBuilder) {
-			b.Flg("preset", "p").
-				Default(false).
-				Description("preset arg").
-				Build()
-			b.Cmd("cmd", "c").Description("inject `-pv` into user input cmdline").
-				PresetCmdLines(`-pv`).
-				OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
-					_, err = app.DoBuiltinAction(ctx, cli.ActionDefault)
-					return
-				}).Build()
-		})
+    app.Cmd("preset", "p").
+        Description("preset command to inject into user input").
+        With(func(b cli.CommandBuilder) {
+            b.Flg("preset", "p").
+                Default(false).
+                Description("preset arg").
+                Build()
+            b.Cmd("cmd", "c").Description("inject `-pv` into user input cmdline").
+                PresetCmdLines(`-pv`).
+                OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
+                    _, err = app.DoBuiltinAction(ctx, cli.ActionDefault)
+                    return
+                }).Build()
+        })
 }
 ```
 

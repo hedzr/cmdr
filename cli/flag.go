@@ -131,6 +131,17 @@ func (f *Flag) SetPrerequisites(flags ...string)        { f.prerequisites = flag
 func (f *Flag) SetCircuitBreak(cb bool)                 { f.circuitBreak = cb }
 func (f *Flag) SetDoubleTildeOnly(b bool)               { f.dblTildeOnly = b }
 
+// GetDottedNamePath return the dotted key path of this flag
+// in the options store.
+func (f *Flag) GetDottedNamePath() string {
+	if f.owner != nil {
+		if op := f.owner.GetDottedPath(); op != "" {
+			return f.owner.GetDottedPath() + "." + f.GetTitleName()
+		}
+	}
+	return f.GetTitleName()
+}
+
 func (f *Flag) TryOnParseValue(index int, hitCaption, hitValue string, args []string) ( //nolint:revive
 	handled bool, newVal any, remainsPartInHitValue string, err error,
 ) {

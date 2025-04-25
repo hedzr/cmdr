@@ -30,7 +30,7 @@ func (jumpCmd) Add(app cli.App) {
 				Deprecated(`v0.1.1`).
 				OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
 					// cmd.Set() == cmdr.Store(), cmd.Store() == cmdr.Store()
-					cmd.Set().Set("tiny3.working", dir.GetCurrentDir())
+					_, _ = cmd.Set().Set("tiny3.working", dir.GetCurrentDir())
 					println()
 					println("dir:", cmd.Set().WithPrefix("tiny3").MustString("working"))
 

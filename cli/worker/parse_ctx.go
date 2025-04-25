@@ -62,8 +62,8 @@ func (s *parseCtx) Translate(pattern string) (result string) {
 		if err = tpl.Execute(&sb, struct {
 			AppName     string
 			AppVersion  string
-			DadCommands string
-			Commands    string
+			DadCommands string // for curr-cmd is `jump to`: "jump"
+			Commands    string // for curr-cmd is `jump to`: "jump to"
 			*parseCtx
 		}{
 			cmd.App().Name(),

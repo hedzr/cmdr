@@ -9,8 +9,10 @@
     - add debug branch for `CmdS.FlagBy()` for debuggiing the longName not found case
     - improved the report in toggle_group example
     - add new params as `Negatable(b bool, items ...string)`
+  - added `cli.CommandBuilder.ToggleableFlags(group, items...)` for batch creating toggle-group flags
   - fix `Flag.GetDottedNamePath()`
-  - mv examples/*.go into examples/common to clear cycle imports
+  - fix expanding for desc, examples, header, footer, note, ...
+  - moved examples/*.go into examples/common to solve the cycle imports
     - update all example apps codes
   - remove some unused params
   - remove unprocessed return values
@@ -27,8 +29,8 @@
 
 - v2.1.11
 
-  - impl: `generate shell`
-  - impl: `generate man`
+  - completed `generate shell` for autocompletion feature of supported shells
+  - completed `generate man` for manpages generating in deployment time
   - added `App.GetRunner() Runner`
   - fix unique worker and add shared app feature, added examples/shared/
   - fix workerS.String()

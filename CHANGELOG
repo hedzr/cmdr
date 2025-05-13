@@ -1,5 +1,10 @@
 # CHANGELOG
 
+- v2.1.17
+
+  - upgrade deps
+  - security patches
+
 - v2.1.16
 
   - new feature `-W`-style for `Negatable Flag`

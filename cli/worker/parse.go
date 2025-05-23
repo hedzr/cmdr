@@ -126,7 +126,11 @@ loopArgs:
 				continue
 			}
 			if err = w.matchCommand(ctx, pc); !w.errIsSignalOrNil(err) {
-				err = w.onUnknownCommandMatched(ctx, pc)
+				if err = w.onUnknownCommandMatched(ctx, pc); w.errIsSignalFallback(err) {
+					err = nil
+					pc.positionalArgs = append(pc.positionalArgs, pc.arg)
+					logz.VerboseContext(ctx, "positional args added", "i", pc.i, "args", pc.positionalArgs)
+				}
 			}
 		}
 	}

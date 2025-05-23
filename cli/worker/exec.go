@@ -233,20 +233,28 @@ func (w *workerS) onSingleHyphenMatched(ctx context.Context, pc *parseCtx) (err 
 }
 
 func (w *workerS) onUnknownCommandMatched(ctx context.Context, pc *parseCtx) (err error) {
-	logz.WarnContext(ctx, "[cmdr] UNKNOWN <mark>CmdS</mark> FOUND", "arg", pc.arg)
 	err = cli.ErrUnmatchedCommand.FormatWith(pc.arg, pc.LastCmd())
 	if w.OnUnknownCommandHandler != nil {
 		err = w.OnUnknownCommandHandler(ctx, pc.arg, pc.LastCmd(), err)
 	}
+	if err == nil || w.errIsSignalFallback(err) {
+		return
+	}
+
+	logz.WarnContext(ctx, "[cmdr] UNKNOWN <mark>CmdS</mark> FOUND", "arg", pc.arg)
 	return
 }
 
 func (w *workerS) onUnknownFlagMatched(ctx context.Context, pc *parseCtx) (err error) {
-	logz.WarnContext(ctx, "[cmdr] UNKNOWN <mark>Flag</mark> FOUND", "arg", pc.arg)
 	err = cli.ErrUnmatchedFlag.FormatWith(pc.arg, pc.LastCmd())
 	if w.OnUnknownFlagHandler != nil {
 		err = w.OnUnknownFlagHandler(ctx, pc.arg, pc.LastCmd(), err)
 	}
+	if err == nil || w.errIsSignalFallback(err) {
+		return
+	}
+
+	logz.WarnContext(ctx, "[cmdr] UNKNOWN <mark>Flag</mark> FOUND", "arg", pc.arg)
 	return
 }
 

@@ -41,7 +41,7 @@ loopArgs:
 			continue
 		}
 
-		if atomic.LoadInt32(&pc.passThruMatched) > 0 || errorsv3.Is(err, cli.ErrShouldStop) || w.errIsUnmatchedArg(err) {
+		if atomic.LoadInt32(&pc.passThruMatched) > 0 || w.errShouldStopParsingLoop(err) {
 			pc.positionalArgs = append(pc.positionalArgs, (*pc.argsPtr)[pc.i])
 			logz.VerboseContext(ctx, "positional args added", "i", pc.i, "args", pc.positionalArgs)
 			continue

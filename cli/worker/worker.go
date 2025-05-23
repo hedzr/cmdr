@@ -291,6 +291,13 @@ func (w *workerS) attachError(err error) (has bool) {
 	return
 }
 
+func (w *workerS) errShouldStopParsingLoop(err error) bool {
+	if err == nil {
+		return false
+	}
+	return w.UnmatchedAsError && errors.Iss(err, cli.ErrUnmatchedCommand, cli.ErrUnmatchedCommand, cli.ErrShouldStop)
+}
+
 func (w *workerS) errIsUnmatchedArg(err error) bool {
 	if err == nil {
 		return false

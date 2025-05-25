@@ -297,7 +297,7 @@ func (s *helpPrinter) printDesc(ctx context.Context, sb *strings.Builder, cc cli
 	if desc != "" {
 		_, _ = sb.WriteString("\nDescription:\n\n")
 		desc = exec.StripLeftTabs(os.ExpandEnv(desc))
-		line := s.translate(pc, desc, color.FgDefault)
+		line := color.ToDim("%v", s.translate(pc, desc, color.FgDefault))
 		line = exec.LeftPad(line, 2)
 		_, _ = sb.WriteString(line)
 	}
@@ -310,8 +310,20 @@ func (s *helpPrinter) printExamples(ctx context.Context, sb *strings.Builder, cc
 	if examples != "" {
 		_, _ = sb.WriteString("\nExamples:\n\n")
 		str := exec.StripLeftTabs(os.ExpandEnv(examples))
-		line := s.translate(pc, str, color.FgDefault)
+
+		lines := strings.Split(str, "\n")
+		for i, ln := range lines {
+			if strings.HasPrefix(ln, "$ ") {
+				lines[i] = "$ <font color=\"green\">" + ln[2:] + "</color>"
+			} else if ln != "" {
+				lines[i] = "<dim>" + ln + "</dim>"
+			}
+		}
+
+		str = strings.Join(lines, "\n")
+		line := s.translate(pc, str, color.FgLightGray)
 		line = exec.LeftPad(line, 2)
+
 		_, _ = sb.WriteString(line)
 	}
 	_, _, _ = pc, cols, tabbedW
@@ -323,7 +335,7 @@ func (s *helpPrinter) printNotes(ctx context.Context, sb *strings.Builder, cc cl
 	if root := cc.Root(); root.Cmd == cc && root.RedirectTo() != "" {
 		_, _ = sb.WriteString("\nNotes:\n\n")
 		str := exec.StripLeftTabs(fmt.Sprintf(`<i>Root Command was been redirected to Subcommand</i>: "<b>%s</b>"`, root.RedirectTo()))
-		line := s.translate(pc, str, color.FgDefault)
+		line := color.ToDim("%v", s.translate(pc, str, color.FgDefault))
 		line = exec.LeftPad(line, 2)
 		_, _ = sb.WriteString(line)
 	}
@@ -336,8 +348,8 @@ func (s *helpPrinter) printTailLine(ctx context.Context, sb *strings.Builder, cc
 	if footer != "" {
 		_, _ = sb.WriteString("\n")
 		str := exec.StripLeftTabs(os.ExpandEnv(footer))
-		line := fmt.Sprintf("<dim>%s</dim>", str)
-		_, _ = sb.WriteString(s.translate(pc, line, color.FgDefault))
+		// line := fmt.Sprintf("<dim>%s</dim>", str)
+		_, _ = sb.WriteString(color.ToDim("%v", s.translate(pc, str, color.FgDefault)))
 		if !strings.HasSuffix(footer, "\n") {
 			_, _ = sb.WriteString("\n")
 		}

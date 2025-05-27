@@ -1,5 +1,12 @@
 # CHANGELOG
 
+- v2.1.18
+
+  - fix *not-hidden* cmd/flg if its owner/parent is hidden in helpscreen
+  - added `Cmd.HiddenBR`/`VendorHiddenBR`, and impl them for `*CmdS` and `*Flag`
+  - improved desc, examples, and notes fields in help screen
+  - improved errcheck, added `errShouldStopParsingLoop` for better cancel the parser's loop
+
 - v2.1.17
 
   - upgrade deps

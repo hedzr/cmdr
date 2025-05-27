@@ -225,6 +225,8 @@ type Cmd interface {
 	AllGroupKeys(chooseFlag, sort bool) []string // subcommand group-key-titles
 	Hidden() bool
 	VendorHidden() bool
+	HiddenBR() bool       // check hidden flag backwords recursively
+	VendorHiddenBR() bool // check vendorHidden flag backwords recursively
 	Deprecated() string
 	DeprecatedHelpString(trans func(ss string, clr color.Color) string, clr, clrDefault color.Color) (hs, plain string)
 

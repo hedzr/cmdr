@@ -139,6 +139,42 @@ func (s *liteCmdS) DeprecatedHelpString(trans func(ss string, clr color.Color) s
 	return
 }
 
+func (c *liteCmdS) HiddenBR() bool {
+	if c.Hidden() {
+		return true
+	}
+	if c.OwnerIsNotNil() {
+		p := c.OwnerCmd()
+	retry:
+		if p.Hidden() {
+			return true
+		}
+		if p.OwnerIsNotNil() {
+			p = p.OwnerCmd()
+			goto retry
+		}
+	}
+	return false
+}
+
+func (c *liteCmdS) VendorHiddenBR() bool {
+	if c.VendorHidden() {
+		return true
+	}
+	if c.OwnerIsNotNil() {
+		p := c.OwnerCmd()
+	retry:
+		if p.VendorHidden() {
+			return true
+		}
+		if p.OwnerIsNotNil() {
+			p = p.OwnerCmd()
+			goto retry
+		}
+	}
+	return false
+}
+
 func (s *liteCmdS) CountOfCommands() int                               { return 0 }
 func (s *liteCmdS) CommandsInGroup(groupTitle string) (list []cli.Cmd) { return nil }
 func (s *liteCmdS) FlagsInGroup(groupTitle string) (list []*cli.Flag)  { return nil }

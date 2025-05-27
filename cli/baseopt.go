@@ -315,6 +315,42 @@ func (c *BaseOpt) Deprecated() string { return c.deprecated }
 func (c *BaseOpt) Hidden() bool       { return c.hidden }
 func (c *BaseOpt) VendorHidden() bool { return c.vendorHidden }
 
+func (c *BaseOpt) HiddenBR() bool {
+	if c.hidden {
+		return true
+	}
+	if c.OwnerIsNotNil() {
+		p := c.OwnerCmd()
+	retry:
+		if p.Hidden() {
+			return true
+		}
+		if p.OwnerIsNotNil() {
+			p = p.OwnerCmd()
+			goto retry
+		}
+	}
+	return false
+}
+
+func (c *BaseOpt) VendorHiddenBR() bool {
+	if c.vendorHidden {
+		return true
+	}
+	if c.OwnerIsNotNil() {
+		p := c.OwnerCmd()
+	retry:
+		if p.VendorHidden() {
+			return true
+		}
+		if p.OwnerIsNotNil() {
+			p = p.OwnerCmd()
+			goto retry
+		}
+	}
+	return false
+}
+
 // SafeGroup return UnsortedGroup if group member not set yet.
 func (c *BaseOpt) SafeGroup() string {
 	if c.group == "" {

@@ -584,7 +584,7 @@ func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder,
 	verboseCount *int, cc cli.Cmd,
 	group string, idx, level, cols, tabbedW int, grouped bool,
 ) { //nolint:revive
-	if (cc.Hidden() && *verboseCount < 1) || (cc.VendorHidden() && *verboseCount < 3) { //nolint:revive
+	if (cc.HiddenBR() && *verboseCount < 1) || (cc.VendorHiddenBR() && *verboseCount < 3) { //nolint:revive
 		return
 	}
 
@@ -621,7 +621,7 @@ func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder,
 		ttl += " /[" + group + "]"
 	}
 
-	dim := (cc.Hidden() && *verboseCount > 0) || (cc.VendorHidden() && *verboseCount >= 3)
+	dim := (cc.HiddenBR() && *verboseCount > 0) || (cc.VendorHiddenBR() && *verboseCount >= 3)
 	deprecated := cc.Deprecated() != ""
 	// trans := func(ss string, clr color.Color) string {
 	// 	ss = s.Translate(strings.TrimSpace(ss), clr)
@@ -848,7 +848,7 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder,
 	verboseCount *int, ff *cli.Flag, group string,
 	idx, level, cols, tabbedW int, grouped bool,
 ) { //nolint:revive
-	if (ff.Hidden() && *verboseCount < 1) || (ff.VendorHidden() && *verboseCount < 3) { //nolint:revive
+	if (ff.HiddenBR() && *verboseCount < 1) || (ff.VendorHiddenBR() && *verboseCount < 3) { //nolint:revive
 		return
 	}
 
@@ -903,7 +903,7 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder,
 		w--
 	}
 
-	dim := (ff.Hidden() && *verboseCount > 0) || (ff.VendorHidden() && *verboseCount >= 3)
+	dim := (ff.HiddenBR() && *verboseCount > 0) || (ff.VendorHiddenBR() && *verboseCount >= 3)
 	deprecated := ff.Deprecated() != ""
 	// trans := func(ss string, clr color.Color) string {
 	// 	ss = s.Translate(strings.TrimSpace(ss), clr)

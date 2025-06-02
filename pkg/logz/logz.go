@@ -8,6 +8,7 @@ import (
 
 	stdlog "log/slog"
 
+	"github.com/hedzr/is"
 	logz "github.com/hedzr/logg/slog"
 )
 
@@ -151,6 +152,17 @@ func SetJSONMode(mode bool) {
 // these forms can locate the preferred stack frame(s) of the caller.
 func WrappedLogger() *stdlog.Logger { return Logger }
 
+func ifn(lvl logz.Level) {
+	sll := logz.NewSlogHandler(log, &logz.HandlerOptions{
+		NoColor:  false,
+		NoSource: false,
+		JSON:     false,
+		Level:    logz.InfoLevel,
+	})
+
+	Logger = stdlog.New(sll)
+}
+
 func init() {
 	onceLog.Do(func() {
 		log00 := logz.New("[cmdr]") // .SetLevel(logz.DebugLevel)
@@ -158,14 +170,25 @@ func init() {
 						WithSkip(1) // extra stack frame(s) shall be ignored for dbglog.Info/...
 		log00.Verbose("init logz")
 
-		sll := logz.NewSlogHandler(log, &logz.HandlerOptions{
-			NoColor:  false,
-			NoSource: false,
-			JSON:     false,
-			Level:    logz.InfoLevel,
+		ifn(logz.InfoLevel)
+		is.SetOnDebugChanged(func(mod bool, level int) {
+			if mod {
+				lvl := logz.DebugLevel
+				ifn(lvl)
+				log00.SetLevel(lvl)
+				log.SetLevel(lvl)
+				Debug("[cmdr.v2.logz][onDebugChanged] debug mode changed", "mode", mod, "level", level, "log-level", lvl)
+			}
 		})
-
-		Logger = stdlog.New(sll)
+		is.SetOnTraceChanged(func(mod bool, level int) {
+			if mod {
+				lvl := logz.TraceLevel
+				ifn(lvl)
+				log00.SetLevel(lvl)
+				log.SetLevel(lvl)
+				Trace("[cmdr.v2.logz][onTraceChanged] trace mode changed", "mode", mod, "level", level, "log-level", lvl)
+			}
+		})
 
 		// ctx := context.Background()
 		// InfoContext(ctx, "hello, world")

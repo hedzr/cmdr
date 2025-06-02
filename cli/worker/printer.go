@@ -165,7 +165,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedS
 			s.printFlag(ctx, &sb, painter, &verboseCount, ff, ff.GroupHelpTitle(), groupIndex, 1, cols, tabbedW, walkCtx.Group)
 		}, walkCtx)
 
-		painter.printTailLine(ctx, &sb, lastCmd, pc, cols, tabbedW)
+		painter.printTailLine(ctx, &sb, lastCmd, pc, rows, cols, tabbedW)
 
 		_, _ = wr.WriteString(sb.String())
 		_, _ = wr.WriteString("\n")
@@ -218,6 +218,15 @@ func (s *helpPrinter) safeGetTermSize() (cols, rows int) {
 	if cols == 0 || rows == 0 {
 		const virtualTtyWidthOrHeight = 4096
 		cols, rows = virtualTtyWidthOrHeight, virtualTtyWidthOrHeight
+	} else {
+		for _, en := range []string{"COLS", "COLUMNS", "TERM_COLS", "TERM_COLUMNS", "CMDR_COLS"} {
+			if C := os.Getenv(en); C != "" {
+				if cols64, err := strconv.ParseInt(C, 10, 64); err == nil && cols64 > 0 {
+					cols = int(cols64)
+					break
+				}
+			}
+		}
 	}
 	return
 }

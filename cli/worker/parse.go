@@ -119,7 +119,7 @@ loopArgs:
 			err = w.onSingleHyphenMatched(ctx, pc)
 			continue
 
-		default:
+		default: // for command
 			if pc.NoCandidateChildCommands() {
 				pc.positionalArgs = append(pc.positionalArgs, pc.arg)
 				logz.VerboseContext(ctx, "positional args added", "i", pc.i, "args", pc.positionalArgs)

@@ -292,7 +292,7 @@ func (s *helpPrinter) printUsage(ctx context.Context, sb *strings.Builder, cc cl
 	_ = ctx
 }
 
-func (s *helpPrinter) printDesc(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printDesc(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) {
 	desc := cc.DescLong()
 	if desc != "" {
 		_, _ = sb.WriteString("\nDescription:\n\n")
@@ -305,7 +305,17 @@ func (s *helpPrinter) printDesc(ctx context.Context, sb *strings.Builder, cc cli
 	_ = ctx
 }
 
-func (s *helpPrinter) printExamples(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) removeLastEmptyLines(lines []string) (lastLine int) {
+	for lastLine = len(lines) - 1; lastLine >= 0; lastLine-- {
+		if strings.TrimSpace(lines[lastLine]) == "" {
+			continue
+		}
+		break
+	}
+	return
+}
+
+func (s *helpPrinter) printExamples(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) {
 	examples := cc.Examples()
 	if examples != "" {
 		_, _ = sb.WriteString("\nExamples:\n\n")
@@ -320,7 +330,8 @@ func (s *helpPrinter) printExamples(ctx context.Context, sb *strings.Builder, cc
 			}
 		}
 
-		str = strings.Join(lines, "\n")
+		lastLine := s.removeLastEmptyLines(lines)
+		str = strings.Join(lines[0:lastLine+1], "\n")
 		line := s.translate(pc, str, color.FgLightGray)
 		line = exec.LeftPad(line, 2)
 

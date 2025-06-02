@@ -890,6 +890,42 @@ func (s *helpPrinter) printFlagRow(ctx context.Context, sb *strings.Builder,
 		logz.VerboseContext(ctx, "split flag is", "split", split)
 	}
 
+	if va := ff.ValidArgs(); len(va) > 0 {
+		cvt := evendeep.Cvt{}
+		str := cvt.String(va)
+		sl, w := len(str), cols-tabbedW
+		split = true
+		inc := 0
+		s.WriteBgColor(sb, color.BgDim)
+		s.WriteBgColor(sb, color.BgItalic)
+		for printed = 0; printed < sl; {
+			// _, _ = sb.WriteRune('\n')
+			printleftpad(sb, split, tabbedW)
+			// n, _ := sb.WriteString("Valid Args: ")
+			end := printed + w - inc
+			if end > sl {
+				end = sl
+			}
+			sub := str[printed:end]
+			// s.Dim(sb, func(out io.Writer) {
+			// s.Italic(sb, func(out io.Writer) {
+			// 	if inc == 1 {
+			// 		_, _ = out.Write([]byte{' '})
+			// 	}
+			// 	_, _ = out.Write([]byte(sub))
+			// })
+			// })
+
+			if inc == 1 {
+				_, _ = sb.Write([]byte{' '})
+			}
+			_, _ = sb.Write([]byte(sub))
+
+			printed += len(sub)
+			inc = 1
+		}
+	}
+
 	// s.ColoredFast(&sb, CurrentDefaultValueColor, def)
 	// s.ColoredFast(&sb, CurrentDeprecatedColor, dep)
 	// sb.WriteString(s.Translate(right, color.BgDefault))

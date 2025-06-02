@@ -140,7 +140,7 @@ func (s *manPainter) printNotes(ctx context.Context, sb *strings.Builder, cc cli
 	}
 }
 
-func (s *manPainter) printTailLine(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) {
+func (s *manPainter) printTailLine(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, rows, cols, tabbedW int) {
 	root := cc.Root()
 	s.bufPrintf(sb, `
 .SH SEE ALSO

@@ -275,7 +275,40 @@ func (s *helpPrinter) printHeader(ctx context.Context, sb *strings.Builder, cc c
 	_ = ctx
 }
 
-func (s *helpPrinter) printUsage(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printTailLine(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, rows, cols, tabbedW int) {
+	footer := strings.TrimSpace(cc.Root().Footer())
+	if footer != "" {
+		if strings.Contains(footer, "{{") && strings.Contains(footer, "}}") {
+			var sb strings.Builder
+			if tpl, err := template.New("footer").Parse(footer); err != nil {
+				logz.FatalContext(ctx, "failed to parse footer template", "err", err, "footer", footer)
+				return
+			} else if err = tpl.Execute(&sb, struct{ Cols, Rows, Tabstop int }{
+				Cols:    cols,
+				Rows:    rows,
+				Tabstop: tabbedW,
+			}); err != nil {
+				logz.FatalContext(ctx, "failed to execute footer template", "err", err, "footer", footer)
+				return
+			}
+			footer = sb.String()
+		}
+
+		_, _ = sb.WriteString("\n")
+		str := exec.StripLeftTabs(os.ExpandEnv(footer))
+		// line := fmt.Sprintf("<dim>%s</dim>", str)
+		_, _ = sb.WriteString(color.ToDim("%v", s.translate(pc, str, color.FgDefault)))
+		if !strings.HasSuffix(footer, "\n") {
+			_, _ = sb.WriteString("\n")
+		}
+		// if s.w.actionsMatched&actionShowTree != 0 {
+		// 	_, _ = sb.WriteString("~~tree\n")
+		// }
+	}
+	_, _, _ = pc, cols, tabbedW
+	_ = ctx
+}
+
 	// cc.App() could have a nil value while cc is a dynamic command.
 	// But cc.Root() is always available and point to the proper target.
 	appName := cc.Root().App().Name()

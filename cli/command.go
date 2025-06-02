@@ -165,7 +165,7 @@ func (c *CmdS) Shell() string            { return c.shell }
 var errDuplicated = errors.New("duplicated command")
 var errDuplicatedFlag = errors.New("duplicated flag")
 
-func (c *CmdS) AddSubCommand(child *CmdS, callbacks ...func(cc *CmdS)) (err error) { //nolint:revive
+func (c *CmdS) AddSubCommand(child *CmdS, callbacks ...func(cc *CmdS)) (err error) {
 	if child == nil {
 		return
 	}
@@ -203,7 +203,7 @@ func (c *CmdS) AddSubCommand(child *CmdS, callbacks ...func(cc *CmdS)) (err erro
 	return
 }
 
-func (c *CmdS) AddFlag(child *Flag, callbacks ...func(ff *Flag)) (err error) { //nolint:revive
+func (c *CmdS) AddFlag(child *Flag, callbacks ...func(ff *Flag)) (err error) {
 	if child == nil {
 		return
 	}
@@ -429,7 +429,7 @@ func (c *CmdS) Invoke(ctx context.Context, args []string) (err error) {
 	return
 }
 
-func (c *CmdS) RunPreActions(ctx context.Context, cmd Cmd, args []string) (deferAction func(errInvoked error), err error) { //nolint:revive
+func (c *CmdS) RunPreActions(ctx context.Context, cmd Cmd, args []string) (deferAction func(errInvoked error), err error) {
 	ec := errors.New("[PRE-INVOKE]")
 	defer ec.Defer(&err)
 	if c.root.Cmd != c {
@@ -455,7 +455,7 @@ func (c *CmdS) RunPreActions(ctx context.Context, cmd Cmd, args []string) (defer
 	return
 }
 
-func (c *CmdS) getDeferAction(ctx context.Context, cmd Cmd, args []string) func(errInvoked error) { //nolint:revive
+func (c *CmdS) getDeferAction(ctx context.Context, cmd Cmd, args []string) func(errInvoked error) {
 	return func(errInvoked error) {
 		ecp := errors.New("[POST-INVOKE]")
 
@@ -595,7 +595,7 @@ func (c *CmdS) EnsureXref(ctx context.Context, cb ...func(cc Cmd, index, level i
 	})
 }
 
-func (c *CmdS) ensureXrefCommands(context.Context) { //nolint:revive
+func (c *CmdS) ensureXrefCommands(ctx context.Context) {
 	if c.longCommands == nil {
 		c.longCommands = make(map[string]*CmdS)
 		for _, cc := range c.commands {
@@ -621,9 +621,38 @@ func (c *CmdS) ensureXrefCommands(context.Context) { //nolint:revive
 	// 		}
 	// 	}
 	// }
+
+	if c.redirectTo != "" && c.root != nil {
+		logz.VerboseContext(ctx, "build redirectTo info", "redirectTo", c.redirectTo, "lvl", logz.GetLevel(), "from", c)
+		if c.root.redirectCmds == nil {
+			c.root.redirectCmds = make(map[string]map[Cmd][]*CmdS)
+		}
+		if cc, _ := c.root.DottedPathToCommandOrFlag(c.redirectTo); cc != nil {
+			if cmd, ok := cc.(*CmdS); ok {
+				if _, ok := c.root.redirectCmds[c.redirectTo]; !ok {
+					c.root.redirectCmds[c.redirectTo] = make(map[Cmd][]*CmdS)
+				}
+				logz.VerboseContext(ctx, " redirectTo source -> target", "target", cmd, "source", c)
+				v := c.root.redirectCmds[c.redirectTo]
+				if _, ok := v[cmd]; !ok {
+					v[cmd] = []*CmdS{c}
+				} else {
+					m := false
+					for _, cx := range v[cmd] {
+						if m = cx.EqualTo(c); m {
+							break
+						}
+					}
+					if !m {
+						v[cmd] = append(v[cmd], c)
+					}
+				}
+			}
+		}
+	}
 }
 
-func (c *CmdS) ensureXrefFlags(ctx context.Context) { //nolint:revive
+func (c *CmdS) ensureXrefFlags(ctx context.Context) {
 	shortFlags := make(map[string]*Flag)
 	if c.longFlags == nil {
 		c.longFlags = make(map[string]*Flag)
@@ -812,7 +841,7 @@ func (c *CmdS) TransferIntoStore(conf store.Store, recursive bool) {
 	}
 }
 
-func (c *CmdS) ensureXrefGroup(ctx context.Context) { //nolint:revive
+func (c *CmdS) ensureXrefGroup(ctx context.Context) {
 	if c.allCommands == nil {
 		c.allCommands = make(map[string]*CmdSlice)
 		for _, cc := range c.commands {

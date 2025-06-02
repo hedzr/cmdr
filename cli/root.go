@@ -19,6 +19,10 @@ func (c *RootCommand) SetApp(app App) *RootCommand {
 	return c
 }
 
+func (c *RootCommand) RedirectToSet() map[string]map[Cmd][]*CmdS {
+	return c.redirectCmds
+}
+
 func (c *RootCommand) NewCmd(longTitle string) *CmdS {
 	cc := &CmdS{
 		BaseOpt: BaseOpt{
@@ -118,6 +122,6 @@ func (c *RootCommand) Footer() string {
 
 const (
 	defaultTailLine = `
-Type '-h'/'-?' or '--help' to get command help screen. 
+Type '-h'/'-?' or '--help' to get this help screen ({{.Cols}}x{{.Rows}}/{{.Tabstop}}).
 More: '-D'/'--debug', '-V'/'--version', '-#'/'--build-info', '--no-color'...`
 )

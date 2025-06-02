@@ -64,17 +64,20 @@ type FlagValuePkg struct {
 	Flags          []*Flag // matched flags, reserved.
 	ValueOK        bool
 	Value          any
+
+	visitedRedirctTo map[string]bool // for redirecting commands, to avoid infinite loop
 }
 
 // NewFVP gets a new FlagValuePkg done.
 // A FlagValuePkg is a internal structure for tracing the flag's matching and parsing.
 func NewFVP(args []string, remains string, short, plusSign, dblTilde bool) (vp *FlagValuePkg) {
 	vp = &FlagValuePkg{
-		Args:         args,
-		Short:        short,
-		PlusSign:     plusSign,
-		SpecialTilde: dblTilde,
-		Remains:      remains,
+		Args:             args,
+		Short:            short,
+		PlusSign:         plusSign,
+		SpecialTilde:     dblTilde,
+		Remains:          remains,
+		visitedRedirctTo: make(map[string]bool),
 	}
 	if plusSign {
 		vp.Short, vp.ValueOK, vp.Value = true, true, true
@@ -89,14 +92,17 @@ func (s *FlagValuePkg) Reset() {
 // MatchFlag try matching command title with vp.Remains, and update the relevant states.
 //
 // While a flag matched ok, returns vp.Matched != "" && ff != nil && err != nil
-func (c *CmdS) MatchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, err error) { //nolint:revive
+func (c *CmdS) MatchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, err error) {
 	c.ensureXrefFlags(ctx)
+	logz.DebugContext(ctx, "matching flags for title", "matching-title", vp.Remains, "testing-cmd", c)
+	ff, err = c.matchFlag(ctx, vp)
+	return
+}
 
+func (c *CmdS) matchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, err error) {
 	var ok bool
 	var matched, remains string
-	if vp.Short {
-		// short flag
-
+	if vp.Short { // short flag
 		var cclist map[string]*Flag
 		if c.onEvalFlagsOnce != nil || c.onEvalFlags != nil {
 			flags := mustEnsureDynFlags(ctx, c)
@@ -176,10 +182,29 @@ func (c *CmdS) MatchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, err e
 		}
 	}
 
-	// lookup the parents, if 'ff' not matched/found
-	if ff == nil && err == nil && c.owner != nil && c.owner != c {
-		ff, err = c.owner.MatchFlag(ctx, vp)
-		return
+	if ff == nil && err == nil {
+		// test for redirectable commands
+		if c.redirectTo != "" && c.root != nil && c.root.redirectCmds != nil {
+			if visited, ok := vp.visitedRedirctTo[c.redirectTo]; !ok || !visited {
+				if v, ok := c.root.redirectCmds[c.redirectTo]; ok && v != nil {
+					for tgt, fs := range v {
+						for _, cc := range fs {
+							if cc.EqualTo(c) {
+								logz.DebugContext(ctx, "try to match the flag in the redirect command", "redirected-cmd", tgt)
+								vp.visitedRedirctTo[c.redirectTo] = true
+								ff, err = tgt.MatchFlag(ctx, vp)
+								return
+							}
+						}
+					}
+				}
+			}
+		}
+		// lookup the parents, if 'ff' not matched/found
+		if c.owner != nil && c.owner != c {
+			ff, err = c.owner.MatchFlag(ctx, vp)
+			return
+		}
 	}
 
 	// when a flag matched ok
@@ -204,14 +229,14 @@ func (c *CmdS) testDblTilde(dblTilde bool, ff *Flag) (matched bool) {
 	return
 }
 
-func (c *CmdS) partialMatchFlag(ctx context.Context, title string, short, dblTildeMode bool, cclist map[string]*Flag) (matched, remains string, ff *Flag, err error) { //nolint:revive
+func (c *CmdS) partialMatchFlag(ctx context.Context, title string, short, dblTildeMode bool, cclist map[string]*Flag) (matched, remains string, ff *Flag, err error) {
 	var maxLen int
 	var rightPart string
 
 	titleOriginal := title
 	if pos := strings.IndexRune(title, '='); pos >= 0 {
 		rightPart = title[pos+1:]
-		title = title[:pos] //nolint:revive
+		title = title[:pos]
 	}
 
 	for k, v := range cclist {
@@ -295,7 +320,7 @@ func (c *CmdS) partialMatchFlag(ctx context.Context, title string, short, dblTil
 
 func (c *CmdS) tryParseValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) (ret *Flag, err error) {
 	if ff != nil {
-		ff = c.matchedForTG(ctx, ff) //nolint:revive
+		ff = c.matchedForTG(ctx, ff)
 	}
 	if ff, err = c.checkPrerequisites(ctx, vp, ff); err != nil {
 		return
@@ -308,13 +333,13 @@ func (c *CmdS) tryParseValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) (r
 		// try to parse value
 		switch ff.defaultValue.(type) {
 		case bool:
-			ff = c.tryParseBoolValue(ctx, vp, ff) //nolint:revive
+			ff = c.tryParseBoolValue(ctx, vp, ff)
 		case string:
-			ff = c.tryParseStringValue(ctx, vp, ff) //nolint:revive
+			ff = c.tryParseStringValue(ctx, vp, ff)
 		case nil:
-			ff = c.tryParseStringValue(ctx, vp, ff) //nolint:revive
+			ff = c.tryParseStringValue(ctx, vp, ff)
 		default:
-			ff = c.tryParseOthersValue(ctx, vp, ff) //nolint:revive
+			ff = c.tryParseOthersValue(ctx, vp, ff)
 		}
 	}
 
@@ -516,7 +541,7 @@ func (c *CmdS) tryParseOthersValue(ctx context.Context, vp *FlagValuePkg, ff *Fl
 	return ff
 }
 
-func (c *CmdS) fromString(text string, meme any) (value any) { //nolint:revive
+func (c *CmdS) fromString(text string, meme any) (value any) {
 	var err error
 	value, err = atoa.Parse(text, meme)
 	if err != nil {
@@ -543,7 +568,7 @@ func (c *CmdS) TryOnMatched(position int, hitState *MatchState) (handled bool, e
 }
 
 // MatchTitleNameFast matches a given title string without indices built.
-func (c *CmdS) MatchTitleNameFast(title string) (ok bool) { //nolint:revive
+func (c *CmdS) MatchTitleNameFast(title string) (ok bool) {
 	if title == "" {
 		return
 	}

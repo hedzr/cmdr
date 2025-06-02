@@ -91,10 +91,16 @@ type RootCommand struct {
 
 	Cmd `copy:",shallow"` // root command here
 
-	preActions  []OnPreInvokeHandler  // optional
-	postActions []OnPostInvokeHandler // optional
-	linked      int32                 // ensureTree called?
-	app         App                   `copy:",shallow"` // back reference to App
+	preActions   []OnPreInvokeHandler       // optional
+	postActions  []OnPostInvokeHandler      // optional
+	linked       int32                      // ensureTree called?
+	app          App                        `copy:",shallow"` // back reference to App
+	redirectCmds map[string]map[Cmd][]*CmdS `copy:",shallow"` // tocmdname -> tocmd -> []fromcmds
+}
+
+type redirectInfo struct {
+	From []*CmdS
+	To   *CmdS
 }
 
 type BaseOpt struct {
@@ -285,8 +291,9 @@ type Cmd interface {
 	IsDynamicCommandsLoading() bool // loading the subcmds dynamically?
 	IsDynamicFlagsLoading() bool    // loading the flags dynamically?
 
-	Match(ctx context.Context, title string) (short bool, cc Cmd)
-	TryOnMatched(position int, hitState *MatchState) (handled bool, err error)
+	Match(ctx context.Context, title string) (short bool, cc Cmd)              // match command by title
+	TryOnMatched(position int, hitState *MatchState) (handled bool, err error) // try to invoke OnCommandMatched handlers
+	// MatchFlag matches a flag by its title, and returns the matched Flag.
 	MatchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, err error)
 
 	FindSubCommand(ctx context.Context, longName string, wide bool) (res Cmd)
@@ -411,8 +418,9 @@ type CmdS struct {
 	allCommands map[string]*CmdSlice `copy:",shallow"`
 	allFlags    map[string]*FlgSlice `copy:",shallow"`
 
-	toggles      map[string]*ToggleGroupMatch `copy:",shallow"` // key: toggle-group
-	headLikeFlag *Flag                        `copy:",shallow"`
+	toggles         map[string]*ToggleGroupMatch `copy:",shallow"` // key: toggle-group
+	headLikeFlag    *Flag                        `copy:",shallow"`
+	redirectSources []*CmdS                      `copy:",shallow"`
 }
 
 type ToggleGroupMatch struct {

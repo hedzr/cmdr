@@ -6,7 +6,9 @@ import (
 	"io"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
+	"text/template"
 
 	"github.com/hedzr/evendeep"
 	"github.com/hedzr/is"
@@ -181,7 +183,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedS
 	s.printDebugMatches(ctx, &sb, wr, pc)
 }
 
-func (s *helpPrinter) PrintDebugScreenTo(ctx context.Context, wr HelpWriter, pc cli.ParsedState, lastCmd cli.Cmd) { //nolint:revive //
+func (s *helpPrinter) PrintDebugScreenTo(ctx context.Context, wr HelpWriter, pc cli.ParsedState, lastCmd cli.Cmd) {
 	if s.Translator == nil {
 		s.Translator = color.GetCPT()
 	}
@@ -237,7 +239,7 @@ type Painter interface {
 	printDesc(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int)
 	printExamples(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int)
 	printNotes(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int)
-	printTailLine(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int)
+	printTailLine(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, rows, cols, tabbedW int)
 
 	// printEnv(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc cli.ParsedState)
 	// printRaw(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc cli.ParsedState)
@@ -269,7 +271,7 @@ func (s *helpPrinter) translate(pc cli.ParsedState, pattern string, fg color.Col
 	return s.Translate(pc.Translate(os.ExpandEnv(pattern)), fg)
 }
 
-func (s *helpPrinter) printHeader(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printHeader(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) {
 	if cc.Root() == nil {
 		if cc.OwnerCmd() != cc {
 			logz.Fatal("unsatisfied link to root: cc.Root() is invalid", "cc", cc)
@@ -318,6 +320,7 @@ func (s *helpPrinter) printTailLine(ctx context.Context, sb *strings.Builder, cc
 	_ = ctx
 }
 
+func (s *helpPrinter) printUsage(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) {
 	// cc.App() could have a nil value while cc is a dynamic command.
 	// But cc.Root() is always available and point to the proper target.
 	appName := cc.Root().App().Name()
@@ -384,31 +387,45 @@ func (s *helpPrinter) printExamples(ctx context.Context, sb *strings.Builder, cc
 	s.printNotes(ctx, sb, cc, pc, cols, tabbedW)
 }
 
-func (s *helpPrinter) printNotes(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) { //nolint:revive,unparam
+func (s *helpPrinter) printNotes(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) {
 	if root := cc.Root(); root.Cmd == cc && root.RedirectTo() != "" {
 		_, _ = sb.WriteString("\nNotes:\n\n")
+
 		str := exec.StripLeftTabs(fmt.Sprintf(`<i>Root Command was been redirected to Subcommand</i>: "<b>%s</b>"`, root.RedirectTo()))
 		line := color.ToDim("%v", s.translate(pc, str, color.FgDefault))
 		line = exec.LeftPad(line, 2)
 		_, _ = sb.WriteString(line)
-	}
-	_, _, _ = pc, cols, tabbedW
-	_ = ctx
-}
 
-func (s *helpPrinter) printTailLine(ctx context.Context, sb *strings.Builder, cc cli.Cmd, pc cli.ParsedState, cols, tabbedW int) { //nolint:revive,unparam
-	footer := strings.TrimSpace(cc.Root().Footer())
-	if footer != "" {
-		_, _ = sb.WriteString("\n")
-		str := exec.StripLeftTabs(os.ExpandEnv(footer))
-		// line := fmt.Sprintf("<dim>%s</dim>", str)
-		_, _ = sb.WriteString(color.ToDim("%v", s.translate(pc, str, color.FgDefault)))
-		if !strings.HasSuffix(footer, "\n") {
+		if m := root.RedirectToSet(); m != nil {
 			_, _ = sb.WriteString("\n")
+			_, _ = sb.WriteString("  All Redirected Commands: \n\n")
+			for k, v := range m {
+				for to, froms := range v {
+					for _, from := range froms {
+						_, _ = sb.WriteString("    ")
+						_, _ = sb.WriteString(s.translate(pc, fmt.Sprintf("<dim>%s --(<b>%s</b>)-> %s</dim>\n", from, k, to), color.FgDefault))
+					}
+				}
+			}
+			// _, _ = sb.WriteString("\n")
 		}
-		// if s.w.actionsMatched&actionShowTree != 0 {
-		// 	_, _ = sb.WriteString("~~tree\n")
-		// }
+	} else if rt := cc.RedirectTo(); rt != "" {
+		_, _ = sb.WriteString("\nNotes:\n\n")
+		str := exec.StripLeftTabs(fmt.Sprintf(`<i>This Command was been redirected to</i>: "<b>%s</b>"`, rt))
+		line := color.ToDim("%v", s.translate(pc, str, color.FgDefault))
+		line = exec.LeftPad(line, 2)
+		_, _ = sb.WriteString(line)
+	} else if cc1, ok := cc.(*cli.CmdS); ok {
+		for k, v := range root.RedirectToSet() {
+			if froms, ok := v[cc1]; ok {
+				_, _ = sb.WriteString("\nNotes:\n\n")
+				_, _ = sb.WriteString("  These commands redirect to here:\n\n")
+				for _, from := range froms {
+					_, _ = sb.WriteString("    ")
+					_, _ = sb.WriteString(s.translate(pc, fmt.Sprintf("<dim>%s --(<b>%s</b>)-> Me</dim>\n", from, k), color.FgDefault))
+				}
+			}
+		}
 	}
 	_, _, _ = pc, cols, tabbedW
 	_ = ctx
@@ -485,7 +502,7 @@ func (s *helpPrinter) printMore(ctx context.Context, sb *strings.Builder, wr Hel
 	_ = ctx
 }
 
-func (s *helpPrinter) printDebugMatches(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc cli.ParsedState) { //nolint:revive
+func (s *helpPrinter) printDebugMatches(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc cli.ParsedState) {
 	if len(pc.MatchedCommands()) > 0 {
 		_, _ = sb.WriteString("\nMatched commands:\n")
 		for i, cc := range pc.MatchedCommands() {
@@ -820,7 +837,7 @@ func (s *helpPrinter) printFlagRow(ctx context.Context, sb *strings.Builder,
 			}
 		}
 		if sb.String()[sb.Len()-1] != ' ' {
-			_, _ = sb.WriteString(" ")
+			_, _ = sb.WriteRune(' ')
 		}
 		_, _ = sb.WriteString(env)
 	}
@@ -835,26 +852,9 @@ func (s *helpPrinter) printFlagRow(ctx context.Context, sb *strings.Builder,
 			}
 		}
 		if sb.String()[sb.Len()-1] != ' ' {
-			_, _ = sb.WriteString(" ")
+			_, _ = sb.WriteRune(' ')
 		}
 		_, _ = sb.WriteString(def)
-	}
-
-	if va := ff.ValidArgs(); len(va) > 0 {
-		cvt := evendeep.Cvt{}
-		str := cvt.String(va)
-		if split {
-			deflen := len(str)
-			printed += deflen
-			if printed >= rCols {
-				printleftpad(sb, split, tabbedW)
-				printed = deflen
-			}
-		}
-		if sb.String()[sb.Len()-1] != ' ' {
-			_, _ = sb.WriteString(" ")
-		}
-		_, _ = sb.WriteString(str)
 	}
 
 	if ff.Required() {
@@ -869,7 +869,7 @@ func (s *helpPrinter) printFlagRow(ctx context.Context, sb *strings.Builder,
 			}
 		}
 		if sb.String()[sb.Len()-1] != ' ' {
-			_, _ = sb.WriteString(" ")
+			_, _ = sb.WriteRune(' ')
 		}
 		_, _ = sb.WriteString(esc)
 	}
@@ -884,7 +884,7 @@ func (s *helpPrinter) printFlagRow(ctx context.Context, sb *strings.Builder,
 			}
 		}
 		if sb.String()[sb.Len()-1] != ' ' {
-			_, _ = sb.WriteString(" ")
+			_, _ = sb.WriteRune(' ')
 		}
 		_, _ = sb.WriteString(dep)
 		logz.VerboseContext(ctx, "split flag is", "split", split)

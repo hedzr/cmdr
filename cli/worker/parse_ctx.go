@@ -184,8 +184,7 @@ func (s *parseCtx) addFlag(ff *cli.Flag) (ms *cli.MatchState) {
 	}
 
 	// save the matched value into option store
-	cmdstore := ff.Store()
-	// path := ff.GetDottedPath()
+	cmdstore := ff.Store() // get the owner's store
 	title := ff.Name()
 	val := ff.DefaultValue()
 	_, _ = cmdstore.Set(title, val)

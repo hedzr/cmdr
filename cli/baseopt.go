@@ -147,7 +147,7 @@ func (c *BaseOpt) Set(prefix ...string) store.Store {
 		return c.root.app.Store()
 		// return App().Store() // .WithPrefix(cli.DefaultStoreKeyPrefix)
 	}
-	return c.root.app.Store(pre)
+	return c.root.app.Store(strings.TrimRight(pre, "."))
 } // Set returns the application Store [store.Store]
 
 // func (c *BaseOpt) AppName() string {

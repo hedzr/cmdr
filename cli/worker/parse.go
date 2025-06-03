@@ -84,7 +84,7 @@ loopArgs:
 		case '-', '~':
 			if len(pc.arg) > 1 { // so, pc.arg >= 2
 				if (c1 == '-' && pc.arg[1] == '-') || (c1 == '~' && pc.arg[1] == '~') {
-					if len(pc.arg) == 3 && pc.arg[2] == '-' { //nolint:revive
+					if len(pc.arg) == 2 && pc.arg[1] == '-' {
 						// --: pass-thru found
 						err = w.onPassThruCharMatched(ctx, pc)
 						continue

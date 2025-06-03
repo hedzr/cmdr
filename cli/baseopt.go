@@ -131,9 +131,9 @@ func (c *BaseOpt) SetRoot(root *RootCommand)       { c.root = root }
 // Store returns the commands subset of the application Store.
 func (c *BaseOpt) Store(prefix ...string) store.Store {
 	if len(prefix) == 0 {
-		return c.Set(CommandsStoreKey)
+		return c.Set(CommandsStoreKey, c.GetDottedPath())
 	}
-	return c.Set(append([]string{CommandsStoreKey}, prefix...)...)
+	return c.Set(append([]string{CommandsStoreKey, c.GetDottedPath()}, prefix...)...)
 	// cs := c.Set().WithPrefix(CommandsStoreKey, c.GetDottedPath())
 	// return cs
 }
@@ -147,7 +147,7 @@ func (c *BaseOpt) Set(prefix ...string) store.Store {
 		return c.root.app.Store()
 		// return App().Store() // .WithPrefix(cli.DefaultStoreKeyPrefix)
 	}
-	return c.root.app.Store().WithPrefix(pre)
+	return c.root.app.Store(pre)
 } // Set returns the application Store [store.Store]
 
 // func (c *BaseOpt) AppName() string {

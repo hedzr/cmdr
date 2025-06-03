@@ -128,7 +128,9 @@ func _fpz(needln bool, s string) {
 	var w io.Writer = os.Stdout
 	if wkr := UniqueWorker(); wkr != nil {
 		if r, ok := wkr.(interface{ GetHelpScreenWriter() HelpWriter }); ok {
-			w = r.GetHelpScreenWriter()
+			if hsw := r.GetHelpScreenWriter(); hsw != nil {
+				w = hsw
+			}
 		}
 		if w != nil {
 			_fpzz(needln, s, w)

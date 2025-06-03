@@ -8,6 +8,7 @@ import (
 
 	cmdr "github.com/hedzr/cmdr/v2"
 	"github.com/hedzr/cmdr/v2/cli"
+	"github.com/hedzr/cmdr/v2/examples/cmd"
 )
 
 func TestDottedPathToCommandOrFlag(t *testing.T) {
@@ -62,6 +63,19 @@ func TestStoreGetSectionFrom(t *testing.T) {
 		}
 		return
 	}).
+		Build()
+	err := app.Run(ctx)
+	if err != nil {
+		t.Errorf("Error: %v", err)
+	}
+}
+
+func TestJumpTo(t *testing.T) {
+	ctx := context.Background()
+	app := cmdr.Create("test-app", "v1", `author`, `desc`,
+		cli.WithArgs("test-app", "jump", "to", "--debug"),
+	).
+		WithAdders(cmd.Commands[0]).
 		Build()
 	err := app.Run(ctx)
 	if err != nil {

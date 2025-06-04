@@ -14,6 +14,10 @@ import (
 	"github.com/hedzr/is/exec"
 )
 
+func (w *workerS) SetTasksAfterRun(tasks ...taskAfterRun) {
+	w.tasksAfterRun = append(w.tasksAfterRun, tasks...)
+}
+
 func (w *workerS) exec(ctx context.Context, pc *parseCtx) (err error) {
 	if w.DontExecuteAction {
 		return
@@ -30,6 +34,14 @@ func (w *workerS) exec(ctx context.Context, pc *parseCtx) (err error) {
 			ec := errorsv3.New()
 			ec.Attach(err, err1)
 			ec.Defer(&err)
+		}
+
+		if sb, ok := ctx.Value(cli.CtxKeyHelpScreenWriter).(*strings.Builder); ok {
+			for _, task := range w.tasksAfterRun {
+				if task != nil {
+					err = task(c, w, pc, err, sb)
+				}
+			}
 		}
 	}()
 	return w.execCmd(ctx, pc, lastCmd, forceDefaultAction)

@@ -81,9 +81,10 @@ func TestWorkerS_Pre_v3(t *testing.T) {
 }
 
 type cmdrRunTest struct {
-	args     string
-	verifier taskAfterParse
-	opts     []cli.Opt
+	args          string
+	verifier      taskAfterParse
+	finalVerifier taskAfterRun
+	opts          []cli.Opt
 }
 
 type cmdrRunTests struct {
@@ -91,24 +92,27 @@ type cmdrRunTests struct {
 	items []cmdrRunTest
 }
 
-func TestWorkerS_Parse(t *testing.T) { //nolint:revive
-	ctx := context.Background()
-	for i, c := range testWorkerParseCases.items {
+func testWorkerS_Parse(ctx context.Context, t *testing.T, cases cmdrRunTests, opts ...cli.Opt) {
+	for i, c := range cases.items {
 		if c.args == "" && c.verifier == nil {
 			continue
 		}
 
-		t.Log()
-		t.Log()
-		t.Log()
+		t.Log("\n\n\n")
 		t.Logf("--------------- test #%d: Parsing %q\n", i, c.args)
 
-		app, ww := cleanApp(t, ctx, false, c.opts...)
+		var sb strings.Builder
+		ctx = context.WithValue(ctx, cli.CtxKeyHelpScreenWriter, &sb)
+
+		app, ww := cleanApp(t, ctx, false, append(append([]cli.Opt{
+			withHelpScreenWriter(&sb),
+		}, c.opts...), opts...)...)
 		ww.Config.Store = store.New()
 		// ww.Config.Loaders = []cli.Loader{loaders.NewConfigFileLoader(), loaders.NewEnvVarLoader()}
 
 		ww.setArgs(append([]string{app.Name()}, strings.Split(c.args, " ")...))
 		ww.tasksAfterParse = []taskAfterParse{c.verifier}
+		ww.tasksAfterRun = []taskAfterRun{c.finalVerifier}
 		ww.Config.TasksBeforeRun = []cli.Task{aTaskBeforeRun}
 		err := ww.Run(ctx) // withTasksBeforeRun(taskBeforeRun),withTasksAfterParse(c.verifier))
 		// err := app.Run()

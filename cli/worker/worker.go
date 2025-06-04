@@ -65,6 +65,7 @@ func SetUniqueWorker(s cli.Runner) {
 //
 // You can also inspect errParsed and return nil to ignore/disable a parsing error.
 type taskAfterParse func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error)
+type taskAfterRun func(ctx context.Context, w *workerS, pc *parseCtx, errRan error, sb *strings.Builder) (err error)
 
 // HelpWriter needs to be compatible with [io.Writer] and [io.StringWriter].
 type HelpWriter interface {
@@ -79,6 +80,8 @@ type workerS struct {
 	wrHelpScreen    HelpWriter
 	wrDebugScreen   HelpWriter
 	// onInterpretLeadingPlusSign cli.OnInterpretLeadingPlusSign
+
+	tasksAfterRun []taskAfterRun
 
 	// app app.App
 

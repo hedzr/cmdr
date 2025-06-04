@@ -27,7 +27,7 @@ func cleanApp(t *testing.T, ctx context.Context, helpScreen bool, opts ...cli.Op
 		ww.wrDebugScreen = os.Stdout
 	}
 	ww.ForceDefaultAction = true
-	ww.tasksAfterParse = []taskAfterParse{func(w *workerS, ctx *parseCtx, errParsed error) (err error) { return }} //nolint:revive
+	ww.tasksAfterParse = []taskAfterParse{func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) { return }} //nolint:revive
 
 	// ww.setArgs([]string{"--debug"})
 	// err := ww.Run(withTasksBeforeParse(func(root *cli.RootCommand, runner cli.Runner) (err error) {

@@ -14,14 +14,14 @@ func (w *workerS) SetTasksAfterParse(tasks ...taskAfterParse) {
 	w.tasksAfterParse = append(w.tasksAfterParse, tasks...)
 }
 
-func (w *workerS) parse(ctx context.Context, pc *parseCtx) (err error) { //nolint:revive
+func (w *workerS) parse(ctx context.Context, pc *parseCtx) (err error) {
 	ec := errorsv3.New("tasks failed")
 
 	defer func() {
 		if len(w.tasksAfterParse) > 0 {
 			for _, task := range w.tasksAfterParse {
 				if task != nil {
-					ec.Attach(task(w, pc, err))
+					ec.Attach(task(ctx, w, pc, err))
 				}
 			}
 		}

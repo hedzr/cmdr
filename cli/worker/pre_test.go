@@ -39,7 +39,7 @@ func TestWorkerS_Pre(t *testing.T) {
 	_ = app
 
 	err := ww.Run(ctx,
-		withTasksBeforeParse(func(ctx context.Context, cmd cli.Cmd, runner cli.Runner, extras ...any) (err error) { //nolint:revive
+		withTasksBeforeParse(func(ctx context.Context, cmd cli.Cmd, runner cli.Runner, extras ...any) (err error) {
 			runner.Root().SelfAssert()
 			t.Logf("root.SelfAssert() passed.")
 			return
@@ -123,8 +123,106 @@ func testWorkerS_Parse(ctx context.Context, t *testing.T, cases cmdrRunTests, op
 	}
 }
 
+func TestWorkerS_Parse(t *testing.T) {
+	ctx := context.Background()
+	testWorkerS_Parse(ctx, t, testWorkerParseCases)
+}
+
+func TestWorkerS_forBuiltins(t *testing.T) {
+	ctx := context.Background()
+	testWorkerS_Parse(ctx, t, builtinsCases)
+}
+
 var (
-	aTaskBeforeRun = func(ctx context.Context, cmd cli.Cmd, runner cli.Runner, extras ...any) (err error) { return } //nolint:revive
+	aTaskBeforeRun = func(ctx context.Context, cmd cli.Cmd, runner cli.Runner, extras ...any) (err error) { return }
+
+	builtinsCases = cmdrRunTests{[]cmdrRunTest{
+		{},
+
+		// --version
+		{args: "--version", opts: []cli.Opt{},
+			verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
+				// if errorsv3.Is(errParsed, cli.ErrUnmatchedFlag) {
+				// 	logz.Print("[INFO] ErrUnmatchedFlag FOUND, that's expecting.", "err", errParsed)
+				// 	return nil
+				// }
+				return errParsed
+			}, finalVerifier: func(ctx context.Context, w *workerS, pc *parseCtx, errRan error, sb *strings.Builder) (err error) {
+				// if sb, ok := ctx.Value(cli.CtxKeyHelpScreenWriter).(*strings.Builder); ok {
+				assertEqual(w.actionsMatched, cli.ActionShowVersion, "actionsMatched")
+				println("Version:\n", sb.String())
+				// todo: verify the extra fields are all present in the version output
+				return errRan
+			}},
+		{args: "version", opts: []cli.Opt{withHelpScreenWriter(&discardP{})},
+			verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
+				return errParsed
+			}, finalVerifier: func(ctx context.Context, w *workerS, pc *parseCtx, errRan error, sb *strings.Builder) (err error) {
+				assertEqual(w.actionsMatched, cli.ActionShowVersion, "actionsMatched")
+				println("Version:\n", sb.String())
+				// todo: ensure the version output is valid
+				return errRan
+			}},
+
+		// ~~tree
+		{args: "~~tree", opts: []cli.Opt{
+			withEnv(map[string]string{"FORCE_RUN": "1"}),
+			// withHelpScreenWriter(os.Stdout),
+			withHelpScreenWriter(&discardP{}),
+		}, verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
+			return errParsed
+		}, finalVerifier: func(ctx context.Context, w *workerS, pc *parseCtx, errRan error, sb *strings.Builder) (err error) {
+			assertEqual(w.actionsMatched, cli.ActionShowTree, "actionsMatched")
+			println("Version:\n", sb.String())
+			return errRan
+		}},
+
+		// ~~debug
+		{args: "~~debug", opts: []cli.Opt{
+			withHelpScreenWriter(&discardP{}),
+		}, verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
+			return errParsed
+		}, finalVerifier: func(ctx context.Context, w *workerS, pc *parseCtx, errRan error, sb *strings.Builder) (err error) {
+			assertEqual(w.actionsMatched, cli.ActionShowDebug, "actionsMatched")
+			println("Version:\n", sb.String())
+			return errRan
+		}},
+
+		// --build-info
+		{args: "--build-info", opts: []cli.Opt{
+			withEnv(map[string]string{"FORCE_RUN": "1"}),
+			withHelpScreenWriter(&discardP{}),
+		}, verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
+			return errParsed
+		}, finalVerifier: func(ctx context.Context, w *workerS, pc *parseCtx, errRan error, sb *strings.Builder) (err error) {
+			assertEqual(w.actionsMatched, cli.ActionShowBuiltInfo, "actionsMatched")
+			println("Build Info:\n", sb.String())
+			// todo: verify the extra fields are all present in the build-info output
+			return errRan
+		}},
+		{args: "-#", opts: []cli.Opt{
+			withEnv(map[string]string{"FORCE_RUN": "1"}),
+			withHelpScreenWriter(&discardP{}),
+		}, finalVerifier: func(ctx context.Context, w *workerS, pc *parseCtx, errRan error, sb *strings.Builder) (err error) {
+			assertEqual(w.actionsMatched, cli.ActionShowBuiltInfo, "actionsMatched")
+			println("Build Info:\n", sb.String())
+			// todo: verify the extra fields are all present in the build-info output
+			return errRan
+		}},
+
+		// sbom
+		{args: "sbom", opts: []cli.Opt{withHelpScreenWriter(&discardP{})},
+			verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
+				return errParsed
+			}, finalVerifier: func(ctx context.Context, w *workerS, pc *parseCtx, errRan error, sb *strings.Builder) (err error) {
+				assertEqual(w.actionsMatched, cli.ActionShowSBOM, "actionsMatched")
+				println("Version:\n", sb.String())
+				return errRan
+			}},
+
+		{},
+		{},
+	}}
 
 	testWorkerParseCases = cmdrRunTests{[]cmdrRunTest{
 		{},
@@ -134,7 +232,7 @@ var (
 		{args: "~~tree", opts: []cli.Opt{
 			withEnv(map[string]string{"FORCE_RUN": "1"}),
 			withHelpScreenWriter(os.Stdout),
-		}, verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
+		}, verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 			if errorsv3.Is(errParsed, cli.ErrUnmatchedFlag) {
 				logz.Print("[INFO] ErrUnmatchedFlag FOUND, that's expecting.", "err", errParsed)
 				return nil
@@ -143,7 +241,7 @@ var (
 		}},
 
 		// ~~tree 1
-		{args: "ms t t --tree", verifier: func(w *workerS, ctx *parseCtx, errParsed error) (err error) { //nolint:revive
+		{args: "ms t t --tree", verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 			if errorsv3.Is(errParsed, cli.ErrUnmatchedFlag) {
 				logz.Print("[INFO] ErrUnmatchedFlag FOUND, that's expecting.", "err", errParsed)
 				return nil
@@ -152,11 +250,10 @@ var (
 		}},
 
 		// ~~tree 2
-		{args: "ms t t ~~tree -v", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
+		{args: "ms t t ~~tree -v", verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 			if errorsv3.Is(errParsed, cli.ErrUnmatchedFlag) {
 				logz.Fatal("ErrUnmatchedFlag FOUND, that's NOT expecting.")
 			}
-			ctx := context.TODO()
 			if !pc.matchedFlags[pc.flag(ctx, "tree")].DblTilde {
 				logz.Fatal("expecting DblTilde is true but fault.")
 			}
@@ -164,7 +261,7 @@ var (
 		}},
 
 		// hit times
-		{args: "m snd -n -wn cool fog --pp box", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
+		{args: "m snd -n -wn cool fog --pp box", verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 			if !regexp.MustCompile(`UNKNOWN (Cmd|Flag) FOUND:?`).MatchString(errParsed.Error()) {
 				logz.Print("expect 'UNKNOWN Flag FOUND' error, but not matched.") // "--pp"
 			}
@@ -175,14 +272,14 @@ var (
 		}},
 
 		// general commands and flags
-		{args: "jump to --full -f --dry-run", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
+		{args: "jump to --full -f --dry-run", verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 			hitTest(pc, "full", 2)
 			hitTest(pc, "dry-run", 1)
 			return errParsed
 		}},
 
 		// compact flags
-		{args: "-qvqDq gen --debug sh --zsh -b -Dwmann --dry-run", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
+		{args: "-qvqDq gen --debug sh --zsh -b -Dwmann --dry-run", verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 			hitTest(pc, "quiet", 3)
 			hitTest(pc, "debug", 3)
 			hitTest(pc, "verbose", 1)
@@ -193,13 +290,13 @@ var (
 
 		// general, unknown cmd/flg errors
 		{args: "m snd --help"},
-		{args: "m unk snd cool", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
+		{args: "m unk snd cool", verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 			if !regexp.MustCompile(`UNKNOWN (Cmd|Flag) FOUND:?`).MatchString(errParsed.Error()) {
 				logz.Print("expect 'UNKNOWN Cmd FOUND' error, but not matched.") // "unk"
 			}
 			return /* errParsed */
 		}, opts: []cli.Opt{cli.WithUnmatchedAsError(true)}},
-		{args: "m snd -n -wn cool fog --pp box", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
+		{args: "m snd -n -wn cool fog --pp box", verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 			if !regexp.MustCompile(`UNKNOWN (Cmd|Flag) FOUND:?`).MatchString(errParsed.Error()) {
 				logz.Print("expect 'UNKNOWN Flag FOUND' error, but not matched.") // "--pp"
 			}
@@ -210,17 +307,16 @@ var (
 		}},
 
 		// headLike
-		{args: "server start -f -129", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
+		{args: "server start -f -129", verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 			hitTest(pc, "foreground", 1)
 			hitTest(pc, "head", 1)
 			hitTest(pc, "tail", 0)
-			valTest(pc, "head", 129) //nolint:revive
+			valTest(pc, "head", 129)
 			return errParsed
 		}},
 
 		// toggle group
-		{args: "generate shell --bash --zsh -p", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
-			ctx := context.Background()
+		{args: "generate shell --bash --zsh -p", verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 			if f := pc.flag(ctx, "shell"); f != nil {
 				assertEqual(f.MatchedTG().MatchedTitle, "powershell")
 			}
@@ -228,13 +324,13 @@ var (
 		}},
 
 		// valid args
-		{args: "server start -e apple -e zig", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
+		{args: "server start -e apple -e zig", verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 			valTest(pc, "enum", "zig")
 			return errParsed
 		}},
 
 		// parsing slice (-cr foo,bar,noz), compact flag with value (-mmt3)
-		{args: "ms t modify -2 -cr foo,bar,noz -nfool -mmi3", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
+		{args: "ms t modify -2 -cr foo,bar,noz -nfool -mmi3", verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 			hitTest(pc, "money", 1)
 			valTest(pc, "both", true)
 			valTest(pc, "clear", true)
@@ -246,7 +342,7 @@ var (
 
 		// parsing slice (-cr foo,bar,noz), compact flag with value (-mmt3)
 		// merge/append to slice
-		{args: "ms t modify -2 -cr foo,bar,noz -n fool -mmr 1", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
+		{args: "ms t modify -2 -cr foo,bar,noz -n fool -mmr 1", verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 			hitTest(pc, "money", 1)
 			valTest(pc, "both", true)
 			valTest(pc, "clear", true)
@@ -255,7 +351,7 @@ var (
 			return errParsed
 		}},
 
-		{args: "ms t t -K -2 -cun foo,bar,noz", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
+		{args: "ms t t -K -2 -cun foo,bar,noz", verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 			hitTest(pc, "insecure", 1)
 			valTest(pc, "insecure", true)
 			valTest(pc, "both", true)
@@ -265,30 +361,30 @@ var (
 		}},
 
 		// parse duration
-		{args: "m -dur 9s", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
+		{args: "m -dur 9s", verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 			hitTest(pc, "dry-run", 0)
 			hitTest(pc, "wet-run", 0)
 			// argsAre(pc, "cool", "fog")
 
-			valTest(pc, "duration", 9*time.Second) //nolint:revive
-			return nil                             /* errParsed */
+			valTest(pc, "duration", 9*time.Second)
+			return nil /* errParsed */
 		}},
 
 		// parse integer, float, complex
-		{args: "m -i -9 -i64 3 -u 8 -u64 13 -f 3.14 -f64 2.718 -c64 1.23+4.567i -c128 2.313+9.87i", verifier: func(w *workerS, pc *parseCtx, errParsed error) (err error) { //nolint:revive
+		{args: "m -i -9 -i64 3 -u 8 -u64 13 -f 3.14 -f64 2.718 -c64 1.23+4.567i -c128 2.313+9.87i", verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 			hitTest(pc, "dry-run", 0)
 			hitTest(pc, "wet-run", 0)
 			// argsAre(pc, "cool", "fog")
 
-			valTest(pc, "int", -9)                           //nolint:revive
-			valTest(pc, "int64", int64(3))                   //nolint:revive
-			valTest(pc, "uint", uint(8))                     //nolint:revive
-			valTest(pc, "uint64", uint64(13))                //nolint:revive
-			valTest(pc, "float32", float32(3.14))            //nolint:revive
-			valTest(pc, "float64", 2.718)                    //nolint:revive
-			valTest(pc, "complex64", complex64(1.23+4.567i)) //nolint:revive
-			valTest(pc, "complex128", 2.313+9.87i)           //nolint:revive
-			return nil                                       /* errParsed */
+			valTest(pc, "int", -9)
+			valTest(pc, "int64", int64(3))
+			valTest(pc, "uint", uint(8))
+			valTest(pc, "uint64", uint64(13))
+			valTest(pc, "float32", float32(3.14))
+			valTest(pc, "float64", 2.718)
+			valTest(pc, "complex64", complex64(1.23+4.567i))
+			valTest(pc, "complex128", 2.313+9.87i)
+			return nil /* errParsed */
 		}},
 
 		{},

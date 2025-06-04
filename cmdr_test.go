@@ -35,10 +35,12 @@ func TestDottedPathToCommandOrFlag(t *testing.T) {
 
 func TestStoreGetSectionFrom(t *testing.T) {
 	ctx := context.Background()
-	app := cmdr.Create("app", "v1", `author`, `desc`,
+	app := cmdr.Create("test-app", "v1", `author`, `desc`,
 		cli.WithArgs("test-app", "--debug"),
 	).OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
-		b := cmdr.Store().MustBool("debug")
+		cs := cmdr.Store()
+		b := cs.MustBool("debug")
+		println("Dump: \n", cs.Dump())
 		println("debug flag: ", b)
 		if !b {
 			t.Fail()
@@ -53,8 +55,8 @@ func TestStoreGetSectionFrom(t *testing.T) {
 			Manual manS
 		}
 		var v genS
-		set := cmdr.Set()
-		err = set.GetSectionFrom("cmd.generate", &v)
+		set := cmdr.Set(cli.CommandsStoreKey)
+		err = set.GetSectionFrom("generate", &v)
 		if err != nil {
 			t.Fail()
 		}

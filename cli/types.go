@@ -31,6 +31,8 @@ const (
 
 	// ExternalToolPasswordInput enables secure password input without echo.
 	ExternalToolPasswordInput = "PASSWD"
+
+	CtxKeyHelpScreenWriter = "cmdr.helpScreenWriter" // context key for help screen writer, for internal testing purpose only
 )
 
 // Task is used for WithTasksBeforeRun, WithTasksBeforeParse, and Config.TasksAfterRun ...

@@ -118,7 +118,7 @@ func TestClone(t *testing.T) {
 		min:            -1,
 		max:            99,
 		headLike:       true,
-		requited:       true,
+		required:       true,
 		onParseValue: func(f *Flag, position int, hitCaption string, hitValue string, moreArgs []string) (newVal any, remainPartInHitValue string, err error) {
 			return
 		},

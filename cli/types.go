@@ -446,7 +446,7 @@ type Flag struct {
 	validArgs      []string // enum values
 	min, max       int
 	headLike       bool
-	requited       bool
+	required       bool
 
 	onParseValue OnParseValueHandler // allows user-defined value parsing, converting and validating
 	onMatched    OnMatchedHandler    // cancellable, after parsed from cmdline, new value got, and before old value got

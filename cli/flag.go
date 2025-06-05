@@ -99,7 +99,7 @@ func (f *Flag) ExternalEditor() string     { return f.externalEditor }
 func (f *Flag) ValidArgs() []string        { return f.validArgs }
 func (f *Flag) Range() (min, max int)      { return f.min, f.max }
 func (f *Flag) HeadLike() bool             { return f.headLike }
-func (f *Flag) Required() bool             { return f.requited }
+func (f *Flag) Required() bool             { return f.required }
 func (f *Flag) JustOnce() bool             { return f.justOnce }
 func (f *Flag) ActionStr() string          { return f.actionStr }
 func (f *Flag) MutualExclusives() []string { return f.mutualExclusives }
@@ -123,7 +123,7 @@ func (f *Flag) SetValidArgs(validArgs ...string)        { f.validArgs = validArg
 func (f *Flag) AppendValidArgs(validArgs ...string)     { f.validArgs = append(f.validArgs, validArgs...) }
 func (f *Flag) SetRange(min, max int)                   { f.min, f.max = min, max }
 func (f *Flag) SetHeadLike(headLike bool)               { f.headLike = headLike }
-func (f *Flag) SetRequired(required bool)               { f.requited = required }
+func (f *Flag) SetRequired(required bool)               { f.required = required }
 func (f *Flag) SetJustOnce(justOnce bool)               { f.justOnce = justOnce }
 func (f *Flag) SetActionStr(action string)              { f.actionStr = action }
 func (f *Flag) SetMutualExclusives(ex ...string)        { f.mutualExclusives = ex }
@@ -514,7 +514,7 @@ func (f *Flag) Clone() any {
 		min:              f.min,
 		max:              f.max,
 		headLike:         f.headLike,
-		requited:         f.requited,
+		required:         f.required,
 		onParseValue:     f.onParseValue,
 		onMatched:        f.onMatched,
 		onChanging:       f.onChanging,

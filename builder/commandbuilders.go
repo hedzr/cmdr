@@ -281,6 +281,15 @@ func (s *ccb) PresetCmdLines(args ...string) cli.CommandBuilder {
 	return s
 }
 
+func (s *ccb) IgnoreUnmatched(ignore ...bool) cli.CommandBuilder {
+	i := true
+	for _, v := range ignore {
+		i = v
+	}
+	s.SetIgnoreUnmatched(i)
+	return s
+}
+
 func (s *ccb) InvokeProc(executablePath string) cli.CommandBuilder {
 	s.SetInvokeProc(executablePath)
 	return s

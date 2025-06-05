@@ -119,6 +119,15 @@ type CommandBuilder interface {
 	// type the command-line bypass its.
 	PresetCmdLines(args ...string) CommandBuilder
 
+	// IgnoreUnmatched specifies whether this command should ignore
+	// unmatched flags or not.
+	// If set to true, unmatched flags will be treated as positional
+	// arguments, and will be added to the command's positionalArgs.
+	//
+	// If set to false, unmatched flags will be treated as errors,
+	// and will cause the command to return an error.
+	IgnoreUnmatched(ignore ...bool) CommandBuilder
+
 	// InvokeProc specifies an executable path which will be launched
 	// on this command hit and being invoked
 	InvokeProc(executablePath string) CommandBuilder

@@ -267,10 +267,12 @@ type Cmd interface {
 	SetRedirectTo(dottedPath string)
 
 	PresetCmdLines() []string // preset command line arguments
+	IgnoreUnmatched() bool    // ignore unmatched command-line arguments
 	InvokeProc() string       // invokeProc field
 	InvokeShell() string      // invokeShell field
 	Shell() string            // used shell (for invokeShell field)
 	SetPresetCmdLines(args ...string)
+	SetIgnoreUnmatched(ignore bool)
 	SetInvokeProc(str string)
 	SetInvokeShell(str string)
 	SetShell(str string)
@@ -361,8 +363,7 @@ type CmdS struct {
 	onMatched []OnCommandMatchedHandler
 
 	onEvalSubcommandsFrom string
-
-	onEvalSubcommands *struct {
+	onEvalSubcommands     *struct {
 		cb OnEvaluateSubCommands
 		// invoked bool
 	}
@@ -396,6 +397,7 @@ type CmdS struct {
 	//
 
 	presetCmdLines []string
+	ignoreUmatched bool // ignore unmatched command-line arguments
 
 	// invokeProc is just for cmdr aliases commands
 	// invoke the external commands (via: executable)

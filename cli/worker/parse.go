@@ -71,10 +71,13 @@ loopArgs:
 				if err = plusFound(func(w *workerS, pc *parseCtx) error {
 					return w.matchFlag(ctx, pc, true)
 				}); !w.errIsSignalOrNil(err) {
-					err = w.onUnknownFlagMatched(ctx, pc)
-					break loopArgs
+					if !pc.LastCmd().IgnoreUnmatched() {
+						err = w.onUnknownFlagMatched(ctx, pc)
+						break loopArgs
+					}
+				} else {
+					continue
 				}
-				continue
 			}
 			// single '+': as a positional arg
 			pc.positionalArgs = append(pc.positionalArgs, pc.arg)
@@ -93,26 +96,42 @@ loopArgs:
 					// try match a long flag
 					pc.arg, pc.short, pc.dblTilde = pc.arg[2:], false, c1 == '~'
 					if err = w.matchFlag(ctx, pc, false); !w.errIsSignalOrNil(err) {
-						err = w.onUnknownFlagMatched(ctx, pc)
-						break loopArgs
+						if !pc.LastCmd().IgnoreUnmatched() {
+							err = w.onUnknownFlagMatched(ctx, pc)
+							break loopArgs
+						}
+						pc.positionalArgs = append(pc.positionalArgs, pc.arg)
+						logz.VerboseContext(ctx, "positional args added", "i", pc.i, "args", pc.positionalArgs)
 					}
 					continue
 				}
 				if (c1 == '-' && pc.arg[1] == '~') || (c1 == '~' && pc.arg[1] == '-') {
-					err = w.onUnknownFlagMatched(ctx, pc)
-					break loopArgs
+					if !pc.LastCmd().IgnoreUnmatched() {
+						err = w.onUnknownFlagMatched(ctx, pc)
+						break loopArgs
+					}
+					pc.positionalArgs = append(pc.positionalArgs, pc.arg)
+					logz.VerboseContext(ctx, "positional args added", "i", pc.i, "args", pc.positionalArgs)
+					continue
 				}
 
 				// try matching a short flag
 				pc.arg, pc.short, pc.dblTilde = pc.arg[1:], true, false
 				if c1 != '-' {
-					err = w.onUnknownFlagMatched(ctx, pc)
-					break loopArgs
+					if !pc.LastCmd().IgnoreUnmatched() {
+						err = w.onUnknownFlagMatched(ctx, pc)
+						break loopArgs
+					}
+				} else if err = w.matchFlag(ctx, pc, true); !w.errIsSignalOrNil(err) {
+					if !pc.LastCmd().IgnoreUnmatched() {
+						err = w.onUnknownFlagMatched(ctx, pc)
+						break loopArgs
+					}
+				} else {
+					continue
 				}
-				if err = w.matchFlag(ctx, pc, true); !w.errIsSignalOrNil(err) {
-					err = w.onUnknownFlagMatched(ctx, pc)
-					break loopArgs
-				}
+				pc.positionalArgs = append(pc.positionalArgs, pc.arg)
+				logz.VerboseContext(ctx, "positional args added", "i", pc.i, "args", pc.positionalArgs)
 				continue
 			}
 			// single '-' matched, is it a wrong state?

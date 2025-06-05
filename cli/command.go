@@ -27,32 +27,46 @@ import (
 
 func (c *CmdS) Clone() any {
 	return &CmdS{
-		BaseOpt:               *(c.BaseOpt.Clone().(*BaseOpt)),
-		tailPlaceHolders:      c.tailPlaceHolders,
-		commands:              slices.Clone(c.commands),
-		flags:                 slices.Clone(c.flags),
-		preActions:            slices.Clone(c.preActions),
-		onInvoke:              c.onInvoke,
-		postActions:           slices.Clone(c.postActions),
-		onMatched:             slices.Clone(c.onMatched),
+		BaseOpt: *(c.BaseOpt.Clone().(*BaseOpt)),
+
+		tailPlaceHolders: c.tailPlaceHolders,
+
+		commands: slices.Clone(c.commands),
+		flags:    slices.Clone(c.flags),
+
+		preActions:  slices.Clone(c.preActions),
+		onInvoke:    c.onInvoke,
+		postActions: slices.Clone(c.postActions),
+
+		onMatched: slices.Clone(c.onMatched),
+
 		onEvalSubcommandsFrom: c.onEvalSubcommandsFrom,
 		onEvalSubcommands:     c.onEvalSubcommands,
 		onEvalSubcommandsOnce: c.onEvalSubcommandsOnce,
 		onEvalFlags:           c.onEvalFlags,
 		onEvalFlagsOnce:       c.onEvalFlagsOnce,
-		redirectTo:            c.redirectTo,
-		presetCmdLines:        slices.Clone(c.presetCmdLines),
-		invokeProc:            c.invokeProc,
-		invokeShell:           c.invokeShell,
-		shell:                 c.shell,
-		longCommands:          maps.Clone(c.longCommands),
-		shortCommands:         maps.Clone(c.shortCommands),
-		longFlags:             maps.Clone(c.longFlags),
-		shortFlags:            maps.Clone(c.shortFlags),
-		allCommands:           maps.Clone(c.allCommands),
-		allFlags:              maps.Clone(c.allFlags),
-		toggles:               maps.Clone(c.toggles),
-		headLikeFlag:          c.headLikeFlag,
+
+		redirectTo: c.redirectTo,
+
+		presetCmdLines: slices.Clone(c.presetCmdLines),
+		ignoreUmatched: c.ignoreUmatched,
+
+		invokeProc:  c.invokeProc,
+		invokeShell: c.invokeShell,
+		shell:       c.shell,
+
+		longCommands:  maps.Clone(c.longCommands),
+		shortCommands: maps.Clone(c.shortCommands),
+
+		longFlags:  maps.Clone(c.longFlags),
+		shortFlags: maps.Clone(c.shortFlags),
+
+		allCommands: maps.Clone(c.allCommands),
+		allFlags:    maps.Clone(c.allFlags),
+
+		toggles:         maps.Clone(c.toggles),
+		headLikeFlag:    c.headLikeFlag,
+		redirectSources: slices.Clone(c.redirectSources),
 	}
 }
 
@@ -150,11 +164,13 @@ func (c *CmdS) AppendTailPlaceHolder(placeHolder ...string) {
 func (c *CmdS) SetTailPlaceHolder(placeHolders ...string) { c.tailPlaceHolders = placeHolders }
 func (c *CmdS) SetRedirectTo(dottedPath string)           { c.redirectTo = dottedPath }
 func (c *CmdS) SetPresetCmdLines(args ...string)          { c.presetCmdLines = args }
+func (c *CmdS) SetIgnoreUnmatched(ignore bool)            { c.ignoreUmatched = ignore }
 func (c *CmdS) SetInvokeProc(str string)                  { c.invokeProc = str }
 func (c *CmdS) SetInvokeShell(str string)                 { c.invokeShell = str }
 func (c *CmdS) SetShell(str string)                       { c.shell = str }
 
 func (c *CmdS) PresetCmdLines() []string { return c.presetCmdLines }
+func (c *CmdS) IgnoreUnmatched() bool    { return c.ignoreUmatched }
 func (c *CmdS) InvokeProc() string       { return c.invokeProc }
 func (c *CmdS) InvokeShell() string      { return c.invokeShell }
 func (c *CmdS) Shell() string            { return c.shell }

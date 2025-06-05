@@ -195,10 +195,12 @@ func (s *liteCmdS) RedirectTo() (dottedPath string) { return }
 func (s *liteCmdS) SetRedirectTo(dottedPath string) {}
 
 func (s *liteCmdS) PresetCmdLines() []string         { return nil }
+func (c *liteCmdS) IgnoreUnmatched() bool            { return false }
 func (s *liteCmdS) InvokeProc() string               { return "" }
 func (s *liteCmdS) InvokeShell() string              { return "" }
 func (s *liteCmdS) Shell() string                    { return "" }
 func (c *liteCmdS) SetPresetCmdLines(args ...string) {}
+func (c *liteCmdS) SetIgnoreUnmatched(ignore bool)   {}
 func (c *liteCmdS) SetInvokeProc(str string)         {}
 func (c *liteCmdS) SetInvokeShell(str string)        {}
 func (c *liteCmdS) SetShell(str string)              {}

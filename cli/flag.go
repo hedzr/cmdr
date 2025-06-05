@@ -504,22 +504,26 @@ func (f *Flag) EnvVarsHelpString(trans func(ss string, clr color.Color) string, 
 
 func (f *Flag) Clone() any {
 	return &Flag{
-		BaseOpt:          *(f.BaseOpt.Clone().(*BaseOpt)),
-		toggleGroup:      f.toggleGroup,
-		placeHolder:      f.placeHolder,
-		defaultValue:     f.defaultValue,
-		envVars:          slices.Clone(f.envVars),
-		externalEditor:   f.externalEditor,
-		validArgs:        slices.Clone(f.validArgs),
-		min:              f.min,
-		max:              f.max,
-		headLike:         f.headLike,
-		required:         f.required,
-		onParseValue:     f.onParseValue,
-		onMatched:        f.onMatched,
-		onChanging:       f.onChanging,
-		onChanged:        f.onChanged,
-		onSet:            f.onSet,
+		BaseOpt: *(f.BaseOpt.Clone().(*BaseOpt)),
+
+		toggleGroup:  f.toggleGroup,
+		placeHolder:  f.placeHolder,
+		defaultValue: f.defaultValue,
+		envVars:      slices.Clone(f.envVars),
+
+		externalEditor: f.externalEditor,
+		validArgs:      slices.Clone(f.validArgs),
+		min:            f.min,
+		max:            f.max,
+		headLike:       f.headLike,
+		required:       f.required,
+
+		onParseValue: f.onParseValue,
+		onMatched:    f.onMatched,
+		onChanging:   f.onChanging,
+		onChanged:    f.onChanged,
+		onSet:        f.onSet,
+
 		actionStr:        f.actionStr,
 		mutualExclusives: slices.Clone(f.mutualExclusives),
 		prerequisites:    slices.Clone(f.prerequisites),
@@ -527,6 +531,8 @@ func (f *Flag) Clone() any {
 		circuitBreak:     f.circuitBreak,
 		dblTildeOnly:     f.dblTildeOnly,
 		negatable:        f.negatable,
-		negItems:         f.negItems,
+		negItems:         slices.Clone(f.negItems),
+
+		leadingPlusSign: f.leadingPlusSign,
 	}
 }

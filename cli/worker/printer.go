@@ -56,7 +56,7 @@ func (s *helpPrinter) safeGetWriter() (wr HelpWriter) {
 	return
 }
 
-func (s *helpPrinter) Print(ctx context.Context, pc cli.ParsedState, lastCmd cli.Cmd, args ...any) { //nolint:revive //
+func (s *helpPrinter) Print(ctx context.Context, pc cli.ParsedState, lastCmd cli.Cmd, args ...any) { //
 	wr := s.safeGetWriter()
 	if len(args) > 0 {
 		if t, ok := args[0].(io.Writer); ok {
@@ -73,7 +73,7 @@ func (s *helpPrinter) Print(ctx context.Context, pc cli.ParsedState, lastCmd cli
 	s.PrintTo(ctx, wr, pc, lastCmd, args...)
 }
 
-func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedState, lastCmd cli.Cmd, args ...any) { //nolint:revive //
+func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedState, lastCmd cli.Cmd, args ...any) { //
 	if s.debugScreenMode {
 		s.PrintDebugScreenTo(ctx, wr, pc, lastCmd)
 		return
@@ -98,7 +98,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedS
 
 		grouped := true
 		s.printHeader(ctx, &sb, lastCmd, pc, cols, tabbedW)
-		lastCmd.WalkGrouped(ctx, func(cc, pp cli.Cmd, ff *cli.Flag, group string, idx, level int) { //nolint:revive
+		lastCmd.WalkGrouped(ctx, func(cc, pp cli.Cmd, ff *cli.Flag, group string, idx, level int) {
 			switch {
 			case ff == nil: // CmdS
 				s.printCommand(ctx, &sb, painter, &verboseCount, cc, group, idx, level, cols, tabbedW, grouped)
@@ -128,7 +128,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedS
 				isFirstItem := index == 0 && (min(cnt, count) > 0 || parentIsDynamicLoading)
 				if isFirstItem {
 					painter.printCommandHeading(ctx, &sb, cc, "Commands")
-				} else { //nolint:revive,staticcheck
+				} else {
 					// _, _ = sb.WriteString("\nCommands[")
 					// _, _ = sb.WriteString(strconv.Itoa(cnt))
 					// _, _ = sb.WriteString("/")
@@ -432,7 +432,7 @@ func (s *helpPrinter) printNotes(ctx context.Context, sb *strings.Builder, cc cl
 }
 
 func (s *helpPrinter) printEnv(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc cli.ParsedState) {
-	if found := pc.HasFlag("env", func(ff *cli.Flag, state *cli.MatchState) bool { //nolint:revive
+	if found := pc.HasFlag("env", func(ff *cli.Flag, state *cli.MatchState) bool {
 		return state.DblTilde && state.HitTimes > 0
 	}); !found {
 		return
@@ -477,7 +477,7 @@ func (s *helpPrinter) printEnv(ctx context.Context, sb *strings.Builder, wr Help
 }
 
 func (s *helpPrinter) printRaw(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc cli.ParsedState) {
-	if found := pc.HasFlag("raw", func(ff *cli.Flag, state *cli.MatchState) bool { //nolint:revive
+	if found := pc.HasFlag("raw", func(ff *cli.Flag, state *cli.MatchState) bool {
 		return state.DblTilde && state.HitTimes > 0
 	}); !found {
 		return
@@ -490,7 +490,7 @@ func (s *helpPrinter) printRaw(ctx context.Context, sb *strings.Builder, wr Help
 }
 
 func (s *helpPrinter) printMore(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc cli.ParsedState) {
-	if found := pc.HasFlag("more", func(ff *cli.Flag, state *cli.MatchState) bool { //nolint:revive
+	if found := pc.HasFlag("more", func(ff *cli.Flag, state *cli.MatchState) bool {
 		return state.DblTilde && state.HitTimes > 0
 	}); !found {
 		return
@@ -541,7 +541,7 @@ func (s *helpPrinter) printDebugMatches(ctx context.Context, sb *strings.Builder
 
 	if sb.Len() > 0 {
 		if s.w != nil && s.w.wrDebugScreen != nil {
-			wr = s.w.wrDebugScreen //nolint:revive
+			wr = s.w.wrDebugScreen
 		}
 		_, _ = wr.WriteString(sb.String())
 		// _, _ = wr.WriteString("\n")
@@ -565,7 +565,7 @@ func trans(ss string, translator color.Translator, clr color.Color, deprecated b
 }
 
 func (s *helpPrinter) printCommandHeading(ctx context.Context, sb *strings.Builder, cc cli.Cmd, title string) {
-	_, _ = sb.WriteString(fmt.Sprintf("\n%s:\n", title))
+	_, _ = sb.WriteString(fmt.Sprintf("\n%s:\n\n", title))
 }
 
 func (s *helpPrinter) printFlagHeading(ctx context.Context, sb *strings.Builder, cc cli.Cmd, ff *cli.Flag, title string) {
@@ -590,7 +590,7 @@ func (s *helpPrinter) printCommandRow(ctx context.Context, sb *strings.Builder,
 ) {
 	_, _ = sb.WriteString(indentSpaces)
 
-	if dim { //nolint:revive
+	if dim {
 		s.WriteBgColor(sb, color.BgDim)
 	}
 	if deprecated {
@@ -653,8 +653,8 @@ func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder,
 	painter Painter,
 	verboseCount *int, cc cli.Cmd,
 	group string, idx, level, cols, tabbedW int, grouped bool,
-) { //nolint:revive
-	if (cc.HiddenBR() && *verboseCount < 1) || (cc.VendorHiddenBR() && *verboseCount < 3) { //nolint:revive
+) {
+	if (cc.HiddenBR() && *verboseCount < 1) || (cc.VendorHiddenBR() && *verboseCount < 3) {
 		return
 	}
 
@@ -759,7 +759,7 @@ func (s *helpPrinter) printFlagRow(ctx context.Context, sb *strings.Builder,
 		sb.WriteRune(' ')
 	}
 
-	if dim { //nolint:revive
+	if dim {
 		s.WriteBgColor(sb, color.BgDim)
 	}
 
@@ -936,8 +936,8 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder,
 	painter Painter,
 	verboseCount *int, ff *cli.Flag, group string,
 	idx, level, cols, tabbedW int, grouped bool,
-) { //nolint:revive
-	if (ff.HiddenBR() && *verboseCount < 1) || (ff.VendorHiddenBR() && *verboseCount < 3) { //nolint:revive
+) {
+	if (ff.HiddenBR() && *verboseCount < 1) || (ff.VendorHiddenBR() && *verboseCount < 3) {
 		return
 	}
 

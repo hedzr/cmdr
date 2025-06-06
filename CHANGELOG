@@ -1,5 +1,22 @@
 # CHANGELOG
 
+- v2.1.20
+
+  - added `ignoreUnmatched` for a subcmd
+    so that all unmatched flags are treated as positional args instead of raising an error
+  - improved infra-tests
+    - added `CtxKeyHelpScreenWriter` for testing
+    - confirm `TestStoreGetSectionFrom` worked
+    - added `tasksAfterRun` for finalVerifier in testing
+    - improved `taskAfterParse`
+  - fix `baseopt.Set()` for top-level flags
+  - fix `cmd.Store(...)` & `cmd.Set(...)`
+  - fix `--version` & `-#`
+  - fix `--`
+  - fix `flag.required` (a typo)
+  - fix `flag.Clone()` for the recently-added fields
+  - fix command heading in help screen
+
 - v2.1.19
 
   - enhanced `RedirectTo` to work for subcmd

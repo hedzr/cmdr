@@ -267,7 +267,9 @@ func (c *BaseOpt) GetAutoEnvVarName(prefix string, upperCase ...bool) string {
 		// last = strings.ToUpper(last)
 	}
 	if prefix != "" {
-		return prefix + "_" + t // + "_" + last
+		if ret := prefix + "_" + t; ret != "APP_VERSION" && ret != "APP_NAME" {
+			return ret
+		}
 	}
 	return t // + "_" + last
 }

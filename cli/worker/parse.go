@@ -197,6 +197,11 @@ func (w *workerS) matchCommand(ctx context.Context, pc *parseCtx) (err error) {
 			a = append(append(a[:pc.i], pcl...), a[pc.i:]...)
 			*pc.argsPtr = a
 		}
+		if nm := cc.PassThruNow(); nm {
+			// pass-thru now
+			atomic.AddInt32(&pc.passThruMatched, 1)
+			logz.VerboseContext(ctx, "entering passThruMode since cmd requested", "i", pc.i, "cmd", cc)
+		}
 	}
 	return
 }

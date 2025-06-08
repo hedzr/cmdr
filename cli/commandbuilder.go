@@ -127,6 +127,7 @@ type CommandBuilder interface {
 	// If set to false, unmatched flags will be treated as errors,
 	// and will cause the command to return an error.
 	IgnoreUnmatched(ignore ...bool) CommandBuilder
+	PassThruNow(enterPassThruModeRightNow ...bool) CommandBuilder
 
 	// InvokeProc specifies an executable path which will be launched
 	// on this command hit and being invoked

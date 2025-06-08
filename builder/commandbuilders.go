@@ -290,6 +290,15 @@ func (s *ccb) IgnoreUnmatched(ignore ...bool) cli.CommandBuilder {
 	return s
 }
 
+func (s *ccb) PassThruNow(enterPassThruModeRightNow ...bool) cli.CommandBuilder {
+	p := true
+	for _, v := range enterPassThruModeRightNow {
+		p = v
+	}
+	s.SetPassThruNow(p)
+	return s
+}
+
 func (s *ccb) InvokeProc(executablePath string) cli.CommandBuilder {
 	s.SetInvokeProc(executablePath)
 	return s

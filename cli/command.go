@@ -50,6 +50,7 @@ func (c *CmdS) Clone() any {
 
 		presetCmdLines: slices.Clone(c.presetCmdLines),
 		ignoreUmatched: c.ignoreUmatched,
+		passThruNow:    c.passThruNow,
 
 		invokeProc:  c.invokeProc,
 		invokeShell: c.invokeShell,
@@ -165,12 +166,16 @@ func (c *CmdS) SetTailPlaceHolder(placeHolders ...string) { c.tailPlaceHolders =
 func (c *CmdS) SetRedirectTo(dottedPath string)           { c.redirectTo = dottedPath }
 func (c *CmdS) SetPresetCmdLines(args ...string)          { c.presetCmdLines = args }
 func (c *CmdS) SetIgnoreUnmatched(ignore bool)            { c.ignoreUmatched = ignore }
-func (c *CmdS) SetInvokeProc(str string)                  { c.invokeProc = str }
-func (c *CmdS) SetInvokeShell(str string)                 { c.invokeShell = str }
-func (c *CmdS) SetShell(str string)                       { c.shell = str }
+func (c *CmdS) SetPassThruNow(enterPassThruModeRightNow bool) {
+	c.passThruNow = enterPassThruModeRightNow
+}
+func (c *CmdS) SetInvokeProc(str string)  { c.invokeProc = str }
+func (c *CmdS) SetInvokeShell(str string) { c.invokeShell = str }
+func (c *CmdS) SetShell(str string)       { c.shell = str }
 
 func (c *CmdS) PresetCmdLines() []string { return c.presetCmdLines }
 func (c *CmdS) IgnoreUnmatched() bool    { return c.ignoreUmatched }
+func (c *CmdS) PassThruNow() bool        { return c.passThruNow }
 func (c *CmdS) InvokeProc() string       { return c.invokeProc }
 func (c *CmdS) InvokeShell() string      { return c.invokeShell }
 func (c *CmdS) Shell() string            { return c.shell }

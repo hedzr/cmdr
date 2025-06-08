@@ -104,7 +104,7 @@ loopArgs:
 							err = w.onUnknownFlagMatched(ctx, pc)
 							break loopArgs
 						}
-						pc.positionalArgs = append(pc.positionalArgs, pc.arg)
+						pc.positionalArgs = append(pc.positionalArgs, (*pc.argsPtr)[pc.i])
 						logz.VerboseContext(ctx, "positional args added", "i", pc.i, "args", pc.positionalArgs)
 					}
 					continue
@@ -114,7 +114,7 @@ loopArgs:
 						err = w.onUnknownFlagMatched(ctx, pc)
 						break loopArgs
 					}
-					pc.positionalArgs = append(pc.positionalArgs, pc.arg)
+					pc.positionalArgs = append(pc.positionalArgs, (*pc.argsPtr)[pc.i])
 					logz.VerboseContext(ctx, "positional args added", "i", pc.i, "args", pc.positionalArgs)
 					continue
 				}
@@ -134,7 +134,7 @@ loopArgs:
 				} else {
 					continue
 				}
-				pc.positionalArgs = append(pc.positionalArgs, pc.arg)
+				pc.positionalArgs = append(pc.positionalArgs, (*pc.argsPtr)[pc.i])
 				logz.VerboseContext(ctx, "positional args added", "i", pc.i, "args", pc.positionalArgs)
 				continue
 			}
@@ -143,9 +143,14 @@ loopArgs:
 			continue
 
 		default: // for command
-			if pc.NoCandidateChildCommands() {
+			if pc.NoCandidateChildCommands() || pc.LastCmd().IgnoreUnmatched() {
 				pc.positionalArgs = append(pc.positionalArgs, pc.arg)
 				logz.VerboseContext(ctx, "positional args added", "i", pc.i, "args", pc.positionalArgs)
+				if pc.LastCmd().IgnoreUnmatched() {
+					atomic.AddInt32(&pc.passThruMatched, 1)
+					logz.VerboseContext(ctx, "entering passThruMode because a possible-cmd was added as positional-arg", "i", pc.i, "cmd", pc.LastCmd(), "arg", pc.arg)
+					continue
+				}
 				continue
 			}
 			if err = w.matchCommand(ctx, pc); !w.errIsSignalOrNil(err) {

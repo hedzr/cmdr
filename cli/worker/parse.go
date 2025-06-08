@@ -35,6 +35,10 @@ func (w *workerS) parse(ctx context.Context, pc *parseCtx) (err error) {
 
 	logz.VerboseContext(ctx, "parsing command line args ...", "args", (*pc.argsPtr))
 
+	if err = w.preApplyEnvMatched(ctx, pc); err != nil {
+		return
+	}
+
 loopArgs:
 	for pc.i = 1; pc.i < len(*pc.argsPtr); pc.i++ {
 		if (*pc.argsPtr)[pc.i] == "" {
@@ -229,6 +233,21 @@ compactFlags:
 
 			if !errorsv3.Is(err, cli.ErrShouldStop) {
 				goto compactFlags // try matching next compact flag. eg: '-avz' => '-a' parsed, remains '-vz'
+			}
+		}
+	}
+	return
+}
+
+func (w *workerS) preApplyEnvMatched(ctx context.Context, pc *parseCtx) (err error) {
+	if w.envvarMatched != nil {
+		for ff, evm := range w.envvarMatched {
+			if ff != nil {
+				var handled bool
+				ms := pc.addFlag(ff)
+				handled, err = ff.TryOnMatched(0, ms)
+				logz.DebugContext(ctx, "flag matched by envvar", "flg", ff, "envvar", evm.EnvVar, "value", evm.EnvValue)
+				_ = handled
 			}
 		}
 	}

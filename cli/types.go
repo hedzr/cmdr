@@ -268,11 +268,13 @@ type Cmd interface {
 
 	PresetCmdLines() []string // preset command line arguments
 	IgnoreUnmatched() bool    // ignore unmatched command-line arguments
+	PassThruNow() bool        // entering pass-thru mode right now?
 	InvokeProc() string       // invokeProc field
 	InvokeShell() string      // invokeShell field
 	Shell() string            // used shell (for invokeShell field)
 	SetPresetCmdLines(args ...string)
 	SetIgnoreUnmatched(ignore bool)
+	SetPassThruNow(ignore bool)
 	SetInvokeProc(str string)
 	SetInvokeShell(str string)
 	SetShell(str string)
@@ -398,6 +400,7 @@ type CmdS struct {
 
 	presetCmdLines []string
 	ignoreUmatched bool // ignore unmatched command-line arguments
+	passThruNow    bool
 
 	// invokeProc is just for cmdr aliases commands
 	// invoke the external commands (via: executable)

@@ -155,6 +155,7 @@ func (w *workerS) linkCommands(ctx context.Context, root *cli.RootCommand) (alia
 					}
 				}
 			}); err == nil {
+				// commandsToStore will also evaluate envvars for the flags.
 				if err = w.commandsToStore(ctx, root); err == nil {
 					logz.VerboseContext(ctx, "linkCommands() - *RootCommand linked itself")
 				}
@@ -163,6 +164,7 @@ func (w *workerS) linkCommands(ctx context.Context, root *cli.RootCommand) (alia
 	}
 	return
 }
+
 func (w *workerS) postLinkCommands(ctx context.Context, root *cli.RootCommand, aliasMap map[string]*cli.CmdS) (err error) {
 	for k, cc := range aliasMap {
 		conf := w.Store().WithPrefix(k)
@@ -221,8 +223,8 @@ func (w *workerS) commandsToStore(ctx context.Context, root *cli.RootCommand) (e
 	return
 }
 
-func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, conf store.Store) (err error) { //nolint:revive
-	fromString := func(text string, meme any) (value any) { //nolint:revive
+func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, conf store.Store) (err error) {
+	fromString := func(text string, meme any) (value any) {
 		var err error
 		value, err = atoa.Parse(text, meme)
 		if err != nil {
@@ -233,26 +235,44 @@ func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, c
 	if w.Config.AutoEnvPrefix == "" {
 		w.Config.AutoEnvPrefix = "APP"
 	}
+	onEnvVarMathed := func(ctx context.Context, envvar, value string, ff *cli.Flag, conf store.Store) {
+		old := ff.DefaultValue()
+		data := fromString(value, old)
+		if old != data {
+			ff.SetDefaultValue(data)
+			ff.Owner().UpdateHitInfo(envvar, 1, ff)
+			if w.envvarMatched == nil {
+				w.envvarMatched = make(map[*cli.Flag]EnvVarMatched)
+			}
+			logz.DebugContext(ctx, "envvar matched", "envvar", envvar, "value", value, "ff", ff)
+			w.envvarMatched[ff] = EnvVarMatched{envvar, value}
+		}
+		_ = conf
+		_ = envvar
+		_ = ctx
+	}
 	_ = root
 	worker := func(cx cli.Cmd) {
 		// lookup all flags...
 		//    and bind the value with its envvars field;
 		//    also bind the auto-binding env vars;
-		cx.WalkEverything(ctx, func(cc, pp cli.Cmd, ff *cli.Flag, cmdIndex, flgIndex, level int) { //nolint:revive
+		cx.WalkEverything(ctx, func(cc, pp cli.Cmd, ff *cli.Flag, cmdIndex, flgIndex, level int) {
 			if ff != nil {
 				if evs := ff.EnvVars(); len(evs) > 0 {
 					for _, ev := range evs {
 						if v, has := os.LookupEnv(ev); has {
-							data := fromString(v, ff.DefaultValue())
-							ff.SetDefaultValue(data)
+							onEnvVarMathed(ctx, ev, v, ff, conf)
+							// data := fromString(v, ff.DefaultValue())
+							// ff.SetDefaultValue(data)
 						}
 					}
 				}
 				if w.Config.AutoEnv {
 					ev := ff.GetAutoEnvVarName(w.Config.AutoEnvPrefix, true)
 					if v, has := os.LookupEnv(ev); has {
-						data := fromString(v, ff.DefaultValue())
-						ff.SetDefaultValue(data)
+						onEnvVarMathed(ctx, ev, v, ff, conf)
+						// data := fromString(v, ff.DefaultValue())
+						// ff.SetDefaultValue(data)
 					}
 				}
 				if conf != nil {

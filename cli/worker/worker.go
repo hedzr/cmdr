@@ -101,9 +101,16 @@ type workerS struct {
 	strictModeLevel int
 	noLoadEnv       bool
 
-	inCompleting bool
-	actions      map[cli.ActionEnum]onAction
-	parsingCtx   cli.ParsedState
+	inCompleting  bool
+	actions       map[cli.ActionEnum]onAction
+	envvarMatched map[*cli.Flag]EnvVarMatched
+	parsingCtx    cli.ParsedState
+}
+
+type EnvVarMatched struct {
+	EnvVar   string
+	EnvValue string
+	// Flag     *cli.Flag
 }
 
 func (w *workerS) String() string {

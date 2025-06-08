@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"bufio"
 	"fmt"
 	"regexp"
 	"slices"
@@ -57,46 +56,50 @@ func (c *BaseOpt) SetShorts(shorts ...string) {
 
 func (c *BaseOpt) SetDescription(description string, longDescription ...string) {
 	c.description = description
-	var (
-		lines []string
-		lead  = true
-	)
-	for _, str := range longDescription {
-		if s := strings.Trim(str, "\r\n\t "); s != "" {
-			lines = append(lines, s)
-		} else if !lead {
-			lines = append(lines, s)
-		} else {
-			lead = false
-			lines = append(lines, s)
-		}
+	c.longDesc = strings.TrimRight(strings.Trim(strings.Join(longDescription, "\n"), "\r\n"), "\r\n\t ")
+	if c.longDesc == "" {
+		c.longDesc = c.description
 	}
-	end := len(lines) - 1
-	for i := end; i >= 0; i-- {
-		if s := strings.Trim(lines[i], "\r\n\t "); s == "" {
-			end--
-		}
-	}
-	lines = lines[:end+1]
-	c.longDesc = strings.Join(lines, "\n")
-	if description == "" && len(c.longDesc) > 0 {
-		c.description = firstNonBlankLine(c.longDesc)
-	}
+	// var (
+	// 	lines []string
+	// 	lead  = true
+	// )
+	// for _, str := range longDescription {
+	// 	if s := strings.Trim(str, "\r\n "); s != "" {
+	// 		lines = append(lines, s)
+	// 	} else if !lead {
+	// 		lines = append(lines, s)
+	// 	} else {
+	// 		lead = false
+	// 		lines = append(lines, s)
+	// 	}
+	// }
+	// end := len(lines) - 1
+	// for i := end; i >= 0; i-- {
+	// 	if s := strings.Trim(lines[i], "\r\n\t "); s == "" {
+	// 		end--
+	// 	}
+	// }
+	// lines = lines[:end+1]
+	// c.longDesc = strings.Join(lines, "\n")
+	// if description == "" && len(c.longDesc) > 0 {
+	// 	c.description = firstNonBlankLine(c.longDesc)
+	// }
 }
 
-func firstNonBlankLine(desc string) string {
-	scanner := bufio.NewScanner(strings.NewReader(desc))
-	for scanner.Scan() {
-		line := scanner.Text()
-		if s := strings.Trim(line, "\r\n\t "); s != "" {
-			return line
-		}
-	}
-	return ""
-}
+// func firstNonBlankLine(desc string) string {
+// 	scanner := bufio.NewScanner(strings.NewReader(desc))
+// 	for scanner.Scan() {
+// 		line := scanner.Text()
+// 		if s := strings.Trim(line, "\r\n\t "); s != "" {
+// 			return line
+// 		}
+// 	}
+// 	return ""
+// }
 
 func (c *BaseOpt) SetExamples(examples ...string) {
-	c.examples = strings.Join(examples, "\n")
+	c.examples = strings.TrimRight(strings.Trim(strings.Join(examples, "\n"), "\r\n"), "\r\n\t ")
 }
 
 func (c *BaseOpt) SetGroup(group string) {

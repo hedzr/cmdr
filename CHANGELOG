@@ -1,6 +1,18 @@
 # CHANGELOG
 
-- v2.1.20
+- v2.1.22
+
+  - added `passThruNow` for a subcmd
+  - added `UpdateHitInfo` to `CmdS`
+  - fix `HELP=1` not work
+    - improved autoenv feature
+    - changed: `APP_VERSION` has no effect to map into `--version` (but `VERSION` can do it)
+  - fix `ignoreUnmatched` for a subcmd - add as positional arg without leading '-'
+  - fix `desc`, `examples` fields for help screen
+  - fix/improved `BaseOpt` fields order for better inspecting in debugging time
+  - upgrade deps & security patch
+
+- v2.1.21
 
   - added `ignoreUnmatched` for a subcmd
     so that all unmatched flags are treated as positional args instead of raising an error
@@ -16,6 +28,7 @@
   - fix `flag.required` (a typo)
   - fix `flag.Clone()` for the recently-added fields
   - fix command heading in help screen
+  - upgrade deps & security patch
 
 - v2.1.19
 

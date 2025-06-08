@@ -106,12 +106,6 @@ type redirectInfo struct {
 }
 
 type BaseOpt struct {
-	owner Cmd          `copy:",shallow"` // parent Cmd
-	root  *RootCommand `copy:",shallow"` // root Cmd
-
-	// name is reserved for internal purpose.
-	// exposed as Name.
-	name string
 	// Long is a full/long form flag/command title name.
 	//
 	// word string. example for flag: "addr" -> "--addr"
@@ -123,6 +117,11 @@ type BaseOpt struct {
 	// But multi-chars is allowed, eg: "of" -> "-of"
 	// (abbreviation of "--output-file").
 	Short string
+
+	owner Cmd          `copy:",shallow"` // parent Cmd
+	root  *RootCommand `copy:",shallow"` // root Cmd
+	name  string       // name is reserved for internal purpose.
+
 	// Aliases are the more synonyms of Long title.
 	Aliases     []string
 	description string // exposed by Desc

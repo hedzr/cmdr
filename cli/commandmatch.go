@@ -224,6 +224,16 @@ func (c *CmdS) matchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, err e
 	return
 }
 
+func (c *CmdS) UpdateHitInfo(hitTitle string, hitTimesInc int, ff *Flag) {
+	if ff != nil {
+		ff.hitTimes += hitTimesInc
+		ff.hitTitle = hitTitle
+	} else {
+		c.hitTimes += hitTimesInc
+		c.hitTitle = hitTitle
+	}
+}
+
 func (c *CmdS) testDblTilde(dblTilde bool, ff *Flag) (matched bool) {
 	matched = dblTilde || !ff.dblTildeOnly || (ff.dblTildeOnly && dblTilde)
 	return

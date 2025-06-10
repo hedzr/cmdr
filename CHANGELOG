@@ -1,5 +1,16 @@
 # CHANGELOG
 
+- v2.1.23
+
+  - improved no-color mode [devmode.go]
+  - ignore go test params in cmdline
+  - improved help screen
+    - nested indent for tree mode
+  - improved no-color mode
+  - improved `is.ColorfulTty`
+  - improved pipe state detecting
+    - improved help screen for pipe mode and redirect mode
+
 - v2.1.22
 
   - added `passThruNow` for a subcmd

@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/hedzr/cmdr/v2"
@@ -12,6 +13,8 @@ import (
 	"github.com/hedzr/cmdr/v2/examples/common"
 	"github.com/hedzr/cmdr/v2/examples/devmode"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
+	"github.com/hedzr/is"
+	"github.com/hedzr/is/term"
 )
 
 const (
@@ -58,4 +61,11 @@ func main() {
 	} else if rc := app.SuggestRetCode(); rc != 0 {
 		os.Exit(rc)
 	}
+
+	o, _ := os.Stdout.Stat()
+	mode := o.Mode()
+	fmt.Printf("mode of %q/%q: %0b (%v)\nterm colorful: %v\ncolorful enabled: %v\n",
+		o.Name(), os.Stdout.Name(), mode,
+		term.StatStdoutString(), term.IsColorful(os.Stdout), !is.NoColorMode())
+	return
 }

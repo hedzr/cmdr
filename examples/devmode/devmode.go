@@ -1,6 +1,7 @@
 package devmode
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -10,6 +11,7 @@ import (
 	"github.com/hedzr/cmdr/v2/pkg/logz"
 	"github.com/hedzr/is"
 	"github.com/hedzr/is/dir"
+	"github.com/hedzr/is/term"
 	logzorig "github.com/hedzr/logg/slog"
 )
 
@@ -95,6 +97,16 @@ func init() {
 				logz.SetLevel(logzorig.InfoLevel)
 				logz.Debug(".set-level to info")
 			}
+		}
+
+		n, r, p, t := term.StatStdout()
+		if t {
+			if term.IsColorful(os.Stdout) {
+				is.SetNoColorMode(term.DisableColors)
+			}
+		} else if p || n || r {
+			is.SetNoColorMode(true)
+			logz.Info(fmt.Sprintf(`.for %q, switch to no-color mode`, term.StatStdoutString()))
 		}
 	})
 }

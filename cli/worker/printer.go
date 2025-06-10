@@ -80,6 +80,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedS
 	}
 
 	if s.Translator == nil {
+		logz.Info(`[helpPrinter] getCPT`, "no-color", is.NoColorMode())
 		s.Translator = color.GetCPT()
 	}
 
@@ -98,12 +99,13 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedS
 
 		grouped := true
 		s.printHeader(ctx, &sb, lastCmd, pc, cols, tabbedW)
+		walkCtx := &cli.WalkBackwardsCtx{}
 		lastCmd.WalkGrouped(ctx, func(cc, pp cli.Cmd, ff *cli.Flag, group string, idx, level int) {
 			switch {
 			case ff == nil: // CmdS
-				s.printCommand(ctx, &sb, painter, &verboseCount, cc, group, idx, level, cols, tabbedW, grouped)
+				walkCtx.LastCmdGroupInc = s.printCommand(ctx, &sb, painter, &verboseCount, cc, group, idx, level, cols, tabbedW, grouped)
 			default: // Flag
-				s.printFlag(ctx, &sb, painter, &verboseCount, ff, group, idx, level, cols, tabbedW, grouped)
+				s.printFlag(ctx, walkCtx, &sb, painter, &verboseCount, ff, group, idx, level, cols, tabbedW, grouped)
 			}
 		})
 		_, _ = wr.WriteString(sb.String())
@@ -135,7 +137,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedS
 					// _, _ = sb.WriteString(strconv.Itoa(count))
 					// _, _ = sb.WriteString("]:\n")
 				}
-				s.printCommand(ctx, &sb, painter, &verboseCount, cc, cc.GroupHelpTitle(), groupIndex, 1, cols, tabbedW, walkCtx.Group)
+				pc.LastCmdGroupInc = s.printCommand(ctx, &sb, painter, &verboseCount, cc, cc.GroupHelpTitle(), groupIndex, 1, cols, tabbedW, walkCtx.Group)
 				return
 			}
 
@@ -164,7 +166,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedS
 					_, _ = sb.WriteString("):\n")
 				}
 			}
-			s.printFlag(ctx, &sb, painter, &verboseCount, ff, ff.GroupHelpTitle(), groupIndex, 1, cols, tabbedW, walkCtx.Group)
+			s.printFlag(ctx, pc, &sb, painter, &verboseCount, ff, ff.GroupHelpTitle(), groupIndex, 1, cols, tabbedW, walkCtx.Group)
 		}, walkCtx)
 
 		painter.printTailLine(ctx, &sb, lastCmd, pc, rows, cols, tabbedW)
@@ -574,12 +576,19 @@ func (s *helpPrinter) printFlagHeading(ctx context.Context, sb *strings.Builder,
 
 func (s *helpPrinter) printCommandGroupTitle(ctx context.Context, sb *strings.Builder, group string, indent int) {
 	_, _ = sb.WriteString(strings.Repeat("  ", indent))
-	s.WriteColor(sb, CurrentGroupTitleColor)
-	s.WriteBgColor(sb, CurrentGroupTitleBgColor)
+
+	noColor := is.NoColorMode()
+	colorful := !noColor
+	if colorful {
+		s.WriteColor(sb, CurrentGroupTitleColor)
+		s.WriteBgColor(sb, CurrentGroupTitleBgColor)
+	}
 	_, _ = sb.WriteString("[")
 	_, _ = sb.WriteString(group)
 	_, _ = sb.WriteString("]")
-	s.Reset(sb)
+	if colorful {
+		s.Reset(sb)
+	}
 	_, _ = sb.WriteString("\n")
 }
 
@@ -590,21 +599,28 @@ func (s *helpPrinter) printCommandRow(ctx context.Context, sb *strings.Builder,
 ) {
 	_, _ = sb.WriteString(indentSpaces)
 
-	if dim {
-		s.WriteBgColor(sb, color.BgDim)
-	}
-	if deprecated {
-		s.WriteBgColor(sb, color.BgStrikeout)
-		s.WriteColor(sb, CurrentDescColor)
-	} else {
-		s.WriteColor(sb, CurrentTitleColor)
+	noColor := is.NoColorMode()
+	colorful := !noColor
+
+	if colorful {
+		if dim {
+			s.WriteBgColor(sb, color.BgDim)
+		}
+		if deprecated {
+			s.WriteBgColor(sb, color.BgStrikeout)
+			s.WriteColor(sb, CurrentDescColor)
+		} else {
+			s.WriteColor(sb, CurrentTitleColor)
+		}
 	}
 	_, _ = sb.WriteString(left)
 
 	var split bool
 	var printed int
 	if right != "" {
-		s.WriteColor(sb, CurrentDescColor)
+		if colorful {
+			s.WriteColor(sb, CurrentDescColor)
+		}
 
 		rCols := cols - tabbedW
 		l := len(right) + len(depPlain)
@@ -630,8 +646,12 @@ func (s *helpPrinter) printCommandRow(ctx context.Context, sb *strings.Builder,
 		}
 		// sb.WriteString(trans(right, CurrentDescColor))
 	} else {
-		s.WriteColor(sb, CurrentDescColor)
-		_, _ = sb.WriteString(trans("<i>desc</i>", s, CurrentDescColor, deprecated))
+		if colorful {
+			s.WriteColor(sb, CurrentDescColor)
+			_, _ = sb.WriteString(trans("<i>(no desc)</i>", s, CurrentDescColor, deprecated))
+		} else {
+			_, _ = sb.WriteString("(no desc)")
+		}
 	}
 
 	if dep != "" {
@@ -646,33 +666,38 @@ func (s *helpPrinter) printCommandRow(ctx context.Context, sb *strings.Builder,
 		logz.VerboseContext(ctx, "[watching] split flag", "split", split)
 	}
 
-	s.Reset(sb) // reset fg/bg colors by color Translator
+	if colorful {
+		s.Reset(sb) // reset fg/bg colors by color Translator
+	}
 }
 
 func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder,
 	painter Painter,
 	verboseCount *int, cc cli.Cmd,
 	group string, idx, level, cols, tabbedW int, grouped bool,
-) {
+) (groupedInc int) {
 	if (cc.HiddenBR() && *verboseCount < 1) || (cc.VendorHiddenBR() && *verboseCount < 3) {
 		return
 	}
 
-	groupedInc := 0
 	_ = idx
 	if grouped {
-		if group != "" {
-			if group != s.lastCmdGroup {
-				s.lastCmdGroup = group
-				painter.printCommandGroupTitle(ctx, sb, group, level+groupedInc)
-				// _, _ = sb.WriteString(strings.Repeat("  ", level+groupedInc))
-				// s.WriteColor(sb, CurrentGroupTitleColor)
-				// s.WriteBgColor(sb, CurrentGroupTitleBgColor)
-				// _, _ = sb.WriteString("[")
-				// _, _ = sb.WriteString(group)
-				// _, _ = sb.WriteString("]")
-				// s.Reset(sb)
-				// _, _ = sb.WriteString("\n")
+		if grp := cc.GroupHelpTitle(); grp != "" {
+			if grp != s.lastCmdGroup {
+				s.lastCmdGroup = grp
+				if group != "" {
+					painter.printCommandGroupTitle(ctx, sb, group, level+groupedInc)
+					// _, _ = sb.WriteString(strings.Repeat("  ", level+groupedInc))
+					// s.WriteColor(sb, CurrentGroupTitleColor)
+					// s.WriteBgColor(sb, CurrentGroupTitleBgColor)
+					// _, _ = sb.WriteString("[")
+					// _, _ = sb.WriteString(group)
+					// _, _ = sb.WriteString("]")
+					// s.Reset(sb)
+					// _, _ = sb.WriteString("\n")
+					groupedInc++
+				}
+			} else {
 				groupedInc++
 			}
 		}
@@ -726,21 +751,36 @@ func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder,
 	if restTitles != "" {
 		_, _ = sb.WriteString(indentSpaces)
 		_, _ = sb.WriteString("   = ")
-		s.WriteBgColor(sb, color.BgItalic)
+
+		noColor := is.NoColorMode()
+		colorful := !noColor
+		if colorful {
+			s.WriteBgColor(sb, color.BgItalic)
+		}
 		_, _ = sb.WriteString(restTitles)
-		s.Reset(sb)
+		if colorful {
+			s.Reset(sb)
+		}
 		_, _ = sb.WriteString("\n")
 	}
+
+	return
 }
 
 func (s *helpPrinter) printFlagGroupTitle(ctx context.Context, sb *strings.Builder, group string, indent int) {
 	_, _ = sb.WriteString(strings.Repeat("  ", indent))
-	s.WriteColor(sb, CurrentGroupTitleColor)
-	s.WriteBgColor(sb, CurrentGroupTitleBgColor)
+	noColor := is.NoColorMode()
+	colorful := !noColor
+	if colorful {
+		s.WriteColor(sb, CurrentGroupTitleColor)
+		s.WriteBgColor(sb, CurrentGroupTitleBgColor)
+	}
 	_, _ = sb.WriteString("[")
 	_, _ = sb.WriteString(group)
 	_, _ = sb.WriteString("]")
-	s.Reset(sb)
+	if colorful {
+		s.Reset(sb)
+	}
 	_, _ = sb.WriteString("\n")
 }
 
@@ -751,6 +791,9 @@ func (s *helpPrinter) printFlagRow(ctx context.Context, sb *strings.Builder,
 ) {
 	_, _ = sb.WriteString(indentSpaces)
 
+	noColor := is.NoColorMode()
+	colorful := !noColor
+
 	if ff.Required() {
 		_, _ = sb.WriteString("* ")
 	}
@@ -759,22 +802,25 @@ func (s *helpPrinter) printFlagRow(ctx context.Context, sb *strings.Builder,
 		sb.WriteRune(' ')
 	}
 
-	if dim {
-		s.WriteBgColor(sb, color.BgDim)
-	}
-
-	if deprecated {
-		s.WriteBgColor(sb, color.BgStrikeout)
-		s.WriteColor(sb, CurrentDescColor)
-	} else {
-		s.WriteColor(sb, CurrentTitleColor)
+	if colorful {
+		if dim {
+			s.WriteBgColor(sb, color.BgDim)
+		}
+		if deprecated {
+			s.WriteBgColor(sb, color.BgStrikeout)
+			s.WriteColor(sb, CurrentDescColor)
+		} else {
+			s.WriteColor(sb, CurrentTitleColor)
+		}
 	}
 	_, _ = sb.WriteString(left)
 
 	// s.DimFast(&sb, s.Translate(right, color.BgNormal))
 	if tg != "" {
 		// s.ColoredFast(&sb, CurrentFlagTitleColor, tg)
-		s.WriteColor(sb, CurrentFlagTitleColor)
+		if colorful {
+			s.WriteColor(sb, CurrentFlagTitleColor)
+		}
 		_, _ = sb.WriteString(tg)
 	}
 
@@ -788,7 +834,9 @@ func (s *helpPrinter) printFlagRow(ctx context.Context, sb *strings.Builder,
 	// }
 	rCols := cols - tabbedW
 	if right != "" {
-		s.WriteColor(sb, CurrentDescColor)
+		if colorful {
+			s.WriteColor(sb, CurrentDescColor)
+		}
 
 		_, l, l1st := len(right), len(right)+len(defPlain)+len(depPlain)+len(envPlain), len(tg)
 		// aa := []string{}
@@ -813,7 +861,11 @@ func (s *helpPrinter) printFlagRow(ctx context.Context, sb *strings.Builder,
 				_, _ = sb.WriteString(str)
 			}
 		} else {
-			_, _ = sb.WriteString(trans(right, s, CurrentDescColor, deprecated))
+			if colorful {
+				_, _ = sb.WriteString(trans(right, s, CurrentDescColor, deprecated))
+			} else {
+				_, _ = sb.WriteString(right)
+			}
 		}
 
 		// if ff.Long == "addr" {
@@ -822,8 +874,12 @@ func (s *helpPrinter) printFlagRow(ctx context.Context, sb *strings.Builder,
 		// sb.WriteString(fmt.Sprintf(" / l=%d/%d, l1st=%d, len(right)=%d, rCols=%d", l, lr, l1st, len(right), rCols))
 		// sb.WriteString(trans(right, CurrentDescColor))
 	} else {
-		s.WriteColor(sb, CurrentDescColor)
-		_, _ = sb.WriteString(trans("<i>desc</i>", s, CurrentDescColor, deprecated))
+		if colorful {
+			s.WriteColor(sb, CurrentDescColor)
+			_, _ = sb.WriteString(trans("<i>(no desc)</i>", s, CurrentDescColor, deprecated))
+		} else {
+			_, _ = sb.WriteString("(no desc)")
+		}
 		printed += 4
 	}
 
@@ -896,8 +952,10 @@ func (s *helpPrinter) printFlagRow(ctx context.Context, sb *strings.Builder,
 		sl, w := len(str), cols-tabbedW
 		split = true
 		inc := 0
-		s.WriteBgColor(sb, color.BgDim)
-		s.WriteBgColor(sb, color.BgItalic)
+		if colorful {
+			s.WriteBgColor(sb, color.BgDim)
+			s.WriteBgColor(sb, color.BgItalic)
+		}
 		for printed = 0; printed < sl; {
 			// _, _ = sb.WriteRune('\n')
 			printleftpad(sb, split, tabbedW)
@@ -929,10 +987,13 @@ func (s *helpPrinter) printFlagRow(ctx context.Context, sb *strings.Builder,
 	// s.ColoredFast(&sb, CurrentDefaultValueColor, def)
 	// s.ColoredFast(&sb, CurrentDeprecatedColor, dep)
 	// sb.WriteString(s.Translate(right, color.BgDefault))
-	s.Reset(sb)
+	if colorful {
+		s.Reset(sb)
+	}
 }
 
-func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder,
+func (s *helpPrinter) printFlag(ctx context.Context, pc *cli.WalkBackwardsCtx,
+	sb *strings.Builder,
 	painter Painter,
 	verboseCount *int, ff *cli.Flag, group string,
 	idx, level, cols, tabbedW int, grouped bool,
@@ -941,16 +1002,16 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder,
 		return
 	}
 
-	groupedInc := 0
+	groupedInc := pc.LastCmdGroupInc
 	if s.treeMode {
 		groupedInc++
 	}
 
 	ofs := 0
 	_ = idx
-	if group != "" {
-		if group != s.lastFlagGroup {
-			s.lastFlagGroup = group
+	if grouped && group != "" {
+		if grp := ff.GroupHelpTitle(); grp != s.lastFlagGroup {
+			s.lastFlagGroup = grp
 			painter.printFlagGroupTitle(ctx, sb, group, level+groupedInc)
 			// _, _ = sb.WriteString(strings.Repeat("  ", level+groupedInc))
 			// s.WriteColor(sb, CurrentGroupTitleColor)
@@ -1019,9 +1080,16 @@ func (s *helpPrinter) printFlag(ctx context.Context, sb *strings.Builder,
 	if restTitles != "" {
 		_, _ = sb.WriteString(indentSpaces)
 		_, _ = sb.WriteString("    = ")
-		s.WriteBgColor(sb, color.BgItalic)
+
+		noColor := is.NoColorMode()
+		colorful := !noColor
+		if colorful {
+			s.WriteBgColor(sb, color.BgItalic)
+		}
 		_, _ = sb.WriteString(restTitles)
-		s.Reset(sb)
+		if colorful {
+			s.Reset(sb)
+		}
 		_, _ = sb.WriteString("\n")
 	}
 

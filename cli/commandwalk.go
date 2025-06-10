@@ -76,10 +76,11 @@ func (c *CmdS) ForeachGroupedFlags(ctx context.Context, cb func(group string, it
 
 // WalkBackwardsCtx used by WalkBackwards
 type WalkBackwardsCtx struct {
-	Group  bool
-	Sort   bool
-	hist   map[Cmd]bool
-	histff map[*Flag]bool
+	Group           bool
+	Sort            bool
+	LastCmdGroupInc int
+	hist            map[Cmd]bool
+	histff          map[*Flag]bool
 }
 
 // WalkBackwardsCB is a callback functor used by WalkBackwards.

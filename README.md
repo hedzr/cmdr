@@ -65,7 +65,7 @@ v2 is in earlier state but the baseline is stable:
 
 - Basic command-line arguments parser like POSIX getopt and go stdlib flag.
   - Short flag, single character or a string here to support golang CLI style
-    - Compact flags if possible. Also the sticking value will be parsed. For example: `-c1b23zv` = `-c 1 -b 23 -z -v`
+    - Compact flags if possible. Also the sticky value will be parsed. For example: `-c1b23zv` = `-c 1 -b 23 -z -v`
     - Hit info: `-v -v -v` = `-v` (hitCount == 3, hitTitle == 'v')
     - Optimized for slice: `-a 1,2,3 -a 4 -a 5,6` => []int{1,2,3,4,5,6}
     - Value can be sticked or not. Valid forms: `-c1`, `-c 1`, `-c=1` and quoted: `-c"1"`, `-c'1'`, `-c="1"`, `-c='1'`, etc.

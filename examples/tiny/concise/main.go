@@ -17,8 +17,6 @@ const (
 )
 
 func main() {
-	ctx := context.Background()
-
 	app := cmdr.Create(appName, version, author, desc).
 		WithAdders(cmd.Commands...).
 		Build()

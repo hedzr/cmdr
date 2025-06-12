@@ -1,5 +1,13 @@
 # CHANGELOG
 
+- v2.1.25
+
+  - improved devmode.go
+  - improved doc; typo; example app code
+  - upgrade deps
+    - better ansi color builder
+    - better err object in logz output - ensure stacktrace dumped in debug mode enabled
+
 - v2.1.23
 
   - improved no-color mode [devmode.go]

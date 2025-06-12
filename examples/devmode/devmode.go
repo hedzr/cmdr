@@ -34,6 +34,7 @@ func init() {
 			d = prjName
 		}
 
+		isCmdrV2 := false
 		devModeFile := filepath.Join(d, ".dev-mode")
 		if dir.FileExists(devModeFile) {
 			devMode = true
@@ -51,43 +52,102 @@ func init() {
 
 			// I am tiny-app in cmdr/v2, I will be launched in dev-mode always
 			if strings.Contains(content, "module github.com/hedzr/cmdr/v2") {
-				devMode = true
+				isCmdrV2, devMode = true, true
 			}
+		}
+
+		boolenvvar := func(name string) (v, exists bool) {
+			var val string
+			if val, exists = os.LookupEnv(name); exists {
+				v = is.StringToBool(val)
+			}
+			return
+		}
+		info := func(s string) {
+			logz.Println(s)
 		}
 
 		logzorig.SetLevel(logzorig.InfoLevel)
-
 		// dbglog.Println("[dev-mode] initialize to InfoLevel", "dev-mode", devMode, "cwd", dir.GetCurrentDir())
 
+		var debugMode, traceMode, verboseMode bool
 		if devMode {
-			is.SetDebugMode(true)
-			logz.SetLevel(logzorig.DebugLevel)
-			logz.Debug(".dev-mode file detected, entering Debug Mode...")
-		}
-
-		if is.DebugBuild() {
-			is.SetDebugMode(true)
-			logz.SetLevel(logzorig.DebugLevel)
-		}
-
-		if is.VerboseBuild() {
-			is.SetVerboseMode(true)
-			if logz.GetLevel() < logzorig.InfoLevel {
-				logz.SetLevel(logzorig.InfoLevel)
-				logz.Debug(".set-level to info")
+			debugMode = true
+			if v, e := boolenvvar("CMDR_FORCE_DEBUG"); e && v {
+				info(".dev-mode file detected, entering Debug Mode...")
 			}
+		}
+		if is.DebugBuild() {
+			debugMode = true
+		}
+		if is.VerboseBuild() {
+			verboseMode = true
+		}
+
+		if v, e := boolenvvar("VERBOSE"); e {
+			verboseMode = v
+		}
+		if v, e := boolenvvar("QUIET"); e {
+			verboseMode = !v
+		}
+		if v, e := boolenvvar("DEBUG"); e {
+			debugMode = v
+		}
+		if v, e := boolenvvar("TRACE"); e {
+			traceMode = v
+		}
+		if isCmdrV2 {
+			if v, e := boolenvvar("CMDR_NO_FORCE_DEBUG"); e {
+				debugMode = !v
+			}
+			if v, e := boolenvvar("CMDR_FORCE_DEBUG"); e {
+				debugMode = v
+			}
+		} else {
+			if v, e := boolenvvar("NO_FORCE_DEBUG"); e {
+				debugMode = !v
+			}
+			if v, e := boolenvvar("FORCE_DEBUG"); e {
+				debugMode = v
+			}
+		}
+
+		is.SetVerboseMode(verboseMode)
+		is.SetDebugMode(debugMode)
+		is.SetTraceMode(traceMode)
+
+		if debugMode {
+			if logz.GetLevel() < logzorig.DebugLevel {
+				logz.SetLevel(logzorig.DebugLevel)
+				info(".set-level to debug")
+			}
+		} else if devMode {
+			logz.SetLevel(logzorig.InfoLevel)
+			info(".set-level to info")
+		} else {
+			logz.SetLevel(logzorig.WarnLevel)
+			info(".set-level to warn")
+		}
+		if traceMode {
 			if logz.GetLevel() < logzorig.TraceLevel {
 				logz.SetLevel(logzorig.TraceLevel)
-				logz.Debug(".set-level to trace")
+				info(".set-level to trace")
 			}
 		}
-		logz.Debug(".logging-level is", "level", logzorig.GetLevel())
+		if verboseMode {
+			if logz.GetLevel() < logzorig.InfoLevel {
+				logz.SetLevel(logzorig.InfoLevel)
+				info(".set-level to info")
+			}
+		}
+
+		logz.Debug(".logging-level is", "level", logzorig.GetLevel(), "debug-mode", debugMode)
 
 		if is.DebugMode() || is.DebuggerAttached() {
 			logzorig.RemoveFlags(logzorig.Lprivacypathregexp, logzorig.Lprivacypath)
 			if logz.GetLevel() < logzorig.DebugLevel {
 				logz.SetLevel(logzorig.DebugLevel)
-				logz.Debug(".set-level to debug")
+				info(".set-level to debug")
 			}
 		} else {
 			logzorig.AddFlags(logzorig.Lprivacypathregexp, logzorig.Lprivacypath)
@@ -95,7 +155,7 @@ func init() {
 		if is.Windows() {
 			if logz.GetLevel() < logzorig.InfoLevel {
 				logz.SetLevel(logzorig.InfoLevel)
-				logz.Debug(".set-level to info")
+				info(".set-level to info")
 			}
 		}
 
@@ -106,7 +166,7 @@ func init() {
 			}
 		} else if p || n || r {
 			is.SetNoColorMode(true)
-			logz.Info(fmt.Sprintf(`.for %q, switch to no-color mode`, term.StatStdoutString()))
+			info(fmt.Sprintf(`.for %q, switch to no-color mode`, term.StatStdoutString()))
 		}
 	})
 }

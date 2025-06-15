@@ -1,5 +1,17 @@
 # CHANGELOG
 
+- v2.1.26
+
+  - improved help-system - `app help` enter into prompt mode
+  - added `Skip` to logz subpkg
+  - `onEnvVarMathed`: improved the triggerring event - add missed `OnParsedValue`
+  - devmode.go - disable info() in non-verbose-mode
+  - fix dockerfile
+  - remove `prompt` (move into cmdr-examples)
+  - upgrade deps
+    - `is/term` - added `MakeRawWrapped`, `MakeNewTerm`
+    - `logg/slog` - improved howto dumping error object
+
 - v2.1.25
 
   - improved devmode.go

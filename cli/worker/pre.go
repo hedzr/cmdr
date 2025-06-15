@@ -239,13 +239,19 @@ func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, c
 		old := ff.DefaultValue()
 		data := fromString(value, old)
 		if old != data {
-			ff.SetDefaultValue(data)
-			ff.Owner().UpdateHitInfo(envvar, 1, ff)
-			if w.envvarMatched == nil {
-				w.envvarMatched = make(map[*cli.Flag]EnvVarMatched)
+			if handled, newval, _, err := ff.TryOnParseValue(-1, ff.LongTitle(), value, nil); handled && err == nil {
+				if newval != value {
+					data = fromString(value, data)
+				}
+				ff.SetDefaultValue(data)
+				ff.TryOnSet(old, data)
+				ff.Owner().UpdateHitInfo(envvar, 1, ff)
+				if w.envvarMatched == nil {
+					w.envvarMatched = make(map[*cli.Flag]EnvVarMatched)
+				}
+				logz.DebugContext(ctx, "envvar matched", "envvar", envvar, "value", data, "ff", ff)
+				w.envvarMatched[ff] = EnvVarMatched{envvar, value}
 			}
-			logz.DebugContext(ctx, "envvar matched", "envvar", envvar, "value", value, "ff", ff)
-			w.envvarMatched[ff] = EnvVarMatched{envvar, value}
 		}
 		_ = conf
 		_ = envvar

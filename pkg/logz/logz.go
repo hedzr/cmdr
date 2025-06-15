@@ -141,6 +141,10 @@ func SetJSONMode(mode bool) {
 	log.SetJSONMode(mode)
 }
 
+func Skip(nFrames int) logz.Logger {
+	return log.WithSkip(nFrames)
+}
+
 //
 
 //

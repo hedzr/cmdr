@@ -11,6 +11,7 @@ import (
 	"github.com/hedzr/cmdr/v2/pkg/logz"
 	"github.com/hedzr/is"
 	"github.com/hedzr/is/dir"
+	"github.com/hedzr/is/states"
 	"github.com/hedzr/is/term"
 	logzorig "github.com/hedzr/logg/slog"
 )
@@ -64,7 +65,9 @@ func init() {
 			return
 		}
 		info := func(s string) {
-			logz.Println(s)
+			if states.Env().IsVerboseMode() {
+				logz.Skip(1).Println(s)
+			}
 		}
 
 		logzorig.SetLevel(logzorig.InfoLevel)
@@ -126,7 +129,9 @@ func init() {
 			info(".set-level to info")
 		} else {
 			logz.SetLevel(logzorig.WarnLevel)
-			info(".set-level to warn")
+			if verboseMode {
+				info(".set-level to warn")
+			}
 		}
 		if traceMode {
 			if logz.GetLevel() < logzorig.TraceLevel {

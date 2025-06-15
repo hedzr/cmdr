@@ -22,7 +22,7 @@ ENV LDFLAGS			""
 WORKDIR /go/src/github.com/hedzr/$AN/
 COPY    .    .
 RUN ls -ls ./; \
-		W_PKG=${W_PKG:-github.com/hedzr/cmdr/conf}; \
+		W_PKG=${W_PKG:-github.com/hedzr/cmdr/v2/conf}; \
 		GOPROXY=${GOPROXY:-https://goproxy.io,direct}; \
 		V1=$(grep -E "Version[ \t]+=[ \t]+" doc.go|grep -Eo "[0-9.]+"); \
 		VERSION=${VERSION:-$V1}; \

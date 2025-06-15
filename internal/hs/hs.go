@@ -6,16 +6,14 @@ import (
 	"io"
 	"os"
 	"strings"
-	"sync"
-	"syscall"
 
-	"golang.org/x/term"
 	"gopkg.in/hedzr/errors.v3"
 
 	"github.com/hedzr/cmdr/v2/cli"
 
-	"github.com/hedzr/is"
 	"github.com/hedzr/is/exec"
+	"github.com/hedzr/is/term"
+	"github.com/hedzr/is/term/color"
 
 	logz "github.com/hedzr/logg/slog"
 )
@@ -40,109 +38,73 @@ type HelpSystem struct {
 // }
 
 func (s *HelpSystem) Run(ctx context.Context) (err error) {
-	if !term.IsTerminal(0) || !term.IsTerminal(1) {
-		return fmt.Errorf("stdin/stdout should be terminal")
+	var dfn func()
+	if dfn, err = term.MakeRawWrapped(); err != nil {
+		return
 	}
+	defer dfn()
 
-	var oldState *term.State
-	oldState, err = term.MakeRaw(0)
-	if err != nil {
-		if !errors.Is(err, syscall.ENOTTY) {
-			return err
-		}
+	var welcomeString = color.New().StripLeftTabsColorful(`
+	Type 'help' to print Help Screen, 'help cmd...' for a specified cmd.
+	Type 'quit' to end this session and back to Shell.
+	`).Build()
+
+	if dfn, err = term.MakeNewTerm(ctx, welcomeString, promptString, replyPrefix, s.helpSystemLooper); err != nil {
+		return
 	}
-	defer func() {
-		if e := recover(); e != nil {
-			if err == nil {
-				if e1, ok := e.(error); ok {
-					err = e1
-				} else {
-					err = fmt.Errorf("%v", e)
-				}
-			} else {
-				err = fmt.Errorf("%v | %v", e, err)
-			}
-		}
+	defer dfn()
 
-		if e1 := term.Restore(0, oldState); e1 != nil {
-			if err == nil {
-				err = e1
-			} else {
-				err = fmt.Errorf("%v | %v", e1, err)
-			}
-		}
-	}()
-	screen := struct {
-		io.Reader
-		io.Writer
-	}{os.Stdin, os.Stdout}
-	term := term.NewTerminal(screen, promptString)
-	term.SetPrompt(string(term.Escape.Red) + promptString + string(term.Escape.Reset))
-
-	rePrefix := string(term.Escape.Cyan) + replyPrefix + string(term.Escape.Reset)
-
-	exitChan := make(chan struct{}, 3)
-	defer func() { close(exitChan) }()
-
-	catcher := is.Signals().Catch()
-	catcher.
-		WithVerboseFn(func(msg string, args ...any) {
-			// logz.WithSkip(2).PrintlnContext(ctx, fmt.Sprintf("[verbose] %s\n", fmt.Sprintf(msg, args...)))
-		}).
-		WithOnSignalCaught(func(sig os.Signal, wg *sync.WaitGroup) {
-			println()
-			// logz.Debug("signal caught", "sig", sig)
-			exitChan <- struct{}{}
-		}).
-		WaitFor(func(closer func()) {
-			defer func() {
-				_, _ = fmt.Fprintln(term, byeString)
-				closer()
-				// _, _ = fmt.Println("end")
-			}()
-
-			var line string
-			for {
-				line, err = term.ReadLine()
-				if err == io.EOF {
-					return
-				}
-				if err != nil {
-					return
-				}
-				if line == "" {
-					continue
-				}
-				if line == quitCmd || line == exitCmd || line == "q" {
-					break
-				}
-				_, _ = fmt.Fprintln(term, rePrefix, line)
-				err = s.interpretCommand(ctx, line, term)
-				if err != nil {
-					return
-				}
-				if ch := ctx.Done(); ch != nil {
-					select {
-					case <-ch:
-						err = ctx.Err()
-						return
-					case <-exitChan:
-						return
-					default:
-					}
-				} else {
-					select {
-					case <-exitChan:
-						return
-					default:
-					}
-				}
-			}
-		})
 	return
 }
 
-func (s *HelpSystem) interpretCommand(ctx context.Context, line string, term *term.Terminal) (err error) {
+func (s *HelpSystem) helpSystemLooper(ctx context.Context, tty term.SmallTerm, replyPrefix string, exitChan <-chan struct{}, closer func()) (err error) {
+	defer func() {
+		_, _ = fmt.Fprintln(tty, byeString)
+		closer()
+		// _, _ = fmt.Println("end")
+	}()
+
+	var line string
+	for {
+		line, err = tty.ReadLine()
+		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
+			return
+		}
+		if line == "" {
+			continue
+		}
+		if line == quitCmd || line == exitCmd || line == "q" {
+			break
+		}
+		_, _ = fmt.Fprintln(tty, replyPrefix, line)
+		err = s.interpretCommand(ctx, line, tty)
+		if err != nil {
+			return
+		}
+		if ch := ctx.Done(); ch != nil {
+			select {
+			case <-ch:
+				err = ctx.Err()
+				return
+			case <-exitChan:
+				return
+			default:
+			}
+		} else {
+			select {
+			case <-exitChan:
+				return
+			default:
+			}
+		}
+	}
+	return
+}
+
+func (s *HelpSystem) interpretCommand(ctx context.Context, line string, term io.Writer) (err error) {
 	a := exec.SplitCommandString(line, '\'')
 	// _, _ = fmt.Fprintln(term, a)
 	// logz.InfoContext(ctx, "cmd line", "a", a)
@@ -213,7 +175,7 @@ func (s *HelpSystem) FindCmd(ctx context.Context, cmd cli.Cmd, args []string) (h
 	return
 }
 
-func (s *HelpSystem) runSession(ctx context.Context, a []string, term *term.Terminal) (err error) {
+func (s *HelpSystem) runSession(ctx context.Context, a []string, term io.Writer) (err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			if err == nil {
@@ -246,7 +208,7 @@ func (w *crlfWriter) WriteString(s string) (n int, err error) {
 	return w.Write([]byte(rpl))
 }
 
-func (s *HelpSystem) runProtectedSession(ctx context.Context, a []string, term *term.Terminal) (err error) {
+func (s *HelpSystem) runProtectedSession(ctx context.Context, a []string, term io.Writer) (err error) {
 	savedScreen := struct {
 		in  *os.File
 		out *os.File

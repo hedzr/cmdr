@@ -1,5 +1,13 @@
 # CHANGELOG
 
+- v2.1.27
+
+  - fix `color.Color` usages
+  - extract common init seq to `earlierInitForNew`
+  - upgrade deps
+    - `is/term/color` - new `color.Color` type
+    - `logg/slog` - fixed bugs
+
 - v2.1.26
 
   - improved help-system - `app help` enter into prompt mode

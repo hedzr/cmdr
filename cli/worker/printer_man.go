@@ -256,14 +256,14 @@ func (s *manPainter) wrPrint(wr io.Writer, fmtStr string, args ...interface{}) {
 	str := fmt.Sprintf(fmtStr, args...)
 	str = replaceAll(str, "-", `\-`)
 	str = replaceAll(str, "`cmdr`", `\fBcmdr\fP`)
-	_, _ = wr.Write([]byte(s.Translate(str, 0)))
+	_, _ = wr.Write([]byte(s.Translate(str, color.Reset)))
 }
 
 func (s *manPainter) bufPrintf(buf *strings.Builder, fmtStr string, args ...interface{}) {
 	str := fmt.Sprintf(fmtStr, args...)
 	str = replaceAll(str, "-", `\-`)
 	str = replaceAll(str, "`cmdr`", `\fBcmdr\fP`)
-	_, _ = buf.WriteString(s.Translate(str, 0))
+	_, _ = buf.WriteString(s.Translate(str, color.Reset))
 }
 
 func replaceAll(s, old, newstr string) string {

@@ -6,6 +6,7 @@ import (
 	"context"
 	"os"
 	"strings"
+	"sync"
 
 	"gopkg.in/hedzr/errors.v3"
 
@@ -73,12 +74,26 @@ import (
 // It is not necessary to attach an action onto a parent command, because
 // its subcommands are the main characters - but you still can do that.
 func New(opts ...cli.Opt) cli.App {
-	_ = os.Setenv("CMDR_VERSION", Version)
-	logz.Verbose("setup env-var at earlier time", "CMDR_VERSION", Version)
+	earlierInitForNew()
 	cfg := cli.NewConfig(opts...)
 	w := worker.New(cfg)
 	return builder.New(w)
 }
+
+func NewAppWithConfig(cfg *cli.Config) cli.App {
+	earlierInitForNew()
+	w := worker.New(cfg)
+	return builder.New(w)
+}
+
+func earlierInitForNew() {
+	earlierInitForNewOnce.Do(func() {
+		_ = os.Setenv("CMDR_VERSION", Version)
+		logz.Verbose("setup env-var at earlier time", "CMDR_VERSION", Version)
+	})
+}
+
+var earlierInitForNewOnce sync.Once
 
 // App returns a light version of builder.Runner (a.k.a. *worker.Worker).
 //

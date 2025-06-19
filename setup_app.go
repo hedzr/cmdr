@@ -1,12 +1,9 @@
 package cmdr
 
 import (
-	"os"
-
 	"github.com/hedzr/cmdr/v2/builder"
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/cli/worker"
-	"github.com/hedzr/cmdr/v2/pkg/logz"
 	"github.com/hedzr/store"
 )
 
@@ -89,8 +86,7 @@ func (s *cs) Create(appName, version, author, desc string, opts ...cli.Opt) Crea
 	// app terminating, by [basics.RegisterPeripheral(...)].
 	// See also: https://github.com/hedzr/is/blob/master/basics/ and
 
-	_ = os.Setenv("CMDR_VERSION", Version)
-	logz.Verbose("setup env-var at earlier time", "CMDR_VERSION", Version)
+	earlierInitForNew()
 	cfg := cli.NewConfig(append([]cli.Opt{WithStore(store.New())}, opts...)...)
 	w := worker.New(cfg)
 	s.app = builder.New(w)

@@ -1,5 +1,18 @@
 # CHANGELOG
 
+- v2.1.31
+
+  - supported `SetCancelFunc()` & `WithCancelFunc()`
+    cmdr.v2 manage ctx & cancel now, querying by `CancelFunc()`
+  - improved `~~debug` output with the final value of a cmdline flag
+  - improved `devmode.go`
+  - update example apps
+    - remove unnecessary codes
+  - added prompt mode example app
+  - upgrade deps
+    - `is/term/color` - more `color.Color` implements
+    - `Store` - support `BR()`
+
 - v2.1.27
 
   - fix `color.Color` usages

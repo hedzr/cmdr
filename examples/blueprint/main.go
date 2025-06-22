@@ -52,9 +52,7 @@ func main() {
 		WithAdders(cmd.Commands...). // added subcommands here
 		Build()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
+	ctx := context.Background()
 	if err := app.Run(ctx); err != nil {
 		logz.ErrorContext(ctx, "Application Error:", "err", err) // stacktrace if in debug mode/build
 		os.Exit(app.SuggestRetCode())
@@ -67,5 +65,4 @@ func main() {
 	fmt.Printf("mode of %q/%q: %0b (%v)\nterm colorful: %v\ncolorful enabled: %v\n",
 		o.Name(), os.Stdout.Name(), mode,
 		term.StatStdoutString(), term.IsColorful(os.Stdout), !is.NoColorMode())
-	return
 }

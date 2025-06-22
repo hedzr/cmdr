@@ -34,9 +34,7 @@ func main() {
 		WithAdders().
 		Build()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
+	ctx := context.Background()
 	if err := app.Run(ctx); err != nil {
 		if errors.Is(err, cli.ErrRequiredFlag) {
 			fmt.Printf(color.StripLeftTabsC(`

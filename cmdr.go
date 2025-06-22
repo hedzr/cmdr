@@ -155,6 +155,9 @@ func Error() errors.Error { return App().Error() }
 // You can retrieve the error container with Error() later.
 func Recycle(errs ...error) { App().Recycle(errs...) }
 
+// CancelFunc returns the cancel func (ctx) managed by current worker.
+func CancelFunc() func() { return App().CancelFunc() }
+
 // Parsed identify cmdr.v2 ended the command-line arguments
 // parsing task.
 func Parsed() bool                   { return App().ParsedState() != nil }            // is parsed ok?

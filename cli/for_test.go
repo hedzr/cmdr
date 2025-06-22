@@ -958,6 +958,9 @@ func (w *workerS) SuggestRetCode() int                              { return w.r
 func (w *workerS) ParsedState() ParsedState                         { return nil }
 func (w *workerS) LoadedSources() (results []LoadedSources)         { return }
 
+func (w *workerS) SetCancelFunc(cancelFunc func()) {}
+func (w *workerS) CancelFunc() func()              { return nil }
+
 func (w *workerS) DoBuiltinAction(ctx context.Context, action ActionEnum, args ...any) (handled bool, err error) {
 	return
 }
@@ -1121,11 +1124,12 @@ func (s *appS) WithRootCommand(cb func(root *RootCommand)) App {
 
 func (s *appS) RootCommand() *RootCommand { return s.root }
 
-func (s *appS) Name() string       { return s.root.AppName }
-func (s *appS) Version() string    { return s.root.Version }
-func (s *appS) Worker() Runner     { return s.Runner }
-func (s *appS) Root() *RootCommand { return s.root }
-func (s *appS) Args() []string     { return s.args }
+func (s *appS) Name() string                    { return s.root.AppName }
+func (s *appS) Version() string                 { return s.root.Version }
+func (s *appS) Worker() Runner                  { return s.Runner }
+func (s *appS) Root() *RootCommand              { return s.root }
+func (s *appS) Args() []string                  { return s.args }
+func (w *appS) SetCancelFunc(cancelFunc func()) {}
 
 func (s *appS) ensureNewApp() App { //nolint:unparam
 	if s.root == nil {

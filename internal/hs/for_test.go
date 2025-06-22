@@ -1149,6 +1149,9 @@ func (w *workerS) SuggestRetCode() int                                  { return
 func (w *workerS) ParsedState() cli.ParsedState                         { return nil }
 func (w *workerS) LoadedSources() (results []cli.LoadedSources)         { return }
 
+func (w *workerS) SetCancelFunc(cancelFunc func()) {}
+func (w *workerS) CancelFunc() func()              { return nil }
+
 func (w *workerS) DoBuiltinAction(ctx context.Context, action cli.ActionEnum, args ...any) (handled bool, err error) {
 	return
 }
@@ -1312,11 +1315,12 @@ func (s *appS) WithRootCommand(cb func(root *cli.RootCommand)) cli.App {
 
 func (s *appS) RootCommand() *cli.RootCommand { return s.root }
 
-func (s *appS) Name() string           { return s.root.AppName }
-func (s *appS) Version() string        { return s.root.Version }
-func (s *appS) Worker() cli.Runner     { return s.Runner }
-func (s *appS) Root() *cli.RootCommand { return s.root }
-func (s *appS) Args() []string         { return s.args }
+func (s *appS) Name() string                    { return s.root.AppName }
+func (s *appS) Version() string                 { return s.root.Version }
+func (s *appS) Worker() cli.Runner              { return s.Runner }
+func (s *appS) Root() *cli.RootCommand          { return s.root }
+func (s *appS) Args() []string                  { return s.args }
+func (w *appS) SetCancelFunc(cancelFunc func()) {}
 
 func (s *appS) ensureNewApp() cli.App { //nolint:unparam
 	if s.root == nil {

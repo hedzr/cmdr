@@ -76,6 +76,8 @@ type HelpWriter interface {
 type workerS struct {
 	*cli.Config
 
+	globalCancelFunc func()
+
 	tasksAfterParse []taskAfterParse
 	wrHelpScreen    HelpWriter
 	wrDebugScreen   HelpWriter
@@ -260,6 +262,10 @@ func (w *workerS) Store(prefix ...string) store.Store {
 	return w.Config.Store
 }
 
+func (w *workerS) SetCancelFunc(cancelFunc func()) {
+	w.globalCancelFunc = cancelFunc
+}
+
 func (w *workerS) InitGlobally(ctx context.Context) {
 	if w.reqResourcesReady() {
 		w.initGlobalResources()
@@ -350,28 +356,10 @@ func (w *workerS) ParsedState() cli.ParsedState {
 	return nil
 }
 
-func bindOpts[Opt cli.Opt](ctx context.Context, w *workerS, opts ...Opt) {
-	for _, opt := range opts {
-		opt(w.Config)
-	}
-
-	if w.HelpScreenWriter != nil {
-		w.wrHelpScreen = w.HelpScreenWriter
-	}
-	if w.DebugScreenWriter != nil {
-		w.wrDebugScreen = w.DebugScreenWriter
-	}
-	w.HelpScreenWriter = w.wrHelpScreen
-	w.DebugScreenWriter = w.wrDebugScreen
-
-	_ = ctx
-	// if cx, ok := w.root.Cmd.(*cli.CmdS); ok {
-	// 	cx.EnsureTree(ctx, w, w.root)
-	// }
-
-	// update args with w.Config.Args
-	if len(w.Config.Args) > 0 {
-		w.args = w.Config.Args
+func (w *workerS) CancelFunc() func() { return w.globalCancelFunc }
+func (w *workerS) CancelNow() {
+	if w.globalCancelFunc != nil {
+		w.globalCancelFunc()
 	}
 }
 
@@ -388,15 +376,62 @@ func setUniqueWorker(ctx context.Context, w *workerS) {
 	}
 }
 
+func bindOpts[Opt cli.Opt](ctx context.Context, w *workerS, opts ...Opt) {
+	for _, opt := range opts {
+		opt(w.Config)
+	}
+
+	if w.HelpScreenWriter != nil {
+		w.wrHelpScreen = w.HelpScreenWriter
+	}
+	if w.DebugScreenWriter != nil {
+		w.wrDebugScreen = w.DebugScreenWriter
+	}
+	w.HelpScreenWriter = w.wrHelpScreen
+	w.DebugScreenWriter = w.wrDebugScreen
+
+	if w.Config.CancelFunc != nil {
+		w.globalCancelFunc = w.Config.CancelFunc
+	}
+	w.Config.CancelFunc = w.globalCancelFunc
+
+	_ = ctx
+	// if cx, ok := w.root.Cmd.(*cli.CmdS); ok {
+	// 	cx.EnsureTree(ctx, w, w.root)
+	// }
+
+	// update args with w.Config.Args
+	if len(w.Config.Args) > 0 {
+		w.args = w.Config.Args
+	}
+}
+
 func (w *workerS) Run(ctx context.Context, opts ...cli.Opt) (err error) {
 	bindOpts(ctx, w, opts...)
 	setUniqueWorker(ctx, w)
+
+	if ctx == nil {
+		ctx, w.globalCancelFunc = context.WithCancel(context.Background())
+	} else if w.globalCancelFunc == nil {
+		ctx, w.globalCancelFunc = context.WithCancel(ctx)
+	} else {
+		// okay, you had applied w.globalCancelFunc via
+		// `WithCancelFunc(cancel) Opt` or
+		// `app.SetCancelFunc(cancel)`
+	}
 
 	// shutdown basics.Closers for the registered Peripheral, Closers.
 	// See also: basics.RegisterPeripheral, basics.RegisterClosable,
 	// basics.RegisterCloseFns, basics.RegisterCloseFn, and
 	// basics.RegisterClosers
-	defer basics.Close()
+	defer func() {
+		logz.DebugContext(ctx, ".worker. closing basics.closers.")
+		basics.Close()
+	}()
+
+	if w.globalCancelFunc != nil {
+		defer w.globalCancelFunc()
+	}
 
 	w.errs = errors.New(w.root.AppName)
 	defer w.errs.Defer(&err)

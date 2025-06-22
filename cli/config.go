@@ -61,6 +61,7 @@ type Config struct {
 	OnSingleHyphenMatched      OnSingleHyphenHandler      `json:"-"`
 	OnUnknownCommandHandler    OnUnknownCommandHandler    `json:"-"`
 	OnUnknownFlagHandler       OnUnknownCommandHandler    `json:"-"`
+	CancelFunc                 func()                     `json:"-"`
 }
 
 // Opt for cmdr system
@@ -84,6 +85,13 @@ type Runner interface {
 	Version() string                    // app version
 	Root() *RootCommand                 // root command
 	Args() []string                     // command-line
+
+	// SetCancelFunc allow passing your own cancelFunc into cmdr App object.
+	//
+	//    ctx, cancel := context.WithCancel(context.TODO())
+	//    app.SetCancelFunc(cancel)
+	SetCancelFunc(cancelFunc func())
+	CancelFunc() func()
 
 	SuggestRetCode() int                      // os process return code
 	SetSuggestRetCode(ret int)                // update ret code (0-255) from onAction, onTask, ...

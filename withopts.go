@@ -361,3 +361,9 @@ func WithOnUnknownFlagHandler(cb cli.OnUnknownCommandHandler) cli.Opt {
 		s.OnUnknownFlagHandler = cb
 	}
 }
+
+func WithCancelFunc(cb func()) cli.Opt {
+	return func(s *cli.Config) {
+		s.CancelFunc = cb
+	}
+}

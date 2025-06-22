@@ -58,11 +58,13 @@ func (s *appS) Run(ctx context.Context, opts ...cli.Opt) (err error) {
 	return
 }
 
-func (s *appS) Name() string           { return s.root.AppName }
-func (s *appS) Version() string        { return s.root.Version }
-func (s *appS) Worker() cli.Runner     { return s.Runner }
-func (s *appS) Root() *cli.RootCommand { return s.root }
-func (s *appS) Args() []string         { return s.args }
+func (s *appS) Name() string                    { return s.root.AppName }
+func (s *appS) Version() string                 { return s.root.Version }
+func (s *appS) Worker() cli.Runner              { return s.Runner }
+func (s *appS) Root() *cli.RootCommand          { return s.root }
+func (s *appS) Args() []string                  { return s.args }
+func (s *appS) SetCancelFunc(cancelFunc func()) { s.Runner.SetCancelFunc(cancelFunc) }
+func (s *appS) CancelFunc() func()              { return s.Runner.CancelFunc() }
 
 func (s *appS) Build() {
 	if sr, ok := s.Runner.(setRoot); ok {

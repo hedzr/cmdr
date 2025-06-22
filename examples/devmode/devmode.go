@@ -20,6 +20,7 @@ func InDevelopmentMode() bool { return devMode }
 
 var onceDev sync.Once
 var devMode bool
+var devModeFilePresent bool
 
 func init() {
 	// onceDev is a redundant operation, but we still keep it to
@@ -37,7 +38,7 @@ func init() {
 
 		isCmdrV2 := false
 		devModeFile := filepath.Join(d, ".dev-mode")
-		if dir.FileExists(devModeFile) {
+		if devModeFilePresent = dir.FileExists(devModeFile); devModeFilePresent {
 			devMode = true
 		} else if dir.FileExists("go.mod") {
 			data, err := os.ReadFile("go.mod")
@@ -77,7 +78,7 @@ func init() {
 		if devMode {
 			debugMode = true
 			if v, e := boolenvvar("CMDR_FORCE_DEBUG"); e && v {
-				info(".dev-mode file detected, entering Debug Mode...")
+				info("[dev-mode] .dev-mode file detected, entering Debug Mode...")
 			}
 		}
 		if is.DebugBuild() {
@@ -122,37 +123,45 @@ func init() {
 		if debugMode {
 			if logz.GetLevel() < logzorig.DebugLevel {
 				logz.SetLevel(logzorig.DebugLevel)
-				info(".set-level to debug")
+				info("[dev-mode] .set-level to debug")
 			}
 		} else if devMode {
 			logz.SetLevel(logzorig.InfoLevel)
-			info(".set-level to info")
+			info("[dev-mode] .set-level to info")
 		} else {
 			logz.SetLevel(logzorig.WarnLevel)
 			if verboseMode {
-				info(".set-level to warn")
+				info("[dev-mode] .set-level to warn")
 			}
 		}
 		if traceMode {
 			if logz.GetLevel() < logzorig.TraceLevel {
 				logz.SetLevel(logzorig.TraceLevel)
-				info(".set-level to trace")
+				info("[dev-mode] .set-level to trace")
 			}
 		}
 		if verboseMode {
 			if logz.GetLevel() < logzorig.InfoLevel {
 				logz.SetLevel(logzorig.InfoLevel)
-				info(".set-level to info")
+				info("[dev-mode] .set-level to info")
 			}
 		}
 
-		logz.Debug(".logging-level is", "level", logzorig.GetLevel(), "debug-mode", debugMode)
+		logz.Debug(fmt.Sprintf(`[dev-mode] .logging-level is %v.
+			             dev-mode: %v
+			dev-mode-file-present: %v
+			           debug-mode: %v
+			           trace-mode: %v
+			`,
+			logzorig.GetLevel(), devMode, devModeFilePresent, debugMode, traceMode,
+		),
+			"level", logzorig.GetLevel(), "debug-mode", debugMode)
 
 		if is.DebugMode() || is.DebuggerAttached() {
 			logzorig.RemoveFlags(logzorig.Lprivacypathregexp, logzorig.Lprivacypath)
 			if logz.GetLevel() < logzorig.DebugLevel {
 				logz.SetLevel(logzorig.DebugLevel)
-				info(".set-level to debug")
+				info("[dev-mode] .set-level to debug")
 			}
 		} else {
 			logzorig.AddFlags(logzorig.Lprivacypathregexp, logzorig.Lprivacypath)
@@ -160,7 +169,7 @@ func init() {
 		if is.Windows() {
 			if logz.GetLevel() < logzorig.InfoLevel {
 				logz.SetLevel(logzorig.InfoLevel)
-				info(".set-level to info")
+				info("[dev-mode] .set-level to info")
 			}
 		}
 
@@ -171,7 +180,7 @@ func init() {
 			}
 		} else if p || n || r {
 			is.SetNoColorMode(true)
-			info(fmt.Sprintf(`.for %q, switch to no-color mode`, term.StatStdoutString()))
+			info(fmt.Sprintf(`[dev-mode] .for %q, switch to no-color mode`, term.StatStdoutString()))
 		}
 	})
 }

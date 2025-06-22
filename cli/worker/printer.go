@@ -527,17 +527,22 @@ func (s *helpPrinter) printDebugMatches(ctx context.Context, sb *strings.Builder
 					tilde = "TILDE"
 				}
 			}
+			var extras strings.Builder
+			conf := ff.Store().BR()
+			_, _ = extras.WriteString(s.translate(pc, fmt.Sprintf(`<dim>final-value:</dim> %v`,
+				conf.MustGet(ff.LongTitle())), color.Reset))
 			_, _ = sb.WriteString(s.translate(pc,
 				fmt.Sprintf(
-					"  - %d. <code>%s</code> <dim>(+%v)</dim> %v <dim>/%v%v/</dim> | <dim>[owner: %v]</dim>\n",
-					i, ff.GetHitStr(), ff.GetTriggeredTimes(), ff, short, tilde, ff.Owner().String()),
+					"  - %d. <code>%s</code> <dim>(+%v)</dim> %v <dim>/%v%v/</dim> | <dim>[owner: %v]</dim> | %s\n",
+					i, ff.GetHitStr(), ff.GetTriggeredTimes(), ff, short, tilde, ff.Owner().String(),
+					extras.String()),
 				color.FgDefault))
 		}
 	}
 
 	if s.w != nil {
 		_, _ = sb.WriteString("\nACTIONS:\n")
-		_, _ = sb.WriteString(s.w.actionsMatched.String())
+		_, _ = sb.WriteString(s.translate(pc, fmt.Sprintf(`<i>%s</i>`, s.w.actionsMatched.String()), color.Reset))
 		_, _ = sb.WriteString("\n")
 	}
 

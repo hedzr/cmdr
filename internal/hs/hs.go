@@ -38,7 +38,7 @@ type HelpSystem struct {
 // }
 
 func (s *HelpSystem) Run(ctx context.Context) (err error) {
-	var dfn func()
+	var dfn, dfn2 func()
 	if dfn, err = term.MakeRawWrapped(); err != nil {
 		return
 	}
@@ -49,10 +49,10 @@ func (s *HelpSystem) Run(ctx context.Context) (err error) {
 	Type 'quit' to end this session and back to Shell.
 	`).Build()
 
-	if dfn, err = term.MakeNewTerm(ctx, welcomeString, promptString, replyPrefix, s.helpSystemLooper); err != nil {
+	if dfn2, err = term.MakeNewTerm(ctx, welcomeString, promptString, replyPrefix, s.helpSystemLooper); err != nil {
 		return
 	}
-	defer dfn()
+	defer dfn2()
 
 	return
 }

@@ -176,7 +176,7 @@ func init() {
 		n, r, p, t := term.StatStdout()
 		if t {
 			if term.IsColorful(os.Stdout) {
-				is.SetNoColorMode(term.DisableColors)
+				is.SetNoColorMode(term.DisableColors())
 			}
 		} else if p || n || r {
 			is.SetNoColorMode(true)

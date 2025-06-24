@@ -1,5 +1,13 @@
 # CHANGELOG
 
+- v2.1.35
+
+  - improved `prompt` examples
+  - fix withopts.go - uses `basics.Openable`
+  - fix devmode.go - uses `term.DisableColors()`
+  - upgrade deps
+    - `is/term/color`, `term`, and `basics`
+
 - v2.1.31
 
   - supported `SetCancelFunc()` & `WithCancelFunc()`

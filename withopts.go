@@ -221,9 +221,7 @@ func WithPeripherals(peripherals PeripheralMap) cli.Opt {
 		})
 		for _, peripheral := range peripherals {
 			basics.RegisterPeripheral(peripheral)
-			if p, ok := peripheral.(interface {
-				Open(ctx context.Context) error
-			}); ok {
+			if p, ok := peripheral.(basics.Openable); ok {
 				WithTasksSetupPeripherals(func(ctx context.Context, cmd cli.Cmd, runner cli.Runner, extras ...any) (err error) {
 					err = p.Open(ctx)
 					return

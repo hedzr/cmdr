@@ -80,7 +80,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedS
 	}
 
 	if s.Translator == nil {
-		logz.Info(`[helpPrinter] getCPT`, "no-color", is.NoColorMode())
+		logz.Debug(`[helpPrinter] getCPT`, "no-color", is.NoColorMode())
 		s.Translator = color.GetCPT()
 	}
 

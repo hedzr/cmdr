@@ -449,6 +449,9 @@ func (f *Flag) GetTitleFlagNamesByMax(delimiter string, maxShort int, maxW ...in
 }
 
 func (f *Flag) String() string {
+	if f == nil {
+		return ""
+	}
 	var sb strings.Builder
 	_, _ = sb.WriteString("Flg{'")
 	_, _ = sb.WriteString(f.GetDottedNamePath())

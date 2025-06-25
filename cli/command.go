@@ -90,6 +90,9 @@ func (c *CmdS) HasFlag(longTitle string) (f *Flag, ok bool) {
 func (c *CmdS) SubCommands() []*CmdS { return c.commands }
 func (c *CmdS) Flags() []*Flag       { return c.flags }
 func (c *CmdS) String() string {
+	if c == nil {
+		return ""
+	}
 	var sb strings.Builder
 	_, _ = sb.WriteString("Cmd{'")
 	// _, _ = sb.WriteString(c.GetTitleName())

@@ -1181,6 +1181,10 @@ func (s *appS) NewFlagBuilder(longTitle string, titles ...string) cli.FlagBuilde
 	return s.Flg(longTitle, titles...)
 }
 
+func (s *appS) FromStruct(structValue any, opts ...cli.StructBuilderOpt) cli.StructBuilder {
+	return nil
+}
+
 func (s *appS) Cmd(longTitle string, titles ...string) cli.CommandBuilder { //nolint:revive
 	s.inCmd = true
 	// return newCommandBuilder(s, longTitle, titles...)

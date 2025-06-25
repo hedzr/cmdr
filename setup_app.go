@@ -66,6 +66,10 @@ type Creator interface {
 	// OnAction apply the root-level onAction handler to the app object.
 	OnAction(handler cli.OnInvokeHandler) Creator
 
+	// BuildFrom builds command system from a given struct-value and
+	// creates the final app object right now.
+	BuildFrom(structValue any, opts ...cli.StructBuilderOpt) (app cli.App)
+
 	// Build creates the final app object and stop the
 	// building sequence of a builder pattern.
 	Build() (app cli.App)
@@ -126,6 +130,13 @@ func (s *cs) WithAdders(adders ...cli.CmdAdder) Creator {
 		adder.Add(s.app)
 	}
 	return s
+}
+
+func (s *cs) BuildFrom(structValue any, opts ...cli.StructBuilderOpt) (app cli.App) {
+	s.app.
+		FromStruct(structValue, opts...).
+		Build()
+	return s.app
 }
 
 func (s *cs) Build() (app cli.App) {

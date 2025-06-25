@@ -105,19 +105,13 @@ func backtraceCmdNamesG(cmd BacktraceableMin, delimiter string, verboseLast bool
 	}
 
 	p := cmd
-	for !p.OwnerIsNil() {
+	for p != nil && p.OwnerIsNotNil() {
 		p = p.OwnerOrParent()
-		if !p.OwnerIsNil() { // p has parent
-			a = append(a, p.GetTitleName())
+		if p != nil { // p has parent
+			n := p.GetTitleName()
+			a = append(a, n)
 		}
 	}
-	// p := p.OwnerOrParent()
-	// for p != nil {
-	// 	if pp := p.OwnerOrParent(); pp != nil {
-	// 		a = append(a, p.GetTitleName())
-	// 		p = pp
-	// 	}
-	// }
 
 	// reverse it
 	i := 0
@@ -128,7 +122,13 @@ func backtraceCmdNamesG(cmd BacktraceableMin, delimiter string, verboseLast bool
 		j--
 	}
 
-	str = strings.Join(a, delimiter)
+	for i = 0; i < len(a); i++ {
+		if a[i] != "" {
+			break
+		}
+	}
+
+	str = strings.Join(a[i:], delimiter)
 	return
 }
 

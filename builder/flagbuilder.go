@@ -16,6 +16,10 @@ import (
 // 	return newFlagBuilderFrom(parent, nil, defaultValue, longTitle, titles...)
 // }
 
+func newFlagBuilder(b buildable, longTitle string, titles ...string) cli.FlagBuilder {
+	return newFlagBuilderFrom(nil, b, nil, longTitle, titles...)
+}
+
 func newFlagBuilderShort(b buildable, longTitle string, titles ...string) *ffb {
 	return newFlagBuilderFrom(nil, b, nil, longTitle, titles...)
 }
@@ -54,6 +58,22 @@ func (s *ffb) Build() {
 }
 
 func (s *ffb) SetApp(app buildable) { s.buildable = app }
+
+func (s *ffb) FromStruct(structValue any, longTitle string, titles ...string) cli.FlagBuilder {
+	s.Long, s.Short, s.Aliases = theTitles(longTitle, titles...)
+	type A struct {
+		F1 int
+		F2 string
+	}
+	// --a.f1 1 --a.f2 str
+	return s
+}
+func (s *ffb) FromMap(mapValue any) cli.FlagBuilder {
+	return s
+}
+func (s *ffb) FromAny(value any) cli.FlagBuilder {
+	return s
+}
 
 func (s *ffb) Titles(longTitle string, titles ...string) cli.FlagBuilder {
 	s.Long, s.Short, s.Aliases = theTitles(longTitle, titles...)

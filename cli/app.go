@@ -1,5 +1,7 @@
 package cli
 
+type StructBuilderOpt func(s any)
+
 type App interface {
 	// NewCommandBuilder(longTitle string, titles ...string) CommandBuilder // starts a closure to build a new sub-command and its children
 	// NewFlagBuilder(longTitle string, titles ...string) FlagBuilder       // starts a closure to build a flag
@@ -7,6 +9,10 @@ type App interface {
 	With(cb func(app App))
 
 	WithOpts(opts ...Opt) App
+
+	// FromStruct constructs the whole app commands system from a given struct value.
+	//
+	FromStruct(structValue any, opts ...StructBuilderOpt) StructBuilder
 
 	// Cmd is a shortcut to NewCommandBuilder and starts a stream building for a new sub-command
 	Cmd(longTitle string, titles ...string) CommandBuilder

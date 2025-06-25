@@ -189,6 +189,13 @@ func (c *CmdS) Shell() string            { return c.shell }
 var errDuplicated = errors.New("duplicated command")
 var errDuplicatedFlag = errors.New("duplicated flag")
 
+func (c *CmdS) SetCommands(cmds ...*CmdS) {
+	c.commands = cmds
+}
+func (c *CmdS) SetFlags(flgs ...*Flag) {
+	c.flags = flgs
+}
+
 func (c *CmdS) AddSubCommand(child *CmdS, callbacks ...func(cc *CmdS)) (err error) {
 	if child == nil {
 		return

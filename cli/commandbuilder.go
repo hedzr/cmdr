@@ -5,6 +5,16 @@ type OptBuilder interface {
 	Build()
 }
 
+type StructBuilder interface {
+	OptBuilder
+
+	Buildable() OptBuilder
+	Parent() *CmdS
+	Building() *CmdS
+
+	StructValue(structValue any) StructBuilder
+}
+
 type CommandBuilder interface {
 	OptBuilder
 

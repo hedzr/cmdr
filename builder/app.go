@@ -10,6 +10,8 @@ import (
 	"github.com/hedzr/cmdr/v2/pkg/logz"
 )
 
+var _ cli.App = (*appS)(nil)
+
 type appS struct {
 	cli.Runner
 	opts  []cli.Opt
@@ -193,6 +195,11 @@ func (s *appS) NewFlagBuilder(longTitle string, titles ...string) cli.FlagBuilde
 	return s.Flg(longTitle, titles...)
 }
 
+func (s *appS) FromStruct(structValue any, opts ...cli.StructBuilderOpt) cli.StructBuilder {
+	atomic.AddInt32(&s.inCmd, 1)
+	return newStructBuilderShort(s, structValue, opts...)
+}
+
 func (s *appS) Cmd(longTitle string, titles ...string) cli.CommandBuilder {
 	atomic.AddInt32(&s.inCmd, 1)
 	return newCommandBuilderShort(s, longTitle, titles...)
@@ -276,8 +283,17 @@ func (s *appS) AddFlg(cb func(b cli.FlagBuilder)) cli.App {
 
 func (s *appS) addCommand(child *cli.CmdS) {
 	if s.root != nil && s.root.Cmd != nil {
-		if rc, ok := s.root.Cmd.(*cli.CmdS); ok && rc == child {
-			return
+		if rc, ok := s.root.Cmd.(*cli.CmdS); ok {
+			if rc == child {
+				atomic.AddInt32(&s.inCmd, -1)
+				return
+			}
+
+			if child != nil && isAssumedAsRootCmd(child.Long) {
+				s.root.Cmd = child
+				atomic.CompareAndSwapInt32(&s.inCmd, 1, 0)
+				return
+			}
 		}
 	}
 

@@ -7,6 +7,7 @@ import (
 	"sync/atomic"
 
 	"github.com/hedzr/cmdr/v2/cli"
+	logz "github.com/hedzr/logg/slog"
 )
 
 type buildable interface {
@@ -23,6 +24,10 @@ type buildable interface {
 // 	// return s
 // 	return newCommandBuilderFrom(parent, nil, longTitle, titles...)
 // }
+
+func newCommandBuilder(b buildable, longTitle string, titles ...string) cli.CommandBuilder {
+	return newCommandBuilderFrom(new(cli.CmdS), b, longTitle, titles...)
+}
 
 func newCommandBuilderShort(b buildable, longTitle string, titles ...string) *ccb {
 	return newCommandBuilderFrom(new(cli.CmdS), b, longTitle, titles...)
@@ -52,6 +57,8 @@ func asCommandBuilder(from *cli.CmdS, b buildable, longTitle string, titles ...s
 	s.Long, s.Short, s.Aliases = theTitles(longTitle, titles...)
 	return s
 }
+
+var _ cli.CommandBuilder = (*ccb)(nil)
 
 type ccb struct {
 	buildable
@@ -100,6 +107,7 @@ func (s *ccb) WithSubCmd(cb func(b cli.CommandBuilder)) {
 func (s *ccb) addCommand(child *cli.CmdS) {
 	atomic.AddInt32(&s.inCmd, -1) // reset increased inCmd at AddCmd or Cmd
 	s.AddSubCommand(child)
+	logz.Trace(fmt.Sprintf("added %v -> %v", child.String(), s.CmdS))
 }
 
 // addFlag adds a in-building Flg into current CmdS as its flag.
@@ -107,6 +115,7 @@ func (s *ccb) addCommand(child *cli.CmdS) {
 func (s *ccb) addFlag(child *cli.Flag) {
 	atomic.AddInt32(&s.inFlg, -1)
 	s.AddFlag(child)
+	logz.Trace(fmt.Sprintf("added %v -> %v", child, s.CmdS))
 }
 
 func (s *ccb) NewCommandBuilder(longTitle string, titles ...string) cli.CommandBuilder {

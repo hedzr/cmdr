@@ -996,6 +996,10 @@ func (s *appS) Cmd(longTitle string, titles ...string) CommandBuilder { //nolint
 	return nil
 }
 
+func (s *appS) FromStruct(structValue any, opts ...StructBuilderOpt) StructBuilder {
+	return nil
+}
+
 func (s *appS) With(cb func(app App)) { //nolint:revive
 	cb(s)
 }

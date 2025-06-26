@@ -4,10 +4,10 @@
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/hedzr/cmdr)
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/hedzr/cmdr.svg?label=release)](https://github.com/hedzr/cmdr/releases)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/hedzr/cmdr) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fhedzr%2Fcmdr.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fhedzr%2Fcmdr?ref=badge_shield)
-[![go.dev](https://img.shields.io/badge/go.dev-reference-green)](https://pkg.go.dev/github.com/hedzr/cmdr)
-[![Go Report Card](https://goreportcard.com/badge/github.com/hedzr/cmdr)](https://goreportcard.com/report/github.com/hedzr/cmdr)
-[![codecov](https://codecov.io/gh/hedzr/cmdr/branch/master/graph/badge.svg)](https://codecov.io/gh/hedzr/cmdr)<!--
-[![Coverage Status](https://coveralls.io/repos/github/hedzr/cmdr/badge.svg?branch=master)](https://coveralls.io/github/hedzr/cmdr?branch=master)-->
+[![go.dev](https://img.shields.io/badge/go.dev-reference-green)](https://pkg.go.dev/github.com/hedzr/cmdr/v2)
+[![Go Report Card](https://goreportcard.com/badge/github.com/hedzr/cmdr)](https://goreportcard.com/report/github.com/hedzr/cmdr/v2)
+[![codecov](https://codecov.io/gh/hedzr/cmdr/branch/master/graph/badge.svg)](https://codecov.io/gh/hedzr/cmdr/v2)<!--
+[![Coverage Status](https://coveralls.io/repos/github/hedzr/cmdr/badge.svg?branch=master)](https://coveralls.io/github/hedzr/cmdr/v2?branch=master)-->
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go#command-line)
 [![DocSite](https://img.shields.io/badge/Cmdr-Docs-blue)](https://docs.hedzr.com/docs/cmdr.v2/)
 
@@ -114,12 +114,6 @@ v2 is in earlier state but the baseline is stable:
 [^3]: `hedzr/logg` provides a slog like and colorful logging library
 [^4]: `hedzr/is` is a basic environ detectors library
 
-You can build command system by kinds of forms:
-
-- traditional stream calls (`app.Cmd("verbose", "v").Action(onVerbose)`)
-- concise modes by `[Create]` and cmd/xxcmd.go
-- use `[Create.BuildFrom]` to build cmdsys from a struct value via `[App.FromStruct]`, see example [#example_Create_buildFromStructValue](https://pkg.go.dev/github.com/hedzr/cmdr/v2/#example_Create_buildFromStructValue)
-
 Getting started from [New](https://pkg.go.dev/github.com/hedzr/cmdr/v2#New) or [Create](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Create) function.
 
 More minor details need to be evaluated and reimplemented if it's still meaningful in v2.
@@ -145,6 +139,13 @@ v2.1 is a stable version:
 - Full list: [CHANGELOG](https://github.com/hedzr/cmdr/blob/master/CHANGELOG)
 
 ## Guide
+
+You can build command system by kinds of forms:
+
+- traditional stream calls from `[New()](https://pkg.go.dev/github.com/hedzr/cmdr/v2#New)` (`cmdr.New().Cmd("verbose", "v").Action(onVerbose)`)
+- concise modes by `[Create()](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Create)` and cmd/xxcmd.go
+- use `[Create().BuildFrom()](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Create)` to build cmdsys from a struct value via `[App.FromStruct()](https://pkg.go.dev/github.com/hedzr/cmdr/v2/cli#App)`, see example [#example_Create_buildFromStructValue](https://pkg.go.dev/github.com/hedzr/cmdr/v2/#example_Create_buildFromStructValue)
+
 
 A typical cli-app can be (its concise version at [examples/tiny/concise/main.go](https://github.com/hedzr/cmdr/blob/master/examples/tiny/concise/main.go)):
 

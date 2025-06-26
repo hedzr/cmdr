@@ -17,8 +17,9 @@
 
 1. Our license moved to Apache 2.0 since v2.
 2. The minimal toolchain move to go1.23+ since v2.1.
-3. DocSite published at [here](https://docs.hedzr.com/docs/cmdr.v2/).
+3. DocSite published at [docs.hedzr.com](https://docs.hedzr.com/docs/cmdr.v2/).
 4. Starting a new app with [cmdr-go-starter](https://github.com/hedzr/cmdr-go-starter) Template repo.
+5. [Coming soon] Starting your app with [cmdr-cli] commandline tool.
 
 The stable API starts since v2.1 and v2.2.
 
@@ -113,6 +114,14 @@ v2 is in earlier state but the baseline is stable:
 [^3]: `hedzr/logg` provides a slog like and colorful logging library
 [^4]: `hedzr/is` is a basic environ detectors library
 
+You can build command system by kinds of forms:
+
+- traditional stream calls (`app.Cmd("verbose", "v").Action(onVerbose)`)
+- concise modes by `[Create]` and cmd/xxcmd.go
+- use `[Create.BuildFrom]` to build cmdsys from a struct value via `[App.FromStruct]`, see example [#example_Create_buildFromStructValue](https://pkg.go.dev/github.com/hedzr/cmdr/v2/#example_Create_buildFromStructValue)
+
+Getting started from [New](https://pkg.go.dev/github.com/hedzr/cmdr/v2#New) or [Create](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Create) function.
+
 More minor details need to be evaluated and reimplemented if it's still meaningful in v2.
 
 ### cmdr-loaders
@@ -120,6 +129,8 @@ More minor details need to be evaluated and reimplemented if it's still meaningf
 Since v2.0.3, loaders had been splitted as a standalone repo so that we can keep cmdr v2 smaller and independer. See the relevant subproject [cmdr-loaders](https://github.com/hedzr/cmdr-loaders)[^5].
 
 Since v2.1.12, we did main alternative features like autocompletion generating, manpage reading and generating, and made quite a lot of fixes and improvments. Now the main APIs come to stable.
+
+Since v2.1.26, we added `App.FromStruct(structValue, opts...)` to build the command system from a struct-value, which deconstructs the given struct's definitions and constrcts the cmd-sys. For more detail, see also []
 
 The full-functional tests and examples are moved into [cmdr-tests](https://github.com/hedzr/cmdr-tests).
 
@@ -135,7 +146,7 @@ v2.1 is a stable version:
 
 ## Guide
 
-A typical cli-app can be (its concise version at [here](https://github.com/hedzr/cmdr/blob/master/examples/tiny/concise/main.go)):
+A typical cli-app can be (its concise version at [examples/tiny/concise/main.go](https://github.com/hedzr/cmdr/blob/master/examples/tiny/concise/main.go)):
 
 ```go
 package main

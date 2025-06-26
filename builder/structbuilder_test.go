@@ -18,13 +18,16 @@ func TestStructBuilder_FromStruct(t *testing.T) {
 
 	// FromStruct assumes creating a command system from RootCommand.Cmd
 	// since a bracketed longTitle "(...)" passed.
-	b := app.FromStruct(R{})
+	b := app.FromStruct(R{
+		F2: "/tmp/value",
+	})
 	b.Build()
 
 	assertEqual(t, int32(0), app.inCmd)
 	assertEqual(t, int32(0), app.inFlg)
 
 	root := app.root.Cmd.(*cli.CmdS)
+	assertEqual(t, "/tmp/value", root.Flags()[1].DefaultValue())
 	assertEqual(t, "a-cmd", root.SubCommands()[0].Long)
 	assertEqual(t, "b", root.SubCommands()[1].Long)
 	assertEqual(t, "c", root.SubCommands()[2].Long)
@@ -41,7 +44,7 @@ func TestStructBuilder_FromStruct(t *testing.T) {
 	assertEqual(t, "from-now-on", dcmd.SubCommands()[1].Long)
 	ecmd := dcmd.SubCommands()[0]
 	// F3 bool `title:"f3" shorts:"ff" alias:"f3ff" desc:"A flag for demo" required:"true"`
-	assertEqual(t, "f3", ecmd.Flags()[0].String())
+	assertEqual(t, "Flg{'a-cmd.d.e.f3'}", ecmd.Flags()[0].String())
 	assertEqual(t, "ff", ecmd.Flags()[0].Short)
 	assertEqual(t, true, ecmd.Flags()[0].Required())
 	assertEqual(t, []string{"f3ff"}, ecmd.Flags()[0].Aliases)
@@ -85,8 +88,8 @@ type F struct {
 }
 
 type R struct {
-	b   bool
-	Int int `cmdr:"-"`
+	b   bool // unexported values ignored
+	Int int  `cmdr:"-"` // ignored
 	A   `title:"a-cmd" shorts:"a,a1,a2" alias:"a1-cmd,a2-cmd" desc:"A command for demo" required:"true"`
 	B
 	C

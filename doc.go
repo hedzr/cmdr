@@ -109,9 +109,14 @@
 //		}
 //	}
 //
+// You can build command system by kinds of forms:
+//   - traditional stream calls (`app.Cmd("verbose", "v").Action(onVerbose)`)
+//   - concise modes by `[Create]` and cmd/xxcmd.go
+//   - use `[Create.FromStruct]` to build cmdsys from a struct value via `[App.FromStruct]`, see example [#example_Create_buildFromStructValue]
+//
 // Getting started from [New] or [Create] function.
 //
 // For more documentation please go and check out https://docs.hedzr.com/cmdr.v2/.
 package cmdr
 
-const Version = "v2.1.35" // Version fir hedzr/cmdr/v2
+const Version = "v2.1.36" // Version fir hedzr/cmdr/v2

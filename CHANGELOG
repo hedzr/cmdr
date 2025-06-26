@@ -1,5 +1,16 @@
 # CHANGELOG
 
+- v2.1.36
+
+  - added `BuildFrom(structValue,opts...)` to `Creator` interface
+  - added new example app `examples/tiny/struct`
+  - added new builder `FromStruct` to build the command system from a struct value
+    you can write a struct type and pass its value into FromStruct to build root
+    command and its subcommands now.
+  - fix `RootBuilder()` caused incorrect inCmd (-1)
+  - fix a debug call
+  - fix `OwnerIsNil` ...
+
 - v2.1.35
 
   - improved `prompt` examples

@@ -136,7 +136,7 @@ func (s *cs) BuildFrom(structValue any, opts ...cli.StructBuilderOpt) (app cli.A
 	s.app.
 		FromStruct(structValue, opts...).
 		Build()
-	return s.app
+	return s.Build()
 }
 
 func (s *cs) Build() (app cli.App) {

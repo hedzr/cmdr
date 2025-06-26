@@ -233,6 +233,7 @@ func (s *appS) ToggleableFlags(toggleGroupName string, items ...cli.BatchToggleF
 
 func (s *appS) RootBuilder(cb func(b cli.CommandBuilder)) cli.App {
 	from := s.root.Cmd.(*cli.CmdS)
+	atomic.AddInt32(&s.inCmd, 1)
 	b := asCommandBuilder(from, s, "")
 	cb(b)
 	b.Build()

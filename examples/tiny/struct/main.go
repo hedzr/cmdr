@@ -18,6 +18,10 @@ const (
 func main() {
 	var Root struct {
 		Remove struct {
+			Full struct {
+				NoForce bool `desc:"DON'T Force removal."`
+			} `desc:"remove full of files"`
+
 			Force     bool `help:"Force removal."`
 			Recursive bool `help:"Recursively remove files."`
 

@@ -17,6 +17,7 @@ log/
 *.8
 *.bak
 .vagrant/
+_*
 
 *.removed
 .tmp.*

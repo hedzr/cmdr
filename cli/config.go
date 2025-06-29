@@ -167,7 +167,7 @@ func WithStore(op store.Store) Opt {
 
 func WithArgs(args ...string) Opt {
 	return func(s *Config) {
-		s.Args = args
+		s.Args = args // append(os.Args[0:1], args...)
 	}
 }
 

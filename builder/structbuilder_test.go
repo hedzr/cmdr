@@ -6,6 +6,8 @@ import (
 
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
+	"github.com/hedzr/is"
+	"github.com/hedzr/logg/slog"
 )
 
 func TestStructBuilder_FromStruct(t *testing.T) {
@@ -14,7 +16,11 @@ func TestStructBuilder_FromStruct(t *testing.T) {
 	var w cli.Runner // an empty dummy runner for testing
 	a := New(w).Info("demo-app", "0.3.1").Author("hedzr")
 	app := a.(*appS)
-	// logz.SetLevel(logz.DebugLevel)
+
+	if is.DebuggerAttached() {
+		// logz.SetLevel(logz.DebugLevel)
+		logz.SetLevel(slog.TraceLevel)
+	}
 
 	// FromStruct assumes creating a command system from RootCommand.Cmd
 	// since a bracketed longTitle "(...)" passed.
@@ -55,8 +61,8 @@ func TestStructBuilder_FromStruct(t *testing.T) {
 	assertEqual(t, "f6", fcmd.Flags()[1].Long)
 
 	pnt, cmd := b.Parent(), b.Building()
-	t.Logf("Parent command: %+v", pnt)
-	t.Logf("Building command: %+v", cmd)
+	t.Logf("Parent command: %+v", pnt)   // parent should be nil
+	t.Logf("Building command: %+v", cmd) // print the RootCommand.Cmd
 }
 
 type A struct {

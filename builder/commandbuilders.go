@@ -106,8 +106,10 @@ func (s *ccb) WithSubCmd(cb func(b cli.CommandBuilder)) {
 // used by adder when ccb.Build.
 func (s *ccb) addCommand(child *cli.CmdS) {
 	atomic.AddInt32(&s.inCmd, -1) // reset increased inCmd at AddCmd or Cmd
-	s.AddSubCommand(child)
-	logz.Trace(fmt.Sprintf("added %v -> %v", child.String(), s.CmdS))
+	if child != s.CmdS {
+		s.AddSubCommand(child)
+		logz.Trace(fmt.Sprintf("added %v -> %v", child.String(), s.CmdS))
+	}
 }
 
 // addFlag adds a in-building Flg into current CmdS as its flag.

@@ -59,10 +59,10 @@ func newStructBuilderShort(b buildable, structValue any, opts ...cli.StructBuild
 func newStructBuilderFrom(from *cli.CmdS, b buildable, structValue any, opts ...cli.StructBuilderOpt) *sbS {
 	s := &sbS{
 		0, 0,
-		isAssumedAsRootCmd(assumedAsRootcmd),
+		// isAssumedAsRootCmd(assumedAsRootcmd),
 		b,
-		from,
-		// new(cli.CmdS),
+		from, // cmd here // new(cli.CmdS),
+		from, // parent here
 		structValue,
 		stringtool.ToKebabCase,
 	}
@@ -72,49 +72,46 @@ func newStructBuilderFrom(from *cli.CmdS, b buildable, structValue any, opts ...
 	if app, ok := b.(*appS); ok {
 		// links app, owner, parent and this building cmd
 		app.root.SetApp(app)
-		s.parent = app.root.Cmd.(*cli.CmdS)
-		s.parent.SetRoot(app.root)
+		s.cmd = app.root.Cmd.(*cli.CmdS)
+		s.cmd.SetRoot(app.root)
 		// s.CmdS.SetRoot(app.root)
 		// s.CmdS.SetOwner(s.parent)
 	} else if sb, ok := b.(*sbS); ok {
-		s.parent = sb.Building()
+		s.cmd = sb.Building()
 		// 	s.CmdS.SetOwner(s.parent)
 		// 	s.CmdS.SetRoot(s.parent.Root())
 	} else if sb, ok := b.(*ccb); ok {
-		s.parent = sb.CmdS
-		// 	s.CmdS.SetOwner(s.parent)
-		// 	s.CmdS.SetRoot(s.parent.Root())
+		cc := from
+		if from == nil { // replace s.cmd with the parent builder's building CmdS
+			cc = sb.CmdS
+			s.cmd = cc
+			// s.cmd.SetOwner(cc)
+			// s.cmd.SetRoot(cc.Root())
+		} else {
+			cc = from // sb.CmdS
+			if cc == sb.CmdS {
+				s.cmd = cc
+				// s.cmd.SetOwner(cc)
+			} else {
+				s.cmd = cc
+			}
+			// s.cmd = new(cli.CmdS)
+			// cc = sb.CmdS
+			// s.cmd.SetOwner(cc)
+			// s.cmd.SetRoot(cc.Root())
+		}
+		// s.asRoot = false
 	}
-
-	// if s.asRoot {
-	// 	// transfer app info from old rootcmd to this building cmd
-	// 	c, p := s.CmdS, s.parent
-	// 	c.Long = p.Long
-	// 	c.Short = p.Short
-	// 	c.SetName(p.Name())
-	// 	c.SetDescription(p.Desc(), p.DescLong())
-	// 	c.SetExamples(p.Examples())
-	// 	c.SetGroup(p.SafeGroup())
-
-	// 	if app, ok := b.(*appS); ok {
-	// 		old := app.root.Cmd.(*cli.CmdS)
-	// 		app.root.Cmd = s.CmdS
-	// 		s.CmdS.SetCommands(old.SubCommands()...)
-	// 		s.CmdS.SetFlags(old.Flags()...)
-	// 		s.CmdS.SetRoot(app.root)
-	// 		s.CmdS.SetOwner(nil) // remove owner ref pointer since the biulding cmd will be used as Root
-	// 	}
-	// }
 	return s
 }
 
 type sbS struct {
-	inCmd  int32
-	inFlg  int32
-	asRoot bool
-	buildable
-	parent *cli.CmdS
-	// *cli.CmdS
+	inCmd int32
+	inFlg int32
+	// asRoot         bool
+	buildable      buildable
+	cmd            *cli.CmdS
+	from           *cli.CmdS
 	structValue    any
 	titleFormatter TitleFormatFunc
 }
@@ -124,8 +121,14 @@ func isAssumedAsRootCmd(title string) bool {
 }
 
 func (s *sbS) Buildable() cli.OptBuilder { return s.buildable }
-func (s *sbS) Parent() *cli.CmdS         { return s.parent }
-func (s *sbS) Building() *cli.CmdS       { return s.parent }
+func (s *sbS) This() *cli.CmdS           { return s.cmd }
+func (s *sbS) Building() *cli.CmdS       { return s.cmd }
+func (s *sbS) Parent() *cli.CmdS {
+	if cc, ok := s.cmd.OwnerCmd().(*cli.CmdS); ok {
+		return cc
+	}
+	return nil
+}
 
 func (s *sbS) Build() {
 	if err := s.construct(); err != nil {
@@ -133,13 +136,22 @@ func (s *sbS) Build() {
 		return
 	}
 
-	if s.asRoot {
-		logz.Verbose(assumedAsRootcmd)
-	} else {
-		logz.Verbose("normal")
-	}
 	if a, ok := s.buildable.(adder); ok {
-		a.addCommand(nil)
+		if s.from == nil {
+			logz.Verbose(assumedAsRootcmd)
+			a.addCommand(nil)
+		} else {
+			logz.Verbose("normal")
+			if ss, ok := s.buildable.(*sbS); ok { // struct builder
+				if ss.cmd == s.cmd {
+					a.addCommand(nil)
+				} else {
+					a.addCommand(s.cmd)
+				}
+			} else { // command builder
+				a.addCommand(s.cmd)
+			}
+		}
 	}
 	atomic.StoreInt32(&s.inCmd, 0)
 	atomic.StoreInt32(&s.inFlg, 0)
@@ -156,9 +168,9 @@ const assumedAsRootcmd = "(assumed-as-rootcmd)"
 // used by adder when ccb.Build.
 func (s *sbS) addCommand(child *cli.CmdS) {
 	atomic.AddInt32(&s.inCmd, -1) // reset increased inCmd at AddCmd or Cmd
-	s.parent.AddSubCommand(child)
+	s.cmd.AddSubCommand(child)
 	if child != nil {
-		logz.Trace(fmt.Sprintf("added %v -> %v", child.String(), s.parent))
+		logz.Trace(fmt.Sprintf("                      added cmd %v -> %v", child.String(), s.cmd))
 	}
 }
 
@@ -166,8 +178,9 @@ func (s *sbS) addCommand(child *cli.CmdS) {
 // used by adder when ccb.Build.
 func (s *sbS) addFlag(child *cli.Flag) {
 	atomic.AddInt32(&s.inFlg, -1)
-	s.parent.AddFlag(child)
-	logz.Trace(fmt.Sprintf("added %v -> %v", child, s.parent))
+	s.cmd.AddFlag(child)
+	logz.Trace(fmt.Sprintf("                      added flg %v -> %v", child, s.cmd))
+	// logz.Trace(fmt.Sprintf("[constructFrom]     | added %v -> %v", child, s.cmd))
 }
 
 func (s *sbS) construct() (err error) {
@@ -223,11 +236,16 @@ func (s *sbS) constructFrom(ctx constructCtx) (err error) {
 			// s.parent.SetDesc(desc)
 
 			titles := append([]string{shortTitle}, titles...)
-			if inCmd := atomic.LoadInt32(&s.inCmd); inCmd != 0 {
+			// if inCmd := atomic.LoadInt32(&s.inCmd); inCmd != 0 {
+			// 	panic("cannot call Cmd() without Build() last StructBuilder")
+			// }
+			// atomic.AddInt32(&s.inCmd, 1)
+			if atomic.CompareAndSwapInt32(&s.inCmd, 0, 1) == false {
 				panic("cannot call Cmd() without Build() last StructBuilder")
 			}
-			atomic.AddInt32(&s.inCmd, 1)
-			var cb = newCommandBuilderShort(s, title, titles...).
+			var cb = newCommandBuilderFrom(s.cmd, s, title, titles...)
+			logz.Trace("[constructFrom]     | applying command-builder", "ccb.CmdS", cb.CmdS, "ccb.parent", cb.parent)
+			cb.
 				ExtraShorts(shortTitles...).
 				Group(group).
 				Description(desc)
@@ -255,34 +273,38 @@ func (s *sbS) constructFrom(ctx constructCtx) (err error) {
 
 			// entering for the embedded struct
 			childStructValue := frv.Interface()
-			childBuilder := newStructBuilderShort(cb, childStructValue)
+			childBuilder := newStructBuilderFrom(cb.CmdS, cb, childStructValue)
 			childBuilder.titleFormatter = s.titleFormatter
+			logz.Trace("[constructFrom]     | applying struct-builder for child-struct-value", "cb.cmd", childBuilder.cmd, "cb.parent-from", cb.parent, "child-struct-value", childStructValue)
 			childBuilder.Build()
+			logz.Trace("[constructFrom]     | applied struct-builder", "cb.cmd", childBuilder.cmd, "cb.parent-from", cb.parent, "child-struct-value", childStructValue)
 
 			cb.Build()
-		} else {
-			// normal field -> flag
-			logz.Trace("[constructFrom] normal field -> flag", "Field", fieldName, "TgtFlg", title)
-			if inFlg := atomic.LoadInt32(&s.inFlg); inFlg != 0 {
-				panic("cannot call Flg() without Build() last StructBuilder")
-			}
-			atomic.AddInt32(&s.inFlg, 1)
-			var fb = newFlagBuilderShort(s,
-				title, append([]string{shortTitle}, titles...)...)
-			fb.ExtraShorts(shortTitles...).
-				Group(group).
-				Description(desc).
-				DefaultValue(frv.Interface()).
-				Required(is.StringToBool(required))
-			if shortTitle == "" {
-				fb.Short = title // set short-title with long-title if user omitted it
-			}
-			if mtd := frv.MethodByName(title + "With"); mtd.IsValid() {
-				ret := mtd.Call([]reflect.Value{reflect.ValueOf(fb)})
-				_ = ret
-			}
-			fb.Build()
+			logz.Trace("[constructFrom]     | applied command-builder", "cb.cmd", childBuilder.cmd, "cb.parent-from", cb.parent, "child-struct-value", childStructValue)
+			continue
 		}
+
+		// normal field -> flag
+		logz.Trace("[constructFrom]   normal field -> flag", "Field", fieldName, "TgtFlg", title, "owner-cmd", s.cmd, "parent-of-owner-cmd", s.cmd.OwnerCmd())
+		if inFlg := atomic.LoadInt32(&s.inFlg); inFlg != 0 {
+			panic("cannot call Flg() without Build() last StructBuilder")
+		}
+		atomic.AddInt32(&s.inFlg, 1)
+		var fb = newFlagBuilderFrom(s.cmd, s, frv.Interface(),
+			title, append([]string{shortTitle}, titles...)...)
+		fb.ExtraShorts(shortTitles...).
+			Group(group).
+			Description(desc).
+			// DefaultValue(frv.Interface()).
+			Required(is.StringToBool(required))
+		if shortTitle == "" {
+			fb.Short = title // set short-title with long-title if user omitted it
+		}
+		if mtd := frv.MethodByName(title + "With"); mtd.IsValid() {
+			ret := mtd.Call([]reflect.Value{reflect.ValueOf(fb)})
+			_ = ret
+		}
+		fb.Build()
 	}
 	return
 }

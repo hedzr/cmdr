@@ -1,5 +1,17 @@
 # CHANGELOG
 
+- v2.1.37
+
+  - added `FromStruct()` to commandbuilder
+    - reimplemented structbuilder to compliant with both root and subcmd cases
+  - improved backtraceCmdNamesG to trace the cycle ref case of owner pointer, and give a warning to developer
+  - fix `pkg/logz`'s `SetLevel()` to apply the setting level to global logz (`logg/slog`)
+  - fix helpscreen to remove the double empty lines
+  - fix `WithOpts` to take effects specially for `WithArgs(args...)`
+  - upgrade deps
+    - `is` - fix the raising `states.on[State]Changed` (state = Debug or Trace)
+    - `logg` - fix/improved init.go for states changed
+
 - v2.1.36
 
   - added `BuildFrom(structValue,opts...)` to `Creator` interface

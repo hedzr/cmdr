@@ -3,6 +3,7 @@ package builder
 import (
 	"context"
 	"errors"
+	"reflect"
 	"sync/atomic"
 
 	"github.com/hedzr/cmdr/v2/cli"
@@ -86,8 +87,28 @@ func (s *appS) With(cb func(app cli.App)) {
 }
 
 func (s *appS) WithOpts(opts ...cli.Opt) cli.App {
-	s.opts = append(s.opts, opts...)
+	// s.opts = append(s.opts, opts...)
+	for _, opt := range opts {
+		// NOTE that `cli.WithArgs()` returns a Opt object,
+		// which will be used to compare with `opt` here.
+		if funcPtrSame[cli.Opt](opt, cli.WithArgs()) {
+			var cfg cli.Config
+			opt(&cfg)
+			s.args = cfg.Args
+		} else {
+			s.opts = append(s.opts, opt)
+		}
+	}
 	return s
+}
+
+func funcPtrSame[T any](fn1, fn2 T) bool {
+	sf1 := reflect.ValueOf(fn1)
+	sf2 := reflect.ValueOf(fn2)
+	if sf1.Kind() != reflect.Func || sf2.Kind() != reflect.Func {
+		return false
+	}
+	return sf1.Pointer() == sf2.Pointer()
 }
 
 func (s *appS) ensureNewApp() cli.App { //nolint:unparam

@@ -154,6 +154,10 @@ type CommandBuilder interface {
 	// '/bin/zsh', and so on.
 	UseShell(shellPath string) CommandBuilder
 
+	// FromStruct constructs the whole app commands system from a given struct value.
+	//
+	FromStruct(structValue any, opts ...StructBuilderOpt) CommandBuilder
+
 	//
 
 	// NewCommandBuilder returns a command builder to help you to

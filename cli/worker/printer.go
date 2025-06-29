@@ -109,7 +109,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedS
 			}
 		})
 		_, _ = wr.WriteString(sb.String())
-		_, _ = wr.WriteString("\n")
+		// _, _ = wr.WriteString("\n")
 	} else {
 		// normal help screen
 
@@ -199,7 +199,7 @@ func (s *helpPrinter) PrintDebugScreenTo(ctx context.Context, wr HelpWriter, pc 
 	text := s.w.Store().Dump()
 	_, _ = sb.WriteString("\nStore:\n")
 	_, _ = sb.WriteString(text)
-	_, _ = sb.WriteString("\n")
+	// _, _ = sb.WriteString("\n")
 
 	_, _ = wr.WriteString(sb.String())
 	// _, _ = wr.WriteString("\n")

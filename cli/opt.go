@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/hedzr/cmdr/v2/conf"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 )
 
 func uniAddCmd(cmds []*CmdS, cmd *CmdS) []*CmdS { //nolint:unused
@@ -104,12 +105,18 @@ func backtraceCmdNamesG(cmd BacktraceableMin, delimiter string, verboseLast bool
 		a = append(a, cmd.GetTitleName())
 	}
 
+	history := make(map[BacktraceableMin]struct{})
 	p := cmd
 	for p != nil && p.OwnerIsNotNil() {
 		p = p.OwnerOrParent()
 		if p != nil { // p has parent
-			n := p.GetTitleName()
-			a = append(a, n)
+			if _, ok := history[p]; !ok {
+				history[p] = struct{}{}
+				n := p.GetTitleName()
+				a = append(a, n)
+			} else {
+				logz.Warn("[cmdr][backtraceCmdNamesG][ILLEGAL] the owners has cycle ref", "working-p", p.(Cmd).LongTitle(), "from-cmd", cmd)
+			}
 		}
 	}
 

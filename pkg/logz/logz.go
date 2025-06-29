@@ -132,7 +132,8 @@ func SuccessContext(ctx context.Context, msg string, args ...any) {
 }
 
 func SetLevel(level logz.Level) {
-	log.WithLevel(level)
+	log.SetLevel(level)
+	logz.SetLevel(level)
 }
 
 func GetLevel() logz.Level { return log.Level() }

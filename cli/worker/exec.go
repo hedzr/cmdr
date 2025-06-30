@@ -146,7 +146,7 @@ func (w *workerS) DoBuiltinAction(ctx context.Context, action cli.ActionEnum, ar
 func (w *workerS) handleActions(ctx context.Context, pc *parseCtx) (handled bool, err error) {
 	lastCmd := pc.LastCmd()
 	for k, action := range w.actions {
-		if k&w.actionsMatched != 0 {
+		if k&w.actionsMatched != cli.ActionNone {
 			logz.VerboseContext(ctx, "[cmdr] Invoking worker.actionsMatched", "hit-action", k, "actions", w.Actions())
 			err, handled = action(ctx, pc, lastCmd), true
 			break

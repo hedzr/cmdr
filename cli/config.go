@@ -227,7 +227,8 @@ const (
 	// actionShortMode
 	// actionDblTildeMode
 
-	ActionDefault // builtin internal action handler
+	ActionDefault     // builtin internal action handler
+	ActionNone    = 0 // nothing matched
 )
 
 func (e ActionEnum) String() string {

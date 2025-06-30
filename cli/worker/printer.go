@@ -505,16 +505,16 @@ func (s *helpPrinter) printMore(ctx context.Context, sb *strings.Builder, wr Hel
 }
 
 func (s *helpPrinter) printDebugMatches(ctx context.Context, sb *strings.Builder, wr HelpWriter, pc cli.ParsedState) {
-	if len(pc.MatchedCommands()) > 0 {
+	if x := pc.MatchedCommands(); len(x) > 0 {
 		_, _ = sb.WriteString("\nMatched commands:\n")
-		for i, cc := range pc.MatchedCommands() {
+		for i, cc := range x {
 			_, _ = sb.WriteString(s.Translate(fmt.Sprintf("  - %d. <code>%s</code> | %v\n", i+1, cc.HitTitle(), cc), color.FgDefault))
 		}
 	}
-	if len(pc.MatchedFlags()) > 0 {
+	if m := pc.MatchedFlags(); len(m) > 0 {
 		_, _ = sb.WriteString("\nMatched flags:\n")
 		i := 0
-		for ff, st := range pc.MatchedFlags() {
+		for ff, st := range m {
 			i++
 			short, tilde := "", ""
 			if st.Short {
@@ -539,10 +539,16 @@ func (s *helpPrinter) printDebugMatches(ctx context.Context, sb *strings.Builder
 				color.FgDefault))
 		}
 	}
+	if x := pc.PositionalArgs(); len(x) > 0 {
+		_, _ = sb.WriteString("\nPositional Args:\n")
+		for i, cc := range x {
+			_, _ = sb.WriteString(s.Translate(fmt.Sprintf("  - %d. <code>%s</code>\n", i+1, cc), color.FgDefault))
+		}
+	}
 
-	if s.w != nil {
+	if s.w != nil && s.w.actionsMatched != cli.ActionNone {
 		_, _ = sb.WriteString("\nACTIONS:\n")
-		_, _ = sb.WriteString(s.translate(pc, fmt.Sprintf(`<i>%s</i>`, s.w.actionsMatched.String()), color.Reset))
+		_, _ = sb.WriteString(s.translate(pc, fmt.Sprintf("<i>%s</i>", s.w.actionsMatched.String()), color.Reset))
 		_, _ = sb.WriteString("\n")
 	}
 
@@ -550,6 +556,7 @@ func (s *helpPrinter) printDebugMatches(ctx context.Context, sb *strings.Builder
 		if s.w != nil && s.w.wrDebugScreen != nil {
 			wr = s.w.wrDebugScreen
 		}
+		_, _ = sb.WriteString("\n")
 		_, _ = wr.WriteString(sb.String())
 		// _, _ = wr.WriteString("\n")
 	}

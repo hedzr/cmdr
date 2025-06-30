@@ -1,12 +1,13 @@
 package cli
 
 import (
+	"context"
 	"testing"
 )
 
 func TestScreen(t *testing.T) {
 	root := rootCmdForTesting()
-	(&helpPrinter{}).Print(nil, root.Cmd)
+	(&helpPrinter{}).Print(context.TODO(), root.Cmd)
 	t.Log()
 }
 

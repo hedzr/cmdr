@@ -235,11 +235,11 @@ func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, c
 	if w.Config.AutoEnvPrefix == "" {
 		w.Config.AutoEnvPrefix = "APP"
 	}
-	onEnvVarMathed := func(ctx context.Context, envvar, value string, ff *cli.Flag, conf store.Store) {
+	onEnvVarMatched := func(ctx context.Context, envvar, value string, ff *cli.Flag, conf store.Store) {
 		old := ff.DefaultValue()
 		data := fromString(value, old)
 		if old != data {
-			if handled, newval, _, err := ff.TryOnParseValue(-1, ff.LongTitle(), value, nil); handled && err == nil {
+			if handled, newval, _, err := ff.TryOnParseValue(-1, ff.LongTitle(), value, nil); err == nil {
 				if newval != value {
 					data = fromString(value, data)
 				}
@@ -251,6 +251,7 @@ func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, c
 				}
 				logz.DebugContext(ctx, "envvar matched", "envvar", envvar, "value", data, "ff", ff)
 				w.envvarMatched[ff] = EnvVarMatched{envvar, value}
+				_ = handled
 			}
 		}
 		_ = conf
@@ -267,7 +268,7 @@ func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, c
 				if evs := ff.EnvVars(); len(evs) > 0 {
 					for _, ev := range evs {
 						if v, has := os.LookupEnv(ev); has {
-							onEnvVarMathed(ctx, ev, v, ff, conf)
+							onEnvVarMatched(ctx, ev, v, ff, conf)
 							// data := fromString(v, ff.DefaultValue())
 							// ff.SetDefaultValue(data)
 						}
@@ -276,7 +277,7 @@ func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, c
 				if w.Config.AutoEnv {
 					ev := ff.GetAutoEnvVarName(w.Config.AutoEnvPrefix, true)
 					if v, has := os.LookupEnv(ev); has {
-						onEnvVarMathed(ctx, ev, v, ff, conf)
+						onEnvVarMatched(ctx, ev, v, ff, conf)
 						// data := fromString(v, ff.DefaultValue())
 						// ff.SetDefaultValue(data)
 					}

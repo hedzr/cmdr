@@ -29,7 +29,7 @@ func main() {
 		} `title:"remove" shorts:"rm" cmd:"" help:"Remove files."`
 
 		List struct {
-			Paths []string `arg:"" optional:"" name:"path" help:"Paths to list." type:"path"`
+			Paths []string `name:"path" help:"Paths to list." type:"path"`
 		} `title:"list" shorts:"ls" cmd:"" help:"List paths."`
 	}
 

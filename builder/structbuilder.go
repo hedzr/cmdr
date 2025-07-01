@@ -230,6 +230,19 @@ func (s *sbS) constructFrom(ctx constructCtx) (err error) {
 		// _, _, _, _, _, _, _ = frv, title, shorts, alias, desc, group, required
 		title, shortTitle, shortTitles, titles := s.asmTitles(title, fieldName, shorts, alias...)
 
+		if positional {
+			if _, ok := frv.Interface().([]string); ok {
+				if frv.CanAddr() {
+					varptr := frv.Addr().Interface().(*[]string)
+					logz.Trace(fmt.Sprintf("[constructFrom]       bind positional args ptr %p to Field %q", varptr, fieldName))
+					s.cmd.BindPositionalArgsPtr(varptr)
+				} else {
+					logz.Warn("[constructFrom] CANNOT bind a field to parsed positional args because it cannot be addressed.", "rv", ref.Valfmtv(frv))
+				}
+			}
+			continue
+		}
+
 		if frv.Kind() == reflect.Struct {
 			// embedded struct -> command
 			logz.Trace("[constructFrom] embedded STRUCT -> command", "Field", fieldName, "TgtCmd", title, "parent", ref.Valfmt(&ctx.rv))

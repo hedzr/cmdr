@@ -8,6 +8,7 @@ import (
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
 	"github.com/hedzr/evendeep/ref"
+	"github.com/hedzr/is"
 )
 
 // func NewFlagBuilder(parent *cli.CmdS, defaultValue any, longTitle string, titles ...string) *ffb {
@@ -178,7 +179,7 @@ func (s *ffb) BindVarPtr(varptr any) cli.FlagBuilder {
 	rv := reflect.ValueOf(varptr)
 	if ref.IsPtr(rv) {
 		s.Flag.BindVarPtr(varptr)
-	} else {
+	} else if is.VerboseModeEnabled() {
 		logz.Warn("Illegal varptr passing to FlagBuidler.BindVarPtr()", "varptr", varptr)
 	}
 	return s

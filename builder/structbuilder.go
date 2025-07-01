@@ -12,6 +12,7 @@ import (
 	"unicode"
 
 	"github.com/hedzr/cmdr/v2/cli"
+	"github.com/hedzr/cmdr/v2/examples/devmode"
 	"github.com/hedzr/evendeep/ref"
 	"github.com/hedzr/is"
 	"github.com/hedzr/is/stringtool"
@@ -353,10 +354,11 @@ func (s *sbS) constructFrom(ctx constructCtx) (err error) {
 		var val any
 		if frv.CanAddr() {
 			val = frv.Addr().Interface()
-		} else {
+			fb.BindVarPtr(val)
+		} else if devmode.InDevelopmentMode() || is.InDebugMode() || is.InDebugging() {
 			val = frv.Interface()
+			logz.Warn("field value CANNOT be addressed to bind (for FlagBuidler.BindVarPtr())", "field-value", val)
 		}
-		fb.BindVarPtr(val)
 
 		if shortTitle == "" {
 			fb.Short = title // set short-title with long-title if user omitted it

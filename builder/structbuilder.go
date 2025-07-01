@@ -334,6 +334,14 @@ func (s *sbS) constructFrom(ctx constructCtx) (err error) {
 			fb.HeadLike(headLike, bounds...)
 		}
 
+		var val any
+		if frv.CanAddr() {
+			val = frv.Addr().Interface()
+		} else {
+			val = frv.Interface()
+		}
+		fb.BindVarPtr(val)
+
 		if shortTitle == "" {
 			fb.Short = title // set short-title with long-title if user omitted it
 		}

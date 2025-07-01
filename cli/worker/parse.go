@@ -181,14 +181,14 @@ func (w *workerS) interpretLeadingPlusSign(pc *parseCtx) bool {
 	return false
 }
 
-func isCmdIsNil(cc cli.Cmd) (nilptr bool) {
-	if x, ok := cc.(*cli.CmdS); ok {
-		nilptr = x == nil
-	} else {
-		nilptr = cc == nil
-	}
-	return
-}
+// func isCmdIsNil(cc cli.Cmd) (nilptr bool) {
+// 	if x, ok := cc.(*cli.CmdS); ok {
+// 		nilptr = x == nil
+// 	} else {
+// 		nilptr = cc == nil
+// 	}
+// 	return
+// }
 
 func isCmdIsNotNil(cc cli.Cmd) (nilptr bool) {
 	if x, ok := cc.(*cli.CmdS); ok {

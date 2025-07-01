@@ -96,9 +96,14 @@ v2 is in earlier state but the baseline is stable:
     - extensible codecs and providers for loading from data sources
 
 - Three kinds of config files are searched and loaded via `loaders.NewConfigFileLoader()`:
-  - Primary: main config, shipped with installable package.
-  - Secondary: 2ndry config. Wrapped by reseller(s).
-  - Alternative: user's local config, writeable. The runtime changeset will be written back to this file while app stopping.
+  1. __Primary__: main config, shipped with installable package.
+  2. __Secondary__: 2ndry config. Wrapped by reseller(s).
+  3. __Alternative__: user's local config, writeable. The runtime changeset will be written back to this file while app stopping.
+
+- Variety of approaches for building command system with attached flags
+  1. traditional stream calls (`app.Cmd("verbose", "v").Action(onVerbose)`)
+  2. concise modes by [`Create`](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Create) and cmd/xxcmd.go
+  3. use [`Create.BuildFrom`](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Create) to build cmdsys from a struct value via `[App.FromStruct]`, see example [#example_Create_buildFromStructValue](https://pkg.go.dev/github.com/hedzr/cmdr/v2/#example_Create_buildFromStructValue); or, attaching subcmds and flags to a subcmd by `app.Cmd().FromStruct(&root{})` following any traditional calls.
 
 - Generating shell autocompletion scripts
   - supported shells are: zsh, bash, fish, powershell, ...
@@ -114,17 +119,17 @@ v2 is in earlier state but the baseline is stable:
 [^3]: `hedzr/logg` provides a slog like and colorful logging library
 [^4]: `hedzr/is` is a basic environ detectors library
 
-Getting started from [New](https://pkg.go.dev/github.com/hedzr/cmdr/v2#New) or [Create](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Create) function.
-
 More minor details need to be evaluated and reimplemented if it's still meaningful in v2.
 
-### cmdr-loaders
+### News
+
+Getting started from [New](https://pkg.go.dev/github.com/hedzr/cmdr/v2#New) or [Create](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Create) function, and see the quickstart docs at [Concise Version - hzDocs](https://docs.hedzr.com/en/docs/cmdr.v2/guide/g02-concise-version/) and [Step by step - hzDocs](https://docs.hedzr.com/en/docs/cmdr.v2/guide/steps/).
 
 Since v2.0.3, loaders had been splitted as a standalone repo so that we can keep cmdr v2 smaller and independer. See the relevant subproject [cmdr-loaders](https://github.com/hedzr/cmdr-loaders)[^5].
 
 Since v2.1.12, we did main alternative features like autocompletion generating, manpage reading and generating, and made quite a lot of fixes and improvments. Now the main APIs come to stable.
 
-Since v2.1.26, we added `App.FromStruct(structValue, opts...)` to build the command system from a struct-value, which deconstructs the given struct's definitions and constrcts the cmd-sys. For more detail, see also []
+Since v2.1.26, we added `App.FromStruct(structValue, opts...)` to build the command system from a struct-value, which deconstructs the given struct's definitions and constrcts the cmd-sys. And we also added `App.Cmd().FromStruct(&root{})` to build for a subcmd in a later release. Now the parsed cmdline args will be written into your struct value. For more detail, see also [From struct-value and Tag - hzDocs](https://docs.hedzr.com/en/docs/cmdr.v2/guide/steps/g13-build-from-struct/)
 
 The full-functional tests and examples are moved into [cmdr-tests](https://github.com/hedzr/cmdr-tests).
 
@@ -132,7 +137,7 @@ The full-functional tests and examples are moved into [cmdr-tests](https://githu
 
 ## History
 
-v2.1 is a stable version:
+v2.2 would be a stable version:
 
 - v2.2.0 PLANNED: the final stable version for v2.
 - v2.1.x: preview version for the new APIs.
@@ -140,12 +145,30 @@ v2.1 is a stable version:
 
 ## Guide
 
+Please go to our docsite for these pages:
+
+- [Concise Version - hzDocs](https://docs.hedzr.com/en/docs/cmdr.v2/guide/g02-concise-version/)
+- [Step by step - hzDocs](https://docs.hedzr.com/en/docs/cmdr.v2/guide/steps/)
+- ...
+
 You can build command system by kinds of forms:
 
-- traditional stream calls from `[New()](https://pkg.go.dev/github.com/hedzr/cmdr/v2#New)` (`cmdr.New().Cmd("verbose", "v").Action(onVerbose)`)
-- concise modes by `[Create()](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Create)` and cmd/xxcmd.go
-- use `[Create().BuildFrom()](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Create)` to build cmdsys from a struct value via `[App.FromStruct()](https://pkg.go.dev/github.com/hedzr/cmdr/v2/cli#App)`, see example [#example_Create_buildFromStructValue](https://pkg.go.dev/github.com/hedzr/cmdr/v2/#example_Create_buildFromStructValue)
+  1. traditional stream calls (`app.Cmd("verbose", "v").Action(onVerbose)`)
+  2. concise modes by [`Create`](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Create) and cmd/xxcmd.go
+  3. use [`Create.BuildFrom`](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Create) to build cmdsys from a struct value via `[App.FromStruct]`, see example [#example_Create_buildFromStructValue](https://pkg.go.dev/github.com/hedzr/cmdr/v2/#example_Create_buildFromStructValue); or, attaching subcmds and flags to a subcmd by `app.Cmd().FromStruct(&root{})` following any traditional calls.
 
+### Traditional style
+
+```go
+	app.Cmd("soundex", "snd", "sndx", "sound").
+		Description("soundex test").
+		Group("Test").
+		TailPlaceHolders("[text1, text2, ...]").
+		OnAction(soundex).
+		Build()
+```
+
+### Concise version
 
 A typical cli-app can be (its concise version at [examples/tiny/concise/main.go](https://github.com/hedzr/cmdr/blob/master/examples/tiny/concise/main.go)):
 
@@ -291,6 +314,121 @@ func (presetCmd) Add(app cli.App) {
         })
 }
 ```
+
+### From a struct value
+
+Adding subcmds and flags to an existed command `multiCmd` is dead simple, this way:
+
+```go
+package cmd
+
+import (
+	"context"
+	"os"
+
+	"github.com/hedzr/cmdr/v2/cli"
+	"github.com/hedzr/is"
+	logz "github.com/hedzr/logg/slog"
+)
+
+type multiCmd struct{}
+
+func (multiCmd) Add(app cli.App) {
+	if is.DebuggerAttached() {
+		logz.SetLevel(logz.TraceLevel)
+		app.WithOpts(cli.WithArgs(os.Args[0], "~~tree"))
+	}
+	app.Cmd("multi", "m", "").
+		Description("multi-level test and imported form struct").
+		// Group("Test").
+		TailPlaceHolders("[text1, text2, ...]").
+		OnAction(soundex).
+		FromStruct(root{}).
+		With(func(b cli.CommandBuilder) {
+			// b.FromStruct(&root{})
+		})
+}
+
+type root struct {
+	b   bool // unexported values ignored
+	Int int  `cmdr:"-"` // ignored
+	A   `title:"a-cmd" shorts:"a,a1,a2" alias:"a1-cmd,a2-cmd" desc:"A command for demo" required:"true"`
+	B
+	C
+	F1 int
+	F2 string
+}
+
+type A struct {
+	D
+	F1 int
+	F2 string
+}
+type B struct {
+	F2 int
+	F3 string
+}
+type C struct {
+	F3 bool
+	F4 string
+}
+type D struct {
+	E
+	FromNowOn F
+	F3        bool
+	F4        string
+}
+type E struct {
+	F3 bool `title:"f3" shorts:"ff" alias:"f3ff" desc:"A flag for demo" required:"true"`
+	F4 string
+}
+type F struct {
+	F5 uint
+	F6 byte
+}
+
+// a --f1 1 --f2 str
+// --a.f1 1 --a.f2 str
+
+func (A) With(cb cli.CommandBuilder) {
+	// customize for A command, for instance: fb.ExtraShorts("ff")
+	logz.Info(".   - A.With() invoked.", "cmdbuilder", cb)
+}
+func (A) F1With(fb cli.FlagBuilder) {
+	// customize for A.F1 flag, for instance: fb.ExtraShorts("ff")
+	logz.Info(".   - A.F1With() invoked.", "flgbuilder", fb)
+}
+
+// Action method will be called if end-user type subcmd for it (like `app a d e --f3`).
+func (E) Action(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
+	logz.Info(".   - E.Action() invoked.", "cmd", cmd, "args", args)
+	_, err = cmd.App().DoBuiltinAction(ctx, cli.ActionDefault, stringArrayToAnyArray(args)...)
+	return
+}
+
+// Action method will be called if end-user type subcmd for it (like `app a d f --f5=7`).
+func (s F) Action(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
+	(&s).Inc()
+	logz.Info(".   - F.Action() invoked.", "cmd", cmd, "args", args, "F5", s.F5)
+	_, err = cmd.App().DoBuiltinAction(ctx, cli.ActionDefault, stringArrayToAnyArray(args)...)
+	return
+}
+
+func (s *F) Inc() {
+	s.F5++
+}
+
+func stringArrayToAnyArray(args []string) (ret []any) {
+	for _, it := range args {
+		ret = append(ret, it)
+	}
+	return
+}
+```
+
+For the detail, or check out its bindable version, go to [From struct-value and Tag - hzDocs](https://docs.hedzr.com/en/docs/cmdr.v2/guide/steps/g13-build-from-struct/).
+
+### Next Step
 
 More examples please go to [cmdr-tests/examples](https://github.com/hedzr/cmdr-tests/tree/master/examples).
 

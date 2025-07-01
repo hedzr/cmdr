@@ -455,6 +455,10 @@ type Flag struct {
 	headLike       bool
 	required       bool
 
+	// a pointer for the associated var to receive this flag's
+	// final value after parsed.
+	bindedVarPtr any `copy:",shallow"`
+
 	onParseValue OnParseValueHandler // allows user-defined value parsing, converting and validating
 	onMatched    OnMatchedHandler    // cancellable, after parsed from cmdline, new value got, and before old value got
 	onChanging   OnChangingHandler   // cancellable notifier (a validator) before a formal on-changed notification, = OnValidating

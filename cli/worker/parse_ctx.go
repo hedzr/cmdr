@@ -188,6 +188,9 @@ func (s *parseCtx) addFlag(ff *cli.Flag) (ms *cli.MatchState) {
 	title := ff.Name()
 	val := ff.DefaultValue()
 	_, _ = cmdstore.Set(title, val)
+	if varptr := ff.VarPtr(); varptr != nil {
+		ff.WriteBoundValue(val)
+	}
 	return
 }
 

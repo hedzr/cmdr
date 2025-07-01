@@ -2,9 +2,11 @@ package cli
 
 import (
 	"fmt"
+	"reflect"
 	"slices"
 	"strings"
 
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 	"github.com/hedzr/is/term/color"
 	"github.com/hedzr/store"
 )
@@ -29,6 +31,23 @@ func (f *Flag) Store() store.Store {
 		return f.owner.Store()
 	}
 	return nil
+}
+
+func (f *Flag) VarPtr() any           { return f.bindedVarPtr }
+func (f *Flag) BindVarPtr(varptr any) { f.bindedVarPtr = varptr }
+
+func (f *Flag) WriteBoundValue(val any) {
+	if f.bindedVarPtr != nil {
+		logz.Trace(fmt.Sprintf("%v.WriteBoundValue: bindedVarPtr = %v, value = %v", f.String(), f.bindedVarPtr, val))
+		if rv := reflect.ValueOf(f.bindedVarPtr); rv.Kind() == reflect.Ptr {
+			rv = rv.Elem()
+			if rv.CanSet() {
+				vv := reflect.ValueOf(val)
+				rv.Set(vv)
+				logz.Verbose(fmt.Sprintf("%v.WriteBoundValue: set ok", f.String()))
+			}
+		}
+	}
 }
 
 func (f *Flag) IsToggleGroup() bool { return f.toggleGroup != "" }

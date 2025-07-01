@@ -89,15 +89,16 @@ type E struct {
 	F4 string
 }
 type F struct {
-	F5 uint
-	F6 byte
+	F5    uint
+	F6    byte
+	Files []string `cmdr:"positional"`
 }
 
 type R struct {
 	b   bool // unexported values ignored
 	Int int  `cmdr:"-"` // ignored
 	A   `title:"a-cmd" shorts:"a,a1,a2" alias:"a1-cmd,a2-cmd" desc:"A command for demo" required:"true"`
-	B
+	B   `env:"B"`
 	C
 	F1 int
 	F2 string

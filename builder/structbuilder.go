@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"slices"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"unicode"
@@ -49,17 +51,18 @@ const (
 )
 
 func newStructBuilder(b buildable, structValue any, opts ...cli.StructBuilderOpt) cli.OptBuilder {
-	return newStructBuilderFrom(nil, b, structValue, opts...)
+	return newStructBuilderFrom(nil, nil, b, structValue, opts...)
 }
 
 func newStructBuilderShort(b buildable, structValue any, opts ...cli.StructBuilderOpt) *sbS {
-	return newStructBuilderFrom(nil, b, structValue, opts...)
+	return newStructBuilderFrom(nil, nil, b, structValue, opts...)
 }
 
-func newStructBuilderFrom(from *cli.CmdS, b buildable, structValue any, opts ...cli.StructBuilderOpt) *sbS {
+func newStructBuilderFrom(pc *constructCtx, from *cli.CmdS, b buildable, structValue any, opts ...cli.StructBuilderOpt) *sbS {
 	s := &sbS{
 		0, 0,
 		// isAssumedAsRootCmd(assumedAsRootcmd),
+		pc,
 		b,
 		from, // cmd here // new(cli.CmdS),
 		from, // parent here
@@ -113,6 +116,7 @@ type sbS struct {
 	inCmd int32
 	inFlg int32
 	// asRoot         bool
+	pc             *constructCtx // parent constructCtx if exists
 	buildable      buildable
 	cmd            *cli.CmdS
 	from           *cli.CmdS
@@ -188,20 +192,21 @@ func (s *sbS) addFlag(child *cli.Flag) {
 }
 
 func (s *sbS) construct() (err error) {
-	var sv = s.structValue
-	rt := reflect.TypeOf(sv)
-	if rt.Kind() != reflect.Struct {
+	rt := reflect.TypeOf(s.structValue)
+	rv := reflect.ValueOf(s.structValue)
+	logz.Debug(fmt.Sprintf("[constrcut()] \n    structValue = %p / %+v", s.structValue, s.structValue),
+		"rv.type", ref.Typfmt(rt))
+	if rt.Kind() != reflect.Struct { // is a Ptr?
 		rt = ref.Rdecodetypesimple(rt)
 		if rt.Kind() != reflect.Struct {
 			return errNotStruct
 		}
 
-		rv := ref.Rdecodesimple(reflect.ValueOf(sv))
-		childCtx := constructCtx{sv, rt, rv}
+		rv = ref.Rdecodesimple(rv)
+		childCtx := constructCtx{s.structValue, rt, rv, s.pc}
 		err = s.constructFrom(childCtx)
 	} else {
-		rv := reflect.ValueOf(sv)
-		childCtx := constructCtx{sv, rt, rv}
+		childCtx := constructCtx{s.structValue, rt, rv, s.pc}
 		err = s.constructFrom(childCtx)
 	}
 	return
@@ -216,16 +221,19 @@ func (s *sbS) constructFrom(ctx constructCtx) (err error) {
 		if fieldName == "" || unicode.IsLower([]rune(fieldName)[0]) {
 			continue
 		}
-		if tag.Get("cmdr") == "-" {
+
+		cmdr := tag.Get("cmdr") // just for flag
+		if cmdr == "-" {
 			continue
 		}
+		cmdrSlice := strings.Split(cmdr, ",")
+		positional := slices.Contains(cmdrSlice, "positional")
 
 		title := nonEmpty(tag.Get("title"), tag.Get("name"))
 		shorts := strings.Split(nonEmpty(tag.Get("shorts"), tag.Get("short")), ",")
 		alias := strings.Split(nonEmpty(tag.Get("alias"), tag.Get("aliases")), ",")
 		desc := nonEmpty(tag.Get("desc"), tag.Get("help"))
 		group := tag.Get("group")
-		required := tag.Get("required") // just for flag
 
 		// _, _, _, _, _, _, _ = frv, title, shorts, alias, desc, group, required
 		title, shortTitle, shortTitles, titles := s.asmTitles(title, fieldName, shorts, alias...)
@@ -278,7 +286,12 @@ func (s *sbS) constructFrom(ctx constructCtx) (err error) {
 						reflect.ValueOf(cmd),
 						reflect.ValueOf(args),
 					})
-					err = ret[0].Interface().(error)
+					var ok bool
+					if err, ok = ret[0].Interface().(error); !ok {
+						if ret[0].Interface() != nil {
+							logz.Fatal("expecting Action() returning error object", "actual", ref.Valfmtv(ret[0]))
+						}
+					}
 					return
 				})
 			}
@@ -289,7 +302,10 @@ func (s *sbS) constructFrom(ctx constructCtx) (err error) {
 
 			// entering for the embedded struct
 			childStructValue := frv.Interface()
-			childBuilder := newStructBuilderFrom(cb.CmdS, cb, childStructValue)
+			if frv.Kind() != reflect.Ptr && frv.CanAddr() {
+				childStructValue = frv.Addr().Interface()
+			}
+			childBuilder := newStructBuilderFrom(s.pc, cb.CmdS, cb, childStructValue)
 			childBuilder.titleFormatter = s.titleFormatter
 			logz.Trace("[constructFrom]     | applying struct-builder for child-struct-value", "cb.cmd", childBuilder.cmd, "cb.parent-from", cb.parent, "child-struct-value", childStructValue)
 			childBuilder.Build()
@@ -398,6 +414,7 @@ type constructCtx struct {
 	value any
 	typ   reflect.Type
 	rv    reflect.Value
+	pc    *constructCtx
 }
 
 var (

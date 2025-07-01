@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"fmt"
 	"sync/atomic"
 
 	errorsv3 "gopkg.in/hedzr/errors.v3"
@@ -30,6 +31,14 @@ func (w *workerS) parse(ctx context.Context, pc *parseCtx) (err error) {
 
 		if err == nil {
 			w.parsingCtx = pc // save pc for later, OnAction might need it.
+			// logz.VerboseContext(ctx, "pc.lastcmd", "lastcmd", pc.LastCmd())
+			if cc, ok := pc.LastCmd().(*cli.CmdS); ok && cc != nil {
+				logz.VerboseContext(ctx, "check binded positional-args receiver", "cc", cc)
+				if varptr := cc.PositionalArgsPtr(); varptr != nil {
+					logz.VerboseContext(ctx, fmt.Sprintf("checked varptr = %p", varptr), "cc", cc, "positional-args", pc.PositionalArgs())
+					*varptr = pc.PositionalArgs()
+				}
+			}
 		}
 	}()
 

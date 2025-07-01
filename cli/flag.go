@@ -78,14 +78,20 @@ type transFunc func(ss string, clr color.Color) string
 
 func (f *Flag) DefaultValueHelpString(trans transFunc, clr, clrDefault color.Color) (hs, plain string) {
 	if f.defaultValue != nil {
+		val := f.defaultValue
+		// conf := f.Store()
+		// title := f.Title()
+		// if node, br, pm, found := conf.Locate(title, nil); found && !pm && !br && node != nil {
+		// 	val = node.Data()
+		// }
 		if f.placeHolder != "" {
-			plain = fmt.Sprintf("(Default: %s=%v)", f.placeHolder, f.defaultValue)
+			plain = fmt.Sprintf("(Default: %s=%v)", f.placeHolder, val)
 			hs = trans(fmt.Sprintf("(Default: <font color=%v>%s</font>=<font color=%v>%v</font>)",
-				color.ToColorString(clr), f.placeHolder, color.ToColorString(clr), f.defaultValue), clrDefault)
+				color.ToColorString(clr), f.placeHolder, color.ToColorString(clr), val), clrDefault)
 		} else {
-			plain = fmt.Sprintf("(Default: %v)", f.defaultValue)
+			plain = fmt.Sprintf("(Default: %v)", val)
 			hs = trans(fmt.Sprintf("(Default: <font color=%v>%v</font>)",
-				color.ToColorString(clr), f.defaultValue), clrDefault)
+				color.ToColorString(clr), val), clrDefault)
 		}
 	}
 	return

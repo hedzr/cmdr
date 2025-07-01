@@ -427,6 +427,9 @@ type CmdS struct {
 	toggles         map[string]*ToggleGroupMatch `copy:",shallow"` // key: toggle-group
 	headLikeFlag    *Flag                        `copy:",shallow"`
 	redirectSources []*CmdS                      `copy:",shallow"`
+
+	// receive the parsed positional args
+	positionalArgsPtr *[]string `copy:",shallow"`
 }
 
 type ToggleGroupMatch struct {

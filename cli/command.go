@@ -183,6 +183,9 @@ func (c *CmdS) InvokeProc() string       { return c.invokeProc }
 func (c *CmdS) InvokeShell() string      { return c.invokeShell }
 func (c *CmdS) Shell() string            { return c.shell }
 
+func (c *CmdS) BindPositionalArgsPtr(varptr *[]string) { c.positionalArgsPtr = varptr }
+func (c *CmdS) PositionalArgsPtr() (varptr *[]string)  { return c.positionalArgsPtr }
+
 //
 //
 

@@ -91,6 +91,20 @@ type CommandBuilder interface {
 	//   TailArgsDesc string [no plan]
 	TailPlaceHolders(placeHolders ...string) CommandBuilder
 
+	// BindPositionalArgsPtr specifyes a ptr to string-slice
+	// to receive the positoinal args when parsing cmdline args.
+	//
+	// Generally, you have no necessary to collect positional
+	// args explicitly, because [OnActionHandler] will always
+	// pass them to you.
+	//
+	// When you have a must-have reasion to hold it, bind it
+	// with this method.
+	//
+	// Sometimes it's useful for compatibilities, or you're
+	// trying to parse cmdline args with a classical way.
+	BindPositionalArgsPtr(varptr *[]string) CommandBuilder
+
 	// RedirectTo gives the dotted-path to point to a subcommand.
 	//
 	// Thd target subcommand will be invoked while this command is being invoked.

@@ -145,8 +145,12 @@ func (s *ccb) Flg(longTitle string, titles ...string) cli.FlagBuilder {
 }
 
 func (s *ccb) FromStruct(structValue any, opts ...cli.StructBuilderOpt) cli.CommandBuilder {
+	return s.fromStruct(nil, structValue, opts...)
+}
+
+func (s *ccb) fromStruct(pc *constructCtx, structValue any, opts ...cli.StructBuilderOpt) cli.CommandBuilder {
 	atomic.AddInt32(&s.inCmd, 1)
-	sb := newStructBuilderFrom(s.CmdS, s, structValue, opts...)
+	sb := newStructBuilderFrom(pc, s.CmdS, s, structValue, opts...)
 	sb.Build()
 	atomic.AddInt32(&s.inCmd, -1)
 	return s
@@ -244,6 +248,11 @@ func (s *ccb) TailPlaceHolders(placeHolders ...string) cli.CommandBuilder {
 
 func (s *ccb) RedirectTo(dottedPath string) cli.CommandBuilder {
 	s.SetRedirectTo(dottedPath)
+	return s
+}
+
+func (s *ccb) BindPositionalArgsPtr(varptr *[]string) cli.CommandBuilder {
+	s.BindPositionalArgsPtr(varptr)
 	return s
 }
 

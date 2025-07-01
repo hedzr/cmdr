@@ -1,5 +1,18 @@
 # CHANGELOG
 
+- v2.1.38
+
+  - implement reverse binding to struct field when using `FromStruct(&structValue)`
+    - commandbuilder: added `BindPositionalArgsPtr(varptr *[]string)`
+    - flagbuilder: added `BindVarPtr(varptr any)`
+    - improved structbuilder
+    - improved devmode warning to tip developer the proper usage for bind-to-field
+  - improved `ActionEnum`: added `ActionNone`
+  - fix `~~debug` debug screen - added positional args dump section
+  - fix default-value in help screen
+    - sometimes envvar cannot be filled into default-value field
+    - fix `onEnvVarMatched` to fill in default-value field, and typo
+
 - v2.1.37
 
   - added `FromStruct()` to commandbuilder

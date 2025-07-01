@@ -67,6 +67,10 @@ func newStructBuilderFrom(from *cli.CmdS, b buildable, structValue any, opts ...
 		stringtool.ToKebabCase,
 	}
 
+	for _, opt := range opts {
+		opt(s)
+	}
+
 	// s.Long, s.Short, s.Aliases = theTitles(longTitle, titles...)
 
 	if app, ok := b.(*appS); ok {
@@ -245,8 +249,7 @@ func (s *sbS) constructFrom(ctx constructCtx) (err error) {
 			}
 			var cb = newCommandBuilderFrom(s.cmd, s, title, titles...)
 			logz.Trace("[constructFrom]     | applying command-builder", "ccb.CmdS", cb.CmdS, "ccb.parent", cb.parent)
-			cb.
-				ExtraShorts(shortTitles...).
+			cb.ExtraShorts(shortTitles...).
 				Group(group).
 				Description(desc)
 			// logz.Trace(fmt.Sprintf("frv.typ: %v", ref.Typfmt(frv.Type())))
@@ -294,9 +297,30 @@ func (s *sbS) constructFrom(ctx constructCtx) (err error) {
 			title, append([]string{shortTitle}, titles...)...)
 		fb.ExtraShorts(shortTitles...).
 			Group(group).
-			Description(desc).
+			Description(desc)
 			// DefaultValue(frv.Interface()).
-			Required(is.StringToBool(required))
+
+		required := is.StringToBool(tag.Get("required"))
+		if required {
+			fb.Required(required)
+		}
+
+		envvars := strings.Split(nonEmpty(tag.Get("env"), tag.Get("envvars")), ",")
+		if len(envvars) > 0 {
+			fb.EnvVars(envvars...)
+		}
+
+		headLikeA := strings.Split(nonEmpty(tag.Get("head-like"), tag.Get("headLike")), ",")
+		if len(headLikeA) > 1 {
+			headLike := is.StringToBool(headLikeA[0])
+			var bounds []int
+			for _, t := range headLikeA[1:] {
+				i, _ := strconv.Atoi(t)
+				bounds = append(bounds, i)
+			}
+			fb.HeadLike(headLike, bounds...)
+		}
+
 		if shortTitle == "" {
 			fb.Short = title // set short-title with long-title if user omitted it
 		}

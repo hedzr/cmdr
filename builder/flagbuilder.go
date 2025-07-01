@@ -3,7 +3,11 @@
 package builder
 
 import (
+	"reflect"
+
 	"github.com/hedzr/cmdr/v2/cli"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
+	"github.com/hedzr/evendeep/ref"
 )
 
 // func NewFlagBuilder(parent *cli.CmdS, defaultValue any, longTitle string, titles ...string) *ffb {
@@ -167,6 +171,16 @@ func (s *ffb) HeadLike(headLike bool, bounds ...int) cli.FlagBuilder { //nolint:
 
 func (s *ffb) Required(required bool) cli.FlagBuilder {
 	s.Flag.SetRequired(required)
+	return s
+}
+
+func (s *ffb) BindVarPtr(varptr any) cli.FlagBuilder {
+	rv := reflect.ValueOf(varptr)
+	if ref.IsPtr(rv) {
+		s.Flag.BindVarPtr(varptr)
+	} else {
+		logz.Warn("Illegal varptr passing to FlagBuidler.BindVarPtr()", "varptr", varptr)
+	}
 	return s
 }
 

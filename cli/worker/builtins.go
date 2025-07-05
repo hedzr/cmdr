@@ -63,7 +63,7 @@ func (w *workerS) builtinVersions(app cli.App, p *cli.CmdS) {
 			})
 	})
 	app.NewFlgFrom(p, false, func(b cli.FlagBuilder) {
-		b.Titles("built-info", "#", "bi", "build-info").
+		b.Titles("built-info", "#", "build-info").
 			Description("Show the building information of this app").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).

@@ -424,11 +424,18 @@ func (f *Flag) GetTitleFlagNamesByMax(delimiter string, maxShort int, maxW ...in
 		}
 	}
 
-	if f.Short == "" {
+	switch len(f.Short) {
+	case 0:
 		_, _ = sb.WriteRune(' ')
 		_, _ = sb.WriteRune(' ')
+		_, _ = sb.WriteRune(' ')
+	case 1:
+		_, _ = sb.WriteRune(' ')
+		_, _ = sb.WriteRune(' ')
+	case 2:
+		_, _ = sb.WriteRune(' ')
+	default:
 	}
-	_, _ = sb.WriteRune(' ')
 	if f.dblTildeOnly {
 		_, _ = sb.WriteString("~~")
 	} else {

@@ -496,6 +496,20 @@ func (c *BaseOpt) ShortTitle() string {
 	return ""
 }
 
+func (c *BaseOpt) ShortNameIsDup() (yes bool) {
+	if c.Short != "" {
+		if yes = c.Short == c.Long; yes {
+			return
+		}
+		for _, t := range c.Aliases {
+			if yes = c.Short == t; yes {
+				return
+			}
+		}
+	}
+	return
+}
+
 // GetTitleNames return the joint string of short,full,aliases names
 func (c *BaseOpt) GetTitleNames(maxWidth ...int) (title, rest string) {
 	maxW := 0
@@ -512,17 +526,30 @@ func (c *BaseOpt) GetTitleNames(maxWidth ...int) (title, rest string) {
 	var sb, sbr strings.Builder
 	var delimiter = ""
 	var ll = 3
+	shortNameIsDup := c.ShortNameIsDup()
 	if c.Short != "" {
-		sb.WriteString(c.Short)
-		if len(c.Short) == 1 {
-			delimiter = ", "
+		if shortNameIsDup {
+			_, _ = sb.WriteString("    ")
 		} else {
-			delimiter = ","
+			sb.WriteString(c.Short)
+			switch len(c.Short) {
+			case 1:
+				delimiter = ",  "
+			case 2:
+				delimiter = ", "
+			default:
+				delimiter = ","
+			}
+			sb.WriteString(delimiter)
 		}
-		sb.WriteString(delimiter)
 		delimiter = ","
 		// } else if c.OwnerIsNotNil() { // don't adding spaces for a Root Cmd
 		// 	sb.WriteString("   ")
+	} else {
+		_, _ = sb.WriteString("  ")
+		// if shortNameIsDup {
+		// 	_, _ = sb.WriteString("  ")
+		// }
 	}
 	if c.Long != "" {
 		sb.WriteString(c.Long)

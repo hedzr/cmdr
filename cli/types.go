@@ -173,6 +173,9 @@ type Cmd interface {
 
 	String() string
 
+	// ShortNameIsDup returns true if short-title is existed in long-titles (Long & Aliases)
+	ShortNameIsDup() (yes bool)
+
 	// App() App
 
 	// Set returns the application Store [store.Store].
@@ -542,12 +545,12 @@ type FlgSlice struct {
 }
 
 type MatchState struct {
-	DblTilde bool // '~~xxx'?
-	Plus     bool // '+xxx'?
-	Short    bool // '-xxx' or '--xxx'?
-	HitStr   string
-	HitTimes int
-	Value    any
+	DblTilde bool   // '~~xxx'?
+	Plus     bool   // '+xxx'?
+	Short    bool   // '-xxx' or '--xxx'?
+	HitStr   string // the title input by end-user
+	HitTimes int    // how many times input by end-user. eg `-vvv` means 3rd times of `-v`
+	Value    any    // final value of a matched flag
 }
 
 type OnInvokeHandler func(ctx context.Context, cmd Cmd, args []string) (err error)

@@ -613,6 +613,12 @@ func (s *helpPrinter) printCommandRow(ctx context.Context, sb *strings.Builder,
 
 	noColor := is.NoColorMode()
 	colorful := !noColor
+	shortNameIsDup := cc.ShortNameIsDup()
+
+	if cc.ShortTitle() == "" && !shortNameIsDup {
+		_, _ = sb.WriteRune(' ')
+		_, _ = sb.WriteRune(' ')
+	}
 
 	if colorful {
 		if dim {
@@ -805,18 +811,26 @@ func (s *helpPrinter) printFlagRow(ctx context.Context, sb *strings.Builder,
 
 	noColor := is.NoColorMode()
 	colorful := !noColor
+	dblTilde := ff.DoubleTildeOnly()
 
 	if ff.Required() {
+		if colorful {
+			s.WriteBgColor(sb, color.BgBoldOrBright)
+		}
 		_, _ = sb.WriteString("* ")
 	}
 
 	if ff.Short == "" {
-		sb.WriteRune(' ')
+		_, _ = sb.WriteRune(' ')
+		_, _ = sb.WriteRune(' ')
 	}
 
 	if colorful {
 		if dim {
 			s.WriteBgColor(sb, color.BgDim)
+		}
+		if dblTilde {
+			s.WriteBgColor(sb, color.Italic)
 		}
 		if deprecated {
 			s.WriteBgColor(sb, color.BgStrikeout)

@@ -163,12 +163,16 @@ Flag %v FOUND. It belongs to %v.
 
 func (s *HelpSystem) FindCmd(ctx context.Context, cmd cli.Cmd, args []string) (handled cli.Cmd, err error) {
 	// trying to recognize the given commands and print help screen of it.
-	var cc = cmd.Root().Cmd
+	handled = cmd.Root().Cmd
+	var argsExpanded []string
 	for _, arg := range args {
-		cc = cc.FindSubCommand(ctx, arg, true)
-		if cc == nil {
+		argsExpanded = append(argsExpanded, strings.Split(arg, ",")...)
+	}
+	for _, arg := range argsExpanded {
+		handled = handled.FindSubCommand(ctx, arg, true)
+		if handled == nil {
 			// logz.ErrorContext(ctx, "[cmdr] Unknown command found.", "commands", args)
-			handled, err = cc, errors.New("unknown command %v found", args)
+			err = errors.New("unknown command %v found", args)
 			break
 		}
 	}

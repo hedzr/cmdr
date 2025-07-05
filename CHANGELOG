@@ -1,5 +1,18 @@
 # CHANGELOG
 
+- v2.1.39
+
+  - improved `devmode`
+    - cleanup codes moved into `is` lib
+    - improved logics
+  - remove `bi` as a title of `built-info` internal command
+  - improved short-title in help screen
+  - improved codes to describ `ParsedState` better
+  - fix help system to work for `help` command without args
+  - upgrade deps
+    - `is` - improved cross-building and cross-working, add `devmode` state
+    - `logg` - compliant with `devmode` in `is/states`
+
 - v2.1.38
 
   - implement reverse binding to struct field when using `FromStruct(&structValue)`

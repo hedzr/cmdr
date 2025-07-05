@@ -32,7 +32,7 @@ func (w *workerS) builtinVersions(app cli.App, p *cli.CmdS) {
 			Description("Show app versions information").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, false).
-			OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) { //nolint:revive
+			OnAction(func(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
 				w.actionsMatched |= cli.ActionShowVersion
 				_, err = w.DoBuiltinAction(ctx, w.actionsMatched)
 				return
@@ -43,7 +43,7 @@ func (w *workerS) builtinVersions(app cli.App, p *cli.CmdS) {
 			Description("Show app versions information").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, false).
-			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 				// app.Store().Set("app.cmd.show.version", true)
 				w.actionsMatched |= cli.ActionShowVersion
 				return
@@ -56,7 +56,7 @@ func (w *workerS) builtinVersions(app cli.App, p *cli.CmdS) {
 			Description("Simulate a faked version for this app").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
-			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 				// app.Store().Set("app.version.simulate", value)
 				w.versionSimulate = fmt.Sprint(hitState.Value)
 				return
@@ -67,7 +67,7 @@ func (w *workerS) builtinVersions(app cli.App, p *cli.CmdS) {
 			Description("Show the building information of this app").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
-			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 				// app.Store().Set("app.version.simulate", value)
 				w.actionsMatched |= cli.ActionShowBuiltInfo
 				return
@@ -77,13 +77,13 @@ func (w *workerS) builtinVersions(app cli.App, p *cli.CmdS) {
 	})
 }
 
-func (w *workerS) builtinHelps(app cli.App, p *cli.CmdS) { //nolint:revive
+func (w *workerS) builtinHelps(app cli.App, p *cli.CmdS) {
 	app.NewCmdFrom(p, func(b cli.CommandBuilder) { // "usage",
 		b.Titles("help", "h", "info", "__completion", "__complete").
 			Description("Show help system for commands").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, false).
-			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) {
 				w.inCompleting = true
 				logz.SetLevel(logzorig.ErrorLevel) // disable trace, debug, info, warn messages
 				return
@@ -100,7 +100,7 @@ func (w *workerS) builtinHelps(app cli.App, p *cli.CmdS) { //nolint:revive
 			Description("Show this help screen (-?)").
 			Group(cli.SysMgmtGroup).
 			Hidden(false, false).
-			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 				// app.Store().Set("app.version.simulate", value)
 				w.actionsMatched |= cli.ActionShowHelpScreen
 				w.actionsMatched &^= cli.ActionShowHelpScreenAsMan
@@ -122,7 +122,7 @@ func (w *workerS) builtinHelps(app cli.App, p *cli.CmdS) { //nolint:revive
 				Description("Show help screen in manpage format (INSTALL NEEDED!)").
 				Group(cli.SysMgmtGroup).
 				Hidden(true, true).
-				OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+				OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 					// app.Store().Set("app.version.simulate", value)
 					w.actionsMatched |= cli.ActionShowHelpScreenAsMan
 					w.actionsMatched &^= cli.ActionShowHelpScreen
@@ -151,7 +151,7 @@ func (w *workerS) builtinHelps(app cli.App, p *cli.CmdS) { //nolint:revive
 			Description("List commands and flags in tree mode").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
-			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 				// app.Store().Set("app.version.simulate", value)
 				w.actionsMatched |= cli.ActionShowTree
 				return
@@ -183,7 +183,7 @@ $ {{.AppName}} --configci/etc/demo-yy ~~debug
 $ {{.AppName}} --config=ci/etc/demo-yy/any.yml ~~debug
 	try loading config from 'ci/etc/demo-yy/any.yml', noted that assumes a child folder 'conf.d' should be exists
 `).
-				OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+				OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 					// app.Store().Set("app.version.simulate", value)
 					var ok bool
 					w.configFile, ok = hitState.Value.(string)
@@ -197,14 +197,14 @@ $ {{.AppName}} --config=ci/etc/demo-yy/any.yml ~~debug
 	}
 }
 
-func (w *workerS) builtinVerboses(app cli.App, p *cli.CmdS) { //nolint:revive
+func (w *workerS) builtinVerboses(app cli.App, p *cli.CmdS) {
 	app.NewFlgFrom(p, false, func(b cli.FlagBuilder) {
 		b.Titles("verbose", "v").
 			Description("Show more progress/debug info with verbose mode").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
 			EnvVars("VERBOSE").
-			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 				// app.Store().Set("app.mode.verbose", value)
 				if v, ok := hitState.Value.(bool); ok {
 					states.Env().SetVerboseMode(v)
@@ -219,7 +219,7 @@ func (w *workerS) builtinVerboses(app cli.App, p *cli.CmdS) { //nolint:revive
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
 			EnvVars("QUIET", "SILENT").
-			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 				// app.Store().Set("app.mode.verbose", value)
 				if v, ok := hitState.Value.(bool); ok {
 					states.Env().SetQuietMode(v)
@@ -235,7 +235,7 @@ func (w *workerS) builtinVerboses(app cli.App, p *cli.CmdS) { //nolint:revive
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
 			EnvVars("DEBUG").
-			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 				// app.Store().Set("app.mode.verbose", value)
 				if v, ok := hitState.Value.(bool); ok {
 					states.Env().SetDebugMode(v)
@@ -254,7 +254,7 @@ func (w *workerS) builtinVerboses(app cli.App, p *cli.CmdS) { //nolint:revive
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
 			EnvVars("DEBUG_OUTPUT").
-			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 				// app.Store().Set("app.mode.verbose", value)
 				if v, ok := hitState.Value.(string); ok {
 					w.debugOutputFile = v
@@ -271,7 +271,7 @@ func (w *workerS) builtinVerboses(app cli.App, p *cli.CmdS) { //nolint:revive
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
 			// EnvVars("ENV").
-			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 				w.actionsMatched |= cli.ActionShowDebugEnv
 				return
 			}).
@@ -284,7 +284,7 @@ func (w *workerS) builtinVerboses(app cli.App, p *cli.CmdS) { //nolint:revive
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
 			// EnvVars("MORE").
-			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 				w.actionsMatched |= cli.ActionShowDebugMore
 				return
 			}).
@@ -297,7 +297,7 @@ func (w *workerS) builtinVerboses(app cli.App, p *cli.CmdS) { //nolint:revive
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
 			EnvVars("RAW").
-			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 				w.actionsMatched |= cli.ActionShowDebugRaw
 				return
 			}).
@@ -310,7 +310,7 @@ func (w *workerS) builtinVerboses(app cli.App, p *cli.CmdS) { //nolint:revive
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
 			// EnvVars("RAW").
-			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 				w.actionsMatched |= cli.ActionShowDebugValueType
 				return
 			}).
@@ -319,14 +319,14 @@ func (w *workerS) builtinVerboses(app cli.App, p *cli.CmdS) { //nolint:revive
 	})
 }
 
-func (w *workerS) builtinCmdrs(app cli.App, p *cli.CmdS) { //nolint:revive
+func (w *workerS) builtinCmdrs(app cli.App, p *cli.CmdS) {
 	app.NewFlgFrom(p, false, func(b cli.FlagBuilder) {
 		b.Titles("strict-mode", "").
 			Description("<mark>Strict mode</mark> for '<code>cmdr</code>'").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
 			EnvVars("STRICT").
-			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 				if v, ok := hitState.Value.(bool); ok {
 					w.strictMode = v
 					w.strictModeLevel = hitState.HitTimes
@@ -340,7 +340,7 @@ func (w *workerS) builtinCmdrs(app cli.App, p *cli.CmdS) { //nolint:revive
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
 			Deprecated("v0.1.1").
-			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 				if v, ok := hitState.Value.(bool); ok {
 					w.noLoadEnv = v
 				}
@@ -353,7 +353,7 @@ func (w *workerS) builtinCmdrs(app cli.App, p *cli.CmdS) { //nolint:revive
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
 			EnvVars("NO_COLOR", "NOCOLOR").
-			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(f *cli.Flag, position int, hitState *cli.MatchState) (err error) {
 				// app.Store().Set("app.mode.verbose", value)
 				if v, ok := hitState.Value.(bool); ok {
 					states.Env().SetNoColorMode(v)
@@ -364,7 +364,7 @@ func (w *workerS) builtinCmdrs(app cli.App, p *cli.CmdS) { //nolint:revive
 	})
 }
 
-func (w *workerS) builtinGenerators(app cli.App, p *cli.CmdS) { //nolint:revive
+func (w *workerS) builtinGenerators(app cli.App, p *cli.CmdS) {
 	app.NewCmdFrom(p, func(bb cli.CommandBuilder) {
 		bb.Titles("generate", "g", "gen", "generator").
 			Description("Generators for this app", `
@@ -387,7 +387,7 @@ $ {{.AppName}} gen man
 			`).
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
-			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) {
 				return
 			}).
 			OnAction((&genS{}).onAction)
@@ -396,7 +396,7 @@ $ {{.AppName}} gen man
 			Description("Generate Linux Manpage(s)").
 			Group(cli.SysMgmtGroup).
 			Hidden(false, false).
-			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) {
 				return
 			}).
 			OnAction((&genManS{}).onAction).
@@ -427,7 +427,7 @@ $ {{.AppName}} gen man
 			Description("Generate documentations (not-yet)").
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
-			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) {
 				return
 			}).
 			OnAction((&genDocS{}).onAction).
@@ -445,7 +445,7 @@ $ {{.AppName}} gen man
 			Description("Generate the shell completion script or install it").
 			Group(cli.SysMgmtGroup).
 			Hidden(false, false).
-			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) {
 				return
 			}).
 			OnAction((&genShS{}).onAction).
@@ -509,20 +509,20 @@ $ {{.AppName}} gen man
 	})
 }
 
-func (w *workerS) builtinSBOM(app cli.App, p *cli.CmdS) { //nolint:revive
+func (w *workerS) builtinSBOM(app cli.App, p *cli.CmdS) {
 	app.NewCmdFrom(p, func(bb cli.CommandBuilder) {
 		bb.Titles("sbom", "", "").
 			Description("Show SBOM Info", ``).
 			Group(cli.SysMgmtGroup).
 			Hidden(true, true).
-			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) { //nolint:revive
+			OnMatched(func(c cli.Cmd, position int, hitState *cli.MatchState) (err error) {
 				return
 			}).
 			OnAction((&sbomS{}).onAction)
 	})
 }
 
-func (w *workerS) uniAddCmd(cmd *cli.CmdS, callbacks ...func(cc *cli.CmdS)) { //nolint:revive,unused
+func (w *workerS) uniAddCmd(cmd *cli.CmdS, callbacks ...func(cc *cli.CmdS)) {
 	cmd.AddSubCommand(new(cli.CmdS), callbacks...)
 }
 

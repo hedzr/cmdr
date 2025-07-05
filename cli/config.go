@@ -120,17 +120,21 @@ type Runner interface {
 }
 
 type ParsedState interface {
+	LastCmd() Cmd                        // the last matched subcmd
+	MatchedCommands() []Cmd              // all matched subcmds
+	MatchedFlags() map[*Flag]*MatchState //all matched flags
+	PositionalArgs() []string            // positional args if remained
+
+	CommandMatchedState(c Cmd) (ms *MatchState) // MatchState assiciated to a cmd object
+	FlagMatchedState(f *Flag) (ms *MatchState)  // MatchState assiciated to a flag object
+
+	// tests
+
 	NoCandidateChildCommands() bool
-	LastCmd() Cmd
-	MatchedCommands() []Cmd
-	MatchedFlags() map[*Flag]*MatchState
-	PositionalArgs() []string
-
-	CommandMatchedState(c Cmd) (ms *MatchState)
-	FlagMatchedState(f *Flag) (ms *MatchState)
-
 	HasCmd(longTitle string, validator func(cc Cmd, state *MatchState) bool) (found bool)
 	HasFlag(longTitle string, validator func(ff *Flag, state *MatchState) bool) (found bool)
+
+	// colorful
 
 	// Translate is a helper function, which can interpret the
 	// placeholders and translate them to the real value.
@@ -140,6 +144,8 @@ type ParsedState interface {
 	// The avaliable placeholders could be: `{{.AppNmae}}`,
 	// `{{.AppVersion}}`, `{{.DadCommands}}`, `{{.Commands}}` ...
 	Translate(pattern string) (result string)
+
+	// helpers
 
 	DadCommandsText() string
 	CommandsText() string

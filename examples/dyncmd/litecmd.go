@@ -75,7 +75,8 @@ var _ cli.Cmd = (*liteCmdS)(nil)
 
 func (s *liteCmdS) name() string { return s.fi.Name() }
 
-func (s *liteCmdS) String() string { return path.Join(s.dirName, s.name()) }
+func (s *liteCmdS) String() string             { return path.Join(s.dirName, s.name()) }
+func (s *liteCmdS) ShortNameIsDup() (yes bool) { return false }
 
 func (s *liteCmdS) GetDottedPath() string                              { return cli.DottedPath(s) }
 func (s *liteCmdS) GetTitleName() string                               { return s.name() }
@@ -288,14 +289,9 @@ func (c *liteCmdS) FlagBy(longName string) (res *cli.Flag) { return }
 func (s *liteCmdS) ForeachFlags(context.Context, func(f *cli.Flag) (stop bool)) (stop bool) {
 	return
 }
-func (s *liteCmdS) Walk(ctx context.Context, cb cli.WalkCB) {
-	return
-}
-func (s *liteCmdS) WalkGrouped(ctx context.Context, cb cli.WalkGroupedCB) {
-	return
-}
+func (s *liteCmdS) Walk(ctx context.Context, cb cli.WalkCB)               {}
+func (s *liteCmdS) WalkGrouped(ctx context.Context, cb cli.WalkGroupedCB) {}
 func (s *liteCmdS) WalkBackwardsCtx(ctx context.Context, cb cli.WalkBackwardsCB, pc *cli.WalkBackwardsCtx) {
-	return
 }
 func (s *liteCmdS) WalkEverything(ctx context.Context, cb cli.WalkEverythingCB) {
 }

@@ -46,6 +46,21 @@ func (c *CmdS) Match(ctx context.Context, title string) (short bool, cc Cmd) {
 			}
 		}
 	}
+
+	if c.redirectTo != "" && c.redirectToRecursively && c.root != nil && c.root.redirectCmds != nil {
+		if ctm, ok := c.root.redirectCmds[c.redirectTo]; ok {
+			for to, from := range ctm {
+				if to != nil && from != nil {
+					for _, ct := range from {
+						if ct == c {
+							short, cc = to.Match(ctx, title)
+							break
+						}
+					}
+				}
+			}
+		}
+	}
 	return
 }
 

@@ -46,7 +46,8 @@ func (c *CmdS) Clone() any {
 		onEvalFlags:           c.onEvalFlags,
 		onEvalFlagsOnce:       c.onEvalFlagsOnce,
 
-		redirectTo: c.redirectTo,
+		redirectTo:            c.redirectTo,
+		redirectToRecursively: c.redirectToRecursively,
 
 		presetCmdLines: slices.Clone(c.presetCmdLines),
 		ignoreUmatched: c.ignoreUmatched,
@@ -119,6 +120,8 @@ func (c *CmdS) TailPlaceHolder() string { return strings.Join(c.tailPlaceHolders
 // [app build] is a shortcut to its full commands [app gcc build].
 func (c *CmdS) RedirectTo() (dottedPath string) { return c.redirectTo }
 
+func (c *CmdS) RedirectToRecursively() bool { return c.redirectToRecursively }
+
 // GetQuotedGroupName returns the group name quoted string.
 func (c *CmdS) GetQuotedGroupName() string {
 	if strings.TrimSpace(c.group) == "" {
@@ -166,9 +169,17 @@ func (c *CmdS) AppendTailPlaceHolder(placeHolder ...string) {
 }
 
 func (c *CmdS) SetTailPlaceHolder(placeHolders ...string) { c.tailPlaceHolders = placeHolders }
-func (c *CmdS) SetRedirectTo(dottedPath string)           { c.redirectTo = dottedPath }
-func (c *CmdS) SetPresetCmdLines(args ...string)          { c.presetCmdLines = args }
-func (c *CmdS) SetIgnoreUnmatched(ignore bool)            { c.ignoreUmatched = ignore }
+func (c *CmdS) SetRedirectTo(dottedPath string, recursive ...bool) {
+	c.redirectTo = dottedPath
+	r := false
+	for _, b := range recursive {
+		r = b
+	}
+	c.redirectToRecursively = r
+}
+func (c *CmdS) SetRedirectToRecursively(recursive bool) { c.redirectToRecursively = recursive }
+func (c *CmdS) SetPresetCmdLines(args ...string)        { c.presetCmdLines = args }
+func (c *CmdS) SetIgnoreUnmatched(ignore bool)          { c.ignoreUmatched = ignore }
 func (c *CmdS) SetPassThruNow(enterPassThruModeRightNow bool) {
 	c.passThruNow = enterPassThruModeRightNow
 }

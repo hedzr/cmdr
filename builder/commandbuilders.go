@@ -246,8 +246,8 @@ func (s *ccb) TailPlaceHolders(placeHolders ...string) cli.CommandBuilder {
 	return s
 }
 
-func (s *ccb) RedirectTo(dottedPath string) cli.CommandBuilder {
-	s.SetRedirectTo(dottedPath)
+func (s *ccb) RedirectTo(dottedPath string, recursive ...bool) cli.CommandBuilder {
+	s.SetRedirectTo(dottedPath, recursive...)
 	return s
 }
 

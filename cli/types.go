@@ -266,7 +266,7 @@ type Cmd interface {
 	//
 	// For a dad command such as "server" command, it
 	// would translate `app start|stop` -> `app server start|stop`.
-	SetRedirectTo(dottedPath string)
+	SetRedirectTo(dottedPath string, recursive ...bool)
 
 	PresetCmdLines() []string // preset command line arguments
 	IgnoreUnmatched() bool    // ignore unmatched command-line arguments
@@ -396,7 +396,8 @@ type CmdS struct {
 	// NOTE:
 	//
 	//     when redirectTo is valid, CmdS.OnInvoke handler will be ignored.
-	redirectTo string
+	redirectTo            string
+	redirectToRecursively bool // match all subcmds recursively?
 
 	//
 

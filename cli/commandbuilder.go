@@ -115,7 +115,7 @@ type CommandBuilder interface {
 	// NOTE:
 	//
 	//   when redirectTo is valid, CmdS.OnInvoke handler will be ignored.
-	RedirectTo(dottedPath string) CommandBuilder
+	RedirectTo(dottedPath string, recursive ...bool) CommandBuilder
 
 	// OnAction is the main action or entry point when the command
 	// was hit from parsing command-line arguments.

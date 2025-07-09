@@ -192,8 +192,8 @@ func (s *liteCmdS) SetHitTitle(title string) {
 func (s *liteCmdS) HitTitle() string { return s.hitTitle }
 func (s *liteCmdS) HitTimes() int    { return s.hitTimes }
 
-func (s *liteCmdS) RedirectTo() (dottedPath string) { return }
-func (s *liteCmdS) SetRedirectTo(dottedPath string) {}
+func (s *liteCmdS) RedirectTo() (dottedPath string)                    { return }
+func (s *liteCmdS) SetRedirectTo(dottedPath string, recursive ...bool) {}
 
 func (s *liteCmdS) PresetCmdLines() []string                      { return nil }
 func (c *liteCmdS) IgnoreUnmatched() bool                         { return false }

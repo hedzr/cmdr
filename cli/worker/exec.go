@@ -215,6 +215,11 @@ func (w *workerS) finalActions(ctx context.Context, pc *parseCtx, lastCmd cli.Cm
 }
 
 func (w *workerS) onPrintHelpScreen(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error) { //nolint:unparam
+	if cc := pc.LastCmd(); cc.RedirectTo() != "" {
+		(&helpPrinter{w: w}).Print(ctx, pc, cc, args...)
+		return
+	}
+
 	(&helpPrinter{w: w}).Print(ctx, pc, lastCmd, args...)
 	return
 }

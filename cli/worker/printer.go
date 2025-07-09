@@ -768,7 +768,7 @@ func (s *helpPrinter) printCommand(ctx context.Context, sb *strings.Builder,
 
 	if restTitles != "" {
 		_, _ = sb.WriteString(indentSpaces)
-		_, _ = sb.WriteString("   = ")
+		_, _ = sb.WriteString("    = ")
 
 		noColor := is.NoColorMode()
 		colorful := !noColor

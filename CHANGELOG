@@ -1,5 +1,15 @@
 # CHANGELOG
 
+- v2.1.43
+
+  - improved `RedirectTo`
+    - fix redirectTo cmd in help screen
+    - changed to `RedirectTo(dottedPath string, recursive ...bool) CommandBuilder`
+      support checking if any parents has been redirected so that a child subcmd can be forwarded as is
+  - improved help screen
+    - fix align between short cmd and long
+  - REPLACED with new build system / gh actions / makefiles
+
 - v2.1.39
 
   - improved `devmode`

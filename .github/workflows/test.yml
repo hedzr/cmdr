@@ -1,0 +1,45 @@
+name: Test
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/test.yml"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - master
+    paths:
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/test.yml"
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          # go-version: ^1.17.1
+          go-version: ^1.23.1
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check Go modules
+        run: |
+          # go mod tidy -compat=1.17
+          go mod tidy
+          git diff --exit-code go.mod go.sum
+          go mod verify
+
+      - name: Test
+        run: make test

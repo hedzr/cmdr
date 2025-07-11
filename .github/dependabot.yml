@@ -1,11 +1,48 @@
 # To get started with Dependabot version updates, you'll need to specify which
 # package ecosystems to update and where the package manifests are located.
 # Please see the documentation for all configuration options:
-# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
 updates:
-  - package-ecosystem: "" # See documentation for possible values
+  - package-ecosystem: "gomod" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+      # interval: daily
+      # time: "11:00"
+    open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: github.com/go-git/go-git/v5
+        versions:
+          - v5.16.2
+          - v5.16.1
+      - dependency-name: github.com/hedzr/cmdr-loaders/lite
+        versions:
+          - v1.3.39
+          - v1.3.38
+      - dependency-name: github.com/hedzr/cmdr/v2
+        versions:
+          - v2.1.39
+          - v2.1.38
+
+        # github.com/hedzr/is v0.8.37
+        # github.com/hedzr/logg v0.8.37
+        # gopkg.in/hedzr/errors.v3 v3.3.5
+
+  # - package-ecosystem: "github-actions"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "weekly"
+  #     day: saturday
+  #     time: "05:00"
+  #   labels:
+  #     - "dependencies"
+  # - package-ecosystem: "docker"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "weekly"
+  #     day: saturday
+  #     time: "05:00"
+  #   labels:
+  #     - "dependencies"

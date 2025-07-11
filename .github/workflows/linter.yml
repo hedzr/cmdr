@@ -1,0 +1,36 @@
+name: Linter
+
+on:
+  push:
+    branches:
+      - master
+      - devel
+      - dev
+    paths:
+      - "**/*.go"
+      - ".github/workflows/linter.yml"
+      - ".github/linters/.golangci.yml"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - master
+    paths:
+      - "**/*.go"
+      - ".github/workflows/linter.yml"
+      - ".github/linters/.golangci.yml"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: latest
+          args: --config=.github/linters/.golangci.yml
+          only-new-issues: true

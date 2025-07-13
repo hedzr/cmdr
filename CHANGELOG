@@ -1,5 +1,10 @@
 # CHANGELOG
 
+- v2.1.45
+
+  - upgrade deps
+  - security patches
+
 - v2.1.43
 
   - improved `RedirectTo`

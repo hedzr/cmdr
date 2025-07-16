@@ -233,8 +233,9 @@ const (
 	// actionShortMode
 	// actionDblTildeMode
 
-	ActionDefault     // builtin internal action handler
-	ActionNone    = 0 // nothing matched
+	ActionRunHelpSystem     // run help-system with interactive mode
+	ActionDefault           // builtin internal action handler
+	ActionNone          = 0 // nothing matched
 )
 
 func (e ActionEnum) String() string {
@@ -259,6 +260,9 @@ func (e ActionEnum) String() string {
 	}
 	if e&ActionShowSBOM != 0 {
 		_, _ = sb.WriteString("- ShowSBOM\n")
+	}
+	if e&ActionRunHelpSystem != 0 {
+		_, _ = sb.WriteString("- RunHelpSystem\n")
 	}
 	if e&ActionDefault != 0 {
 		_, _ = sb.WriteString("- Default\n")

@@ -15,9 +15,9 @@ import (
 
 	"github.com/hedzr/cmdr/v2/cli"
 	"github.com/hedzr/cmdr/v2/cli/atoa"
-	"github.com/hedzr/cmdr/v2/internal/tool"
 	"github.com/hedzr/cmdr/v2/pkg/logz"
 	"github.com/hedzr/is/dir"
+	"github.com/hedzr/is/dirs"
 )
 
 func (w *workerS) preProcess(ctx context.Context) (err error) {
@@ -86,19 +86,19 @@ func (w *workerS) preEnvSet(ctx context.Context) {
 	// 	logz.VerboseContext(ctx, "reset force-xdg-dir-prefer from store value", "app.force-xdg-dir-prefer", xdgPrefer)
 	// }
 
-	home := tool.HomeDir()
+	home := dirs.HomeDir()
 	if os.Getenv("HOME") == "" {
 		_ = os.Setenv("HOME", home)
 	} else {
 		home = os.Getenv("HOME")
 	}
 
-	dir := tool.ConfigDir(appName)
+	dir := dirs.ConfigDir(appName)
 	if os.Getenv("CONFIG_DIR") == "" { // XDG_CONFIG_DIR
 		_ = os.Setenv("CONFIG_DIR", dir)
 	}
 
-	dir = tool.CacheDir(appName)
+	dir = dirs.CacheDir(appName)
 	if os.Getenv("CACHE_DIR") == "" {
 		_ = os.Setenv("CACHE_DIR", dir)
 	}
@@ -108,7 +108,7 @@ func (w *workerS) preEnvSet(ctx context.Context) {
 		_ = os.Setenv("COMMON_SHARE_DIR", dir)
 	}
 
-	dir = tool.DataDir(appName)
+	dir = dirs.DataDir(appName)
 	if os.Getenv("LOCAL_SHARE_DIR") == "" {
 		_ = os.Setenv("LOCAL_SHARE_DIR", dir)
 	}
@@ -116,7 +116,7 @@ func (w *workerS) preEnvSet(ctx context.Context) {
 		_ = os.Setenv("DATA_DIR", dir)
 	}
 
-	tmpdir := tool.TempDir(appName)
+	tmpdir := dirs.TempDir(appName)
 	if os.Getenv("TEMP_DIR") == "" {
 		_ = os.Setenv("TEMP_DIR", tmpdir)
 	}

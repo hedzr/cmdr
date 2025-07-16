@@ -229,6 +229,11 @@ func (w *workerS) onDefaultAction(ctx context.Context, pc *parseCtx, lastCmd cli
 	return
 }
 
+func (w *workerS) runHelpSystem(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error) { //nolint:unparam
+	err = w.helpSystemAction(ctx, lastCmd, pc.PositionalArgs())
+	return
+}
+
 func (w *workerS) onPassThruCharMatched(ctx context.Context, pc *parseCtx) (err error) { //nolint:unparam
 	if atomic.CompareAndSwapInt32(&pc.passThruMatched, 0, 1) {
 		atomic.StoreInt32(&pc.passThruMatched, int32(pc.i))

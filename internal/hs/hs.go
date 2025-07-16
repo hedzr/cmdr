@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"strings"
 
 	"gopkg.in/hedzr/errors.v3"
 
 	"github.com/hedzr/cmdr/v2/cli"
+	"github.com/hedzr/cmdr/v2/conf"
 
 	"github.com/hedzr/is/exec"
 	"github.com/hedzr/is/term"
@@ -49,7 +51,14 @@ func (s *HelpSystem) Run(ctx context.Context) (err error) {
 	Type 'quit' to end this session and back to Shell.
 	`).Build()
 
-	if dfn2, err = term.MakeNewTerm(ctx, welcomeString, promptString, replyPrefix, s.helpSystemLooper); err != nil {
+	if dfn2, err = term.MakeNewTerm(ctx, &term.PromptModeConfig{
+		Name:              path.Join(conf.AppName, "cmdr.v2.help.system"),
+		WelcomeText:       welcomeString,
+		PromptText:        promptString,
+		ReplyText:         replyPrefix,
+		MainLooperHandler: s.helpSystemLooper,
+		// PostInitTerminal:  postInitTerminal,
+	}); err != nil {
 		return
 	}
 	defer dfn2()
@@ -112,7 +121,7 @@ func (s *HelpSystem) interpretCommand(ctx context.Context, line string, term io.
 		return
 	}
 	switch a[0] {
-	case "help":
+	case "help", "?", "h":
 		err = s.helpCmd(ctx, a[1:], term)
 	default:
 		err = s.runSession(ctx, a, term)

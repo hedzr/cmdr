@@ -37,13 +37,22 @@ func improvedPromptMode(ctx context.Context) (err error) {
 	Type 'quit' to end this session and back to Shell.
 	`).Build()
 
-	if dfn2, err = term.MakeNewTerm(ctx, welcomeString, promptString, replyPrefix, helpSystemLooper); err != nil {
+	if dfn2, err = term.MakeNewTerm(ctx, &term.PromptModeConfig{
+		Name:              "cmdr.v2.examples.prompt",
+		WelcomeText:       welcomeString,
+		PromptText:        promptString,
+		ReplyText:         replyPrefix,
+		MainLooperHandler: helpSystemLooper,
+		// PostInitTerminal:  postInitTerminal,
+	}); err != nil {
 		return
 	}
 	defer dfn2()
 
 	return
 }
+
+// func postInitTerminal(t *origterm.Terminal) {}
 
 func helpSystemLooper(ctx context.Context, tty term.SmallTerm, replyPrefix string, exitChan <-chan struct{}, closer func()) (err error) {
 	defer func() {

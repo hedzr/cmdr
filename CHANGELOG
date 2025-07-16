@@ -1,5 +1,15 @@
 # CHANGELOG
 
+- v2.1.46
+
+  - improved builtin help system command - support history commands
+  - remove `dirs` since it moved into `hedzr/is` repo
+  - added `ActionRunHelpSystem`, run it with `app.DoBuiltinAction(ctx,action)`
+  - improved prompt example app (history support)
+  - upgrade deps
+    - is - added `dirs` for common folders; history supports in `makenewterm`
+    - logg - added `Painter` interface (still unstable)
+
 - v2.1.45
 
   - upgrade deps

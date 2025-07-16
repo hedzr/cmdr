@@ -14,6 +14,7 @@ import (
 	"github.com/hedzr/evendeep"
 	"github.com/hedzr/is"
 	"github.com/hedzr/is/dir"
+	"github.com/hedzr/is/dirs"
 	"github.com/hedzr/is/exec"
 	"github.com/hedzr/is/states"
 	"github.com/hedzr/store"
@@ -931,7 +932,7 @@ func (c *CmdS) invokeExternalEditor(ctx context.Context, vp *FlagValuePkg, ff *F
 
 	logz.DebugContext(ctx, "external editor", "ex-editor", ff.externalEditor)
 	if cmd := os.Getenv(ff.externalEditor); cmd != "" {
-		file := tool.TempFileName("message*.tmp", "message001.tmp", c.App().Name())
+		file := dirs.TempFileName("message*.tmp", "message001.tmp", c.App().Name())
 		cmdS := tool.SplitCommandString(cmd)
 		cmdS = append(cmdS, file)
 		defer func(dst string) {

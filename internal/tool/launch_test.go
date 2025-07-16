@@ -10,10 +10,10 @@ func TestRandomFileName(t *testing.T) {
 	t.Logf("fn = %v", fn)
 }
 
-func TestTempFileName(t *testing.T) {
-	fn := TempFileName("message*.tmp", "message001.tmp", "app")
-	t.Logf("fn = %v", fn)
-}
+// func TestTempFileName(t *testing.T) {
+// 	fn := TempFileName("message*.tmp", "message001.tmp", "app")
+// 	t.Logf("fn = %v", fn)
+// }
 
 func TestLaunchEditorWithGetter(t *testing.T) {
 	logfile := "/tmp/1.log"

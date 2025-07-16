@@ -3,7 +3,7 @@
 package cmdr
 
 import (
-	"github.com/hedzr/cmdr/v2/internal/tool"
+	"github.com/hedzr/is/dirs"
 )
 
 // DataDir returns standard datadir associated with this app.
@@ -32,7 +32,7 @@ import (
 // and others files that can be shared in all processes of this
 // application, sometimes for any apps.
 func DataDir(base ...string) string {
-	return tool.DataDir(AppName(), base...)
+	return dirs.DataDir(AppName(), base...)
 }
 
 // ConfigDir returns standard configdir associated with this app.
@@ -53,7 +53,7 @@ func DataDir(base ...string) string {
 // If the location cannot be determined (for example, $HOME is not defined),
 // then it will return an error.
 func ConfigDir(base ...string) string {
-	return tool.ConfigDir(AppName(), base...)
+	return dirs.ConfigDir(AppName(), base...)
 }
 
 // CacheDir returns standard cachedir associated with this app.
@@ -74,26 +74,26 @@ func ConfigDir(base ...string) string {
 // If the location cannot be determined (for example, $HOME is not defined),
 // then it will return an error.
 func CacheDir(base ...string) string {
-	return tool.CacheDir(AppName(), base...)
+	return dirs.CacheDir(AppName(), base...)
 }
 
 // HomeDir returns the current user's home directory.
 // In general, it would be /Users/<username>, /home/<username>, etc.
-func HomeDir() string { return tool.HomeDir() }
+func HomeDir() string { return dirs.HomeDir() }
 
 func TempDir(base ...string) string {
-	return tool.TempDir(AppName(), base...)
+	return dirs.TempDir(AppName(), base...)
 }
 
 func TempFileName(fileNamePattern, defaultFileName string, base ...string) (filename string) {
-	return tool.TempFileName(fileNamePattern, defaultFileName, AppName(), base...)
+	return dirs.TempFileName(fileNamePattern, defaultFileName, AppName(), base...)
 }
 
 // VarLogDir is todo, not exact right yet.
-func VarLogDir(base ...string) string { return tool.VarLogDir(AppName(), base...) }
+func VarLogDir(base ...string) string { return dirs.VarLogDir(AppName(), base...) }
 
 // VarRunDir is the runtime temp dir. "/var/run/<app>/"
-func VarRunDir(base ...string) string { return tool.VarRunDir(AppName(), base...) }
+func VarRunDir(base ...string) string { return dirs.VarRunDir(AppName(), base...) }
 
 // UsrLibDir is the runtime temp dir. "/usr/local/lib/<app>/" or "/usr/lib/<app>" in root mode.
-func UsrLibDir(base ...string) string { return tool.UsrLibDir(AppName(), base...) }
+func UsrLibDir(base ...string) string { return dirs.UsrLibDir(AppName(), base...) }

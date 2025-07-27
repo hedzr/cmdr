@@ -1,5 +1,13 @@
 # CHANGELOG
 
+- v2.1.47
+
+  - update workflow file to improve release notes
+  - upgrade deps
+    - is - added more os & arch detector such as `BSD()`
+    - logg - added `ResetDefault()`
+    - store - doc to dupS
+
 - v2.1.46
 
   - improved builtin help system command - support history commands

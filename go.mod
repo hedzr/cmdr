@@ -13,13 +13,13 @@ toolchain go1.23.3
 // replace github.com/hedzr/store/providers/file => ../libs.store/providers/file
 
 require (
-	github.com/hedzr/evendeep v1.3.46
-	github.com/hedzr/is v0.8.46
-	github.com/hedzr/logg v0.8.46
-	github.com/hedzr/store v1.3.46
-	github.com/hedzr/store/codecs/json v1.3.46
-	github.com/hedzr/store/providers/file v1.3.46
-	golang.org/x/exp v0.0.0-20250711185948-6ae5c78190dc
+	github.com/hedzr/evendeep v1.3.47
+	github.com/hedzr/is v0.8.47
+	github.com/hedzr/logg v0.8.47
+	github.com/hedzr/store v1.3.47
+	github.com/hedzr/store/codecs/json v1.3.47
+	github.com/hedzr/store/providers/file v1.3.47
+	golang.org/x/exp v0.0.0-20250718183923-645b1fa84792
 	gopkg.in/hedzr/errors.v3 v3.3.5
 )
 

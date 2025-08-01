@@ -51,8 +51,8 @@ jobs:
           preserve_order: true
           # body_path: relnotes.md
           body: |
-            This release was created by: ${{ github.event.sender.login }}
-            Release of Cmdr.v2, built from commit ${{ env.SHORT_SHA }}, is now available.
+            The release was created by ${{ github.event.sender.login }} and commit  ${{ env.SHORT_SHA }}.
+            Cmdr.v2, an arg-parser, provides a different way to start your cli app easily.
 
             ${{ github.event.head_commit.message }}
           files: |

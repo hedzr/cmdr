@@ -1,5 +1,13 @@
 # CHANGELOG
 
+- v2.1.48
+
+  - improved app version for dev-time
+    `conf.Version` will be unchanged if passing an empty ("-") version from main()
+  - update workflow file to improve release notes
+  - upgrade deps
+    - logg - fix error in verbose mdoe
+
 - v2.1.47
 
   - update workflow file to improve release notes

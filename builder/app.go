@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"reflect"
+	"strings"
 	"sync/atomic"
 
 	"github.com/hedzr/cmdr/v2/cli"
@@ -144,7 +145,15 @@ func (s *appS) Info(name, version string, desc ...string) cli.App {
 		}
 	}
 
-	if version != "" {
+	// build & publish a release:
+	//   go build -ldflags="-X 'github.com/hedzr/cmdr/v2/conf.Version=${git-version}' -X 'github.com/hedzr/cmdr/v2/conf.AppName=me' -X 'github.com/your-name/your-cli/cli/consts.Version=-'"
+	//
+	// local run & debug (set your local consts.version to "-" to keep conf.Version unchanged):
+	//   go run -ldflags="-X 'github.com/hedzr/cmdr/v2/conf.Version=${git-version}' -X 'github.com/hedzr/cmdr/v2/conf.AppName=me' -X 'github.com/your-name/your-cli/cli/consts.Version=-'"
+	//
+	// If you're running without ldflags, your local `const.Version` would be passed into cmdr as the final version number.
+	// You can always set `const.Version` to "-" to tell cmdr ignore it. If so, cmdr loads `conf.Version` as the final version number.
+	if strings.Trim(strings.TrimSpace(version), "-_.+") != "" {
 		s.root.Version = version
 		if version != conf.Version {
 			conf.Version = version

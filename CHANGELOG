@@ -1,12 +1,18 @@
 # CHANGELOG
 
+- v2.1.50
+
+  - upgrade deps
+    - logg - update fg of INFO level
+    - is - added `Color.AddAndNew()`
+
 - v2.1.48
 
   - improved app version for dev-time
     `conf.Version` will be unchanged if passing an empty ("-") version from main()
   - update workflow file to improve release notes
   - upgrade deps
-    - logg - fix error in verbose mdoe
+    - logg - fix error in verbose mode
 
 - v2.1.47
 

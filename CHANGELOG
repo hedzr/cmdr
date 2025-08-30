@@ -1,5 +1,10 @@
 # CHANGELOG
 
+- v2.1.55
+
+  - UPGRADE GO TOOLCHAIN TO 1.24.x (1.24.5)
+  - upgrade deps
+
 - v2.1.51
 
   - upgrade deps

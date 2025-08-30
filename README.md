@@ -16,7 +16,7 @@
 `cmdr` integrates app-settings manager (`Store`) for developing CLI app rapidly.
 
 1. Our license moved to Apache 2.0 since v2.
-2. The minimal toolchain move to go1.23+ since v2.1.
+2. The minimal toolchain moved to go1.24+ since v2.1.55.
 3. DocSite published at [docs.hedzr.com](https://docs.hedzr.com/docs/cmdr.v2/).
 4. Starting a new app with [cmdr-go-starter](https://github.com/hedzr/cmdr-go-starter) Template repo.
 5. [Coming soon] Starting your app with [cmdr-cli] commandline tool.

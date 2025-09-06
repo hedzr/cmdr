@@ -71,6 +71,8 @@ func (s *HelpSystem) helpSystemLooper(ctx context.Context, tty term.SmallTerm, r
 		_, _ = fmt.Fprintln(tty, byeString)
 		closer()
 		// _, _ = fmt.Println("end")
+		os.Unsetenv("CMDR_HELP_SYS_RUNNING")
+		s.cmd.Set().Remove("cmdr.help.system.running")
 	}()
 
 	os.Setenv("CMDR_HELP_SYS_RUNNING", "1")
@@ -100,8 +102,10 @@ func (s *HelpSystem) helpSystemLooper(ctx context.Context, tty term.SmallTerm, r
 			select {
 			case <-ch:
 				err = ctx.Err()
+				logz.VerboseContext(ctx, "HelpSystem.helpSystemLooper() / ctx.Done triggered.", "err", err)
 				return
 			case <-exitChan:
+				logz.VerboseContext(ctx, "HelpSystem.helpSystemLooper() / exit channel triggered.")
 				return
 			default:
 			}
@@ -128,6 +132,9 @@ func (s *HelpSystem) interpretCommand(ctx context.Context, line string, term io.
 		err = s.helpCmd(ctx, a[1:], term)
 	default:
 		err = s.runSession(ctx, a, term)
+		if err != nil {
+			logz.ErrorContext(ctx, "HelpSystem.runSession() failed", "err", err)
+		}
 	}
 	return
 }
@@ -157,7 +164,7 @@ Flag %v FOUND. It belongs to %v.
 	// str := strings.Replace(sb.String(), "\n", "\r\n", -1)
 	// _, _ = wr.Write([]byte(str))
 	str := sb.String()
-	for _, line := range strings.Split(str, "\n") {
+	for line := range strings.SplitSeq(str, "\n") {
 		// _, _ = fmt.Fprintf(wr, "%v\r\n", line)
 		_, _ = wr.Write([]byte(line))
 		_, _ = wr.Write([]byte{'\r', '\n'})
@@ -201,27 +208,12 @@ func (s *HelpSystem) runSession(ctx context.Context, a []string, term io.Writer)
 					err = fmt.Errorf("%v", e)
 				}
 			} else {
-				err = fmt.Errorf("%v | %v", e, err)
+				err = fmt.Errorf("%v | %w", e, err)
 			}
 		}
 	}()
 
 	return s.runProtectedSession(ctx, a, term)
-}
-
-type crlfWriter struct {
-	io.Writer
-}
-
-func (w *crlfWriter) Write(p []byte) (n int, err error) {
-	str := string(p)
-	rpl := strings.ReplaceAll(str, "\n", "\r\n")
-	return w.Writer.Write([]byte(rpl))
-}
-
-func (w *crlfWriter) WriteString(s string) (n int, err error) {
-	rpl := strings.ReplaceAll(s, "\n", "\r\n")
-	return w.Write([]byte(rpl))
 }
 
 func (s *HelpSystem) runProtectedSession(ctx context.Context, a []string, term io.Writer) (err error) {
@@ -249,44 +241,59 @@ func (s *HelpSystem) runProtectedSession(ctx context.Context, a []string, term i
 	return
 }
 
-func logOutput() func() {
-	logfile := `logfile`
-	// open file read/write | create if not exist | clear file at open if exists
-	f, _ := os.OpenFile(logfile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
-
-	// save existing stdout | MultiWriter writes to saved stdout and file
-	out := os.Stdout
-	mw := io.MultiWriter(out, f)
-
-	// get pipe reader and writer | writes to pipe writer come out pipe reader
-	r, w, _ := os.Pipe()
-
-	// replace stdout,stderr with pipe writer | all writes to stdout, stderr will go through pipe instead (fmt.print, log)
-	os.Stdout = w
-	os.Stderr = w
-
-	// writes with log.Print should also write to mw
-	logz.Default().AddWriter(mw)
-
-	// create channel to control exit | will block until all copies are finished
-	exit := make(chan bool)
-
-	go func() {
-		// copy all reads from pipe to multiwriter, which writes to stdout and file
-		_, _ = io.Copy(mw, r)
-		// when r or w is closed copy will finish and true will be sent to channel
-		exit <- true
-	}()
-
-	// function to be deferred in main until program exits
-	return func() {
-		// close writer then block on exit channel | this will let mw finish writing before the program exits
-		_ = w.Close()
-		<-exit
-		// close file after all writes have finished
-		_ = f.Close()
-	}
+type crlfWriter struct {
+	io.Writer
 }
+
+func (w *crlfWriter) Write(p []byte) (n int, err error) {
+	str := string(p)
+	rpl := strings.ReplaceAll(str, "\n", "\r\n")
+	return w.Writer.Write([]byte(rpl))
+}
+
+func (w *crlfWriter) WriteString(s string) (n int, err error) {
+	rpl := strings.ReplaceAll(s, "\n", "\r\n")
+	return w.Write([]byte(rpl))
+}
+
+// func logOutput() func() {
+// 	logfile := `logfile`
+// 	// open file read/write | create if not exist | clear file at open if exists
+// 	f, _ := os.OpenFile(logfile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+
+// 	// save existing stdout | MultiWriter writes to saved stdout and file
+// 	out := os.Stdout
+// 	mw := io.MultiWriter(out, f)
+
+// 	// get pipe reader and writer | writes to pipe writer come out pipe reader
+// 	r, w, _ := os.Pipe()
+
+// 	// replace stdout,stderr with pipe writer | all writes to stdout, stderr will go through pipe instead (fmt.print, log)
+// 	os.Stdout = w
+// 	os.Stderr = w
+
+// 	// writes with log.Print should also write to mw
+// 	logz.Default().AddWriter(mw)
+
+// 	// create channel to control exit | will block until all copies are finished
+// 	exit := make(chan bool)
+
+// 	go func() {
+// 		// copy all reads from pipe to multiwriter, which writes to stdout and file
+// 		_, _ = io.Copy(mw, r)
+// 		// when r or w is closed copy will finish and true will be sent to channel
+// 		exit <- true
+// 	}()
+
+// 	// function to be deferred in main until program exits
+// 	return func() {
+// 		// close writer then block on exit channel | this will let mw finish writing before the program exits
+// 		_ = w.Close()
+// 		<-exit
+// 		// close file after all writes have finished
+// 		_ = f.Close()
+// 	}
+// }
 
 const (
 	promptString = "(cmdr): "

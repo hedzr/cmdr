@@ -504,7 +504,7 @@ func (c *CmdS) RunPreActions(ctx context.Context, cmd Cmd, args []string) (defer
 func (c *CmdS) getDeferAction(ctx context.Context, cmd Cmd, args []string) func(errInvoked error) {
 	return func(errInvoked error) {
 		ecp := errors.New("[POST-INVOKE]")
-
+		ecp.Attach(errInvoked)
 		// if !errors.Iss(errInvoked, ErrShouldStop, ErrShouldFallback) { // condition is true if errInvoked is nil
 		// 	ecp.Attach(errInvoked) // no matter, attaching a nil error is no further effect
 		// }

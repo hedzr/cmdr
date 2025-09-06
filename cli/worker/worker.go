@@ -3,6 +3,7 @@ package worker
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"reflect"
 	"strings"
@@ -128,8 +129,18 @@ func (w *workerS) String() string {
 		if b, err := json.Marshal(w.Config); err == nil {
 			_, _ = sb.Write(b)
 		} else {
-			ctx := context.Background()
-			logz.ErrorContext(ctx, "json marshalling w.Config failed", "config", w.Config, "err", err)
+			// ctx := context.Background()
+			// logz.ErrorContext(ctx, "json marshalling w.Config failed", "config", w.Config, "err", err)
+			// logz.Skip(8).ErrorContext(ctx, "calling workerS.String() but json marshalling on w.Config failed")
+
+			// cf := w.Config.CancelFunc
+			// w.Config.CancelFunc = nil
+			// if b, err = json.Marshal(w.Config); err == nil {
+			// 	_, _ = sb.Write(b)
+			// } else {
+			_, _ = sb.WriteString(fmt.Sprintf("/%+v/", w.Config))
+			// }
+			// w.Config.CancelFunc = cf
 		}
 	} else {
 		sb.WriteString("(config-unset)")
@@ -434,7 +445,9 @@ func (w *workerS) Run(ctx context.Context, opts ...cli.Opt) (err error) {
 	}()
 
 	if w.globalCancelFunc != nil {
-		defer w.globalCancelFunc()
+		if inHelpSystem := w.Config.Store.MustBool("cmdr.help.system.running"); !inHelpSystem {
+			defer w.globalCancelFunc()
+		}
 	}
 
 	w.errs = errors.New(w.root.AppName)

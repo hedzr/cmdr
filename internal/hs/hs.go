@@ -73,6 +73,9 @@ func (s *HelpSystem) helpSystemLooper(ctx context.Context, tty term.SmallTerm, r
 		// _, _ = fmt.Println("end")
 	}()
 
+	os.Setenv("CMDR_HELP_SYS_RUNNING", "1")
+	s.cmd.Set().Set("cmdr.help.system.running", true)
+
 	var line string
 	for {
 		line, err = tty.ReadLine()

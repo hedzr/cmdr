@@ -16,7 +16,7 @@ import (
 	"github.com/hedzr/cmdr/v2/pkg/times"
 )
 
-func (w *workerS) showVersion(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error) { //nolint:revive,unused
+func (w *workerS) showVersion(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error) {
 	// (&helpPrinter{w: w}).Print(ctx, pc, lastCmd)
 	if w.OnShowVersion != nil {
 		err = w.OnShowVersion(ctx, lastCmd, pc.PositionalArgs())
@@ -60,7 +60,7 @@ func (w *workerS) showVersion(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd
 	return
 }
 
-func (w *workerS) showBuiltInfo(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error) { //nolint:revive,unused
+func (w *workerS) showBuiltInfo(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error) {
 	// (&helpPrinter{w: w}).Print(ctx, pc, lastCmd)
 	if w.OnShowBuildInfo != nil {
 		w.OnShowBuildInfo(ctx, lastCmd, pc.PositionalArgs())
@@ -147,7 +147,7 @@ func _fpzz(needln bool, s string, w io.Writer) {
 	}
 }
 
-func (w *workerS) showSBOM(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error) { //nolint:revive,unused
+func (w *workerS) showSBOM(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error) {
 	if w.OnSBOM != nil {
 		err = w.OnSBOM(ctx, lastCmd, pc.PositionalArgs())
 		return
@@ -156,12 +156,12 @@ func (w *workerS) showSBOM(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, a
 	return
 }
 
-func (w *workerS) showHelpScreen(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error) { //nolint:revive,unused
+func (w *workerS) showHelpScreen(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error) {
 	(&helpPrinter{w: w}).Print(ctx, pc, lastCmd, args...)
 	return
 }
 
-func (w *workerS) showHelpScreenAsMan(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error) { //nolint:revive,unused
+func (w *workerS) showHelpScreenAsMan(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error) {
 	hp := &helpPrinter{w: w, asManual: true}
 
 	// err = w.pipeToReader(func(stdout io.Writer) {
@@ -212,7 +212,7 @@ func (w *workerS) showHelpScreenAsMan(ctx context.Context, pc *parseCtx, lastCmd
 }
 
 // helpSystemAction is the reaction for 'help' command at root level.
-func (w *workerS) helpSystemAction(ctx context.Context, cmd cli.Cmd, args []string) (err error) { //nolint:revive,unused
+func (w *workerS) helpSystemAction(ctx context.Context, cmd cli.Cmd, args []string) (err error) {
 	if len(args) > 0 {
 		hp, handled := &helpPrinter{w: w}, cmd
 		// trying to recognize the given commands and print help screen of it.
@@ -228,12 +228,12 @@ func (w *workerS) helpSystemAction(ctx context.Context, cmd cli.Cmd, args []stri
 	return
 }
 
-func (w *workerS) showTree(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error) { //nolint:revive,unused
+func (w *workerS) showTree(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error) {
 	(&helpPrinter{w: w, debugMatches: true, treeMode: true}).Print(ctx, pc, lastCmd, args...)
 	return
 }
 
-func (w *workerS) showDebugScreen(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error) { //nolint:revive,unused
+func (w *workerS) showDebugScreen(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd, args ...any) (err error) {
 	(&helpPrinter{w: w, debugScreenMode: true, debugMatches: true}).Print(ctx, pc, lastCmd, args...)
 	return
 }

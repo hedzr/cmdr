@@ -445,7 +445,7 @@ func (w *workerS) Run(ctx context.Context, opts ...cli.Opt) (err error) {
 	}()
 
 	if w.globalCancelFunc != nil {
-		if inHelpSystem := w.Config.Store.MustBool("cmdr.help.system.running"); !inHelpSystem {
+		if inHelpSystem := w.Config.MustBool("cmdr.help.system.running"); !inHelpSystem {
 			defer w.globalCancelFunc()
 		}
 	}

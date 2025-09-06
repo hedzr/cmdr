@@ -31,6 +31,22 @@
       "env": { "HELP": "0", "APP_DEBUG": "1", "APP_VERBOSE": "1" }
     },
     {
+      "name": "Launch 'examples/blueprint snd hedzr'",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/examples/blueprint/",
+      "args": ["snd", "hedzr"]
+    },
+    {
+      "name": "Launch 'examples/blueprint help'",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/examples/blueprint/",
+      "args": ["help"]
+    },
+    {
       "name": "> Launch examples/tiny/lite/ help ...",
       "type": "go",
       "request": "launch",
@@ -39,6 +55,14 @@
       "cwd": "${workspaceRoot}",
       "program": "${workspaceRoot}/examples/tiny/lite/",
       "args": ["help"]
+    },
+
+    {
+      "name": "Attach to a running process",
+      "type": "go",
+      "request": "attach",
+      "mode": "local",
+      "processId": 0
     },
     {
       "name": "> Launch file",

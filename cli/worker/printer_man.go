@@ -191,7 +191,8 @@ func (s *manPainter) printCommandRow(ctx context.Context, sb *strings.Builder,
 	// s.Printf("  %-48s%v", command.GetTitleNames(), command.Description)
 	// s.Printf("\n\x1b[%dm\x1b[%dm%s\x1b[0m", bgNormal, darkColor, title)
 	// s.Printf("  [\x1b[%dm\x1b[%dm%s\x1b[0m]", bgDim, darkColor, normalize(group))
-	s.bufPrintf(sb, ".TP\n.BI %s", manWs(cc.GetTitleNames()))
+	a, b := cc.GetTitleNames()
+	s.bufPrintf(sb, ".TP\n.BI %s", manWs(a, b))
 	s.bufPrintf(sb, "\n%s\n", cc.Desc())
 }
 
@@ -303,7 +304,7 @@ func manExamples(s string, data interface{}) string {
 	for _, l := range sources {
 		if strings.HasPrefix(l, "$ {{.AppName}}") {
 			lines = append(lines, `.TP \w'{{.AppName}}\ 'u
-.BI {{.AppName}} \ `+manWs(l[14:]))
+.BI {{.AppName}} \ `+manWs("%s", l[14:]))
 		} else {
 			if lastLine == "" {
 				lastLine = strings.TrimSpace(l)

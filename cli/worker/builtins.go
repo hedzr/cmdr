@@ -522,9 +522,9 @@ func (w *workerS) builtinSBOM(app cli.App, p *cli.CmdS) {
 	})
 }
 
-func (w *workerS) uniAddCmd(cmd *cli.CmdS, callbacks ...func(cc *cli.CmdS)) {
-	cmd.AddSubCommand(new(cli.CmdS), callbacks...)
-}
+// func (w *workerS) uniAddCmd(cmd *cli.CmdS, callbacks ...func(cc *cli.CmdS)) {
+// 	cmd.AddSubCommand(new(cli.CmdS), callbacks...)
+// }
 
 //
 

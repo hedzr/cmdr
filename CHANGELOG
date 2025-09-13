@@ -1,5 +1,13 @@
 # CHANGELOG
 
+- v2.1.60
+
+  - [hs] improved help subsystem
+  - fixed possible errors
+  - improved codes for linting issues
+  - upgrade deps
+  - security patches
+
 - v2.1.55
 
   - UPGRADE GO TOOLCHAIN TO 1.24.x (1.24.5)

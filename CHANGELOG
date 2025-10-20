@@ -1,5 +1,10 @@
 # CHANGELOG
 
+- v2.1.61
+
+  - upgrade deps
+  - security patches
+
 - v2.1.60
 
   - [hs] improved help subsystem

@@ -153,9 +153,12 @@ Please go to our docsite for these pages:
 
 You can build command system by kinds of forms:
 
-  1. traditional stream calls (`app.Cmd("verbose", "v").Action(onVerbose)`)
-  2. concise modes by [`Create`](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Create) and cmd/xxcmd.go
-  3. use [`Create.BuildFrom`](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Create) to build cmdsys from a struct value via `[App.FromStruct]`, see example [#example_Create_buildFromStructValue](https://pkg.go.dev/github.com/hedzr/cmdr/v2/#example_Create_buildFromStructValue); or, attaching subcmds and flags to a subcmd by `app.Cmd().FromStruct(&root{})` following any traditional calls.
+1. traditional stream calls style (`app.Cmd("verbose", "v").Action(onVerbose)`)
+2. concise style by `[Create](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Create)` and cmd/xxcmd.go
+3. passing config arg style by `[cmdr.NewAppWithConfig(config)]`
+4. struct tag style: using `[cmdr.Create().BuildFrom()](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Creator.BuildFrom)` to build command system from a struct value, see example [#example_Create_buildFromStructValue](https://pkg.go.dev/github.com/hedzr/cmdr/v2#example-Create-BuildFromAStructValue); or, attaching subcmds and flags to a subcmd by `app.Cmd().FromStruct(&root{})` following any traditional calls.
+
+Getting started from [New](https://pkg.go.dev/github.com/hedzr/cmdr/v2#New) or [Create](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Create) function.
 
 ### Traditional style
 

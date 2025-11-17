@@ -145,6 +145,7 @@ func AppDescriptionLong() string { return App().Root().DescLong() } // the app's
 
 // CmdLines returns the whole command-line as space-separated slice.
 func CmdLines() []string { return App().Args() }
+func Args() []string     { return ParsedPositionalArgs() } // the remained positonal args after parsed
 
 // Error returns all errors occurred with a leading parent.
 //

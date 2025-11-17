@@ -804,10 +804,15 @@ func (c *CmdS) ensureXrefFlags(ctx context.Context) {
 							}
 						}
 					}
-					// remove negatable state from `-W` main flag.
-					// since the children created, such as `-Wunused-aa` & `-Wno-unused-aa`
-					ff.negItems = nil
-					ff.negatable = false
+
+					// Since v2.1.65, ff.negItems had never been reset to nil.
+					// So we can iterate it in printing help screen.
+					// At same time, the negatable state would be kept.
+					//
+					// // remove negatable state from `-W` main flag.
+					// // since the children created, such as `-Wunused-aa` & `-Wno-unused-aa`
+					// ff.negItems = nil
+					// ff.negatable = false
 					continue
 				}
 

@@ -157,12 +157,12 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedS
 				} else if level == 1 {
 					painter.printFlagHeading(ctx, &sb, cc, ff, "Parent Flags")
 					_, _ = sb.WriteString("(")
-					_, _ = sb.WriteString(color.ToDim(cc.String()))
+					_, _ = sb.WriteString(color.ToDim("%s", cc.String()))
 					_, _ = sb.WriteString("):\n")
 				} else {
 					painter.printFlagHeading(ctx, &sb, cc, ff, "Grandpa Flags")
 					_, _ = sb.WriteString("(")
-					_, _ = sb.WriteString(color.ToDim(cc.String()))
+					_, _ = sb.WriteString(color.ToDim("%s", cc.String()))
 					_, _ = sb.WriteString("):\n")
 				}
 			}
@@ -461,7 +461,7 @@ func (s *helpPrinter) printEnv(ctx context.Context, sb *strings.Builder, wr Help
 		_, _ = sb.WriteString("  ")
 		_, _ = sb.WriteString(key)
 		_, _ = sb.WriteString(" = ")
-		_, _ = sb.WriteString(color.ToDim(m[key]))
+		_, _ = sb.WriteString(color.ToDim("%s", m[key]))
 		_, _ = sb.WriteString("\n")
 	}
 
@@ -469,7 +469,7 @@ func (s *helpPrinter) printEnv(ctx context.Context, sb *strings.Builder, wr Help
 		_, _ = sb.WriteString("  ")
 		_, _ = sb.WriteString(key)
 		_, _ = sb.WriteString(" = ")
-		_, _ = sb.WriteString(color.ToDim(m[key]))
+		_, _ = sb.WriteString(color.ToDim("%s", m[key]))
 		_, _ = sb.WriteString("\n")
 	}
 
@@ -1010,6 +1010,12 @@ func (s *helpPrinter) printFlagRow(ctx context.Context, sb *strings.Builder,
 		}
 	}
 
+	if b := ff.Negatable(); b {
+		str := "<dim>(negatable)</dim>"
+		esc := s.Translate(str, CurrentDescColor)
+		_, _ = sb.Write([]byte(esc))
+	}
+
 	// s.ColoredFast(&sb, CurrentDefaultValueColor, def)
 	// s.ColoredFast(&sb, CurrentDeprecatedColor, dep)
 	// sb.WriteString(s.Translate(right, color.BgDefault))
@@ -1128,6 +1134,19 @@ func (s *helpPrinter) printFlag(ctx context.Context, pc *cli.WalkBackwardsCtx,
 		row := fmt.Sprintf("-<i>number</i> = --%s=<i>number</i>\n", ff.Title())
 		esc := s.Translate(row, CurrentFlagTitleColor)
 		_, _ = sb.WriteString(esc)
+	}
+
+	if b := ff.Negatable(); b && !s.asManual {
+		for _, it := range ff.NegatableItems() {
+			_, _ = sb.WriteString(indentSpaces)
+			_, _ = sb.WriteString("    ")
+			if ff.Required() {
+				_, _ = sb.WriteString("  ")
+			}
+			row := fmt.Sprintf(" - <i>%s</i>, no-%s\n", it, it)
+			esc := s.Translate(row, CurrentFlagTitleColor)
+			_, _ = sb.WriteString(esc)
+		}
 	}
 }
 

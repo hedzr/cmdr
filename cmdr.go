@@ -97,16 +97,16 @@ func earlierInitForNew() {
 
 var earlierInitForNewOnce sync.Once
 
-// App returns a light version of builder.Runner (a.k.a. *worker.Worker).
+// App returns a light version of [builder.Runner] (a.k.a. *[worker.Worker]).
 //
-// Generally it's a unique instance in one system.
+// Generally it's a unique instance in a system.
 //
 // It's available once New() / Exec() called, else nil.
 //
-// App returns a cli.Runner instance, which is different with builder.App.
+// App returns a [cli.Runner] instance, which is different with [builder.App].
 //
-// In most cases, App() return the exact app object (a &workerS{} instance).
-// But it' not the real worker if you're requesting shared app instance.
+// In most cases, App() return the exact app object (a &appS{} instance).
+// But it's not the real worker if you're requesting shared app instance.
 // A shared app instance must be made by New() and valued context:
 //
 //	ctx := context.Background()

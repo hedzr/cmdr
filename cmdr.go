@@ -80,6 +80,8 @@ func New(opts ...cli.Opt) cli.App {
 	return builder.New(w)
 }
 
+// NewAppWithConfig creates the unique [App] object by passing a
+// *[cli.Config] argument.
 func NewAppWithConfig(cfg *cli.Config) cli.App {
 	earlierInitForNew()
 	w := worker.New(cfg)

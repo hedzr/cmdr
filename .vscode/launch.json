@@ -21,8 +21,18 @@
       "program": "${workspaceFolder}",
       "args": ["-o", "output.log"]
     },
+
     {
-      "name": "Launch 'examples/blueprint wrong'",
+      "name": "> Launch 'examples/negatable -w -Wunused-function -h'",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/examples/negatable/",
+      "args": ["-w", "-Wunused-function", "-h"]
+    },
+
+    {
+      "name": "> Launch 'examples/blueprint wrong'",
       "type": "go",
       "request": "launch",
       "mode": "auto",
@@ -31,7 +41,7 @@
       "env": { "HELP": "0", "APP_DEBUG": "1", "APP_VERBOSE": "1" }
     },
     {
-      "name": "Launch 'examples/blueprint snd hedzr'",
+      "name": "> Launch 'examples/blueprint snd hedzr'",
       "type": "go",
       "request": "launch",
       "mode": "auto",
@@ -39,7 +49,7 @@
       "args": ["snd", "hedzr"]
     },
     {
-      "name": "Launch 'examples/blueprint help'",
+      "name": "> Launch 'examples/blueprint help'",
       "type": "go",
       "request": "launch",
       "mode": "auto",
@@ -64,6 +74,7 @@
       "mode": "local",
       "processId": 0
     },
+
     {
       "name": "> Launch file",
       "type": "go",
@@ -71,8 +82,9 @@
       "mode": "debug",
       "program": "${file}"
     },
+
     {
-      "name": "> Launch dir",
+      "name": "- Launch dir",
       "type": "go",
       "request": "launch",
       "mode": "auto",
@@ -81,7 +93,7 @@
       "args": []
     },
     {
-      "name": "> Launch test package",
+      "name": "- Launch test package",
       "type": "go",
       "request": "launch",
       "mode": "test",

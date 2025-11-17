@@ -86,8 +86,18 @@ func AddNegatableFlagImpl(parent cli.CommandBuilder, dontHandlingParentCmd ...bo
 	parent.Examples(`Try to use negatable flag,
 	  
 	  $ $APP --no-warning
-	    <code>cmd.Store().MustBool("no-warning")</code> will be 'true'.
+	    <code>cmd.Store().MustBool("no-warning")</code> will be '<code>true</code>'.
 	  $ $APP --warning
-	    <code>cmd.Store().MustBool("warning")</code> will be 'true'.
+	    <code>cmd.Store().MustBool("warning")</code> will be '<code>true</code>'.
+	  $ $APP -Wunused-variable -Wno-unused-parameter
+	    1. <code>cmd.Store().MustBool("warnings.unused-variable")</code> will be '<code>true</code>',
+	    2. <code>cmd.Store().MustBool("warnings.no-unused-parameter")</code> will be '<code>true</code>'.
+	       <code>cmd.Store().MustBool("warnings.unused-parameter")</code> will be '<code>false</code>'.
+	  $ $APP -Wno-unused-function -Wunused-but-set-variable
+	    1. <code>cmd.Store().MustBool("warnings.unused-function")</code> will be '<code>false</code>',
+	       <code>cmd.Store().MustBool("warnings.no-unused-function")</code> will be '<code>true</code>',
+	    2. <code>cmd.Store().MustBool("warnings.unused-but-set-variable")</code> will be '<code>true</code>'.
+	  $ $APP +warning
+	    <code>cmd.Store().MustBool("warning")</code> will be '<code>true</code>'.
 	`)
 }

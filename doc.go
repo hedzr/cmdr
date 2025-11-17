@@ -119,4 +119,4 @@
 // For more documentation please go and check out https://docs.hedzr.com/cmdr.v2/.
 package cmdr
 
-const Version = "v2.1.61" // Version fir hedzr/cmdr/v2
+const Version = "v2.1.65" // Version fir hedzr/cmdr/v2

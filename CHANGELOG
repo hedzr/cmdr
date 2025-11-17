@@ -1,5 +1,13 @@
 # CHANGELOG
 
+- v2.1.65
+
+  - list subitems of a negatable flag in help screen
+  - improve & add a little doc
+  - added `cmdr.Args()`
+  - upgrade deps
+  - security patches
+
 - v2.1.61
 
   - upgrade deps

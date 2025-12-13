@@ -1,5 +1,10 @@
 # CHANGELOG
 
+- v2.1.66
+
+  - upgrade deps
+  - security patches
+
 - v2.1.65
 
   - list subitems of a negatable flag in help screen

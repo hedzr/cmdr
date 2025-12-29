@@ -244,11 +244,12 @@ func (s *parseCtx) NoCandidateChildCommands() bool {
 }
 
 func (s *parseCtx) LastCmd() cli.Cmd {
-	var cmd = s.root.Cmd
-	if s != nil {
-		if s.lastCommand >= 0 && len(s.matchedCommands) > 0 {
-			cmd = s.matchedCommands[s.lastCommand]
-		}
+	if s == nil || s.root == nil {
+		return nil
+	}
+	cmd := s.root.Cmd
+	if s.lastCommand >= 0 && len(s.matchedCommands) > 0 {
+		cmd = s.matchedCommands[s.lastCommand]
 	}
 	return cmd
 }

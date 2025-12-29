@@ -18,6 +18,11 @@ import (
 	"github.com/hedzr/store"
 )
 
+//
+
+//
+//
+
 func ExampleCreate() {
 	app := cmdr.Create(appName, version, author, desc).
 		WithAdders(cmd.Commands...).

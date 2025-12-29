@@ -14,13 +14,15 @@ func TestSplitCommandString(t *testing.T) {
 		{`bash -c 'echo hello world!'`, []string{"bash", "-c", "echo hello world!"}},
 	}
 
+	t.Log("BEGIN ...")
 	for _, tt := range tests {
 		got := SplitCommandString(tt.input, '\'')
 		if !reflect.DeepEqual(got, tt.out) {
-			t.Errorf("SplitCommandString(%v) = %v, want %v", tt.input, got, tt.out)
+			t.Fatalf("SplitCommandString(%v) = %v, want %v", tt.input, got, tt.out)
 			// spew.SDump(got)
 		}
 	}
+	t.Log("OK")
 }
 
 func TestStripQuotes(t *testing.T) {

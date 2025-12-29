@@ -101,8 +101,8 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedS
 		s.printHeader(ctx, &sb, lastCmd, pc, cols, tabbedW)
 		walkCtx := &cli.WalkBackwardsCtx{}
 		lastCmd.WalkGrouped(ctx, func(cc, pp cli.Cmd, ff *cli.Flag, group string, idx, level int) {
-			switch {
-			case ff == nil: // CmdS
+			switch ff {
+			case nil: // CmdS
 				walkCtx.LastCmdGroupInc = s.printCommand(ctx, &sb, painter, &verboseCount, cc, group, idx, level, cols, tabbedW, grouped)
 			default: // Flag
 				s.printFlag(ctx, walkCtx, &sb, painter, &verboseCount, ff, group, idx, level, cols, tabbedW, grouped)
@@ -136,6 +136,7 @@ func (s *helpPrinter) PrintTo(ctx context.Context, wr HelpWriter, pc cli.ParsedS
 					// _, _ = sb.WriteString("/")
 					// _, _ = sb.WriteString(strconv.Itoa(count))
 					// _, _ = sb.WriteString("]:\n")
+					_ = isFirstItem
 				}
 				pc.LastCmdGroupInc = s.printCommand(ctx, &sb, painter, &verboseCount, cc, cc.GroupHelpTitle(), groupIndex, 1, cols, tabbedW, walkCtx.Group)
 				return

@@ -32,7 +32,7 @@ func (w *workerS) preProcess(ctx context.Context) (err error) {
 		return
 	}
 
-	if w.invokeTasks(ctx, &dummyParseCtx, w.errs, w.Config.TasksAfterXref...) {
+	if w.invokeTasks(ctx, &dummyParseCtx, w.errs, w.TasksAfterXref...) {
 		return
 	}
 
@@ -40,7 +40,7 @@ func (w *workerS) preProcess(ctx context.Context) (err error) {
 		return
 	}
 
-	if w.invokeTasks(ctx, &dummyParseCtx, w.errs, w.Config.TasksAfterLoader...) {
+	if w.invokeTasks(ctx, &dummyParseCtx, w.errs, w.TasksAfterLoader...) {
 		return
 	}
 
@@ -91,6 +91,7 @@ func (w *workerS) preEnvSet(ctx context.Context) {
 		_ = os.Setenv("HOME", home)
 	} else {
 		home = os.Getenv("HOME")
+		_ = home
 	}
 
 	dir := dirs.ConfigDir(appName)
@@ -232,8 +233,8 @@ func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, c
 		}
 		return
 	}
-	if w.Config.AutoEnvPrefix == "" {
-		w.Config.AutoEnvPrefix = "APP"
+	if w.AutoEnvPrefix == "" {
+		w.AutoEnvPrefix = "APP"
 	}
 	onEnvVarMatched := func(ctx context.Context, envvar, value string, ff *cli.Flag, conf store.Store) {
 		old := ff.DefaultValue()
@@ -274,8 +275,8 @@ func (w *workerS) commandsToStoreR(ctx context.Context, root *cli.RootCommand, c
 						}
 					}
 				}
-				if w.Config.AutoEnv {
-					ev := ff.GetAutoEnvVarName(w.Config.AutoEnvPrefix, true)
+				if w.AutoEnv {
+					ev := ff.GetAutoEnvVarName(w.AutoEnvPrefix, true)
 					if v, has := os.LookupEnv(ev); has {
 						onEnvVarMatched(ctx, ev, v, ff, conf)
 						// data := fromString(v, ff.DefaultValue())
@@ -346,16 +347,16 @@ func (w *workerS) loadLoaders(ctx context.Context) (err error) {
 	// For cmdr/v2, we restrict to go builtins, google, and ours
 	// libraries. And, ours libraries will not import any others
 	// except go builtins and google's.
-	if len(w.Config.Loaders) == 0 {
+	if len(w.Loaders) == 0 {
 		appDir := dir.GetCurrentDir()
 		appName := w.Name()
 		jsonLoader1 := &jsonLoaderS{filename: path.Join(appDir, "."+appName+".json")}
 		jsonLoader2 := &jsonLoaderS{filename: path.Join(appDir, appName+".json")}
 		logz.DebugContext(ctx, "use internal tiny json loader", "filename", jsonLoader1.filename)
-		w.Config.Loaders = append(w.Config.Loaders, jsonLoader1, jsonLoader2)
+		w.Loaders = append(w.Loaders, jsonLoader1, jsonLoader2)
 	}
 
-	for _, loader := range w.Config.Loaders {
+	for _, loader := range w.Loaders {
 		if loader != nil {
 			if err = loader.Load(ctx, w.root.App()); err != nil {
 				if _, ok := loader.(*jsonLoaderS); !ok {
@@ -369,7 +370,7 @@ func (w *workerS) loadLoaders(ctx context.Context) (err error) {
 }
 
 func (w *workerS) LoadedSources() (results []cli.LoadedSources) {
-	for _, loader := range w.Config.Loaders {
+	for _, loader := range w.Loaders {
 		if loader != nil {
 			if q, ok := loader.(cli.QueryLoadedSources); ok {
 				results = append(results, q.LoadedSources())
@@ -382,7 +383,7 @@ func (w *workerS) LoadedSources() (results []cli.LoadedSources) {
 func (w *workerS) precheckLoaders(ctx context.Context) {
 	if w.configFile != "" {
 		found := false
-		for _, loader := range w.Config.Loaders {
+		for _, loader := range w.Loaders {
 			// try calling (*conffileloader).SetAlternativeConfigFile(file)
 			if x, ok := loader.(interface{ SetAlternativeConfigFile(file string) }); ok {
 				x.SetAlternativeConfigFile(w.configFile)
@@ -399,7 +400,7 @@ func (w *workerS) precheckLoaders(ctx context.Context) {
 // writeBackToLoaders implements write-back mechanism:
 // At the end of app terminated, the modified Store entries will be written back to "alternative config".
 func (w *workerS) writeBackToLoaders(ctx context.Context) (err error) {
-	for _, loader := range w.Config.Loaders {
+	for _, loader := range w.Loaders {
 		if loader != nil {
 			// see also (*conffileloader).Save(ctx) and file provider, and (*loadS).Save() and trySave()
 			if x, ok := loader.(store.Writeable); ok && x != nil {

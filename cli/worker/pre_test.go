@@ -113,7 +113,7 @@ func testWorkerS_Parse(ctx context.Context, t *testing.T, cases cmdrRunTests, op
 		ww.setArgs(append([]string{app.Name()}, strings.Split(c.args, " ")...))
 		ww.tasksAfterParse = []taskAfterParse{c.verifier}
 		ww.tasksAfterRun = []taskAfterRun{c.finalVerifier}
-		ww.Config.TasksBeforeRun = []cli.Task{aTaskBeforeRun}
+		ww.TasksBeforeRun = []cli.Task{aTaskBeforeRun}
 		err := ww.Run(ctx) // withTasksBeforeRun(taskBeforeRun),withTasksAfterParse(c.verifier))
 		// err := app.Run()
 		if err != nil {
@@ -140,7 +140,8 @@ var (
 		{},
 
 		// --version
-		{args: "--version", opts: []cli.Opt{},
+		{
+			args: "--version", opts: []cli.Opt{},
 			verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 				// if errorsv3.Is(errParsed, cli.ErrUnmatchedFlag) {
 				// 	logz.Print("[INFO] ErrUnmatchedFlag FOUND, that's expecting.", "err", errParsed)
@@ -153,8 +154,10 @@ var (
 				println("Version:\n", sb.String())
 				// todo: verify the extra fields are all present in the version output
 				return errRan
-			}},
-		{args: "version", opts: []cli.Opt{withHelpScreenWriter(&discardP{})},
+			},
+		},
+		{
+			args: "version", opts: []cli.Opt{withHelpScreenWriter(&discardP{})},
 			verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 				return errParsed
 			}, finalVerifier: func(ctx context.Context, w *workerS, pc *parseCtx, errRan error, sb *strings.Builder) (err error) {
@@ -162,7 +165,8 @@ var (
 				println("Version:\n", sb.String())
 				// todo: ensure the version output is valid
 				return errRan
-			}},
+			},
+		},
 
 		// ~~tree
 		{args: "~~tree", opts: []cli.Opt{
@@ -211,14 +215,16 @@ var (
 		}},
 
 		// sbom
-		{args: "sbom", opts: []cli.Opt{withHelpScreenWriter(&discardP{})},
+		{
+			args: "sbom", opts: []cli.Opt{withHelpScreenWriter(&discardP{})},
 			verifier: func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error) {
 				return errParsed
 			}, finalVerifier: func(ctx context.Context, w *workerS, pc *parseCtx, errRan error, sb *strings.Builder) (err error) {
 				assertEqual(w.actionsMatched, cli.ActionShowSBOM, "actionsMatched")
 				println("Version:\n", sb.String())
 				return errRan
-			}},
+			},
+		},
 
 		{},
 		{},

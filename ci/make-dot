@@ -18,5 +18,4 @@ godepgraph -G 'ratio=compress/rankdir="TB"/rotate=0/nodesep=0.15/ranksep=0.3/spl
 # splines=spline
 #
 #  -horizontal
-
-popd >/dev/null
+popd >/dev/null || exit

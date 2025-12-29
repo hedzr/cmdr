@@ -177,7 +177,7 @@ func (w *workerS) beforeExec(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd)
 func (w *workerS) checkValidArgs(ctx context.Context, pc *parseCtx, lastCmd cli.Cmd) (err error) { //nolint:revive
 	for ff, ms := range pc.matchedFlags {
 		val := fmt.Sprintf("%v", ms.Value)
-		if ff != nil && len(ff.ValidArgs()) > 0 && slices.Contains(ff.ValidArgs(), val) == false {
+		if ff != nil && len(ff.ValidArgs()) > 0 && !slices.Contains(ff.ValidArgs(), val) {
 			err = cli.ErrValidArgs.FormatWith(ff, ff.ValidArgs(), lastCmd)
 		}
 	}

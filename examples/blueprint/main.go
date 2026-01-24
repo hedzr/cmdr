@@ -26,8 +26,16 @@ const (
 
 func main() {
 	app := cmdr.Create(appName, version, author, desc,
+
+		// opts... starts here
+
+		// by default auto-environ-bindings are disabled.
+		// enabling it to bind APP_CMD1_CMD2_FLAG1 to cmd1.cmd2.flag1.
+		// but you can always bind an envvar to a flag by calling
+		// NewFlg(...).EnvVars("ENVVAR_NAME").
 		cmdr.WithAutoEnvBindings(true),
 
+		// inject a code fragment to the front of a matched command running.
 		cmdr.WithTasksBeforeRun(func(ctx context.Context, cmd cli.Cmd, runner cli.Runner, extras ...any) (err error) {
 			logz.DebugContext(ctx, "command running...", "cmd", cmd, "runner", runner, "extras", extras)
 			return

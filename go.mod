@@ -19,13 +19,13 @@ require (
 	github.com/hedzr/store v1.3.66
 	github.com/hedzr/store/codecs/json v1.3.66
 	github.com/hedzr/store/providers/file v1.3.66
-	golang.org/x/exp v0.0.0-20251209150349-8475f28825e9
+	golang.org/x/exp v0.0.0-20260112195511-716be5621a96
 	gopkg.in/hedzr/errors.v3 v3.3.5
 )
 
 require (
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
-	golang.org/x/net v0.48.0 // indirect
-	golang.org/x/sys v0.39.0 // indirect
-	golang.org/x/term v0.38.0 // indirect
+	golang.org/x/net v0.49.0 // indirect
+	golang.org/x/sys v0.40.0 // indirect
+	golang.org/x/term v0.39.0 // indirect
 )

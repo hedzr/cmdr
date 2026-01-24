@@ -1,3 +1,4 @@
+// Package worker implement a default Runner instance
 package worker
 
 import (

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+- v2.1.67
+
+  - fix help system wrong output of lines in invoking subcmd
+  - cleanup codes in blueprint/main.go
+  - added package desc to worker/
+  - upgrade deps
+  - security patches
+
 - v2.1.66
 
   - upgrade deps

@@ -40,17 +40,18 @@ type HelpSystem struct {
 // }
 
 func (s *HelpSystem) Run(ctx context.Context) (err error) {
-	var dfn, dfn2 func()
-	if dfn, err = term.MakeRawWrapped(); err != nil {
-		return
-	}
-	defer dfn()
+	// var dfn func()
+	// if dfn, err = term.MakeRawWrapped(); err != nil {
+	// 	return
+	// }
+	// defer dfn()
 
-	var welcomeString = color.New().StripLeftTabsColorful(`
+	welcomeString := color.New().StripLeftTabsColorful(`
 	Type 'help' to print Help Screen, 'help cmd...' for a specified cmd.
 	Type 'quit' to end this session and back to Shell.
 	`).Build()
 
+	var dfn2 func()
 	if dfn2, err = term.MakeNewTerm(ctx, &term.PromptModeConfig{
 		Name:              path.Join(conf.AppName, "cmdr.v2.help.system"),
 		WelcomeText:       welcomeString,

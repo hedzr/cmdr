@@ -9,7 +9,7 @@
 [![codecov](https://codecov.io/gh/hedzr/cmdr/branch/master/graph/badge.svg)](https://codecov.io/gh/hedzr/cmdr/v2)<!--
 [![Coverage Status](https://coveralls.io/repos/github/hedzr/cmdr/badge.svg?branch=master)](https://coveralls.io/github/hedzr/cmdr/v2?branch=master)-->
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go#command-line)
-[![DocSite](https://img.shields.io/badge/Cmdr-Docs-blue)](https://docs.hedzr.com/docs/cmdr.v2/)
+[![DocSite](https://img.shields.io/badge/Cmdr-Docs-blue)](https://docs.hedzr.com/docs/cmdr/v2/)
 
 `cmdr` is a POSIX-compliant, command-line argument parser library with Golang.
 
@@ -17,7 +17,7 @@
 
 1. Our license moved to Apache 2.0 since v2.
 2. The minimal toolchain moved to go1.24+ since v2.1.55.
-3. DocSite published at [docs.hedzr.com](https://docs.hedzr.com/docs/cmdr.v2/).
+3. DocSite published at [docs.hedzr.com](https://docs.hedzr.com/docs/cmdr/v2/).
 4. Starting a new app with [cmdr-go-starter](https://github.com/hedzr/cmdr-go-starter) Template repo.
 5. [Coming soon] Starting your app with [cmdr-cli] commandline tool.
 
@@ -123,13 +123,13 @@ More minor details need to be evaluated and reimplemented if it's still meaningf
 
 ### News
 
-Getting started from [New](https://pkg.go.dev/github.com/hedzr/cmdr/v2#New) or [Create](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Create) function, and see the quickstart docs at [Concise Version - hzDocs](https://docs.hedzr.com/en/docs/cmdr.v2/guide/g02-concise-version/) and [Step by step - hzDocs](https://docs.hedzr.com/en/docs/cmdr.v2/guide/steps/).
+Getting started from [New](https://pkg.go.dev/github.com/hedzr/cmdr/v2#New) or [Create](https://pkg.go.dev/github.com/hedzr/cmdr/v2#Create) function, and see the quickstart docs at [Concise Version - hzDocs](https://docs.hedzr.com/en/docs/cmdr/v2/guide/g02-concise-version/) and [Step by step - hzDocs](https://docs.hedzr.com/en/docs/cmdr/v2/guide/steps/).
 
 Since v2.0.3, loaders had been splitted as a standalone repo so that we can keep cmdr v2 smaller and independer. See the relevant subproject [cmdr-loaders](https://github.com/hedzr/cmdr-loaders)[^5].
 
 Since v2.1.12, we did main alternative features like autocompletion generating, manpage reading and generating, and made quite a lot of fixes and improvments. Now the main APIs come to stable.
 
-Since v2.1.26, we added `App.FromStruct(structValue, opts...)` to build the command system from a struct-value, which deconstructs the given struct's definitions and constrcts the cmd-sys. And we also added `App.Cmd().FromStruct(&root{})` to build for a subcmd in a later release. Now the parsed cmdline args will be written into your struct value. For more detail, see also [From struct-value and Tag - hzDocs](https://docs.hedzr.com/en/docs/cmdr.v2/guide/steps/g13-build-from-struct/)
+Since v2.1.26, we added `App.FromStruct(structValue, opts...)` to build the command system from a struct-value, which deconstructs the given struct's definitions and constrcts the cmd-sys. And we also added `App.Cmd().FromStruct(&root{})` to build for a subcmd in a later release. Now the parsed cmdline args will be written into your struct value. For more detail, see also [From struct-value and Tag - hzDocs](https://docs.hedzr.com/en/docs/cmdr/v2/guide/steps/g13-build-from-struct/)
 
 The full-functional tests and examples are moved into [cmdr-tests](https://github.com/hedzr/cmdr-tests).
 
@@ -147,8 +147,8 @@ v2.2 would be a stable version:
 
 Please go to our docsite for these pages:
 
-- [Concise Version - hzDocs](https://docs.hedzr.com/en/docs/cmdr.v2/guide/g02-concise-version/)
-- [Step by step - hzDocs](https://docs.hedzr.com/en/docs/cmdr.v2/guide/steps/)
+- [Concise Version - hzDocs](https://docs.hedzr.com/en/docs/cmdr/v2/guide/g02-concise-version/)
+- [Step by step - hzDocs](https://docs.hedzr.com/en/docs/cmdr/v2/guide/steps/)
 - ...
 
 You can build command system by kinds of forms:
@@ -429,7 +429,7 @@ func stringArrayToAnyArray(args []string) (ret []any) {
 }
 ```
 
-For the detail, or check out its bindable version, go to [From struct-value and Tag - hzDocs](https://docs.hedzr.com/en/docs/cmdr.v2/guide/steps/g13-build-from-struct/).
+For the detail, or check out its bindable version, go to [From struct-value and Tag - hzDocs](https://docs.hedzr.com/en/docs/cmdr/v2/guide/steps/g13-build-from-struct/).
 
 ### Next Step
 

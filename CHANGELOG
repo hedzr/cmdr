@@ -1,5 +1,10 @@
 # CHANGELOG
 
+- v2.2.0
+
+  - upgrade toolchain to go1.25+
+  - upgrade deps
+
 - v2.1.67
 
   - fix help system wrong output of lines in invoking subcmd

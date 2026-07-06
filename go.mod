@@ -12,7 +12,7 @@ go 1.25.0
 
 require (
 	github.com/hedzr/evendeep v1.4.0
-	github.com/hedzr/is v0.9.1
+	github.com/hedzr/is v0.9.3
 	github.com/hedzr/logg v0.9.0
 	github.com/hedzr/store v1.4.0
 	github.com/hedzr/store/codecs/json v1.4.0
@@ -23,7 +23,7 @@ require (
 
 require (
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
-	golang.org/x/net v0.52.0 // indirect
-	golang.org/x/sys v0.42.0 // indirect
-	golang.org/x/term v0.41.0 // indirect
+	golang.org/x/net v0.56.0 // indirect
+	golang.org/x/sys v0.46.0 // indirect
+	golang.org/x/term v0.44.0 // indirect
 )

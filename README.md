@@ -133,6 +133,8 @@ Since v2.1.26, we added `App.FromStruct(structValue, opts...)` to build the comm
 
 The full-functional tests and examples are moved into [cmdr-tests](https://github.com/hedzr/cmdr-tests).
 
+The minimal required Golang Toolchain has been moved to go1.25+, since [cmdr v2.2.0](https://github.com/hedzr/cmdr/releases). If you're using [Store](https://github.com/hedzr/store)'s sub-loaders for consul and etcd, the minimal toolchain should be go1.26+.
+
 [^5]: `hedzr/cmdr-loaders` provides an external config file loaders with GNU File Standard supports.
 
 ## History

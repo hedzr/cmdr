@@ -1,5 +1,10 @@
 # CHANGELOG
 
+- v2.2.3
+
+  - need go1.26+ when using Store's consul or etcd loader
+  - upgrade deps
+
 - v2.2.0
 
   - upgrade toolchain to go1.25+

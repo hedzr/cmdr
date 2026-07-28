@@ -2,6 +2,7 @@ package atoa
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"reflect"
 	"strings"
@@ -57,7 +58,8 @@ func TestParse(t *testing.T) { //nolint:revive
 
 		{"{a:[8,9],b:[9,2],c:[7,5]}", map[string][]int{}, map[string][]int{"a": {8, 9}, "b": {9, 2}, "c": {7, 5}}},
 
-		{`[{a:[8,9],b:[9,2],c:[7,5]},{e:[1,3],f:[6,-1]}  ]`,
+		{
+			`[{a:[8,9],b:[9,2],c:[7,5]},{e:[1,3],f:[6,-1]}  ]`,
 			[]map[string][]int{},
 			[]map[string][]int{
 				{"a": {8, 9}, "b": {9, 2}, "c": {7, 5}},
@@ -65,7 +67,8 @@ func TestParse(t *testing.T) { //nolint:revive
 			},
 		},
 
-		{`[  {a:[8,9],b:[9,2],c:[7,5]},   {e:[1,3],f:[6,-1]}   ]`,
+		{
+			`[  {a:[8,9],b:[9,2],c:[7,5]},   {e:[1,3],f:[6,-1]}   ]`,
 			[]map[string][]int{},
 			[]map[string][]int{
 				{"a": {8, 9}, "b": {9, 2}, "c": {7, 5}},
@@ -73,7 +76,8 @@ func TestParse(t *testing.T) { //nolint:revive
 			},
 		},
 
-		{`[  { a : [ 8 , 9 ] , b : [ 9 , 2 ] , c : [ 7 , 5 ] } ,   { e : [ 1 , 3 ] , f : [ 6 , -1 ] }   ]`,
+		{
+			`[  { a : [ 8 , 9 ] , b : [ 9 , 2 ] , c : [ 7 , 5 ] } ,   { e : [ 1 , 3 ] , f : [ 6 , -1 ] }   ]`,
 			[]map[string][]int{},
 			[]map[string][]int{
 				{"a": {8, 9}, "b": {9, 2}, "c": {7, 5}},
@@ -81,7 +85,9 @@ func TestParse(t *testing.T) { //nolint:revive
 			},
 		},
 
-		{`[  { "a" : [ 8 , 9 ] , b : [ 9 , 2 ] , c : [ 7 , 5 ] } ,   { e : [ 1 , 3 ] , f : [ 6 , -1 ] }   ]`, []map[string][]int{},
+		{
+			`[  { "a" : [ 8 , 9 ] , b : [ 9 , 2 ] , c : [ 7 , 5 ] } ,   { e : [ 1 , 3 ] , f : [ 6 , -1 ] }   ]`,
+			[]map[string][]int{},
 			[]map[string][]int{
 				{"a": {8, 9}, "b": {9, 2}, "c": {7, 5}},
 				{"e": {1, 3}, "f": {6, -1}},
@@ -107,6 +113,14 @@ func TestParse(t *testing.T) { //nolint:revive
 			t.Fatalf("FAILED PARSE: got %v, but expecting %v", val, c.expect)
 		}
 	}
+}
+
+func TestFromString(t *testing.T) {
+	ctx := context.Background()
+	v := FromString(ctx, "8.97", int32(9), WithFeatures(RoundedNumber))
+	assertEqual(t, int32(9), v)
+	v = FromString(ctx, "8.49", int32(9))
+	assertEqual(t, int32(8), v)
 }
 
 type aS struct {
@@ -136,4 +150,21 @@ func (a *aS) UnmarshalText(text []byte) error {
 		a.v[ln[:pos]] = MustParse(ln[pos+1:], 1).(int) //nolint:revive
 	}
 	return nil
+}
+
+func assertEqual(t testing.TB, expect, actual any, msg ...any) { //nolint:govet,unparam //it's a printf/println dual interface
+	if reflect.DeepEqual(expect, actual) {
+		return
+	}
+
+	var mesg string
+	if len(msg) > 0 {
+		if format, ok := msg[0].(string); ok {
+			mesg = fmt.Sprintf(format, msg[1:]...)
+		} else {
+			mesg = fmt.Sprint(msg...)
+		}
+	}
+
+	t.Fatalf("assertEqual failed: %v\n    expect: %v\n    actual: %v\n", mesg, expect, actual)
 }

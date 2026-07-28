@@ -4,7 +4,7 @@
 //
 //	v, _ = atoa.Parse("8.97", int32(9))
 //	assert.Equal(t, v, int32(8))
-//	v = atoa.MustParse("8.97", int32(9), atoa.WithFeatures(atoa.RoundNumbers))
+//	v = atoa.MustParse("8.97", int32(9), atoa.WithFeatures(atoa.RoundedNumber))
 //	assert.Equal(t, v, int32(9))
 //	v = atoa.MustParse("apple=1, banana=2, orange=3", map[string]int{})
 //	assert.Equal(t, v, map[string]int{"apple": 1, "banana": 2, "orange": 3})
@@ -35,7 +35,7 @@ import (
 //
 //	v, _ := Parse("8.97", int32(9))
 //	assert.Equal(t, v, int32(8))
-//	v = MustParse("8.97", int32(9), WithFeatures(RoundNumbers))
+//	v = MustParse("8.97", int32(9), WithFeatures(RoundedNumber))
 //	assert.Equal(t, v, int32(9))
 //	v = MustParse("apple=1, banana=2, orange=3", map[string]int{})
 //	assert.Equal(t, v, map[string]int{"apple": 1, "banana": 2, "orange": 3})
@@ -54,11 +54,29 @@ func Parse(str string, meme any, opts ...Opt) (v any, err error) {
 //
 // For example:
 //
-//	v = MustParse("8.97", int32(9), WithFeatures(RoundNumbers))
+//	v = MustParse("8.97", int32(9), WithFeatures(RoundedNumber))
 //	assert.Equal(t, v, int32(9))
 func MustParse(str string, meme any, opts ...Opt) (v any) {
 	if vv, err := Parse(str, meme, opts...); err == nil {
 		v = vv
+	}
+	return
+}
+
+// FromString would parse a given string into a value of the same type
+// as the given meme, and return the value.
+//
+// For example:
+//
+//	v = FromString(ctx, "8.97", int32(9), WithFeatures(RoundedNumber))
+//	assert.Equal(t, v, int32(9))
+//	v = FromString(ctx, "8.97", int32(9))
+//	assert.Equal(t, v, int32(8))
+func FromString(ctx context.Context, str string, meme any, opts ...Opt) (v any) {
+	if vv, err := Parse(str, meme, opts...); err == nil {
+		v = vv
+	} else {
+		logz.ErrorContext(ctx, "[cmdr] cannot parse text to value", "err", err, "text", str, "target-value-meme", meme)
 	}
 	return
 }
@@ -75,6 +93,47 @@ type Opt func(s *toS)
 
 type toS struct {
 	cvts map[reflect.Type]Converter
+}
+
+func WithFeature(typ reflect.Type, cvt Converter) Opt {
+	return func(s *toS) {
+		if s.cvts == nil {
+			// s.cvts = make(map[reflect.Type]Converter)
+			s.cvts = defcvts()
+		}
+		s.cvts[typ] = cvt
+	}
+}
+
+func WithFeatures(cvt Converter) Opt {
+	return func(s *toS) {
+		if cvt == nil {
+			s.cvts = nil
+			return
+		}
+
+		if s.cvts == nil {
+			// s.cvts = make(map[reflect.Type]Converter)
+			s.cvts = defcvts()
+		}
+		// loops for int(s), uint(s), float(s) ...
+		for _, t := range []reflect.Type{
+			reflect.TypeOf((*int)(nil)).Elem(),
+			reflect.TypeOf((*int8)(nil)).Elem(),
+			reflect.TypeOf((*int16)(nil)).Elem(),
+			reflect.TypeOf((*int32)(nil)).Elem(),
+			reflect.TypeOf((*int64)(nil)).Elem(),
+			reflect.TypeOf((*uint)(nil)).Elem(),
+			reflect.TypeOf((*uint8)(nil)).Elem(),
+			reflect.TypeOf((*uint16)(nil)).Elem(),
+			reflect.TypeOf((*uint32)(nil)).Elem(),
+			reflect.TypeOf((*uint64)(nil)).Elem(),
+			reflect.TypeOf((*float32)(nil)).Elem(),
+			reflect.TypeOf((*float64)(nil)).Elem(),
+		} {
+			s.cvts[t] = cvt
+		}
+	}
 }
 
 func (s *toS) Parse(str string, meme any) (v any, err error) { //nolint:revive
@@ -123,6 +182,35 @@ func (s *toS) parseImpl(str string, rt reflect.Type, meme any) (v any, err error
 		return
 	}
 
+	parseFloat := func(str string, kind reflect.Kind) (v any, err error) {
+		// return strconv.ParseFloat(str, bits)
+		var vi float64
+		// vi, err = strconv.ParseFloat(str, rt.Bits())
+		vi, err = tool.N[float64](str)
+		if err == nil {
+			v = fltByKind(vi, kind)
+		}
+		return
+	}
+	parseInt := func(str string, kind reflect.Kind) (v any, err error) {
+		var vi int64
+		// vi, err = strconv.ParseInt(str, rt.Bits())
+		vi, err = tool.N[int64](str)
+		if err == nil {
+			v = intByKind(vi, kind)
+		}
+		return
+	}
+	parseUint := func(str string, kind reflect.Kind) (v any, err error) {
+		var vi uint64
+		// vi, err = strconv.ParseUint(str, rt.Bits())
+		vi, err = tool.N[uint64](str)
+		if err == nil {
+			v = uintByKind(vi, kind)
+		}
+		return
+	}
+
 	switch kind := rt.Kind(); kind {
 	case reflect.Interface, reflect.Pointer:
 		t := rt.Elem()
@@ -134,28 +222,13 @@ func (s *toS) parseImpl(str string, rt reflect.Type, meme any) (v any, err error
 		if err == nil {
 			v = comByKind(vi, kind)
 		}
-	case reflect.Float32, reflect.Float64:
-		var vi float64
-		// vi, err = strconv.ParseFloat(str, rt.Bits())
-		vi, err = tool.N[float64](str)
-		if err == nil {
-			v = fltByKind(vi, kind)
-		}
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		var vi int64
-		// vi, err = strconv.ParseInt(str, 0, rt.Bits())
-		vi, err = tool.N[int64](str)
-		if err == nil {
-			v = intByKind(vi, kind)
-		}
 
+	case reflect.Float32, reflect.Float64:
+		v, err = parseFloat(str, kind)
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		v, err = parseInt(str, kind)
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
-		var vi uint64
-		// vi, err = strconv.ParseUint(str, 0, rt.Bits())
-		vi, err = tool.N[uint64](str)
-		if err == nil {
-			v = uintByKind(vi, kind)
-		}
+		v, err = parseUint(str, kind)
 
 	case reflect.Chan, reflect.UnsafePointer:
 		// not support

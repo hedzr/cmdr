@@ -13,7 +13,7 @@ go 1.25.0
 require (
 	github.com/hedzr/evendeep v1.4.3
 	github.com/hedzr/is v0.9.5
-	github.com/hedzr/logg v0.9.3
+	github.com/hedzr/logg v0.9.5
 	github.com/hedzr/store v1.4.3
 	github.com/hedzr/store/codecs/json v1.4.3
 	github.com/hedzr/store/providers/file v1.4.3

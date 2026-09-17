@@ -1,5 +1,13 @@
 # CHANGELOG
 
+- v2.2.9
+
+  - move to go toolchain 1.26+
+  - upgrade deps
+  - security patches
+  - fixed something
+  - added `OnParsingValue(handler OnParsingValueHandler) FlagBuilder`
+
 - v2.2.3
 
   - need go1.26+ when using Store's consul or etcd loader

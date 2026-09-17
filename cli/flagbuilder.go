@@ -148,6 +148,9 @@ type FlagBuilder interface {
 	// anymore.
 	DoubleTildeOnly(b bool) FlagBuilder
 
+	// OnParsingValue allows user-defined value parsing, converting and validating.
+	OnParsingValue(handler OnParsingValueHandler) FlagBuilder
+
 	// OnParseValue allows user-defined value parsing, converting and validating.
 	OnParseValue(handler OnParseValueHandler) FlagBuilder
 	// OnMatched handler will be called when this flag matched.

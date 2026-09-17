@@ -167,6 +167,10 @@ func (f *Flag) GetDottedNamePath() string {
 	return f.GetTitleName()
 }
 
+// TryOnParseValue calls the onParseValue handler if it's
+// set, and returns whether the handler was called, the
+// new value, any remaining part in the hit value, and
+// any error returned by the handler.
 func (f *Flag) TryOnParseValue(index int, hitCaption, hitValue string, args []string) ( //nolint:revive
 	handled bool, newVal any, remainsPartInHitValue string, err error,
 ) {
@@ -180,6 +184,9 @@ func (f *Flag) TryOnParseValue(index int, hitCaption, hitValue string, args []st
 	return
 }
 
+// TryOnMatched calls the onMatched handler if it's set,
+// and returns whether the handler was called and any
+// error returned by the handler.
 func (f *Flag) TryOnMatched(position int, hitState *MatchState) (handled bool, err error) {
 	if f.onMatched != nil {
 		handled = true
@@ -191,6 +198,9 @@ func (f *Flag) TryOnMatched(position int, hitState *MatchState) (handled bool, e
 	return
 }
 
+// TryOnChanging calls the onChanging handler if it's
+// set and returns whether the handler was called and
+// any error returned by the handler.
 func (f *Flag) TryOnChanging(oldVal, newVal any) (handled bool, err error) {
 	if f.onChanging != nil {
 		handled = true
@@ -202,16 +212,22 @@ func (f *Flag) TryOnChanging(oldVal, newVal any) (handled bool, err error) {
 	return
 }
 
+// TryOnChanged calls the onChanged handler if it's set.
 func (f *Flag) TryOnChanged(oldVal, newVal any) {
 	if f.onChanged != nil {
 		f.onChanged(f, oldVal, newVal)
 	}
 }
 
+// TryOnSet calls the onSet handler if it's set.
 func (f *Flag) TryOnSet(oldVal, newVal any) {
 	if f.onSet != nil {
 		f.onSet(f, oldVal, newVal)
 	}
+}
+
+func (f *Flag) SetOnParsingValueHandler(handler OnParsingValueHandler) {
+	f.onParsingValue = handler
 }
 
 func (f *Flag) SetOnParseValueHandler(handler OnParseValueHandler) {

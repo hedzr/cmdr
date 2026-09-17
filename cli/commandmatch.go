@@ -166,7 +166,7 @@ func (c *CmdS) matchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, err e
 				}
 			}
 		}
-	} else {
+	} else { // long flag
 		var cclist map[string]*Flag
 		if c.onEvalFlagsOnce != nil || c.onEvalFlags != nil {
 			flags := mustEnsureDynFlags(ctx, c)
@@ -185,11 +185,13 @@ func (c *CmdS) matchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, err e
 			cclist = c.longFlags
 		}
 
+		// is `~~xxx` style flag?
 		if ff, ok = cclist[vp.Remains]; ok && c.testDblTilde(vp.SpecialTilde, ff) {
 			vp.PartialMatched, vp.Matched, vp.Remains, ff.hitTitle, ff.hitTimes = false, vp.Remains, "", vp.Remains, ff.hitTimes+1
 			return c.tryParseValue(ctx, vp, ff)
 		}
 
+		// try for compact long flags: `--xxx=yyy`/`--xxxyyy` style
 		matched, remains, ff, err = c.partialMatchFlag(ctx, vp.Remains, vp.Short, vp.SpecialTilde, cclist)
 		if vp.PartialMatched = ff != nil && err == nil; vp.PartialMatched {
 			vp.Matched, vp.Remains = matched, remains
@@ -197,6 +199,7 @@ func (c *CmdS) matchFlag(ctx context.Context, vp *FlagValuePkg) (ff *Flag, err e
 		}
 	}
 
+	// if no flag matched, try to lookup the parents
 	if ff == nil && err == nil {
 		// test for redirectable commands
 		if c.redirectTo != "" && c.root != nil && c.root.redirectCmds != nil {
@@ -343,6 +346,8 @@ func (c *CmdS) partialMatchFlag(ctx context.Context, title string, short, dblTil
 	return
 }
 
+// tryParseValue tries to parse the value for a matched
+// flag, and update the relevant states.
 func (c *CmdS) tryParseValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) (ret *Flag, err error) {
 	if ff != nil {
 		ff = c.matchedForTG(ctx, ff)
@@ -504,24 +509,6 @@ func (c *CmdS) checkCircuitBreak(vp *FlagValuePkg, ff *Flag) (ret *Flag, err err
 	return
 }
 
-func (c *CmdS) tryParseStringValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) *Flag {
-	if ff.externalEditor != "" {
-		if f := c.invokeExternalEditor(ctx, vp, ff); f != nil {
-			return f
-		}
-	}
-
-	if vp.Remains != "" {
-		vp.ValueOK, vp.Value, vp.Remains = true, c.normalizeStringValue(vp.Remains), ""
-	} else if vp.AteArgs < len(vp.Args) {
-		vp.ValueOK, vp.Value, vp.AteArgs = true, c.normalizeStringValue(vp.Args[vp.AteArgs]), vp.AteArgs+1
-	} else {
-		vp.ValueOK, vp.Value = true, ""
-	}
-	ff.defaultValue = vp.Value
-	return ff
-}
-
 func (c *CmdS) tryParseBoolValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) *Flag {
 	if len(vp.Remains) > 0 {
 		switch ch := vp.Remains[0]; ch {
@@ -533,6 +520,10 @@ func (c *CmdS) tryParseBoolValue(ctx context.Context, vp *FlagValuePkg, ff *Flag
 			vp.Value, vp.ValueOK = false, true
 			vp.Remains = vp.Remains[1:]
 			ff.defaultValue = vp.Value
+		// case '!':
+		// 	vp.Value, vp.ValueOK = !atoa.ParseBool(ff.defaultValue), true
+		// 	vp.Remains = vp.Remains[1:]
+		// 	ff.defaultValue = vp.Value
 		default:
 			vp.Value, vp.ValueOK = true, true
 			ff.defaultValue = vp.Value
@@ -547,12 +538,60 @@ func (c *CmdS) tryParseBoolValue(ctx context.Context, vp *FlagValuePkg, ff *Flag
 	return ff
 }
 
+func (c *CmdS) tryParseStringValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) *Flag {
+	if ff.externalEditor != "" {
+		if f := c.invokeExternalEditor(ctx, vp, ff); f != nil {
+			return f
+		}
+		// throw an error if the external editor failed to invoke
+	}
+
+	if vp.Remains != "" {
+		vp.ValueOK, vp.Value, vp.Remains = true, c.normalizeStringValue(vp.Remains), ""
+	} else if vp.AteArgs < len(vp.Args) {
+		if ff.onParsingValue != nil {
+			var valueParsedOK bool
+			var err error
+			valueParsedOK, vp.Value, vp.AteArgs, err = ff.onParsingValue(ctx, vp.Args[vp.AteArgs], ff.defaultValue, vp)
+			if err != nil {
+				logz.ErrorContext(ctx, "onParsingValue failed", "err", err)
+				logz.InfoContext(ctx, "falling back to default parsing", "flag", ff, "value", vp.Args[vp.AteArgs])
+			} else if valueParsedOK {
+				vp.ValueOK = valueParsedOK
+				return ff
+			}
+		}
+
+		// the default parsing logic here
+		vp.ValueOK, vp.Value, vp.AteArgs = true, c.normalizeStringValue(vp.Args[vp.AteArgs]), vp.AteArgs+1
+	} else {
+		vp.ValueOK, vp.Value = true, ""
+	}
+	ff.defaultValue = vp.Value
+	return ff
+}
+
 func (c *CmdS) tryParseOthersValue(ctx context.Context, vp *FlagValuePkg, ff *Flag) *Flag {
 	if vp.Remains != "" {
-		vp.ValueOK, vp.Value, vp.Remains = true, c.fromString(vp.Remains, ff.defaultValue), ""
+		vp.ValueOK, vp.Value, vp.Remains = true, atoa.FromString(ctx, vp.Remains, ff.defaultValue), ""
 	} else {
-		vp.ValueOK, vp.Value, vp.AteArgs = true, c.fromString(vp.Args[vp.AteArgs], ff.defaultValue), vp.AteArgs+1
+		if ff.onParsingValue != nil {
+			var valueParsedOK bool
+			var err error
+			valueParsedOK, vp.Value, vp.AteArgs, err = ff.onParsingValue(ctx, vp.Args[vp.AteArgs], ff.defaultValue, vp)
+			if err != nil {
+				logz.ErrorContext(ctx, "onParsingValue failed", "err", err)
+				logz.InfoContext(ctx, "falling back to default parsing", "flag", ff, "value", vp.Args[vp.AteArgs])
+			} else if valueParsedOK {
+				vp.ValueOK = valueParsedOK
+				return ff
+			}
+		}
+
+		// the default parsing logic here
+		vp.ValueOK, vp.Value, vp.AteArgs = true, atoa.FromString(ctx, vp.Args[vp.AteArgs], ff.defaultValue), vp.AteArgs+1
 	}
+
 	if ref.IsSlice(vp.Value) {
 		if ff.hitTimes == 0 {
 			ff.defaultValue = vp.Value
@@ -562,17 +601,7 @@ func (c *CmdS) tryParseOthersValue(ctx context.Context, vp *FlagValuePkg, ff *Fl
 	} else {
 		ff.defaultValue = vp.Value
 	}
-	_ = ctx
 	return ff
-}
-
-func (c *CmdS) fromString(text string, meme any) (value any) {
-	var err error
-	value, err = atoa.Parse(text, meme)
-	if err != nil {
-		logz.ErrorContext(context.TODO(), "[cmdr] cannot parse text to value", "err", err, "text", text, "target-value-meme", meme)
-	}
-	return
 }
 
 func (c *CmdS) normalizeStringValue(sv string) string {

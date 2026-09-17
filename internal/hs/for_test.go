@@ -173,6 +173,9 @@ func rootCmdForTesting() (app *appS, root *cli.RootCommand, err error) { //nolin
 		return
 	})
 	ff.SetOnChangedHandler(func(f *cli.Flag, oldVal, newVal any) {})
+	ff.SetOnParsingValueHandler(func(ctx context.Context, s string, defval any, vp *cli.FlagValuePkg) (valueParsedOK bool, value any, ateArgs int, err error) {
+		return
+	})
 	ff.SetOnParseValueHandler(func(f *cli.Flag, position int, hitCaption string, hitValue string, moreArgs []string) (newVal any, remainPartInHitValue string, err error) {
 		return
 	})

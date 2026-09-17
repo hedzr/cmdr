@@ -326,8 +326,10 @@ type CmdPriv interface {
 	findFlagBackwardsIn(ctx context.Context, cc Cmd, children []Cmd, longName string) (res *Flag)
 }
 
-var _ Cmd = (*CmdS)(nil)
-var _ CmdPriv = (*CmdS)(nil)
+var (
+	_ Cmd     = (*CmdS)(nil)
+	_ CmdPriv = (*CmdS)(nil)
+)
 
 // CmdS is the official Command implementation of a Cmd interface.
 type CmdS struct {
@@ -463,11 +465,12 @@ type Flag struct {
 	// final value after parsed.
 	bindedVarPtr any `copy:",shallow"`
 
-	onParseValue OnParseValueHandler // allows user-defined value parsing, converting and validating
-	onMatched    OnMatchedHandler    // cancellable, after parsed from cmdline, new value got, and before old value got
-	onChanging   OnChangingHandler   // cancellable notifier (a validator) before a formal on-changed notification, = OnValidating
-	onChanged    OnChangedHandler    // modified generally (programmatically, cmdline parsing, cfg file, ...)
-	onSet        OnSetHandler        // modified programmatically
+	onParsingValue OnParsingValueHandler // allows user-defined value parsing, converting and validating
+	onParseValue   OnParseValueHandler   // allows user-defined value parsing, converting and validating
+	onMatched      OnMatchedHandler      // cancellable, after parsed from cmdline, new value got, and before old value got
+	onChanging     OnChangingHandler     // cancellable notifier (a validator) before a formal on-changed notification, = OnValidating
+	onChanged      OnChangedHandler      // modified generally (programmatically, cmdline parsing, cfg file, ...)
+	onSet          OnSetHandler          // modified programmatically
 
 	// actionStr: for zsh completion, see action of an optspec in _argument
 	actionStr string
@@ -586,6 +589,23 @@ type OnParseValueHandler func(
 	remainPartInHitValue string,
 	err error,
 )
+
+// OnParsingValueHandler is used for parsing flag values if you want to
+// customize the parsing behavior.
+//
+// This handler is called before the default parsing implementation, and you can
+// return valueParsedOK = true to skip the default parsing implementation.
+// At same time, you must return how many args you have consumed from
+// the [vp.Args] slice, i.e., ateArgs, normally it's 1.
+//
+// You, as a user, can implement your own parsing logic and return the parsed
+// value to cmdr, rather than using [OnParseValueHandler]. The difference
+// is that OnParsingValueHandler is called before the default parsing
+// implementation, while OnParseValueHandler is called after the default
+// parsing implementation. This allows you to customize the parsing
+// behavior and handle any special cases that may arise during the
+// parsing process.
+type OnParsingValueHandler func(ctx context.Context, s string, defval any, vp *FlagValuePkg) (valueParsedOK bool, value any, ateArgs int, err error)
 
 type OnCommandMatchedHandler func(c Cmd, position int, hitState *MatchState) (err error)
 

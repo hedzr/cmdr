@@ -73,9 +73,11 @@ func (s *ffb) FromStruct(structValue any, longTitle string, titles ...string) cl
 	// --a.f1 1 --a.f2 str
 	return s
 }
+
 func (s *ffb) FromMap(mapValue any) cli.FlagBuilder {
 	return s
 }
+
 func (s *ffb) FromAny(value any) cli.FlagBuilder {
 	return s
 }
@@ -212,6 +214,11 @@ func (s *ffb) CompCircuitBreak(cb bool) cli.FlagBuilder {
 
 func (s *ffb) DoubleTildeOnly(b bool) cli.FlagBuilder {
 	s.Flag.SetDoubleTildeOnly(b)
+	return s
+}
+
+func (s *ffb) OnParsingValue(handler cli.OnParsingValueHandler) cli.FlagBuilder {
+	s.Flag.SetOnParsingValueHandler(handler)
 	return s
 }
 

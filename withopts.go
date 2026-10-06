@@ -20,8 +20,9 @@ func WithUnmatchedAsError(b bool) cli.Opt {
 	}
 }
 
-// WithStore gives a user-defined Store as initial, or by default
-// cmdr makes a dummy Store internally.
+// WithStore gives a user-defined Store as initial, or
+// cmdr makes a dummy Store internally as default. In
+// this case, you can't write anything into store.
 //
 // So you must have a new Store to be transferred into cmdr if
 // you want integrating cmdr and fully-functional Store. Like this,
@@ -39,20 +40,37 @@ func WithUnmatchedAsError(b bool) cli.Opt {
 //		}
 //
 //	 func prepareApp() cli.App {
-//			app = cmdr.New().                   // the minimal app is `cmdr.New()`
-//				Info("tiny-app", "0.3.1").
-//				Author("example.com Authors")
-//		}
+//		app = cmdr.New().                   // the minimal app is `cmdr.New()`
+//			Info("tiny-app", "0.3.1").
+//			Author("example.com Authors")
+//		return app
+//	 }
+//
+// Also, WithStore binds an "app." prefix into the giving store so that
+// any items could grow up on it, just like leaves grows on tree.
+//
+// You may access the entries inside store by apis such as
+// `cmdr.Store().MustString("logging.file")`.
+//
+// You can also specify the prefix at calling time:
+//
+//	// use prefix "some.path.to."
+//	app.WithStore(store.New(), "some", "path", "to")
+//
+// Or, uses [WithRawStore] and [store.New()]:
+//
+//	app.WithRawStore(store.New(store.WithPrefix("some", "path", "to")))
 func WithStore(conf store.Store, topLevelPrefix ...string) cli.Opt {
 	return func(s *cli.Config) {
-		prefix := cli.DefaultStoreKeyPrefix
-		for _, pre := range topLevelPrefix {
-			prefix = pre
+		if len(topLevelPrefix) > 0 {
+			s.Store = conf.WithPrefix(topLevelPrefix...)
+		} else {
+			s.Store = conf.WithPrefix(cli.DefaultStoreKeyPrefix)
 		}
-		s.Store = conf.WithPrefix(prefix)
 	}
 }
 
+// WithRawStore sets a store as is originally.
 func WithRawStore(conf store.Store) cli.Opt {
 	return func(s *cli.Config) {
 		s.Store = conf

@@ -63,7 +63,7 @@ run:
   #   - ".*\\_string\\.go"
   # issues-exit-code: 1
   # skip-dirs-use-default: false
-  # go: '1.19'
+  # go: '1.27'
 linters:
   default: none
   enable:
@@ -92,11 +92,11 @@ linters:
     # - gosec
   disable:
     - copyloopvar # fixed in go 1.22+
-    - depguard # no forbidden imports
+    # - depguard # no forbidden imports
     - dogsled # blank identifiers are allowed
     - dupword # duplicate words are allowed
     - exhaustruct # many structs don't need to be exhaustive
-    - forbidigo # no forbidden identifiers
+    # - forbidigo # no forbidden identifiers
     - ginkgolinter # not used
     - gochecknoinits # init functions are fine, if used carefully
     - goconst # many false positives
@@ -104,7 +104,7 @@ linters:
     - godox # todo comments are allowed
     - goheader # no need for a header
     - gomoddirectives # allow all directives
-    - gomodguard # no forbidden imports
+    # - gomodguard # no forbidden imports
     - grouper # unused
     - importas # some aliases are fine
     - makezero # make with non-zero initial length is fine
@@ -113,7 +113,7 @@ linters:
     - testableexamples # examples do not need to be testable (have declared output)
     - testifylint # testify is not recommended
     - testpackage # not a go best practice
-    - unparam # interfaces can enforce parameters
+    # - unparam # interfaces can enforce parameters
     - zerologlint # slog should be used instead of zerolog
     - mnd # too many detections
     - cyclop # covered by gocyclo

@@ -11,7 +11,7 @@ go 1.26.0
 // replace github.com/hedzr/store/providers/file => ../libs.store/providers/file
 
 require (
-	github.com/hedzr/evendeep v1.4.9
+	github.com/hedzr/evendeep v1.4.10
 	github.com/hedzr/is v0.9.10
 	github.com/hedzr/logg v0.9.10
 	github.com/hedzr/store v1.4.9

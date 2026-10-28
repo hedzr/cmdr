@@ -1,7 +1,7 @@
 github.com/fsnotify/fsnotify v1.10.1 h1:b0/UzAf9yR5rhf3RPm9gf3ehBPpf0oZKIjtpKrx59Ho=
 github.com/fsnotify/fsnotify v1.10.1/go.mod h1:TLheqan6HD6GBK6PrDWyDPBaEV8LspOxvPSjC+bVfgo=
-github.com/hedzr/evendeep v1.4.9 h1:6T/k7mrJ7nAwX9MCWvtE32A3ZPez1GG2l83lwu1E1Js=
-github.com/hedzr/evendeep v1.4.9/go.mod h1:WjcEe4yOUBKSw1qY9d5exF1weIVIApTdnZgHs4Gi5j8=
+github.com/hedzr/evendeep v1.4.10 h1:tfDH+qCWw2YcgNr4QHc/j4vTcpr6QLzzeJFT7Uo1mCA=
+github.com/hedzr/evendeep v1.4.10/go.mod h1:AShBCXJyXePmWmIhhMvpv6oe7EPXjH+SUgKBWq4vCVY=
 github.com/hedzr/is v0.9.10 h1:VebzYeRb74zK4VaaXUqmYNfJuunTxSz0rmhGZtxy+dY=
 github.com/hedzr/is v0.9.10/go.mod h1:7gQ+fIoyxhwZzolJLvTXS+hd20dth9mr55XJl6gL4x4=
 github.com/hedzr/logg v0.9.10 h1:ti7bpkVZEnj1AIXQTKA2rJK7+80+jOh20Zyw2ZRdkes=

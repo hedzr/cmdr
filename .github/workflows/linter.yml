@@ -26,7 +26,7 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9

@@ -168,8 +168,46 @@ type CommandBuilder interface {
 	// '/bin/zsh', and so on.
 	UseShell(shellPath string) CommandBuilder
 
-	// FromStruct constructs the whole app commands system from a given struct value.
+	// FromStruct constructs an app commands system from a given struct
+	// value and mount it as child of parent cmd.
 	//
+	// See also [Creator.BuildFrom].
+	//
+	// The struct members' tag will be recoganized to build the command system.
+	//
+	// Sample codes:
+	//
+	//	app.Cmd("multi", "m", "").
+	//		Description("multi-level test and imported form struct").
+	//		// Group("Test").
+	//		TailPlaceHolders("[text1, text2, ...]").
+	//		OnAction(soundex).
+	//		FromStruct(root{}). // mount struct fields as commands/flags to callee (Cmd("multi"))
+	//		With(func(b cli.CommandBuilder) {
+	//			// b.FromStruct(&root{})
+	//		})
+	//
+	//	type root struct {
+	//		b   bool // unexported values ignored
+	//		Int int  `cmdr:"-"` // ignored
+	//		A   `title:"a-cmd" shorts:"a,a1,a2" alias:"a1-cmd,a2-cmd" desc:"A command for demo" required:"true"`
+	//		B
+	//		C
+	//		F1 int
+	//		F2 string
+	//	}
+	//
+	//	type A struct {
+	//		D
+	//		F1 int
+	//		F2 string
+	//	}
+	//	type B struct {
+	//	...
+	//
+	// The fully codes at: https://github.com/hedzr/cmdr#from-a-struct-value
+	//
+	// See also: https://docs.hedzr.com/docs/cmdr/v2/guide/steps/g13-build-from-struct
 	FromStruct(structValue any, opts ...StructBuilderOpt) CommandBuilder
 
 	//
@@ -292,13 +330,11 @@ type CommandBuilder interface {
 	// WithSubCmd starts a closure to build a new sub-command
 	// and its children.
 	//
-	// After the closure invoked, new command's Build() will be called
-	// implicitly.
+	// After the closure invoked, new command's Build() will be
+	// called implicitly.
 	//
 	// It can only be called after current command builder built
-	// (Build() called).
-	//
-	// WithSubCmd is a extension of Build.
+	// (that means its Build() called).
 	WithSubCmd(cb func(b CommandBuilder))
 
 	// // AddCmd starts a closure to build a new sub-command and its children.

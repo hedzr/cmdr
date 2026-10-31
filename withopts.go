@@ -8,12 +8,26 @@ import (
 	"github.com/hedzr/store"
 )
 
+// WithForceDefaultAction(true) can be used in developing-time for debugging
+// your command system: it'll bind an internal default action to each command,
+// even if you specified [CmdS.OnAction()] handler for that.
+//
+// The default action's behavior that:
+//
+//   - print the hitting command information
+//   - print the hitting flags
+//   - more...
 func WithForceDefaultAction(b bool) cli.Opt {
 	return func(s *cli.Config) {
 		s.ForceDefaultAction = b
 	}
 }
 
+// WithUnmatchedAsError(true) causes an error reported when an unmatched
+// item (command or flag) found.
+//
+// By default, any unmatched items would raise a warning but the program
+// keeps going.
 func WithUnmatchedAsError(b bool) cli.Opt {
 	return func(s *cli.Config) {
 		s.UnmatchedAsError = b
@@ -47,7 +61,7 @@ func WithUnmatchedAsError(b bool) cli.Opt {
 //	 }
 //
 // Also, WithStore binds an "app." prefix into the giving store so that
-// any items could grow up on it, just like leaves grows on tree.
+// any items could grow on it, just like leaves grows on tree.
 //
 // You may access the entries inside store by apis such as
 // `cmdr.Store().MustString("logging.file")`.
@@ -252,7 +266,7 @@ func WithPeripherals(peripherals PeripheralMap) cli.Opt {
 type PeripheralMap map[string]basics.Peripheral
 
 func Peripheral(name string) basics.Peripheral {
-	var pm = Set().MustGet(cli.PeripheralsStoreKey)
+	pm := Set().MustGet(cli.PeripheralsStoreKey)
 	if m, ok := pm.(map[string]basics.Peripheral); ok {
 		return m[name]
 	}
@@ -260,7 +274,7 @@ func Peripheral(name string) basics.Peripheral {
 }
 
 func PeripheralT[T basics.Peripheral](name string) T {
-	var pm = Set().MustGet(cli.PeripheralsStoreKey)
+	pm := Set().MustGet(cli.PeripheralsStoreKey)
 	if m, ok := pm.(map[string]basics.Peripheral); ok {
 		return m[name].(T)
 	}

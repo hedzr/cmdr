@@ -2,7 +2,7 @@ package worker
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 	"fmt"
 	"io"
 	"reflect"
@@ -65,8 +65,10 @@ func SetUniqueWorker(s cli.Runner) {
 // You can inspect errParsed and return it as is.
 //
 // You can also inspect errParsed and return nil to ignore/disable a parsing error.
-type taskAfterParse func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error)
-type taskAfterRun func(ctx context.Context, w *workerS, pc *parseCtx, errRan error, sb *strings.Builder) (err error)
+type (
+	taskAfterParse func(ctx context.Context, w *workerS, pc *parseCtx, errParsed error) (err error)
+	taskAfterRun   func(ctx context.Context, w *workerS, pc *parseCtx, errRan error, sb *strings.Builder) (err error)
+)
 
 // HelpWriter needs to be compatible with [io.Writer] and [io.StringWriter].
 type HelpWriter interface {
@@ -360,10 +362,11 @@ func (w *workerS) errIsSignalFallback(err error) bool {
 func (w *workerS) GetHelpScreenWriter() HelpWriter  { return w.wrHelpScreen }
 func (w *workerS) GetDebugScreenWriter() HelpWriter { return w.wrDebugScreen }
 
-func (w *workerS) setArgs(args []string)     { w.args = args }
-func (w *workerS) Args() (args []string)     { return w.args }
-func (w *workerS) SuggestRetCode() int       { return w.retCode } //
+func (w *workerS) setArgs(args []string) { w.args = args }
+func (w *workerS) Args() (args []string) { return w.args }
+func (w *workerS) SuggestRetCode() int   { return w.retCode } //
 func (w *workerS) SetSuggestRetCode(ret int) { w.retCode = ret }
+
 func (w *workerS) ParsedState() cli.ParsedState {
 	if w != nil {
 		return w.parsingCtx

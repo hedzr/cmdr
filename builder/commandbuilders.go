@@ -96,7 +96,7 @@ func (s *ccb) WithSubCmd(cb func(b cli.CommandBuilder)) {
 	// }
 
 	bc := newCommandBuilderShort(s, "new-command")
-	defer bc.Build() // `Build' will add `bc'(CmdS) to s.CmdS as its SubCommand
+	defer bc.Build() // `Build()' will add `bc'(CmdS) to s.CmdS as its SubCommand
 	cb(bc)
 	// atomic.AddInt32(&s.inCmd, 1)
 	// return s
